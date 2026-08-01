@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1b5e20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Sugut DMS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root{--green:#1b5e20;--green2:#2e7d32;--lite:#e8f5e9;--ink:#1a2b1e;--muted:#6b7a6e;
+--bg:#f5f7f4;--warn:#b3261e;--gold:#ffd54f;--amberbg:#fff3cd;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--ink);display:flex;flex-direction:column;max-width:520px;margin:0 auto;}
+.hdr{background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;padding:12px 14px 10px;flex-shrink:0;}
+.hdr .farm{font-size:9px;letter-spacing:1px;opacity:.75;}
+.hdr .row{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
+.hdr .ttl{font-size:17px;font-weight:800;}
+.pill{font-size:10px;padding:2px 9px;border-radius:10px;background:#7f1d1d;}
+.pill.on{background:#14532d;border:1px solid #86efac55;}
+.qbadge{font-size:10px;background:var(--gold);color:#5d4300;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:5px;}
+.scr{flex:1;overflow-y:auto;padding:12px;padding-bottom:16px;}
+.nav{display:flex;background:#fff;border-top:1px solid #e2e6e1;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
+.nav div{flex:1;text-align:center;padding:8px 0 10px;font-size:10px;color:var(--muted);cursor:pointer;user-select:none;}
+.nav div.on{color:var(--green);font-weight:700;}
+.nav .ic{font-size:20px;display:block;}
+.card{background:#fff;border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.sec{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin:2px 0 8px;}
+.bigbtn{background:var(--green2);color:#fff;border:none;width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;}
+.bigbtn:active{transform:scale(.98);}
+.bigbtn:disabled{background:#a8bfa9;}
+.bigbtn.blue{background:#1a73e8;}
+.bigbtn.ghost{background:#fff;color:var(--green);border:2px dashed var(--green2);}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:#1b5e20;color:#fff;padding:10px 20px;border-radius:22px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:99;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;}
+.toast.show{opacity:1;}
+.toast.err{background:var(--warn);}
+.scanbox{border:2.5px dashed var(--green2);border-radius:16px;text-align:center;padding:20px 10px;background:#fff;cursor:pointer;user-select:none;}
+.scanbox .i{font-size:42px;} .scanbox .t{font-weight:800;color:var(--green);font-size:15px;}
+.scanbox .s{font-size:11px;color:var(--muted);margin-top:2px;}
+#qrview{width:100%;border-radius:16px;overflow:hidden;display:none;}
+.treecard{background:var(--green);color:#fff;border-radius:14px;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;margin:10px 0;}
+.treecard .id{font-size:24px;font-weight:900;}
+.treecard .meta{font-size:10.5px;opacity:.85;}
+.clone{background:var(--gold);color:#5d4300;font-weight:800;font-size:13px;border-radius:9px;padding:2px 10px;}
+.stepper{display:flex;align-items:center;justify-content:space-between;}
+.stepper button{width:64px;height:64px;border-radius:16px;border:none;background:var(--lite);color:var(--green);font-size:32px;font-weight:800;cursor:pointer;}
+.stepper .n{font-size:40px;font-weight:900;min-width:80px;text-align:center;}
+.grades{display:flex;gap:8px;}
+.grades div{flex:1;text-align:center;border:2px solid #c8dcc9;border-radius:12px;padding:12px 0;font-weight:800;font-size:16px;color:#33691e;cursor:pointer;user-select:none;background:#fff;}
+.grades div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.lrow{display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-bottom:1px solid #eef1ec;font-size:13px;gap:8px;}
+.lrow:last-child{border-bottom:none;}
+.tag{font-size:9.5px;padding:1px 7px;border-radius:8px;font-weight:700;flex-shrink:0;}
+.tag.q{background:var(--amberbg);color:#7a5b00;} .tag.s{background:var(--lite);color:var(--green);} .tag.e{background:#fdecea;color:var(--warn);}
+select,input{width:100%;padding:12px;border:1.5px solid #d7ded6;border-radius:10px;font-size:15px;background:#fff;color:var(--ink);}
+label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-transform:uppercase;letter-spacing:.5px;}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.kpi{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.kpi .v{font-size:21px;font-weight:900;color:var(--green);}
+.kpi .l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.bar{margin:7px 0 2px;}
+.bar .br{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
+.track{height:8px;background:#e4ebe4;border-radius:5px;overflow:hidden;}
+.fill{height:100%;background:linear-gradient(90deg,#66bb6a,#2e7d32);transition:width .5s;}
+.lock{background:#fdecea;border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:9px 11px;font-size:11.5px;color:#7f1d1d;margin-bottom:10px;}
+.hidden{display:none!important;}
+.pickgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:300px;overflow-y:auto;}
+.pickgrid div{text-align:center;background:#fff;border:1.5px solid #d7ded6;border-radius:10px;padding:10px 2px;font-weight:700;font-size:13px;cursor:pointer;user-select:none;}
+.pickgrid div.mk{border-color:#c8dcc9;}
+.lotbtns{display:flex;gap:8px;margin-bottom:8px;}
+.lotbtns div{flex:1;text-align:center;border:2px solid #c8dcc9;border-radius:10px;padding:9px 0;font-weight:800;cursor:pointer;background:#fff;user-select:none;}
+.lotbtns div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.small{font-size:11px;color:var(--muted);}
+.setup label{margin-top:12px;}
+.linkish{color:#1a73e8;font-size:12px;text-decoration:underline;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="farm">S.H.A. HUP AIK PLANTATION · SUGUT DURIAN FARM</div>
+  <div class="row">
+    <div class="ttl" id="ttl">Log Fruit Drop</div>
+    <div style="display:flex;align-items:center">
+      <span class="pill" id="netpill">● OFFLINE</span>
+      <span class="qbadge" id="qbadge">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="scr hidden" id="scr-setup">
+  <div class="card setup">
+    <div class="sec">First-time setup</div>
+    <label>Your name (worker)</label>
+    <select id="su-worker"></select>
+    <label>Device name (e.g. phone-01)</label>
+    <input id="su-device" placeholder="phone-01">
+    <label>Sync URL (Apps Script web app — from setup guide)</label>
+    <input id="su-url" placeholder="https://script.google.com/macros/s/…/exec">
+    <div style="height:14px"></div>
+    <button class="bigbtn" onclick="saveSetup()">START</button>
+    <p class="small" style="margin-top:10px">You can change these later in the ⚙ Settings (top of Sync tab). The app works fully offline; the Sync URL is only needed when you reach the office hotspot.</p>
+  </div>
+</div>
+
+<!-- HARVEST -->
+<div class="scr" id="scr-harvest">
+  <div class="scanbox" id="scanbox" onclick="startScan()">
+    <div class="i">▣</div><div class="t">SCAN TREE TAG</div>
+    <div class="s">camera QR scan · or <span class="linkish" onclick="event.stopPropagation();showPicker()">pick tree from list</span></div>
+  </div>
+  <div id="qrview"></div>
+  <div id="picker" class="hidden">
+    <div style="height:8px"></div>
+    <div class="lotbtns" id="lotbtns"><div class="on" onclick="pickLot('A',this)">Lot A</div><div onclick="pickLot('B',this)">Lot B</div><div onclick="pickLot('C',this)">Lot C</div></div>
+    <div class="pickgrid" id="pickgrid"></div>
+  </div>
+  <div id="treezone" class="hidden">
+    <div class="treecard">
+      <div><div class="id" id="t-id"></div><div class="meta" id="t-meta"></div></div>
+      <span class="clone" id="t-clone"></span>
+    </div>
+    <div class="card stepper">
+      <button onclick="bump(-1)">−</button><div class="n" id="qty">1</div><button onclick="bump(1)">+</button>
+    </div>
+    <div class="card">
+      <div class="sec">Grade</div>
+      <div class="grades" id="grades"><div class="on" onclick="setGrade(0)">A</div><div onclick="setGrade(1)">B</div><div onclick="setGrade(2)">C</div></div>
+    </div>
+    <button class="bigbtn" onclick="saveDrop()">✓ SAVE DROP</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div class="scr hidden" id="scr-stock">
+  <div class="card">
+    <div class="sec">Stock movement</div>
+    <div class="lotbtns"><div class="on" id="mv-out" onclick="setMove('OUT')">STOCK OUT (use)</div><div id="mv-in" onclick="setMove('IN')">STOCK IN (receive)</div></div>
+    <label>Product</label>
+    <input id="prodsearch" placeholder="Search product…" oninput="renderProdOpts()">
+    <select id="prod" size="5" style="margin-top:6px"></select>
+    <label>Quantity (<span id="unitlbl">ml/gm</span>)</label>
+    <input type="number" id="pqty" value="1000" min="1" inputmode="numeric">
+    <div id="outonly">
+      <label>For spray set</label>
+      <select id="sset"></select>
+    </div>
+    <div id="inonly" class="hidden">
+      <label>Supplier</label>
+      <input id="supplier" placeholder="e.g. Sandakan AgriSupply">
+    </div>
+    <div style="height:12px"></div>
+    <button class="bigbtn" onclick="saveStock()">✓ SAVE</button>
+  </div>
+  <div class="card">
+    <div class="sec">Stock on hand (opening − used + received, incl. queued)</div>
+    <input id="stocksearch" placeholder="Search…" oninput="renderStock()">
+    <div id="stocklist" style="margin-top:6px;max-height:260px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- SYNC -->
+<div class="scr hidden" id="scr-sync">
+  <div class="card">
+    <div class="sec">⚙ Settings <span class="linkish" style="float:right" onclick="editSetup()">edit</span></div>
+    <div class="small" id="cfginfo"></div>
+  </div>
+  <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
+  <p class="small" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
+  <div class="card">
+    <div class="sec">Event ledger on this phone (append-only)</div>
+    <div id="ledger"></div>
+  </div>
+</div>
+
+<!-- DASH -->
+<div class="scr hidden" id="scr-dash">
+  <div class="kpis">
+    <div class="kpi"><div class="v" id="k-drops">0</div><div class="l">Fruits today</div></div>
+    <div class="kpi"><div class="v" id="k-kg">0</div><div class="l">Est. kg today</div></div>
+    <div class="kpi"><div class="v" id="k-week">0</div><div class="l">Fruits · 7 days</div></div>
+    <div class="kpi"><div class="v" id="k-cost">RM 0</div><div class="l">Material cost · Aug</div></div>
+  </div>
+  <div class="lock" id="phibox" style="display:none"></div>
+  <div class="card">
+    <div class="sec">Harvest vs July census · by lot (this phone + synced baseline at last sync)</div>
+    <div id="lotbars"></div>
+  </div>
+  <div class="card">
+    <div class="sec">Today by clone (marketing view)</div>
+    <div id="mkt"><div class="lrow"><span>—</span><span class="small">no drops yet</span></div></div>
+  </div>
+  <p class="small" style="text-align:center">Full farm-wide dashboard (all phones combined) lives in the Google Sheets database.</p>
+</div>
+
+<div class="nav">
+  <div class="on" id="nav-harvest" onclick="go('harvest')"><span class="ic">🥭</span>Harvest</div>
+  <div id="nav-stock" onclick="go('stock')"><span class="ic">📦</span>Stock</div>
+  <div id="nav-sync" onclick="go('sync')"><span class="ic">⇅</span>Sync</div>
+  <div id="nav-dash" onclick="go('dash')"><span class="ic">📊</span>Owner</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TREES=[{"id":"A-001","lot":"A","no":1,"clone":"MK","census":null},{"id":"A-002","lot":"A","no":2,"clone":"MK","census":null},{"id":"A-003","lot":"A","no":3,"clone":"MK","census":null},{"id":"A-004","lot":"A","no":4,"clone":"MK","census":null},{"id":"A-005","lot":"A","no":5,"clone":"MK","census":3},{"id":"A-006","lot":"A","no":6,"clone":"B24","census":null},{"id":"A-007","lot":"A","no":7,"clone":"MK","census":1},{"id":"A-008","lot":"A","no":8,"clone":"MK","census":16},{"id":"A-009","lot":"A","no":9,"clone":"MK","census":20},{"id":"A-010","lot":"A","no":10,"clone":"MK","census":7},{"id":"A-011","lot":"A","no":11,"clone":"MK","census":18},{"id":"A-012","lot":"A","no":12,"clone":"MK","census":15},{"id":"A-013","lot":"A","no":13,"clone":"B24","census":35},{"id":"A-014","lot":"A","no":14,"clone":"MK","census":null},{"id":"A-015","lot":"A","no":15,"clone":"MK","census":null},{"id":"A-016","lot":"A","no":16,"clone":"MK","census":null},{"id":"A-017","lot":"A","no":17,"clone":"MK","census":null},{"id":"A-018","lot":"A","no":18,"clone":"MK","census":null},{"id":"A-019","lot":"A","no":19,"clone":"MK","census":null},{"id":"A-020","lot":"A","no":20,"clone":"MK","census":null},{"id":"A-021","lot":"A","no":21,"clone":"MK","census":null},{"id":"A-022","lot":"A","no":22,"clone":"MK","census":null},{"id":"A-023","lot":"A","no":23,"clone":"B24","census":10},{"id":"A-024","lot":"A","no":24,"clone":"MK","census":null},{"id":"A-025","lot":"A","no":25,"clone":"MK","census":null},{"id":"A-026","lot":"A","no":26,"clone":"MK","census":29},{"id":"A-027","lot":"A","no":27,"clone":"MK","census":20},{"id":"A-028","lot":"A","no":28,"clone":"MK","census":null},{"id":"A-029","lot":"A","no":29,"clone":"MK","census":null},{"id":"A-030","lot":"A","no":30,"clone":"MK","census":null},{"id":"A-031","lot":"A","no":31,"clone":"MK","census":null},{"id":"A-032","lot":"A","no":32,"clone":"MK","census":3},{"id":"A-033","lot":"A","no":33,"clone":"MK","census":null},{"id":"A-034","lot":"A","no":34,"clone":"B24","census":null},{"id":"A-035","lot":"A","no":35,"clone":"MK","census":17},{"id":"A-036","lot":"A","no":36,"clone":"B24","census":null},{"id":"A-037","lot":"A","no":37,"clone":"MK","census":null},{"id":"A-038","lot":"A","no":38,"clone":"MK","census":null},{"id":"A-039","lot":"A","no":39,"clone":"MK","census":null},{"id":"A-040","lot":"A","no":40,"clone":"MK","census":null},{"id":"A-041","lot":"A","no":41,"clone":"MK","census":null},{"id":"A-042","lot":"A","no":42,"clone":"MK","census":null},{"id":"A-043","lot":"A","no":43,"clone":"MK","census":null},{"id":"A-044","lot":"A","no":44,"clone":"MK","census":null},{"id":"A-045","lot":"A","no":45,"clone":"MK","census":null},{"id":"A-046","lot":"A","no":46,"clone":"MK","census":null},{"id":"A-047","lot":"A","no":47,"clone":"MK","census":null},{"id":"A-048","lot":"A","no":48,"clone":"MK","census":null},{"id":"A-049","lot":"A","no":49,"clone":"MK","census":null},{"id":"A-050","lot":"A","no":50,"clone":"MK","census":null},{"id":"A-051","lot":"A","no":51,"clone":"MK","census":1},{"id":"A-052","lot":"A","no":52,"clone":"MK","census":null},{"id":"A-053","lot":"A","no":53,"clone":"MK","census":null},{"id":"A-054","lot":"A","no":54,"clone":"MK","census":null},{"id":"A-055","lot":"A","no":55,"clone":"MK","census":null},{"id":"A-056","lot":"A","no":56,"clone":"MK","census":null},{"id":"A-057","lot":"A","no":57,"clone":"MK","census":11},{"id":"A-058","lot":"A","no":58,"clone":"MK","census":null},{"id":"A-059","lot":"A","no":59,"clone":"MK","census":null},{"id":"A-060","lot":"A","no":60,"clone":"MK","census":null},{"id":"A-061","lot":"A","no":61,"clone":"B24","census":null},{"id":"A-062","lot":"A","no":62,"clone":"MK","census":null},{"id":"A-063","lot":"A","no":63,"clone":"MK","census":7},{"id":"A-064","lot":"A","no":64,"clone":"MK","census":null},{"id":"A-065","lot":"A","no":65,"clone":"MK","census":null},{"id":"B-001","lot":"B","no":1,"clone":"B24","census":13},{"id":"B-002","lot":"B","no":2,"clone":"MK","census":69},{"id":"B-003","lot":"B","no":3,"clone":"MK","census":70},{"id":"B-004","lot":"B","no":4,"clone":"MK","census":70},{"id":"B-005","lot":"B","no":5,"clone":"MK","census":65},{"id":"B-006","lot":"B","no":6,"clone":"MK","census":65},{"id":"B-007","lot":"B","no":7,"clone":"MK","census":68},{"id":"B-008","lot":"B","no":8,"clone":"MK","census":55},{"id":"B-009","lot":"B","no":9,"clone":"MK","census":69},{"id":"B-010","lot":"B","no":10,"clone":"MK","census":67},{"id":"B-011","lot":"B","no":11,"clone":"BT","census":19},{"id":"B-012","lot":"B","no":12,"clone":"MK","census":null},{"id":"B-013","lot":"B","no":13,"clone":"MK","census":null},{"id":"B-014","lot":"B","no":14,"clone":"MK","census":1},{"id":"B-015","lot":"B","no":15,"clone":"MK","census":1},{"id":"B-016","lot":"B","no":16,"clone":"MK","census":null},{"id":"B-017","lot":"B","no":17,"clone":"MK","census":null},{"id":"B-018","lot":"B","no":18,"clone":"MK","census":null},{"id":"B-019","lot":"B","no":19,"clone":"MK","census":null},{"id":"B-020","lot":"B","no":20,"clone":"MK","census":null},{"id":"B-021","lot":"B","no":21,"clone":"MK","census":1},{"id":"B-022","lot":"B","no":22,"clone":"MK","census":17},{"id":"B-023","lot":"B","no":23,"clone":"MK","census":48},{"id":"B-024","lot":"B","no":24,"clone":"MK","census":22},{"id":"B-025","lot":"B","no":25,"clone":"MK","census":56},{"id":"B-026","lot":"B","no":26,"clone":"MK","census":64},{"id":"B-027","lot":"B","no":27,"clone":"MK","census":62},{"id":"B-028","lot":"B","no":28,"clone":"MK","census":59},{"id":"B-029","lot":"B","no":29,"clone":"MK","census":59},{"id":"B-030","lot":"B","no":30,"clone":"MK","census":45},{"id":"B-031","lot":"B","no":31,"clone":"101","census":20},{"id":"B-032","lot":"B","no":32,"clone":"101","census":null},{"id":"B-033","lot":"B","no":33,"clone":"101","census":40},{"id":"B-034","lot":"B","no":34,"clone":"101","census":null},{"id":"B-035","lot":"B","no":35,"clone":"101","census":null},{"id":"B-036","lot":"B","no":36,"clone":"101","census":40},{"id":"B-037","lot":"B","no":37,"clone":"101","census":40},{"id":"B-038","lot":"B","no":38,"clone":"101","census":35},{"id":"B-039","lot":"B","no":39,"clone":"101","census":35},{"id":"B-040","lot":"B","no":40,"clone":"101","census":35},{"id":"B-041","lot":"B","no":41,"clone":"101","census":35},{"id":"B-042","lot":"B","no":42,"clone":"MK","census":14},{"id":"B-043","lot":"B","no":43,"clone":"MK","census":32},{"id":"B-044","lot":"B","no":44,"clone":"MK","census":48},{"id":"B-045","lot":"B","no":45,"clone":"BT","census":68},{"id":"B-046","lot":"B","no":46,"clone":"BT","census":34},{"id":"B-047","lot":"B","no":47,"clone":"MK","census":52},{"id":"B-048","lot":"B","no":48,"clone":"MK","census":26},{"id":"B-049","lot":"B","no":49,"clone":"MK","census":8},{"id":"B-050","lot":"B","no":50,"clone":"TB","census":null},{"id":"B-051","lot":"B","no":51,"clone":"MK","census":19},{"id":"B-052","lot":"B","no":52,"clone":"MK","census":13},{"id":"B-053","lot":"B","no":53,"clone":"B24","census":40},{"id":"B-054","lot":"B","no":54,"clone":"MK","census":63},{"id":"B-055","lot":"B","no":55,"clone":"MK","census":27},{"id":"B-056","lot":"B","no":56,"clone":"B24","census":109},{"id":"B-057","lot":"B","no":57,"clone":"UM","census":8},{"id":"B-058","lot":"B","no":58,"clone":"MK","census":61},{"id":"B-059","lot":"B","no":59,"clone":"MK","census":25},{"id":"B-060","lot":"B","no":60,"clone":"MK","census":10},{"id":"B-061","lot":"B","no":61,"clone":"MK","census":3},{"id":"B-062","lot":"B","no":62,"clone":"MK","census":16},{"id":"B-063","lot":"B","no":63,"clone":"MK","census":2},{"id":"B-064","lot":"B","no":64,"clone":"B24","census":24},{"id":"B-065","lot":"B","no":65,"clone":"MK","census":5},{"id":"B-066","lot":"B","no":66,"clone":"MK","census":null},{"id":"C-001","lot":"C","no":1,"clone":"MK","census":null},{"id":"C-002","lot":"C","no":2,"clone":"MK","census":null},{"id":"C-003","lot":"C","no":3,"clone":"MK","census":null},{"id":"C-004","lot":"C","no":4,"clone":"MK","census":null},{"id":"C-005","lot":"C","no":5,"clone":"MK","census":14},{"id":"C-006","lot":"C","no":6,"clone":"MK","census":5},{"id":"C-007","lot":"C","no":7,"clone":"MK","census":null},{"id":"C-008","lot":"C","no":8,"clone":"MK","census":35},{"id":"C-009","lot":"C","no":9,"clone":"MK","census":1},{"id":"C-010","lot":"C","no":10,"clone":"MK","census":2},{"id":"C-011","lot":"C","no":11,"clone":"MK","census":7},{"id":"C-012","lot":"C","no":12,"clone":"MK","census":null},{"id":"C-013","lot":"C","no":13,"clone":"MK","census":31},{"id":"C-014","lot":"C","no":14,"clone":"MK","census":7},{"id":"C-015","lot":"C","no":15,"clone":"MK","census":58},{"id":"C-016","lot":"C","no":16,"clone":"MK","census":2},{"id":"C-017","lot":"C","no":17,"clone":"BT","census":21},{"id":"C-018","lot":"C","no":18,"clone":"MK","census":43},{"id":"C-019","lot":"C","no":19,"clone":"MK","census":null},{"id":"C-020","lot":"C","no":20,"clone":"MK","census":25},{"id":"C-021","lot":"C","no":21,"clone":"MK","census":3},{"id":"C-022","lot":"C","no":22,"clone":"MK","census":6},{"id":"C-023","lot":"C","no":23,"clone":"MK","census":null},{"id":"C-024","lot":"C","no":24,"clone":"MK","census":1},{"id":"C-025","lot":"C","no":25,"clone":"MK","census":null},{"id":"C-026","lot":"C","no":26,"clone":"MK","census":null},{"id":"C-027","lot":"C","no":27,"clone":"MK","census":null},{"id":"C-028","lot":"C","no":28,"clone":"TB","census":null},{"id":"C-029","lot":"C","no":29,"clone":"MK","census":19},{"id":"C-030","lot":"C","no":30,"clone":"MK","census":4},{"id":"C-031","lot":"C","no":31,"clone":"MK","census":null},{"id":"C-032","lot":"C","no":32,"clone":"MK","census":71},{"id":"C-033","lot":"C","no":33,"clone":"MK","census":null},{"id":"C-034","lot":"C","no":34,"clone":"MK","census":7},{"id":"C-035","lot":"C","no":35,"clone":"MK","census":34},{"id":"C-036","lot":"C","no":36,"clone":"MK","census":23},{"id":"C-037","lot":"C","no":37,"clone":"MK","census":8},{"id":"C-038","lot":"C","no":38,"clone":"MK","census":null},{"id":"C-039","lot":"C","no":39,"clone":"MK","census":10},{"id":"C-040","lot":"C","no":40,"clone":"MK","census":null},{"id":"C-041","lot":"C","no":41,"clone":"","census":null},{"id":"C-042","lot":"C","no":42,"clone":"","census":null},{"id":"C-043","lot":"C","no":43,"clone":"","census":null},{"id":"C-044","lot":"C","no":44,"clone":"","census":null},{"id":"C-045","lot":"C","no":45,"clone":"","census":null},{"id":"C-046","lot":"C","no":46,"clone":"","census":null},{"id":"C-047","lot":"C","no":47,"clone":"","census":null}];
+const PRODUCTS=[{"id":1,"name":"Amotan 22.8SC","cat":"Pesticide","unit":"ml","cpu":0.21,"stock":4000},{"id":2,"name":"Cypermethrin 5.5 (Kencis)","cat":"Pesticide","unit":"ml","cpu":0.018,"stock":5000},{"id":3,"name":"Fipronil (Rainnil)","cat":"Pesticide","unit":"ml","cpu":0.07,"stock":4000},{"id":4,"name":"Madell","cat":"Pesticide","unit":"ml","cpu":0.088,"stock":0},{"id":5,"name":"Abamectin (Envoy)","cat":"Pesticide","unit":"ml","cpu":0.045,"stock":6000},{"id":6,"name":"Mancozeb (Raincozeb 80WB)","cat":"Fungicide","unit":"gm","cpu":0.025,"stock":2000},{"id":7,"name":"Arimo 23EC","cat":"Fungicide","unit":"ml","cpu":0.156,"stock":500},{"id":8,"name":"Agus 24SC","cat":"Fungicide","unit":"ml","cpu":0.17,"stock":500},{"id":9,"name":"Aliette (ribut petir)","cat":"Fungicide","unit":"gm","cpu":0.15,"stock":2000},{"id":10,"name":"AMG mix","cat":"Foliar","unit":"ml","cpu":0.068,"stock":0},{"id":11,"name":"Wuzal Ascofol","cat":"Foliar","unit":"ml","cpu":0.053,"stock":0},{"id":12,"name":"Wuzal ZN","cat":"Foliar","unit":"ml","cpu":0.079,"stock":0},{"id":13,"name":"Wuxal Ascofol CAB","cat":"Foliar","unit":"ml","cpu":0.052,"stock":5000},{"id":14,"name":"A Zinc Mix","cat":"Foliar","unit":"ml","cpu":0.07,"stock":6000},{"id":15,"name":"Xilca","cat":"Foliar","unit":"ml","cpu":0.0608,"stock":2000},{"id":16,"name":"Flora","cat":"Foliar","unit":"ml","cpu":0.0825,"stock":4000},{"id":17,"name":"Vitanica","cat":"Foliar","unit":"ml","cpu":0.0533,"stock":0},{"id":18,"name":"Stunza","cat":"Foliar","unit":"ml","cpu":0.085,"stock":0},{"id":19,"name":"Calcifol","cat":"Foliar","unit":"ml","cpu":0.046,"stock":4000},{"id":20,"name":"Heromix T1","cat":"Foliar","unit":"ml","cpu":0.042,"stock":1000},{"id":21,"name":"Auxi-Pro","cat":"Foliar","unit":"ml","cpu":0.085,"stock":7000},{"id":22,"name":"Cyto-Plus","cat":"Foliar","unit":"ml","cpu":0.075,"stock":8000},{"id":23,"name":"Carboxamin","cat":"Foliar","unit":"ml","cpu":0.0708,"stock":5500},{"id":24,"name":"Sorbix","cat":"Foliar","unit":"ml","cpu":0.075,"stock":6000},{"id":25,"name":"A Plus Cal","cat":"Powder","unit":"gm","cpu":0.072,"stock":5000},{"id":26,"name":"AZ Plus","cat":"Powder","unit":"gm","cpu":0.095,"stock":1000},{"id":27,"name":"Brightstar PBZ","cat":"Growth Reg","unit":"ml","cpu":0.1083,"stock":3000},{"id":28,"name":"GA3 (Gibberlic Acid)","cat":"Growth Reg","unit":"tablets","cpu":9.5,"stock":29},{"id":29,"name":"Yara MKP","cat":"Foliar","unit":"gm","cpu":0.012,"stock":20000},{"id":30,"name":"Hero Max (Sticker)","cat":"Foliar","unit":"ml","cpu":0.04,"stock":0},{"id":31,"name":"Entrust 18SL (Racun rumput)","cat":"Herbicide","unit":"ml","cpu":0.0125,"stock":0},{"id":32,"name":"Yara Liva Tropicote","cat":"Fertiliser","unit":"gm","cpu":0.0032,"stock":175000},{"id":33,"name":"Yara Liva Nitrobor","cat":"Fertiliser","unit":"gm","cpu":0.004,"stock":75000},{"id":34,"name":"Yara Mila 12-12-17","cat":"Fertiliser","unit":"gm","cpu":0.0046,"stock":200000},{"id":35,"name":"Yara Tera Krista Mgs","cat":"Fertiliser","unit":"gm","cpu":0.0022,"stock":140000},{"id":36,"name":"Garsoni 8-24-24","cat":"Fertiliser","unit":"gm","cpu":0.0047,"stock":20000},{"id":37,"name":"Polysulphate","cat":"Fertiliser","unit":"gm","cpu":0.0018,"stock":250000},{"id":38,"name":"Nutrigem","cat":"Fertiliser","unit":"gm","cpu":0.0009,"stock":0},{"id":39,"name":"Herocris Nexus 5-25-25-2MGO","cat":"Fertiliser","unit":"gm","cpu":0.012,"stock":60000},{"id":40,"name":"Basfoliar","cat":"Foliar","unit":"ml","cpu":0.0553,"stock":15000},{"id":41,"name":"Plantara","cat":"Foliar","unit":"ml","cpu":0.085,"stock":11000},{"id":42,"name":"Raizon Max","cat":"Foliar","unit":"ml","cpu":0.085,"stock":7000},{"id":43,"name":"Yara Calcinit (CN)","cat":"Fertiliser","unit":"gm","cpu":0.0036,"stock":20000},{"id":44,"name":"Fetto 480","cat":"Fungicide","unit":"ml","cpu":0.32,"stock":0},{"id":45,"name":"Pictor","cat":"Fungicide","unit":"ml","cpu":0.065,"stock":0},{"id":46,"name":"Marshal 20SC","cat":"Pesticide","unit":"ml","cpu":0.065,"stock":500},{"id":47,"name":"Betakal Amino","cat":"Foliar","unit":"ml","cpu":0.041,"stock":10000},{"id":48,"name":"Ardel","cat":"Fungicide","unit":"ml","cpu":0.0,"stock":0},{"id":49,"name":"Pengasus 47.17sc","cat":"Pesticide","unit":"ml","cpu":0.15,"stock":0},{"id":50,"name":"Azatin","cat":"Pesticide","unit":"ml","cpu":0.17,"stock":1000},{"id":51,"name":"Match","cat":"Pesticide","unit":"ml","cpu":0.26,"stock":2000},{"id":52,"name":"Zinc (powder)","cat":"Fertiliser","unit":"gm","cpu":0.0,"stock":0},{"id":53,"name":"Yara Rega 13-4-25","cat":"Fertiliser","unit":"gm","cpu":0.0114,"stock":10000},{"id":54,"name":"Yara Tera Kristalon 13-40-13","cat":"Fertiliser","unit":"gm","cpu":0.0118,"stock":25000},{"id":55,"name":"A Zinc (Year 2023)","cat":"Foliar","unit":"ml","cpu":0.065,"stock":1000},{"id":56,"name":"Nutrimix Complete (AZ PLUS)","cat":"Foliar","unit":"kg","cpu":0.077,"stock":3000},{"id":57,"name":"Ultra Bor (Flora)","cat":"Foliar","unit":"kg","cpu":0.065,"stock":3000},{"id":58,"name":"Anmi 4.8SC","cat":"Foliar","unit":"ml","cpu":0.085,"stock":1000},{"id":59,"name":"VS 34","cat":"Foliar","unit":"kg","cpu":0.0,"stock":1000},{"id":60,"name":"Abinsec 1.8EC","cat":"Pesticide","unit":"ml","cpu":0.0213,"stock":5000},{"id":61,"name":"Basaplant Orange 14-5-30","cat":"Fertiliser","unit":"kg","cpu":0.0118,"stock":25000},{"id":62,"name":"Hydrospeed Yield 3-14-37","cat":"Fertiliser","unit":"kg","cpu":0.0118,"stock":50000},{"id":63,"name":"Yara Mila 12-11-18","cat":"Fertiliser","unit":"kg","cpu":0.0046,"stock":350000},{"id":64,"name":"Yara Tera 18-18-18","cat":"Fertiliser","unit":"kg","cpu":0.0118,"stock":50000},{"id":65,"name":"Florica 21-21-21","cat":"Fertiliser","unit":"kg","cpu":0.01,"stock":25000},{"id":66,"name":"Ge Rocket 9-14-9","cat":"Fertiliser","unit":"kg","cpu":0.0031,"stock":6000},{"id":67,"name":"MSolumax 3-16-36","cat":"Fertiliser","unit":"kg","cpu":0.0106,"stock":52000}];
+const CENSUS_TOTAL={"A": 213, "B": 2052, "C": 437};
+const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
+
+
+// ================= config & constants =================
+const PEAK_DATE = new Date('2026-08-21T00:00:00');
+const PHI_PRODUCTS = {'Fetto 480':14,'Pictor':14}; // days before harvest — from SPRAY_PROGRAM FruitContact/PHIDays
+const AVG_KG = {MK:1.7,BT:1.9,B24:1.6,'101':1.5,UM:1.4,TB:1.9};
+const SPRAY_SETS = ['Aug - Set 1 (fruit+leaf)','Aug - Set 2 (soil drench)','Aug - Set 3 (leaf only)','Aug - Set 4 (leaf only)','Aug - Set 5 (soil drench)','Aug - Fert 1','Aug - Fert 2','General / other'];
+
+// ================= storage (IndexedDB, memory fallback) =================
+let db=null, mem={events:[],config:null};
+function idb(){return new Promise((res)=>{ if(!window.indexedDB) return res(null);
+  const rq=indexedDB.open('sugut-dms',1);
+  rq.onupgradeneeded=e=>{const d=e.target.result;
+    if(!d.objectStoreNames.contains('events'))d.createObjectStore('events',{keyPath:'uuid'});
+    if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});};
+  rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null);});}
+function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
+function all(store){return new Promise(res=>{if(!db){res(null);return;}const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(null);});}
+
+let EVENTS=[], CFG=null;
+async function initStore(){
+  db=await idb();
+  if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[]; const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null; }
+  else { EVENTS=mem.events; CFG=mem.config; }
+}
+async function persistEvent(ev){ EVENTS.push(ev); if(db) await put('events',ev); else mem.events=EVENTS; badge(); }
+async function persistCfg(){ if(db) await put('kv',{k:'cfg',v:CFG}); else mem.config=CFG; }
+
+// ================= helpers =================
+const $=id=>document.getElementById(id);
+function toast(m,err){const t=$('toast');t.textContent=m;t.className='toast show'+(err?' err':'');setTimeout(()=>t.classList.remove('show'),2300);}
+function uuid(){ if(crypto&&crypto.randomUUID)return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c=='x'?r:(r&0x3|0x8)).toString(16);});}
+function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function todayStr(){return now().slice(0,10);}
+function pending(){return EVENTS.filter(e=>!e.synced).length;}
+function badge(){$('qbadge').textContent=pending();}
+function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&pending()>0&&CFG&&CFG.url)doSync(true);}
+window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
+
+// ================= navigation =================
+function go(s){['harvest','stock','sync','dash'].forEach(x=>{$('scr-'+x).classList.toggle('hidden',x!==s);$('nav-'+x).classList.toggle('on',x===s);});
+  $('scr-setup').classList.add('hidden');
+  $('ttl').textContent={harvest:'Log Fruit Drop',stock:'Inventory',sync:'Sync',dash:'Dashboard'}[s];
+  if(s==='sync')renderSync(); if(s==='dash')renderDash(); if(s==='stock'){renderProdOpts();renderStock();}}
+
+// ================= setup =================
+function showSetup(){['harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).classList.add('hidden'));$('scr-setup').classList.remove('hidden');$('ttl').textContent='Setup';
+  const sel=$('su-worker');sel.innerHTML='';WORKERS.forEach(w=>{const o=document.createElement('option');o.textContent=w;sel.appendChild(o);});
+  if(CFG){sel.value=CFG.worker||WORKERS[0];$('su-device').value=CFG.device||'';$('su-url').value=CFG.url||'';}}
+function editSetup(){showSetup();}
+async function saveSetup(){CFG={worker:$('su-worker').value,device:$('su-device').value.trim()||'phone-01',url:$('su-url').value.trim()};await persistCfg();toast('Saved. Selamat bekerja, '+CFG.worker+'!');go('harvest');}
+
+// ================= harvest =================
+let qty=1,grade='A',curTree=null,scanner=null;
+function startScan(){
+  if(typeof Html5Qrcode==='undefined'){toast('Camera scanner unavailable — use the tree list',1);showPicker();return;}
+  $('scanbox').classList.add('hidden');$('picker').classList.add('hidden');const v=$('qrview');v.style.display='block';
+  scanner=new Html5Qrcode('qrview');
+  scanner.start({facingMode:'environment'},{fps:10,qrbox:220},txt=>{stopScan();selectTree(txt.trim());},()=>{})
+  .catch(()=>{stopScan();toast('Camera not available — pick from list',1);showPicker();});}
+function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');}
+function showPicker(){$('picker').classList.remove('hidden');pickLot(curLot);}
+let curLot='B';
+function pickLot(l,el){curLot=l;if(el){[...$('lotbtns').children].forEach(x=>x.classList.remove('on'));el.classList.add('on');}
+  const g=$('pickgrid');g.innerHTML='';TREES.filter(t=>t.lot===l).forEach(t=>{const d=document.createElement('div');d.className='mk';d.textContent=t.no;d.onclick=()=>selectTree(t.id);g.appendChild(d);});}
+function selectTree(id){
+  const t=TREES.find(x=>x.id===id);
+  if(!t){toast('Unknown tag: '+id,1);return;}
+  curTree=t;$('t-id').textContent=t.id;$('t-clone').textContent=t.clone||'?';
+  $('t-meta').textContent='Lot '+t.lot+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
+  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');qty=1;$('qty').textContent=1;setGrade(0);}
+function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
+function bump(d){qty=Math.max(1,qty+d);$('qty').textContent=qty;}
+function setGrade(i){grade=['A','B','C'][i];[...$('grades').children].forEach((el,j)=>el.classList.toggle('on',j===i));}
+async function saveDrop(){
+  if(!curTree)return;
+  const t=curTree;
+  await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
+    estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
+  toast('✓ '+qty+' fruit @ '+t.id+(navigator.onLine?'':' (queued)'));cancelTree();}
+
+// ================= stock =================
+let moveType='OUT';
+function setMove(m){moveType=m;$('mv-out').classList.toggle('on',m==='OUT');$('mv-in').classList.toggle('on',m==='IN');
+  $('outonly').classList.toggle('hidden',m!=='OUT');$('inonly').classList.toggle('hidden',m!=='IN');}
+function prodFilter(){const q=$('prodsearch').value.toLowerCase();return PRODUCTS.filter(p=>p.name.toLowerCase().includes(q));}
+function renderProdOpts(){const sel=$('prod');sel.innerHTML='';prodFilter().forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name+' ('+p.unit+')';sel.appendChild(o);});
+  if(sel.options.length)sel.selectedIndex=0;updUnit();}
+function updUnit(){const p=PRODUCTS.find(x=>x.id==+$('prod').value);if(p)$('unitlbl').textContent=p.unit;}
+document.addEventListener('change',e=>{if(e.target.id==='prod')updUnit();});
+function usedOf(pid){return EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.pid===pid).reduce((s,e)=>s+e.qty,0);}
+function recvOf(pid){return EVENTS.filter(e=>e.type==='STOCK_IN'&&e.pid===pid).reduce((s,e)=>s+e.qty,0);}
+function onHand(p){return p.stock - usedOf(p.id) + recvOf(p.id);}
+async function saveStock(){
+  const p=PRODUCTS.find(x=>x.id==+$('prod').value); if(!p){toast('Pick a product',1);return;}
+  const q=Math.max(1,+$('pqty').value||0); if(!q){toast('Enter quantity',1);return;}
+  if(moveType==='OUT'){
+    // PHI guard
+    const phi=PHI_PRODUCTS[p.name];
+    if(phi){const days=Math.ceil((PEAK_DATE-new Date())/86400000);
+      if(days>=0&&days<phi&&!confirm('⚠ PHI WARNING\n'+p.name+' has a '+phi+'-day residue cut-off.\nProjected peak drop 21–22 Aug is in '+days+' day(s).\n\nOwner approval required. Log anyway?'))return;}
+    const oh=onHand(p);
+    if(oh<q&&!confirm('Stock shows only '+oh+' '+p.unit+' of '+p.name+'. Log anyway?'))return;
+    await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:now(),pid:p.id,pname:p.name,qty:q,unit:p.unit,
+      set:$('sset').value,cost:+(q*(p.cpu||0)).toFixed(2),worker:CFG.worker,device:CFG.device,synced:false});
+    toast('✓ Out: '+q+' '+p.unit+' '+p.name);
+  }else{
+    await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:now(),pid:p.id,pname:p.name,qty:q,unit:p.unit,
+      supplier:$('supplier').value.trim(),cost:+(q*(p.cpu||0)).toFixed(2),worker:CFG.worker,device:CFG.device,synced:false});
+    toast('✓ In: '+q+' '+p.unit+' '+p.name);
+  }
+  renderStock();}
+function renderStock(){
+  const q=($('stocksearch').value||'').toLowerCase();
+  $('stocklist').innerHTML=PRODUCTS.filter(p=>p.name.toLowerCase().includes(q)).map(p=>{
+    const oh=onHand(p);
+    return '<div class="lrow"><span>'+p.name+'</span><span style="font-weight:700;color:'+(oh<=0?'#b3261e':'#1b5e20')+'">'+oh.toLocaleString()+' '+p.unit+(oh<=0?' ⚠':'')+'</span></div>';}).join('');}
+
+// ================= sync =================
+function renderSync(){
+  $('cfginfo').innerHTML=CFG?('Worker: <b>'+CFG.worker+'</b> · Device: <b>'+CFG.device+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'';
+  const L=$('ledger');
+  L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
+    let d=e.type==='DROP'?('🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree):(e.type==='STOCK_OUT'?('📦→ '+e.qty+' '+e.unit+' '+e.pname):('📦← '+e.qty+' '+e.unit+' '+e.pname));
+    return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span><span class="tag '+(e.synced?'s':'q')+'">'+(e.synced?'SYNCED':'QUEUED')+'</span></div>';}).join('')
+  :'<div class="small">No events yet.</div>';
+  const b=$('syncbtn');b.disabled=!pending();b.textContent=pending()?('⇧ SYNC '+pending()+' EVENTS NOW'):'✓ ALL SYNCED';}
+let syncing=false;
+async function doSync(auto){
+  if(syncing)return;
+  if(!CFG||!CFG.url){if(!auto)toast('Set the Sync URL in Settings first',1);return;}
+  if(!navigator.onLine){if(!auto)toast('No internet connection',1);return;}
+  const batch=EVENTS.filter(e=>!e.synced); if(!batch.length)return;
+  syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
+    const j=await r.json();
+    if(j&&j.ok){for(const e of batch){e.synced=true;if(db)await put('events',e);}badge();renderSync();
+      toast('✓ '+batch.length+' events synced to Google Sheets');}
+    else throw new Error(j&&j.error||'server error');
+  }catch(err){toast('Sync failed: '+err.message,1);renderSync();}
+  syncing=false;}
+
+// ================= dashboard =================
+function renderDash(){
+  const today=todayStr();
+  const drops=EVENTS.filter(e=>e.type==='DROP');
+  const dToday=drops.filter(e=>e.dt.slice(0,10)===today);
+  const wk=drops.filter(e=>(new Date()-new Date(e.dt.replace(' ','T')))<7*86400000);
+  const tot=dToday.reduce((s,e)=>s+e.qty,0), kg=dToday.reduce((s,e)=>s+e.estkg,0);
+  const cost=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dt.slice(0,7)==='2026-08').reduce((s,e)=>s+(e.cost||0),0);
+  $('k-drops').textContent=tot;$('k-kg').textContent=kg.toFixed(0);
+  $('k-week').textContent=wk.reduce((s,e)=>s+e.qty,0);$('k-cost').textContent='RM '+cost.toFixed(0);
+  // PHI banner
+  const days=Math.ceil((PEAK_DATE-new Date())/86400000);
+  const box=$('phibox');
+  if(days>=0&&days<=15){box.style.display='block';
+    box.innerHTML='<b>🔒 PHI WATCH:</b> peak drop projected 21–22 Aug ('+days+' day'+(days==1?'':'s')+'). Fruit-contact products (Fetto 480, Pictor) now require Owner approval to log.';}
+  else box.style.display='none';
+  // lot bars
+  $('lotbars').innerHTML=['A','B','C'].map(l=>{
+    const n=drops.filter(e=>e.lot===l).reduce((s,e)=>s+e.qty,0);
+    const c=CENSUS_TOTAL[l]||1;
+    return '<div class="bar"><div class="br"><span>Lot '+l+'</span><b>'+n.toLocaleString()+' / '+c.toLocaleString()+'</b></div><div class="track"><div class="fill" style="width:'+Math.min(100,n/c*100)+'%"></div></div></div>';}).join('');
+  const by={};dToday.forEach(e=>{const k=e.clone||'?';by[k]=by[k]||{n:0,kg:0};by[k].n+=e.qty;by[k].kg+=e.estkg;});
+  $('mkt').innerHTML=Object.keys(by).length?Object.entries(by).map(([c,v])=>
+    '<div class="lrow"><span><b>'+c+'</b></span><span><b>'+v.n+'</b> fruit · ~'+v.kg.toFixed(0)+' kg</span></div>').join('')
+  :'<div class="lrow"><span>—</span><span class="small">no drops today</span></div>';}
+
+// ================= boot =================
+(async function(){
+  await initStore();
+  // spray set options
+  const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
+  badge();netUpdate();
+  if(!CFG)showSetup(); else go('harvest');
+})();
+</script>
+</body>
+</html>
