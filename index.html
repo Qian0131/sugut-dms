@@ -123,6 +123,43 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .rolepick div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
 .rolepick .rsub{display:block;font-weight:600;font-size:9px;opacity:.75;text-transform:none;letter-spacing:0;}
 .regdirty{background:var(--amberbg);color:#7a5b00;border-radius:9px;padding:7px 10px;font-size:11px;font-weight:700;margin-bottom:9px;}
+/* v2.2 tree master · harvest selector · correction workflow */
+.selrow{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;}
+.selrow label{margin-top:0;}
+.clonebox{margin-top:10px;background:var(--lite);border:1.5px dashed var(--green2);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;}
+.clonebox .cl{font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+.clonebox .cv{font-size:20px;font-weight:900;color:var(--green);line-height:1.15;}
+.clonebox .cr{text-align:right;font-size:10.5px;color:var(--muted);line-height:1.45;}
+.ro{font-size:9px;background:#fff;border:1px solid #c8dcc9;color:var(--muted);border-radius:7px;padding:1px 6px;font-weight:800;letter-spacing:.4px;}
+.quickadd{display:flex;gap:7px;margin-top:9px;}
+.quickadd div{flex:1;text-align:center;border:1.5px solid #c8dcc9;border-radius:11px;padding:11px 0;font-weight:800;font-size:14px;color:#33691e;background:#fff;cursor:pointer;user-select:none;}
+.quickadd div:active{background:var(--lite);}
+.corrbtn{width:100%;background:#fff;color:#7a5b00;border:2px solid #ffd54f;border-radius:12px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;margin:2px 0 10px;}
+.corrbtn:active{background:var(--amberbg);}
+.clonepick{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.clonepick div{border:2px solid #c8dcc9;border-radius:11px;padding:11px 4px;text-align:center;font-weight:800;font-size:13px;cursor:pointer;background:#fff;user-select:none;}
+.clonepick div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.ctypes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.ctypes div{border:2px solid #c8dcc9;border-radius:11px;padding:9px 4px;text-align:center;font-weight:800;font-size:11px;cursor:pointer;background:#fff;user-select:none;line-height:1.3;}
+.ctypes div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.ctypes .csub{display:block;font-weight:600;font-size:8.5px;opacity:.75;}
+.crow{border-bottom:1px solid #eef1ec;padding:10px 2px;}
+.crow:last-child{border-bottom:none;}
+.crow .ch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.crow .ctree{font-weight:900;font-size:15px;color:var(--green);}
+.crow .cwho{font-size:10px;color:var(--muted);line-height:1.5;}
+.crow .cchange{background:var(--amberbg);border-radius:9px;padding:7px 9px;font-size:12px;font-weight:700;color:#7a5b00;margin:7px 0;}
+.crow .cnote{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:7px;}
+.cacts{display:flex;gap:7px;}
+.cacts button{flex:1;border-radius:11px;padding:10px 4px;font-size:12px;font-weight:800;cursor:pointer;border:2px solid;}
+.cacts .ok{background:var(--green2);color:#fff;border-color:var(--green2);}
+.cacts .no{background:#fff;color:var(--warn);border-color:#f1c3bf;}
+.cstat{font-size:9.5px;padding:2px 8px;border-radius:8px;font-weight:800;flex-shrink:0;white-space:nowrap;}
+.cstat.p{background:var(--amberbg);color:#7a5b00;}
+.cstat.a{background:var(--lite);color:var(--green);}
+.cstat.r{background:#fdecea;color:var(--warn);}
+.cbadge{background:var(--warn);color:#fff;font-size:10px;font-weight:800;border-radius:9px;padding:1px 7px;margin-left:6px;}
+.mystat{margin-top:9px;font-size:11px;}
 </style>
 </head>
 <body>
@@ -192,16 +229,42 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   <div id="qrview"></div>
   <div id="picker" class="hidden">
     <div style="height:8px"></div>
-    <div class="lotbtns" id="lotbtns"><div class="on" onclick="pickLot('A',this)">Lot A</div><div onclick="pickLot('B',this)">Lot B</div><div onclick="pickLot('C',this)">Lot C</div></div>
-    <div class="pickgrid" id="pickgrid"></div>
+    <div class="card">
+      <div class="sec">Select tree · Tree Master (<span id="tm-count">0</span> trees)</div>
+      <div class="selrow">
+        <div><label>Lot</label><select id="h-lot" onchange="onLotChange()"></select></div>
+        <div><label>Tree number</label><select id="h-tree" onchange="onTreeChange()"></select></div>
+      </div>
+      <div class="clonebox">
+        <div>
+          <div class="cl">Clone <span class="ro">READ-ONLY</span></div>
+          <div class="cv" id="h-clone">—</div>
+        </div>
+        <div class="cr" id="h-cloneinfo">select a tree</div>
+      </div>
+      <div style="height:10px"></div>
+      <button class="bigbtn" onclick="confirmTreePick()">✓ USE THIS TREE</button>
+    </div>
+    <div class="card">
+      <div class="sec">Or tap the tree number</div>
+      <div class="lotbtns" id="lotbtns"><div class="on" onclick="pickLot('A',this)">Lot A</div><div onclick="pickLot('B',this)">Lot B</div><div onclick="pickLot('C',this)">Lot C</div></div>
+      <div class="pickgrid" id="pickgrid"></div>
+    </div>
   </div>
   <div id="treezone" class="hidden">
     <div class="treecard">
       <div><div class="id" id="t-id"></div><div class="meta" id="t-meta"></div></div>
       <span class="clone" id="t-clone"></span>
     </div>
-    <div class="card stepper">
-      <button onclick="bump(-1)">−</button><div class="n" id="qty">1</div><button onclick="bump(1)">+</button>
+    <button class="corrbtn" id="corrbtn" onclick="openCorrection()">⚠ REQUEST TREE / CLONE CORRECTION</button>
+    <div class="card">
+      <div class="sec">Fruits dropped — tally counter</div>
+      <div class="stepper">
+        <button onclick="bump(-1)">−</button><div class="n" id="qty">1</div><button onclick="bump(1)">+</button>
+      </div>
+      <div class="quickadd">
+        <div onclick="bump(5)">+5</div><div onclick="bump(10)">+10</div><div onclick="resetQty()">RESET</div>
+      </div>
     </div>
     <div class="card">
       <div class="sec">Grade</div>
@@ -210,6 +273,10 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <button class="bigbtn" onclick="saveDrop()">✓ SAVE DROP</button>
     <div style="height:8px"></div>
     <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
+  </div>
+  <div class="card" id="mycorr" style="display:none">
+    <div class="sec">My correction requests</div>
+    <div id="mycorrlist"></div>
   </div>
 </div>
 
@@ -257,6 +324,17 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 
 <!-- DASH -->
 <div class="scr hidden" id="scr-dash">
+  <div class="card" id="corrpanel">
+    <div class="sec">📋 Pending Data Adjustments <span class="cbadge hidden" id="corrcount">0</span></div>
+    <div id="corrlist"></div>
+    <p class="small" style="margin-top:9px">Approving a change rewrites that tree's permanent record in the Tree Master across every screen — harvest, dashboard and marketing view. Approved and rejected requests are kept as an audit trail and pushed to the Google Sheet at the next sync.</p>
+    <div style="height:8px"></div>
+    <div class="lotbtns" id="corrfilter">
+      <div class="on" onclick="setCorrFilter('PENDING',this)">PENDING</div>
+      <div onclick="setCorrFilter('DECIDED',this)">DECIDED</div>
+      <div onclick="setCorrFilter('ALL',this)">ALL</div>
+    </div>
+  </div>
   <div class="card" id="keyspanel">
     <div class="sec">🔑 Master Governance &amp; User Registry (Owner)</div>
     <div id="regdirty" class="regdirty hidden"></div>
@@ -318,6 +396,38 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   </div>
 </div>
 
+<!-- REQUEST TREE / CLONE CORRECTION MODAL (v2.2) -->
+<div id="corrmodal" class="modal hidden">
+  <div class="sheet">
+    <h3>Request data correction</h3>
+    <p class="small" id="cf-sub">The Owner must approve before the master record changes.</p>
+    <div class="clonebox" style="margin-top:12px">
+      <div><div class="cl">Tree on record</div><div class="cv" id="cf-tree">—</div></div>
+      <div class="cr" id="cf-current">—</div>
+    </div>
+    <label>What is wrong?</label>
+    <div class="ctypes" id="cf-types">
+      <div data-ct="CLONE" onclick="pickCorrType('CLONE')">CLONE<span class="csub">wrong variety</span></div>
+      <div data-ct="CENSUS" onclick="pickCorrType('CENSUS')">CENSUS<span class="csub">wrong count</span></div>
+      <div data-ct="NOTE" onclick="pickCorrType('NOTE')">TAG / OTHER<span class="csub">typo, dead tree</span></div>
+    </div>
+    <div id="cf-clonewrap">
+      <label>Correct clone</label>
+      <div class="clonepick" id="cf-clones"></div>
+    </div>
+    <div id="cf-censuswrap" class="hidden">
+      <label>Correct July census count (fruits)</label>
+      <input type="number" id="cf-census" min="0" inputmode="numeric" placeholder="e.g. 42">
+    </div>
+    <label>Note for the Owner (optional)</label>
+    <input id="cf-note" placeholder="e.g. tag says MK but tree is Black Thorn" autocomplete="off">
+    <div class="pinerr" id="cf-err"></div>
+    <button class="bigbtn" onclick="submitCorrection()">⇧ SUBMIT TO OWNER</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeCorrection()">CANCEL</button>
+  </div>
+</div>
+
 <div class="nav">
   <div class="on" id="nav-harvest" onclick="go('harvest')"><span class="ic">🥭</span>Harvest</div>
   <div id="nav-stock" onclick="go('stock')"><span class="ic">📦</span>Stock</div>
@@ -327,14 +437,21 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <script>
-const TREES=[{"id":"A-001","lot":"A","no":1,"clone":"MK","census":null},{"id":"A-002","lot":"A","no":2,"clone":"MK","census":null},{"id":"A-003","lot":"A","no":3,"clone":"MK","census":null},{"id":"A-004","lot":"A","no":4,"clone":"MK","census":null},{"id":"A-005","lot":"A","no":5,"clone":"MK","census":3},{"id":"A-006","lot":"A","no":6,"clone":"B24","census":null},{"id":"A-007","lot":"A","no":7,"clone":"MK","census":1},{"id":"A-008","lot":"A","no":8,"clone":"MK","census":16},{"id":"A-009","lot":"A","no":9,"clone":"MK","census":20},{"id":"A-010","lot":"A","no":10,"clone":"MK","census":7},{"id":"A-011","lot":"A","no":11,"clone":"MK","census":18},{"id":"A-012","lot":"A","no":12,"clone":"MK","census":15},{"id":"A-013","lot":"A","no":13,"clone":"B24","census":35},{"id":"A-014","lot":"A","no":14,"clone":"MK","census":null},{"id":"A-015","lot":"A","no":15,"clone":"MK","census":null},{"id":"A-016","lot":"A","no":16,"clone":"MK","census":null},{"id":"A-017","lot":"A","no":17,"clone":"MK","census":null},{"id":"A-018","lot":"A","no":18,"clone":"MK","census":null},{"id":"A-019","lot":"A","no":19,"clone":"MK","census":null},{"id":"A-020","lot":"A","no":20,"clone":"MK","census":null},{"id":"A-021","lot":"A","no":21,"clone":"MK","census":null},{"id":"A-022","lot":"A","no":22,"clone":"MK","census":null},{"id":"A-023","lot":"A","no":23,"clone":"B24","census":10},{"id":"A-024","lot":"A","no":24,"clone":"MK","census":null},{"id":"A-025","lot":"A","no":25,"clone":"MK","census":null},{"id":"A-026","lot":"A","no":26,"clone":"MK","census":29},{"id":"A-027","lot":"A","no":27,"clone":"MK","census":20},{"id":"A-028","lot":"A","no":28,"clone":"MK","census":null},{"id":"A-029","lot":"A","no":29,"clone":"MK","census":null},{"id":"A-030","lot":"A","no":30,"clone":"MK","census":null},{"id":"A-031","lot":"A","no":31,"clone":"MK","census":null},{"id":"A-032","lot":"A","no":32,"clone":"MK","census":3},{"id":"A-033","lot":"A","no":33,"clone":"MK","census":null},{"id":"A-034","lot":"A","no":34,"clone":"B24","census":null},{"id":"A-035","lot":"A","no":35,"clone":"MK","census":17},{"id":"A-036","lot":"A","no":36,"clone":"B24","census":null},{"id":"A-037","lot":"A","no":37,"clone":"MK","census":null},{"id":"A-038","lot":"A","no":38,"clone":"MK","census":null},{"id":"A-039","lot":"A","no":39,"clone":"MK","census":null},{"id":"A-040","lot":"A","no":40,"clone":"MK","census":null},{"id":"A-041","lot":"A","no":41,"clone":"MK","census":null},{"id":"A-042","lot":"A","no":42,"clone":"MK","census":null},{"id":"A-043","lot":"A","no":43,"clone":"MK","census":null},{"id":"A-044","lot":"A","no":44,"clone":"MK","census":null},{"id":"A-045","lot":"A","no":45,"clone":"MK","census":null},{"id":"A-046","lot":"A","no":46,"clone":"MK","census":null},{"id":"A-047","lot":"A","no":47,"clone":"MK","census":null},{"id":"A-048","lot":"A","no":48,"clone":"MK","census":null},{"id":"A-049","lot":"A","no":49,"clone":"MK","census":null},{"id":"A-050","lot":"A","no":50,"clone":"MK","census":null},{"id":"A-051","lot":"A","no":51,"clone":"MK","census":1},{"id":"A-052","lot":"A","no":52,"clone":"MK","census":null},{"id":"A-053","lot":"A","no":53,"clone":"MK","census":null},{"id":"A-054","lot":"A","no":54,"clone":"MK","census":null},{"id":"A-055","lot":"A","no":55,"clone":"MK","census":null},{"id":"A-056","lot":"A","no":56,"clone":"MK","census":null},{"id":"A-057","lot":"A","no":57,"clone":"MK","census":11},{"id":"A-058","lot":"A","no":58,"clone":"MK","census":null},{"id":"A-059","lot":"A","no":59,"clone":"MK","census":null},{"id":"A-060","lot":"A","no":60,"clone":"MK","census":null},{"id":"A-061","lot":"A","no":61,"clone":"B24","census":null},{"id":"A-062","lot":"A","no":62,"clone":"MK","census":null},{"id":"A-063","lot":"A","no":63,"clone":"MK","census":7},{"id":"A-064","lot":"A","no":64,"clone":"MK","census":null},{"id":"A-065","lot":"A","no":65,"clone":"MK","census":null},{"id":"B-001","lot":"B","no":1,"clone":"B24","census":13},{"id":"B-002","lot":"B","no":2,"clone":"MK","census":69},{"id":"B-003","lot":"B","no":3,"clone":"MK","census":70},{"id":"B-004","lot":"B","no":4,"clone":"MK","census":70},{"id":"B-005","lot":"B","no":5,"clone":"MK","census":65},{"id":"B-006","lot":"B","no":6,"clone":"MK","census":65},{"id":"B-007","lot":"B","no":7,"clone":"MK","census":68},{"id":"B-008","lot":"B","no":8,"clone":"MK","census":55},{"id":"B-009","lot":"B","no":9,"clone":"MK","census":69},{"id":"B-010","lot":"B","no":10,"clone":"MK","census":67},{"id":"B-011","lot":"B","no":11,"clone":"BT","census":19},{"id":"B-012","lot":"B","no":12,"clone":"MK","census":null},{"id":"B-013","lot":"B","no":13,"clone":"MK","census":null},{"id":"B-014","lot":"B","no":14,"clone":"MK","census":1},{"id":"B-015","lot":"B","no":15,"clone":"MK","census":1},{"id":"B-016","lot":"B","no":16,"clone":"MK","census":null},{"id":"B-017","lot":"B","no":17,"clone":"MK","census":null},{"id":"B-018","lot":"B","no":18,"clone":"MK","census":null},{"id":"B-019","lot":"B","no":19,"clone":"MK","census":null},{"id":"B-020","lot":"B","no":20,"clone":"MK","census":null},{"id":"B-021","lot":"B","no":21,"clone":"MK","census":1},{"id":"B-022","lot":"B","no":22,"clone":"MK","census":17},{"id":"B-023","lot":"B","no":23,"clone":"MK","census":48},{"id":"B-024","lot":"B","no":24,"clone":"MK","census":22},{"id":"B-025","lot":"B","no":25,"clone":"MK","census":56},{"id":"B-026","lot":"B","no":26,"clone":"MK","census":64},{"id":"B-027","lot":"B","no":27,"clone":"MK","census":62},{"id":"B-028","lot":"B","no":28,"clone":"MK","census":59},{"id":"B-029","lot":"B","no":29,"clone":"MK","census":59},{"id":"B-030","lot":"B","no":30,"clone":"MK","census":45},{"id":"B-031","lot":"B","no":31,"clone":"101","census":20},{"id":"B-032","lot":"B","no":32,"clone":"101","census":null},{"id":"B-033","lot":"B","no":33,"clone":"101","census":40},{"id":"B-034","lot":"B","no":34,"clone":"101","census":null},{"id":"B-035","lot":"B","no":35,"clone":"101","census":null},{"id":"B-036","lot":"B","no":36,"clone":"101","census":40},{"id":"B-037","lot":"B","no":37,"clone":"101","census":40},{"id":"B-038","lot":"B","no":38,"clone":"101","census":35},{"id":"B-039","lot":"B","no":39,"clone":"101","census":35},{"id":"B-040","lot":"B","no":40,"clone":"101","census":35},{"id":"B-041","lot":"B","no":41,"clone":"101","census":35},{"id":"B-042","lot":"B","no":42,"clone":"MK","census":14},{"id":"B-043","lot":"B","no":43,"clone":"MK","census":32},{"id":"B-044","lot":"B","no":44,"clone":"MK","census":48},{"id":"B-045","lot":"B","no":45,"clone":"BT","census":68},{"id":"B-046","lot":"B","no":46,"clone":"BT","census":34},{"id":"B-047","lot":"B","no":47,"clone":"MK","census":52},{"id":"B-048","lot":"B","no":48,"clone":"MK","census":26},{"id":"B-049","lot":"B","no":49,"clone":"MK","census":8},{"id":"B-050","lot":"B","no":50,"clone":"TB","census":null},{"id":"B-051","lot":"B","no":51,"clone":"MK","census":19},{"id":"B-052","lot":"B","no":52,"clone":"MK","census":13},{"id":"B-053","lot":"B","no":53,"clone":"B24","census":40},{"id":"B-054","lot":"B","no":54,"clone":"MK","census":63},{"id":"B-055","lot":"B","no":55,"clone":"MK","census":27},{"id":"B-056","lot":"B","no":56,"clone":"B24","census":109},{"id":"B-057","lot":"B","no":57,"clone":"UM","census":8},{"id":"B-058","lot":"B","no":58,"clone":"MK","census":61},{"id":"B-059","lot":"B","no":59,"clone":"MK","census":25},{"id":"B-060","lot":"B","no":60,"clone":"MK","census":10},{"id":"B-061","lot":"B","no":61,"clone":"MK","census":3},{"id":"B-062","lot":"B","no":62,"clone":"MK","census":16},{"id":"B-063","lot":"B","no":63,"clone":"MK","census":2},{"id":"B-064","lot":"B","no":64,"clone":"B24","census":24},{"id":"B-065","lot":"B","no":65,"clone":"MK","census":5},{"id":"B-066","lot":"B","no":66,"clone":"MK","census":null},{"id":"C-001","lot":"C","no":1,"clone":"MK","census":null},{"id":"C-002","lot":"C","no":2,"clone":"MK","census":null},{"id":"C-003","lot":"C","no":3,"clone":"MK","census":null},{"id":"C-004","lot":"C","no":4,"clone":"MK","census":null},{"id":"C-005","lot":"C","no":5,"clone":"MK","census":14},{"id":"C-006","lot":"C","no":6,"clone":"MK","census":5},{"id":"C-007","lot":"C","no":7,"clone":"MK","census":null},{"id":"C-008","lot":"C","no":8,"clone":"MK","census":35},{"id":"C-009","lot":"C","no":9,"clone":"MK","census":1},{"id":"C-010","lot":"C","no":10,"clone":"MK","census":2},{"id":"C-011","lot":"C","no":11,"clone":"MK","census":7},{"id":"C-012","lot":"C","no":12,"clone":"MK","census":null},{"id":"C-013","lot":"C","no":13,"clone":"MK","census":31},{"id":"C-014","lot":"C","no":14,"clone":"MK","census":7},{"id":"C-015","lot":"C","no":15,"clone":"MK","census":58},{"id":"C-016","lot":"C","no":16,"clone":"MK","census":2},{"id":"C-017","lot":"C","no":17,"clone":"BT","census":21},{"id":"C-018","lot":"C","no":18,"clone":"MK","census":43},{"id":"C-019","lot":"C","no":19,"clone":"MK","census":null},{"id":"C-020","lot":"C","no":20,"clone":"MK","census":25},{"id":"C-021","lot":"C","no":21,"clone":"MK","census":3},{"id":"C-022","lot":"C","no":22,"clone":"MK","census":6},{"id":"C-023","lot":"C","no":23,"clone":"MK","census":null},{"id":"C-024","lot":"C","no":24,"clone":"MK","census":1},{"id":"C-025","lot":"C","no":25,"clone":"MK","census":null},{"id":"C-026","lot":"C","no":26,"clone":"MK","census":null},{"id":"C-027","lot":"C","no":27,"clone":"MK","census":null},{"id":"C-028","lot":"C","no":28,"clone":"TB","census":null},{"id":"C-029","lot":"C","no":29,"clone":"MK","census":19},{"id":"C-030","lot":"C","no":30,"clone":"MK","census":4},{"id":"C-031","lot":"C","no":31,"clone":"MK","census":null},{"id":"C-032","lot":"C","no":32,"clone":"MK","census":71},{"id":"C-033","lot":"C","no":33,"clone":"MK","census":null},{"id":"C-034","lot":"C","no":34,"clone":"MK","census":7},{"id":"C-035","lot":"C","no":35,"clone":"MK","census":34},{"id":"C-036","lot":"C","no":36,"clone":"MK","census":23},{"id":"C-037","lot":"C","no":37,"clone":"MK","census":8},{"id":"C-038","lot":"C","no":38,"clone":"MK","census":null},{"id":"C-039","lot":"C","no":39,"clone":"MK","census":10},{"id":"C-040","lot":"C","no":40,"clone":"MK","census":null},{"id":"C-041","lot":"C","no":41,"clone":"","census":null},{"id":"C-042","lot":"C","no":42,"clone":"","census":null},{"id":"C-043","lot":"C","no":43,"clone":"","census":null},{"id":"C-044","lot":"C","no":44,"clone":"","census":null},{"id":"C-045","lot":"C","no":45,"clone":"","census":null},{"id":"C-046","lot":"C","no":46,"clone":"","census":null},{"id":"C-047","lot":"C","no":47,"clone":"","census":null}];
+const TREE_MASTER=[{"id":"A-001","lot":"A","no":1,"clone":"MK","census":null},{"id":"A-002","lot":"A","no":2,"clone":"MK","census":null},{"id":"A-003","lot":"A","no":3,"clone":"MK","census":null},{"id":"A-004","lot":"A","no":4,"clone":"MK","census":null},{"id":"A-005","lot":"A","no":5,"clone":"MK","census":3},{"id":"A-006","lot":"A","no":6,"clone":"B24","census":null},{"id":"A-007","lot":"A","no":7,"clone":"MK","census":1},{"id":"A-008","lot":"A","no":8,"clone":"MK","census":16},{"id":"A-009","lot":"A","no":9,"clone":"MK","census":20},{"id":"A-010","lot":"A","no":10,"clone":"MK","census":7},{"id":"A-011","lot":"A","no":11,"clone":"MK","census":18},{"id":"A-012","lot":"A","no":12,"clone":"MK","census":15},{"id":"A-013","lot":"A","no":13,"clone":"B24","census":35},{"id":"A-014","lot":"A","no":14,"clone":"MK","census":null},{"id":"A-015","lot":"A","no":15,"clone":"MK","census":null},{"id":"A-016","lot":"A","no":16,"clone":"MK","census":null},{"id":"A-017","lot":"A","no":17,"clone":"MK","census":null},{"id":"A-018","lot":"A","no":18,"clone":"MK","census":null},{"id":"A-019","lot":"A","no":19,"clone":"MK","census":null},{"id":"A-020","lot":"A","no":20,"clone":"MK","census":null},{"id":"A-021","lot":"A","no":21,"clone":"MK","census":null},{"id":"A-022","lot":"A","no":22,"clone":"MK","census":null},{"id":"A-023","lot":"A","no":23,"clone":"B24","census":10},{"id":"A-024","lot":"A","no":24,"clone":"MK","census":null},{"id":"A-025","lot":"A","no":25,"clone":"MK","census":null},{"id":"A-026","lot":"A","no":26,"clone":"MK","census":29},{"id":"A-027","lot":"A","no":27,"clone":"MK","census":20},{"id":"A-028","lot":"A","no":28,"clone":"MK","census":null},{"id":"A-029","lot":"A","no":29,"clone":"MK","census":null},{"id":"A-030","lot":"A","no":30,"clone":"MK","census":null},{"id":"A-031","lot":"A","no":31,"clone":"MK","census":null},{"id":"A-032","lot":"A","no":32,"clone":"MK","census":3},{"id":"A-033","lot":"A","no":33,"clone":"MK","census":null},{"id":"A-034","lot":"A","no":34,"clone":"B24","census":null},{"id":"A-035","lot":"A","no":35,"clone":"MK","census":17},{"id":"A-036","lot":"A","no":36,"clone":"B24","census":null},{"id":"A-037","lot":"A","no":37,"clone":"MK","census":null},{"id":"A-038","lot":"A","no":38,"clone":"MK","census":null},{"id":"A-039","lot":"A","no":39,"clone":"MK","census":null},{"id":"A-040","lot":"A","no":40,"clone":"MK","census":null},{"id":"A-041","lot":"A","no":41,"clone":"MK","census":null},{"id":"A-042","lot":"A","no":42,"clone":"MK","census":null},{"id":"A-043","lot":"A","no":43,"clone":"MK","census":null},{"id":"A-044","lot":"A","no":44,"clone":"MK","census":null},{"id":"A-045","lot":"A","no":45,"clone":"MK","census":null},{"id":"A-046","lot":"A","no":46,"clone":"MK","census":null},{"id":"A-047","lot":"A","no":47,"clone":"MK","census":null},{"id":"A-048","lot":"A","no":48,"clone":"MK","census":null},{"id":"A-049","lot":"A","no":49,"clone":"MK","census":null},{"id":"A-050","lot":"A","no":50,"clone":"MK","census":null},{"id":"A-051","lot":"A","no":51,"clone":"MK","census":1},{"id":"A-052","lot":"A","no":52,"clone":"MK","census":null},{"id":"A-053","lot":"A","no":53,"clone":"MK","census":null},{"id":"A-054","lot":"A","no":54,"clone":"MK","census":null},{"id":"A-055","lot":"A","no":55,"clone":"MK","census":null},{"id":"A-056","lot":"A","no":56,"clone":"MK","census":null},{"id":"A-057","lot":"A","no":57,"clone":"MK","census":11},{"id":"A-058","lot":"A","no":58,"clone":"MK","census":null},{"id":"A-059","lot":"A","no":59,"clone":"MK","census":null},{"id":"A-060","lot":"A","no":60,"clone":"MK","census":null},{"id":"A-061","lot":"A","no":61,"clone":"B24","census":null},{"id":"A-062","lot":"A","no":62,"clone":"MK","census":null},{"id":"A-063","lot":"A","no":63,"clone":"MK","census":7},{"id":"A-064","lot":"A","no":64,"clone":"MK","census":null},{"id":"A-065","lot":"A","no":65,"clone":"MK","census":null},{"id":"B-001","lot":"B","no":1,"clone":"B24","census":13},{"id":"B-002","lot":"B","no":2,"clone":"MK","census":69},{"id":"B-003","lot":"B","no":3,"clone":"MK","census":70},{"id":"B-004","lot":"B","no":4,"clone":"MK","census":70},{"id":"B-005","lot":"B","no":5,"clone":"MK","census":65},{"id":"B-006","lot":"B","no":6,"clone":"MK","census":65},{"id":"B-007","lot":"B","no":7,"clone":"MK","census":68},{"id":"B-008","lot":"B","no":8,"clone":"MK","census":55},{"id":"B-009","lot":"B","no":9,"clone":"MK","census":69},{"id":"B-010","lot":"B","no":10,"clone":"MK","census":67},{"id":"B-011","lot":"B","no":11,"clone":"BT","census":19},{"id":"B-012","lot":"B","no":12,"clone":"MK","census":null},{"id":"B-013","lot":"B","no":13,"clone":"MK","census":null},{"id":"B-014","lot":"B","no":14,"clone":"MK","census":1},{"id":"B-015","lot":"B","no":15,"clone":"MK","census":1},{"id":"B-016","lot":"B","no":16,"clone":"MK","census":null},{"id":"B-017","lot":"B","no":17,"clone":"MK","census":null},{"id":"B-018","lot":"B","no":18,"clone":"MK","census":null},{"id":"B-019","lot":"B","no":19,"clone":"MK","census":null},{"id":"B-020","lot":"B","no":20,"clone":"MK","census":null},{"id":"B-021","lot":"B","no":21,"clone":"MK","census":1},{"id":"B-022","lot":"B","no":22,"clone":"MK","census":17},{"id":"B-023","lot":"B","no":23,"clone":"MK","census":48},{"id":"B-024","lot":"B","no":24,"clone":"MK","census":22},{"id":"B-025","lot":"B","no":25,"clone":"MK","census":56},{"id":"B-026","lot":"B","no":26,"clone":"MK","census":64},{"id":"B-027","lot":"B","no":27,"clone":"MK","census":62},{"id":"B-028","lot":"B","no":28,"clone":"MK","census":59},{"id":"B-029","lot":"B","no":29,"clone":"MK","census":59},{"id":"B-030","lot":"B","no":30,"clone":"MK","census":45},{"id":"B-031","lot":"B","no":31,"clone":"101","census":20},{"id":"B-032","lot":"B","no":32,"clone":"101","census":null},{"id":"B-033","lot":"B","no":33,"clone":"101","census":40},{"id":"B-034","lot":"B","no":34,"clone":"101","census":null},{"id":"B-035","lot":"B","no":35,"clone":"101","census":null},{"id":"B-036","lot":"B","no":36,"clone":"101","census":40},{"id":"B-037","lot":"B","no":37,"clone":"101","census":40},{"id":"B-038","lot":"B","no":38,"clone":"101","census":35},{"id":"B-039","lot":"B","no":39,"clone":"101","census":35},{"id":"B-040","lot":"B","no":40,"clone":"101","census":35},{"id":"B-041","lot":"B","no":41,"clone":"101","census":35},{"id":"B-042","lot":"B","no":42,"clone":"MK","census":14},{"id":"B-043","lot":"B","no":43,"clone":"MK","census":32},{"id":"B-044","lot":"B","no":44,"clone":"MK","census":48},{"id":"B-045","lot":"B","no":45,"clone":"BT","census":68},{"id":"B-046","lot":"B","no":46,"clone":"BT","census":34},{"id":"B-047","lot":"B","no":47,"clone":"MK","census":52},{"id":"B-048","lot":"B","no":48,"clone":"MK","census":26},{"id":"B-049","lot":"B","no":49,"clone":"MK","census":8},{"id":"B-050","lot":"B","no":50,"clone":"TB","census":null},{"id":"B-051","lot":"B","no":51,"clone":"MK","census":19},{"id":"B-052","lot":"B","no":52,"clone":"MK","census":13},{"id":"B-053","lot":"B","no":53,"clone":"B24","census":40},{"id":"B-054","lot":"B","no":54,"clone":"MK","census":63},{"id":"B-055","lot":"B","no":55,"clone":"MK","census":27},{"id":"B-056","lot":"B","no":56,"clone":"B24","census":109},{"id":"B-057","lot":"B","no":57,"clone":"UM","census":8},{"id":"B-058","lot":"B","no":58,"clone":"MK","census":61},{"id":"B-059","lot":"B","no":59,"clone":"MK","census":25},{"id":"B-060","lot":"B","no":60,"clone":"MK","census":10},{"id":"B-061","lot":"B","no":61,"clone":"MK","census":3},{"id":"B-062","lot":"B","no":62,"clone":"MK","census":16},{"id":"B-063","lot":"B","no":63,"clone":"MK","census":2},{"id":"B-064","lot":"B","no":64,"clone":"B24","census":24},{"id":"B-065","lot":"B","no":65,"clone":"MK","census":5},{"id":"B-066","lot":"B","no":66,"clone":"MK","census":null},{"id":"C-001","lot":"C","no":1,"clone":"MK","census":null},{"id":"C-002","lot":"C","no":2,"clone":"MK","census":null},{"id":"C-003","lot":"C","no":3,"clone":"MK","census":null},{"id":"C-004","lot":"C","no":4,"clone":"MK","census":null},{"id":"C-005","lot":"C","no":5,"clone":"MK","census":14},{"id":"C-006","lot":"C","no":6,"clone":"MK","census":5},{"id":"C-007","lot":"C","no":7,"clone":"MK","census":null},{"id":"C-008","lot":"C","no":8,"clone":"MK","census":35},{"id":"C-009","lot":"C","no":9,"clone":"MK","census":1},{"id":"C-010","lot":"C","no":10,"clone":"MK","census":2},{"id":"C-011","lot":"C","no":11,"clone":"MK","census":7},{"id":"C-012","lot":"C","no":12,"clone":"MK","census":null},{"id":"C-013","lot":"C","no":13,"clone":"MK","census":31},{"id":"C-014","lot":"C","no":14,"clone":"MK","census":7},{"id":"C-015","lot":"C","no":15,"clone":"MK","census":58},{"id":"C-016","lot":"C","no":16,"clone":"MK","census":2},{"id":"C-017","lot":"C","no":17,"clone":"BT","census":21},{"id":"C-018","lot":"C","no":18,"clone":"MK","census":43},{"id":"C-019","lot":"C","no":19,"clone":"MK","census":null},{"id":"C-020","lot":"C","no":20,"clone":"MK","census":25},{"id":"C-021","lot":"C","no":21,"clone":"MK","census":3},{"id":"C-022","lot":"C","no":22,"clone":"MK","census":6},{"id":"C-023","lot":"C","no":23,"clone":"MK","census":null},{"id":"C-024","lot":"C","no":24,"clone":"MK","census":1},{"id":"C-025","lot":"C","no":25,"clone":"MK","census":null},{"id":"C-026","lot":"C","no":26,"clone":"MK","census":null},{"id":"C-027","lot":"C","no":27,"clone":"MK","census":null},{"id":"C-028","lot":"C","no":28,"clone":"TB","census":null},{"id":"C-029","lot":"C","no":29,"clone":"MK","census":19},{"id":"C-030","lot":"C","no":30,"clone":"MK","census":4},{"id":"C-031","lot":"C","no":31,"clone":"MK","census":null},{"id":"C-032","lot":"C","no":32,"clone":"MK","census":71},{"id":"C-033","lot":"C","no":33,"clone":"MK","census":null},{"id":"C-034","lot":"C","no":34,"clone":"MK","census":7},{"id":"C-035","lot":"C","no":35,"clone":"MK","census":34},{"id":"C-036","lot":"C","no":36,"clone":"MK","census":23},{"id":"C-037","lot":"C","no":37,"clone":"MK","census":8},{"id":"C-038","lot":"C","no":38,"clone":"MK","census":null},{"id":"C-039","lot":"C","no":39,"clone":"MK","census":10},{"id":"C-040","lot":"C","no":40,"clone":"MK","census":null},{"id":"C-041","lot":"C","no":41,"clone":"","census":null},{"id":"C-042","lot":"C","no":42,"clone":"","census":null},{"id":"C-043","lot":"C","no":43,"clone":"","census":null},{"id":"C-044","lot":"C","no":44,"clone":"","census":null},{"id":"C-045","lot":"C","no":45,"clone":"","census":null},{"id":"C-046","lot":"C","no":46,"clone":"","census":null},{"id":"C-047","lot":"C","no":47,"clone":"","census":null}];
+// TREE_MASTER is the single source of truth for all 168+ trees (Lot A/B/C).
+// TREES is kept as an alias so every Phase-1 call site keeps working; both names
+// point at the SAME array, so an Owner-approved correction updates the whole app.
+const TREES=TREE_MASTER;
+const CLONES=['MK','BT','B24','101','UM','TB'];
+const CLONE_NAME={MK:'Musang King',BT:'Black Thorn',B24:'B24','101':'101',UM:'Udang Merah',TB:'TB (unverified)','':'Not recorded'};
+const LOTS=['A','B','C'];
 const PRODUCTS=[{"id":1,"name":"Amotan 22.8SC","cat":"Pesticide","unit":"ml","cpu":0.21,"stock":4000},{"id":2,"name":"Cypermethrin 5.5 (Kencis)","cat":"Pesticide","unit":"ml","cpu":0.018,"stock":5000},{"id":3,"name":"Fipronil (Rainnil)","cat":"Pesticide","unit":"ml","cpu":0.07,"stock":4000},{"id":4,"name":"Madell","cat":"Pesticide","unit":"ml","cpu":0.088,"stock":0},{"id":5,"name":"Abamectin (Envoy)","cat":"Pesticide","unit":"ml","cpu":0.045,"stock":6000},{"id":6,"name":"Mancozeb (Raincozeb 80WB)","cat":"Fungicide","unit":"gm","cpu":0.025,"stock":2000},{"id":7,"name":"Arimo 23EC","cat":"Fungicide","unit":"ml","cpu":0.156,"stock":500},{"id":8,"name":"Agus 24SC","cat":"Fungicide","unit":"ml","cpu":0.17,"stock":500},{"id":9,"name":"Aliette (ribut petir)","cat":"Fungicide","unit":"gm","cpu":0.15,"stock":2000},{"id":10,"name":"AMG mix","cat":"Foliar","unit":"ml","cpu":0.068,"stock":0},{"id":11,"name":"Wuzal Ascofol","cat":"Foliar","unit":"ml","cpu":0.053,"stock":0},{"id":12,"name":"Wuzal ZN","cat":"Foliar","unit":"ml","cpu":0.079,"stock":0},{"id":13,"name":"Wuxal Ascofol CAB","cat":"Foliar","unit":"ml","cpu":0.052,"stock":5000},{"id":14,"name":"A Zinc Mix","cat":"Foliar","unit":"ml","cpu":0.07,"stock":6000},{"id":15,"name":"Xilca","cat":"Foliar","unit":"ml","cpu":0.0608,"stock":2000},{"id":16,"name":"Flora","cat":"Foliar","unit":"ml","cpu":0.0825,"stock":4000},{"id":17,"name":"Vitanica","cat":"Foliar","unit":"ml","cpu":0.0533,"stock":0},{"id":18,"name":"Stunza","cat":"Foliar","unit":"ml","cpu":0.085,"stock":0},{"id":19,"name":"Calcifol","cat":"Foliar","unit":"ml","cpu":0.046,"stock":4000},{"id":20,"name":"Heromix T1","cat":"Foliar","unit":"ml","cpu":0.042,"stock":1000},{"id":21,"name":"Auxi-Pro","cat":"Foliar","unit":"ml","cpu":0.085,"stock":7000},{"id":22,"name":"Cyto-Plus","cat":"Foliar","unit":"ml","cpu":0.075,"stock":8000},{"id":23,"name":"Carboxamin","cat":"Foliar","unit":"ml","cpu":0.0708,"stock":5500},{"id":24,"name":"Sorbix","cat":"Foliar","unit":"ml","cpu":0.075,"stock":6000},{"id":25,"name":"A Plus Cal","cat":"Powder","unit":"gm","cpu":0.072,"stock":5000},{"id":26,"name":"AZ Plus","cat":"Powder","unit":"gm","cpu":0.095,"stock":1000},{"id":27,"name":"Brightstar PBZ","cat":"Growth Reg","unit":"ml","cpu":0.1083,"stock":3000},{"id":28,"name":"GA3 (Gibberlic Acid)","cat":"Growth Reg","unit":"tablets","cpu":9.5,"stock":29},{"id":29,"name":"Yara MKP","cat":"Foliar","unit":"gm","cpu":0.012,"stock":20000},{"id":30,"name":"Hero Max (Sticker)","cat":"Foliar","unit":"ml","cpu":0.04,"stock":0},{"id":31,"name":"Entrust 18SL (Racun rumput)","cat":"Herbicide","unit":"ml","cpu":0.0125,"stock":0},{"id":32,"name":"Yara Liva Tropicote","cat":"Fertiliser","unit":"gm","cpu":0.0032,"stock":175000},{"id":33,"name":"Yara Liva Nitrobor","cat":"Fertiliser","unit":"gm","cpu":0.004,"stock":75000},{"id":34,"name":"Yara Mila 12-12-17","cat":"Fertiliser","unit":"gm","cpu":0.0046,"stock":200000},{"id":35,"name":"Yara Tera Krista Mgs","cat":"Fertiliser","unit":"gm","cpu":0.0022,"stock":140000},{"id":36,"name":"Garsoni 8-24-24","cat":"Fertiliser","unit":"gm","cpu":0.0047,"stock":20000},{"id":37,"name":"Polysulphate","cat":"Fertiliser","unit":"gm","cpu":0.0018,"stock":250000},{"id":38,"name":"Nutrigem","cat":"Fertiliser","unit":"gm","cpu":0.0009,"stock":0},{"id":39,"name":"Herocris Nexus 5-25-25-2MGO","cat":"Fertiliser","unit":"gm","cpu":0.012,"stock":60000},{"id":40,"name":"Basfoliar","cat":"Foliar","unit":"ml","cpu":0.0553,"stock":15000},{"id":41,"name":"Plantara","cat":"Foliar","unit":"ml","cpu":0.085,"stock":11000},{"id":42,"name":"Raizon Max","cat":"Foliar","unit":"ml","cpu":0.085,"stock":7000},{"id":43,"name":"Yara Calcinit (CN)","cat":"Fertiliser","unit":"gm","cpu":0.0036,"stock":20000},{"id":44,"name":"Fetto 480","cat":"Fungicide","unit":"ml","cpu":0.32,"stock":0},{"id":45,"name":"Pictor","cat":"Fungicide","unit":"ml","cpu":0.065,"stock":0},{"id":46,"name":"Marshal 20SC","cat":"Pesticide","unit":"ml","cpu":0.065,"stock":500},{"id":47,"name":"Betakal Amino","cat":"Foliar","unit":"ml","cpu":0.041,"stock":10000},{"id":48,"name":"Ardel","cat":"Fungicide","unit":"ml","cpu":0.0,"stock":0},{"id":49,"name":"Pengasus 47.17sc","cat":"Pesticide","unit":"ml","cpu":0.15,"stock":0},{"id":50,"name":"Azatin","cat":"Pesticide","unit":"ml","cpu":0.17,"stock":1000},{"id":51,"name":"Match","cat":"Pesticide","unit":"ml","cpu":0.26,"stock":2000},{"id":52,"name":"Zinc (powder)","cat":"Fertiliser","unit":"gm","cpu":0.0,"stock":0},{"id":53,"name":"Yara Rega 13-4-25","cat":"Fertiliser","unit":"gm","cpu":0.0114,"stock":10000},{"id":54,"name":"Yara Tera Kristalon 13-40-13","cat":"Fertiliser","unit":"gm","cpu":0.0118,"stock":25000},{"id":55,"name":"A Zinc (Year 2023)","cat":"Foliar","unit":"ml","cpu":0.065,"stock":1000},{"id":56,"name":"Nutrimix Complete (AZ PLUS)","cat":"Foliar","unit":"kg","cpu":0.077,"stock":3000},{"id":57,"name":"Ultra Bor (Flora)","cat":"Foliar","unit":"kg","cpu":0.065,"stock":3000},{"id":58,"name":"Anmi 4.8SC","cat":"Foliar","unit":"ml","cpu":0.085,"stock":1000},{"id":59,"name":"VS 34","cat":"Foliar","unit":"kg","cpu":0.0,"stock":1000},{"id":60,"name":"Abinsec 1.8EC","cat":"Pesticide","unit":"ml","cpu":0.0213,"stock":5000},{"id":61,"name":"Basaplant Orange 14-5-30","cat":"Fertiliser","unit":"kg","cpu":0.0118,"stock":25000},{"id":62,"name":"Hydrospeed Yield 3-14-37","cat":"Fertiliser","unit":"kg","cpu":0.0118,"stock":50000},{"id":63,"name":"Yara Mila 12-11-18","cat":"Fertiliser","unit":"kg","cpu":0.0046,"stock":350000},{"id":64,"name":"Yara Tera 18-18-18","cat":"Fertiliser","unit":"kg","cpu":0.0118,"stock":50000},{"id":65,"name":"Florica 21-21-21","cat":"Fertiliser","unit":"kg","cpu":0.01,"stock":25000},{"id":66,"name":"Ge Rocket 9-14-9","cat":"Fertiliser","unit":"kg","cpu":0.0031,"stock":6000},{"id":67,"name":"MSolumax 3-16-36","cat":"Fertiliser","unit":"kg","cpu":0.0106,"stock":52000}];
 const CENSUS_TOTAL={"A": 213, "B": 2052, "C": 437};
 const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.1.1';
+const APP_VERSION = 'v2.2.0';
 // Seed registry. The Owner edits this live in the app (Owner tab → Master Governance
 // & User Registry); pushing mirrors it into the WORKERS tab of the Google Sheet, which
 // is what every other phone reads at the hotspot.
@@ -357,31 +474,45 @@ const AVG_KG = {MK:1.7,BT:1.9,B24:1.6,'101':1.5,UM:1.4,TB:1.9};
 const SPRAY_SETS = ['Aug - Set 1 (fruit+leaf)','Aug - Set 2 (soil drench)','Aug - Set 3 (leaf only)','Aug - Set 4 (leaf only)','Aug - Set 5 (soil drench)','Aug - Fert 1','Aug - Fert 2','General / other'];
 
 // ================= storage (IndexedDB, memory fallback) =================
-let db=null, mem={events:[],config:null};
+let db=null, mem={events:[],config:null,corrections:[]};
 function idb(){return new Promise((res)=>{ if(!window.indexedDB) return res(null);
-  const rq=indexedDB.open('sugut-dms',1);
+  // v2 adds the offline `correction_requests` queue. Existing events/kv data is preserved.
+  const rq=indexedDB.open('sugut-dms',2);
   rq.onupgradeneeded=e=>{const d=e.target.result;
     if(!d.objectStoreNames.contains('events'))d.createObjectStore('events',{keyPath:'uuid'});
-    if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});};
+    if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});
+    if(!d.objectStoreNames.contains('corrections'))d.createObjectStore('corrections',{keyPath:'uuid'});};
   rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null);});}
 function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
 function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
 function all(store){return new Promise(res=>{if(!db){res(null);return;}const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(null);});}
 
 let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.map(k=>({...k})), LOCKED=false, REG_DIRTY=false;
+// v2.2 — offline queue of worker-submitted corrections + the approved overrides
+// that have been burned into TREE_MASTER.
+let CORRECTIONS=[], TREE_FIX={};
 async function initStore(){
   db=await idb();
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
+    CORRECTIONS=(await all('corrections'))||[];
     const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
     const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
     const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
     const rd=kv.find(x=>x.k==='regdirty'); REG_DIRTY=!!(rd&&rd.v);
+    const tf=kv.find(x=>x.k==='treefix'); if(tf&&tf.v&&typeof tf.v==='object') TREE_FIX=tf.v;
   }
-  else { EVENTS=mem.events; CFG=mem.config; }
+  else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
+  applyTreeFixes();                             // approved corrections are permanent
 }
 async function persistEvent(ev){ EVENTS.push(ev); if(db) await put('events',ev); else mem.events=EVENTS; badge(); }
 async function persistCfg(){ if(db) await put('kv',{k:'cfg',v:CFG}); else mem.config=CFG; }
+async function persistCorrection(c){
+  const i=CORRECTIONS.findIndex(x=>x.uuid===c.uuid);
+  if(i>=0) CORRECTIONS[i]=c; else CORRECTIONS.push(c);
+  if(db) await put('corrections',c); else mem.corrections=CORRECTIONS;
+  badge();}
+async function persistTreeFix(){ if(db) await put('kv',{k:'treefix',v:TREE_FIX}); }
 
 // ================= helpers =================
 const $=id=>document.getElementById(id);
@@ -391,9 +522,135 @@ function uuid(){ if(crypto&&crypto.randomUUID)return crypto.randomUUID();
 function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
 function todayStr(){return now().slice(0,10);}
 function pending(){return EVENTS.filter(e=>!e.synced).length;}
-function badge(){$('qbadge').textContent=pending();}
-function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&(pending()>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
+function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
+function badge(){$('qbadge').textContent=pending()+corrUnsynced();}
+function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&(pending()>0||corrUnsynced()>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
+
+// ================= TREE MASTER engine (v2.2) =================
+// TREE_FIX holds every Owner-APPROVED correction, keyed by TreeID. It is replayed
+// over TREE_MASTER on every boot and immediately after an approval, so a corrected
+// clone is permanent and identical on every screen of the app.
+function treeById(id){return TREE_MASTER.find(t=>t.id===id)||null;}
+function treesInLot(l){return TREE_MASTER.filter(t=>t.lot===l);}
+function cloneLabel(c){return c?((CLONE_NAME[c]||c)+' ('+c+')'):'Not recorded';}
+function applyTreeFixes(){
+  Object.keys(TREE_FIX).forEach(id=>{
+    const t=treeById(id); if(!t)return; const f=TREE_FIX[id];
+    if(f.clone!==undefined) t.clone=f.clone;
+    if(f.census!==undefined) t.census=f.census;
+    if(f.note!==undefined) t.note=f.note;
+  });
+  recalcCensusTotals();}
+function recalcCensusTotals(){
+  LOTS.forEach(l=>{CENSUS_TOTAL[l]=treesInLot(l).reduce((s,t)=>s+(t.census||0),0)||1;});}
+
+// ================= correction requests (worker → owner) =================
+function canCorrect(){return myRole()==='WORKER'||myRole()==='OWNER'||myRole()==='MARKETING';}
+function canApprove(){return myRole()==='OWNER';}
+let corrType='CLONE', corrClone='', corrTree=null;
+function openCorrection(){
+  if(!canCorrect()){toast('Not permitted for your role',1);return;}   // hard guard: Purchaser
+  if(!curTree){toast('Pick a tree first',1);return;}
+  corrTree=curTree; corrClone=''; corrType='CLONE';
+  $('cf-tree').textContent=curTree.id;
+  $('cf-current').innerHTML='Clone on record<br><b>'+cloneLabel(curTree.clone)+'</b><br>Census Jul: <b>'+(curTree.census!=null?curTree.census:'—')+'</b>';
+  $('cf-clones').innerHTML=CLONES.map(c=>'<div data-c="'+c+'" onclick="pickCorrClone(\''+c+'\')">'+c+'</div>').join('');
+  $('cf-census').value=curTree.census!=null?curTree.census:'';
+  $('cf-note').value=''; $('cf-err').textContent='';
+  pickCorrType('CLONE');
+  $('corrmodal').classList.remove('hidden');}
+function closeCorrection(){$('corrmodal').classList.add('hidden');}
+function pickCorrType(t){corrType=t;
+  [...$('cf-types').children].forEach(el=>el.classList.toggle('on',el.dataset.ct===t));
+  $('cf-clonewrap').classList.toggle('hidden',t!=='CLONE');
+  $('cf-censuswrap').classList.toggle('hidden',t!=='CENSUS');}
+function pickCorrClone(c){corrClone=c;
+  [...$('cf-clones').children].forEach(el=>el.classList.toggle('on',el.dataset.c===c));}
+function corrSummary(c){
+  if(c.ctype==='CLONE') return 'Clone: '+(c.oldVal||'—')+'  ➔  '+c.newVal;
+  if(c.ctype==='CENSUS') return 'July census: '+(c.oldVal===''||c.oldVal==null?'—':c.oldVal)+'  ➔  '+c.newVal;
+  return 'Tag / other issue — no automatic change';}
+async function submitCorrection(){
+  if(!canCorrect()||!corrTree)return;
+  const t=corrTree, note=$('cf-note').value.trim();
+  let oldVal='', newVal='';
+  if(corrType==='CLONE'){
+    if(!corrClone){$('cf-err').textContent='Choose the correct clone.';return;}
+    if(corrClone===t.clone){$('cf-err').textContent='That is already the clone on record.';return;}
+    oldVal=t.clone||''; newVal=corrClone;
+  }else if(corrType==='CENSUS'){
+    const v=$('cf-census').value;
+    if(v===''||isNaN(+v)||+v<0){$('cf-err').textContent='Enter the correct census count.';return;}
+    if(t.census!=null&&+v===t.census){$('cf-err').textContent='That is already the count on record.';return;}
+    oldVal=(t.census==null?'':t.census); newVal=Math.round(+v);
+  }else{
+    if(!note){$('cf-err').textContent='Describe the problem for the Owner.';return;}
+    oldVal=''; newVal='';
+  }
+  await persistCorrection({uuid:uuid(),dt:now(),tree:t.id,lot:t.lot,no:t.no,ctype:corrType,
+    oldVal:oldVal,newVal:newVal,note:note,worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,
+    status:'PENDING',decidedBy:'',decidedAt:'',synced:false});
+  closeCorrection();
+  renderMyCorrections();
+  toast('✓ Sent to Owner for approval'+(navigator.onLine?'':' (queued)'));}
+function renderMyCorrections(){
+  const box=$('mycorr'); if(!box)return;
+  if(!canCorrect()){box.style.display='none';return;}
+  const mine=CORRECTIONS.filter(c=>c.worker===(CFG&&CFG.worker)).sort((a,b)=>b.dt.localeCompare(a.dt)).slice(0,12);
+  box.style.display=mine.length?'':'none';
+  $('mycorrlist').innerHTML=mine.map(c=>{
+    const s=c.status==='APPROVED'?'a':(c.status==='REJECTED'?'r':'p');
+    return '<div class="lrow"><span><b>'+c.tree+'</b> · '+corrSummary(c)+'<br><span class="small">'+c.dt+'</span></span><span class="cstat '+s+'">'+c.status+'</span></div>';}).join('');}
+
+// ================= owner: pending data adjustments =================
+let corrFilter='PENDING';
+function setCorrFilter(f,el){corrFilter=f;[...$('corrfilter').children].forEach(x=>x.classList.remove('on'));if(el)el.classList.add('on');renderCorrections();}
+function renderCorrections(){
+  const panel=$('corrpanel'); if(!panel)return;
+  const r=myRole();
+  panel.style.display=(r==='OWNER'||r==='MARKETING')?'':'none';   // never the Purchaser
+  if(panel.style.display==='none')return;
+  const pend=CORRECTIONS.filter(c=>c.status==='PENDING');
+  const b=$('corrcount'); b.textContent=pend.length; b.classList.toggle('hidden',!pend.length);
+  const list=corrFilter==='PENDING'?pend:(corrFilter==='DECIDED'?CORRECTIONS.filter(c=>c.status!=='PENDING'):CORRECTIONS.slice());
+  list.sort((a,b2)=>b2.dt.localeCompare(a.dt));
+  $('corrlist').innerHTML=list.length?list.map(c=>{
+    const s=c.status==='APPROVED'?'a':(c.status==='REJECTED'?'r':'p');
+    const acts=(c.status==='PENDING'&&canApprove())
+      ?'<div class="cacts"><button class="ok" onclick="decideCorrection(\''+c.uuid+'\',1)">✓ '+(c.ctype==='NOTE'?'ACKNOWLEDGE':'APPROVE CHANGE')+'</button><button class="no" onclick="decideCorrection(\''+c.uuid+'\',0)">✕ REJECT REQUEST</button></div>'
+      :(c.status==='PENDING'?'<div class="small">Owner approval required.</div>'
+        :'<div class="small">'+c.status.toLowerCase()+' by '+(c.decidedBy||'—')+' · '+(c.decidedAt||'')+'</div>');
+    return '<div class="crow"><div class="ch"><div><div class="ctree">'+c.tree+'</div>'+
+      '<div class="cwho">Lot '+c.lot+' · Tree '+c.no+'<br>'+c.worker+' · '+c.dt+'</div></div>'+
+      '<span class="cstat '+s+'">'+c.status+'</span></div>'+
+      '<div class="cchange">'+corrSummary(c)+'</div>'+
+      (c.note?'<div class="cnote">“'+c.note+'”</div>':'')+acts+'</div>';}).join('')
+    :'<div class="small">No '+(corrFilter==='PENDING'?'pending':'')+' correction requests.</div>';}
+// Burn an APPROVED correction into TREE_MASTER permanently (used by the Owner's
+// approval and, on worker phones, when an approval arrives down the sync).
+async function bakeApproved(c){
+  if(!treeById(c.tree))return;
+  TREE_FIX[c.tree]=TREE_FIX[c.tree]||{};
+  if(c.ctype==='CLONE') TREE_FIX[c.tree].clone=c.newVal;
+  else if(c.ctype==='CENSUS') TREE_FIX[c.tree].census=Math.round(+c.newVal);
+  else if(c.note) TREE_FIX[c.tree].note=c.note;
+  await persistTreeFix(); applyTreeFixes();}
+async function decideCorrection(id,ok){
+  if(!canApprove()){toast('Only the Owner can approve corrections',1);return;}
+  const c=CORRECTIONS.find(x=>x.uuid===id); if(!c||c.status!=='PENDING')return;
+  const t=treeById(c.tree);
+  if(ok){
+    if(!confirm('Approve this change?\n\n'+c.tree+'\n'+corrSummary(c)+'\n\nThis permanently updates the Tree Master across the whole app.'))return;
+  }else{
+    if(!confirm('Reject this request?\n\n'+c.tree+'\n'+corrSummary(c)))return;
+  }
+  c.status=ok?'APPROVED':'REJECTED'; c.decidedBy=CFG.worker; c.decidedAt=now(); c.synced=false;
+  if(ok&&t) await bakeApproved(c);
+  await persistCorrection(c);
+  renderCorrections(); renderDash();
+  if(curTree&&curTree.id===c.tree) selectTree(c.tree);   // refresh the open tree card
+  toast(ok?('✓ Approved — '+c.tree+' updated'):'Request rejected');}
 
 // ================= navigation (role-aware) =================
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -408,6 +665,14 @@ function applyRole(){
   if(r==='PURCHASER') setMove('IN');
   if(r==='WORKER') setMove('OUT');
   if($('keyspanel')) $('keyspanel').style.display=(r==='OWNER'||r==='MARKETING')?'':'none';
+  // ---- regulatory guardrail: the Sandakan Purchaser never sees harvest or
+  //      correction features, even if a screen is reached some other way ----
+  const harvestOK=allowedTabs().includes('harvest')&&r!=='PURCHASER';
+  if($('scr-harvest')) $('scr-harvest').style.display=harvestOK?'':'none';
+  if($('corrbtn'))   $('corrbtn').style.display=(harvestOK&&canCorrect())?'':'none';
+  if($('mycorr'))    $('mycorr').style.display=(harvestOK&&canCorrect())?'':'none';
+  if($('corrpanel')) $('corrpanel').style.display=(r==='OWNER'||r==='MARKETING')?'':'none';
+  if(harvestOK&&canCorrect()) renderMyCorrections();
 }
 function homeTab(){return myRole()==='PURCHASER'?'stock':'harvest';}
 function go(s){
@@ -415,7 +680,8 @@ function go(s){
   ['harvest','stock','sync','dash'].forEach(x=>{$('scr-'+x).classList.toggle('hidden',x!==s);$('nav-'+x).classList.toggle('on',x===s);});
   $('scr-setup').classList.add('hidden');$('scr-login').classList.add('hidden');
   $('ttl').textContent={harvest:'Log Fruit Drop',stock:'Inventory',sync:'Sync',dash:'Dashboard'}[s];
-  if(s==='sync')renderSync(); if(s==='dash'){renderKeys();renderDash();} if(s==='stock'){renderProdOpts();renderStock();}}
+  if(s==='sync')renderSync(); if(s==='dash'){renderKeys();renderCorrections();renderDash();} if(s==='stock'){renderProdOpts();renderStock();}
+  if(s==='harvest'){buildLotSelect();renderMyCorrections();}}
 
 // ================= access key login =================
 let pin='';
@@ -475,12 +741,41 @@ function simulateKill(){
   simTaps=0;$('simnote').onclick=()=>{if(++simTaps>=3){$('lockscreen').classList.add('hidden');['ws1','ws2','ws3','ws4'].forEach(s=>$(s).classList.remove('on'));toast('Simulation ended');}};
   runWipeSequence(true);}
 
+// Pull correction requests + Owner decisions made on other phones.
+// Rule: a decision from the sheet always beats a local PENDING row; a local row
+// that has not been pushed yet always beats the sheet.
+async function mergeCorrections(rows){
+  let changed=false, approvedNow=0;
+  for(const raw of rows){
+    const sc={uuid:String(raw.uuid||raw.CorrectionUUID||'').trim(),dt:String(raw.dt||''),
+      tree:String(raw.tree||''),lot:String(raw.lot||''),no:+raw.no||0,ctype:String(raw.ctype||'NOTE'),
+      oldVal:raw.oldVal===undefined?'':raw.oldVal,newVal:raw.newVal===undefined?'':raw.newVal,
+      note:String(raw.note||''),worker:String(raw.worker||''),workerId:String(raw.workerId||''),
+      device:String(raw.device||''),status:String(raw.status||'PENDING').toUpperCase(),
+      decidedBy:String(raw.decidedBy||''),decidedAt:String(raw.decidedAt||''),synced:true};
+    if(!sc.uuid||!sc.tree)continue;
+    const lc=CORRECTIONS.find(x=>x.uuid===sc.uuid);
+    if(!lc){ CORRECTIONS.push(sc); if(db)await put('corrections',sc);
+      if(sc.status==='APPROVED'){await bakeApproved(sc);approvedNow++;} changed=true; continue; }
+    if(!lc.synced) continue;                                  // our unpushed edit wins
+    if(lc.status===sc.status && lc.decidedBy===sc.decidedBy) continue;
+    Object.assign(lc,sc); if(db)await put('corrections',lc);
+    if(sc.status==='APPROVED'){await bakeApproved(lc);approvedNow++;}
+    changed=true;
+  }
+  if(changed){badge();renderCorrections();renderMyCorrections();
+    if(curTree)selectTree(curTree.id);
+    if(approvedNow)toast('✓ '+approvedNow+' approved tree correction'+(approvedNow>1?'s':'')+' applied');}}
+
 // ================= master data refresh + revocation check =================
 async function refreshMasters(){
   if(!CFG||!CFG.url||!navigator.onLine)return;
   try{
     const r=await fetch(CFG.url);const j=await r.json();
-    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return;
+    // corrections are merged only AFTER the kill switch has cleared this device
+    const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
+    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length)){
+      if(inCorr)await mergeCorrections(inCorr); return;}
     const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
       id:String(w.WorkerID||w.Name||'').trim()||newUid(),
       name:w.Name||w.WorkerID,
@@ -506,6 +801,7 @@ async function refreshMasters(){
         await forceLogout('Your access key was changed. Ask the Owner for the new 6-digit key.');return;}
       CFG.uid=me.id;CFG.worker=me.name;CFG.role=me.role;await persistCfg();
     }
+    if(inCorr)await mergeCorrections(inCorr);   // device is cleared — safe to ingest
 
     // ---- local unpushed edits always win until they are pushed ----
     if(REG_DIRTY){renderKeys();return;}
@@ -653,18 +949,48 @@ function startScan(){
   scanner.start({facingMode:'environment'},{fps:10,qrbox:220},txt=>{stopScan();selectTree(txt.trim());},()=>{})
   .catch(()=>{stopScan();toast('Camera not available — pick from list',1);showPicker();});}
 function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');}
-function showPicker(){$('picker').classList.remove('hidden');pickLot(curLot);}
+function showPicker(){$('picker').classList.remove('hidden');buildLotSelect();pickLot(curLot);}
 let curLot='B';
+// --- dynamic dropdowns: Lot ➔ Tree number ➔ read-only clone ---
+function buildLotSelect(){
+  const s=$('h-lot'); if(s.options.length) {s.value=curLot; return;}
+  s.innerHTML=LOTS.map(l=>'<option value="'+l+'">Lot '+l+' ('+treesInLot(l).length+' trees)</option>').join('');
+  s.value=curLot; $('tm-count').textContent=TREE_MASTER.length; buildTreeSelect();}
+function buildTreeSelect(){
+  const s=$('h-tree');
+  s.innerHTML='<option value="">— select tree —</option>'+treesInLot(curLot).map(t=>
+    '<option value="'+t.id+'">'+t.id+'  ·  Tree '+t.no+'</option>').join('');
+  s.value=''; showCloneReadout(null);}
+function onLotChange(){curLot=$('h-lot').value;
+  [...$('lotbtns').children].forEach((x,i)=>x.classList.toggle('on',LOTS[i]===curLot));
+  renderGrid(); buildTreeSelect();}
+function onTreeChange(){showCloneReadout(treeById($('h-tree').value));}
+function showCloneReadout(t){
+  $('h-clone').textContent=t?(t.clone||'NOT RECORDED'):'—';
+  $('h-cloneinfo').innerHTML=t
+    ?(cloneLabel(t.clone)+'<br>Census Jul: <b>'+(t.census!=null?t.census+' fruit':'—')+'</b>'+(t.note?'<br>⚠ '+t.note:''))
+    :'select a tree';}
+function confirmTreePick(){
+  const id=$('h-tree').value;
+  if(!id){toast('Choose a tree number first',1);return;}
+  selectTree(id);}
+function renderGrid(){
+  const g=$('pickgrid');g.innerHTML='';
+  treesInLot(curLot).forEach(t=>{const d=document.createElement('div');d.className='mk';d.textContent=t.no;d.onclick=()=>selectTree(t.id);g.appendChild(d);});}
 function pickLot(l,el){curLot=l;if(el){[...$('lotbtns').children].forEach(x=>x.classList.remove('on'));el.classList.add('on');}
-  const g=$('pickgrid');g.innerHTML='';TREES.filter(t=>t.lot===l).forEach(t=>{const d=document.createElement('div');d.className='mk';d.textContent=t.no;d.onclick=()=>selectTree(t.id);g.appendChild(d);});}
+  if($('h-lot').options.length)$('h-lot').value=l;
+  renderGrid(); buildTreeSelect();}
 function selectTree(id){
-  const t=TREES.find(x=>x.id===id);
+  const t=treeById(id);
   if(!t){toast('Unknown tag: '+id,1);return;}
   curTree=t;$('t-id').textContent=t.id;$('t-clone').textContent=t.clone||'?';
-  $('t-meta').textContent='Lot '+t.lot+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
-  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');qty=1;$('qty').textContent=1;setGrade(0);}
+  $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
+  curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
+  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');qty=1;$('qty').textContent=1;setGrade(0);
+  if($('corrbtn')) $('corrbtn').style.display=canCorrect()?'':'none';}
 function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
 function bump(d){qty=Math.max(1,qty+d);$('qty').textContent=qty;}
+function resetQty(){qty=1;$('qty').textContent=1;}
 function setGrade(i){grade=['A','B','C'][i];[...$('grades').children].forEach((el,j)=>el.classList.toggle('on',j===i));}
 let savingDrop=false, lastDrop={tree:null,time:0};
 async function saveDrop(){
@@ -730,7 +1056,8 @@ function renderSync(){
       : '<span style="display:flex;align-items:center;gap:6px"><span class="tag q">QUEUED</span><span onclick="removeEvent(\''+e.uuid+'\')" style="color:#b3261e;font-weight:800;font-size:15px;padding:2px 8px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer">✕</span></span>';
     return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span>'+right+'</div>';}).join('')
   :'<div class="small">No events yet.</div>';
-  const b=$('syncbtn');b.disabled=!pending();b.textContent=pending()?('⇧ SYNC '+pending()+' EVENTS NOW'):'✓ ALL SYNCED';}
+  const b=$('syncbtn');const n=pending()+corrUnsynced();
+  b.disabled=!n;b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'✓ ALL SYNCED';}
 async function removeEvent(u){
   const e=EVENTS.find(x=>x.uuid===u);
   if(!e||e.synced)return; // synced events can never be removed from the phone
@@ -739,12 +1066,32 @@ async function removeEvent(u){
   EVENTS=EVENTS.filter(x=>x.uuid!==u);
   if(db)await del('events',u); else mem.events=EVENTS;
   badge();renderSync();toast('Entry deleted');}
+// Correction requests travel in their own payload key so the tested DROP/STOCK
+// event pipeline is untouched. If the Google Sheet still runs the old Apps Script
+// (no `corrections:true` in the reply) nothing is marked synced — the queue simply
+// waits, and the app keeps working fully offline in the meantime.
+let corrWarned=false;
+async function pushCorrections(){
+  const batch=CORRECTIONS.filter(c=>!c.synced);
+  if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({corrections:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j.corrections){
+      for(const c of batch){c.synced=true;if(db)await put('corrections',c);}
+      badge();return true;}
+    if(!corrWarned){corrWarned=true;
+      toast('Corrections kept on this phone — update the Apps Script to share them',1);}
+    return false;
+  }catch(e){return false;}}
 let syncing=false;
 async function doSync(auto){
   if(syncing)return;
   if(!CFG||!CFG.url){if(!auto)toast('Set the Sync URL in Settings first',1);return;}
   if(!navigator.onLine){if(!auto)toast('No internet connection',1);return;}
   if(REG_DIRTY)await pushRegistry();          // registry changes go up first
+  await pushCorrections();                    // then correction requests / decisions
   const batch=EVENTS.filter(e=>!e.synced);
   if(!batch.length){await refreshMasters();return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
