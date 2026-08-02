@@ -160,6 +160,35 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .cstat.r{background:#fdecea;color:var(--warn);}
 .cbadge{background:var(--warn);color:#fff;font-size:10px;font-weight:800;border-radius:9px;padding:1px 7px;margin-left:6px;}
 .mystat{margin-top:9px;font-size:11px;}
+/* v2.6 phase clock, weather banner, blueprint + general task chips */
+.clock{display:flex;gap:8px;align-items:center;margin:6px 0 2px}
+.clockpill{font-size:11px;font-weight:900;letter-spacing:.4px;padding:3px 9px;border-radius:999px;
+  background:#e8f2ea;color:#1c5b30;border:1.5px solid #bcdcc6}
+.clockpill.warn{background:#fff5e0;color:#7a4b00;border-color:#f0d49a}
+.clockpill.over{background:#fdecea;color:#b3261e;border-color:#f1c3bf}
+.clockbar{height:7px;border-radius:999px;background:#e9ecef;overflow:hidden;flex:1;min-width:60px}
+.clockbar i{display:block;height:100%;background:#2f7d4f;border-radius:999px}
+.clockbar i.warn{background:#e8a33d}.clockbar i.over{background:#b3261e}
+.wx{display:flex;gap:8px;margin:8px 0}
+.wx>div{flex:1;text-align:center;padding:11px 6px;border-radius:12px;border:2px solid #dfe3e8;
+  font-weight:900;font-size:13px;background:#fff;cursor:pointer}
+.wx>div.on{border-color:#2f7d4f;background:#eaf4ee;color:#1c5b30}
+.wx>div.rain.on{border-color:#2b5fa8;background:#e8effa;color:#123a71}
+.advbox{border:1.6px solid #c9d8ef;background:#f2f6fd;border-radius:12px;padding:10px 11px;margin:8px 0}
+.advbox .ah{font-weight:900;font-size:12.5px;color:#123a71;margin-bottom:5px}
+.swap{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px dashed #cfdcef;font-size:12.5px}
+.swap:first-of-type{border-top:0}
+.swap b{font-weight:900}
+.aitag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:999px;
+  background:#eef1f4;color:#425466;margin-right:4px}
+.aitag.sys{background:#e8f2ea;color:#1c5b30}
+.aitag.con{background:#fdecea;color:#b3261e}
+.aitag.unk{background:#fff5e0;color:#7a4b00}
+.bline{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #eef0f2}
+.bline .x{color:#b3261e;font-weight:900;padding:2px 9px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer}
+.trcount{display:flex;gap:7px;align-items:center;margin:6px 0}
+.trcount input{margin:0}
+.trcount .x{color:#b3261e;font-weight:900;padding:6px 10px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer}
 /* v2.5 sub-tab bar, pinned under the header */
 .subbar{display:flex;gap:5px;background:#fff;border-bottom:1px solid #e2e6e1;padding:6px 8px;
   flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -481,7 +510,7 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div class="kpi"><div class="v" id="k-drops">0</div><div class="l">Fruits today</div></div>
     <div class="kpi"><div class="v" id="k-kg">0</div><div class="l">Est. kg today</div></div>
     <div class="kpi"><div class="v" id="k-week">0</div><div class="l">Fruits · 7 days</div></div>
-    <div class="kpi"><div class="v" id="k-cost">RM 0</div><div class="l">Material cost · Aug</div></div>
+    <div class="kpi"><div class="v" id="k-cost">RM 0</div><div class="l" id="k-costlbl">Material cost · Aug</div></div>
   </div>
   <!-- ===== DAILY OPS · TODAY'S TASKS (v2.5) ===== -->
   <div class="card" id="opstasks" style="display:none">
@@ -506,11 +535,49 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div id="projbox"></div>
   </div>
 
+  <!-- ===== AGRONOMIST · WEATHER MODE + AI BLUEPRINT (v2.6) ===== -->
+  <div class="card" id="agroweather" style="display:none">
+    <div class="sec">🌦️ Weather mode</div>
+    <p class="small">Set what the sky is actually doing. In <b>Rainy</b> mode the app checks every spray line against the product database and flags anything that washes off, offering a systemic stand-in that stays on the tree.</p>
+    <div class="wx" id="wxbtns">
+      <div class="on" id="wx-SUNNY" onclick="setWeather('SUNNY')">☀️ SUNNY / DRY</div>
+      <div class="rain" id="wx-RAINY" onclick="setWeather('RAINY')">🌧️ RAINY / WET</div>
+    </div>
+    <div id="wxnote" class="small"></div>
+  </div>
+  <div class="card" id="agrobp" style="display:none">
+    <div class="sec">🧪 Programme blueprint — build by active ingredient</div>
+    <p class="small">Build a spray or manuring set the way an agronomist thinks: choose the <b>active ingredient</b> first, then the app shows which products in the store carry it. Brand names never drive the decision.</p>
+    <div id="bplist"></div>
+    <button class="bigbtn" style="margin-top:10px" onclick="openBlueprint()">＋ NEW PROGRAMME SET</button>
+  </div>
+
+  <!-- ===== DAILY OPS · GENERAL FIELD TASKS (v2.6) ===== -->
+  <div class="card" id="opsgeneral" style="display:none">
+    <div class="sec">🛠️ General field tasks</div>
+    <div id="genlist"></div>
+    <p class="small" style="margin-top:9px">Pruning, weeding, fruit tying, branch tying and fruit trimming. Each task asks for the counts that matter for that job — the app will not accept a reply without them.</p>
+  </div>
+  <div class="card" id="opsassign" style="display:none">
+    <div class="sec">📌 Assign a general task</div>
+    <div id="assignlist"></div>
+    <button class="bigbtn" style="margin-top:10px" onclick="openTaskForm()">＋ ASSIGN NEW TASK</button>
+  </div>
+  <div class="card" id="labourcard" style="display:none">
+    <div class="sec">👷 Labour logged</div>
+    <div id="labourbox"></div>
+  </div>
+
   <!-- ===== PURCHASER · UPCOMING PROGRAM STOCK CHECK (v2.5) ===== -->
   <div class="card" id="progcheck" style="display:none">
     <div class="sec">🔍 Upcoming programme stock check</div>
     <div id="chkbox"></div>
     <p class="small" style="margin-top:9px">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+  </div>
+  <div class="card" id="progready" style="display:none">
+    <div class="sec">📅 Next phase material readiness</div>
+    <div id="readybox"></div>
+    <p class="small" style="margin-top:9px">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
   </div>
 
   <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only -->
@@ -658,7 +725,24 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
       <input type="number" id="pm-lpt" min="0" step="any" inputmode="decimal" oninput="pmCalc()">
       <p class="small" id="pm-lpthint">The sheet gives the dose per 1000 L tank but not the litres each tree takes — enter what the sprayer actually applies.</p>
     </div>
+    <label>Phase starts</label>
+    <input type="date" id="pm-start" onchange="pmCalc()">
+    <label>How long does this phase run? <span class="minitag">NOT LOCKED TO A MONTH</span></label>
+    <div class="segs" id="pm-durpick">
+      <div onclick="pmDur(7,this)">1 week</div><div onclick="pmDur(14,this)">2 weeks</div>
+      <div class="on" onclick="pmDur(30,this)">30 days</div><div onclick="pmDur(90,this)">3 months</div>
+      <div onclick="pmDur(365,this)">1 year</div><div onclick="pmDur(1095,this)">3 years</div>
+    </div>
+    <div class="trcount">
+      <input type="number" id="pm-durn" min="1" step="1" inputmode="numeric" value="30" oninput="pmDurCustom()">
+      <select id="pm-duru" onchange="pmDurCustom()">
+        <option value="1">days</option><option value="7">weeks</option>
+        <option value="30">months</option><option value="365">years</option>
+      </select>
+    </div>
+    <div class="convnote" id="pm-clock">—</div>
     <div class="convnote" id="pm-conv">—</div>
+    <div id="pm-adv"></div>
     <div class="tblwrap" style="max-height:250px"><table class="tbl" id="pm-tbl"></table></div>
     <div class="pinerr" id="pm-err"></div>
     <button class="bigbtn" onclick="activatePhase()">✓ ACTIVATE &amp; SEND TO WORKERS</button>
@@ -686,12 +770,116 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
       <div id="rl-B" onclick="rpLot('B')">LOT B</div>
       <div id="rl-C" onclick="rpLot('C')">LOT C</div>
     </div>
+    <label>Workers on the job <span class="minitag">REQUIRED</span></label>
+    <input type="number" id="rp-crew" min="1" step="1" inputmode="numeric" placeholder="e.g. 3">
+    <label>Hours worked, per worker <span class="minitag">REQUIRED</span></label>
+    <input type="number" id="rp-hours" min="0" step="any" inputmode="decimal" placeholder="e.g. 4.5" oninput="rpCalc()">
+    <div class="convnote" id="rp-labour">—</div>
     <div class="sec" style="margin-top:12px">Material this reply will deduct</div>
     <div class="tblwrap" style="max-height:210px"><table class="tbl" id="rp-tbl"></table></div>
     <div class="pinerr" id="rp-err"></div>
     <button class="bigbtn" onclick="submitReply()">✓ SUBMIT COMPLETION REPLY</button>
     <div style="height:8px"></div>
     <button class="bigbtn ghost" onclick="closeReply()">CANCEL</button>
+  </div>
+</div>
+
+<!-- BLUEPRINT: build a programme set by ACTIVE INGREDIENT (v2.6, Owner) -->
+<div id="bpmodal" class="modal hidden">
+  <div class="sheet">
+    <h3>New programme set</h3>
+    <p class="small">Pick the job, then the active ingredient. Products are listed only because they carry that ingredient.</p>
+    <label>Set name</label>
+    <input id="bp-name" placeholder="e.g. Rain-guard fruit set">
+    <label>Programme type</label>
+    <select id="bp-kind" onchange="bpKind()">
+      <option value="PND">PnD — pest &amp; disease spray</option>
+      <option value="FOLIAR">Foliar feed</option>
+      <option value="BIO">Biostimulant</option>
+      <option value="TE">Trace element (TE)</option>
+      <option value="MANURE">Manuring / fertiliser</option>
+    </select>
+    <label>Dose basis</label>
+    <div class="segs" id="bp-basis">
+      <div class="on" id="bb-PER_1000L" onclick="bpBasis('PER_1000L')">Per 1000 L tank</div>
+      <div id="bb-PER_TREE" onclick="bpBasis('PER_TREE')">Per tree</div>
+    </div>
+    <label>Active ingredient <span class="minitag">CHOOSE THIS FIRST</span></label>
+    <select id="bp-ai" onchange="bpAI()"></select>
+    <div class="small" id="bp-aihint">—</div>
+    <label>Product carrying it</label>
+    <select id="bp-prod" onchange="bpProd()"></select>
+    <label>Dose <span class="minitag" id="bp-unitlbl">per tank</span></label>
+    <input type="number" id="bp-dose" min="0" step="any" inputmode="decimal">
+    <button class="bigbtn ghost" style="margin-top:9px" onclick="bpAdd()">＋ ADD THIS LINE</button>
+    <div class="sec" style="margin-top:12px">Lines in this set</div>
+    <div id="bp-lines"><div class="small">No line added yet.</div></div>
+    <div class="pinerr" id="bp-err"></div>
+    <button class="bigbtn" onclick="bpSave()">✓ SAVE PROGRAMME SET</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeBlueprint()">CANCEL</button>
+  </div>
+</div>
+
+<!-- ASSIGN A GENERAL FIELD TASK (v2.6, Owner) -->
+<div id="taskmodal" class="modal hidden">
+  <div class="sheet">
+    <h3>Assign a general task</h3>
+    <p class="small">These are the jobs with no chemical attached. The reply form changes to match the job.</p>
+    <label>Job</label>
+    <select id="tf-kind" onchange="tfKind()"></select>
+    <div class="convnote" id="tf-need">—</div>
+    <label>Apply to</label>
+    <div class="lotbtns" id="tf-scope">
+      <div class="on" id="ts-ALL" onclick="tfScope('ALL')">WHOLE FARM</div>
+      <div id="ts-A" onclick="tfScope('A')">LOT A</div>
+      <div id="ts-B" onclick="tfScope('B')">LOT B</div>
+      <div id="ts-C" onclick="tfScope('C')">LOT C</div>
+    </div>
+    <label>Starts</label>
+    <input type="date" id="tf-start">
+    <label>Days to finish</label>
+    <input type="number" id="tf-days" min="1" step="1" inputmode="numeric" value="7">
+    <label>Note for the workers (optional)</label>
+    <input id="tf-note" placeholder="e.g. tie only the low branches">
+    <div class="pinerr" id="tf-err"></div>
+    <button class="bigbtn" onclick="saveTask()">✓ ASSIGN &amp; SEND TO WORKERS</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeTaskForm()">CANCEL</button>
+  </div>
+</div>
+
+<!-- GENERAL TASK COMPLETION (v2.6, Worker) -->
+<div id="genmodal" class="modal hidden">
+  <div class="sheet">
+    <h3>Report work done</h3>
+    <p class="small" id="gr-sub">—</p>
+    <div class="aibox" style="margin-top:12px">
+      <div><div class="cl">Task <span class="ro">SET BY OWNER · READ-ONLY</span></div><div class="av" id="gr-task">—</div></div>
+      <div class="cr" id="gr-mode">—</div>
+    </div>
+    <label>Target lot <span class="minitag">REQUIRED</span></label>
+    <div class="lotbtns" id="gr-lots">
+      <div id="gl-A" onclick="grLot('A')">LOT A</div>
+      <div id="gl-B" onclick="grLot('B')">LOT B</div>
+      <div id="gl-C" onclick="grLot('C')">LOT C</div>
+    </div>
+    <div id="gr-countwrap">
+      <div class="sec" style="margin-top:12px" id="gr-countlbl">Count per tree</div>
+      <p class="small" id="gr-counthint">Add one line per tree you worked on. The tree number is the number on the QR tag.</p>
+      <div id="gr-rows"></div>
+      <button class="bigbtn ghost" style="margin-top:8px" onclick="grAddRow()">＋ ADD A TREE</button>
+      <div class="convnote" id="gr-total">—</div>
+    </div>
+    <label>Workers on the job <span class="minitag">REQUIRED</span></label>
+    <input type="number" id="gr-crew" min="1" step="1" inputmode="numeric" placeholder="e.g. 3">
+    <label>Hours worked, per worker <span class="minitag">REQUIRED</span></label>
+    <input type="number" id="gr-hours" min="0" step="any" inputmode="decimal" placeholder="e.g. 4.5" oninput="grCalc()">
+    <div class="convnote" id="gr-labour">—</div>
+    <div class="pinerr" id="gr-err"></div>
+    <button class="bigbtn" onclick="submitGeneral()">✓ SUBMIT WORK REPORT</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeGeneral()">CANCEL</button>
   </div>
 </div>
 
@@ -718,7 +906,7 @@ const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.5.0';
+const APP_VERSION = 'v2.6.0';
 // Seed registry. The Owner edits this live in the app (Owner tab → Master Governance
 // & User Registry); pushing mirrors it into the WORKERS tab of the Google Sheet, which
 // is what every other phone reads at the hotspot.
@@ -746,12 +934,16 @@ function idb(){return new Promise((res)=>{ if(!window.indexedDB) return res(null
   // v2 adds the offline `correction_requests` queue. Existing events/kv data is preserved.
   // v3 adds the `programs` store (activated agronomist phases). Existing
   // events / kv / corrections data is preserved by the upgrade.
-  const rq=indexedDB.open('sugut-dms',3);
+  // v4 adds `tasks` (Owner-assigned general field jobs) and `blueprints`
+  // (Owner-built programme sets). Existing data is preserved by the upgrade.
+  const rq=indexedDB.open('sugut-dms',4);
   rq.onupgradeneeded=e=>{const d=e.target.result;
     if(!d.objectStoreNames.contains('events'))d.createObjectStore('events',{keyPath:'uuid'});
     if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});
     if(!d.objectStoreNames.contains('corrections'))d.createObjectStore('corrections',{keyPath:'uuid'});
-    if(!d.objectStoreNames.contains('programs'))d.createObjectStore('programs',{keyPath:'uuid'});};
+    if(!d.objectStoreNames.contains('programs'))d.createObjectStore('programs',{keyPath:'uuid'});
+    if(!d.objectStoreNames.contains('tasks'))d.createObjectStore('tasks',{keyPath:'uuid'});
+    if(!d.objectStoreNames.contains('blueprints'))d.createObjectStore('blueprints',{keyPath:'uuid'});};
   rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null);});}
 function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
 function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
@@ -766,6 +958,8 @@ async function initStore(){
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
     CORRECTIONS=(await all('corrections'))||[];
     PROGRAMS=(await all('programs'))||[];
+    TASKS=(await all('tasks'))||[];
+    BLUEPRINTS=(await all('blueprints'))||[];
     const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
     const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
     const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
@@ -773,6 +967,7 @@ async function initStore(){
     const tf=kv.find(x=>x.k==='treefix'); if(tf&&tf.v&&typeof tf.v==='object') TREE_FIX=tf.v;
     const io=kv.find(x=>x.k==='invover'); if(io&&io.v&&typeof io.v==='object') INV_OVERRIDE=io.v;
     const lp=kv.find(x=>x.k==='lastlpt'); if(lp&&lp.v&&typeof lp.v==='object') LAST_LPT=lp.v;
+    const wx=kv.find(x=>x.k==='weather'); if(wx&&wx.v) WEATHER=String(wx.v);
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
@@ -800,9 +995,11 @@ function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFul
 function todayStr(){return now().slice(0,10);}
 function pending(){return EVENTS.filter(e=>!e.synced).length;}
 function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
-function badge(){$('qbadge').textContent=pending()+corrUnsynced()+(typeof progUnsynced==='function'?progUnsynced():0);}
+function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
+  (typeof taskUnsynced==='function'?taskUnsynced():0);}
+function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
-  const q=pending()+corrUnsynced()+(typeof progUnsynced==='function'?progUnsynced():0);
+  const q=pending()+corrUnsynced()+q4();
   if(on&&(q>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
 
@@ -880,7 +1077,7 @@ function renderMyCorrections(){
   box.style.display=mine.length?'':'none';
   $('mycorrlist').innerHTML=mine.map(c=>{
     const s=c.status==='APPROVED'?'a':(c.status==='REJECTED'?'r':'p');
-    return '<div class="lrow"><span><b>'+c.tree+'</b> · '+corrSummary(c)+'<br><span class="small">'+c.dt+'</span></span><span class="cstat '+s+'">'+c.status+'</span></div>';}).join('');}
+    return '<div class="lrow"><span><b>'+esc(c.tree)+'</b> · '+esc(corrSummary(c))+'<br><span class="small">'+esc(c.dt)+'</span></span><span class="cstat '+s+'">'+esc(c.status)+'</span></div>';}).join('');}
 
 // ================= owner: pending data adjustments =================
 let corrFilter='PENDING';
@@ -900,11 +1097,11 @@ function renderCorrections(){
       ?'<div class="cacts"><button class="ok" onclick="decideCorrection(\''+c.uuid+'\',1)">✓ '+(c.ctype==='NOTE'?'ACKNOWLEDGE':'APPROVE CHANGE')+'</button><button class="no" onclick="decideCorrection(\''+c.uuid+'\',0)">✕ REJECT REQUEST</button></div>'
       :(c.status==='PENDING'?'<div class="small">Owner approval required.</div>'
         :'<div class="small">'+c.status.toLowerCase()+' by '+(c.decidedBy||'—')+' · '+(c.decidedAt||'')+'</div>');
-    return '<div class="crow"><div class="ch"><div><div class="ctree">'+c.tree+'</div>'+
-      '<div class="cwho">Lot '+c.lot+' · Tree '+c.no+'<br>'+c.worker+' · '+c.dt+'</div></div>'+
-      '<span class="cstat '+s+'">'+c.status+'</span></div>'+
-      '<div class="cchange">'+corrSummary(c)+'</div>'+
-      (c.note?'<div class="cnote">“'+c.note+'”</div>':'')+acts+'</div>';}).join('')
+    return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(c.tree)+'</div>'+
+      '<div class="cwho">Lot '+esc(c.lot)+' · Tree '+esc(c.no)+'<br>'+esc(c.worker)+' · '+esc(c.dt)+'</div></div>'+
+      '<span class="cstat '+s+'">'+esc(c.status)+'</span></div>'+
+      '<div class="cchange">'+esc(corrSummary(c))+'</div>'+
+      (c.note?'<div class="cnote">“'+esc(c.note)+'”</div>':'')+acts+'</div>';}).join('')
     :'<div class="small">No '+(corrFilter==='PENDING'?'pending':'')+' correction requests.</div>';}
 // Burn an APPROVED correction into TREE_MASTER permanently (used by the Owner's
 // approval and, on worker phones, when an approval arrives down the sync).
@@ -942,15 +1139,20 @@ const MODULES={
   harvest:{ic:'🥭',name:'Harvest',sub:'log fruit drop, census',
     tabs:[{k:'log', t:'LOG DROP',  scr:'harvest',panels:[]},
           {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
-  ops:{ic:'📋',name:'Daily Ops',sub:"today's tasks + replies",
-    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opshistory']},
-          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']}]},
-  agro:{ic:'🌱',name:'Agronomist',sub:'phase programme + projection',
+  ops:{ic:'📋',name:'Daily Ops',sub:"tasks, replies, labour",
+    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
+          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']},
+          {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES},
+          {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],roles:FULL_ROLES}]},
+  agro:{ic:'🌱',name:'Agronomist',sub:'programme, weather, projection',
     tabs:[{k:'phases',t:'PHASES',    scr:'dash',panels:['agrophases'],roles:FULL_ROLES},
+          {k:'wx',    t:'WEATHER',   scr:'dash',panels:['agroweather'],roles:FULL_ROLES},
+          {k:'bp',    t:'BLUEPRINT', scr:'dash',panels:['agrobp'],   roles:FULL_ROLES},
           {k:'proj',  t:'PROJECTION',scr:'dash',panels:['agroproj'], roles:FULL_ROLES}]},
   inv:{ic:'📦',name:'Inventory',sub:'stock in, alerts, levels',
     tabs:[{k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER']},
           {k:'chk', t:'PROGRAM CHECK',scr:'dash', panels:['progcheck'],                        roles:['OWNER','MARKETING','PURCHASER']},
+          {k:'next',t:'NEXT PHASE',   scr:'dash', panels:['progready'],                        roles:['OWNER','MARKETING','PURCHASER']},
           {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES},
           {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES},
           {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES}]},
@@ -968,7 +1170,8 @@ const HUB_ORDER={
 };
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
-  'opstasks','opshistory','agrophases','agroproj','progcheck'];
+  'opstasks','opshistory','agrophases','agroproj','progcheck',
+  'opsgeneral','opsassign','labourcard','agroweather','agrobp','progready'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -983,8 +1186,9 @@ function roleAllows(id){
   const r=myRole(), full=FULL_ROLES.indexOf(r)>=0;
   switch(id){
     case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
-    case 'progcheck':                  return full||r==='PURCHASER';
-    case 'pnl-out': case 'opstasks': case 'opshistory': return full||r==='WORKER';
+    case 'progcheck': case 'progready': return full||r==='PURCHASER';
+    case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
+    case 'opsassign': case 'labourcard': case 'agroweather': case 'agrobp': return full;
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
     case 'agrophases': case 'agroproj': case 'kpis': case 'phibox': case 'lotcard':
@@ -995,8 +1199,11 @@ function roleAllows(id){
 function tileBadge(k){
   if(k==='inv'){const n=programShortages().length||lowStock().length;
     return n?{t:(programShortages().length?programShortages().length+' SHORT':n+' LOW')}:null;}
-  if(k==='ops'){const n=myTasks().length;return n?{t:n+' TASK'+(n>1?'S':'')}:null;}
-  if(k==='agro'){const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
+  if(k==='ops'){const n=myTasks().length+myGeneralTasks().length;return n?{t:n+' TASK'+(n>1?'S':'')}:null;}
+  if(k==='agro'){
+    if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
+      if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
+    const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
   if(k==='admin'){const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
     return n?{t:n+' PENDING',amber:1}:null;}
   return null;}
@@ -1021,6 +1228,7 @@ function hideAllPanels(){
     if(id==='phibox'){el.dataset.dashhide='1';el.style.display='none';return;}
     el.style.display='none';});}
 function goHome(){
+  if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}   // v2.5.1: the hub is never reachable without a key
   curModule=null;curTab=null;
   hideAllPanels();
   $('subbar').classList.add('hidden');$('subbar').innerHTML='';
@@ -1028,7 +1236,9 @@ function goHome(){
   $('backbtn').classList.add('hidden');
   $('ttl').textContent='Sugut DMS';
   renderHub();}
-function hubBack(){ if($('scr-home').classList.contains('hidden')) goHome(); }
+function hubBack(){
+  if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}    // v2.5.1: tapping the title never bypasses login
+  if($('scr-home').classList.contains('hidden')) goHome(); }
 function openModule(k,tabKey){
   const m=MODULES[k];
   if(!m||hubTiles().indexOf(k)<0){goHome();return;}
@@ -1050,15 +1260,22 @@ function openModule(k,tabKey){
   else {sb.classList.add('hidden');sb.innerHTML='';}
   renderForTab(k,tab.k);
   $('scr-'+tab.scr).scrollTop=0;}
+function renderV26(){renderWeather();renderBlueprints();renderGeneralTasks();renderAssign();
+  renderLabour();renderReady();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();}
   if(k==='harvest'&&t==='today')renderDash();
-  if(k==='ops'&&t==='tasks'){renderOpsTasks();renderOpsHistory();}
+  if(k==='ops'&&t==='tasks'){renderOpsTasks();renderGeneralTasks();renderOpsHistory();}
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
+  if(k==='ops'&&t==='assign')renderAssign();
+  if(k==='ops'&&t==='labour')renderLabour();
   if(k==='agro'&&t==='phases')renderAgroPhases();
+  if(k==='agro'&&t==='wx')renderWeather();
+  if(k==='agro'&&t==='bp')renderBlueprints();
   if(k==='agro'&&t==='proj')renderProjection();
   if(k==='inv'&&t==='in'){renderInOpts();renderAlerts();renderStock();}
   if(k==='inv'&&t==='chk')renderProgCheck();
+  if(k==='inv'&&t==='next')renderReady();
   if(k==='inv'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='inv'&&t==='lvl')renderInvCC();
   if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
@@ -1129,16 +1346,30 @@ function showLock(sim){$('wipeoverlay').classList.add('hidden');
   $('lockscreen').classList.remove('hidden');$('simnote').classList.toggle('hidden',!sim);}
 let simTaps=0;
 async function realWipe(){
-  if(db){try{const tx=db.transaction('programs','readwrite');tx.objectStore('programs').clear();}catch(e){}}
-  PROGRAMS=[];
+  if(db){try{const tx=db.transaction(['programs','tasks','blueprints'],'readwrite');
+    tx.objectStore('programs').clear();tx.objectStore('tasks').clear();tx.objectStore('blueprints').clear();}catch(e){}}
+  PROGRAMS=[];TASKS=[];BLUEPRINTS=[];
   // 1. wipe events + config + keys from IndexedDB
-  await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv'],'readwrite');
-    tx.objectStore('events').clear();tx.objectStore('kv').clear();tx.oncomplete=res;tx.onerror=res;});
-  EVENTS=[];CFG=null;
+  await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv','corrections'],'readwrite');
+    tx.objectStore('events').clear();tx.objectStore('kv').clear();
+    tx.objectStore('corrections').clear();                 // v2.5.1: field notes must go too
+    tx.oncomplete=res;tx.onerror=res;});
+  EVENTS=[];CORRECTIONS=[];TREE_FIX={};CFG=null;
   // 2. persist the lock so reopening the app stays locked
   if(db)await put('kv',{k:'locked',v:true});
   try{localStorage.clear();sessionStorage.clear();}catch(e){}
   LOCKED=true;}
+// v2.5.1 — upload first, wipe second. A revoked worker may be carrying a whole day of
+// offline drops; destroying them loses farm data that exists nowhere else. If the upload
+// cannot complete we log the device out instead and retry the wipe on the next sync.
+async function safeWipe(){
+  const q=()=>pending()+corrUnsynced()+q4();
+  if(q()>0)await doSync(true);
+  if(q()>0){
+    await forceLogout('Your access was removed. '+q()+' record(s) on this phone have not uploaded yet — '+
+      'connect to the office Wi-Fi and open the app once more so nothing is lost.');
+    return false;}
+  await runWipeSequence(false);return true;}
 async function runWipeSequence(sim){
   $('wipeoverlay').classList.remove('hidden');
   const steps=['ws1','ws2','ws3','ws4'];
@@ -1186,8 +1417,10 @@ async function refreshMasters(){
     // corrections are merged only AFTER the kill switch has cleared this device
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
     const inProg=(j&&j.ok&&Array.isArray(j.programs))?j.programs:null;
-    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length)){
-      if(inCorr)await mergeCorrections(inCorr); if(inProg)await mergePrograms(inProg); return;}
+    const inTask=(j&&j.ok&&Array.isArray(j.tasks))?j.tasks:null;
+    // v2.5.1: if the WORKERS tab is unreadable the kill switch cannot be evaluated, so
+    // nothing is ingested either — a revoked phone must not keep receiving farm data.
+    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return;
     const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
       id:String(w.WorkerID||w.Name||'').trim()||newUid(),
       name:w.Name||w.WorkerID,
@@ -1204,10 +1437,12 @@ async function refreshMasters(){
       const byName=ks.find(x=>String(x.name).trim().toLowerCase()===String(CFG.worker||'').trim().toLowerCase());
       const byKey=ks.find(x=>String(x.key)===String(CFG.key));
       const me=byId||byName||byKey;
-      if(!me){                                  // deleted from the registry entirely
-        await runWipeSequence(false);return;}
-      if(String(me.status).toLowerCase()!=='active'){   // revoked / resigned
-        await runWipeSequence(false);return;}
+      // deleted from the registry entirely, or revoked / resigned
+      if(!me||String(me.status).toLowerCase()!=='active'){
+        if(await safeWipe())return;              // wiped — this device is finished
+        KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');  // key is dead either way
+        if(db)await put('kv',{k:'keys',v:KEYS});
+        return;}
       if(String(me.key)!==String(CFG.key)){      // Owner changed their key — not a wipe
         KEYS=ks;if(db)await put('kv',{k:'keys',v:KEYS});
         await forceLogout('Your access key was changed. Ask the Owner for the new 6-digit key.');return;}
@@ -1215,6 +1450,7 @@ async function refreshMasters(){
     }
     if(inCorr)await mergeCorrections(inCorr);   // device is cleared — safe to ingest
     if(inProg)await mergePrograms(inProg);      // agronomist phases from the Owner's phone
+    if(inTask)await mergeTasks(inTask);         // general field jobs from the Owner's phone
 
     // ---- local unpushed edits always win until they are pushed ----
     if(REG_DIRTY){renderKeys();return;}
@@ -1364,7 +1600,9 @@ function startScan(){
   scanner.start({facingMode:'environment'},{fps:10,qrbox:220},txt=>{stopScan();selectTree(txt.trim());},()=>{})
   .catch(()=>{stopScan();toast('Camera not available — pick from list',1);showPicker();});}
 function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');}
-function showPicker(){$('picker').classList.remove('hidden');buildLotSelect();pickLot(curLot);}
+function showPicker(){$('picker').classList.remove('hidden');buildLotSelect();
+  // v2.5.1: pass the button too, or the grid shows Lot B while "Lot A" stays highlighted
+  pickLot(curLot,($('lotbtns')||{children:[]}).children[LOTS.indexOf(curLot)]);}
 let curLot='B';
 // --- dynamic dropdowns: Lot ➔ Tree number ➔ read-only clone ---
 function buildLotSelect(){
@@ -1563,17 +1801,22 @@ function onInCalc(){const p=prodById($('in-prod').value);if(!p){$('in-conv').tex
   const total=inUnitMode==='C'?(+$('in-qty').value||0)*price:cont*price;
   $('in-conv').innerHTML='Receiving <b>'+nf(ops)+' '+esc(p.unit)+'</b> = '+nf(cont)+' '+esc(p.container)+
     ' · invoice value <b>'+rm(total)+'</b>';}
+let savingStock=false;   // v2.5.1: rebuildLedgers() takes a moment on a cheap phone — one tap, one event
 async function submitStockIn(){
   const err=$('in-err');err.textContent='';
+  if(savingStock)return;
   const p=prodById($('in-prod').value); if(!p){err.textContent='Pick a product.';return;}
   const ops=inOpsQty(); if(!(ops>0)){err.textContent='Enter the quantity received.';return;}
   const price=+$('in-price').value; if(!(price>0)){err.textContent='Enter the unit price in RM.';return;}
   const ref=$('in-ref').value.trim(); if(!ref){err.textContent='Invoice / reference number is required.';return;}
   const cont=toCont(p,ops);
   const value=+((inUnitMode==='C'?(+$('in-qty').value||0):cont)*price).toFixed(2);
-  await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:now(),pid:p.id,pname:p.name,ai:p.active_ingredient,
-    qty:ops,unit:p.unit,containers:+cont.toFixed(4),unitPrice:price,cost:value,ref:ref,
-    supplier:$('in-supplier').value.trim(),lot:'',worker:CFG.worker,device:CFG.device,synced:false});
+  savingStock=true;
+  try{
+    await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:now(),pid:p.id,pname:p.name,ai:p.active_ingredient,
+      qty:ops,unit:p.unit,containers:+cont.toFixed(4),unitPrice:price,cost:value,ref:ref,
+      supplier:$('in-supplier').value.trim(),lot:'',worker:CFG.worker,device:CFG.device,synced:false});
+  } finally { savingStock=false; }
   $('in-qty').value=1;$('in-ref').value='';
   toast('✓ Stock in: '+nf(ops)+' '+p.unit+' '+p.name);
   refreshInventoryViews();}
@@ -1593,6 +1836,7 @@ function onOutCalc(){const p=prodById($('out-prod').value);if(!p){$('out-conv').
     ' · leaves '+nf(onHand(p)-q)+' '+esc(p.unit);}
 async function submitStockOut(){
   const err=$('out-err');err.textContent='';
+  if(savingStock)return;
   const p=prodById($('out-prod').value); if(!p){err.textContent='Pick a product.';return;}
   const q=+$('out-qty').value; if(!(q>0)){err.textContent='Enter the quantity used.';return;}
   if(!outLot){err.textContent='Select the target lot the material was applied to.';return;}
@@ -1601,10 +1845,16 @@ async function submitStockOut(){
     if(days>=0&&days<phi&&!confirm('⚠ PHI WARNING\n'+p.name+' has a '+phi+'-day residue cut-off.\nProjected peak drop 21–22 Aug is in '+days+' day(s).\n\nOwner approval required. Log anyway?'))return;}
   const oh=onHand(p);
   if(oh<q&&!confirm('Stock shows only '+nf(oh)+' '+p.unit+' of '+p.name+'. Log anyway?'))return;
-  await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:now(),pid:p.id,pname:p.name,ai:p.active_ingredient,
-    qty:q,unit:p.unit,lot:outLot,set:$('sset').value,cost:+(q*(p.cpu||0)).toFixed(2),
-    worker:CFG.worker,device:CFG.device,synced:false});
+  savingStock=true;
+  try{
+    await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:now(),pid:p.id,pname:p.name,ai:p.active_ingredient,
+      qty:q,unit:p.unit,lot:outLot,set:$('sset').value,cost:+(q*(p.cpu||0)).toFixed(2),
+      worker:CFG.worker,device:CFG.device,synced:false});
+  } finally { savingStock=false; }
   toast('✓ Stock out: '+nf(q)+' '+p.unit+' '+p.name+' → Lot '+outLot);
+  $('out-qty').value='';                    // v2.5.1: clear the form so it cannot be sent twice
+  outLot='';LOT_KEYS.forEach(L=>{const el=$('ol-'+L);if(el)el.classList.remove('on');});
+  onOutCalc();
   refreshInventoryViews();}
 
 // ---- live stock on hand list (values only for Owner / Marketing) ----
@@ -1784,15 +2034,17 @@ function renderSync(){
     let d;
     if(e.type==='DROP') d='🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
     else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'')+(e.progSet?(' · '+e.progSet):'');
-    else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+e.unit+' '+e.pname+(e.ref?(' · '+e.ref):'');
+    else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
+    else if(e.type==='TASK_DONE') d='🛠️ '+esc(e.kindLabel||e.kind||'task')+' · Lot '+esc(e.lot||'')+
+      (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(e.hours*e.crew)+' man-h';
     else d=e.type;
     const right=e.synced
       ? '<span class="tag s">SYNCED</span>'
       : '<span style="display:flex;align-items:center;gap:6px"><span class="tag q">QUEUED</span><span onclick="removeEvent(\''+e.uuid+'\')" style="color:#b3261e;font-weight:800;font-size:15px;padding:2px 8px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer">✕</span></span>';
     return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span>'+right+'</div>';}).join('')
   :'<div class="small">No events yet.</div>';
-  const b=$('syncbtn');const n=pending()+corrUnsynced();
+  const b=$('syncbtn');const n=pending()+corrUnsynced()+q4();
   b.disabled=!n;b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'✓ ALL SYNCED';}
 async function removeEvent(u){
   const e=EVENTS.find(x=>x.uuid===u);
@@ -1850,7 +2102,9 @@ async function doSync(auto){
   await pushCorrections();                    // then correction requests / decisions
   await pushAdjustments();                    // then stock-take adjustments (own payload key)
   await pushPrograms();                       // then activated programmes (own payload key)
-  const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST');
+  await pushTasks();                          // then general task assignments (own payload key)
+  await pushTaskLogs();                       // then general task completions + labour
+  const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE');
   if(!batch.length){await refreshMasters();renderSync();return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
@@ -1861,7 +2115,8 @@ async function doSync(auto){
       toast('✓ '+batch.length+' events synced to Google Sheets');
       refreshMasters(); // hidden hotspot token validation runs after every sync
     }
-    else throw new Error(j&&j.error||'server error');
+    // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
+    else throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
   }catch(err){toast('Sync failed: '+err.message,1);renderSync();}
   syncing=false;}
 
@@ -1872,7 +2127,10 @@ function renderDash(){
   const dToday=drops.filter(e=>e.dt.slice(0,10)===today);
   const wk=drops.filter(e=>(new Date()-new Date(e.dt.replace(' ','T')))<7*86400000);
   const tot=dToday.reduce((s,e)=>s+e.qty,0), kg=dToday.reduce((s,e)=>s+e.estkg,0);
-  const cost=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dt.slice(0,7)==='2026-08').reduce((s,e)=>s+(e.cost||0),0);
+  const mk=today.slice(0,7);                       // v2.5.1: this month, not a hard-coded August
+  const cost=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dt.slice(0,7)===mk).reduce((s,e)=>s+(e.cost||0),0);
+  const ML=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const cl=$('k-costlbl'); if(cl)cl.textContent='Material cost · '+ML[+mk.slice(5,7)-1];
   $('k-drops').textContent=tot;$('k-kg').textContent=kg.toFixed(0);
   $('k-week').textContent=wk.reduce((s,e)=>s+e.qty,0);$('k-cost').textContent='RM '+cost.toFixed(0);
   // PHI banner
@@ -1905,7 +2163,9 @@ const MONTH_LABEL={'2026 Jan (2)':'Jan','Boosting':'Boosting','May 2':'May (2)',
 const MODE_LABEL={SPRAY:'Spray fruit + leaf',LEAF:'Spray leaf only — NO fruit',DRENCH:'Soil drench',SOIL:'Fertiliser broadcast'};
 
 function monthLabel(m){return MONTH_LABEL[m]||m;}
-function phaseById(id){return PHASE_PROGRAM.find(p=>p.id===id)||null;}
+function phaseById(id){return PHASE_PROGRAM.find(p=>p.id===id)||
+  (typeof BLUEPRINTS!=='undefined'?BLUEPRINTS.find(p=>p.id===id):null)||null;}
+function allPhases(){return PHASE_PROGRAM.concat(typeof BLUEPRINTS!=='undefined'?BLUEPRINTS:[]);}
 function treesInScope(sc){return sc==='ALL'?TREE_MASTER.length:treesInLot(sc).length;}
 function progOf(uuid){return PROGRAMS.find(p=>p.uuid===uuid)||null;}
 function activePrograms(){return PROGRAMS.filter(p=>p.status==='ACTIVE');}
@@ -1934,19 +2194,24 @@ let agroMonth='Aug';
 function setAgroMonth(m){agroMonth=m;renderAgroPhases();}
 function renderAgroPhases(){
   if(!$('agrolist'))return;
-  const months=PROG_MONTH_ORDER.filter(m=>PHASE_PROGRAM.some(p=>p.month===m));
+  const months=PROG_MONTH_ORDER.filter(m=>PHASE_PROGRAM.some(p=>p.month===m))
+    .concat(BLUEPRINTS.length?['My sets']:[]);
+  if(months.indexOf(agroMonth)<0)agroMonth=months[months.length-1]||'Aug';
   $('agromonths').innerHTML=months.map(m=>'<div class="'+(m===agroMonth?'on':'')+'" onclick="setAgroMonth(\''+esc(m)+'\')">'+esc(monthLabel(m))+'</div>').join('');
-  const list=PHASE_PROGRAM.filter(p=>p.month===agroMonth);
+  const list=allPhases().filter(p=>p.month===agroMonth);
   $('agrolist').innerHTML=list.length?list.map(p=>{
     const live=PROGRAMS.find(x=>x.phaseId===p.id&&x.status==='ACTIVE');
     const phi=p.lines.some(l=>PHI_PRODUCTS[(prodById(l.pid)||{}).name]);
+    const adv=weatherAdvice(p,p.lines);
     return '<div class="crow"><div class="ch">'+
       '<div><div class="ctree">'+esc(p.set)+(live?' <span class="cstat a">ACTIVE</span>':'')+'</div>'+
       '<div class="cwho">'+esc(MODE_LABEL[p.mode]||p.mode)+(p.plan?(' · planned '+esc(p.plan)):'')+
       (p.litresPerTree?(' · '+p.litresPerTree+' L/tree'):'')+'</div></div>'+
       '<span class="cstat '+(p.kind==='FERT'?'a':'p')+'">'+(p.kind==='FERT'?'PER TREE':'PER 1000 L')+'</span></div>'+
+      (live?clockHTML(live):'')+
       (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ contains a fruit-contact product with a 14-day residue cut-off</div>':'')+
-      '<div class="cchange">'+p.lines.map(l=>esc((prodById(l.pid)||{}).name||l.raw)+' <b>'+nf(l.qty)+' '+esc(l.unit)+'</b>').join(' · ')+'</div>'+
+      (adv&&!adv.ok?'<div class="cnote" style="color:#123a71;font-weight:700">🌧️ '+esc(adv.head)+' — open ACTIVATE to see the stand-ins</div>':'')+
+      '<div class="cchange">'+p.lines.map(l=>esc((prodById(l.pid)||{}).name||l.raw||l.pname)+' <b>'+nf(l.qty)+' '+esc(l.unit)+'</b>').join(' · ')+'</div>'+
       '<div class="cacts"><button class="ok" onclick="openProgModal(\''+esc(p.id)+'\')">'+(live?'RE-ACTIVATE':'ACTIVATE PHASE')+'</button>'+
       (live?'<button class="no" onclick="closeProgram(\''+live.uuid+'\')">CLOSE PHASE</button>':'')+'</div></div>';}).join('')
     :'<div class="small">No phase recorded for this month.</div>';
@@ -1968,14 +2233,41 @@ function openProgModal(id){
   $('pm-lpthint').textContent=p.litresPerTree
     ?('The sheet states '+p.litresPerTree+' litres per tree for this drench set — change it only if the field does something different.')
     :'The sheet gives the dose per 1000 L tank but not the litres each tree takes — enter what the sprayer actually applies.';
+  $('pm-start').value=ymd(dayStart(new Date()));
+  pmDurSet(LAST_DUR[p.mode]||30);
   $('pm-err').textContent='';
   $('progmodal').classList.remove('hidden');
   pmCalc();}
+let LAST_DUR={};
+function pmDurSet(days){
+  days=Math.max(1,Math.round(+days||30));
+  const u=(days%365===0&&days>=365)?365:((days%30===0&&days>=30)?30:((days%7===0&&days>=7)?7:1));
+  $('pm-duru').value=String(u);$('pm-durn').value=days/u;
+  [...$('pm-durpick').children].forEach(el=>el.classList.remove('on'));
+  const hit=[...$('pm-durpick').children].find(el=>/pmDur\((\d+)/.test(el.getAttribute('onclick'))&&
+    +el.getAttribute('onclick').match(/pmDur\((\d+)/)[1]===days);
+  if(hit)hit.classList.add('on');
+  pmClock();}
+function pmDur(days,el){
+  $('pm-duru').value='1';$('pm-durn').value=days;
+  [...$('pm-durpick').children].forEach(x=>x.classList.remove('on'));
+  if(el)el.classList.add('on');
+  pmDurSet(days);}
+function pmDurCustom(){[...$('pm-durpick').children].forEach(x=>x.classList.remove('on'));pmClock();}
+function pmDurDays(){return Math.max(1,Math.round((+$('pm-durn').value||0)*(+$('pm-duru').value||1)));}
+function pmClock(){
+  const st=parseDay($('pm-start').value)||dayStart(new Date());
+  const d=pmDurDays(), end=addDays(st,d);
+  const c=phaseClock({startDate:ymd(st),durDays:d});
+  $('pm-clock').innerHTML='Runs <b>'+esc(durLabel(d))+'</b> — '+esc(ymd(st))+' ➔ <b>'+esc(ymd(end))+
+    '</b><br><span class="exphint">'+esc(c.text)+' · the workers\' task card counts this down</span>';}
 function closeProgModal(){$('progmodal').classList.add('hidden');pmPhase=null;}
 function pmScope(s){pmScopeVal=s;['ALL','A','B','C'].forEach(k=>$('ps-'+k).classList.toggle('on',k===s));pmCalc();}
 function pmCalc(){
   if(!pmPhase)return;
+  pmClock();
   const pr=projectPhase(pmPhase,pmScopeVal,$('pm-lpt').value);
+  $('pm-adv').innerHTML=advHTML(weatherAdvice(pmPhase,pmPhase.lines));
   $('pm-conv').innerHTML=pmPhase.basis==='PER_1000L'
     ?('<b>'+pr.trees+' trees</b> × '+nf(pr.litresPerTree)+' L = '+nf(pr.litres)+' L mix = <b>'+nf(pr.tanks)+' tank'+(pr.tanks===1?'':'s')+'</b> of 1000 L')
     :('<b>'+pr.trees+' trees</b> × the per-tree dose below');
@@ -1995,9 +2287,12 @@ async function activatePhase(){
   if(foliar&&!(lpt>0)){err.textContent='Enter the litres of spray mix each tree takes.';return;}
   const pr=projectPhase(pmPhase,pmScopeVal,lpt);
   if(foliar){LAST_LPT[pmPhase.mode]=lpt;if(db)await put('kv',{k:'lastlpt',v:LAST_LPT});}
+  LAST_DUR[pmPhase.mode]=pmDurDays();
   const rec={uuid:uuid(),phaseId:pmPhase.id,month:pmPhase.month,set:pmPhase.set,kind:pmPhase.kind,
     mode:pmPhase.mode,header:pmPhase.header||'',basis:pmPhase.basis,plan:pmPhase.plan||'',
     scope:pmScopeVal,trees:pr.trees,litresPerTree:pr.litresPerTree,tanks:pr.tanks,
+    startDate:ymd(parseDay($('pm-start').value)||dayStart(new Date())),durDays:pmDurDays(),
+    weather:WEATHER,custom:!!pmPhase.custom,
     lines:pr.lines.map(l=>({pid:l.pid,pname:l.pname,ai:l.ai,unit:l.unit,dose:l.dose,required:l.required})),
     projCost:pr.cost,by:CFG.worker,byId:CFG.uid||'',at:now(),status:'ACTIVE',synced:false};
   // one live record per phase — re-activating supersedes the previous one
@@ -2007,7 +2302,8 @@ async function activatePhase(){
   const label=pmPhase.set;                 // read before closeProgModal() clears pmPhase
   closeProgModal();badge();
   toast('✓ '+label+' activated for '+pr.trees+' trees');
-  renderAgroPhases();renderProjection();renderProgCheck();renderOpsTasks();renderHub();}
+  renderAgroPhases();renderProjection();renderProgCheck();renderReady();renderOpsTasks();
+  renderWeather();renderHub();}
 async function closeProgram(u){
   const r=progOf(u); if(!r)return;
   if(!confirm('Close '+r.set+'?\nWorkers will stop seeing it in Today\'s Tasks.'))return;
@@ -2026,7 +2322,7 @@ function renderProjection(){
       '<div class="exphint">'+esc(MODE_LABEL[r.mode]||r.mode)+' · '+r.trees+' trees ('+(r.scope==='ALL'?'whole farm':'Lot '+r.scope)+')'+
       (r.basis==='PER_1000L'?(' · '+nf(r.tanks)+' tanks @ '+nf(r.litresPerTree)+' L/tree'):'')+'</div></div>'+
       '<div class="mc">'+(SHOW_VALUES?rm(r.projCost):'')+'</div></div>'+
-      '<div class="msub"><table class="tbl">'+
+      '<div class="msub">'+clockHTML(r)+'<table class="tbl">'+
       '<tr><th>Product</th><th class="num">Required</th><th class="num">On hand</th><th class="num">Used</th></tr>'+
       r.lines.map(l=>{const p=prodById(l.pid);const oh=p?onHand(p):0;const used=usedForProgram(r.uuid,l.pid);
         return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
@@ -2075,6 +2371,60 @@ function renderProgCheck(){
       '<td class="num">'+(n.short?('<b>'+n.buyContainers+'</b><br><span class="exphint">'+esc(n.container)+'</span>'):'—')+'</td></tr>').join('')+
     '</table></div>';}
 
+// ---- Purchaser read-ahead: what the NEXT phase needs, grouped by active ingredient ----
+// "Next" means the phases that follow the ones running now, in programme order, so the
+// purchaser can order on lead time instead of reacting to a shortage on spray day.
+function nextPhases(limit){
+  const liveIds=activePrograms().map(r=>r.phaseId);
+  // only the calendar programme has a "next" — a custom set is not a point in the year
+  const seq=PHASE_PROGRAM.slice().sort((a,b)=>{
+    const d=PROG_MONTH_ORDER.indexOf(a.month)-PROG_MONTH_ORDER.indexOf(b.month);
+    return d!==0?d:String(a.set).localeCompare(String(b.set));});
+  let start=-1;
+  for(let i=seq.length-1;i>=0;i--) if(liveIds.indexOf(seq[i].id)>=0){start=i+1;break;}
+  if(start<0){                       // nothing from the calendar is running — anchor on today
+    const t=todayStr();
+    const i=seq.findIndex(x=>x.plan&&String(x.plan)>=t);
+    start=i>=0?i:0;}
+  return seq.slice(start).filter(x=>liveIds.indexOf(x.id)<0).slice(0,limit||3);}
+function readyNeeds(){
+  const lpt=(m)=>(LAST_LPT&&LAST_LPT[m])||6;      // last litres/tree the Owner actually used
+  const by={};
+  nextPhases(3).forEach(ph=>{
+    const pr=projectPhase(ph,'ALL',ph.litresPerTree||lpt(ph.mode));
+    pr.lines.forEach(l=>{
+      const p=prodById(l.pid); const ai=aiFor(l.pid,l.ai)||'(not recorded)';
+      if(!by[ai])by[ai]={ai:ai,req:0,onHand:0,unit:l.unit,prods:{},phases:{},cls:rainClass(ai)};
+      const b=by[ai];
+      b.req+=l.required; b.phases[monthLabel(ph.month)+' '+ph.set]=1;
+      if(p&&!b.prods[p.id]){b.prods[p.id]={name:p.name,oh:onHand(p),unit:p.unit,
+        container:p.container,mult:p.unit_multiplier||1};b.onHand+=onHand(p);}});});
+  return Object.values(by).map(b=>{
+    b.gap=+(b.req-b.onHand).toFixed(2); b.short=b.gap>0;
+    const first=Object.values(b.prods)[0];
+    b.buy=b.short&&first&&first.mult?Math.ceil(b.gap/first.mult):0;
+    b.container=first?first.container:''; b.req=+b.req.toFixed(2);
+    return b;}).sort((a,b)=>b.gap-a.gap);}
+function renderReady(){
+  const box=$('readybox'); if(!box)return;
+  const nx=nextPhases(3);
+  if(!nx.length){box.innerHTML='<div class="alertnone">Nothing further in the programme after the active phase.</div>';return;}
+  const needs=readyNeeds(), short=needs.filter(x=>x.short);
+  box.innerHTML=(short.length
+      ?'<div class="alertbig">⚠ PREPARE NOW — '+short.length+' ACTIVE INGREDIENT'+(short.length>1?'S':'')+' SHORT FOR THE NEXT PHASE</div>'
+      :'<div class="alertnone">✓ The next phases are covered by stock on hand.</div>')+
+    '<div class="small" style="margin:8px 0 4px">Coming up: '+nx.map(p=>esc(monthLabel(p.month)+' '+p.set)).join(' · ')+
+    '<br><span class="exphint">Foliar volumes assume the litres per tree last used; the Owner sets the real figure on activation.</span></div>'+
+    '<div class="tblwrap"><table class="tbl"><tr><th>Active ingredient</th><th class="num">Needs</th><th class="num">In store</th><th class="num">Order</th></tr>'+
+    needs.map(x=>'<tr'+(x.short?' style="background:#fdecea"':'')+'>'+
+      '<td><div class="pn">'+esc(x.ai)+(x.short?' <span class="cstat r">SHORT</span>':'')+'</div>'+
+      '<div class="pa">'+Object.values(x.prods).map(pr=>esc(pr.name)).join(', ')+'</div>'+
+      '<div class="exphint">'+esc(Object.keys(x.phases).join(', '))+'</div></td>'+
+      '<td class="num">'+nf(x.req)+'<br><span class="exphint">'+esc(x.unit)+'</span></td>'+
+      '<td class="num '+(x.short?'lowq':'')+'">'+nf(x.onHand)+'</td>'+
+      '<td class="num">'+(x.short?('<b>'+x.buy+'</b><br><span class="exphint">'+esc(x.container)+'</span>'):'—')+'</td></tr>').join('')+
+    '</table></div>';}
+
 // ================= Farm Worker: today's tasks + completion reply =================
 function myTasks(){
   // a task stays on the worker's list until every lot in its scope has been reported
@@ -2093,7 +2443,9 @@ function renderOpsTasks(){
       '<div class="cwho">'+esc(MODE_LABEL[r.mode]||r.mode)+(r.plan?(' · planned '+esc(r.plan)):'')+
       '<br>set by '+esc(r.by)+' · '+esc(r.at)+'</div></div>'+
       '<span class="cstat p">TO DO</span></div>'+
+      clockHTML(r)+
       (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ fruit-contact product — check the residue cut-off with the Owner first</div>':'')+
+      (r.weather==='RAINY'?'<div class="cnote" style="color:#123a71;font-weight:700">🌧️ set while the Owner had Rainy mode on — spray only when the leaf can dry</div>':'')+
       '<div class="cchange">'+r.lines.map(l=>esc(l.pname)+' <b>'+nf(l.dose)+' '+esc(l.unit)+'</b>'+
         (r.basis==='PER_1000L'?' / tank':' / tree')).join('<br>')+'</div>'+
       '<div class="cwho">Still to report: '+need.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')+
@@ -2115,22 +2467,40 @@ function renderOpsHistory(){
     :'<div class="small">No completion reply sent from this phone yet.</div>';}
 
 let rpProg=null,rpLotVal='';
+// v2.5.1 — a completion reply covers ONE lot. When the phase was activated for the
+// whole farm the prefill must be that lot's SHARE, never the whole-farm figure, or
+// three lot replies deduct three times the material that was actually applied.
+function rpShare(){
+  if(!rpProg)return 1;
+  if(rpProg.scope!=='ALL'||!rpLotVal)return 1;
+  const t=+rpProg.trees||0; if(!t)return 1;
+  return treesInLot(rpLotVal).length/t;}
+function rpTrees(){return Math.round((rpProg?(+rpProg.trees||0):0)*rpShare());}
+function rpFill(){
+  if(!rpProg)return;
+  const foliar=(rpProg.basis==='PER_1000L'), sh=rpShare(), tr=rpTrees();
+  // raw numbers only: nf() adds a thousands comma and <input type="number"> silently drops it
+  $('rp-tanks').value=foliar?+((+rpProg.tanks||0)*sh).toFixed(3):tr;
+  $('rp-water').value=foliar?+((+rpProg.litresPerTree||0)*(+rpProg.trees||0)*sh).toFixed(1):'';
+  $('rp-mode').innerHTML=esc(MODE_LABEL[rpProg.mode]||rpProg.mode)+'<br>'+tr+' tree'+(tr===1?'':'s')+
+    (rpProg.scope==='ALL'
+      ?(rpLotVal?(' · Lot '+esc(rpLotVal)+' share of the farm'):' · whole farm — pick the lot you did')
+      :(' · Lot '+esc(rpProg.scope)));
+  rpCalc();}
 function openReply(u){
   const r=progOf(u); if(!r){toast('Task not found',1);return;}
   rpProg=r; rpLotVal='';
   const foliar=(r.basis==='PER_1000L');
   $('rp-sub').textContent='This task was set by the Owner and cannot be changed. Report what was actually applied.';
   $('rp-task').textContent=monthLabel(r.month)+' · '+r.set;
-  $('rp-mode').innerHTML=esc(MODE_LABEL[r.mode]||r.mode)+'<br>'+r.trees+' trees';
   $('rp-unitlbl').textContent=foliar?'Tanks sprayed (1000 L each)':'Trees treated';
-  $('rp-tanks').value=foliar?nf(r.tanks):r.trees;
-  $('rp-water').value=foliar?nf(r.litresPerTree*r.trees):'';
   LOT_KEYS.forEach(L=>$('rl-'+L).classList.toggle('on',false));
+  $('rp-crew').value='';$('rp-hours').value='';
   $('rp-err').textContent='';
   $('replymodal').classList.remove('hidden');
-  rpCalc();}
+  rpFill();}
 function closeReply(){$('replymodal').classList.add('hidden');rpProg=null;}
-function rpLot(L){rpLotVal=L;LOT_KEYS.forEach(k=>$('rl-'+k).classList.toggle('on',k===L));rpCalc();}
+function rpLot(L){rpLotVal=L;LOT_KEYS.forEach(k=>$('rl-'+k).classList.toggle('on',k===L));rpFill();}
 function rpMult(){return +$('rp-tanks').value||0;}
 function rpCalc(){
   if(!rpProg)return;
@@ -2140,7 +2510,11 @@ function rpCalc(){
       return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
         '<td class="num">'+nf(l.dose)+'</td>'+
         '<td class="num"><b>'+nf(q)+'</b> '+esc(l.unit)+'</td>'+
-        '<td class="num '+(oh<q?'lowq':'')+'">'+nf(oh)+'</td></tr>';}).join('');}
+        '<td class="num '+(oh<q?'lowq':'')+'">'+nf(oh)+'</td></tr>';}).join('');
+  const crew=+$('rp-crew').value||0, hrs=+$('rp-hours').value||0;
+  $('rp-labour').innerHTML=crew&&hrs
+    ?('<b>'+nf(crew*hrs)+'</b> man-hours ('+crew+' worker'+(crew>1?'s':'')+' × '+nf(hrs)+' h)')
+    :'Enter the crew size and hours — the month’s labour total is built from these.';}
 let replySaving=false;
 async function submitReply(){
   const err=$('rp-err');err.textContent='';
@@ -2150,6 +2524,9 @@ async function submitReply(){
   const water=+$('rp-water').value;
   if(!(water>=0)||$('rp-water').value===''){err.textContent='Enter the water volume used in litres.';return;}
   if(!rpLotVal){err.textContent='Select the target lot the programme was applied to.';return;}
+  const crew=Math.round(+$('rp-crew').value||0), hours=+$('rp-hours').value;
+  if(!(crew>0)){err.textContent='Enter how many workers were on the job.';return;}
+  if(!(hours>0)){err.textContent='Enter the hours worked per worker.';return;}
   if(lotsDone(rpProg.uuid).includes(rpLotVal)&&
      !confirm('Lot '+rpLotVal+' was already reported for this phase.\nSend another reply anyway?'))return;
   // PHI guard is kept on the programme path too
@@ -2168,12 +2545,14 @@ async function submitReply(){
         set:monthLabel(rpProg.month)+' - '+rpProg.set,
         cost:+(q*(p?(p.cpu||0):0)).toFixed(2),
         progId:rpProg.uuid,progSet:monthLabel(rpProg.month)+' · '+rpProg.set,replyId:rid,
-        tanks:m,water:water,worker:CFG.worker,device:CFG.device,synced:false});}
+        tanks:m,water:water,crew:crew,hours:hours,
+        worker:CFG.worker,device:CFG.device,synced:false});}
   } finally { replySaving=false; }
   const n=rpProg.lines.length, lot=rpLotVal;   // read before closeReply() clears rpProg
   closeReply();
   toast('✓ Reply sent · '+n+' item(s) deducted from Lot '+lot);
-  refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderProjection();renderProgCheck();}
+  refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderProjection();
+  renderProgCheck();renderReady();renderLabour();renderHub();}
 
 // ---- programme sync: activation records travel in their own payload key, so an
 //      Apps Script that predates v2.5 cannot silently swallow them ----
@@ -2211,6 +2590,490 @@ async function mergePrograms(rows){
   if(changed){renderOpsTasks();renderProjection();renderProgCheck();renderAgroPhases();renderHub();badge();}}
 function progUnsynced(){return PROGRAMS.filter(p=>!p.synced).length;}
 
+// ================= v2.6 PHASE CLOCK · WEATHER · AI BLUEPRINT · GENERAL TASKS · LABOUR =================
+let TASKS=[], BLUEPRINTS=[], WEATHER='SUNNY';
+
+// ---- 1. variable phase duration -------------------------------------------------
+// A phase is NOT a calendar month. The Owner sets a start date and a duration in
+// days (1 week for flowering, 3 years for immature vegetative), and every screen
+// counts down from it. Nothing auto-closes — the Owner still decides — but an
+// overdue phase says so in red on the worker's task card and the Owner's list.
+function dayStart(d){const x=new Date(d);x.setHours(0,0,0,0);return x;}
+function parseDay(str){ if(!str)return null;
+  const m=String(str).slice(0,10).split('-'); if(m.length!==3)return null;
+  const d=new Date(+m[0],+m[1]-1,+m[2]); return isNaN(d)?null:dayStart(d);}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return dayStart(x);}
+function ymd(d){const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function durLabel(days){
+  days=Math.max(1,Math.round(+days||0));
+  if(days>=365&&days%365===0)return (days/365)+' year'+(days/365>1?'s':'');
+  if(days>=30&&days%30===0) return (days/30)+' month'+(days/30>1?'s':'');
+  if(days>=7&&days%7===0)   return (days/7)+' week'+(days/7>1?'s':'');
+  return days+' day'+(days>1?'s':'');}
+// the live counter every screen shares
+function phaseClock(rec){
+  const start=parseDay(rec.startDate)||parseDay(rec.at)||dayStart(new Date());
+  const dur=Math.max(1,Math.round(+rec.durDays||30));
+  const end=addDays(start,dur), today=dayStart(new Date());
+  const left=Math.round((end-today)/86400000);
+  const gone=Math.max(0,Math.min(dur,Math.round((today-start)/86400000)));
+  const notYet=today<start;
+  return {start:start,end:end,dur:dur,left:left,gone:gone,notYet:notYet,
+    pct:Math.max(0,Math.min(100,Math.round(gone/dur*100))),
+    over:left<0, soon:left>=0&&left<=3,
+    text: notYet ? ('starts in '+Math.round((start-today)/86400000)+' day(s)')
+        : (left<0 ? (Math.abs(left)+' day(s) OVERDUE')
+        : (left===0?'last day':left+' day(s) remaining'))};}
+function clockHTML(rec){
+  const c=phaseClock(rec), cls=c.over?'over':(c.soon?'warn':'');
+  return '<div class="clock"><span class="clockpill '+cls+'">'+esc(c.text)+'</span>'+
+    '<span class="clockbar"><i class="'+cls+'" style="width:'+c.pct+'%"></i></span>'+
+    '<span class="exphint">'+durLabel(c.dur)+'</span></div>';}
+
+// ---- 2. weather mode + rain-fastness ---------------------------------------------
+// Rain-fastness is decided by ACTIVE INGREDIENT, never by brand. Anything the
+// database cannot classify is marked UNKNOWN and shown to the Owner as a question —
+// the app never guesses chemistry it does not hold.
+const SYSTEMIC_AI=[
+  ['metalaxyl','systemic phenylamide — moves inside the leaf, rain-fast once dry'],
+  ['fosetyl','systemic phosphonate — taken up by root and leaf'],
+  ['azoxystrobin','systemic strobilurin — translaminar, holds through rain'],
+  ['difenoconazole','systemic triazole — absorbed within hours'],
+  ['hexaconazole','systemic triazole — absorbed within hours'],
+  ['propiconazole','systemic triazole'],
+  ['imidacloprid','systemic neonicotinoid'],
+  ['thiamethoxam','systemic neonicotinoid'],
+  ['carbosulfan','systemic carbamate'],
+  ['fipronil','locally systemic phenylpyrazole'],
+  ['emamectin','translaminar avermectin'],
+  ['abamectin','translaminar avermectin'],
+  ['lufenuron','ingested growth regulator — not surface dependent'],
+  ['paclobutrazol','root/systemic growth regulator'],
+  ['phosphonate','systemic phosphonate']];
+const CONTACT_AI=[
+  ['mancozeb','protectant contact fungicide — washes off in rain'],
+  ['copper','contact protectant — washes off in rain'],
+  ['sulphur','contact protectant — washes off in rain'],
+  ['sulfur','contact protectant — washes off in rain'],
+  ['chlorothalonil','contact protectant — washes off in rain'],
+  ['cypermethrin','contact pyrethroid — surface deposit, rain sensitive'],
+  ['seaweed','foliar nutrient — surface deposit, rain sensitive'],
+  ['boron','foliar nutrient — surface deposit, rain sensitive'],
+  ['calcium','foliar nutrient — surface deposit, rain sensitive'],
+  ['zinc','foliar nutrient — surface deposit, rain sensitive'],
+  ['amino','foliar biostimulant — surface deposit, rain sensitive'],
+  ['sorbitol','carrier — surface deposit, rain sensitive'],
+  ['potassium phosphate','soluble foliar salt — washes off'],
+  ['mono potassium','soluble foliar salt — washes off']];
+// the programme sheet often names an ingredient the store card has not confirmed —
+// prefer the sheet's word over "(confirm — see label)" rather than inventing one
+function aiFor(pid,fallback){
+  const p=prodById(pid); const inv=p?String(p.active_ingredient||''):'';
+  if(inv&&inv.indexOf('(confirm')<0)return inv;
+  if(fallback&&String(fallback).trim())return String(fallback).trim()+' (per programme sheet)';
+  return inv||'';}
+function rainClass(aiText){
+  const t=String(aiText||'').toLowerCase();
+  if(!t||t.indexOf('(confirm')===0)return {k:'UNKNOWN',why:'the store card has no confirmed active ingredient'};
+  for(const [kw,why] of SYSTEMIC_AI) if(t.indexOf(kw)>=0)return {k:'SYSTEMIC',why:why};
+  for(const [kw,why] of CONTACT_AI)  if(t.indexOf(kw)>=0)return {k:'CONTACT',why:why};
+  return {k:'UNKNOWN',why:'not in the rain-fastness table — confirm with the label'};}
+function aiTagHTML(cls){
+  const m={SYSTEMIC:['sys','SYSTEMIC'],CONTACT:['con','WASHES OFF'],UNKNOWN:['unk','UNCONFIRMED']};
+  const x=m[cls.k]||m.UNKNOWN; return '<span class="aitag '+x[0]+'">'+x[1]+'</span>';}
+// a phase where fruit is on the tree — the case the brief calls out
+function isFruitPhase(ph){
+  const t=((ph.header||'')+' '+(ph.set||'')+' '+(ph.mode||'')).toLowerCase();
+  return t.indexOf('fruit')>=0||ph.mode==='SPRAY';}
+// systemic stand-ins that are actually IN THE STORE, ranked by what is on hand
+function systemicAlternatives(cat){
+  return INVENTORY_RECON.filter(p=>{
+    if(cat&&p.cat!==cat)return false;
+    return rainClass(p.active_ingredient).k==='SYSTEMIC'&&onHand(p)>0;})
+    .sort((a,b)=>onHand(b)-onHand(a)).slice(0,3);}
+function weatherAdvice(ph,lines){
+  if(WEATHER!=='RAINY')return null;
+  if(ph&&(ph.mode==='SOIL'||ph.mode==='DRENCH'))
+    return {ok:true,head:'Rainy mode — soil applied, no wash-off risk',rows:[]};
+  const rows=[];
+  (lines||[]).forEach(l=>{
+    const ai=aiFor(l.pid,l.ai), cls=rainClass(ai), p=prodById(l.pid);
+    if(cls.k==='SYSTEMIC')return;
+    rows.push({pname:(p?p.name:l.raw)||l.pname||'—',ai:ai,cls:cls,
+      alts:cls.k==='CONTACT'?systemicAlternatives(p?p.cat:''):[]});});
+  return {ok:rows.length===0,
+    head:rows.length?('Rainy mode — '+rows.length+' line'+(rows.length>1?'s':'')+' may wash off before it works')
+                    :'Rainy mode — every line in this set stays on the tree',
+    rows:rows};}
+function advHTML(adv){
+  if(!adv)return '';
+  let h='<div class="advbox"><div class="ah">🌧️ '+esc(adv.head)+'</div>';
+  if(!adv.rows.length)h+='<div class="small">Nothing to swap. Spray as written.</div>';
+  adv.rows.forEach(r=>{
+    h+='<div class="swap"><span><b>'+esc(r.pname)+'</b> '+aiTagHTML(r.cls)+
+       '<br><span class="exphint">'+esc(r.ai||'—')+' — '+esc(r.cls.why)+'</span></span></div>';
+    if(r.alts.length)h+='<div class="small" style="padding-left:8px">↳ systemic stand-in on hand: '+
+       r.alts.map(a=>'<b>'+esc(a.name)+'</b> <span class="exphint">('+esc(a.active_ingredient)+', '+nf(onHand(a))+' '+esc(a.unit)+')</span>').join(' · ')+'</div>';
+    else if(r.cls.k==='CONTACT')h+='<div class="small" style="padding-left:8px">↳ no systemic stand-in of this type is in the store — order one or wait for a dry window.</div>';});
+  h+='<div class="small" style="margin-top:6px">This is advice, not an automatic change. The set is applied exactly as the Owner activates it.</div></div>';
+  return h;}
+async function setWeather(w){
+  WEATHER=w; if(db)await put('kv',{k:'weather',v:w});
+  renderWeather();renderAgroPhases();renderOpsTasks();if(pmPhase)pmCalc();
+  toast(w==='RAINY'?'🌧️ Rainy mode on — spray lines are now checked for wash-off':'☀️ Sunny mode');}
+function renderWeather(){
+  if(!$('wxbtns'))return;
+  ['SUNNY','RAINY'].forEach(k=>$('wx-'+k).classList.toggle('on',k===WEATHER));
+  const live=activePrograms();
+  let note='';
+  if(WEATHER==='RAINY'){
+    const risky=live.filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
+    note=live.length
+      ?(risky.length?('⚠ '+risky.length+' active phase'+(risky.length>1?'s':'')+' contain a line that washes off — open PHASES to see the stand-ins.')
+                    :'✓ Every active phase holds through rain.')
+      :'No phase is active. The check runs the moment you activate one.';
+  } else note='Spray as the programme states. Switch to Rainy when the sky turns and the app re-checks every active phase.';
+  $('wxnote').innerHTML=esc(note);}
+
+// ---- 3. programme blueprint, built from the ACTIVE INGREDIENT out ------------------
+const BP_CATS={PND:['Pesticide','Fungicide','Herbicide'],FOLIAR:['Foliar'],
+  BIO:['Foliar','Growth Reg'],TE:['Foliar','Powder'],MANURE:['Fertiliser','Powder']};
+const BP_LABEL={PND:'PnD spray',FOLIAR:'Foliar feed',BIO:'Biostimulant',TE:'Trace element',MANURE:'Manuring'};
+let bpLines=[], bpBasisVal='PER_1000L';
+function bpPool(){const cats=BP_CATS[$('bp-kind').value]||[];
+  return INVENTORY_RECON.filter(p=>cats.indexOf(p.cat)>=0);}
+function bpAIs(){
+  const seen={},out=[];
+  bpPool().forEach(p=>{const ai=String(p.active_ingredient||'').trim()||'(not recorded)';
+    if(!seen[ai]){seen[ai]={ai:ai,n:0};out.push(seen[ai]);} seen[ai].n++;});
+  const unknown=x=>(x.ai.indexOf('(confirm')===0||x.ai==='(not recorded)')?1:0;
+  return out.sort((a,b)=>(unknown(a)-unknown(b))||a.ai.localeCompare(b.ai));}
+function openBlueprint(){
+  bpLines=[];bpBasisVal='PER_1000L';
+  $('bp-name').value='';$('bp-dose').value='';$('bp-err').textContent='';
+  ['PER_1000L','PER_TREE'].forEach(k=>$('bb-'+k).classList.toggle('on',k===bpBasisVal));
+  bpKind();renderBpLines();
+  $('bpmodal').classList.remove('hidden');}
+function closeBlueprint(){$('bpmodal').classList.add('hidden');bpLines=[];}
+function bpBasis(b){bpBasisVal=b;['PER_1000L','PER_TREE'].forEach(k=>$('bb-'+k).classList.toggle('on',k===b));
+  $('bp-unitlbl').textContent=(b==='PER_1000L')?'per 1000 L tank':'per tree';}
+function bpKind(){
+  const ais=bpAIs();
+  $('bp-ai').innerHTML=ais.map(a=>'<option value="'+esc(a.ai)+'">'+esc(a.ai)+' ('+a.n+' product'+(a.n>1?'s':'')+')</option>').join('')
+    ||'<option value="">no product in this category</option>';
+  if($('bp-kind').value==='MANURE')bpBasis('PER_TREE'); else bpBasis('PER_1000L');
+  bpAI();}
+function bpAI(){
+  const ai=$('bp-ai').value;
+  const list=bpPool().filter(p=>String(p.active_ingredient||'').trim()===ai);
+  const cls=rainClass(ai);
+  $('bp-aihint').innerHTML=aiTagHTML(cls)+esc(cls.why)+
+    (WEATHER==='RAINY'&&cls.k==='CONTACT'?' <b style="color:#b3261e">— rainy mode is on</b>':'');
+  $('bp-prod').innerHTML=list.map(p=>'<option value="'+p.id+'">'+esc(p.name)+' — '+nf(onHand(p))+' '+esc(p.unit)+' on hand</option>').join('')
+    ||'<option value="">—</option>';
+  bpProd();}
+function bpProd(){const p=prodById(+$('bp-prod').value);
+  $('bp-unitlbl').textContent=(bpBasisVal==='PER_1000L'?'per 1000 L tank':'per tree')+(p?(' · '+p.unit):'');}
+function bpAdd(){
+  const err=$('bp-err');err.textContent='';
+  const p=prodById(+$('bp-prod').value);
+  const dose=+$('bp-dose').value;
+  if(!p){err.textContent='Pick a product.';return;}
+  if(!(dose>0)){err.textContent='Enter the dose.';return;}
+  if(bpLines.some(l=>l.pid===p.id)){err.textContent=p.name+' is already in this set.';return;}
+  bpLines.push({pid:p.id,pname:p.name,ai:String(p.active_ingredient||''),unit:p.unit,qty:dose});
+  $('bp-dose').value='';renderBpLines();}
+function bpDrop(i){bpLines.splice(i,1);renderBpLines();}
+function renderBpLines(){
+  $('bp-lines').innerHTML=bpLines.length?bpLines.map((l,i)=>{
+    const cls=rainClass(l.ai);
+    return '<div class="bline"><span><b>'+esc(l.pname)+'</b> '+aiTagHTML(cls)+
+      '<br><span class="exphint">'+esc(l.ai||'—')+'</span></span>'+
+      '<span><b>'+nf(l.qty)+' '+esc(l.unit)+'</b> <span class="x" onclick="bpDrop('+i+')">✕</span></span></div>';}).join('')
+    :'<div class="small">No line added yet.</div>';}
+async function bpSave(){
+  const err=$('bp-err');err.textContent='';
+  const name=$('bp-name').value.trim();
+  if(!name){err.textContent='Give the set a name.';return;}
+  if(!bpLines.length){err.textContent='Add at least one line.';return;}
+  const kind=$('bp-kind').value;
+  const rec={uuid:uuid(),id:'BP|'+uuid().slice(0,8),month:'My sets',set:name,
+    kind:(kind==='MANURE'?'FERT':'FOLIAR'),bpKind:kind,
+    mode:(kind==='MANURE'?'SOIL':'SPRAY'),header:BP_LABEL[kind]+' — built by active ingredient',
+    basis:bpBasisVal,litresPerTree:null,plan:'',lines:bpLines.slice(),
+    by:CFG.worker,at:now(),custom:true};
+  BLUEPRINTS.push(rec); if(db)await put('blueprints',rec);
+  const label=rec.set;
+  closeBlueprint();
+  toast('✓ '+label+' saved — it is now in the PHASES list');
+  renderBlueprints();renderAgroPhases();}
+async function bpDelete(u){
+  const r=BLUEPRINTS.find(x=>x.uuid===u); if(!r)return;
+  if(PROGRAMS.some(p=>p.phaseId===r.id&&p.status==='ACTIVE')){toast('Close the active phase first',1);return;}
+  if(!confirm('Delete "'+r.set+'"?'))return;
+  BLUEPRINTS=BLUEPRINTS.filter(x=>x.uuid!==u); if(db)await del('blueprints',u);
+  renderBlueprints();renderAgroPhases();toast('Set deleted');}
+function renderBlueprints(){
+  const box=$('bplist'); if(!box)return;
+  box.innerHTML=BLUEPRINTS.length?BLUEPRINTS.map(r=>
+    '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(r.set)+'</div>'+
+    '<div class="cwho">'+esc(BP_LABEL[r.bpKind]||r.bpKind)+' · '+(r.basis==='PER_1000L'?'per 1000 L':'per tree')+
+    '<br>built by '+esc(r.by)+' · '+esc(r.at)+'</div></div>'+
+    '<span class="cstat p">MY SET</span></div>'+
+    '<div class="cchange">'+r.lines.map(l=>esc(l.pname)+' <b>'+nf(l.qty)+' '+esc(l.unit)+'</b>').join(' · ')+'</div>'+
+    '<div class="cacts"><button class="ok" onclick="openProgModal(\''+esc(r.id)+'\')">ACTIVATE PHASE</button>'+
+    '<button class="no" onclick="bpDelete(\''+r.uuid+'\')">DELETE</button></div></div>').join('')
+    :'<div class="small">No set built yet. Tap the button below — you choose the active ingredient, not the brand.</div>';}
+
+// ---- 4. general field tasks (no chemical) ------------------------------------------
+// Each job declares what a completion reply must carry. The reply form is generated
+// from this table, so a worker cannot file a tying job without a count per tree.
+const GEN_TASKS={
+  PRUNE:  {label:'Pruning',       need:'TREE_COUNT', countLabel:'branches pruned', unit:'branches'},
+  WEED:   {label:'Weeding',       need:'AREA',       countLabel:'trees cleared',   unit:'trees'},
+  FTIE:   {label:'Fruit tying',   need:'TREE_COUNT', countLabel:'fruits tied',     unit:'fruits'},
+  BTIE:   {label:'Branch tying',  need:'TREE_COUNT', countLabel:'branches tied',   unit:'branches'},
+  FTRIM:  {label:'Fruit trimming',need:'TREE_COUNT', countLabel:'fruits removed',  unit:'fruits'}};
+const GEN_NEED_TEXT={TREE_COUNT:'This job is reported as a count per tree — the worker adds one line per tree.',
+  AREA:'This job is reported as a number of trees covered, plus the hours worked.'};
+function taskById(u){return TASKS.find(t=>t.uuid===u)||null;}
+function activeTasks(){return TASKS.filter(t=>t.status==='OPEN');}
+function taskUnsynced(){return TASKS.filter(t=>!t.synced).length;}
+function tasksDoneLots(tu){return LOT_KEYS.filter(L=>EVENTS.some(e=>e.type==='TASK_DONE'&&e.taskId===tu&&e.lot===L));}
+function myGeneralTasks(){
+  return activeTasks().filter(t=>{
+    const need=t.scope==='ALL'?LOT_KEYS:[t.scope];
+    const done=tasksDoneLots(t.uuid);
+    return need.some(L=>done.indexOf(L)<0);});}
+let tfScopeVal='ALL';
+function openTaskForm(){
+  tfScopeVal='ALL';
+  $('tf-kind').innerHTML=Object.keys(GEN_TASKS).map(k=>'<option value="'+k+'">'+esc(GEN_TASKS[k].label)+'</option>').join('');
+  ['ALL','A','B','C'].forEach(k=>$('ts-'+k).classList.toggle('on',k==='ALL'));
+  $('tf-start').value=ymd(dayStart(new Date()));
+  $('tf-days').value=7;$('tf-note').value='';$('tf-err').textContent='';
+  tfKind();
+  $('taskmodal').classList.remove('hidden');}
+function closeTaskForm(){$('taskmodal').classList.add('hidden');}
+function tfScope(s){tfScopeVal=s;['ALL','A','B','C'].forEach(k=>$('ts-'+k).classList.toggle('on',k===s));}
+function tfKind(){const g=GEN_TASKS[$('tf-kind').value];
+  $('tf-need').textContent=g?GEN_NEED_TEXT[g.need]:'';}
+async function saveTask(){
+  const err=$('tf-err');err.textContent='';
+  const k=$('tf-kind').value, g=GEN_TASKS[k];
+  const days=Math.round(+$('tf-days').value||0);
+  const start=parseDay($('tf-start').value);
+  if(!g){err.textContent='Pick a job.';return;}
+  if(!start){err.textContent='Pick the start date.';return;}
+  if(!(days>0)){err.textContent='Enter how many days the job has.';return;}
+  const rec={uuid:uuid(),kind:k,kindLabel:g.label,need:g.need,countLabel:g.countLabel,unit:g.unit,
+    scope:tfScopeVal,trees:treesInScope(tfScopeVal),startDate:ymd(start),durDays:days,
+    note:$('tf-note').value.trim(),by:CFG.worker,at:now(),status:'OPEN',synced:false};
+  TASKS.push(rec); if(db)await put('tasks',rec);
+  const label=g.label;
+  closeTaskForm();badge();
+  toast('✓ '+label+' assigned to the workers');
+  renderAssign();renderGeneralTasks();renderHub();}
+async function closeTask(u){
+  const t=taskById(u); if(!t)return;
+  if(!confirm('Close "'+t.kindLabel+'"?\nWorkers will stop seeing it.'))return;
+  t.status='CLOSED';t.synced=false; if(db)await put('tasks',t);
+  badge();renderAssign();renderGeneralTasks();renderHub();toast('Task closed');}
+function renderAssign(){
+  const box=$('assignlist'); if(!box)return;
+  const list=TASKS.slice().sort((a,b)=>String(b.at).localeCompare(String(a.at))).slice(0,20);
+  box.innerHTML=list.length?list.map(t=>{
+    const done=tasksDoneLots(t.uuid);
+    const logs=EVENTS.filter(e=>e.type==='TASK_DONE'&&e.taskId===t.uuid);
+    const cnt=logs.reduce((s,e)=>s+(+e.count||0),0);
+    const mh=logs.reduce((s,e)=>s+((+e.hours||0)*(+e.crew||0)),0);
+    return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(t.kindLabel)+
+      (t.status==='OPEN'?' <span class="cstat a">OPEN</span>':' <span class="cstat r">CLOSED</span>')+'</div>'+
+      '<div class="cwho">'+(t.scope==='ALL'?'whole farm':'Lot '+esc(t.scope))+' · '+t.trees+' trees'+
+      '<br>set by '+esc(t.by)+' · '+esc(t.at)+'</div></div></div>'+
+      (t.status==='OPEN'?clockHTML(t):'')+
+      (t.note?'<div class="cnote">“'+esc(t.note)+'”</div>':'')+
+      '<div class="cchange">Reported so far: <b>'+nf(cnt)+' '+esc(t.unit)+'</b> · <b>'+nf(mh)+'</b> man-hours'+
+      (done.length?(' · lots done: '+done.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')):'')+'</div>'+
+      (t.status==='OPEN'?'<div class="cacts"><button class="no" onclick="closeTask(\''+t.uuid+'\')">CLOSE TASK</button></div>':'')+
+      '</div>';}).join('')
+    :'<div class="small">No general task assigned yet.</div>';}
+function renderGeneralTasks(){
+  const box=$('genlist'); if(!box)return;
+  const t=myGeneralTasks();
+  box.innerHTML=t.length?t.map(x=>{
+    const done=tasksDoneLots(x.uuid);
+    const need=(x.scope==='ALL'?LOT_KEYS:[x.scope]).filter(L=>done.indexOf(L)<0);
+    return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(x.kindLabel)+'</div>'+
+      '<div class="cwho">'+(x.scope==='ALL'?'whole farm':'Lot '+esc(x.scope))+' · '+x.trees+' trees'+
+      '<br>set by '+esc(x.by)+' · '+esc(x.at)+'</div></div><span class="cstat p">TO DO</span></div>'+
+      clockHTML(x)+
+      (x.note?'<div class="cnote">“'+esc(x.note)+'”</div>':'')+
+      '<div class="cwho">Still to report: '+need.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')+
+      (done.length?(' · done: '+done.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')):'')+'</div>'+
+      '<div class="cacts"><button class="ok" onclick="openGeneral(\''+x.uuid+'\')">✓ REPORT WORK DONE</button></div></div>';}).join('')
+    :'<div class="alertnone">No general task waiting.</div>';}
+
+// ---- 5. worker reply for a general task: structure enforced per job type ------------
+let grTask=null, grLotVal='', grRows=[];
+function openGeneral(u){
+  const t=taskById(u); if(!t){toast('Task not found',1);return;}
+  grTask=t; grLotVal=''; grRows=[];
+  $('gr-sub').textContent='Set by the Owner and cannot be changed here. Report what was actually done.';
+  $('gr-task').textContent=t.kindLabel;
+  $('gr-mode').innerHTML=(t.scope==='ALL'?'whole farm':'Lot '+esc(t.scope))+'<br>'+phaseClock(t).text;
+  LOT_KEYS.forEach(L=>$('gl-'+L).classList.toggle('on',false));
+  const perTree=(t.need==='TREE_COUNT');
+  $('gr-countwrap').style.display='';
+  $('gr-countlbl').textContent=perTree?('Count per tree — '+t.countLabel):('Trees covered');
+  $('gr-counthint').textContent=perTree
+    ?'Add one line per tree you worked on. The tree number is the number printed on the QR tag.'
+    :'Enter how many trees were covered in this lot.';
+  $('gr-crew').value='';$('gr-hours').value='';$('gr-err').textContent='';
+  grRows=[perTree?{tree:'',n:''}:{tree:'—',n:''}];
+  renderGrRows();
+  $('genmodal').classList.remove('hidden');}
+function closeGeneral(){$('genmodal').classList.add('hidden');grTask=null;grRows=[];}
+function grLot(L){grLotVal=L;LOT_KEYS.forEach(k=>$('gl-'+k).classList.toggle('on',k===L));renderGrRows();}
+function grAddRow(){grRows.push({tree:'',n:''});renderGrRows();}
+function grDropRow(i){grRows.splice(i,1);if(!grRows.length)grRows.push({tree:'',n:''});renderGrRows();}
+function grSet(i,f,v){grRows[i][f]=v;grCalc();}
+function renderGrRows(){
+  const perTree=grTask&&grTask.need==='TREE_COUNT';
+  const lot=grLotVal||(grTask&&grTask.scope!=='ALL'?grTask.scope:'');
+  const trees=lot?treesInLot(lot):[];
+  $('gr-rows').innerHTML=grRows.map((r,i)=>{
+    const sel=perTree
+      ?('<select onchange="grSet('+i+',\'tree\',this.value)"><option value="">'+
+        (lot?'pick tree…':'pick the lot first')+'</option>'+
+        trees.map(t=>'<option value="'+t.id+'"'+(r.tree===t.id?' selected':'')+'>'+esc(t.id)+' · '+esc(cloneLabel(t.clone))+'</option>').join('')+'</select>')
+      :'<span class="small" style="flex:1">Trees covered in Lot '+esc(lot||'—')+'</span>';
+    return '<div class="trcount">'+sel+
+      '<input type="number" min="0" step="1" inputmode="numeric" placeholder="'+esc(perTree?grTask.countLabel:'trees')+
+      '" value="'+esc(r.n)+'" oninput="grSet('+i+',\'n\',this.value)">'+
+      (perTree?'<span class="x" onclick="grDropRow('+i+')">✕</span>':'')+'</div>';}).join('');
+  $('gr-rows').nextElementSibling.style.display=perTree?'':'none';
+  grCalc();}
+function grTotal(){return grRows.reduce((s,r)=>s+(+r.n||0),0);}
+function grCalc(){
+  if(!grTask)return;
+  const tot=grTotal(), crew=+$('gr-crew').value||0, hrs=+$('gr-hours').value||0;
+  $('gr-total').innerHTML='<b>'+nf(tot)+'</b> '+esc(grTask.countLabel)+' across <b>'+
+    grRows.filter(r=>+r.n>0).length+'</b> entry(ies)';
+  $('gr-labour').innerHTML=crew&&hrs
+    ?('<b>'+nf(crew*hrs)+'</b> man-hours ('+crew+' worker'+(crew>1?'s':'')+' × '+nf(hrs)+' h)')
+    :'Enter the crew size and hours so the month’s labour total is real.';}
+let genSaving=false;
+async function submitGeneral(){
+  const err=$('gr-err');err.textContent='';
+  if(!grTask||genSaving)return;
+  const perTree=grTask.need==='TREE_COUNT';
+  if(!grLotVal){err.textContent='Select the lot this work was done in.';return;}
+  const rows=grRows.filter(r=>+r.n>0);
+  if(!rows.length){err.textContent=perTree?('Add at least one tree with a '+grTask.countLabel+' count.')
+                                          :'Enter how many trees were covered.';return;}
+  if(perTree){
+    if(rows.some(r=>!r.tree)){err.textContent='Every line needs a tree number.';return;}
+    const ids=rows.map(r=>r.tree);
+    if(new Set(ids).size!==ids.length){err.textContent='The same tree is entered twice.';return;}
+    const wrong=rows.find(r=>{const t=treeById(r.tree);return !t||t.lot!==grLotVal;});
+    if(wrong){err.textContent=wrong.tree+' is not in Lot '+grLotVal+'.';return;}}
+  const crew=Math.round(+$('gr-crew').value||0), hours=+$('gr-hours').value;
+  if(!(crew>0)){err.textContent='Enter how many workers were on the job.';return;}
+  if(!(hours>0)){err.textContent='Enter the hours worked per worker.';return;}
+  if(tasksDoneLots(grTask.uuid).indexOf(grLotVal)>=0&&
+     !confirm('Lot '+grLotVal+' was already reported for this task.\nSend another report anyway?'))return;
+  genSaving=true;
+  const stamp=now(), tot=rows.reduce((s,r)=>s+(+r.n||0),0), lot=grLotVal, kl=grTask.kindLabel;
+  try{
+    await persistEvent({uuid:uuid(),type:'TASK_DONE',dt:stamp,taskId:grTask.uuid,
+      kind:grTask.kind,kindLabel:grTask.kindLabel,need:grTask.need,
+      lot:lot,count:tot,countLabel:grTask.countLabel,unit:grTask.unit,
+      trees:rows.length,detail:rows.map(r=>({tree:r.tree,n:+r.n||0})),
+      crew:crew,hours:hours,manHours:+(crew*hours).toFixed(2),
+      worker:CFG.worker,device:CFG.device,synced:false});
+  } finally { genSaving=false; }
+  closeGeneral();
+  toast('✓ '+kl+' reported · '+nf(tot)+' logged in Lot '+lot);
+  renderGeneralTasks();renderAssign();renderLabour();renderHub();}
+
+// ---- 6. labour roll-up ---------------------------------------------------------------
+function labourRows(){
+  const out=[];
+  EVENTS.filter(e=>e.type==='TASK_DONE').forEach(e=>out.push({dt:e.dt,what:e.kindLabel,lot:e.lot,
+    crew:+e.crew||0,hours:+e.hours||0,mh:(+e.crew||0)*(+e.hours||0),worker:e.worker}));
+  const seen={};
+  EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId&&e.hours).forEach(e=>{
+    const k=e.replyId||(e.progId+'|'+e.lot+'|'+e.dt); if(seen[k])return; seen[k]=1;   // one reply = many rows
+    out.push({dt:e.dt,what:e.progSet||'programme',lot:e.lot,crew:+e.crew||0,hours:+e.hours||0,
+      mh:(+e.crew||0)*(+e.hours||0),worker:e.worker});});
+  return out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));}
+function labourByMonth(){
+  const m={};
+  labourRows().forEach(r=>{const k=String(r.dt).slice(0,7);
+    if(!m[k])m[k]={k:k,mh:0,n:0};m[k].mh+=r.mh;m[k].n++;});
+  return Object.values(m).sort((a,b)=>b.k.localeCompare(a.k));}
+function renderLabour(){
+  const box=$('labourbox'); if(!box)return;
+  const rows=labourRows(), months=labourByMonth();
+  if(!rows.length){box.innerHTML='<div class="small">No labour logged yet. Every completion reply now asks for the crew size and hours.</div>';return;}
+  box.innerHTML='<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Month</th><th class="num">Reports</th><th class="num">Man-hours</th></tr>'+
+    months.map(m=>'<tr><td><b>'+esc(m.k)+'</b></td><td class="num">'+m.n+'</td><td class="num"><b>'+nf(m.mh)+'</b></td></tr>').join('')+
+    '</table></div><div class="sec" style="margin-top:10px">Latest entries</div>'+
+    rows.slice(0,12).map(r=>'<div class="lrow"><span><b>'+esc(r.what)+'</b> · Lot '+esc(r.lot||'—')+
+      '<br><span class="small">'+esc(r.dt)+' · '+esc(r.worker||'')+' · '+r.crew+' × '+nf(r.hours)+' h</span></span>'+
+      '<span style="font-weight:800">'+nf(r.mh)+' man-h</span></div>').join('');}
+
+// ---- 7. sync: assignments and completions each get their own payload key ------------
+let taskWarned=false, tlogWarned=false;
+async function pushTasks(){
+  const batch=TASKS.filter(t=>!t.synced);
+  if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  const stamp=batch.map(t=>t.uuid+'|'+t.status);
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({tasks:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j.tasks){
+      for(let i=0;i<batch.length;i++){const t=batch[i];
+        if(t.uuid+'|'+t.status!==stamp[i])continue;      // edited while the upload was in flight
+        t.synced=true;if(db)await put('tasks',t);}
+      badge();return true;}
+    if(!taskWarned){taskWarned=true;
+      toast('Task list kept on this phone — update the Apps Script to send it to the workers',1);}
+    return false;
+  }catch(e){return false;}}
+async function pushTaskLogs(){
+  const batch=EVENTS.filter(e=>e.type==='TASK_DONE'&&!e.synced);
+  if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({tasklogs:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j.tasklogs){for(const e of batch){e.synced=true;if(db)await put('events',e);}badge();return true;}
+    if(!tlogWarned){tlogWarned=true;
+      toast('Work reports kept on this phone — update the Apps Script to upload them',1);}
+    return false;
+  }catch(e){return false;}}
+async function mergeTasks(rows){
+  let changed=false;
+  for(const raw of rows){
+    const u=String(raw.uuid||'').trim(); if(!u)continue;
+    let detail=raw.detail;
+    const st={uuid:u,kind:String(raw.kind||''),kindLabel:String(raw.kindLabel||raw.kind||''),
+      need:String(raw.need||'TREE_COUNT'),countLabel:String(raw.countLabel||'items'),unit:String(raw.unit||'items'),
+      scope:String(raw.scope||'ALL'),trees:+raw.trees||0,startDate:String(raw.startDate||'').slice(0,10),
+      durDays:+raw.durDays||30,note:String(raw.note||''),by:String(raw.by||''),at:String(raw.at||''),
+      status:String(raw.status||'OPEN').toUpperCase(),synced:true};
+    const lc=TASKS.find(x=>x.uuid===u);
+    if(!lc){TASKS.push(st);if(db)await put('tasks',st);changed=true;continue;}
+    if(!lc.synced)continue;                       // our unpushed edit wins
+    if(lc.status===st.status)continue;
+    Object.assign(lc,st);if(db)await put('tasks',lc);changed=true;}
+  if(changed){renderGeneralTasks();renderAssign();renderHub();badge();}}
+
 // ================= boot =================
 (async function(){
   await initStore();
@@ -2218,6 +3081,7 @@ function progUnsynced(){return PROGRAMS.filter(p=>!p.synced).length;}
   const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   renderInOpts();renderOutOpts();renderStOpts();renderAlerts();   // inventory master ready before first paint
   renderAgroPhases();renderOpsTasks();renderProgCheck();          // v2.5 programme views
+  renderV26();                                                    // v2.6 weather, blueprint, tasks, labour
   badge();netUpdate();
   if(LOCKED){showLock(false);return;}                 // revoked device stays locked forever
   if(!CFG||!CFG.key||!CFG.worker){showLogin();}       // access key gate
