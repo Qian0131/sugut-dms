@@ -334,7 +334,7 @@ const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.1';
+const APP_VERSION = 'v2.1.1';
 // Seed registry. The Owner edits this live in the app (Owner tab → Master Governance
 // & User Registry); pushing mirrors it into the WORKERS tab of the Google Sheet, which
 // is what every other phone reads at the hotspot.
@@ -533,7 +533,10 @@ function renderKeys(){
   const d=$('regdirty');
   if(d){d.classList.toggle('hidden',!REG_DIRTY);
     if(REG_DIRTY)d.textContent='⚠ '+ (CFG&&CFG.url?'Registry changed on this phone. Push it to the Google Sheet so the other phones get it.':'Registry changed. Set the Sync URL in Settings to share it with the other phones.');}
-  const pb=$('pushregbtn');if(pb)pb.style.display=REG_DIRTY?'':'none';
+  // the Owner can push at any time — not only after an edit. Seeding a fresh
+  // WORKERS tab and re-sending after a sheet mishap both need this.
+  const pb=$('pushregbtn');
+  if(pb)pb.textContent=REG_DIRTY?'⇧ PUSH REGISTRY TO GOOGLE SHEET':'⇧ RE-SEND REGISTRY TO GOOGLE SHEET';
   if(!KEYS.length){el.innerHTML='<div class="small">No staff in the registry yet — tap ADD STAFF MEMBER.</div>';return;}
   const order={OWNER:0,MARKETING:1,PURCHASER:2,WORKER:3};
   el.innerHTML=[...KEYS].sort((a,b)=>(order[a.role]??9)-(order[b.role]??9)||String(a.name).localeCompare(String(b.name))).map(k=>{
@@ -614,7 +617,7 @@ async function deleteUser(id){
 
 // ---- push the registry up to the WORKERS tab ----
 async function pushRegistry(manual){
-  if(!REG_DIRTY)return true;
+  if(!manual&&!REG_DIRTY)return true;      // automatic pushes only when something changed
   if(!CFG||!CFG.url){if(manual)toast('Set the Sync URL in Settings first',1);return false;}
   if(!navigator.onLine){if(manual)toast('No internet — it will push at the office hotspot',1);return false;}
   const btn=$('pushregbtn');if(btn)btn.textContent='Uploading registry…';
@@ -627,7 +630,7 @@ async function pushRegistry(manual){
     REG_DIRTY=false;if(db)await put('kv',{k:'regdirty',v:false});
     renderKeys();toast('✓ Registry pushed to Google Sheet');return true;
   }catch(e){toast('Registry push failed: '+e.message,1);return false;}
-  finally{const b=$('pushregbtn');if(b)b.textContent='⇧ PUSH REGISTRY TO GOOGLE SHEET';}}
+  finally{renderKeys();}}
 
 // ================= setup =================
 function showSetup(){['harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).classList.add('hidden'));
