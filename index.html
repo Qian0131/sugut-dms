@@ -74,6 +74,32 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .small{font-size:11px;color:var(--muted);}
 .setup label{margin-top:12px;}
 .linkish{color:#1a73e8;font-size:12px;text-decoration:underline;cursor:pointer;}
+/* v2 governance */
+.login-wrap{display:flex;flex-direction:column;align-items:center;padding-top:26px;}
+.login-logo{font-size:44px;margin-bottom:6px;}
+.login-title{font-weight:900;font-size:18px;color:var(--green);margin-bottom:2px;}
+.login-sub{font-size:11px;color:var(--muted);margin-bottom:18px;}
+.pinrow{display:flex;gap:8px;margin-bottom:20px;}
+.pinbox{width:38px;height:48px;border:2px solid #c8dcc9;border-radius:10px;background:#fff;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;color:var(--green);}
+.pinbox.filled{border-color:var(--green2);background:var(--lite);}
+.keypad{display:grid;grid-template-columns:repeat(3,72px);gap:10px;}
+.keypad div{height:60px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;cursor:pointer;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.08);}
+.keypad div:active{background:var(--lite);}
+.keypad .fn{font-size:14px;color:var(--muted);background:#eef1ec;box-shadow:none;}
+.pinerr{color:var(--warn);font-size:12px;font-weight:700;height:18px;margin-top:12px;}
+#lockscreen{position:fixed;inset:0;background:#1a1a1a;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;}
+#lockscreen .ic{font-size:60px;margin-bottom:14px;}
+#lockscreen h2{font-size:20px;margin-bottom:8px;color:#ff6b6b;}
+#lockscreen p{font-size:13px;color:#bbb;max-width:280px;line-height:1.5;}
+#wipeoverlay{position:fixed;inset:0;background:#7f1d1dee;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:30px;}
+#wipeoverlay .step{font-size:14px;margin:6px 0;opacity:.4;transition:.4s;}
+#wipeoverlay .step.on{opacity:1;font-weight:800;}
+.krow{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid #eef1ec;font-size:12.5px;}
+.krow:last-child{border-bottom:none;}
+.kstat{font-size:9.5px;padding:2px 8px;border-radius:8px;font-weight:800;}
+.kstat.a{background:var(--lite);color:var(--green);}
+.kstat.r{background:#fdecea;color:var(--warn);}
+.keycode{font-family:monospace;font-weight:800;letter-spacing:1px;background:#f0f3ef;border-radius:6px;padding:1px 7px;}
 </style>
 </head>
 <body>
@@ -88,12 +114,42 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   </div>
 </div>
 
+<!-- LOCK SCREEN (revoked devices) -->
+<div id="lockscreen" class="hidden">
+  <div class="ic">⛔</div>
+  <h2>Unauthorized Access</h2>
+  <p>This device's access key has been deactivated by the farm owner. All local farm data has been removed.<br><br>Please contact S.H.A. Hup Aik Plantation management.</p>
+  <p id="simnote" class="hidden" style="color:#ffd54f;margin-top:16px">SIMULATION MODE — no real data was deleted.<br>Tap this yellow text 3 times to exit.</p>
+</div>
+
+<!-- WIPE SEQUENCE OVERLAY -->
+<div id="wipeoverlay" class="hidden">
+  <div style="font-size:40px;margin-bottom:10px">🔒</div>
+  <div style="font-weight:900;font-size:17px;margin-bottom:14px">ACCESS REVOKED — SECURING DATA</div>
+  <div class="step" id="ws1">1. Clearing offline queue…</div>
+  <div class="step" id="ws2">2. Clearing local database…</div>
+  <div class="step" id="ws3">3. Clearing app caches…</div>
+  <div class="step" id="ws4">4. Locking device…</div>
+</div>
+
+<!-- LOGIN -->
+<div class="scr" id="scr-login">
+  <div class="login-wrap">
+    <div class="login-logo">🌿</div>
+    <div class="login-title">SUGUT DMS</div>
+    <div class="login-sub">Enter your 6-digit Access Key</div>
+    <div class="pinrow" id="pinrow"></div>
+    <div class="keypad" id="keypad"></div>
+    <div class="pinerr" id="pinerr"></div>
+  </div>
+</div>
+
 <!-- SETUP -->
 <div class="scr hidden" id="scr-setup">
   <div class="card setup">
-    <div class="sec">First-time setup</div>
-    <label>Your name (worker)</label>
-    <select id="su-worker"></select>
+    <div class="sec">Device setup</div>
+    <label>Logged in as</label>
+    <div style="font-weight:800;font-size:15px;padding:4px 2px" id="su-who">—</div>
     <label>Device name (e.g. phone-01)</label>
     <input id="su-device" placeholder="phone-01">
     <label>Sync URL (Apps Script web app — from setup guide)</label>
@@ -105,7 +161,7 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 </div>
 
 <!-- HARVEST -->
-<div class="scr" id="scr-harvest">
+<div class="scr hidden" id="scr-harvest">
   <div class="scanbox" id="scanbox" onclick="startScan()">
     <div class="i">▣</div><div class="t">SCAN TREE TAG</div>
     <div class="s">camera QR scan · or <span class="linkish" onclick="event.stopPropagation();showPicker()">pick tree from list</span></div>
@@ -178,6 +234,13 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 
 <!-- DASH -->
 <div class="scr hidden" id="scr-dash">
+  <div class="card" id="keyspanel">
+    <div class="sec">🔑 Master Key Control (Owner)</div>
+    <div id="keylist"></div>
+    <p class="small" style="margin-top:8px">To revoke someone for real: open the Google Sheet → <b>WORKERS</b> tab → change their Status to <b>Resigned</b>. Their app wipes &amp; locks the next time that phone finds internet. To change a key: edit the AccessKey cell the same way.</p>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="simulateKill()" style="padding:10px;font-size:13px">🧪 TEST KILL SWITCH ON THIS DEVICE (simulation)</button>
+  </div>
   <div class="kpis">
     <div class="kpi"><div class="v" id="k-drops">0</div><div class="l">Fruits today</div></div>
     <div class="kpi"><div class="v" id="k-kg">0</div><div class="l">Est. kg today</div></div>
@@ -212,6 +275,22 @@ const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
+const APP_VERSION = 'v2.0';
+// Default access keys — the WORKERS tab in the Google Sheet is the master copy
+// (columns AccessKey + Status). Values fetched at sync override these.
+const DEFAULT_KEYS = [
+  {name:'Owner',     role:'OWNER',     key:'738291', status:'Active'},
+  {name:'Marketing', role:'MARKETING', key:'903172', status:'Active'},
+  {name:'Purchaser', role:'PURCHASER', key:'452817', status:'Active'},
+  {name:'Worker 1',  role:'WORKER',    key:'619304', status:'Active'},
+  {name:'Worker 2',  role:'WORKER',    key:'287465', status:'Active'}
+];
+const ROLE_TABS = { // which bottom tabs each role may see
+  OWNER:     ['harvest','stock','sync','dash'],
+  MARKETING: ['harvest','stock','sync','dash'],
+  WORKER:    ['harvest','stock','sync'],
+  PURCHASER: ['stock','sync']
+};
 const PEAK_DATE = new Date('2026-08-21T00:00:00');
 const PHI_PRODUCTS = {'Fetto 480':14,'Pictor':14}; // days before harvest — from SPRAY_PROGRAM FruitContact/PHIDays
 const AVG_KG = {MK:1.7,BT:1.9,B24:1.6,'101':1.5,UM:1.4,TB:1.9};
@@ -229,10 +308,14 @@ function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=
 function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
 function all(store){return new Promise(res=>{if(!db){res(null);return;}const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(null);});}
 
-let EVENTS=[], CFG=null;
+let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.slice(), LOCKED=false;
 async function initStore(){
   db=await idb();
-  if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[]; const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null; }
+  if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
+    const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
+    const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
+    const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
+  }
   else { EVENTS=mem.events; CFG=mem.config; }
 }
 async function persistEvent(ev){ EVENTS.push(ev); if(db) await put('events',ev); else mem.events=EVENTS; badge(); }
@@ -250,18 +333,118 @@ function badge(){$('qbadge').textContent=pending();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&pending()>0&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
 
-// ================= navigation =================
-function go(s){['harvest','stock','sync','dash'].forEach(x=>{$('scr-'+x).classList.toggle('hidden',x!==s);$('nav-'+x).classList.toggle('on',x===s);});
-  $('scr-setup').classList.add('hidden');
+// ================= navigation (role-aware) =================
+function myRole(){return (CFG&&CFG.role)||'WORKER';}
+function allowedTabs(){return ROLE_TABS[myRole()]||ROLE_TABS.WORKER;}
+function applyRole(){
+  const ok=allowedTabs();
+  ['harvest','stock','sync','dash'].forEach(x=>{$('nav-'+x).style.display=ok.includes(x)?'':'none';});
+  // Purchaser: stock-in only. Worker: stock-out only. Owner/Marketing: both.
+  const r=myRole();
+  const mv=document.querySelector('#scr-stock .lotbtns');
+  if(mv) mv.style.display=(r==='OWNER'||r==='MARKETING')?'':'none';
+  if(r==='PURCHASER') setMove('IN');
+  if(r==='WORKER') setMove('OUT');
+  if($('keyspanel')) $('keyspanel').style.display=(r==='OWNER'||r==='MARKETING')?'':'none';
+}
+function homeTab(){return myRole()==='PURCHASER'?'stock':'harvest';}
+function go(s){
+  if(!allowedTabs().includes(s)) s=homeTab();
+  ['harvest','stock','sync','dash'].forEach(x=>{$('scr-'+x).classList.toggle('hidden',x!==s);$('nav-'+x).classList.toggle('on',x===s);});
+  $('scr-setup').classList.add('hidden');$('scr-login').classList.add('hidden');
   $('ttl').textContent={harvest:'Log Fruit Drop',stock:'Inventory',sync:'Sync',dash:'Dashboard'}[s];
-  if(s==='sync')renderSync(); if(s==='dash')renderDash(); if(s==='stock'){renderProdOpts();renderStock();}}
+  if(s==='sync')renderSync(); if(s==='dash'){renderKeys();renderDash();} if(s==='stock'){renderProdOpts();renderStock();}}
+
+// ================= access key login =================
+let pin='';
+function findKey(k){return KEYS.find(x=>String(x.key).trim()===k);}
+function buildKeypad(){
+  const kp=$('keypad');kp.innerHTML='';
+  ['1','2','3','4','5','6','7','8','9','CLEAR','0','⌫'].forEach(d=>{
+    const b=document.createElement('div');b.textContent=d;
+    if(d==='CLEAR'||d==='⌫')b.classList.add('fn');
+    b.onclick=()=>{ if(d==='CLEAR')pin=''; else if(d==='⌫')pin=pin.slice(0,-1);
+      else if(pin.length<6)pin+=d; renderPin(); if(pin.length===6)tryLogin(); };
+    kp.appendChild(b);});
+  renderPin();}
+function renderPin(){const r=$('pinrow');r.innerHTML='';for(let i=0;i<6;i++){const b=document.createElement('div');b.className='pinbox'+(i<pin.length?' filled':'');b.textContent=i<pin.length?'•':'';r.appendChild(b);}$('pinerr').textContent='';}
+async function tryLogin(){
+  const w=findKey(pin);
+  if(!w){$('pinerr').textContent='Wrong key. Try again.';pin='';setTimeout(renderPin,600);return;}
+  if(String(w.status).toLowerCase()!=='active'){$('pinerr').textContent='This key is deactivated. Contact owner.';pin='';setTimeout(renderPin,900);return;}
+  CFG=Object.assign({},CFG||{},{worker:w.name,role:w.role,key:w.key});
+  await persistCfg();pin='';
+  toast('Welcome, '+w.name);
+  applyRole();
+  if(!CFG.url||!CFG.device) showSetup(); else go(homeTab());}
+function showLogin(){['harvest','stock','sync','dash'].forEach(x=>{$('scr-'+x).classList.add('hidden');$('nav-'+x).style.display='none';});
+  $('scr-setup').classList.add('hidden');$('scr-login').classList.remove('hidden');$('ttl').textContent='Login';buildKeypad();}
+async function logout(){if(!confirm('Log out of this device? (Queued events stay saved)'))return;
+  CFG=Object.assign({},CFG,{worker:null,role:null,key:null});await persistCfg();showLogin();}
+
+// ================= kill switch =================
+function showLock(sim){$('wipeoverlay').classList.add('hidden');$('lockscreen').classList.remove('hidden');$('simnote').classList.toggle('hidden',!sim);}
+let simTaps=0;
+async function realWipe(){
+  // 1. wipe events + config + keys from IndexedDB
+  await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv'],'readwrite');
+    tx.objectStore('events').clear();tx.objectStore('kv').clear();tx.oncomplete=res;tx.onerror=res;});
+  EVENTS=[];CFG=null;
+  // 2. persist the lock so reopening the app stays locked
+  if(db)await put('kv',{k:'locked',v:true});
+  try{localStorage.clear();sessionStorage.clear();}catch(e){}
+  LOCKED=true;}
+async function runWipeSequence(sim){
+  $('wipeoverlay').classList.remove('hidden');
+  const steps=['ws1','ws2','ws3','ws4'];
+  for(let i=0;i<steps.length;i++){
+    await new Promise(r=>setTimeout(r,650));$(steps[i]).classList.add('on');
+    if(!sim&&i===1)await realWipe();}
+  await new Promise(r=>setTimeout(r,600));
+  showLock(sim);}
+function simulateKill(){
+  if(!confirm('Run a SIMULATED kill switch on this device?\n\nYou will see exactly what a resigned worker sees. No real data is deleted.'))return;
+  simTaps=0;$('simnote').onclick=()=>{if(++simTaps>=3){$('lockscreen').classList.add('hidden');['ws1','ws2','ws3','ws4'].forEach(s=>$(s).classList.remove('on'));toast('Simulation ended');}};
+  runWipeSequence(true);}
+
+// ================= master data refresh + revocation check =================
+async function refreshMasters(){
+  if(!CFG||!CFG.url||!navigator.onLine)return;
+  try{
+    const r=await fetch(CFG.url);const j=await r.json();
+    if(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length){
+      const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
+        name:w.Name||w.WorkerID, role:String(w.Role||'').toUpperCase().includes('OWNER')?'OWNER':
+          String(w.Role||'').toUpperCase().includes('MARKET')?'MARKETING':
+          String(w.Role||'').toUpperCase().includes('PURCH')?'PURCHASER':'WORKER',
+        key:String(w.AccessKey).trim(), status:String(w.Status||'Active').trim()}));
+      if(ks.length){KEYS=ks;if(db)await put('kv',{k:'keys',v:KEYS});}
+      // hidden revocation check for the CURRENT user
+      if(CFG.key){
+        const me=findKey(String(CFG.key));
+        if(me&&String(me.status).toLowerCase()!=='active'){await runWipeSequence(false);return;}
+      }
+      renderKeys();
+    }
+  }catch(e){/* offline or sheet unreachable — check again next sync */}}
+
+// ================= owner key panel =================
+function renderKeys(){
+  const el=$('keylist');if(!el)return;
+  el.innerHTML=KEYS.map(k=>{
+    const active=String(k.status).toLowerCase()==='active';
+    return '<div class="krow"><span><b>'+k.name+'</b> <span class="small">· '+k.role+'</span></span>'+
+      '<span style="display:flex;align-items:center;gap:8px"><span class="keycode">'+k.key+'</span>'+
+      '<span class="kstat '+(active?'a':'r')+'">'+(active?'ACTIVE':'REVOKED')+'</span></span></div>';}).join('');}
 
 // ================= setup =================
-function showSetup(){['harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).classList.add('hidden'));$('scr-setup').classList.remove('hidden');$('ttl').textContent='Setup';
-  const sel=$('su-worker');sel.innerHTML='';WORKERS.forEach(w=>{const o=document.createElement('option');o.textContent=w;sel.appendChild(o);});
-  if(CFG){sel.value=CFG.worker||WORKERS[0];$('su-device').value=CFG.device||'';$('su-url').value=CFG.url||'';}}
+function showSetup(){['harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).classList.add('hidden'));
+  $('scr-login').classList.add('hidden');$('scr-setup').classList.remove('hidden');$('ttl').textContent='Setup';
+  $('su-who').textContent=(CFG&&CFG.worker?CFG.worker+' ('+CFG.role+')':'—');
+  if(CFG){$('su-device').value=CFG.device||'';$('su-url').value=CFG.url||'';}}
 function editSetup(){showSetup();}
-async function saveSetup(){CFG={worker:$('su-worker').value,device:$('su-device').value.trim()||'phone-01',url:$('su-url').value.trim()};await persistCfg();toast('Saved. Selamat bekerja, '+CFG.worker+'!');go('harvest');}
+async function saveSetup(){CFG=Object.assign({},CFG,{device:$('su-device').value.trim()||'phone-01',url:$('su-url').value.trim()});
+  await persistCfg();toast('Saved. Selamat bekerja, '+CFG.worker+'!');applyRole();go(homeTab());}
 
 // ================= harvest =================
 let qty=1,grade='A',curTree=null,scanner=null;
@@ -340,7 +523,7 @@ function renderStock(){
 
 // ================= sync =================
 function renderSync(){
-  $('cfginfo').innerHTML=(CFG?('Worker: <b>'+CFG.worker+'</b> · Device: <b>'+CFG.device+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>v1.1</b>';
+  $('cfginfo').innerHTML=(CFG?('Worker: <b>'+(CFG.worker||'—')+'</b> <span class="small">('+(CFG.role||'')+')</span> · Device: <b>'+(CFG.device||'—')+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>'+APP_VERSION+'</b> · <span class="linkish" onclick="logout()">log out</span>';
   const L=$('ledger');
   L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
     let d=e.type==='DROP'?('🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree):(e.type==='STOCK_OUT'?('📦→ '+e.qty+' '+e.unit+' '+e.pname):('📦← '+e.qty+' '+e.unit+' '+e.pname));
@@ -370,7 +553,9 @@ async function doSync(auto){
       headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
     const j=await r.json();
     if(j&&j.ok){for(const e of batch){e.synced=true;if(db)await put('events',e);}badge();renderSync();
-      toast('✓ '+batch.length+' events synced to Google Sheets');}
+      toast('✓ '+batch.length+' events synced to Google Sheets');
+      refreshMasters(); // hidden hotspot token validation runs after every sync
+    }
     else throw new Error(j&&j.error||'server error');
   }catch(err){toast('Sync failed: '+err.message,1);renderSync();}
   syncing=false;}
@@ -407,7 +592,10 @@ function renderDash(){
   // spray set options
   const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   badge();netUpdate();
-  if(!CFG)showSetup(); else go('harvest');
+  if(LOCKED){showLock(false);return;}                 // revoked device stays locked forever
+  if(!CFG||!CFG.key||!CFG.worker){showLogin();}       // access key gate
+  else if(!CFG.url||!CFG.device){applyRole();showSetup();}
+  else {applyRole();go(homeTab());refreshMasters();}
 })();
 </script>
 </body>
