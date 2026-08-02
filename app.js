@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.8.1';   // v2.8.1 — tree master corrected to the Owner-confirmed 171 (A 65 · B 66 · C 40)
+const APP_VERSION = 'v2.9.0';   // v2.9.0 — Option C six tiles, tree ledger, dual counters, untied wave, rope
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -86,7 +86,9 @@ function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
 function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
   (typeof taskUnsynced==='function'?taskUnsynced():0)+
   (typeof rainUnsynced==='function'?rainUnsynced():0)+
-  (typeof q5==='function'?q5():0);}
+  (typeof q5==='function'?q5():0)+
+  (typeof q6==='function'?q6():0)+
+  (typeof q7==='function'?q7():0);}
 function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
   const q=pending()+corrUnsynced()+q4();
@@ -182,15 +184,15 @@ async function bakeApproved(c){
 const SCREENS=['home','harvest','stock','sync','dash'];
 const FULL_ROLES=['OWNER','MARKETING'];
 const MODULES={
-  harvest:{ic:'🥭',name:'Harvest',sub:'drop, rotten, tying balance',
-    tabs:[{k:'log', t:'LOG DROP',  scr:'harvest',panels:[]},
+  harvest:{ic:'🥭',name:'Harvest',sub:'tie, drop, rotten',
+    tabs:[{k:'log', t:'TREE BOARD',scr:'harvest',panels:[]},
+          {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES},
           {k:'tie', t:'TYING',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES},
           {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
-  ops:{ic:'📋',name:'Daily Ops',sub:"tasks, replies, labour",
+  ops:{ic:'📋',name:'Daily Ops',sub:'tasks, replies, stock out',
     tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
           {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']},
-          {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES},
-          {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],roles:FULL_ROLES}]},
+          {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES}]},
   agro:{ic:'🌱',name:'Agronomist',sub:'month timeline, weather, record',
     tabs:[{k:'month',t:'THIS MONTH',scr:'dash',panels:['agromonth'],  roles:FULL_ROLES},
           {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','agrorain'],roles:FULL_ROLES},
@@ -202,23 +204,27 @@ const MODULES={
           {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES},
           {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES},
           {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES}]},
-  ledger:{ic:'📒',name:'Ledger',sub:'monthly + yearly value',
-    tabs:[{k:'sum',t:'SUMMARY',scr:'dash',panels:['ledgercard'],roles:FULL_ROLES}]},
-  admin:{ic:'🔑',name:'Admin',sub:'staff keys, corrections',
-    tabs:[{k:'corr',t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES},
-          {k:'reg', t:'STAFF',      scr:'dash',panels:['keyspanel'], roles:FULL_ROLES}]}
+  mkt:{ic:'🚚',name:'Marketing',sub:'ready to sell, sales value',
+    tabs:[{k:'sell',t:'SALES',    scr:'dash',panels:['mktpanel'],roles:FULL_ROLES}]},
+  costadmin:{ic:'💰',name:'Costing / Admin',sub:'ledger, labour, staff keys',
+    tabs:[{k:'sum',   t:'COSTING',    scr:'dash',panels:['ledgercard'],roles:FULL_ROLES},
+          {k:'labour',t:'LABOUR',     scr:'dash',panels:['labourcard'],roles:FULL_ROLES},
+          {k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES},
+          {k:'reg',   t:'STAFF',      scr:'dash',panels:['keyspanel'], roles:FULL_ROLES}]}
 };
+// Option C — six big tiles, in this order. The role gate is applied here AND again in
+// roleAllows(), so calling straight into a module still exposes nothing extra.
 const HUB_ORDER={
-  OWNER:    ['harvest','ops','agro','inv','ledger','admin'],
-  MARKETING:['harvest','ops','agro','inv','ledger','admin'],
-  WORKER:   ['harvest','ops'],          // Harvest + Daily Ops only, per governance rule
-  PURCHASER:['inv']                     // Inventory only, per governance rule
+  OWNER:    ['harvest','inv','agro','ops','mkt','costadmin'],   // unrestricted
+  MARKETING:['harvest','inv','agro','ops','mkt','costadmin'],
+  WORKER:   ['harvest','ops'],          // Harvest + Daily Ops ONLY
+  PURCHASER:['inv']                     // Inventory ONLY — stock in + low-stock alerts
 };
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
-  'agrorain','agromonth','agrorecord','tyingcard'];
+  'agrorain','agromonth','agrorecord','tyingcard','wavecard','mktpanel'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -236,7 +242,8 @@ function roleAllows(id){
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
     case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
-    case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard': return full;
+    case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard':
+    case 'wavecard': case 'mktpanel': return full;
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
     case 'kpis': case 'phibox': case 'lotcard':
@@ -252,8 +259,12 @@ function tileBadge(k){
     if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
       if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
     const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
-  if(k==='admin'){const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
+  if(k==='costadmin'){const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
     return n?{t:n+' PENDING',amber:1}:null;}
+  if(k==='mkt'){const kg=Math.round(collectedKg()-soldKg());
+    return kg>0?{t:nf(kg)+' KG READY',amber:1}:null;}
+  if(k==='harvest'){const b=LOT_KEYS.reduce((s,L)=>s+lotLedger(L).current_tied_balance,0);
+    return b>0?{t:nf(b)+' ON STRING'}:null;}
   return null;}
 function renderHub(){
   if(!$('hubtiles'))return;
@@ -310,15 +321,15 @@ function openModule(k,tabKey){
   $('scr-'+tab.scr).scrollTop=0;}
 function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
-  renderTying();renderMyLogs();renderRotCauses();}
+  renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();}
 function renderForTab(k,t){
-  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();}
+  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();refreshTreeBoard();}
+  if(k==='harvest'&&t==='wave')renderWave();
   if(k==='harvest'&&t==='tie')renderTying();
   if(k==='harvest'&&t==='today')renderDash();
   if(k==='ops'&&t==='tasks'){renderOpsTasks();renderGeneralTasks();renderOpsHistory();}
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='ops'&&t==='assign')renderAssign();
-  if(k==='ops'&&t==='labour')renderLabour();
   if(k==='agro'&&t==='month')renderTimeline();
   if(k==='agro'&&t==='wx'){renderWeather();renderRain();}
   if(k==='agro'&&t==='rec')renderRecord();
@@ -328,9 +339,11 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='inv'&&t==='lvl')renderInvCC();
   if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
-  if(k==='ledger')renderLedgerSummary();
-  if(k==='admin'&&t==='corr')renderCorrections();
-  if(k==='admin'&&t==='reg')renderKeys();}
+  if(k==='mkt')renderMarketing();
+  if(k==='costadmin'&&t==='sum')renderLedgerSummary();
+  if(k==='costadmin'&&t==='labour')renderLabour();
+  if(k==='costadmin'&&t==='corr')renderCorrections();
+  if(k==='costadmin'&&t==='reg')renderKeys();}
 function applyRole(){
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
@@ -346,7 +359,8 @@ function applyRole(){
 }
 function homeTab(){return 'home';}
 // Legacy entry points kept so older call sites and the deploy guide still work.
-const LEGACY_GO={harvest:'harvest',dash:'harvest',stock:'inv',ops:'ops'};
+const LEGACY_GO={harvest:'harvest',dash:'harvest',stock:'inv',ops:'ops',
+  ledger:'costadmin',admin:'costadmin',mkt:'mkt'};
 function go(s){
   if(s==='home'){goHome();return;}
   if(s==='sync'){hideAllPanels();$('subbar').classList.add('hidden');showScreen('sync');
@@ -1141,8 +1155,12 @@ async function doSync(auto){
   await pushRain();                           // then the rain gauge log (own payload key)
   await pushRotten();                         // then rotten fruit logs (own payload key)
   await pushLogAdj();                         // then approved log corrections (own payload key)
+  await pushTying();                          // then continuous tying rounds (own payload key)
+  await pushTieAdj();                         // then approved tying corrections (own payload key)
+  await pushSales();                          // then marketing sales (own payload key)
   const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE'
-    &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST');
+    &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST'
+    &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -2515,47 +2533,38 @@ function copyToBlueprint(pid){
 // Workers log fruits tied per tree under Daily Ops (FTIE). Every drop and every rotten
 // fruit taken off that tree comes back off the balance, so what is left is what is still
 // hanging on a string.
-function tiedOf(tree){
-  let n=0;
-  EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
-    (e.detail||[]).forEach(d=>{if(d.tree===tree)n+=+d.n||0;});});
-  return n;}
+// Two sources, never mixed up: the migrated opening balance from the census workbook
+// (static, shipped in database.js, never synced) and what workers have logged since.
+function tiedMigOf(tree){
+  return (typeof TIE_MIGRATION==='undefined')?0:
+    TIE_MIGRATION.reduce((s,r)=>s+(r.t===tree?(+r.n||0):0),0);}
+function tiedOf(tree){return tiedMigOf(tree)+tiedLoggedOf(tree);}
 function droppedOf(tree){
   return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree).reduce((s,e)=>s+(+e.qty||0),0)
        + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree).reduce((s,e)=>s+(+e.delta||0),0);}
 function rottenOf(tree){
   return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree).reduce((s,e)=>s+(+e.qty||0),0)
        + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree).reduce((s,e)=>s+(+e.delta||0),0);}
-function tiedBalance(tree){return tiedOf(tree)-droppedOf(tree)-rottenOf(tree);}
-function tiedTrees(){
-  const set={};
-  EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
-    (e.detail||[]).forEach(d=>{if(d.tree)set[d.tree]=1;});});
-  return Object.keys(set).sort();}
-function tyingMatrix(){
-  const byLot={};LOT_KEYS.forEach(L=>byLot[L]={lot:L,trees:0,tied:0,dropped:0,rotten:0,bal:0});
-  tiedTrees().forEach(id=>{
-    const t=treeById(id); if(!t||!byLot[t.lot])return;
-    const r=byLot[t.lot];
-    r.trees++; r.tied+=tiedOf(id); r.dropped+=droppedOf(id); r.rotten+=rottenOf(id);
-    r.bal+=tiedBalance(id);});
-  return LOT_KEYS.map(L=>byLot[L]).filter(r=>r.trees>0);}
 function renderTying(){
   const box=$('tyingbox'); if(!box)return;
   const rows=tyingMatrix();
-  const tot=rows.reduce((a,r)=>({trees:a.trees+r.trees,tied:a.tied+r.tied,dropped:a.dropped+r.dropped,
-    rotten:a.rotten+r.rotten,bal:a.bal+r.bal}),{trees:0,tied:0,dropped:0,rotten:0,bal:0});
+  const tot=rows.reduce((a,r)=>({trees:a.trees+r.trees,tied:a.tied+r.tied,mig:a.mig+r.mig,
+    logged:a.logged+r.logged,dropped:a.dropped+r.dropped,rotten:a.rotten+r.rotten,
+    bal:a.bal+r.bal,kg:a.kg+r.kg}),{trees:0,tied:0,mig:0,logged:0,dropped:0,rotten:0,bal:0,kg:0});
   const over=tiedTrees().filter(id=>tiedBalance(id)<0);
   box.innerHTML=
     '<div class="kpis" style="margin-bottom:8px">'+
     '<div class="kpi"><div class="v">'+nf(tot.tied)+'</div><div class="l">fruits tied</div></div>'+
     '<div class="kpi"><div class="v">'+nf(tot.dropped)+'</div><div class="l">dropped since</div></div>'+
     '<div class="kpi"><div class="v">'+nf(tot.rotten)+'</div><div class="l">logged rotten</div></div>'+
-    '<div class="kpi"><div class="v">'+nf(tot.bal)+'</div><div class="l">still on the string</div></div></div>'+
+    '<div class="kpi"><div class="v">'+nf(tot.bal)+'</div><div class="l">still on the string<br>≈ '+nf(Math.round(tot.kg))+' kg</div></div></div>'+
+    (tot.mig?('<div class="cnote">📒 <b>'+nf(tot.mig)+'</b> of these were carried in from the July census workbook '+
+      'on '+nf(tiedTrees().filter(id=>tiedMigOf(id)>0).length)+' trees. <b>'+nf(tot.logged)+'</b> have been tied by '+
+      'workers in the app since.</div>'):'')+
     (rows.length?('<div class="tblwrap"><table class="tbl"><tr><th>Lot</th><th class="num">Trees</th>'+
       '<th class="num">Tied</th><th class="num">Off the tree</th><th class="num">Balance</th></tr>'+
       rows.map(r=>'<tr><td><b>Lot '+r.lot+'</b></td><td class="num">'+r.trees+'</td>'+
-        '<td class="num">'+nf(r.tied)+'</td>'+
+        '<td class="num">'+nf(r.tied)+(r.mig&&r.logged?('<div class="exphint">'+nf(r.mig)+' carried in · '+nf(r.logged)+' in app</div>'):'')+'</td>'+
         '<td class="num">'+nf(r.dropped+r.rotten)+'<div class="exphint">'+nf(r.dropped)+' drop · '+nf(r.rotten)+' rotten</div></td>'+
         '<td class="num '+(r.bal<0?'lowq':'')+'"><b>'+nf(r.bal)+'</b></td></tr>').join('')+'</table></div>')
       :'<div class="alertnone">No fruit tied yet. Assign a <b>Fruit tying</b> task in Daily Ops → ASSIGN WORK and the balance builds itself from the workers’ replies.</div>')+
@@ -2563,8 +2572,9 @@ function renderTying(){
       ' tree'+(over.length>1?'s have':' has')+' more fruit off the tree than was ever tied: '+
       over.slice(0,8).map(esc).join(', ')+(over.length>8?' …':'')+
       '<br>Either the tying count was under-reported or untied fruit is being logged against it.</div>'):'')+
-    '<p class="small">Built from the workers’ <b>Fruit tying</b> replies. Every drop and every rotten fruit '+
-    'logged on a tree comes off its balance automatically — nobody keeps this figure by hand.</p>';}
+    '<p class="small">Opening balance carried in from the <b>July census workbook</b> on 2 Aug 2026, plus every '+
+    '<b>Fruit tying</b> reply the workers have sent since. Each drop and each rotten fruit logged on a tree comes '+
+    'off its balance automatically — nobody keeps this figure by hand.</p>';}
 
 // ---- rotten fruit log ----------------------------------------------------------------
 let rotQty=1, rotCause='';
@@ -2578,40 +2588,9 @@ function renderRotCauses(){
   box.innerHTML=ROT_ORDER.map(k=>'<div id="rc-'+k+'" onclick="rotPick(\''+k+'\')">'+ROT_CAUSE[k].ic+' '+
     esc(ROT_CAUSE[k].label)+'<span class="csub">'+esc(ROT_CAUSE[k].note)+'</span></div>').join('');}
 let savingRot=false;
-async function saveRotten(){
-  const err=$('rot-err'); err.textContent='';
-  if(!curTree||savingRot)return;
-  if(!rotCause){err.textContent='Choose why the fruit was lost — a rotten count without a cause cannot be acted on.';return;}
-  if(!(rotQty>0)){err.textContent='Enter how many fruits were lost.';return;}
-  const bal=tiedBalance(curTree.id);
-  if(bal>0&&rotQty>bal&&!confirm('⚠ '+curTree.id+' has only '+bal+' fruit still tied.\nLog '+rotQty+' rotten anyway?'))return;
-  savingRot=true;
-  try{
-    const t=curTree;
-    await persistEvent({uuid:uuid(),type:'ROTTEN',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',
-      qty:rotQty,cause:rotCause,causeLabel:ROT_CAUSE[rotCause].label,
-      estkg:+(rotQty*(AVG_KG[t.clone]||1.6)).toFixed(1),
-      worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
-  } finally { savingRot=false; }
-  const n=rotQty, c=ROT_CAUSE[rotCause].label, id=curTree.id;
-  rotQty=1;rotCause='';$('rot-n').textContent=1;ROT_ORDER.forEach(k=>$('rc-'+k).classList.remove('on'));
-  badge();renderTying();renderMyLogs();showCloneReadout(curTree);renderHub();
-  toast('🍂 '+n+' rotten @ '+id+' · '+c+(navigator.onLine?'':' (queued)'));}
-
 // ---- my logs + request log correction -------------------------------------------------
 // A worker never edits a log. Anything wrong goes to the Owner as a request and is only
 // applied when the Owner approves it, exactly like a clone or census correction.
-function myLogs(){
-  const me=(CFG&&CFG.worker)||'';
-  return EVENTS.filter(e=>(e.type==='DROP'||e.type==='ROTTEN')&&e.worker===me)
-    .sort((a,b)=>a.dt<b.dt?1:-1).slice(0,15);}
-function logLabel(e){
-  return e.type==='ROTTEN'
-    ? ('🍂 '+nf(e.qty)+' rotten · '+esc(e.causeLabel||e.cause||''))
-    : ('🥭 '+nf(e.qty)+' fruit · grade '+esc(e.grade||''));}
-function logAdjOf(u){
-  return EVENTS.filter(e=>(e.type==='DROP_ADJUST'||e.type==='ROTTEN_ADJUST')&&e.evUuid===u)
-    .reduce((s,e)=>s+(+e.delta||0),0);}
 function renderMyLogs(){
   const box=$('mylogs'); if(!box)return;
   const rows=myLogs();
@@ -2627,23 +2606,6 @@ function renderMyLogs(){
            :'<span class="linkish" onclick="openLogCorrection(\''+e.uuid+'\')">Request correction</span>')+
       '</div>';}).join('');}
 let corrEv=null;
-function openLogCorrection(u){
-  if(!canCorrect()){toast('Not permitted for your role',1);return;}
-  const e=EVENTS.find(x=>x.uuid===u); if(!e){toast('Log not found',1);return;}
-  corrEv=e; corrTree=treeById(e.tree)||{id:e.tree,lot:e.lot,no:0,clone:e.clone||''};
-  corrClone=''; corrType='LOGQTY';
-  $('cf-tree').textContent=e.tree;
-  $('cf-current').innerHTML='Logged<br><b>'+logLabel(e)+'</b><br><span class="small">'+esc(e.dt)+'</span>';
-  $('cf-types').classList.add('hidden');
-  $('cf-clonewrap').classList.add('hidden');
-  $('cf-censuswrap').classList.add('hidden');
-  $('cf-logwrap').classList.remove('hidden');
-  $('cf-logold').textContent=nf(+e.qty||0)+(e.type==='ROTTEN'?' rotten':' fruit');
-  $('cf-logqty').value='';
-  $('cf-sub').textContent='You cannot edit a log. Send the correct number to the Owner — it only takes effect once the Owner approves it.';
-  $('cf-note').value=''; $('cf-err').textContent='';
-  $('corrmodal').classList.remove('hidden');}
-
 // ---- correction workflow, extended to cover drop and rotten logs ---------------------
 function openCorrection(){
   if(!canCorrect()){toast('Not permitted for your role',1);return;}
@@ -2675,9 +2637,12 @@ async function submitCorrection(){
     const v=$('cf-logqty').value;
     if(v===''||isNaN(+v)||+v<0){$('cf-err').textContent='Enter the number that should have been logged.';return;}
     const nv=Math.round(+v);
-    if(nv===Math.round(+corrEv.qty||0)){$('cf-err').textContent='That is already the number on record.';return;}
+    // a TIE event stores the count in `n`, a DROP/ROTTEN in `qty` — read whichever applies,
+    // or the correction files a delta measured from zero
+    const cur=Math.round(logQtyOf(corrEv));
+    if(nv===cur){$('cf-err').textContent='That is already the number on record.';return;}
     if(!note){$('cf-err').textContent='Tell the Owner what happened — a count change needs a reason.';return;}
-    oldVal=Math.round(+corrEv.qty||0); newVal=nv;
+    oldVal=cur; newVal=nv;
     extra={evUuid:corrEv.uuid,evType:corrEv.type,evDt:corrEv.dt};
   }else if(corrType==='CLONE'){
     if(!corrClone){$('cf-err').textContent='Choose the correct clone.';return;}
@@ -2701,18 +2666,6 @@ async function submitCorrection(){
 // An approved log correction never rewrites the original row — the Sheet is append-only.
 // It emits a signed adjustment event, exactly as a stock-take adjustment does, so the
 // audit trail shows both the mistake and the Owner who authorised the fix.
-async function applyLogCorrection(c){
-  if(c.ctype!=='LOGQTY'||!c.evUuid)return;
-  if(EVENTS.some(e=>e.corrId===c.uuid))return;              // idempotent: sync may replay this
-  const base=EVENTS.find(e=>e.uuid===c.evUuid);
-  const delta=+(Math.round(+c.newVal||0)-Math.round(+c.oldVal||0));
-  if(!delta)return;
-  const t=treeById(c.tree);
-  await persistEvent({uuid:uuid(),type:(c.evType==='ROTTEN'?'ROTTEN_ADJUST':'DROP_ADJUST'),dt:now(),
-    evUuid:c.evUuid,corrId:c.uuid,tree:c.tree,lot:c.lot,clone:(base&&base.clone)||(t&&t.clone)||'',
-    was:Math.round(+c.oldVal||0),now:Math.round(+c.newVal||0),delta:delta,
-    estkg:+(delta*(AVG_KG[(t&&t.clone)]||1.6)).toFixed(1),
-    reason:c.note||'',requestedBy:c.worker||'',approvedBy:CFG?CFG.worker:'',synced:false});}
 async function decideCorrection(id,ok){
   if(!canApprove()){toast('Only the Owner can approve corrections',1);return;}
   const c=CORRECTIONS.find(x=>x.uuid===id); if(!c||c.status!=='PENDING')return;
@@ -2760,45 +2713,11 @@ async function pushLogAdj(){
 function treeTieHTML(t){
   if(!t)return '';
   const tied=tiedOf(t.id); if(!tied)return '';
-  const bal=tiedBalance(t.id), off=droppedOf(t.id)+rottenOf(t.id);
+  const bal=tiedBalance(t.id), off=droppedOf(t.id)+rottenOf(t.id), mig=tiedMigOf(t.id);
   return '<div class="tiebox'+(bal<0?' bad':'')+'">🪢 <b>'+nf(bal)+'</b> still tied on this tree'+
-    '<div class="tnsub">'+nf(tied)+' tied · '+nf(off)+' already off the tree'+
+    '<div class="tnsub">'+nf(tied)+' tied'+(mig?(' ('+nf(mig)+' from the July workbook)'):'')+
+    ' · '+nf(off)+' already off the tree'+
     (bal<0?' · more taken off than was ever tied':'')+'</div></div>';}
-function selectTree(id){
-  const t=treeById(id);
-  if(!t){toast('Unknown tag: '+id,1);return;}
-  curTree=t;$('t-id').textContent=t.id;$('t-clone').textContent=t.clone||'?';
-  $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
-  curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
-  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');
-  qty=1;$('qty').textContent=1;setGrade(0);
-  rotQty=1;rotCause='';if($('rot-n'))$('rot-n').textContent=1;
-  renderRotCauses();
-  if($('rot-err'))$('rot-err').textContent='';
-  if($('tiebox'))$('tiebox').innerHTML=treeTieHTML(t);
-  if($('corrbtn')) $('corrbtn').style.display=canCorrect()?'':'none';}
-async function saveDrop(){
-  if(!curTree||savingDrop)return;                     // block double-taps
-  savingDrop=true;
-  try{
-    const t=curTree;
-    if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000){
-      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW drop?')){savingDrop=false;return;}}
-    const bal=tiedBalance(t.id);
-    if(bal>0&&qty>bal&&
-       !confirm('⚠ '+t.id+' has only '+bal+' fruit still tied.\nLogging '+qty+
-                ' takes the tied balance below zero.\n\nSave anyway?')){savingDrop=false;return;}
-    await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
-      estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
-    lastDrop={tree:t.id,time:Date.now()};
-    const left=tiedBalance(t.id);
-    toast('✓ '+qty+' fruit @ '+t.id+(bal>0?(' · '+nf(Math.max(0,left))+' still tied'):'')+
-      (navigator.onLine?'':' (queued)'));
-    renderTying();renderMyLogs();
-    cancelTree();
-  } finally { savingDrop=false; }}
-
-
 // ---- worker's recipe card: the combo set, the tank, and one Confirm Completion -------
 // The card is the mixing instruction. It states the tank the farm actually owns (1,000 L),
 // how many of them the job needs, and what goes into each one — then takes one tap.
@@ -2840,6 +2759,441 @@ function renderOpsTasks(){
       '<div class="cacts"><button class="ok" onclick="openMarkDone(\'' + r.uuid + '\')">✓ CONFIRM COMPLETION</button>'+
       '<button class="no" style="background:#e8f0fe;color:#123a71" onclick="openReply(\'' + r.uuid + '\')">MIXED A DIFFERENT AMOUNT</button></div></div>';}).join('')
     :'<div class="alertnone">No task waiting. The Owner has not activated a set, or every lot has already been reported.</div>';}
+
+
+// ================= v2.9 TREE LEDGER · DUAL COUNTERS · UNTIED WAVE · ROPE =================
+// Every figure below is DERIVED from the event log — nothing is stored twice, so a
+// figure can never drift from the events that produced it. One function per property
+// named exactly as the schema calls it.
+
+// ---- the tree ledger -----------------------------------------------------------------
+function censusCount(tree){const t=treeById(tree);return (t&&t.census!=null)?+t.census:0;}
+// A drop logged before v2.9 has no `secured` flag. Those were all filed against tied
+// fruit under the old model, so a missing flag reads as SECURED — the historical
+// balances stay exactly as they were.
+function isSecuredDrop(e){return e.secured!==false;}
+function securedDropsOf(tree){
+  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&isSecuredDrop(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured!==false).reduce((s,e)=>s+(+e.delta||0),0);}
+function untiedDropsOf(tree){
+  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&!isSecuredDrop(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured===false).reduce((s,e)=>s+(+e.delta||0),0);}
+function totalDroppedOf(tree){return securedDropsOf(tree)+untiedDropsOf(tree);}
+// Rotten fruit is classified the same way — a rotten fruit that was tied frees its string.
+function isTiedRotten(e){return e.tied!==false;}
+function rottenTiedOf(tree){
+  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&isTiedRotten(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied!==false).reduce((s,e)=>s+(+e.delta||0),0);}
+function rottenUntiedOf(tree){
+  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&!isTiedRotten(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied===false).reduce((s,e)=>s+(+e.delta||0),0);}
+// Counter A writes TIE events; the Owner-assigned Fruit tying task still writes TASK_DONE.
+function tieRoundsOf(tree){
+  return EVENTS.filter(e=>e.type==='TIE'&&e.tree===tree).reduce((s,e)=>s+(+e.n||0),0)
+       + EVENTS.filter(e=>e.type==='TIE_ADJUST'&&e.tree===tree).reduce((s,e)=>s+(+e.delta||0),0);}
+
+/**
+ * The running ledger for one tree. Property names are the schema's, verbatim.
+ *   untied_hanging_estimate = census_count − total_fruits_tied, less every untied
+ *   fruit already taken off the tree. It is an ESTIMATE because the census is a single
+ *   July snapshot; a tree with no census returns null rather than a misleading zero.
+ */
+function treeLedger(tree){
+  const census=censusCount(tree), hasCensus=(treeById(tree)&&treeById(tree).census!=null);
+  const tied=tiedOf(tree);
+  const sec=securedDropsOf(tree), uns=untiedDropsOf(tree);
+  const rotT=rottenTiedOf(tree), rotU=rottenUntiedOf(tree);
+  const bal=tied-sec-rotT;
+  const est=hasCensus?(census-tied-uns-rotU):null;
+  return {tree:tree,
+    census_count:census, has_census:hasCensus,
+    total_fruits_tied:tied,
+    current_tied_balance:bal,
+    total_dropped_collected:sec+uns,
+    total_untied_drops_collected:uns,
+    secured_drops:sec, rotten_tied:rotT, rotten_untied:rotU,
+    untied_hanging_estimate:est,
+    total_hanging_estimate:(est===null?null:Math.max(0,bal)+Math.max(0,est))};}
+function lotLedger(lot){
+  const out={lot:lot,trees:0,census_count:0,total_fruits_tied:0,current_tied_balance:0,
+    total_dropped_collected:0,total_untied_drops_collected:0,untied_hanging_estimate:0,noCensus:0};
+  treesInLot(lot).forEach(t=>{const L=treeLedger(t.id);
+    out.trees++; out.census_count+=L.census_count; out.total_fruits_tied+=L.total_fruits_tied;
+    out.current_tied_balance+=L.current_tied_balance;
+    out.total_dropped_collected+=L.total_dropped_collected;
+    out.total_untied_drops_collected+=L.total_untied_drops_collected;
+    if(L.untied_hanging_estimate===null)out.noCensus++; else out.untied_hanging_estimate+=L.untied_hanging_estimate;});
+  return out;}
+
+// ---- Counter A: continuous tying rounds ----------------------------------------------
+let tieQty=1, savingTie=false;
+function tieBump(d){tieQty=Math.max(1,tieQty+d);if($('tie-n'))$('tie-n').textContent=tieQty;ropeHint();}
+function tieReset(){tieQty=1;if($('tie-n'))$('tie-n').textContent=1;ropeHint();}
+function ropeNeeded(n){return +((+n||0)*ROPE_M_PER_FRUIT).toFixed(2);}
+function ropeOnHand(){const p=prodById(ROPE_PID);return p?onHand(p):0;}
+function ropeHint(){
+  const box=$('tie-rope'); if(!box)return;
+  const need=ropeNeeded(tieQty), have=ropeOnHand();
+  box.innerHTML='Uses <b>'+nf(need)+' m</b> of rope ('+ROPE_M_PER_FRUIT+' m per fruit) · store shows <b>'+
+    nf(have)+' m</b>'+(have<need?' <span style="color:#b3261e;font-weight:800">— short, ask the Purchaser to key the rolls in</span>':'');}
+async function saveTieRound(){
+  const err=$('tie-err'); if(err)err.textContent='';
+  if(!curTree||savingTie)return;
+  if(!(tieQty>0)){if(err)err.textContent='Enter how many fruits were tied.';return;}
+  const L=treeLedger(curTree.id);
+  if(L.has_census&&L.untied_hanging_estimate!==null&&tieQty>L.untied_hanging_estimate&&
+     !confirm('⚠ '+curTree.id+' has about '+L.untied_hanging_estimate+' untied fruit left by the July census.\n'+
+              'Tying '+tieQty+' takes it past that.\n\nSave anyway?'))return;
+  const need=ropeNeeded(tieQty), have=ropeOnHand();
+  if(have<need&&!confirm('⚠ The store shows only '+nf(have)+' m of rope and this needs '+nf(need)+' m.\n\n'+
+     'Log the tying anyway? The rope balance will go negative until the Purchaser keys the rolls in.'))return;
+  savingTie=true;
+  const stamp=now(), rid=uuid(), t=curTree;
+  try{
+    await persistEvent({uuid:uuid(),type:'TIE',dt:stamp,tree:t.id,lot:t.lot,clone:t.clone||'',
+      n:tieQty,ropeM:need,roundId:rid,
+      worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+    const rp=prodById(ROPE_PID);
+    if(rp&&need>0) await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:ROPE_PID,pname:rp.name,
+      ai:'',qty:need,unit:rp.unit,lot:t.lot,set:'Fruit tying',
+      cost:+(need*(rp.cpu||0)).toFixed(2),roundId:rid,tree:t.id,
+      worker:CFG.worker,device:CFG.device,synced:false});
+  } finally { savingTie=false; }
+  const n=tieQty, id=t.id;
+  tieQty=1; if($('tie-n'))$('tie-n').textContent=1;
+  badge(); refreshTreeBoard(); renderTying(); renderMyLogs(); refreshInventoryViews(); renderHub();
+  toast('🪢 '+n+' tied @ '+id+' · '+nf(need)+' m rope used'+(navigator.onLine?'':' (queued)'));}
+
+// ---- Counter B: the drop collection split --------------------------------------------
+let dropKind='SECURED';
+function pickDropKind(k){dropKind=k;
+  DROP_ORDER.forEach(x=>{const el=$('dk-'+x);if(el)el.classList.toggle('on',x===k);});
+  const h=$('drop-hint');
+  if(h)h.innerHTML=DROP_KIND[k].ic+' <b>'+esc(DROP_KIND[k].label)+'</b> — '+esc(DROP_KIND[k].note)+
+    (k==='SECURED'?'. Comes off the tied balance.':'. Comes off the untied estimate — it was never tied.');}
+
+// ---- the Tree Asset Board ------------------------------------------------------------
+function boardHTML(t){
+  if(!t)return '';
+  const L=treeLedger(t.id);
+  const est=L.untied_hanging_estimate;
+  return '<div class="board">'+
+    '<div class="bh">🌳 Tree asset board <span class="bsub">'+esc(t.id)+' · Lot '+esc(t.lot)+' · '+esc(cloneLabel(t.clone))+'</span></div>'+
+    '<div class="bgrid">'+
+      '<div class="bcell"><div class="bv">'+(L.has_census?nf(L.census_count):'—')+'</div><div class="bl">Census<br>July count</div></div>'+
+      '<div class="bcell tie"><div class="bv">'+nf(L.total_fruits_tied)+'</div><div class="bl">Tied<br>to date</div></div>'+
+      '<div class="bcell tie"><div class="bv">'+nf(L.current_tied_balance)+'</div><div class="bl">Still on<br>the string</div></div>'+
+      '<div class="bcell '+(est===null?'muted':'')+'"><div class="bv">'+(est===null?'—':nf(Math.max(0,est)))+'</div><div class="bl">Untied<br>still hanging</div></div>'+
+    '</div>'+
+    '<div class="brow">Collected so far: <b>'+nf(L.total_dropped_collected)+'</b> fruit'+
+      ' <span class="bmini">'+nf(L.secured_drops)+' secured · '+nf(L.total_untied_drops_collected)+' unsecured</span>'+
+      (L.rotten_tied+L.rotten_untied?(' · rotten <b>'+nf(L.rotten_tied+L.rotten_untied)+'</b>'):'')+'</div>'+
+    (est===null
+      ? '<div class="bwarn">This tree was not in the July census, so the untied estimate cannot be worked out. Tying and drops are still counted exactly.</div>'
+      : (est<0?'<div class="bwarn">More fruit has been tied and collected than the July census counted. The census undercounted this tree.</div>':''))+
+    (L.current_tied_balance<0?'<div class="bwarn">More secured fruit has come off than was ever tied on this tree.</div>':'')+
+    '</div>';}
+function refreshTreeBoard(){
+  if(!curTree)return;
+  const b=$('assetboard'); if(b)b.innerHTML=boardHTML(curTree);
+  ropeHint();}
+
+// ---- lot-level view of the whole wave -------------------------------------------------
+function renderWave(){
+  const box=$('wavebox'); if(!box)return;
+  const rows=LOT_KEYS.map(lotLedger);
+  const tot=rows.reduce((a,r)=>({trees:a.trees+r.trees,census_count:a.census_count+r.census_count,
+    total_fruits_tied:a.total_fruits_tied+r.total_fruits_tied,
+    current_tied_balance:a.current_tied_balance+r.current_tied_balance,
+    total_dropped_collected:a.total_dropped_collected+r.total_dropped_collected,
+    total_untied_drops_collected:a.total_untied_drops_collected+r.total_untied_drops_collected,
+    untied_hanging_estimate:a.untied_hanging_estimate+r.untied_hanging_estimate,
+    noCensus:a.noCensus+r.noCensus}),
+    {trees:0,census_count:0,total_fruits_tied:0,current_tied_balance:0,total_dropped_collected:0,
+     total_untied_drops_collected:0,untied_hanging_estimate:0,noCensus:0});
+  box.innerHTML=
+    '<div class="kpis" style="margin-bottom:8px">'+
+    '<div class="kpi"><div class="v">'+nf(tot.current_tied_balance)+'</div><div class="l">on the string now</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(Math.max(0,tot.untied_hanging_estimate))+'</div><div class="l">untied still hanging<br>(estimate)</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(tot.total_dropped_collected)+'</div><div class="l">collected to date</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(tot.total_untied_drops_collected)+'</div><div class="l">of those, unsecured</div></div></div>'+
+    '<div class="tblwrap"><table class="tbl"><tr><th>Lot</th><th class="num">Census</th><th class="num">Tied</th>'+
+    '<th class="num">On string</th><th class="num">Untied left</th><th class="num">Collected</th></tr>'+
+    rows.map(r=>'<tr><td><b>Lot '+r.lot+'</b><div class="exphint">'+r.trees+' trees'+
+      (r.noCensus?(' · '+r.noCensus+' with no census'):'')+'</div></td>'+
+      '<td class="num">'+nf(r.census_count)+'</td>'+
+      '<td class="num">'+nf(r.total_fruits_tied)+'</td>'+
+      '<td class="num '+(r.current_tied_balance<0?'lowq':'')+'"><b>'+nf(r.current_tied_balance)+'</b></td>'+
+      '<td class="num">'+nf(Math.max(0,r.untied_hanging_estimate))+'</td>'+
+      '<td class="num">'+nf(r.total_dropped_collected)+
+      '<div class="exphint">'+nf(r.total_untied_drops_collected)+' unsecured</div></td></tr>').join('')+
+    '<tr><td><b>TOTAL</b></td><td class="num"><b>'+nf(tot.census_count)+'</b></td>'+
+    '<td class="num"><b>'+nf(tot.total_fruits_tied)+'</b></td>'+
+    '<td class="num"><b>'+nf(tot.current_tied_balance)+'</b></td>'+
+    '<td class="num"><b>'+nf(Math.max(0,tot.untied_hanging_estimate))+'</b></td>'+
+    '<td class="num"><b>'+nf(tot.total_dropped_collected)+'</b></td></tr></table></div>'+
+    '<p class="small"><b>Untied still hanging</b> is the July census less everything tied and everything '+
+    'unsecured already collected. '+(tot.noCensus?('It leaves out the '+tot.noCensus+' trees that were never censused — '+
+    'their fruit is real but the app will not invent a number for it.'):'')+'</p>'+
+    ropeCardHTML();}
+function ropeCardHTML(){
+  const p=prodById(ROPE_PID); if(!p)return '';
+  const have=onHand(p), used=usedOf(ROPE_PID);
+  return '<div class="sec" style="margin-top:14px">🪢 Tying rope</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><td>Used on tying so far</td><td class="num"><b>'+nf(used)+'</b> m</td></tr>'+
+    '<tr><td>Received into the store</td><td class="num">'+nf(recvOf(ROPE_PID))+' m</td></tr>'+
+    '<tr><td>Balance</td><td class="num '+(have<0?'lowq':'')+'"><b>'+nf(have)+'</b> m</td></tr></table></div>'+
+    (have<0?'<div class="cnote" style="color:#b3261e;font-weight:700">The rope balance is negative because no opening '+
+      'stock has been keyed yet. The consumption is correct — ask the Purchaser to key the rolls in through '+
+      '<b>Inventory → STOCK IN</b> and it corrects itself.</div>':'');}
+
+// ---- the two save paths, rewritten for the split -------------------------------------
+async function saveDrop(){
+  if(!curTree||savingDrop)return;
+  savingDrop=true;
+  try{
+    const t=curTree, secured=(dropKind==='SECURED');
+    if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000){
+      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW drop?')){savingDrop=false;return;}}
+    const L=treeLedger(t.id);
+    if(secured&&L.current_tied_balance>0&&qty>L.current_tied_balance&&
+       !confirm('⚠ '+t.id+' has only '+L.current_tied_balance+' fruit still on the string.\n'+
+                'Logging '+qty+' secured takes it below zero.\n\nSave anyway?')){savingDrop=false;return;}
+    if(!secured&&L.untied_hanging_estimate!==null&&L.untied_hanging_estimate>0&&qty>L.untied_hanging_estimate&&
+       !confirm('⚠ '+t.id+' has about '+L.untied_hanging_estimate+' untied fruit left by the July census.\n'+
+                'Logging '+qty+' unsecured takes it past that.\n\nSave anyway?')){savingDrop=false;return;}
+    await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
+      secured:secured,dropKind:dropKind,
+      estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
+    lastDrop={tree:t.id,time:Date.now()};
+    const after=treeLedger(t.id);
+    toast('✓ '+qty+' '+(secured?'secured':'unsecured')+' @ '+t.id+' · '+
+      (secured?(nf(Math.max(0,after.current_tied_balance))+' still on the string')
+              :(after.untied_hanging_estimate===null?'no census on this tree':nf(Math.max(0,after.untied_hanging_estimate))+' untied left'))+
+      (navigator.onLine?'':' (queued)'));
+    refreshTreeBoard();renderTying();renderWave();renderMyLogs();renderHub();
+  } finally { savingDrop=false; }}
+
+async function saveRotten(){
+  const err=$('rot-err'); if(err)err.textContent='';
+  if(!curTree||savingRot)return;
+  if(!rotCause){err.textContent='Choose why the fruit was lost — a rotten count without a cause cannot be acted on.';return;}
+  if(rotTied===null){err.textContent='Say whether the fruit was tied or untied.';return;}
+  if(!(rotQty>0)){err.textContent='Enter how many fruits were lost.';return;}
+  const L=treeLedger(curTree.id);
+  if(rotTied&&L.current_tied_balance>0&&rotQty>L.current_tied_balance&&
+     !confirm('⚠ '+curTree.id+' has only '+L.current_tied_balance+' fruit still on the string.\nLog '+rotQty+' rotten anyway?'))return;
+  savingRot=true;
+  try{
+    const t=curTree;
+    await persistEvent({uuid:uuid(),type:'ROTTEN',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',
+      qty:rotQty,cause:rotCause,causeLabel:ROT_CAUSE[rotCause].label,tied:rotTied,
+      estkg:+(rotQty*(AVG_KG[t.clone]||1.6)).toFixed(1),
+      worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  } finally { savingRot=false; }
+  const n=rotQty, c=ROT_CAUSE[rotCause].label, id=curTree.id, wasTied=rotTied;
+  rotQty=1;rotCause='';rotTied=null;
+  if($('rot-n'))$('rot-n').textContent=1;
+  ROT_ORDER.forEach(k=>{const el=$('rc-'+k);if(el)el.classList.remove('on');});
+  ['T','U'].forEach(k=>{const el=$('rt-'+k);if(el)el.classList.remove('on');});
+  badge();refreshTreeBoard();renderTying();renderWave();renderMyLogs();renderHub();
+  toast('🍂 '+n+' rotten @ '+id+' · '+c+' · '+(wasTied?'was tied':'untied')+(navigator.onLine?'':' (queued)'));}
+
+let rotTied=null;
+function rotTie(v){rotTied=v;
+  const a=$('rt-T'), b=$('rt-U'); if(a)a.classList.toggle('on',v===true); if(b)b.classList.toggle('on',v===false);
+  const e=$('rot-err'); if(e)e.textContent='';}
+
+// ---- tree selection now paints the board ----------------------------------------------
+function selectTree(id){
+  const t=treeById(id);
+  if(!t){toast('Unknown tag: '+id,1);return;}
+  curTree=t;$('t-id').textContent=t.id;$('t-clone').textContent=t.clone||'?';
+  $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
+  curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
+  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');
+  qty=1;$('qty').textContent=1;setGrade(0);pickDropKind('SECURED');
+  tieQty=1; if($('tie-n'))$('tie-n').textContent=1;
+  rotQty=1;rotCause='';rotTied=null;
+  if($('rot-n'))$('rot-n').textContent=1;
+  renderRotCauses();
+  ['T','U'].forEach(k=>{const el=$('rt-'+k);if(el)el.classList.remove('on');});
+  if($('rot-err'))$('rot-err').textContent='';
+  if($('tie-err'))$('tie-err').textContent='';
+  refreshTreeBoard();
+  if($('corrbtn')) $('corrbtn').style.display=canCorrect()?'':'none';}
+
+// ---- the tying balance now follows the ledger, not raw drop totals --------------------
+function tiedLoggedOf(tree){
+  let n=0;
+  EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
+    (e.detail||[]).forEach(d=>{if(d.tree===tree)n+=+d.n||0;});});
+  return n+tieRoundsOf(tree);}
+function tiedBalance(tree){return tiedOf(tree)-securedDropsOf(tree)-rottenTiedOf(tree);}
+function tiedTrees(){
+  const set={};
+  if(typeof TIE_MIGRATION!=='undefined')TIE_MIGRATION.forEach(r=>{if(r.t)set[r.t]=1;});
+  EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
+    (e.detail||[]).forEach(d=>{if(d.tree)set[d.tree]=1;});});
+  EVENTS.filter(e=>e.type==='TIE').forEach(e=>{if(e.tree)set[e.tree]=1;});
+  return Object.keys(set).filter(id=>!!treeById(id)).sort();}
+
+// ---- sync: tying rounds and their corrections ride their own key ---------------------
+let tieWarned=false, tadjWarned=false;
+function tieQueue(){return EVENTS.filter(e=>e.type==='TIE'&&!e.synced);}
+function tieAdjQueue(){return EVENTS.filter(e=>e.type==='TIE_ADJUST'&&!e.synced);}
+function q6(){return tieQueue().length+tieAdjQueue().length;}
+async function pushTying(){
+  return pushOwnKey(tieQueue(),'tying','tying',
+    m=>{if(!tieWarned){tieWarned=true;toast(m,1);}},
+    'Tying rounds kept on this phone — update the Apps Script to add the TYING_LOGS tab');}
+async function pushTieAdj(){
+  return pushOwnKey(tieAdjQueue(),'tieadj','tieadj',
+    m=>{if(!tadjWarned){tadjWarned=true;toast(m,1);}},
+    'Approved tying corrections kept on this phone — update the Apps Script');}
+
+// ---- worker's own logs: drops, rotten AND tying rounds, all correctable ---------------
+function myLogs(){
+  const me=(CFG&&CFG.worker)||'';
+  return EVENTS.filter(e=>(e.type==='DROP'||e.type==='ROTTEN'||e.type==='TIE')&&e.worker===me)
+    .sort((a,b)=>a.dt<b.dt?1:-1).slice(0,18);}
+function logLabel(e){
+  if(e.type==='TIE')    return '🪢 '+nf(e.n)+' tied · '+nf(e.ropeM||0)+' m rope';
+  if(e.type==='ROTTEN') return '🍂 '+nf(e.qty)+' rotten · '+esc(e.causeLabel||e.cause||'')+
+    ' · '+(isTiedRotten(e)?'was tied':'untied');
+  return (isSecuredDrop(e)?'🪢 ':'🍃 ')+nf(e.qty)+' '+(isSecuredDrop(e)?'secured':'unsecured')+
+    ' · grade '+esc(e.grade||'');}
+function logAdjOf(u){
+  return EVENTS.filter(e=>(e.type==='DROP_ADJUST'||e.type==='ROTTEN_ADJUST'||e.type==='TIE_ADJUST')&&e.evUuid===u)
+    .reduce((s,e)=>s+(+e.delta||0),0);}
+function logQtyOf(e){return e.type==='TIE'?(+e.n||0):(+e.qty||0);}
+
+function openLogCorrection(u){
+  if(!canCorrect()){toast('Not permitted for your role',1);return;}
+  const e=EVENTS.find(x=>x.uuid===u); if(!e){toast('Log not found',1);return;}
+  corrEv=e; corrTree=treeById(e.tree)||{id:e.tree,lot:e.lot,no:0,clone:e.clone||''};
+  corrClone=''; corrType='LOGQTY';
+  $('cf-tree').textContent=e.tree;
+  $('cf-current').innerHTML='Logged<br><b>'+logLabel(e)+'</b><br><span class="small">'+esc(e.dt)+'</span>';
+  $('cf-types').classList.add('hidden');
+  $('cf-clonewrap').classList.add('hidden');
+  $('cf-censuswrap').classList.add('hidden');
+  $('cf-logwrap').classList.remove('hidden');
+  $('cf-logold').textContent=nf(logQtyOf(e))+(e.type==='TIE'?' tied':(e.type==='ROTTEN'?' rotten':' fruit'));
+  $('cf-logqty').value='';
+  $('cf-sub').textContent='You cannot edit a log. Send the correct number to the Owner — it only takes effect once the Owner approves it.';
+  $('cf-note').value=''; $('cf-err').textContent='';
+  $('corrmodal').classList.remove('hidden');}
+
+// An approved correction never rewrites the original row. It files a signed delta of the
+// SAME shape as the row it fixes, carrying the secured / tied flag so the ledger keeps
+// splitting it correctly.
+async function applyLogCorrection(c){
+  if(c.ctype!=='LOGQTY'||!c.evUuid)return;
+  if(EVENTS.some(e=>e.corrId===c.uuid))return;                 // idempotent across sync replays
+  const base=EVENTS.find(e=>e.uuid===c.evUuid);
+  const delta=+(Math.round(+c.newVal||0)-Math.round(+c.oldVal||0));
+  if(!delta)return;
+  const t=treeById(c.tree);
+  const type=c.evType==='ROTTEN'?'ROTTEN_ADJUST':(c.evType==='TIE'?'TIE_ADJUST':'DROP_ADJUST');
+  const rec={uuid:uuid(),type:type,dt:now(),
+    evUuid:c.evUuid,corrId:c.uuid,tree:c.tree,lot:c.lot,clone:(base&&base.clone)||(t&&t.clone)||'',
+    was:Math.round(+c.oldVal||0),now:Math.round(+c.newVal||0),delta:delta,
+    estkg:+(delta*(AVG_KG[(t&&t.clone)]||1.6)).toFixed(1),
+    reason:c.note||'',requestedBy:c.worker||'',approvedBy:CFG?CFG.worker:'',synced:false};
+  if(type==='DROP_ADJUST')   rec.secured=base?isSecuredDrop(base):true;
+  if(type==='ROTTEN_ADJUST') rec.tied   =base?isTiedRotten(base):true;
+  if(type==='TIE_ADJUST')    rec.ropeM  =+(delta*ROPE_M_PER_FRUIT).toFixed(2);
+  await persistEvent(rec);
+  // a corrected tying round must correct the rope drawn with it
+  if(type==='TIE_ADJUST'&&rec.ropeM){
+    const rp=prodById(ROPE_PID);
+    if(rp) await persistEvent({uuid:uuid(),type:'STOCK_ADJUST',dt:now(),pid:ROPE_PID,pname:rp.name,
+      ai:'',unit:rp.unit,delta:-rec.ropeM,systemQty:onHand(rp),counted:onHand(rp)-rec.ropeM,
+      note:'Rope re-stated with an approved tying correction on '+c.tree,
+      corrId:c.uuid,worker:CFG?CFG.worker:'',device:CFG?CFG.device:'',synced:false});}}
+
+// ---- the tying matrix now reads the ledger --------------------------------------------
+function tyingMatrix(){
+  const byLot={};LOT_KEYS.forEach(L=>byLot[L]={lot:L,trees:0,tied:0,mig:0,logged:0,dropped:0,rotten:0,bal:0,kg:0});
+  tiedTrees().forEach(id=>{
+    const t=treeById(id); if(!t||!byLot[t.lot])return;
+    const r=byLot[t.lot], L=treeLedger(id);
+    r.trees++; r.tied+=L.total_fruits_tied; r.mig+=tiedMigOf(id); r.logged+=tiedLoggedOf(id);
+    r.dropped+=L.secured_drops; r.rotten+=L.rotten_tied;
+    r.bal+=L.current_tied_balance; r.kg+=Math.max(0,L.current_tied_balance)*(AVG_KG[t.clone]||1.6);});
+  return LOT_KEYS.map(L=>byLot[L]).filter(r=>r.trees>0);}
+
+// ---- Marketing: what is ready to sell, and what has been sold ------------------------
+// Saleable weight comes from the drops already collected — the same events the harvest
+// screen writes — so the two can never disagree.
+function collectedRows(){
+  const by={};
+  EVENTS.filter(e=>e.type==='DROP').forEach(e=>{
+    const k=(e.dt||'').slice(0,10)+'|'+(e.grade||'?');
+    if(!by[k])by[k]={date:(e.dt||'').slice(0,10),grade:e.grade||'?',n:0,kg:0};
+    by[k].n+=+e.qty||0; by[k].kg+=+e.estkg||0;});
+  return Object.values(by).sort((a,b)=>a.date<b.date?1:-1);}
+function soldKg(){return EVENTS.filter(e=>e.type==='SALE').reduce((s,e)=>s+(+e.kg||0),0);}
+function collectedKg(){return EVENTS.filter(e=>e.type==='DROP').reduce((s,e)=>s+(+e.estkg||0),0);}
+function salesRows(){return EVENTS.filter(e=>e.type==='SALE').sort((a,b)=>a.dt<b.dt?1:-1);}
+function salesTotal(){return EVENTS.filter(e=>e.type==='SALE').reduce((s,e)=>s+(+e.amount||0),0);}
+let savingSale=false;
+function saleCalc(){
+  const kg=+$('sl-kg').value||0, pr=+$('sl-price').value||0;
+  $('sl-amt').innerHTML=(kg&&pr)?('<b>'+rm(kg*pr)+'</b> — '+nf(kg)+' kg × '+rm(pr)+'/kg')
+    :'Enter the weight and the price per kilo.';}
+async function saveSale(){
+  const err=$('sl-err'); err.textContent='';
+  if(savingSale)return;
+  const buyer=$('sl-buyer').value.trim(), kg=+$('sl-kg').value, pr=+$('sl-price').value;
+  const grade=$('sl-grade').value, note=$('sl-note').value.trim();
+  if(!buyer){err.textContent='Who is the buyer?';return;}
+  if(!(kg>0)){err.textContent='Enter the weight sold in kilos.';return;}
+  if(!(pr>0)){err.textContent='Enter the price per kilo.';return;}
+  const avail=collectedKg()-soldKg();
+  if(kg>avail&&!confirm('⚠ Only '+nf(avail)+' kg of collected fruit is unsold.\nSell '+nf(kg)+' kg anyway?'))return;
+  savingSale=true;
+  try{
+    await persistEvent({uuid:uuid(),type:'SALE',dt:now(),buyer:buyer,grade:grade,kg:kg,
+      pricePerKg:pr,amount:+(kg*pr).toFixed(2),note:note,
+      worker:CFG.worker,device:CFG.device,synced:false});
+  } finally { savingSale=false; }
+  $('sl-buyer').value='';$('sl-kg').value='';$('sl-note').value='';saleCalc();
+  badge();renderMarketing();renderHub();
+  toast('✓ '+nf(kg)+' kg to '+buyer+' · '+rm(kg*pr));}
+function renderMarketing(){
+  const box=$('mktbox'); if(!box)return;
+  const col=collectedKg(), sold=soldKg(), rows=salesRows();
+  box.innerHTML=
+    '<div class="kpis" style="margin-bottom:8px">'+
+    '<div class="kpi"><div class="v">'+nf(Math.round(col))+'</div><div class="l">kg collected</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(Math.round(sold))+'</div><div class="l">kg sold</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(Math.round(col-sold))+'</div><div class="l">kg unsold</div></div>'+
+    '<div class="kpi"><div class="v">'+(SHOW_VALUES?rm(salesTotal()):'—')+'</div><div class="l">sales value</div></div></div>'+
+    (rows.length?('<div class="sec">Sales logged</div><div class="tblwrap"><table class="tbl">'+
+      '<tr><th>Buyer</th><th class="num">Weight</th><th class="num">Value</th></tr>'+
+      rows.slice(0,20).map(e=>'<tr><td><div class="pn">'+esc(e.buyer)+'</div>'+
+        '<div class="pa">'+esc(e.dt)+' · grade '+esc(e.grade)+(e.synced?'':' · queued')+'</div></td>'+
+        '<td class="num">'+nf(e.kg)+' kg<div class="exphint">'+rm(e.pricePerKg)+'/kg</div></td>'+
+        '<td class="num"><b>'+(SHOW_VALUES?rm(e.amount):'—')+'</b></td></tr>').join('')+'</table></div>')
+      :'<div class="alertnone">No sale logged yet.</div>')+
+    '<div class="sec" style="margin-top:14px">Collected and ready</div>'+
+    (collectedRows().length?('<div class="tblwrap" style="max-height:240px"><table class="tbl">'+
+      '<tr><th>Day</th><th>Grade</th><th class="num">Fruit</th><th class="num">Est. kg</th></tr>'+
+      collectedRows().slice(0,20).map(r=>'<tr><td>'+esc(r.date)+'</td><td>'+esc(r.grade)+'</td>'+
+        '<td class="num">'+nf(r.n)+'</td><td class="num"><b>'+nf(Math.round(r.kg))+'</b></td></tr>').join('')+'</table></div>')
+      :'<div class="alertnone">Nothing collected yet — sales become available as workers log drops.</div>')+
+    '<p class="small">Weight is estimated from the clone averages the app already uses. Sales are logged '+
+    'against fruit that has actually been collected, so the two can never disagree.</p>';}
+let saleWarned=false;
+function saleQueue(){return EVENTS.filter(e=>e.type==='SALE'&&!e.synced);}
+function q7(){return saleQueue().length;}
+async function pushSales(){
+  return pushOwnKey(saleQueue(),'sales','sales',
+    m=>{if(!saleWarned){saleWarned=true;toast(m,1);}},
+    'Sales kept on this phone — update the Apps Script to add the SALES tab');}
 
 // ================= boot =================
 (async function(){

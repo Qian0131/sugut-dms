@@ -355,6 +355,25 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .crow.todaycard{border-color:var(--green2);box-shadow:0 0 0 2px rgba(46,125,50,.14)}
 .todaychip{display:inline-block;background:var(--green2);color:#fff;font-size:9px;font-weight:900;
   padding:2px 7px;border-radius:20px;letter-spacing:.4px;vertical-align:2px}
+
+/* ===== v2.9 — tree asset board, dual counters ===== */
+.board{background:linear-gradient(160deg,#14401a,#1f6b28);color:#fff;border-radius:15px;
+  padding:13px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.16)}
+.board .bh{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;opacity:.95}
+.board .bsub{display:block;font-size:11px;font-weight:600;opacity:.8;text-transform:none;letter-spacing:0;margin-top:2px}
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:11px 0 9px}
+.bcell{background:rgba(255,255,255,.13);border-radius:11px;padding:9px 4px;text-align:center}
+.bcell.tie{background:rgba(180,150,255,.26)}
+.bcell.muted{opacity:.55}
+.bcell .bv{font-size:21px;font-weight:800;line-height:1.1}
+.bcell .bl{font-size:9px;opacity:.85;margin-top:3px;line-height:1.25}
+.brow{font-size:12.5px;background:rgba(0,0,0,.18);border-radius:9px;padding:8px 10px;line-height:1.5}
+.bmini{opacity:.75;font-size:11px}
+.bwarn{background:#ffd54f;color:#3a2f00;border-radius:9px;padding:8px 10px;font-size:12px;
+  font-weight:700;margin-top:8px;line-height:1.45}
+.tiecard{border:1.5px solid #ddd4f5;background:#fbfaff}
+.bigbtn.tie{background:#7c5cd6}
+.lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
 </head>
 <body>
@@ -464,38 +483,62 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
       <span class="clone" id="t-clone"></span>
     </div>
     <button class="corrbtn" id="corrbtn" onclick="openCorrection()">⚠ REQUEST TREE / CLONE CORRECTION</button>
-    <div id="tiebox"></div>
+    <div id="assetboard"></div>
+
+    <div class="card tiecard">
+      <div class="sec">🪢 Counter A — tying round</div>
+      <p class="small" style="margin-top:0">New ropes tied on this tree during this size-cycle.</p>
+      <div class="stepper">
+        <button onclick="tieBump(-1)">−</button><div class="n" id="tie-n">1</div><button onclick="tieBump(1)">+</button>
+      </div>
+      <div class="quickadd">
+        <div onclick="tieBump(5)">+5</div><div onclick="tieBump(10)">+10</div><div onclick="tieReset()">RESET</div>
+      </div>
+      <div class="convnote" id="tie-rope">—</div>
+      <div class="pinerr" id="tie-err"></div>
+      <button class="bigbtn tie" onclick="saveTieRound()">🪢 SAVE TYING ROUND</button>
+    </div>
+
     <div class="card">
-      <div class="sec">Fruits dropped — tally counter</div>
+      <div class="sec">🥭 Counter B — drop collection</div>
+      <label>What was collected? <span class="minitag">REQUIRED</span></label>
+      <div class="lotbtns" id="dropkind">
+        <div class="on" id="dk-SECURED" onclick="pickDropKind('SECURED')">🪢 SECURED<span class="csub">string on it</span></div>
+        <div id="dk-UNSECURED" onclick="pickDropKind('UNSECURED')">🍃 UNSECURED<span class="csub">no string</span></div>
+      </div>
+      <div class="convnote" id="drop-hint">—</div>
       <div class="stepper">
         <button onclick="bump(-1)">−</button><div class="n" id="qty">1</div><button onclick="bump(1)">+</button>
       </div>
       <div class="quickadd">
         <div onclick="bump(5)">+5</div><div onclick="bump(10)">+10</div><div onclick="resetQty()">RESET</div>
       </div>
-    </div>
-    <div class="card">
-      <div class="sec">Grade</div>
+      <label>Grade</label>
       <div class="grades" id="grades"><div class="on" onclick="setGrade(0)">A</div><div onclick="setGrade(1)">B</div><div onclick="setGrade(2)">C</div></div>
+      <button class="bigbtn" onclick="saveDrop()">✓ SAVE DROP</button>
     </div>
-    <button class="bigbtn" onclick="saveDrop()">✓ SAVE DROP</button>
-    <div style="height:10px"></div>
+
     <div class="card rotcard">
       <div class="sec">🍂 Log rotten fruits</div>
-      <p class="small" style="margin-top:0">Fruit lost on the tree, not collected. The cause is required —
-        a rotten count without a reason cannot be acted on.</p>
+      <p class="small" style="margin-top:0">Fruit lost on the tree, not collected. Both answers are required —
+        a rotten count without a reason cannot be acted on, and without tied/untied the balance cannot be corrected.</p>
       <div class="stepper">
         <button onclick="rotBump(-1)">−</button><div class="n" id="rot-n">1</div><button onclick="rotBump(1)">+</button>
       </div>
       <div class="quickadd">
         <div onclick="rotBump(5)">+5</div><div onclick="rotBump(10)">+10</div><div onclick="rotReset()">RESET</div>
       </div>
+      <label>Was it tied? <span class="minitag">REQUIRED</span></label>
+      <div class="lotbtns" id="rottied">
+        <div id="rt-T" onclick="rotTie(true)">🪢 TIED<span class="csub">frees a string</span></div>
+        <div id="rt-U" onclick="rotTie(false)">🍃 UNTIED<span class="csub">never tied</span></div>
+      </div>
       <label>Why was it lost? <span class="minitag">REQUIRED</span></label>
       <div class="ctypes" id="rot-causes"></div>
       <div class="pinerr" id="rot-err"></div>
       <button class="bigbtn rot" onclick="saveRotten()">🍂 LOG ROTTEN FRUITS</button>
     </div>
-    <div style="height:8px"></div>
+
     <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
   </div>
   <div class="card" id="mylogs" style="display:none">
@@ -697,6 +740,34 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   <div class="card" id="labourcard" style="display:none">
     <div class="sec">👷 Labour logged</div>
     <div id="labourbox"></div>
+  </div>
+
+  <!-- ===== HARVEST · THE UNTIED WAVE (v2.9) ===== -->
+  <div class="card" id="wavecard" style="display:none">
+    <div class="sec">🌊 The wave — tied, untied and collected</div>
+    <div id="wavebox"></div>
+  </div>
+
+  <!-- ===== MARKETING · READY TO SELL + SALES (v2.9) ===== -->
+  <div class="card" id="mktpanel" style="display:none">
+    <div class="sec">🚚 Marketing — ready to sell</div>
+    <div id="mktbox"></div>
+    <div class="sec" style="margin-top:14px">Log a sale</div>
+    <label>Buyer</label>
+    <input id="sl-buyer" placeholder="e.g. Sandakan wholesale">
+    <div class="rainrow">
+      <div><label>Weight (kg)</label>
+        <input type="number" id="sl-kg" min="0" step="any" inputmode="decimal" oninput="saleCalc()"></div>
+      <div><label>Price per kg</label>
+        <input type="number" id="sl-price" min="0" step="any" inputmode="decimal" oninput="saleCalc()"></div>
+    </div>
+    <label>Grade</label>
+    <select id="sl-grade"><option>A</option><option>B</option><option>C</option><option>Mixed</option></select>
+    <label>Note (optional)</label>
+    <input id="sl-note" placeholder="e.g. collected at the gate, paid cash">
+    <div class="convnote" id="sl-amt">Enter the weight and the price per kilo.</div>
+    <div class="pinerr" id="sl-err"></div>
+    <button class="bigbtn" onclick="saveSale()">✓ LOG SALE</button>
   </div>
 
   <!-- ===== HARVEST · FRUIT TYING VARIANCE MATRIX (v2.8) ===== -->
@@ -1066,14 +1137,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v2.8.1 — split build. THREE files must be uploaded together:
+     v2.9.0 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=2.8.1"></script>
-<script src="app.js?v=2.8.1"></script>
+<script src="database.js?v=2.9.0"></script>
+<script src="app.js?v=2.9.0"></script>
 </body>
 </html>
