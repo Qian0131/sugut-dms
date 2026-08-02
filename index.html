@@ -226,6 +226,7 @@ function idb(){return new Promise((res)=>{ if(!window.indexedDB) return res(null
     if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});};
   rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null);});}
 function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
+function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
 function all(store){return new Promise(res=>{if(!db){res(null);return;}const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(null);});}
 
 let EVENTS=[], CFG=null;
@@ -284,12 +285,21 @@ function selectTree(id){
 function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
 function bump(d){qty=Math.max(1,qty+d);$('qty').textContent=qty;}
 function setGrade(i){grade=['A','B','C'][i];[...$('grades').children].forEach((el,j)=>el.classList.toggle('on',j===i));}
+let savingDrop=false, lastDrop={tree:null,time:0};
 async function saveDrop(){
-  if(!curTree)return;
-  const t=curTree;
-  await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
-    estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
-  toast('✓ '+qty+' fruit @ '+t.id+(navigator.onLine?'':' (queued)'));cancelTree();}
+  if(!curTree||savingDrop)return;           // block double-taps
+  savingDrop=true;
+  try{
+    const t=curTree;
+    // duplicate guard: same tree logged less than 2 minutes ago
+    if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000){
+      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW drop?')){savingDrop=false;return;}
+    }
+    await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
+      estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
+    lastDrop={tree:t.id,time:Date.now()};
+    toast('✓ '+qty+' fruit @ '+t.id+(navigator.onLine?'':' (queued)'));cancelTree();
+  } finally { savingDrop=false; }}
 
 // ================= stock =================
 let moveType='OUT';
@@ -330,13 +340,24 @@ function renderStock(){
 
 // ================= sync =================
 function renderSync(){
-  $('cfginfo').innerHTML=CFG?('Worker: <b>'+CFG.worker+'</b> · Device: <b>'+CFG.device+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'';
+  $('cfginfo').innerHTML=(CFG?('Worker: <b>'+CFG.worker+'</b> · Device: <b>'+CFG.device+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>v1.1</b>';
   const L=$('ledger');
   L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
     let d=e.type==='DROP'?('🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree):(e.type==='STOCK_OUT'?('📦→ '+e.qty+' '+e.unit+' '+e.pname):('📦← '+e.qty+' '+e.unit+' '+e.pname));
-    return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span><span class="tag '+(e.synced?'s':'q')+'">'+(e.synced?'SYNCED':'QUEUED')+'</span></div>';}).join('')
+    const right=e.synced
+      ? '<span class="tag s">SYNCED</span>'
+      : '<span style="display:flex;align-items:center;gap:6px"><span class="tag q">QUEUED</span><span onclick="removeEvent(\''+e.uuid+'\')" style="color:#b3261e;font-weight:800;font-size:15px;padding:2px 8px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer">✕</span></span>';
+    return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span>'+right+'</div>';}).join('')
   :'<div class="small">No events yet.</div>';
   const b=$('syncbtn');b.disabled=!pending();b.textContent=pending()?('⇧ SYNC '+pending()+' EVENTS NOW'):'✓ ALL SYNCED';}
+async function removeEvent(u){
+  const e=EVENTS.find(x=>x.uuid===u);
+  if(!e||e.synced)return; // synced events can never be removed from the phone
+  const d=e.type==='DROP'?(e.qty+'× '+(e.clone||'?')+' @ '+e.tree):(e.qty+' '+(e.unit||'')+' '+(e.pname||''));
+  if(!confirm('Delete this entry (not yet synced)?\n'+d))return;
+  EVENTS=EVENTS.filter(x=>x.uuid!==u);
+  if(db)await del('events',u); else mem.events=EVENTS;
+  badge();renderSync();toast('Entry deleted');}
 let syncing=false;
 async function doSync(auto){
   if(syncing)return;
