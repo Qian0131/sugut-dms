@@ -160,6 +160,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .cstat.r{background:#fdecea;color:var(--warn);}
 .cbadge{background:var(--warn);color:#fff;font-size:10px;font-weight:800;border-radius:9px;padding:1px 7px;margin-left:6px;}
 .mystat{margin-top:9px;font-size:11px;}
+/* v2.5 sub-tab bar, pinned under the header */
+.subbar{display:flex;gap:5px;background:#fff;border-bottom:1px solid #e2e6e1;padding:6px 8px;
+  flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.subbar::-webkit-scrollbar{height:3px;}
+.subbar::-webkit-scrollbar-thumb{background:#c8dcc9;border-radius:3px;}
+.subbar div{flex:0 0 auto;padding:8px 13px;border-radius:9px;font-weight:800;font-size:10.5px;
+  color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap;background:#f2f5f1;}
+.subbar div.on{background:var(--green2);color:#fff;}
 /* v2.4 home hub — one big tile per module */
 .collapsebtn{width:100%;background:#fff;color:var(--green);border:2px dashed var(--green2);border-radius:11px;padding:9px;font-size:12px;font-weight:800;cursor:pointer;margin-top:6px;}
 .ttlwrap{display:flex;align-items:center;gap:7px;min-width:0;cursor:pointer;}
@@ -286,6 +294,8 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <p class="small" style="margin-top:10px">You can change these later in the ⚙ Settings (top of Sync tab). The app works fully offline; the Sync URL is only needed when you reach the office hotspot.</p>
   </div>
 </div>
+
+<div class="subbar hidden" id="subbar"></div>
 
 <!-- HOME HUB (v2.4) -->
 <div class="scr hidden" id="scr-home">
@@ -473,6 +483,36 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div class="kpi"><div class="v" id="k-week">0</div><div class="l">Fruits · 7 days</div></div>
     <div class="kpi"><div class="v" id="k-cost">RM 0</div><div class="l">Material cost · Aug</div></div>
   </div>
+  <!-- ===== DAILY OPS · TODAY'S TASKS (v2.5) ===== -->
+  <div class="card" id="opstasks" style="display:none">
+    <div class="sec">📋 Today's tasks — from the Owner's active programme</div>
+    <div id="opslist"></div>
+    <p class="small" style="margin-top:9px">Tasks are set by the Owner in the Agronomist programme and cannot be edited here. Open a task and send a completion reply — the material used is deducted from farm stock automatically.</p>
+  </div>
+  <div class="card" id="opshistory" style="display:none">
+    <div class="sec">✓ Completion replies sent from this phone</div>
+    <div id="opshistlist"></div>
+  </div>
+
+  <!-- ===== AGRONOMIST · PHASE PROGRAMME (v2.5) ===== -->
+  <div class="card" id="agrophases" style="display:none">
+    <div class="sec">🌱 Phase programme — PnD, foliar &amp; fertiliser</div>
+    <div class="segs" id="agromonths"></div>
+    <div id="agrolist"></div>
+    <p class="small" style="margin-top:9px">Doses come straight from the programme sheet: foliar sets are <b>per 1000 litre tank mix</b>, fertiliser sets are <b>per tree</b>. Activating a phase projects the total volume needed and pushes the task to the workers' phones at the next sync.</p>
+  </div>
+  <div class="card" id="agroproj" style="display:none">
+    <div class="sec">📐 Active programme &amp; projected requirement</div>
+    <div id="projbox"></div>
+  </div>
+
+  <!-- ===== PURCHASER · UPCOMING PROGRAM STOCK CHECK (v2.5) ===== -->
+  <div class="card" id="progcheck" style="display:none">
+    <div class="sec">🔍 Upcoming programme stock check</div>
+    <div id="chkbox"></div>
+    <p class="small" style="margin-top:9px">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+  </div>
+
   <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only -->
   <div class="card" id="invcc" style="display:none">
     <div class="sec">📦 Inventory Control Center</div>
@@ -597,6 +637,64 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   </div>
 </div>
 
+<!-- ACTIVATE PHASE PROGRAMME (v2.5, Owner) -->
+<div id="progmodal" class="modal hidden">
+  <div class="sheet">
+    <h3 id="pm-title">Activate phase programme</h3>
+    <p class="small" id="pm-sub">—</p>
+    <div class="aibox" style="margin-top:12px">
+      <div><div class="cl">Dose basis <span class="ro">FROM SHEET</span></div><div class="av" id="pm-basis">—</div></div>
+      <div class="cr" id="pm-mode">—</div>
+    </div>
+    <label>Apply to</label>
+    <div class="lotbtns" id="pm-scope">
+      <div class="on" id="ps-ALL" onclick="pmScope('ALL')">WHOLE FARM</div>
+      <div id="ps-A" onclick="pmScope('A')">LOT A</div>
+      <div id="ps-B" onclick="pmScope('B')">LOT B</div>
+      <div id="ps-C" onclick="pmScope('C')">LOT C</div>
+    </div>
+    <div id="pm-lptwrap">
+      <label>Spray mix per tree (litres) <span class="minitag">SETS THE TANK COUNT</span></label>
+      <input type="number" id="pm-lpt" min="0" step="any" inputmode="decimal" oninput="pmCalc()">
+      <p class="small" id="pm-lpthint">The sheet gives the dose per 1000 L tank but not the litres each tree takes — enter what the sprayer actually applies.</p>
+    </div>
+    <div class="convnote" id="pm-conv">—</div>
+    <div class="tblwrap" style="max-height:250px"><table class="tbl" id="pm-tbl"></table></div>
+    <div class="pinerr" id="pm-err"></div>
+    <button class="bigbtn" onclick="activatePhase()">✓ ACTIVATE &amp; SEND TO WORKERS</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeProgModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- WORKER COMPLETION REPLY (v2.5) -->
+<div id="replymodal" class="modal hidden">
+  <div class="sheet">
+    <h3>Submit completion reply</h3>
+    <p class="small" id="rp-sub">—</p>
+    <div class="aibox" style="margin-top:12px">
+      <div><div class="cl">Task <span class="ro">SET BY OWNER · READ-ONLY</span></div><div class="av" id="rp-task">—</div></div>
+      <div class="cr" id="rp-mode">—</div>
+    </div>
+    <label>Water volume used (litres)</label>
+    <input type="number" id="rp-water" min="0" step="any" inputmode="decimal" oninput="rpCalc()">
+    <label id="rp-unitlbl">Tanks sprayed (1000 L each)</label>
+    <input type="number" id="rp-tanks" min="0" step="any" inputmode="decimal" oninput="rpCalc()">
+    <label>Target lot applied <span class="minitag">REQUIRED</span></label>
+    <div class="lotbtns" id="rp-lots">
+      <div id="rl-A" onclick="rpLot('A')">LOT A</div>
+      <div id="rl-B" onclick="rpLot('B')">LOT B</div>
+      <div id="rl-C" onclick="rpLot('C')">LOT C</div>
+    </div>
+    <div class="sec" style="margin-top:12px">Material this reply will deduct</div>
+    <div class="tblwrap" style="max-height:210px"><table class="tbl" id="rp-tbl"></table></div>
+    <div class="pinerr" id="rp-err"></div>
+    <button class="bigbtn" onclick="submitReply()">✓ SUBMIT COMPLETION REPLY</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeReply()">CANCEL</button>
+  </div>
+</div>
+
 <div class="nav">
   <div class="on" id="nav-home" onclick="goHome()"><span class="ic">🏠</span>Home</div>
   <div id="nav-sync" onclick="go('sync')"><span class="ic">⇅</span>Sync</div>
@@ -614,12 +712,13 @@ const CLONE_NAME={MK:'Musang King',BT:'Black Thorn',B24:'B24','101':'101',UM:'Ud
 const LOTS=['A','B','C'];
 const INVENTORY_RECON=[{"id":1,"name":"Amotan 22.8SC","active_ingredient":"(confirm \u2014 see label)","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":105,"cpu":0.21,"min_stock_threshold":500,"stock":4000},{"id":2,"name":"Cypermethrin 5.5 (Kencis)","active_ingredient":"Cypermethrin 5.5%","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":18,"cpu":0.018,"min_stock_threshold":1000,"stock":5000},{"id":3,"name":"Fipronil (Rainnil)","active_ingredient":"Fipronil","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":70,"cpu":0.07,"min_stock_threshold":1000,"stock":4000},{"id":4,"name":"Madell","active_ingredient":"(confirm \u2014 see label)","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":88,"cpu":0.088,"min_stock_threshold":1000,"stock":0},{"id":5,"name":"Abamectin (Envoy)","active_ingredient":"Abamectin","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":45,"cpu":0.045,"min_stock_threshold":1000,"stock":6000},{"id":6,"name":"Mancozeb (Raincozeb 80WB)","active_ingredient":"Mancozeb 80%","cat":"Fungicide","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":25,"cpu":0.025,"min_stock_threshold":1000,"stock":2000},{"id":7,"name":"Arimo 23EC","active_ingredient":"(confirm \u2014 see label)","cat":"Fungicide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":78,"cpu":0.156,"min_stock_threshold":500,"stock":500},{"id":8,"name":"Agus 24SC","active_ingredient":"(confirm \u2014 see label)","cat":"Fungicide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":85,"cpu":0.17,"min_stock_threshold":500,"stock":500},{"id":9,"name":"Aliette (ribut petir)","active_ingredient":"Fosetyl-aluminium 80%","cat":"Fungicide","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":150,"cpu":0.15,"min_stock_threshold":1000,"stock":2000},{"id":10,"name":"AMG mix","active_ingredient":"Amino acid + Magnesium mix","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":68,"cpu":0.068,"min_stock_threshold":1000,"stock":0},{"id":11,"name":"Wuzal Ascofol","active_ingredient":"Seaweed extract (Ascophyllum nodosum)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":265,"cpu":0.053,"min_stock_threshold":5000,"stock":0},{"id":12,"name":"Wuzal ZN","active_ingredient":"Zinc (chelated)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":395,"cpu":0.079,"min_stock_threshold":5000,"stock":0},{"id":13,"name":"Wuxal Ascofol CAB","active_ingredient":"Seaweed extract + Calcium + Boron","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":260,"cpu":0.052,"min_stock_threshold":5000,"stock":5000},{"id":14,"name":"A Zinc Mix","active_ingredient":"Zinc mix","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":70,"cpu":0.07,"min_stock_threshold":1000,"stock":6000},{"id":15,"name":"Xilca","active_ingredient":"Calcium + Silicon","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":60.83,"cpu":0.06083,"min_stock_threshold":1000,"stock":2000},{"id":16,"name":"Flora","active_ingredient":"Boron (foliar)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":82.5,"cpu":0.0825,"min_stock_threshold":1000,"stock":4000},{"id":17,"name":"Vitanica","active_ingredient":"Seaweed / amino acid complex","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":2500,"unit_price":133.33,"cpu":0.053332,"min_stock_threshold":2500,"stock":0},{"id":18,"name":"Stunza","active_ingredient":"(confirm \u2014 see label)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":85,"cpu":0.085,"min_stock_threshold":1000,"stock":0},{"id":19,"name":"Calcifol","active_ingredient":"Calcium + Boron (foliar)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":230,"cpu":0.046,"min_stock_threshold":5000,"stock":4000},{"id":20,"name":"Heromix T1","active_ingredient":"Foliar nutrient mix (T1)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":210,"cpu":0.042,"min_stock_threshold":5000,"stock":1000},{"id":21,"name":"Auxi-Pro","active_ingredient":"Auxin (plant hormone)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":85,"cpu":0.085,"min_stock_threshold":1000,"stock":7000},{"id":22,"name":"Cyto-Plus","active_ingredient":"Cytokinin (plant hormone)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":75,"cpu":0.075,"min_stock_threshold":1000,"stock":8000},{"id":23,"name":"Carboxamin","active_ingredient":"Amino acids","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":70.83,"cpu":0.07083,"min_stock_threshold":1000,"stock":5500},{"id":24,"name":"Sorbix","active_ingredient":"Sorbitol carrier + Boron","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":75,"cpu":0.075,"min_stock_threshold":1000,"stock":6000},{"id":25,"name":"A Plus Cal","active_ingredient":"Calcium (powder)","cat":"Powder","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":72,"cpu":0.072,"min_stock_threshold":1000,"stock":5000},{"id":26,"name":"AZ Plus","active_ingredient":"Amino acid + Zinc","cat":"Powder","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":95,"cpu":0.095,"min_stock_threshold":1000,"stock":1000},{"id":27,"name":"Brightstar PBZ","active_ingredient":"Paclobutrazol","cat":"Growth Reg","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":108.33,"cpu":0.10833,"min_stock_threshold":1000,"stock":3000},{"id":28,"name":"GA3 (Gibberlic Acid)","active_ingredient":"Gibberellic acid (GA3)","cat":"Growth Reg","container":"pack","unit":"tablets","unit_multiplier":10,"unit_price":95,"cpu":9.5,"min_stock_threshold":10,"stock":29},{"id":29,"name":"Yara MKP","active_ingredient":"Mono potassium phosphate 0-52-34","cat":"Foliar","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":300,"cpu":0.012,"min_stock_threshold":50000,"stock":20000},{"id":30,"name":"Hero Max (Sticker)","active_ingredient":"Non-ionic surfactant / sticker","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":200,"cpu":0.04,"min_stock_threshold":5000,"stock":0},{"id":31,"name":"Entrust 18SL (Racun rumput)","active_ingredient":"(confirm \u2014 see label)","cat":"Herbicide","container":"bottle","unit":"ml","unit_multiplier":20000,"unit_price":250,"cpu":0.0125,"min_stock_threshold":20000,"stock":0},{"id":32,"name":"Yara Liva Tropicote","active_ingredient":"Calcium nitrate 15.5-0-0 + 26.5 CaO","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":80,"cpu":0.0032,"min_stock_threshold":50000,"stock":175000},{"id":33,"name":"Yara Liva Nitrobor","active_ingredient":"Calcium nitrate + Boron","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":99,"cpu":0.00396,"min_stock_threshold":50000,"stock":75000},{"id":34,"name":"Yara Mila 12-12-17","active_ingredient":"NPK 12-12-17 + 2MgO","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":50000,"unit_price":230,"cpu":0.0046,"min_stock_threshold":100000,"stock":200000},{"id":35,"name":"Yara Tera Krista Mgs","active_ingredient":"Magnesium sulphate (MgS)","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":55,"cpu":0.0022,"min_stock_threshold":50000,"stock":140000},{"id":36,"name":"Garsoni 8-24-24","active_ingredient":"NPK 8-24-24","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":50000,"unit_price":235,"cpu":0.0047,"min_stock_threshold":100000,"stock":20000},{"id":37,"name":"Polysulphate","active_ingredient":"Polyhalite (K, Ca, Mg, S)","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":50000,"unit_price":90,"cpu":0.0018,"min_stock_threshold":100000,"stock":250000},{"id":38,"name":"Nutrigem","active_ingredient":"NPK compound (Nutrigem)","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":40000,"unit_price":34.6,"cpu":0.000865,"min_stock_threshold":80000,"stock":0},{"id":39,"name":"Herocris Nexus 5-25-25-2MGO","active_ingredient":"NPK 5-25-25 + 2MgO","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":300,"cpu":0.012,"min_stock_threshold":50000,"stock":60000},{"id":40,"name":"Basfoliar","active_ingredient":"Foliar NPK + micronutrients","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":2500,"unit_price":138.34,"cpu":0.055336,"min_stock_threshold":2500,"stock":15000},{"id":41,"name":"Plantara","active_ingredient":"(confirm \u2014 see label)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":85,"cpu":0.085,"min_stock_threshold":1000,"stock":11000},{"id":42,"name":"Raizon Max","active_ingredient":"Rooting / humic complex","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":85,"cpu":0.085,"min_stock_threshold":1000,"stock":7000},{"id":43,"name":"Yara Calcinit (CN)","active_ingredient":"Calcium nitrate 15.5-0-0","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":90,"cpu":0.0036,"min_stock_threshold":50000,"stock":20000},{"id":44,"name":"Fetto 480","active_ingredient":"(confirm \u2014 see label) \u00b7 fruit-contact, 14-day PHI","cat":"Fungicide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":160,"cpu":0.32,"min_stock_threshold":500,"stock":0},{"id":45,"name":"Pictor","active_ingredient":"Boscalid + Dimoxystrobin \u00b7 fruit-contact, 14-day PHI","cat":"Fungicide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":65,"cpu":0.065,"min_stock_threshold":1000,"stock":0},{"id":46,"name":"Marshal 20SC","active_ingredient":"Carbosulfan 20%","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":65,"cpu":0.065,"min_stock_threshold":1000,"stock":500},{"id":47,"name":"Betakal Amino","active_ingredient":"Amino acid + Potassium","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":5000,"unit_price":205,"cpu":0.041,"min_stock_threshold":5000,"stock":10000},{"id":48,"name":"Ardel","active_ingredient":"(confirm \u2014 see label)","cat":"Fungicide","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":0,"cpu":0,"min_stock_threshold":1000,"stock":0},{"id":49,"name":"Pengasus 47.17sc","active_ingredient":"(confirm \u2014 see label)","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":75,"cpu":0.15,"min_stock_threshold":500,"stock":0},{"id":50,"name":"Azatin","active_ingredient":"Azadirachtin","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":85,"cpu":0.17,"min_stock_threshold":500,"stock":1000},{"id":51,"name":"Match","active_ingredient":"Lufenuron 50 g/L","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":500,"unit_price":130,"cpu":0.26,"min_stock_threshold":500,"stock":2000},{"id":52,"name":"Zinc (powder)","active_ingredient":"Zinc sulphate","cat":"Fertiliser","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":0,"cpu":0,"min_stock_threshold":1000,"stock":0},{"id":53,"name":"Yara Rega 13-4-25","active_ingredient":"NPK 13-4-25","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":285,"cpu":0.0114,"min_stock_threshold":50000,"stock":10000},{"id":54,"name":"Yara Tera Kristalon 13-40-13","active_ingredient":"NPK 13-40-13","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":295,"cpu":0.0118,"min_stock_threshold":50000,"stock":25000},{"id":55,"name":"A Zinc (Year 2023)","active_ingredient":"Zinc mix","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":65,"cpu":0.065,"min_stock_threshold":1000,"stock":1000},{"id":56,"name":"Nutrimix Complete (AZ PLUS)","active_ingredient":"Complete micronutrient mix","cat":"Foliar","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":77,"cpu":0.077,"min_stock_threshold":1000,"stock":3000},{"id":57,"name":"Ultra Bor (Flora)","active_ingredient":"Boron","cat":"Foliar","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":65,"cpu":0.065,"min_stock_threshold":1000,"stock":3000},{"id":58,"name":"Anmi 4.8SC","active_ingredient":"(confirm \u2014 see label)","cat":"Foliar","container":"bottle","unit":"ml","unit_multiplier":1000,"unit_price":85,"cpu":0.085,"min_stock_threshold":1000,"stock":1000},{"id":59,"name":"VS 34","active_ingredient":"(confirm \u2014 see label)","cat":"Foliar","container":"pack","unit":"gm","unit_multiplier":1000,"unit_price":0,"cpu":0,"min_stock_threshold":1000,"stock":1000},{"id":60,"name":"Abinsec 1.8EC","active_ingredient":"Abamectin 1.8%","cat":"Pesticide","container":"bottle","unit":"ml","unit_multiplier":4000,"unit_price":85,"cpu":0.02125,"min_stock_threshold":4000,"stock":5000},{"id":61,"name":"Basaplant Orange 14-5-30","active_ingredient":"NPK 14-5-30","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":295,"cpu":0.0118,"min_stock_threshold":50000,"stock":25000},{"id":62,"name":"Hydrospeed Yield 3-14-37","active_ingredient":"NPK 3-14-37","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":295,"cpu":0.0118,"min_stock_threshold":50000,"stock":50000},{"id":63,"name":"Yara Mila 12-11-18","active_ingredient":"NPK 12-11-18","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":50000,"unit_price":230,"cpu":0.0046,"min_stock_threshold":100000,"stock":350000},{"id":64,"name":"Yara Tera 18-18-18","active_ingredient":"NPK 18-18-18","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":295,"cpu":0.0118,"min_stock_threshold":50000,"stock":50000},{"id":65,"name":"Florica 21-21-21","active_ingredient":"NPK 21-21-21","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":250,"cpu":0.01,"min_stock_threshold":50000,"stock":25000},{"id":66,"name":"Ge Rocket 9-14-9","active_ingredient":"NPK 9-14-9","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":25000,"unit_price":78,"cpu":0.00312,"min_stock_threshold":50000,"stock":6000},{"id":67,"name":"MSolumax 3-16-36","active_ingredient":"NPK 3-16-36","cat":"Fertiliser","container":"bag","unit":"gm","unit_multiplier":8000,"unit_price":85,"cpu":0.010625,"min_stock_threshold":16000,"stock":52000}];
 const PRODUCTS=INVENTORY_RECON;   // Phase-1/2 alias — same array reference
+const PHASE_PROGRAM=[{"id":"2026 Jan (2)|Fert Set 1","month":"2026 Jan (2)","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-02-04","lines":[{"raw":"Calcium nitrate","pid":43,"qty":1000.0,"unit":"gm","ai":""}]},{"id":"2026 Jan (2)|Fert Set 2","month":"2026 Jan (2)","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-02-18","lines":[{"raw":"8-24-24","pid":36,"qty":1000.0,"unit":"gm","ai":""},{"raw":"poly sulphate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"2026 Jan (2)|Fert Set 3","month":"2026 Jan (2)","set":"Fert Set 3","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-03-03","lines":[{"raw":"8-24-24","pid":36,"qty":1500.0,"unit":"gm","ai":""}]},{"id":"March|Fert Set 1","month":"March","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-03-04","lines":[{"raw":"8 24 24","pid":36,"qty":1000.0,"unit":"gm","ai":""},{"raw":"polysulfate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"March|Fert Set 2","month":"March","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-03-18","lines":[{"raw":"8 24 24","pid":36,"qty":1500.0,"unit":"gm","ai":""}]},{"id":"April|Set 1","month":"April","set":"Set 1","kind":"FOLIAR","mode":"SPRAY","header":"Spray inside branches (induce more bud eye)","basis":"PER_1000L","litresPerTree":null,"plan":"2026-04-09","lines":[{"raw":"Arimo","pid":7,"qty":500.0,"unit":"ml","ai":""},{"raw":"Fipronil","pid":3,"qty":1000.0,"unit":"ml","ai":""},{"raw":"5 25 25","pid":39,"qty":1500.0,"unit":"gm","ai":""},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"CaO"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"Vitanica","pid":17,"qty":1000.0,"unit":"ml","ai":"Seaweed"},{"raw":"A zin mix","pid":14,"qty":1000.0,"unit":"ml","ai":""}]},{"id":"April|Set 2","month":"April","set":"Set 2","kind":"FOLIAR","mode":"SPRAY","header":"Spray inside the branches","basis":"PER_1000L","litresPerTree":null,"plan":"2026-04-16","lines":[{"raw":"Arimo","pid":7,"qty":500.0,"unit":"ml","ai":""},{"raw":"Fipronil","pid":3,"qty":1000.0,"unit":"ml","ai":""},{"raw":"5 25 25","pid":39,"qty":1500.0,"unit":"gm","ai":""},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":""},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":""},{"raw":"Vitanica","pid":17,"qty":1000.0,"unit":"ml","ai":""},{"raw":"A zin mix","pid":14,"qty":1000.0,"unit":"ml","ai":""}]},{"id":"April|Set 3","month":"April","set":"Set 3","kind":"FOLIAR","mode":"SPRAY","header":"Spray outside the leaf (induce 1 layer new leaf)","basis":"PER_1000L","litresPerTree":null,"plan":"2026-04-20","lines":[{"raw":"Arimo","pid":7,"qty":500.0,"unit":"ml","ai":""},{"raw":"Ardel","pid":48,"qty":1000.0,"unit":"ml","ai":""},{"raw":"Calcinit","pid":43,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Vitanica","pid":17,"qty":1000.0,"unit":"ml","ai":""},{"raw":"A zin mix","pid":14,"qty":1000.0,"unit":"ml","ai":""}]},{"id":"April|Fert Set 1","month":"April","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-04-19","lines":[{"raw":"Calcinit","pid":43,"qty":1000.0,"unit":"gm","ai":""},{"raw":"Nutrigm","pid":38,"qty":10000.0,"unit":"gm","ai":""}]},{"id":"May|Set 1","month":"May","set":"Set 1","kind":"FOLIAR","mode":"SPRAY","header":"Spray inside and outside whole tree( induce new leaf)","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"calcinit","pid":43,"qty":1000.0,"unit":"gm","ai":""},{"raw":"Vitanica","pid":17,"qty":1000.0,"unit":"ml","ai":"seaweed"},{"raw":"AZ plus","pid":26,"qty":1000.0,"unit":"ml","ai":"TE"}]},{"id":"May|Set 2","month":"May","set":"Set 2","kind":"FOLIAR","mode":"SPRAY","header":"Spray flower and leaf","basis":"PER_1000L","litresPerTree":null,"plan":"2026-05-06","lines":[{"raw":"Arimo","pid":7,"qty":500.0,"unit":"ml","ai":""},{"raw":"Mardel","pid":4,"qty":1000.0,"unit":"ml","ai":""},{"raw":"5 25 25","pid":39,"qty":2000.0,"unit":"gm","ai":""},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"CaO"},{"raw":"flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"vitanica","pid":17,"qty":1000.0,"unit":"ml","ai":"Seaweed"}]},{"id":"May|Fert Set 1","month":"May","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-05-02","lines":[{"raw":"5 25 25","pid":39,"qty":500.0,"unit":"gm","ai":""},{"raw":"polysulfate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"May 2|Set 1","month":"May 2","set":"Set 1","kind":"FOLIAR","mode":"SPRAY","header":"Spray flower only","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Stunza","pid":18,"qty":250.0,"unit":"ml","ai":"MEP"},{"raw":"PBZ","pid":27,"qty":250.0,"unit":"ml","ai":""},{"raw":"CalCifol","pid":19,"qty":1000.0,"unit":"ml","ai":"Calcum"},{"raw":"Heromix T1","pid":20,"qty":1000.0,"unit":"ml","ai":"TE"},{"raw":"Auxi-pro","pid":21,"qty":500.0,"unit":"ml","ai":""},{"raw":"cyto-plus","pid":22,"qty":250.0,"unit":"ml","ai":""},{"raw":"5 25 25","pid":39,"qty":1000.0,"unit":"gm","ai":""}]},{"id":"May 2|Set 2","month":"May 2","set":"Set 2","kind":"FOLIAR","mode":"SPRAY","header":"Spray Outside leaf","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Stunza","pid":18,"qty":1000.0,"unit":"ml","ai":"MEP"},{"raw":"PBZ","pid":27,"qty":500.0,"unit":"ml","ai":""},{"raw":"MKP","pid":29,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Heromix T1","pid":20,"qty":1000.0,"unit":"ml","ai":"TE"},{"raw":"Carboxamin","pid":23,"qty":1000.0,"unit":"ml","ai":"Amino"}]},{"id":"May 2|Set 3","month":"May 2","set":"Set 3","kind":"FOLIAR","mode":"SPRAY","header":"Spray flower","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Abamectin","pid":5,"qty":1000.0,"unit":"ml","ai":""},{"raw":"Auxi-pro","pid":21,"qty":500.0,"unit":"ml","ai":""},{"raw":"cyto-plus","pid":22,"qty":250.0,"unit":"ml","ai":""},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":""},{"raw":"MKP","pid":29,"qty":1000.0,"unit":"gm","ai":""},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"A Zinc mix","pid":14,"qty":1000.0,"unit":"ml","ai":"Zinc"}]},{"id":"May 2|Fert Set 1","month":"May 2","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-05-18","lines":[{"raw":"5 25 25","pid":39,"qty":500.0,"unit":"gm","ai":""}]},{"id":"May 2|Fert Set 2","month":"May 2","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-06-03","lines":[{"raw":"5 25 25","pid":39,"qty":500.0,"unit":"gm","ai":""},{"raw":"polysulfate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"June|Set 1","month":"June","set":"Set 1","kind":"FOLIAR","mode":"SPRAY","header":"Spray outside leaf","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Arimo","pid":7,"qty":500.0,"unit":"ml","ai":"Difenoconazole"},{"raw":"Pengasus 47.17sc","pid":49,"qty":500.0,"unit":"ml","ai":"Difenthiuron"},{"raw":"MKP","pid":29,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Stunza","pid":18,"qty":1000.0,"unit":"ml","ai":"MEP (stunt)"},{"raw":"Raizon Max","pid":42,"qty":500.0,"unit":"ml","ai":"Hero"},{"raw":"Heromix T1","pid":20,"qty":1000.0,"unit":"ml","ai":"TE"}]},{"id":"June|Set 2","month":"June","set":"Set 2","kind":"FOLIAR","mode":"SPRAY","header":"Spray inside (branches and fruit)","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Azatin","pid":50,"qty":500.0,"unit":"ml","ai":"Azoxystrobin"},{"raw":"Match","pid":51,"qty":500.0,"unit":"ml","ai":"Lufenuron"},{"raw":"5 25 25","pid":39,"qty":1000.0,"unit":"gm","ai":""},{"raw":"Auxi-Pro","pid":21,"qty":500.0,"unit":"ml","ai":"Fruit (NAA)"},{"raw":"Cyto-Plus","pid":22,"qty":250.0,"unit":"ml","ai":"Fruity (CPPU)"},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"A zin mix","pid":14,"qty":1000.0,"unit":"ml","ai":"Zinc"}]},{"id":"June|Set 3","month":"June","set":"Set 3","kind":"FOLIAR","mode":"SPRAY","header":"","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Fetto 480","pid":44,"qty":500.0,"unit":"ml","ai":"Metalaxyl"},{"raw":"Pictor","pid":45,"qty":1000.0,"unit":"ml","ai":"emmamectin benzoate"},{"raw":"5 25 25","pid":39,"qty":1000.0,"unit":"gm","ai":""},{"raw":"Auxi-Pro","pid":21,"qty":500.0,"unit":"ml","ai":"Fruit (NAA)"},{"raw":"Cyto-Plus","pid":22,"qty":250.0,"unit":"ml","ai":"Fruity (CPPU)"},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"A zin mix","pid":14,"qty":1000.0,"unit":"ml","ai":"Zinc"}]},{"id":"June|Fert Set 1","month":"June","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-06-03","lines":[{"raw":"5 25 25","pid":39,"qty":500.0,"unit":"gm","ai":""},{"raw":"polysulfate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"June|Fert Set 2","month":"June","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-06-17","lines":[{"raw":"13 4 25","pid":53,"qty":1000.0,"unit":"gm","ai":""}]},{"id":"June 2|Set 1","month":"June 2","set":"Set 1","kind":"FOLIAR","mode":"DRENCH","header":"Soil Drenching (10 liter per tree)","basis":"PER_1000L","litresPerTree":10.0,"plan":"","lines":[{"raw":"5 25 25","pid":39,"qty":5000.0,"unit":"gm","ai":""},{"raw":"Betakal Amino","pid":47,"qty":5000.0,"unit":"ml","ai":""},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"}]},{"id":"June 2|Set 2","month":"June 2","set":"Set 2","kind":"FOLIAR","mode":"SPRAY","header":"Spray inside","basis":"PER_1000L","litresPerTree":null,"plan":"","lines":[{"raw":"Fetto 480","pid":44,"qty":500.0,"unit":"ml","ai":"Metalaxy"},{"raw":"Marshal 20sc","pid":46,"qty":1000.0,"unit":"ml","ai":"Carbosulfan"},{"raw":"5 25 25","pid":39,"qty":2000.0,"unit":"gm","ai":""},{"raw":"Plantara","pid":41,"qty":500.0,"unit":"ml","ai":"Brassinolide"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"flora","pid":16,"qty":1000.0,"unit":"ml","ai":"boron"},{"raw":"sorbix","pid":24,"qty":500.0,"unit":"gm","ai":"Sorbital"},{"raw":"A zinc mix","pid":14,"qty":1000.0,"unit":"ml","ai":"zinc"}]},{"id":"July|Set 1","month":"July","set":"Set 1","kind":"FOLIAR","mode":"SPRAY","header":"Leaf and branches","basis":"PER_1000L","litresPerTree":null,"plan":"2026-07-06","lines":[{"raw":"Anmi 4.8SC","pid":58,"qty":1000.0,"unit":"ml","ai":"Hexaconazole"},{"raw":"Madell","pid":4,"qty":1000.0,"unit":"ml","ai":"Carbosulfan"},{"raw":"5 25 25","pid":39,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Raizo max","pid":42,"qty":500.0,"unit":"ml","ai":"Triacontanol"},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"Heromix T 1","pid":20,"qty":1000.0,"unit":"ml","ai":"TE"}]},{"id":"July|Set 3","month":"July","set":"Set 3","kind":"FOLIAR","mode":"SPRAY","header":"Spray leaf","basis":"PER_1000L","litresPerTree":null,"plan":"2026-07-13","lines":[{"raw":"MKP","pid":29,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Stunza","pid":18,"qty":1000.0,"unit":"ml","ai":"MEP"},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"floara","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"}]},{"id":"July|Set 4","month":"July","set":"Set 4","kind":"FOLIAR","mode":"SPRAY","header":"spray fruit and leaf","basis":"PER_1000L","litresPerTree":null,"plan":"2026-07-20","lines":[{"raw":"Fetto 480","pid":44,"qty":1000.0,"unit":"ml","ai":"Metalaxy"},{"raw":"Pictor","pid":45,"qty":1000.0,"unit":"ml","ai":"emmamectin benzoate"},{"raw":"3 16 36","pid":67,"qty":2000.0,"unit":"gm","ai":""},{"raw":"Raizo max","pid":42,"qty":1000.0,"unit":"ml","ai":"Triacontanol"},{"raw":"carboxamin","pid":23,"qty":1000.0,"unit":"ml","ai":"amino"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"flora","pid":16,"qty":1000.0,"unit":"ml","ai":"boron"}]},{"id":"July|Fert Set 1","month":"July","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-07-02","lines":[{"raw":"5 25 25","pid":39,"qty":500.0,"unit":"gm","ai":""},{"raw":"polysulphate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"July|Fert Set 2","month":"July","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-07-17","lines":[{"raw":"3 16 36","pid":67,"qty":500.0,"unit":"gm","ai":""}]},{"id":"Aug|Set 1","month":"Aug","set":"Set 1","kind":"FOLIAR","mode":"SPRAY","header":"Spray fruit and leaf","basis":"PER_1000L","litresPerTree":null,"plan":"2026-08-06","lines":[{"raw":"Fetto 480","pid":44,"qty":1000.0,"unit":"ml","ai":"Metalaxyl"},{"raw":"Pictor","pid":45,"qty":1000.0,"unit":"ml","ai":"emmamectin benzoate"},{"raw":"3 16 36","pid":67,"qty":2000.0,"unit":"gm","ai":""},{"raw":"Raizo max","pid":42,"qty":500.0,"unit":"ml","ai":"Triacontanol"},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"Heromix T 1","pid":20,"qty":1000.0,"unit":"ml","ai":"TE"}]},{"id":"Aug|Set 2","month":"Aug","set":"Set 2","kind":"FOLIAR","mode":"DRENCH","header":"Soil Drenching (10 liter per tree)","basis":"PER_1000L","litresPerTree":10.0,"plan":"2026-08-13","lines":[{"raw":"3 16 36","pid":67,"qty":5000.0,"unit":"gm","ai":""},{"raw":"Betakal Amino","pid":47,"qty":5000.0,"unit":"ml","ai":"Amino"},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"}]},{"id":"Aug|Set 3","month":"Aug","set":"Set 3","kind":"FOLIAR","mode":"LEAF","header":"Spray leaf only - NO fruit","basis":"PER_1000L","litresPerTree":null,"plan":"2026-08-20","lines":[{"raw":"MKP","pid":29,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"},{"raw":"carboxamin","pid":23,"qty":1000.0,"unit":"ml","ai":"amino"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"floara","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"}]},{"id":"Aug|Set 4","month":"Aug","set":"Set 4","kind":"FOLIAR","mode":"LEAF","header":"Spray leaf only - NO fruit","basis":"PER_1000L","litresPerTree":null,"plan":"2026-08-27","lines":[{"raw":"MKP","pid":29,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Raizo max","pid":42,"qty":500.0,"unit":"ml","ai":"Triacontanol"},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"calcium"},{"raw":"flora","pid":16,"qty":1000.0,"unit":"ml","ai":"boron"}]},{"id":"Aug|Set 5","month":"Aug","set":"Set 5","kind":"FOLIAR","mode":"DRENCH","header":"Soil Drenching (10 liter per tree)","basis":"PER_1000L","litresPerTree":10.0,"plan":"2026-08-31","lines":[{"raw":"3 16 36","pid":67,"qty":5000.0,"unit":"gm","ai":""},{"raw":"Betakal Amino","pid":47,"qty":5000.0,"unit":"ml","ai":"Amino"},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"}]},{"id":"Aug|Fert Set 1","month":"Aug","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-08-03","lines":[{"raw":"3 16 36","pid":67,"qty":500.0,"unit":"gm","ai":""},{"raw":"polysulphate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"Aug|Fert Set 2","month":"Aug","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-08-18","lines":[{"raw":"3 16 36","pid":67,"qty":500.0,"unit":"gm","ai":""}]},{"id":"Sep|Set 1","month":"Sep","set":"Set 1","kind":"FOLIAR","mode":"DRENCH","header":"Soil Drenching (10 liter per tree)","basis":"PER_1000L","litresPerTree":10.0,"plan":"2026-09-03","lines":[{"raw":"3 16 36","pid":67,"qty":5000.0,"unit":"gm","ai":""},{"raw":"Betakal Amino","pid":47,"qty":5000.0,"unit":"ml","ai":"Amino"},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"Flora","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"}]},{"id":"Sep|Set 2","month":"Sep","set":"Set 2","kind":"FOLIAR","mode":"LEAF","header":"Spray leaf only - NO fruit","basis":"PER_1000L","litresPerTree":null,"plan":"2026-09-10","lines":[{"raw":"MKP","pid":29,"qty":2500.0,"unit":"gm","ai":""},{"raw":"Sorbix","pid":24,"qty":500.0,"unit":"ml","ai":"Sorbital"},{"raw":"xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"floara","pid":16,"qty":1000.0,"unit":"ml","ai":"Boron"},{"raw":"Heromix T 1","pid":20,"qty":1000.0,"unit":"ml","ai":"TE"}]},{"id":"Sep|Set 3","month":"Sep","set":"Set 3","kind":"FOLIAR","mode":"DRENCH","header":"Soil Drenching (10 liter per tree) - post-peak recovery","basis":"PER_1000L","litresPerTree":10.0,"plan":"2026-09-28","lines":[{"raw":"Calcinit","pid":43,"qty":5000.0,"unit":"gm","ai":"Calcium nitrate"},{"raw":"Betakal Amino","pid":47,"qty":5000.0,"unit":"ml","ai":"Amino"},{"raw":"Xilca","pid":15,"qty":1000.0,"unit":"ml","ai":"Calcium"},{"raw":"Raizo max","pid":42,"qty":500.0,"unit":"ml","ai":"Triacontanol"}]},{"id":"Sep|Fert Set 1","month":"Sep","set":"Fert Set 1","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-09-01","lines":[{"raw":"3 16 36","pid":67,"qty":500.0,"unit":"gm","ai":""},{"raw":"polysulphate","pid":37,"qty":500.0,"unit":"gm","ai":""}]},{"id":"Sep|Fert Set 2","month":"Sep","set":"Fert Set 2","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-09-15","lines":[{"raw":"3 16 36","pid":67,"qty":500.0,"unit":"gm","ai":""}]},{"id":"Sep|Fert Set 3","month":"Sep","set":"Fert Set 3","kind":"FERT","mode":"SOIL","header":"Fertilizer input — broadcast per tree","basis":"PER_TREE","litresPerTree":null,"plan":"2026-09-29","lines":[{"raw":"Calcinit","pid":43,"qty":500.0,"unit":"gm","ai":""}]}];
 const CENSUS_TOTAL={"A": 213, "B": 2052, "C": 437};
 const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.4.0';
+const APP_VERSION = 'v2.5.0';
 // Seed registry. The Owner edits this live in the app (Owner tab → Master Governance
 // & User Registry); pushing mirrors it into the WORKERS tab of the Google Sheet, which
 // is what every other phone reads at the hotspot.
@@ -645,11 +744,14 @@ const SPRAY_SETS = ['Aug - Set 1 (fruit+leaf)','Aug - Set 2 (soil drench)','Aug 
 let db=null, mem={events:[],config:null,corrections:[]};
 function idb(){return new Promise((res)=>{ if(!window.indexedDB) return res(null);
   // v2 adds the offline `correction_requests` queue. Existing events/kv data is preserved.
-  const rq=indexedDB.open('sugut-dms',2);
+  // v3 adds the `programs` store (activated agronomist phases). Existing
+  // events / kv / corrections data is preserved by the upgrade.
+  const rq=indexedDB.open('sugut-dms',3);
   rq.onupgradeneeded=e=>{const d=e.target.result;
     if(!d.objectStoreNames.contains('events'))d.createObjectStore('events',{keyPath:'uuid'});
     if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});
-    if(!d.objectStoreNames.contains('corrections'))d.createObjectStore('corrections',{keyPath:'uuid'});};
+    if(!d.objectStoreNames.contains('corrections'))d.createObjectStore('corrections',{keyPath:'uuid'});
+    if(!d.objectStoreNames.contains('programs'))d.createObjectStore('programs',{keyPath:'uuid'});};
   rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null);});}
 function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
 function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
@@ -663,12 +765,14 @@ async function initStore(){
   db=await idb();
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
     CORRECTIONS=(await all('corrections'))||[];
+    PROGRAMS=(await all('programs'))||[];
     const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
     const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
     const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
     const rd=kv.find(x=>x.k==='regdirty'); REG_DIRTY=!!(rd&&rd.v);
     const tf=kv.find(x=>x.k==='treefix'); if(tf&&tf.v&&typeof tf.v==='object') TREE_FIX=tf.v;
     const io=kv.find(x=>x.k==='invover'); if(io&&io.v&&typeof io.v==='object') INV_OVERRIDE=io.v;
+    const lp=kv.find(x=>x.k==='lastlpt'); if(lp&&lp.v&&typeof lp.v==='object') LAST_LPT=lp.v;
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
@@ -696,8 +800,10 @@ function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFul
 function todayStr(){return now().slice(0,10);}
 function pending(){return EVENTS.filter(e=>!e.synced).length;}
 function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
-function badge(){$('qbadge').textContent=pending()+corrUnsynced();}
-function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&(pending()>0||corrUnsynced()>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
+function badge(){$('qbadge').textContent=pending()+corrUnsynced()+(typeof progUnsynced==='function'?progUnsynced():0);}
+function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
+  const q=pending()+corrUnsynced()+(typeof progUnsynced==='function'?progUnsynced():0);
+  if(on&&(q>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
 
 // ================= TREE MASTER engine (v2.2) =================
@@ -825,125 +931,146 @@ async function decideCorrection(id,ok){
   if(curTree&&curTree.id===c.tree) selectTree(c.tree);   // refresh the open tree card
   toast(ok?('✓ Approved — '+c.tree+' updated'):'Request rejected');}
 
-// ================= v2.4 HOME HUB navigation =================
-// The bottom bar is now just Home + Sync. Every module is a tile on the home
-// screen and opens full-screen; ← or 🏠 comes back. Adding module 7, 8, 9 later
-// means adding a row to HUB_MODULES — the navigation never has to change again.
-// Permissions are unchanged from v2.3: the same role rules decide which tiles a
-// person is given AND, independently, which panels may be shown once inside.
+// ================= v2.5 SIX-MODULE HUB + CLEAN SUB-TAB BARS =================
+// Six major sections, each a big tile. A module with more than one section shows a
+// sub-tab bar pinned under the header. Two independent gates decide what a person
+// sees: HUB_ORDER (which tiles they are given) and roleAllows() (which panels may
+// render at all) — so calling straight into a module exposes nothing extra.
 const SCREENS=['home','harvest','stock','sync','dash'];
-const HUB_MODULES={
-  farm:    {ic:'📊', name:'Farm today',   sub:'drops, kg, lot progress', scr:'dash',
-            panels:['kpis','phibox','lotcard','mktcard','dashnote']},
-  harvest: {ic:'🥭', name:'Harvest',      sub:'log fruit drop, census',  scr:'harvest', panels:null},
-  stockin: {ic:'📥', name:'Stock in',     sub:'receive + invoice',       scr:'stock',
-            panels:['alertcenter','pnl-in','onhandcard']},
-  stockout:{ic:'📤', name:'Stock out',    sub:'issue to a lot',          scr:'stock',
-            panels:['pnl-out','onhandcard']},
-  stocklvl:{ic:'📦', name:'Stock level',  sub:'live stock, minimums, AI',scr:'dash', panels:['invcc']},
-  ledger:  {ic:'📒', name:'Stock ledger', sub:'monthly + yearly',        scr:'dash', panels:['ledgercard']},
-  audit:   {ic:'🧾', name:'Stock-take',   sub:'physical count audit',    scr:'dash', panels:['stocktake']},
-  admin:   {ic:'🔑', name:'Admin',        sub:'staff keys, corrections', scr:'dash',
-            panels:['corrpanel','keyspanel']},
-  // roadmap tiles — shown to the Owner / Marketing only, so they can see where the
-  // remaining modules will land. Delete these four lines to hide them entirely.
-  work:    {ic:'📋', name:'Daily work',   sub:'attendance, tasks done',  soon:'Module 3'},
-  agro:    {ic:'🌱', name:'Agronomy',     sub:'spray + fert by phase',   soon:'Module 3'},
-  market:  {ic:'🚚', name:'Marketing',    sub:'orders, delivery',        soon:'Module 5'},
-  cost:    {ic:'💰', name:'Costing',      sub:'labour + material by lot',soon:'Module 6'}
+const FULL_ROLES=['OWNER','MARKETING'];
+const MODULES={
+  harvest:{ic:'🥭',name:'Harvest',sub:'log fruit drop, census',
+    tabs:[{k:'log', t:'LOG DROP',  scr:'harvest',panels:[]},
+          {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
+  ops:{ic:'📋',name:'Daily Ops',sub:"today's tasks + replies",
+    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opshistory']},
+          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']}]},
+  agro:{ic:'🌱',name:'Agronomist',sub:'phase programme + projection',
+    tabs:[{k:'phases',t:'PHASES',    scr:'dash',panels:['agrophases'],roles:FULL_ROLES},
+          {k:'proj',  t:'PROJECTION',scr:'dash',panels:['agroproj'], roles:FULL_ROLES}]},
+  inv:{ic:'📦',name:'Inventory',sub:'stock in, alerts, levels',
+    tabs:[{k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER']},
+          {k:'chk', t:'PROGRAM CHECK',scr:'dash', panels:['progcheck'],                        roles:['OWNER','MARKETING','PURCHASER']},
+          {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES},
+          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES},
+          {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES}]},
+  ledger:{ic:'📒',name:'Ledger',sub:'monthly + yearly value',
+    tabs:[{k:'sum',t:'SUMMARY',scr:'dash',panels:['ledgercard'],roles:FULL_ROLES}]},
+  admin:{ic:'🔑',name:'Admin',sub:'staff keys, corrections',
+    tabs:[{k:'corr',t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES},
+          {k:'reg', t:'STAFF',      scr:'dash',panels:['keyspanel'], roles:FULL_ROLES}]}
 };
 const HUB_ORDER={
-  OWNER:    ['farm','harvest','stockin','stockout','stocklvl','ledger','audit','admin','work','agro','market','cost'],
-  MARKETING:['farm','harvest','stockin','stockout','stocklvl','ledger','audit','admin','work','agro','market','cost'],
-  WORKER:   ['harvest','stockout'],
-  PURCHASER:['stockin']
+  OWNER:    ['harvest','ops','agro','inv','ledger','admin'],
+  MARKETING:['harvest','ops','agro','inv','ledger','admin'],
+  WORKER:   ['harvest','ops'],          // Harvest + Daily Ops only, per governance rule
+  PURCHASER:['inv']                     // Inventory only, per governance rule
 };
-// every panel the hub is allowed to move around
-const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard',
-                  'stocktake','corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard'];
-let curModule=null;
+const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
+  'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
+  'opstasks','opshistory','agrophases','agroproj','progcheck'];
+let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
 function allowedTabs(){return ROLE_TABS[myRole()]||ROLE_TABS.WORKER;}
 function hubTiles(){return HUB_ORDER[myRole()]||HUB_ORDER.WORKER;}
-// second, independent gate: even if a screen were reached some other way, a panel
-// only renders for a role entitled to it.
+function tabsFor(k){
+  const m=MODULES[k];if(!m)return [];
+  const r=myRole();
+  return m.tabs.filter(t=>!t.roles||t.roles.indexOf(r)>=0);}
+// second, independent gate — a panel never renders for a role not entitled to it
 function roleAllows(id){
-  const r=myRole(), full=(r==='OWNER'||r==='MARKETING');
+  const r=myRole(), full=FULL_ROLES.indexOf(r)>=0;
   switch(id){
     case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
-    case 'pnl-out': return full||r==='WORKER';
-    case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel': return full;
+    case 'progcheck':                  return full||r==='PURCHASER';
+    case 'pnl-out': case 'opstasks': case 'opshistory': return full||r==='WORKER';
+    case 'onhandcard':                 return true;
+    case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
+    case 'agrophases': case 'agroproj': case 'kpis': case 'phibox': case 'lotcard':
+    case 'mktcard': case 'dashnote':   return full;
     default: return true;
   }
 }
 function tileBadge(k){
-  const full=SHOW_VALUES;
-  if(k==='stockin'||k==='stocklvl'){const n=lowStock().length;return n?{t:n+' LOW'}:null;}
+  if(k==='inv'){const n=programShortages().length||lowStock().length;
+    return n?{t:(programShortages().length?programShortages().length+' SHORT':n+' LOW')}:null;}
+  if(k==='ops'){const n=myTasks().length;return n?{t:n+' TASK'+(n>1?'S':'')}:null;}
+  if(k==='agro'){const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
   if(k==='admin'){const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
     return n?{t:n+' PENDING',amber:1}:null;}
-  return null;
-}
+  return null;}
 function renderHub(){
   if(!$('hubtiles'))return;
   $('hub-name').textContent=(CFG&&CFG.worker)||'—';
   $('hub-role').textContent=ROLE_LABEL[myRole()]||myRole();
   $('hub-dev').innerHTML=((CFG&&CFG.device)||'—')+'<br>'+APP_VERSION;
   $('hubtiles').innerHTML=hubTiles().map(k=>{
-    const m=HUB_MODULES[k];if(!m)return '';
-    if(m.soon) return '<div class="tile soon" onclick="openModule(\''+k+'\')"><span class="ti">'+m.ic+'</span>'+
-      '<div class="tn">'+esc(m.name)+'</div><div class="ts">'+esc(m.sub)+'</div>'+
-      '<div class="ts" style="margin-top:4px">— '+esc(m.soon)+', not built —</div></div>';
+    const m=MODULES[k];if(!m)return '';
     const b=tileBadge(k);
     return '<div class="tile" onclick="openModule(\''+k+'\')"><span class="ti">'+m.ic+'</span>'+
       '<div class="tn">'+esc(m.name)+'</div><div class="ts">'+esc(m.sub)+'</div>'+
-      (b?'<div class="tbadge'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>':'')+'</div>';}).join('');
-}
+      (b?'<div class="tbadge'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>':'')+'</div>';}).join('');}
 function showScreen(x){
   SCREENS.forEach(k=>$('scr-'+k).classList.toggle('hidden',k!==x));
   $('scr-setup').classList.add('hidden');$('scr-login').classList.add('hidden');
   $('nav-home').classList.toggle('on',x==='home');
-  $('nav-sync').classList.toggle('on',x==='sync');
-}
+  $('nav-sync').classList.toggle('on',x==='sync');}
+function hideAllPanels(){
+  HUB_PANELS.forEach(id=>{const el=$(id);if(!el)return;
+    if(id==='phibox'){el.dataset.dashhide='1';el.style.display='none';return;}
+    el.style.display='none';});}
 function goHome(){
-  curModule=null;
-  HUB_PANELS.forEach(id=>{const el=$(id);if(el&&id!=='phibox')el.style.display='none';});
-  const pb=$('phibox'); if(pb){pb.dataset.dashhide='1';pb.style.display='none';}
+  curModule=null;curTab=null;
+  hideAllPanels();
+  $('subbar').classList.add('hidden');$('subbar').innerHTML='';
   showScreen('home');
   $('backbtn').classList.add('hidden');
   $('ttl').textContent='Sugut DMS';
-  renderHub();
-}
-function hubBack(){ if($('scr-home').classList.contains('hidden')) goHome(); }   // tapping the title returns home
-function openModule(k){
-  const m=HUB_MODULES[k];
+  renderHub();}
+function hubBack(){ if($('scr-home').classList.contains('hidden')) goHome(); }
+function openModule(k,tabKey){
+  const m=MODULES[k];
   if(!m||hubTiles().indexOf(k)<0){goHome();return;}
-  if(m.soon){toast(m.name+' — '+m.soon+' is not built yet');return;}
-  curModule=k;
-  HUB_PANELS.forEach(id=>{const el=$(id);if(!el)return;
-    const on=!!(m.panels&&m.panels.indexOf(id)>=0&&roleAllows(id));
-    if(id==='phibox'){el.dataset.dashhide=on?'':'1'; if(!on)el.style.display='none'; return;}
-    el.style.display=on?'':'none';});
-  showScreen(m.scr);
+  const tabs=tabsFor(k);
+  if(!tabs.length){goHome();return;}
+  const tab=tabs.find(t=>t.k===tabKey)||tabs[0];
+  curModule=k;curTab=tab.k;
+  hideAllPanels();
+  (tab.panels||[]).forEach(id=>{const el=$(id);if(!el||!roleAllows(id))return;
+    if(id==='phibox'){el.dataset.dashhide='';return;}
+    el.style.display='';});
+  showScreen(tab.scr);
   $('backbtn').classList.remove('hidden');
   $('ttl').textContent=m.name;
-  if(m.scr==='harvest'){buildLotSelect();renderMyCorrections();}
-  if(k==='stockin'){renderInOpts();renderAlerts();renderStock();}
-  if(k==='stockout'){renderOutOpts();renderStock();}
-  if(k==='stocklvl')renderInvCC();
+  // sub-tab bar, pinned under the header — hidden when a module has only one section
+  const sb=$('subbar');
+  if(tabs.length>1){sb.classList.remove('hidden');
+    sb.innerHTML=tabs.map(t=>'<div class="'+(t.k===tab.k?'on':'')+'" onclick="openModule(\''+k+'\',\''+t.k+'\')">'+esc(t.t)+'</div>').join('');}
+  else {sb.classList.add('hidden');sb.innerHTML='';}
+  renderForTab(k,tab.k);
+  $('scr-'+tab.scr).scrollTop=0;}
+function renderForTab(k,t){
+  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();}
+  if(k==='harvest'&&t==='today')renderDash();
+  if(k==='ops'&&t==='tasks'){renderOpsTasks();renderOpsHistory();}
+  if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
+  if(k==='agro'&&t==='phases')renderAgroPhases();
+  if(k==='agro'&&t==='proj')renderProjection();
+  if(k==='inv'&&t==='in'){renderInOpts();renderAlerts();renderStock();}
+  if(k==='inv'&&t==='chk')renderProgCheck();
+  if(k==='inv'&&t==='out'){renderOutOpts();renderStock();}
+  if(k==='inv'&&t==='lvl')renderInvCC();
+  if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
   if(k==='ledger')renderLedgerSummary();
-  if(k==='audit'){renderStOpts();renderStRecent();}
-  if(k==='admin'){renderKeys();renderCorrections();}
-  if(k==='farm')renderDash();
-  $('scr-'+m.scr).scrollTop=0;
-}
+  if(k==='admin'&&t==='corr')renderCorrections();
+  if(k==='admin'&&t==='reg')renderKeys();}
 function applyRole(){
   const r=myRole();
-  const full=(r==='OWNER'||r==='MARKETING');
+  const full=FULL_ROLES.indexOf(r)>=0;
   SHOW_VALUES=full;                                   // gates every RM figure in the app
-  // ---- regulatory guardrail: the Sandakan Purchaser never sees harvest or
-  //      correction features, even if a screen is reached some other way ----
-  const harvestOK=allowedTabs().includes('harvest')&&r!=='PURCHASER';
+  // regulatory guardrail: the Sandakan Purchaser never sees harvest or correction tools
+  const harvestOK=hubTiles().indexOf('harvest')>=0;
   if($('scr-harvest')) $('scr-harvest').style.display=harvestOK?'':'none';
   if($('corrbtn'))   $('corrbtn').style.display=(harvestOK&&canCorrect())?'':'none';
   if($('mycorr'))    $('mycorr').style.display=(harvestOK&&canCorrect())?'':'none';
@@ -952,14 +1079,12 @@ function applyRole(){
   if(curModule&&hubTiles().indexOf(curModule)<0) goHome();   // role changed under us
 }
 function homeTab(){return 'home';}
-// Legacy entry point. Older code paths (and the deploy guide) still say go('harvest')
-// or go('dash'); they now resolve to the matching hub module.
-const LEGACY_GO={harvest:'harvest',dash:'farm'};
+// Legacy entry points kept so older call sites and the deploy guide still work.
+const LEGACY_GO={harvest:'harvest',dash:'harvest',stock:'inv',ops:'ops'};
 function go(s){
   if(s==='home'){goHome();return;}
-  if(s==='sync'){showScreen('sync');$('backbtn').classList.remove('hidden');
-    $('ttl').textContent='Sync';renderSync();return;}
-  if(s==='stock'){const k=hubTiles().indexOf('stockin')>=0?'stockin':'stockout';openModule(k);return;}
+  if(s==='sync'){hideAllPanels();$('subbar').classList.add('hidden');showScreen('sync');
+    $('backbtn').classList.remove('hidden');$('ttl').textContent='Sync';renderSync();return;}
   const k=LEGACY_GO[s];
   if(k&&hubTiles().indexOf(k)>=0){openModule(k);return;}
   goHome();}
@@ -1004,6 +1129,8 @@ function showLock(sim){$('wipeoverlay').classList.add('hidden');
   $('lockscreen').classList.remove('hidden');$('simnote').classList.toggle('hidden',!sim);}
 let simTaps=0;
 async function realWipe(){
+  if(db){try{const tx=db.transaction('programs','readwrite');tx.objectStore('programs').clear();}catch(e){}}
+  PROGRAMS=[];
   // 1. wipe events + config + keys from IndexedDB
   await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv'],'readwrite');
     tx.objectStore('events').clear();tx.objectStore('kv').clear();tx.oncomplete=res;tx.onerror=res;});
@@ -1058,8 +1185,9 @@ async function refreshMasters(){
     const r=await fetch(CFG.url);const j=await r.json();
     // corrections are merged only AFTER the kill switch has cleared this device
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
+    const inProg=(j&&j.ok&&Array.isArray(j.programs))?j.programs:null;
     if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length)){
-      if(inCorr)await mergeCorrections(inCorr); return;}
+      if(inCorr)await mergeCorrections(inCorr); if(inProg)await mergePrograms(inProg); return;}
     const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
       id:String(w.WorkerID||w.Name||'').trim()||newUid(),
       name:w.Name||w.WorkerID,
@@ -1086,6 +1214,7 @@ async function refreshMasters(){
       CFG.uid=me.id;CFG.worker=me.name;CFG.role=me.role;await persistCfg();
     }
     if(inCorr)await mergeCorrections(inCorr);   // device is cleared — safe to ingest
+    if(inProg)await mergePrograms(inProg);      // agronomist phases from the Owner's phone
 
     // ---- local unpushed edits always win until they are pushed ----
     if(REG_DIRTY){renderKeys();return;}
@@ -1638,6 +1767,7 @@ function renderStRecent(){
 function refreshInventoryViews(){
   rebuildLedgers();
   if(typeof renderHub==='function')renderHub();   // tile badges follow live stock
+  if(typeof renderProgCheck==='function')renderProgCheck();
   if($('stocklist')&&$('scr-stock'))renderStock();
   renderAlerts();
   if(SHOW_VALUES){renderInvCC();renderLedgerSummary();renderStRecent();}
@@ -1653,7 +1783,7 @@ function renderSync(){
   L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
     let d;
     if(e.type==='DROP') d='🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
-    else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'');
+    else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'')+(e.progSet?(' · '+e.progSet):'');
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+e.unit+' '+e.pname+(e.ref?(' · '+e.ref):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
     else d=e.type;
@@ -1719,8 +1849,9 @@ async function doSync(auto){
   if(REG_DIRTY)await pushRegistry();          // registry changes go up first
   await pushCorrections();                    // then correction requests / decisions
   await pushAdjustments();                    // then stock-take adjustments (own payload key)
+  await pushPrograms();                       // then activated programmes (own payload key)
   const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST');
-  if(!batch.length){await refreshMasters();return;}
+  if(!batch.length){await refreshMasters();renderSync();return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
@@ -1760,12 +1891,333 @@ function renderDash(){
     '<div class="lrow"><span><b>'+c+'</b></span><span><b>'+v.n+'</b> fruit · ~'+v.kg.toFixed(0)+' kg</span></div>').join('')
   :'<div class="lrow"><span>—</span><span class="small">no drops today</span></div>';}
 
+// ================= v2.5 AGRONOMIST PROGRAMME · DAILY OPS · PROGRAM STOCK CHECK =================
+// PHASE_PROGRAM is parsed straight from Sgsgtdurianprogramme_26.xlsx. Two dose bases,
+// exactly as the sheet states them:
+//   FOLIAR sets  -> dose is PER 1000 LITRE TANK MIX  ("Set 1 | 1000L")
+//   FERT sets    -> dose is PER TREE                  ("Fertilizer Input ... 500gm")
+// Soil-drench headers carry their own rate ("Soil Drenching (10 liter per tree)"), so
+// their tank count is known. For spray/leaf sets the sheet does not state litres per
+// tree — the Owner supplies it when activating, and the app never guesses.
+let PROGRAMS=[];                       // activated programme records (IndexedDB 'programs')
+const PROG_MONTH_ORDER=['2026 Jan (2)','Boosting','March','April','May','May 2','June','June 2','July','Aug','Sep'];
+const MONTH_LABEL={'2026 Jan (2)':'Jan','Boosting':'Boosting','May 2':'May (2)','June 2':'June (2)','Aug':'August','Sep':'September'};
+const MODE_LABEL={SPRAY:'Spray fruit + leaf',LEAF:'Spray leaf only — NO fruit',DRENCH:'Soil drench',SOIL:'Fertiliser broadcast'};
+
+function monthLabel(m){return MONTH_LABEL[m]||m;}
+function phaseById(id){return PHASE_PROGRAM.find(p=>p.id===id)||null;}
+function treesInScope(sc){return sc==='ALL'?TREE_MASTER.length:treesInLot(sc).length;}
+function progOf(uuid){return PROGRAMS.find(p=>p.uuid===uuid)||null;}
+function activePrograms(){return PROGRAMS.filter(p=>p.status==='ACTIVE');}
+
+// ---- projection: how much of each product a phase will consume ----
+// FOLIAR: tanks = litresPerTree x trees / 1000 ; required = dose x tanks
+// FERT  : required = dose x trees
+function projectPhase(phase,scope,litresPerTree){
+  const trees=treesInScope(scope);
+  const perTree=(phase.basis==='PER_1000L')?(+litresPerTree||0):0;
+  const tanks=(phase.basis==='PER_1000L')?(perTree*trees/1000):0;
+  const mult=(phase.basis==='PER_1000L')?tanks:trees;
+  const lines=phase.lines.map(l=>{
+    const p=prodById(l.pid);
+    return {pid:l.pid,raw:l.raw,pname:p?p.name:l.raw,ai:p?p.active_ingredient:(l.ai||''),
+      unit:p?p.unit:l.unit,dose:l.qty,doseUnit:l.unit,
+      required:+(l.qty*mult).toFixed(2),
+      cpu:p?(p.cpu||0):0,cost:+(l.qty*mult*(p?(p.cpu||0):0)).toFixed(2)};});
+  return {trees:trees,litresPerTree:perTree,litres:+(perTree*trees).toFixed(1),
+    tanks:+tanks.toFixed(3),mult:mult,lines:lines,
+    cost:+lines.reduce((s,x)=>s+x.cost,0).toFixed(2)};
+}
+
+// ================= Owner: phase browser =================
+let agroMonth='Aug';
+function setAgroMonth(m){agroMonth=m;renderAgroPhases();}
+function renderAgroPhases(){
+  if(!$('agrolist'))return;
+  const months=PROG_MONTH_ORDER.filter(m=>PHASE_PROGRAM.some(p=>p.month===m));
+  $('agromonths').innerHTML=months.map(m=>'<div class="'+(m===agroMonth?'on':'')+'" onclick="setAgroMonth(\''+esc(m)+'\')">'+esc(monthLabel(m))+'</div>').join('');
+  const list=PHASE_PROGRAM.filter(p=>p.month===agroMonth);
+  $('agrolist').innerHTML=list.length?list.map(p=>{
+    const live=PROGRAMS.find(x=>x.phaseId===p.id&&x.status==='ACTIVE');
+    const phi=p.lines.some(l=>PHI_PRODUCTS[(prodById(l.pid)||{}).name]);
+    return '<div class="crow"><div class="ch">'+
+      '<div><div class="ctree">'+esc(p.set)+(live?' <span class="cstat a">ACTIVE</span>':'')+'</div>'+
+      '<div class="cwho">'+esc(MODE_LABEL[p.mode]||p.mode)+(p.plan?(' · planned '+esc(p.plan)):'')+
+      (p.litresPerTree?(' · '+p.litresPerTree+' L/tree'):'')+'</div></div>'+
+      '<span class="cstat '+(p.kind==='FERT'?'a':'p')+'">'+(p.kind==='FERT'?'PER TREE':'PER 1000 L')+'</span></div>'+
+      (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ contains a fruit-contact product with a 14-day residue cut-off</div>':'')+
+      '<div class="cchange">'+p.lines.map(l=>esc((prodById(l.pid)||{}).name||l.raw)+' <b>'+nf(l.qty)+' '+esc(l.unit)+'</b>').join(' · ')+'</div>'+
+      '<div class="cacts"><button class="ok" onclick="openProgModal(\''+esc(p.id)+'\')">'+(live?'RE-ACTIVATE':'ACTIVATE PHASE')+'</button>'+
+      (live?'<button class="no" onclick="closeProgram(\''+live.uuid+'\')">CLOSE PHASE</button>':'')+'</div></div>';}).join('')
+    :'<div class="small">No phase recorded for this month.</div>';
+}
+
+// ---- activation modal ----
+let pmPhase=null,pmScopeVal='ALL';
+function openProgModal(id){
+  const p=phaseById(id); if(!p){toast('Phase not found',1);return;}
+  pmPhase=p; pmScopeVal='ALL';
+  $('pm-title').textContent=monthLabel(p.month)+' · '+p.set;
+  $('pm-sub').textContent=p.header||'';
+  $('pm-basis').textContent=p.basis==='PER_1000L'?'per 1000 L tank':'per tree';
+  $('pm-mode').innerHTML=esc(MODE_LABEL[p.mode]||p.mode)+(p.plan?('<br>planned '+esc(p.plan)):'');
+  ['ALL','A','B','C'].forEach(k=>$('ps-'+k).classList.toggle('on',k==='ALL'));
+  const foliar=(p.basis==='PER_1000L');
+  $('pm-lptwrap').style.display=foliar?'':'none';
+  $('pm-lpt').value=foliar?(p.litresPerTree||LAST_LPT[p.mode]||''):'';
+  $('pm-lpthint').textContent=p.litresPerTree
+    ?('The sheet states '+p.litresPerTree+' litres per tree for this drench set — change it only if the field does something different.')
+    :'The sheet gives the dose per 1000 L tank but not the litres each tree takes — enter what the sprayer actually applies.';
+  $('pm-err').textContent='';
+  $('progmodal').classList.remove('hidden');
+  pmCalc();}
+function closeProgModal(){$('progmodal').classList.add('hidden');pmPhase=null;}
+function pmScope(s){pmScopeVal=s;['ALL','A','B','C'].forEach(k=>$('ps-'+k).classList.toggle('on',k===s));pmCalc();}
+function pmCalc(){
+  if(!pmPhase)return;
+  const pr=projectPhase(pmPhase,pmScopeVal,$('pm-lpt').value);
+  $('pm-conv').innerHTML=pmPhase.basis==='PER_1000L'
+    ?('<b>'+pr.trees+' trees</b> × '+nf(pr.litresPerTree)+' L = '+nf(pr.litres)+' L mix = <b>'+nf(pr.tanks)+' tank'+(pr.tanks===1?'':'s')+'</b> of 1000 L')
+    :('<b>'+pr.trees+' trees</b> × the per-tree dose below');
+  $('pm-tbl').innerHTML='<tr><th>Product</th><th class="num">Dose</th><th class="num">Required</th><th class="num">On hand</th></tr>'+
+    pr.lines.map(l=>{const oh=prodById(l.pid)?onHand(prodById(l.pid)):0;const short=oh<l.required;
+      return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
+        '<td class="num">'+nf(l.dose)+' '+esc(l.doseUnit)+'</td>'+
+        '<td class="num"><b>'+nf(l.required)+'</b><br><span class="exphint">'+esc(l.unit)+'</span></td>'+
+        '<td class="num '+(short?'lowq':'')+'">'+nf(oh)+(short?'<br><span class="exphint">short '+nf(l.required-oh)+'</span>':'')+'</td></tr>';}).join('')+
+    (SHOW_VALUES?('<tr><td colspan="3"><b>Projected material cost</b></td><td class="num"><b>'+rm(pr.cost)+'</b></td></tr>'):'');}
+let LAST_LPT={};
+async function activatePhase(){
+  const err=$('pm-err');err.textContent='';
+  if(!pmPhase)return;
+  const foliar=(pmPhase.basis==='PER_1000L');
+  const lpt=+$('pm-lpt').value||0;
+  if(foliar&&!(lpt>0)){err.textContent='Enter the litres of spray mix each tree takes.';return;}
+  const pr=projectPhase(pmPhase,pmScopeVal,lpt);
+  if(foliar){LAST_LPT[pmPhase.mode]=lpt;if(db)await put('kv',{k:'lastlpt',v:LAST_LPT});}
+  const rec={uuid:uuid(),phaseId:pmPhase.id,month:pmPhase.month,set:pmPhase.set,kind:pmPhase.kind,
+    mode:pmPhase.mode,header:pmPhase.header||'',basis:pmPhase.basis,plan:pmPhase.plan||'',
+    scope:pmScopeVal,trees:pr.trees,litresPerTree:pr.litresPerTree,tanks:pr.tanks,
+    lines:pr.lines.map(l=>({pid:l.pid,pname:l.pname,ai:l.ai,unit:l.unit,dose:l.dose,required:l.required})),
+    projCost:pr.cost,by:CFG.worker,byId:CFG.uid||'',at:now(),status:'ACTIVE',synced:false};
+  // one live record per phase — re-activating supersedes the previous one
+  for(const old of PROGRAMS.filter(x=>x.phaseId===rec.phaseId&&x.status==='ACTIVE')){
+    old.status='CLOSED';old.synced=false;if(db)await put('programs',old);}
+  PROGRAMS.push(rec); if(db)await put('programs',rec);
+  const label=pmPhase.set;                 // read before closeProgModal() clears pmPhase
+  closeProgModal();badge();
+  toast('✓ '+label+' activated for '+pr.trees+' trees');
+  renderAgroPhases();renderProjection();renderProgCheck();renderOpsTasks();renderHub();}
+async function closeProgram(u){
+  const r=progOf(u); if(!r)return;
+  if(!confirm('Close '+r.set+'?\nWorkers will stop seeing it in Today\'s Tasks.'))return;
+  r.status='CLOSED';r.synced=false; if(db)await put('programs',r);
+  badge();toast('Phase closed');
+  renderAgroPhases();renderProjection();renderProgCheck();renderOpsTasks();renderHub();}
+
+// ---- Owner projection view ----
+function renderProjection(){
+  const box=$('projbox');if(!box)return;
+  const live=activePrograms();
+  if(!live.length){box.innerHTML='<div class="small">No phase is active. Open <b>PHASES</b>, pick a set and tap ACTIVATE PHASE — the projected volume for every product appears here.</div>';return;}
+  box.innerHTML=live.map(r=>{
+    const done=lotsDone(r.uuid);
+    return '<div class="mrow"><div class="mh"><div><div class="ml">'+esc(monthLabel(r.month))+' · '+esc(r.set)+'</div>'+
+      '<div class="exphint">'+esc(MODE_LABEL[r.mode]||r.mode)+' · '+r.trees+' trees ('+(r.scope==='ALL'?'whole farm':'Lot '+r.scope)+')'+
+      (r.basis==='PER_1000L'?(' · '+nf(r.tanks)+' tanks @ '+nf(r.litresPerTree)+' L/tree'):'')+'</div></div>'+
+      '<div class="mc">'+(SHOW_VALUES?rm(r.projCost):'')+'</div></div>'+
+      '<div class="msub"><table class="tbl">'+
+      '<tr><th>Product</th><th class="num">Required</th><th class="num">On hand</th><th class="num">Used</th></tr>'+
+      r.lines.map(l=>{const p=prodById(l.pid);const oh=p?onHand(p):0;const used=usedForProgram(r.uuid,l.pid);
+        return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
+        '<td class="num"><b>'+nf(l.required)+'</b> '+esc(l.unit)+'</td>'+
+        '<td class="num '+(oh<l.required?'lowq':'')+'">'+nf(oh)+'</td>'+
+        '<td class="num">'+nf(used)+'</td></tr>';}).join('')+'</table>'+
+      '<div class="mline"><span>Lots reported complete</span><b>'+(done.length?done.map(l=>'<span class="lotchip">LOT '+l+'</span>').join(''):'none yet')+'</b></div>'+
+      '</div></div>';}).join('');}
+
+// completion is DERIVED from the stock-out rows the workers file, so a reply needs
+// no sync channel of its own — it rides the already-tested STOCK_OUT pipeline.
+function lotsDone(pu){return LOT_KEYS.filter(L=>EVENTS.some(e=>e.type==='STOCK_OUT'&&e.progId===pu&&e.lot===L));}
+function usedForProgram(pu,pid){return EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId===pu&&e.pid===+pid)
+  .reduce((s,e)=>s+(+e.qty||0),0);}
+
+// ================= Purchaser: upcoming programme stock check =================
+function programNeeds(){                       // product -> outstanding requirement
+  const need={};
+  activePrograms().forEach(r=>r.lines.forEach(l=>{
+    const outstanding=Math.max(0,l.required-usedForProgram(r.uuid,l.pid));
+    if(outstanding<=0)return;
+    const k=l.pid;
+    if(!need[k])need[k]={pid:l.pid,pname:l.pname,ai:l.ai,unit:l.unit,req:0,phases:[]};
+    need[k].req+=outstanding;need[k].phases.push(monthLabel(r.month)+' '+r.set);}));
+  return Object.values(need).map(n=>{
+    const p=prodById(n.pid);const oh=p?onHand(p):0;
+    n.onHand=oh;n.gap=+(n.req-oh).toFixed(2);n.short=n.gap>0;
+    n.buyContainers=p&&p.unit_multiplier?Math.ceil(n.gap/p.unit_multiplier):0;
+    n.container=p?p.container:'';return n;}).sort((a,b)=>b.gap-a.gap);}
+function programShortages(){return programNeeds().filter(n=>n.short);}
+function renderProgCheck(){
+  const box=$('chkbox');if(!box)return;
+  const live=activePrograms();
+  if(!live.length){box.innerHTML='<div class="alertnone">No programme phase is active. Nothing to order ahead for.</div>';return;}
+  const needs=programNeeds(), short=needs.filter(n=>n.short);
+  box.innerHTML=(short.length
+      ?'<div class="alertbig">⚠ INSUFFICIENT STOCK FOR ACTIVE PHASE — '+short.length+' PRODUCT'+(short.length>1?'S':'')+'</div>'
+      :'<div class="alertnone">✓ Every product in the active phase is covered by current stock.</div>')+
+    '<div class="small" style="margin:8px 0 4px">Active: '+live.map(r=>esc(monthLabel(r.month)+' '+r.set)+' ('+r.trees+' trees)').join(' · ')+'</div>'+
+    '<div class="tblwrap"><table class="tbl"><tr><th>Product</th><th class="num">Needs</th><th class="num">In store</th><th class="num">Order</th></tr>'+
+    needs.map(n=>'<tr'+(n.short?' style="background:#fdecea"':'')+'>'+
+      '<td><div class="pn">'+esc(n.pname)+(n.short?' <span class="cstat r">SHORT</span>':'')+'</div>'+
+      '<div class="pa">'+esc(n.ai||'—')+'</div><div class="exphint">'+esc(n.phases.join(', '))+'</div></td>'+
+      '<td class="num">'+nf(n.req)+'<br><span class="exphint">'+esc(n.unit)+'</span></td>'+
+      '<td class="num '+(n.short?'lowq':'')+'">'+nf(n.onHand)+'</td>'+
+      '<td class="num">'+(n.short?('<b>'+n.buyContainers+'</b><br><span class="exphint">'+esc(n.container)+'</span>'):'—')+'</td></tr>').join('')+
+    '</table></div>';}
+
+// ================= Farm Worker: today's tasks + completion reply =================
+function myTasks(){
+  // a task stays on the worker's list until every lot in its scope has been reported
+  return activePrograms().filter(r=>{
+    const need=r.scope==='ALL'?LOT_KEYS:[r.scope];
+    return need.some(L=>!lotsDone(r.uuid).includes(L));});}
+function renderOpsTasks(){
+  const box=$('opslist');if(!box)return;
+  const t=myTasks();
+  box.innerHTML=t.length?t.map(r=>{
+    const done=lotsDone(r.uuid);
+    const need=(r.scope==='ALL'?LOT_KEYS:[r.scope]).filter(L=>!done.includes(L));
+    const phi=r.lines.some(l=>PHI_PRODUCTS[(prodById(l.pid)||{}).name]);
+    return '<div class="crow"><div class="ch">'+
+      '<div><div class="ctree">'+esc(monthLabel(r.month))+' · '+esc(r.set)+'</div>'+
+      '<div class="cwho">'+esc(MODE_LABEL[r.mode]||r.mode)+(r.plan?(' · planned '+esc(r.plan)):'')+
+      '<br>set by '+esc(r.by)+' · '+esc(r.at)+'</div></div>'+
+      '<span class="cstat p">TO DO</span></div>'+
+      (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ fruit-contact product — check the residue cut-off with the Owner first</div>':'')+
+      '<div class="cchange">'+r.lines.map(l=>esc(l.pname)+' <b>'+nf(l.dose)+' '+esc(l.unit)+'</b>'+
+        (r.basis==='PER_1000L'?' / tank':' / tree')).join('<br>')+'</div>'+
+      '<div class="cwho">Still to report: '+need.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')+
+      (done.length?(' · done: '+done.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')):'')+'</div>'+
+      '<div class="cacts"><button class="ok" onclick="openReply(\''+r.uuid+'\')">✓ SUBMIT COMPLETION REPLY</button></div></div>';}).join('')
+    :'<div class="alertnone">No task waiting. The Owner has not activated a phase, or every lot has already been reported.</div>';}
+function renderOpsHistory(){
+  const box=$('opshistlist');if(!box)return;
+  const rows=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId).slice(-40).reverse();
+  const seen={},groups=[];
+  rows.forEach(e=>{const k=e.progId+'|'+e.lot+'|'+e.dt;
+    if(!seen[k]){seen[k]={k:k,dt:e.dt,lot:e.lot,prog:e.progSet||'',worker:e.worker,tanks:e.tanks,water:e.water,n:0,cost:0};groups.push(seen[k]);}
+    seen[k].n++;seen[k].cost+=(+e.cost||0);});
+  box.innerHTML=groups.length?groups.slice(0,12).map(g=>
+    '<div class="lrow"><span><b>'+esc(g.prog||'programme')+'</b> · Lot '+esc(g.lot)+
+    '<br><span class="small">'+esc(g.dt)+' · '+esc(g.worker)+' · '+nf(g.tanks)+' tank(s) · '+nf(g.water)+' L water</span></span>'+
+    '<span style="text-align:right;font-weight:800">'+g.n+' item'+(g.n>1?'s':'')+
+    (SHOW_VALUES?('<br><span class="small">'+rm(g.cost)+'</span>'):'')+'</span></div>').join('')
+    :'<div class="small">No completion reply sent from this phone yet.</div>';}
+
+let rpProg=null,rpLotVal='';
+function openReply(u){
+  const r=progOf(u); if(!r){toast('Task not found',1);return;}
+  rpProg=r; rpLotVal='';
+  const foliar=(r.basis==='PER_1000L');
+  $('rp-sub').textContent='This task was set by the Owner and cannot be changed. Report what was actually applied.';
+  $('rp-task').textContent=monthLabel(r.month)+' · '+r.set;
+  $('rp-mode').innerHTML=esc(MODE_LABEL[r.mode]||r.mode)+'<br>'+r.trees+' trees';
+  $('rp-unitlbl').textContent=foliar?'Tanks sprayed (1000 L each)':'Trees treated';
+  $('rp-tanks').value=foliar?nf(r.tanks):r.trees;
+  $('rp-water').value=foliar?nf(r.litresPerTree*r.trees):'';
+  LOT_KEYS.forEach(L=>$('rl-'+L).classList.toggle('on',false));
+  $('rp-err').textContent='';
+  $('replymodal').classList.remove('hidden');
+  rpCalc();}
+function closeReply(){$('replymodal').classList.add('hidden');rpProg=null;}
+function rpLot(L){rpLotVal=L;LOT_KEYS.forEach(k=>$('rl-'+k).classList.toggle('on',k===L));rpCalc();}
+function rpMult(){return +$('rp-tanks').value||0;}
+function rpCalc(){
+  if(!rpProg)return;
+  const m=rpMult();
+  $('rp-tbl').innerHTML='<tr><th>Product</th><th class="num">Dose</th><th class="num">Will deduct</th><th class="num">On hand</th></tr>'+
+    rpProg.lines.map(l=>{const p=prodById(l.pid);const oh=p?onHand(p):0;const q=+(l.dose*m).toFixed(2);
+      return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
+        '<td class="num">'+nf(l.dose)+'</td>'+
+        '<td class="num"><b>'+nf(q)+'</b> '+esc(l.unit)+'</td>'+
+        '<td class="num '+(oh<q?'lowq':'')+'">'+nf(oh)+'</td></tr>';}).join('');}
+let replySaving=false;
+async function submitReply(){
+  const err=$('rp-err');err.textContent='';
+  if(!rpProg||replySaving)return;
+  const m=rpMult();
+  if(!(m>0)){err.textContent=(rpProg.basis==='PER_1000L'?'Enter how many tanks were sprayed.':'Enter how many trees were treated.');return;}
+  const water=+$('rp-water').value;
+  if(!(water>=0)||$('rp-water').value===''){err.textContent='Enter the water volume used in litres.';return;}
+  if(!rpLotVal){err.textContent='Select the target lot the programme was applied to.';return;}
+  if(lotsDone(rpProg.uuid).includes(rpLotVal)&&
+     !confirm('Lot '+rpLotVal+' was already reported for this phase.\nSend another reply anyway?'))return;
+  // PHI guard is kept on the programme path too
+  for(const l of rpProg.lines){
+    const p=prodById(l.pid); if(!p)continue;
+    const phi=PHI_PRODUCTS[p.name]; if(!phi)continue;
+    const days=Math.ceil((PEAK_DATE-new Date())/86400000);
+    if(days>=0&&days<phi&&!confirm('⚠ PHI WARNING\n'+p.name+' has a '+phi+'-day residue cut-off.\nProjected peak drop 21–22 Aug is in '+days+' day(s).\n\nLog this reply anyway?'))return;}
+  replySaving=true;
+  const stamp=now(), rid=uuid();
+  try{
+    for(const l of rpProg.lines){
+      const p=prodById(l.pid); const q=+(l.dose*m).toFixed(2); if(!(q>0))continue;
+      await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
+        ai:l.ai||(p?p.active_ingredient:''),qty:q,unit:l.unit,lot:rpLotVal,
+        set:monthLabel(rpProg.month)+' - '+rpProg.set,
+        cost:+(q*(p?(p.cpu||0):0)).toFixed(2),
+        progId:rpProg.uuid,progSet:monthLabel(rpProg.month)+' · '+rpProg.set,replyId:rid,
+        tanks:m,water:water,worker:CFG.worker,device:CFG.device,synced:false});}
+  } finally { replySaving=false; }
+  const n=rpProg.lines.length, lot=rpLotVal;   // read before closeReply() clears rpProg
+  closeReply();
+  toast('✓ Reply sent · '+n+' item(s) deducted from Lot '+lot);
+  refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderProjection();renderProgCheck();}
+
+// ---- programme sync: activation records travel in their own payload key, so an
+//      Apps Script that predates v2.5 cannot silently swallow them ----
+let progWarned=false;
+async function pushPrograms(){
+  const batch=PROGRAMS.filter(p=>!p.synced);
+  if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({programs:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j.programs){for(const p of batch){p.synced=true;if(db)await put('programs',p);}badge();return true;}
+    if(!progWarned){progWarned=true;
+      toast('Programme kept on this phone — update the Apps Script to send it to the workers',1);}
+    return false;
+  }catch(e){return false;}}
+async function mergePrograms(rows){
+  let changed=false;
+  for(const raw of rows){
+    const u=String(raw.uuid||'').trim(); if(!u)continue;
+    let lines=raw.lines;
+    if(typeof lines==='string'){try{lines=JSON.parse(lines);}catch(e){lines=[];}}
+    if(!Array.isArray(lines))continue;
+    const sp={uuid:u,phaseId:String(raw.phaseId||''),month:String(raw.month||''),set:String(raw.set||''),
+      kind:String(raw.kind||'FOLIAR'),mode:String(raw.mode||'SPRAY'),header:String(raw.header||''),
+      basis:String(raw.basis||'PER_1000L'),plan:String(raw.plan||''),scope:String(raw.scope||'ALL'),
+      trees:+raw.trees||0,litresPerTree:+raw.litresPerTree||0,tanks:+raw.tanks||0,
+      lines:lines,projCost:+raw.projCost||0,by:String(raw.by||''),byId:String(raw.byId||''),
+      at:String(raw.at||''),status:String(raw.status||'ACTIVE').toUpperCase(),synced:true};
+    const lc=PROGRAMS.find(x=>x.uuid===u);
+    if(!lc){PROGRAMS.push(sp);if(db)await put('programs',sp);changed=true;continue;}
+    if(!lc.synced)continue;                                  // our unpushed edit wins
+    if(lc.status===sp.status)continue;
+    Object.assign(lc,sp);if(db)await put('programs',lc);changed=true;}
+  if(changed){renderOpsTasks();renderProjection();renderProgCheck();renderAgroPhases();renderHub();badge();}}
+function progUnsynced(){return PROGRAMS.filter(p=>!p.synced).length;}
+
 // ================= boot =================
 (async function(){
   await initStore();
   // spray set options
   const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   renderInOpts();renderOutOpts();renderStOpts();renderAlerts();   // inventory master ready before first paint
+  renderAgroPhases();renderOpsTasks();renderProgCheck();          // v2.5 programme views
   badge();netUpdate();
   if(LOCKED){showLock(false);return;}                 // revoked device stays locked forever
   if(!CFG||!CFG.key||!CFG.worker){showLogin();}       // access key gate
