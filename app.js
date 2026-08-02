@@ -183,11 +183,14 @@ async function bakeApproved(c){
 // render at all) — so calling straight into a module exposes nothing extra.
 const SCREENS=['home','harvest','stock','sync','dash'];
 const FULL_ROLES=['OWNER','MARKETING'];
+// The worker is the person physically tying fruit to the branch, so TYING must reach
+// them. It is the only harvest tab a worker may open besides the tree board.
+const TIE_ROLES=['OWNER','MARKETING','WORKER'];
 const MODULES={
   harvest:{ic:'🥭',name:'Harvest',sub:'tie, drop, rotten',
     tabs:[{k:'log', t:'TREE BOARD',scr:'harvest',panels:[]},
           {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES},
-          {k:'tie', t:'TYING',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES},
+          {k:'tie', t:'TYING',     scr:'dash',panels:['tyingcard'],roles:TIE_ROLES},
           {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
   ops:{ic:'📋',name:'Daily Ops',sub:'tasks, replies, stock out',
     tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
@@ -242,7 +245,8 @@ function roleAllows(id){
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
     case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
-    case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard':
+    case 'tyingcard':                  return full||r==='WORKER';
+    case 'agrorain': case 'agromonth': case 'agrorecord':
     case 'wavecard': case 'mktpanel': return full;
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
