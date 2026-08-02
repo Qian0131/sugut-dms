@@ -906,7 +906,7 @@ const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.6.0';
+const APP_VERSION = 'v2.6.1';
 // Seed registry. The Owner edits this live in the app (Owner tab → Master Governance
 // & User Registry); pushing mirrors it into the WORKERS tab of the Google Sheet, which
 // is what every other phone reads at the hotspot.
@@ -1002,6 +1002,16 @@ function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textConten
   const q=pending()+corrUnsynced()+q4();
   if(on&&(q>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
+// v2.6.1 — a phone that stays open all day would otherwise never see a new assignment.
+// Pull when the worker comes back to the app, and quietly every 5 minutes while online.
+async function netPull(){
+  if(LOCKED||!CFG||!CFG.url||!CFG.key||!navigator.onLine)return;
+  const got=await refreshMasters();
+  if(got&&(got.tasks+got.programs)>0){
+    const nn=got.tasks+got.programs;
+    toast('📋 '+nn+' new job'+(nn>1?'s':'')+' from the Owner');}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)netPull();});
+setInterval(netPull,5*60*1000);
 
 // ================= TREE MASTER engine (v2.2) =================
 // TREE_FIX holds every Owner-APPROVED correction, keyed by TreeID. It is replayed
@@ -1411,7 +1421,8 @@ async function mergeCorrections(rows){
 
 // ================= master data refresh + revocation check =================
 async function refreshMasters(){
-  if(!CFG||!CFG.url||!navigator.onLine)return;
+  if(!CFG||!CFG.url||!navigator.onLine)return null;
+  let got={tasks:0,programs:0};
   try{
     const r=await fetch(CFG.url);const j=await r.json();
     // corrections are merged only AFTER the kill switch has cleared this device
@@ -1420,7 +1431,7 @@ async function refreshMasters(){
     const inTask=(j&&j.ok&&Array.isArray(j.tasks))?j.tasks:null;
     // v2.5.1: if the WORKERS tab is unreadable the kill switch cannot be evaluated, so
     // nothing is ingested either — a revoked phone must not keep receiving farm data.
-    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return;
+    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return got;
     const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
       id:String(w.WorkerID||w.Name||'').trim()||newUid(),
       name:w.Name||w.WorkerID,
@@ -1439,27 +1450,28 @@ async function refreshMasters(){
       const me=byId||byName||byKey;
       // deleted from the registry entirely, or revoked / resigned
       if(!me||String(me.status).toLowerCase()!=='active'){
-        if(await safeWipe())return;              // wiped — this device is finished
+        if(await safeWipe())return got;          // wiped — this device is finished
         KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');  // key is dead either way
         if(db)await put('kv',{k:'keys',v:KEYS});
-        return;}
+        return got;}
       if(String(me.key)!==String(CFG.key)){      // Owner changed their key — not a wipe
         KEYS=ks;if(db)await put('kv',{k:'keys',v:KEYS});
-        await forceLogout('Your access key was changed. Ask the Owner for the new 6-digit key.');return;}
+        await forceLogout('Your access key was changed. Ask the Owner for the new 6-digit key.');return got;}
       CFG.uid=me.id;CFG.worker=me.name;CFG.role=me.role;await persistCfg();
     }
     if(inCorr)await mergeCorrections(inCorr);   // device is cleared — safe to ingest
-    if(inProg)await mergePrograms(inProg);      // agronomist phases from the Owner's phone
-    if(inTask)await mergeTasks(inTask);         // general field jobs from the Owner's phone
+    if(inProg)got.programs=await mergePrograms(inProg);  // agronomist phases from the Owner's phone
+    if(inTask)got.tasks=await mergeTasks(inTask);        // general field jobs from the Owner's phone
 
     // ---- local unpushed edits always win until they are pushed ----
-    if(REG_DIRTY){renderKeys();return;}
+    if(REG_DIRTY){renderKeys();return got;}
     // rows the Owner deleted stay in the sheet as Status=Deleted (audit trail) but
     // must not reappear in the app's registry
     KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');
     if(db)await put('kv',{k:'keys',v:KEYS});
     applyRole();renderKeys();
-  }catch(e){/* offline or sheet unreachable — check again next sync */}}
+    return got;
+  }catch(e){/* offline or sheet unreachable — check again next sync */ return null;}}
 
 // ================= owner: master governance & user registry =================
 const ROLE_LABEL={OWNER:'Owner / Admin',MARKETING:'Marketing',PURCHASER:'Sandakan Purchaser',WORKER:'Farm Worker'};
@@ -2044,8 +2056,11 @@ function renderSync(){
       : '<span style="display:flex;align-items:center;gap:6px"><span class="tag q">QUEUED</span><span onclick="removeEvent(\''+e.uuid+'\')" style="color:#b3261e;font-weight:800;font-size:15px;padding:2px 8px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer">✕</span></span>';
     return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span>'+right+'</div>';}).join('')
   :'<div class="small">No events yet.</div>';
+  // v2.6.1 — a phone with an empty queue still needs to PULL the Owner's new work.
+  // The button used to disable itself here, which left a worker with no way to ask.
   const b=$('syncbtn');const n=pending()+corrUnsynced()+q4();
-  b.disabled=!n;b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'✓ ALL SYNCED';}
+  b.disabled=false;
+  b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'⇩ CHECK FOR NEW WORK';}
 async function removeEvent(u){
   const e=EVENTS.find(x=>x.uuid===u);
   if(!e||e.synced)return; // synced events can never be removed from the phone
@@ -2105,7 +2120,13 @@ async function doSync(auto){
   await pushTasks();                          // then general task assignments (own payload key)
   await pushTaskLogs();                       // then general task completions + labour
   const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE');
-  if(!batch.length){await refreshMasters();renderSync();return;}
+  if(!batch.length){
+    const got=await refreshMasters();renderSync();
+    if(!auto){                       // the person pressed the button — always answer them
+      const nn=got?(got.tasks+got.programs):0;
+      toast(nn?('✓ '+nn+' new job'+(nn>1?'s':'')+' received from the Owner')
+              :(got?'✓ Up to date — nothing new from the Owner':'Could not reach the Google Sheet',!got));}
+    return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
@@ -2570,7 +2591,7 @@ async function pushPrograms(){
     return false;
   }catch(e){return false;}}
 async function mergePrograms(rows){
-  let changed=false;
+  let changed=false, fresh=0;
   for(const raw of rows){
     const u=String(raw.uuid||'').trim(); if(!u)continue;
     let lines=raw.lines;
@@ -2583,11 +2604,13 @@ async function mergePrograms(rows){
       lines:lines,projCost:+raw.projCost||0,by:String(raw.by||''),byId:String(raw.byId||''),
       at:String(raw.at||''),status:String(raw.status||'ACTIVE').toUpperCase(),synced:true};
     const lc=PROGRAMS.find(x=>x.uuid===u);
-    if(!lc){PROGRAMS.push(sp);if(db)await put('programs',sp);changed=true;continue;}
+    if(!lc){PROGRAMS.push(sp);if(db)await put('programs',sp);changed=true;
+      if(sp.status==='ACTIVE')fresh++;continue;}
     if(!lc.synced)continue;                                  // our unpushed edit wins
     if(lc.status===sp.status)continue;
     Object.assign(lc,sp);if(db)await put('programs',lc);changed=true;}
-  if(changed){renderOpsTasks();renderProjection();renderProgCheck();renderAgroPhases();renderHub();badge();}}
+  if(changed){renderOpsTasks();renderProjection();renderProgCheck();renderAgroPhases();renderHub();badge();}
+  return fresh;}
 function progUnsynced(){return PROGRAMS.filter(p=>!p.synced).length;}
 
 // ================= v2.6 PHASE CLOCK · WEATHER · AI BLUEPRINT · GENERAL TASKS · LABOUR =================
@@ -3058,7 +3081,7 @@ async function pushTaskLogs(){
     return false;
   }catch(e){return false;}}
 async function mergeTasks(rows){
-  let changed=false;
+  let changed=false, fresh=0;
   for(const raw of rows){
     const u=String(raw.uuid||'').trim(); if(!u)continue;
     let detail=raw.detail;
@@ -3068,11 +3091,13 @@ async function mergeTasks(rows){
       durDays:+raw.durDays||30,note:String(raw.note||''),by:String(raw.by||''),at:String(raw.at||''),
       status:String(raw.status||'OPEN').toUpperCase(),synced:true};
     const lc=TASKS.find(x=>x.uuid===u);
-    if(!lc){TASKS.push(st);if(db)await put('tasks',st);changed=true;continue;}
+    if(!lc){TASKS.push(st);if(db)await put('tasks',st);changed=true;
+      if(st.status==='OPEN')fresh++;continue;}
     if(!lc.synced)continue;                       // our unpushed edit wins
     if(lc.status===st.status)continue;
     Object.assign(lc,st);if(db)await put('tasks',lc);changed=true;}
-  if(changed){renderGeneralTasks();renderAssign();renderHub();badge();}}
+  if(changed){renderGeneralTasks();renderAssign();renderHub();badge();}
+  return fresh;}
 
 // ================= boot =================
 (async function(){
