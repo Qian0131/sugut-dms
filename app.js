@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.6.2';   // v2.6.2 = structural split only (database.js + app.js), no feature change
+const APP_VERSION = 'v2.8.1';   // v2.8.1 — tree master corrected to the Owner-confirmed 171 (A 65 · B 66 · C 40)
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -20,14 +20,16 @@ function idb(){return new Promise((res)=>{ if(!window.indexedDB) return res(null
   // events / kv / corrections data is preserved by the upgrade.
   // v4 adds `tasks` (Owner-assigned general field jobs) and `blueprints`
   // (Owner-built programme sets). Existing data is preserved by the upgrade.
-  const rq=indexedDB.open('sugut-dms',4);
+  // v5 adds `rain` (the manual rain-gauge log). Existing data is preserved.
+  const rq=indexedDB.open('sugut-dms',5);
   rq.onupgradeneeded=e=>{const d=e.target.result;
     if(!d.objectStoreNames.contains('events'))d.createObjectStore('events',{keyPath:'uuid'});
     if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});
     if(!d.objectStoreNames.contains('corrections'))d.createObjectStore('corrections',{keyPath:'uuid'});
     if(!d.objectStoreNames.contains('programs'))d.createObjectStore('programs',{keyPath:'uuid'});
     if(!d.objectStoreNames.contains('tasks'))d.createObjectStore('tasks',{keyPath:'uuid'});
-    if(!d.objectStoreNames.contains('blueprints'))d.createObjectStore('blueprints',{keyPath:'uuid'});};
+    if(!d.objectStoreNames.contains('blueprints'))d.createObjectStore('blueprints',{keyPath:'uuid'});
+    if(!d.objectStoreNames.contains('rain'))d.createObjectStore('rain',{keyPath:'uuid'});};
   rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null);});}
 function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
 function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
@@ -44,6 +46,7 @@ async function initStore(){
     PROGRAMS=(await all('programs'))||[];
     TASKS=(await all('tasks'))||[];
     BLUEPRINTS=(await all('blueprints'))||[];
+    RAINFALL=(await all('rain'))||[];
     const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
     const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
     const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
@@ -52,6 +55,7 @@ async function initStore(){
     const io=kv.find(x=>x.k==='invover'); if(io&&io.v&&typeof io.v==='object') INV_OVERRIDE=io.v;
     const lp=kv.find(x=>x.k==='lastlpt'); if(lp&&lp.v&&typeof lp.v==='object') LAST_LPT=lp.v;
     const wx=kv.find(x=>x.k==='weather'); if(wx&&wx.v) WEATHER=String(wx.v);
+    const lc=kv.find(x=>x.k==='lastcrew'); if(lc&&lc.v&&typeof lc.v==='object') LAST_CREW=lc.v;
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
@@ -80,7 +84,9 @@ function todayStr(){return now().slice(0,10);}
 function pending(){return EVENTS.filter(e=>!e.synced).length;}
 function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
 function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
-  (typeof taskUnsynced==='function'?taskUnsynced():0);}
+  (typeof taskUnsynced==='function'?taskUnsynced():0)+
+  (typeof rainUnsynced==='function'?rainUnsynced():0)+
+  (typeof q5==='function'?q5():0);}
 function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
   const q=pending()+corrUnsynced()+q4();
@@ -119,17 +125,6 @@ function recalcCensusTotals(){
 function canCorrect(){return myRole()==='WORKER'||myRole()==='OWNER'||myRole()==='MARKETING';}
 function canApprove(){return myRole()==='OWNER';}
 let corrType='CLONE', corrClone='', corrTree=null;
-function openCorrection(){
-  if(!canCorrect()){toast('Not permitted for your role',1);return;}   // hard guard: Purchaser
-  if(!curTree){toast('Pick a tree first',1);return;}
-  corrTree=curTree; corrClone=''; corrType='CLONE';
-  $('cf-tree').textContent=curTree.id;
-  $('cf-current').innerHTML='Clone on record<br><b>'+cloneLabel(curTree.clone)+'</b><br>Census Jul: <b>'+(curTree.census!=null?curTree.census:'—')+'</b>';
-  $('cf-clones').innerHTML=CLONES.map(c=>'<div data-c="'+c+'" onclick="pickCorrClone(\''+c+'\')">'+c+'</div>').join('');
-  $('cf-census').value=curTree.census!=null?curTree.census:'';
-  $('cf-note').value=''; $('cf-err').textContent='';
-  pickCorrType('CLONE');
-  $('corrmodal').classList.remove('hidden');}
 function closeCorrection(){$('corrmodal').classList.add('hidden');}
 function pickCorrType(t){corrType=t;
   [...$('cf-types').children].forEach(el=>el.classList.toggle('on',el.dataset.ct===t));
@@ -137,33 +132,6 @@ function pickCorrType(t){corrType=t;
   $('cf-censuswrap').classList.toggle('hidden',t!=='CENSUS');}
 function pickCorrClone(c){corrClone=c;
   [...$('cf-clones').children].forEach(el=>el.classList.toggle('on',el.dataset.c===c));}
-function corrSummary(c){
-  if(c.ctype==='CLONE') return 'Clone: '+(c.oldVal||'—')+'  ➔  '+c.newVal;
-  if(c.ctype==='CENSUS') return 'July census: '+(c.oldVal===''||c.oldVal==null?'—':c.oldVal)+'  ➔  '+c.newVal;
-  return 'Tag / other issue — no automatic change';}
-async function submitCorrection(){
-  if(!canCorrect()||!corrTree)return;
-  const t=corrTree, note=$('cf-note').value.trim();
-  let oldVal='', newVal='';
-  if(corrType==='CLONE'){
-    if(!corrClone){$('cf-err').textContent='Choose the correct clone.';return;}
-    if(corrClone===t.clone){$('cf-err').textContent='That is already the clone on record.';return;}
-    oldVal=t.clone||''; newVal=corrClone;
-  }else if(corrType==='CENSUS'){
-    const v=$('cf-census').value;
-    if(v===''||isNaN(+v)||+v<0){$('cf-err').textContent='Enter the correct census count.';return;}
-    if(t.census!=null&&+v===t.census){$('cf-err').textContent='That is already the count on record.';return;}
-    oldVal=(t.census==null?'':t.census); newVal=Math.round(+v);
-  }else{
-    if(!note){$('cf-err').textContent='Describe the problem for the Owner.';return;}
-    oldVal=''; newVal='';
-  }
-  await persistCorrection({uuid:uuid(),dt:now(),tree:t.id,lot:t.lot,no:t.no,ctype:corrType,
-    oldVal:oldVal,newVal:newVal,note:note,worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,
-    status:'PENDING',decidedBy:'',decidedAt:'',synced:false});
-  closeCorrection();
-  renderMyCorrections();
-  toast('✓ Sent to Owner for approval'+(navigator.onLine?'':' (queued)'));}
 function renderMyCorrections(){
   const box=$('mycorr'); if(!box)return;
   if(!canCorrect()){box.style.display='none';return;}
@@ -206,22 +174,6 @@ async function bakeApproved(c){
   else if(c.ctype==='CENSUS') TREE_FIX[c.tree].census=Math.round(+c.newVal);
   else if(c.note) TREE_FIX[c.tree].note=c.note;
   await persistTreeFix(); applyTreeFixes();}
-async function decideCorrection(id,ok){
-  if(!canApprove()){toast('Only the Owner can approve corrections',1);return;}
-  const c=CORRECTIONS.find(x=>x.uuid===id); if(!c||c.status!=='PENDING')return;
-  const t=treeById(c.tree);
-  if(ok){
-    if(!confirm('Approve this change?\n\n'+c.tree+'\n'+corrSummary(c)+'\n\nThis permanently updates the Tree Master across the whole app.'))return;
-  }else{
-    if(!confirm('Reject this request?\n\n'+c.tree+'\n'+corrSummary(c)))return;
-  }
-  c.status=ok?'APPROVED':'REJECTED'; c.decidedBy=CFG.worker; c.decidedAt=now(); c.synced=false;
-  if(ok&&t) await bakeApproved(c);
-  await persistCorrection(c);
-  renderCorrections(); renderDash();
-  if(curTree&&curTree.id===c.tree) selectTree(c.tree);   // refresh the open tree card
-  toast(ok?('✓ Approved — '+c.tree+' updated'):'Request rejected');}
-
 // ================= v2.5 SIX-MODULE HUB + CLEAN SUB-TAB BARS =================
 // Six major sections, each a big tile. A module with more than one section shows a
 // sub-tab bar pinned under the header. Two independent gates decide what a person
@@ -230,19 +182,19 @@ async function decideCorrection(id,ok){
 const SCREENS=['home','harvest','stock','sync','dash'];
 const FULL_ROLES=['OWNER','MARKETING'];
 const MODULES={
-  harvest:{ic:'🥭',name:'Harvest',sub:'log fruit drop, census',
+  harvest:{ic:'🥭',name:'Harvest',sub:'drop, rotten, tying balance',
     tabs:[{k:'log', t:'LOG DROP',  scr:'harvest',panels:[]},
+          {k:'tie', t:'TYING',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES},
           {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
   ops:{ic:'📋',name:'Daily Ops',sub:"tasks, replies, labour",
     tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
           {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']},
           {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES},
           {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],roles:FULL_ROLES}]},
-  agro:{ic:'🌱',name:'Agronomist',sub:'programme, weather, projection',
-    tabs:[{k:'phases',t:'PHASES',    scr:'dash',panels:['agrophases'],roles:FULL_ROLES},
-          {k:'wx',    t:'WEATHER',   scr:'dash',panels:['agroweather'],roles:FULL_ROLES},
-          {k:'bp',    t:'BLUEPRINT', scr:'dash',panels:['agrobp'],   roles:FULL_ROLES},
-          {k:'proj',  t:'PROJECTION',scr:'dash',panels:['agroproj'], roles:FULL_ROLES}]},
+  agro:{ic:'🌱',name:'Agronomist',sub:'month timeline, weather, record',
+    tabs:[{k:'month',t:'THIS MONTH',scr:'dash',panels:['agromonth'],  roles:FULL_ROLES},
+          {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','agrorain'],roles:FULL_ROLES},
+          {k:'rec',  t:'RECORD',    scr:'dash',panels:['agrorecord'], roles:FULL_ROLES}]},
   inv:{ic:'📦',name:'Inventory',sub:'stock in, alerts, levels',
     tabs:[{k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER']},
           {k:'chk', t:'PROGRAM CHECK',scr:'dash', panels:['progcheck'],                        roles:['OWNER','MARKETING','PURCHASER']},
@@ -265,7 +217,8 @@ const HUB_ORDER={
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
   'opstasks','opshistory','agrophases','agroproj','progcheck',
-  'opsgeneral','opsassign','labourcard','agroweather','agrobp','progready'];
+  'opsgeneral','opsassign','labourcard','agroweather','progready',
+  'agrorain','agromonth','agrorecord','tyingcard'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -282,10 +235,11 @@ function roleAllows(id){
     case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
     case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
-    case 'opsassign': case 'labourcard': case 'agroweather': case 'agrobp': return full;
+    case 'opsassign': case 'labourcard': case 'agroweather': return full;
+    case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard': return full;
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
-    case 'agrophases': case 'agroproj': case 'kpis': case 'phibox': case 'lotcard':
+    case 'kpis': case 'phibox': case 'lotcard':
     case 'mktcard': case 'dashnote':   return full;
     default: return true;
   }
@@ -354,19 +308,20 @@ function openModule(k,tabKey){
   else {sb.classList.add('hidden');sb.innerHTML='';}
   renderForTab(k,tab.k);
   $('scr-'+tab.scr).scrollTop=0;}
-function renderV26(){renderWeather();renderBlueprints();renderGeneralTasks();renderAssign();
-  renderLabour();renderReady();}
+function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
+  renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
+  renderTying();renderMyLogs();renderRotCauses();}
 function renderForTab(k,t){
-  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();}
+  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();}
+  if(k==='harvest'&&t==='tie')renderTying();
   if(k==='harvest'&&t==='today')renderDash();
   if(k==='ops'&&t==='tasks'){renderOpsTasks();renderGeneralTasks();renderOpsHistory();}
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='ops'&&t==='assign')renderAssign();
   if(k==='ops'&&t==='labour')renderLabour();
-  if(k==='agro'&&t==='phases')renderAgroPhases();
-  if(k==='agro'&&t==='wx')renderWeather();
-  if(k==='agro'&&t==='bp')renderBlueprints();
-  if(k==='agro'&&t==='proj')renderProjection();
+  if(k==='agro'&&t==='month')renderTimeline();
+  if(k==='agro'&&t==='wx'){renderWeather();renderRain();}
+  if(k==='agro'&&t==='rec')renderRecord();
   if(k==='inv'&&t==='in'){renderInOpts();renderAlerts();renderStock();}
   if(k==='inv'&&t==='chk')renderProgCheck();
   if(k==='inv'&&t==='next')renderReady();
@@ -440,9 +395,10 @@ function showLock(sim){$('wipeoverlay').classList.add('hidden');
   $('lockscreen').classList.remove('hidden');$('simnote').classList.toggle('hidden',!sim);}
 let simTaps=0;
 async function realWipe(){
-  if(db){try{const tx=db.transaction(['programs','tasks','blueprints'],'readwrite');
-    tx.objectStore('programs').clear();tx.objectStore('tasks').clear();tx.objectStore('blueprints').clear();}catch(e){}}
-  PROGRAMS=[];TASKS=[];BLUEPRINTS=[];
+  if(db){try{const tx=db.transaction(['programs','tasks','blueprints','rain'],'readwrite');
+    tx.objectStore('programs').clear();tx.objectStore('tasks').clear();
+    tx.objectStore('blueprints').clear();tx.objectStore('rain').clear();}catch(e){}}
+  PROGRAMS=[];TASKS=[];BLUEPRINTS=[];RAINFALL=[];
   // 1. wipe events + config + keys from IndexedDB
   await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv','corrections'],'readwrite');
     tx.objectStore('events').clear();tx.objectStore('kv').clear();
@@ -485,6 +441,7 @@ async function mergeCorrections(rows){
   for(const raw of rows){
     const sc={uuid:String(raw.uuid||raw.CorrectionUUID||'').trim(),dt:String(raw.dt||''),
       tree:String(raw.tree||''),lot:String(raw.lot||''),no:+raw.no||0,ctype:String(raw.ctype||'NOTE'),
+      evUuid:String(raw.evUuid||''),evType:String(raw.evType||''),evDt:String(raw.evDt||''),
       oldVal:raw.oldVal===undefined?'':raw.oldVal,newVal:raw.newVal===undefined?'':raw.newVal,
       note:String(raw.note||''),worker:String(raw.worker||''),workerId:String(raw.workerId||''),
       device:String(raw.device||''),status:String(raw.status||'PENDING').toUpperCase(),
@@ -492,11 +449,15 @@ async function mergeCorrections(rows){
     if(!sc.uuid||!sc.tree)continue;
     const lc=CORRECTIONS.find(x=>x.uuid===sc.uuid);
     if(!lc){ CORRECTIONS.push(sc); if(db)await put('corrections',sc);
-      if(sc.status==='APPROVED'){await bakeApproved(sc);approvedNow++;} changed=true; continue; }
+      if(sc.status==='APPROVED'){
+        if(sc.ctype==='LOGQTY')await applyLogCorrection(sc); else await bakeApproved(sc);
+        approvedNow++;} changed=true; continue; }
     if(!lc.synced) continue;                                  // our unpushed edit wins
     if(lc.status===sc.status && lc.decidedBy===sc.decidedBy) continue;
     Object.assign(lc,sc); if(db)await put('corrections',lc);
-    if(sc.status==='APPROVED'){await bakeApproved(lc);approvedNow++;}
+    if(sc.status==='APPROVED'){
+      if(lc.ctype==='LOGQTY')await applyLogCorrection(lc); else await bakeApproved(lc);
+      approvedNow++;}
     changed=true;
   }
   if(changed){badge();renderCorrections();renderMyCorrections();
@@ -729,34 +690,11 @@ function renderGrid(){
 function pickLot(l,el){curLot=l;if(el){[...$('lotbtns').children].forEach(x=>x.classList.remove('on'));el.classList.add('on');}
   if($('h-lot').options.length)$('h-lot').value=l;
   renderGrid(); buildTreeSelect();}
-function selectTree(id){
-  const t=treeById(id);
-  if(!t){toast('Unknown tag: '+id,1);return;}
-  curTree=t;$('t-id').textContent=t.id;$('t-clone').textContent=t.clone||'?';
-  $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
-  curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
-  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');qty=1;$('qty').textContent=1;setGrade(0);
-  if($('corrbtn')) $('corrbtn').style.display=canCorrect()?'':'none';}
 function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
 function bump(d){qty=Math.max(1,qty+d);$('qty').textContent=qty;}
 function resetQty(){qty=1;$('qty').textContent=1;}
 function setGrade(i){grade=['A','B','C'][i];[...$('grades').children].forEach((el,j)=>el.classList.toggle('on',j===i));}
 let savingDrop=false, lastDrop={tree:null,time:0};
-async function saveDrop(){
-  if(!curTree||savingDrop)return;           // block double-taps
-  savingDrop=true;
-  try{
-    const t=curTree;
-    // duplicate guard: same tree logged less than 2 minutes ago
-    if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000){
-      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW drop?')){savingDrop=false;return;}
-    }
-    await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
-      estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
-    lastDrop={tree:t.id,time:Date.now()};
-    toast('✓ '+qty+' fruit @ '+t.id+(navigator.onLine?'':' (queued)'));cancelTree();
-  } finally { savingDrop=false; }}
-
 // ================= stock =================
 // ================= v2.3 INVENTORY MASTER =================
 // INVENTORY_RECON is the named source of truth for the 67 reconciled products.
@@ -1200,7 +1138,11 @@ async function doSync(auto){
   await pushPrograms();                       // then activated programmes (own payload key)
   await pushTasks();                          // then general task assignments (own payload key)
   await pushTaskLogs();                       // then general task completions + labour
-  const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE');
+  await pushRain();                           // then the rain gauge log (own payload key)
+  await pushRotten();                         // then rotten fruit logs (own payload key)
+  await pushLogAdj();                         // then approved log corrections (own payload key)
+  const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE'
+    &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -1290,33 +1232,8 @@ function projectPhase(phase,scope,litresPerTree){
 
 // ================= Owner: phase browser =================
 let agroMonth='Aug';
-function setAgroMonth(m){agroMonth=m;renderAgroPhases();}
-function renderAgroPhases(){
-  if(!$('agrolist'))return;
-  const months=PROG_MONTH_ORDER.filter(m=>PHASE_PROGRAM.some(p=>p.month===m))
-    .concat(BLUEPRINTS.length?['My sets']:[]);
-  if(months.indexOf(agroMonth)<0)agroMonth=months[months.length-1]||'Aug';
-  $('agromonths').innerHTML=months.map(m=>'<div class="'+(m===agroMonth?'on':'')+'" onclick="setAgroMonth(\''+esc(m)+'\')">'+esc(monthLabel(m))+'</div>').join('');
-  const list=allPhases().filter(p=>p.month===agroMonth);
-  $('agrolist').innerHTML=list.length?list.map(p=>{
-    const live=PROGRAMS.find(x=>x.phaseId===p.id&&x.status==='ACTIVE');
-    const phi=p.lines.some(l=>PHI_PRODUCTS[(prodById(l.pid)||{}).name]);
-    const adv=weatherAdvice(p,p.lines);
-    return '<div class="crow"><div class="ch">'+
-      '<div><div class="ctree">'+esc(p.set)+(live?' <span class="cstat a">ACTIVE</span>':'')+'</div>'+
-      '<div class="cwho">'+esc(MODE_LABEL[p.mode]||p.mode)+(p.plan?(' · planned '+esc(p.plan)):'')+
-      (p.litresPerTree?(' · '+p.litresPerTree+' L/tree'):'')+'</div></div>'+
-      '<span class="cstat '+(p.kind==='FERT'?'a':'p')+'">'+(p.kind==='FERT'?'PER TREE':'PER 1000 L')+'</span></div>'+
-      (live?clockHTML(live):'')+
-      (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ contains a fruit-contact product with a 14-day residue cut-off</div>':'')+
-      (adv&&!adv.ok?'<div class="cnote" style="color:#123a71;font-weight:700">🌧️ '+esc(adv.head)+' — open ACTIVATE to see the stand-ins</div>':'')+
-      '<div class="cchange">'+p.lines.map(l=>esc((prodById(l.pid)||{}).name||l.raw||l.pname)+' <b>'+nf(l.qty)+' '+esc(l.unit)+'</b>').join(' · ')+'</div>'+
-      '<div class="cacts"><button class="ok" onclick="openProgModal(\''+esc(p.id)+'\')">'+(live?'RE-ACTIVATE':'ACTIVATE PHASE')+'</button>'+
-      (live?'<button class="no" onclick="closeProgram(\''+live.uuid+'\')">CLOSE PHASE</button>':'')+'</div></div>';}).join('')
-    :'<div class="small">No phase recorded for this month.</div>';
-}
-
-// ---- activation modal ----
+function setAgroMonth(m){agroMonth=m;renderTimeline();}
+// renderAgroPhases() moved to the v2.7 section below
 let pmPhase=null,pmScopeVal='ALL';
 function openProgModal(id){
   const p=phaseById(id); if(!p){toast('Phase not found',1);return;}
@@ -1401,14 +1318,14 @@ async function activatePhase(){
   const label=pmPhase.set;                 // read before closeProgModal() clears pmPhase
   closeProgModal();badge();
   toast('✓ '+label+' activated for '+pr.trees+' trees');
-  renderAgroPhases();renderProjection();renderProgCheck();renderReady();renderOpsTasks();
+  renderTimeline();renderTimeline();renderProgCheck();renderReady();renderOpsTasks();
   renderWeather();renderHub();}
 async function closeProgram(u){
   const r=progOf(u); if(!r)return;
   if(!confirm('Close '+r.set+'?\nWorkers will stop seeing it in Today\'s Tasks.'))return;
   r.status='CLOSED';r.synced=false; if(db)await put('programs',r);
   badge();toast('Phase closed');
-  renderAgroPhases();renderProjection();renderProgCheck();renderOpsTasks();renderHub();}
+  renderTimeline();renderTimeline();renderProgCheck();renderOpsTasks();renderHub();}
 
 // ---- Owner projection view ----
 function renderProjection(){
@@ -1530,27 +1447,7 @@ function myTasks(){
   return activePrograms().filter(r=>{
     const need=r.scope==='ALL'?LOT_KEYS:[r.scope];
     return need.some(L=>!lotsDone(r.uuid).includes(L));});}
-function renderOpsTasks(){
-  const box=$('opslist');if(!box)return;
-  const t=myTasks();
-  box.innerHTML=t.length?t.map(r=>{
-    const done=lotsDone(r.uuid);
-    const need=(r.scope==='ALL'?LOT_KEYS:[r.scope]).filter(L=>!done.includes(L));
-    const phi=r.lines.some(l=>PHI_PRODUCTS[(prodById(l.pid)||{}).name]);
-    return '<div class="crow"><div class="ch">'+
-      '<div><div class="ctree">'+esc(monthLabel(r.month))+' · '+esc(r.set)+'</div>'+
-      '<div class="cwho">'+esc(MODE_LABEL[r.mode]||r.mode)+(r.plan?(' · planned '+esc(r.plan)):'')+
-      '<br>set by '+esc(r.by)+' · '+esc(r.at)+'</div></div>'+
-      '<span class="cstat p">TO DO</span></div>'+
-      clockHTML(r)+
-      (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ fruit-contact product — check the residue cut-off with the Owner first</div>':'')+
-      (r.weather==='RAINY'?'<div class="cnote" style="color:#123a71;font-weight:700">🌧️ set while the Owner had Rainy mode on — spray only when the leaf can dry</div>':'')+
-      '<div class="cchange">'+r.lines.map(l=>esc(l.pname)+' <b>'+nf(l.dose)+' '+esc(l.unit)+'</b>'+
-        (r.basis==='PER_1000L'?' / tank':' / tree')).join('<br>')+'</div>'+
-      '<div class="cwho">Still to report: '+need.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')+
-      (done.length?(' · done: '+done.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')):'')+'</div>'+
-      '<div class="cacts"><button class="ok" onclick="openReply(\''+r.uuid+'\')">✓ SUBMIT COMPLETION REPLY</button></div></div>';}).join('')
-    :'<div class="alertnone">No task waiting. The Owner has not activated a phase, or every lot has already been reported.</div>';}
+// renderOpsTasks() moved to the v2.7 section below
 function renderOpsHistory(){
   const box=$('opshistlist');if(!box)return;
   const rows=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId).slice(-40).reverse();
@@ -1650,7 +1547,7 @@ async function submitReply(){
   const n=rpProg.lines.length, lot=rpLotVal;   // read before closeReply() clears rpProg
   closeReply();
   toast('✓ Reply sent · '+n+' item(s) deducted from Lot '+lot);
-  refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderProjection();
+  refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderTimeline();
   renderProgCheck();renderReady();renderLabour();renderHub();}
 
 // ---- programme sync: activation records travel in their own payload key, so an
@@ -1687,7 +1584,7 @@ async function mergePrograms(rows){
     if(!lc.synced)continue;                                  // our unpushed edit wins
     if(lc.status===sp.status)continue;
     Object.assign(lc,sp);if(db)await put('programs',lc);changed=true;}
-  if(changed){renderOpsTasks();renderProjection();renderProgCheck();renderAgroPhases();renderHub();badge();}
+  if(changed){renderOpsTasks();renderTimeline();renderProgCheck();renderTimeline();renderHub();badge();}
   return fresh;}
 function progUnsynced(){return PROGRAMS.filter(p=>!p.synced).length;}
 
@@ -1790,7 +1687,7 @@ function advHTML(adv){
   return h;}
 async function setWeather(w){
   WEATHER=w; if(db)await put('kv',{k:'weather',v:w});
-  renderWeather();renderAgroPhases();renderOpsTasks();if(pmPhase)pmCalc();
+  renderWeather();renderTimeline();renderOpsTasks();if(pmPhase)pmCalc();
   toast(w==='RAINY'?'🌧️ Rainy mode on — spray lines are now checked for wash-off':'☀️ Sunny mode');}
 function renderWeather(){
   if(!$('wxbtns'))return;
@@ -1816,13 +1713,20 @@ function bpAIs(){
     if(!seen[ai]){seen[ai]={ai:ai,n:0};out.push(seen[ai]);} seen[ai].n++;});
   const unknown=x=>(x.ai.indexOf('(confirm')===0||x.ai==='(not recorded)')?1:0;
   return out.sort((a,b)=>(unknown(a)-unknown(b))||a.ai.localeCompare(b.ai));}
-function openBlueprint(){
+// v2.8 — the same AI-first builder now CREATES a set and MODIFIES one the Owner built.
+function openBlueprint(u){
+  const rec=u?BLUEPRINTS.find(b=>b.uuid===u):null;
+  if(rec){ $('bp-title').textContent='Edit programme set';
+    bpFrom(rec,''); bpEditUuid=rec.uuid; return; }
+  bpEditUuid=null;
   bpLines=[];bpBasisVal='PER_1000L';
+  $('bp-title').textContent='New programme set';
   $('bp-name').value='';$('bp-dose').value='';$('bp-err').textContent='';
+  $('bp-kind').value='PND';
   ['PER_1000L','PER_TREE'].forEach(k=>$('bb-'+k).classList.toggle('on',k===bpBasisVal));
   bpKind();renderBpLines();
   $('bpmodal').classList.remove('hidden');}
-function closeBlueprint(){$('bpmodal').classList.add('hidden');bpLines=[];}
+function closeBlueprint(){$('bpmodal').classList.add('hidden');bpLines=[];bpEditUuid=null;}
 function bpBasis(b){bpBasisVal=b;['PER_1000L','PER_TREE'].forEach(k=>$('bb-'+k).classList.toggle('on',k===b));
   $('bp-unitlbl').textContent=(b==='PER_1000L')?'per 1000 L tank':'per tree';}
 function bpKind(){
@@ -1865,22 +1769,25 @@ async function bpSave(){
   if(!name){err.textContent='Give the set a name.';return;}
   if(!bpLines.length){err.textContent='Add at least one line.';return;}
   const kind=$('bp-kind').value;
-  const rec={uuid:uuid(),id:'BP|'+uuid().slice(0,8),month:'My sets',set:name,
+  const old=bpEditUuid?BLUEPRINTS.find(b=>b.uuid===bpEditUuid):null;
+  const rec={uuid:old?old.uuid:uuid(),id:old?old.id:('BP|'+uuid().slice(0,8)),month:'My sets',set:name,
     kind:(kind==='MANURE'?'FERT':'FOLIAR'),bpKind:kind,
     mode:(kind==='MANURE'?'SOIL':'SPRAY'),header:BP_LABEL[kind]+' — built by active ingredient',
-    basis:bpBasisVal,litresPerTree:null,plan:'',lines:bpLines.slice(),
+    basis:bpBasisVal,litresPerTree:old?old.litresPerTree:null,plan:old?old.plan:'',lines:bpLines.slice(),
     by:CFG.worker,at:now(),custom:true};
-  BLUEPRINTS.push(rec); if(db)await put('blueprints',rec);
-  const label=rec.set;
+  if(old)BLUEPRINTS[BLUEPRINTS.indexOf(old)]=rec; else BLUEPRINTS.push(rec);
+  if(db)await put('blueprints',rec);
+  const label=rec.set, edited=!!old;
+  bpEditUuid=null;
   closeBlueprint();
-  toast('✓ '+label+' saved — it is now in the PHASES list');
-  renderBlueprints();renderAgroPhases();}
+  toast('✓ '+label+(edited?' updated':' saved — it is now under “My sets” in the timeline'));
+  tlMonth='My sets';renderTimeline();}
 async function bpDelete(u){
   const r=BLUEPRINTS.find(x=>x.uuid===u); if(!r)return;
   if(PROGRAMS.some(p=>p.phaseId===r.id&&p.status==='ACTIVE')){toast('Close the active phase first',1);return;}
   if(!confirm('Delete "'+r.set+'"?'))return;
   BLUEPRINTS=BLUEPRINTS.filter(x=>x.uuid!==u); if(db)await del('blueprints',u);
-  renderBlueprints();renderAgroPhases();toast('Set deleted');}
+  renderTimeline();renderTimeline();toast('Set deleted');}
 function renderBlueprints(){
   const box=$('bplist'); if(!box)return;
   box.innerHTML=BLUEPRINTS.length?BLUEPRINTS.map(r=>
@@ -2135,13 +2042,812 @@ async function mergeTasks(rows){
   if(changed){renderGeneralTasks();renderAssign();renderHub();badge();}
   return fresh;}
 
+
+// ================= v2.7 RAINFALL · PROGRAMME ORGANISER · COMBO SET · MARK DONE =================
+// Four additions, all Owner-facing except the last:
+//   1. a manual rain-gauge log, because the farm reads a physical cage every morning
+//   2. a sort selector over the programme list — by growth phase, by month, or by
+//      how hard each set draws down the store
+//   3. the Excel combo-set grid: five fixed blocks, calibrated to a 1000 L pump tank
+//   4. a one-tap MARK DONE on the worker's card that deducts the planned mix
+let RAINFALL=[], LAST_CREW={crew:0,hours:0};
+
+// ---- 1. rainfall -------------------------------------------------------------------
+// One reading per date. Re-saving a date corrects that day rather than adding a second
+// row, which is what actually happens when someone mis-keys a number in the morning.
+function rainOn(d){return RAINFALL.find(r=>r.date===d)||null;}
+function rainSorted(){return RAINFALL.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);}
+function rainUnsynced(){return RAINFALL.filter(r=>!r.synced).length;}
+function rainSum(fromDate){return RAINFALL.filter(r=>r.date>=fromDate).reduce((s,r)=>s+(+r.mm||0),0);}
+function rainMonth(ym){return RAINFALL.filter(r=>r.date.slice(0,7)===ym).reduce((s,r)=>s+(+r.mm||0),0);}
+function dryDays(){
+  const wet=RAINFALL.filter(r=>(+r.mm||0)>0).map(r=>r.date).sort();
+  if(!wet.length)return null;
+  return Math.round((dayStart(new Date())-parseDay(wet[wet.length-1]))/86400000);}
+function rainMax(){return RAINFALL.reduce((m,r)=>Math.max(m,+r.mm||0),0);}
+
+async function saveRain(){
+  const err=$('rain-err'); err.textContent='';
+  const d=$('rain-date').value, mmRaw=$('rain-mm').value;
+  if(!d){err.textContent='Pick the date this reading was taken.';return;}
+  if(mmRaw===''||isNaN(+mmRaw)||+mmRaw<0){err.textContent='Enter the millimetres from the cage — 0 is a valid reading.';return;}
+  if(d>todayStr()){err.textContent='That date is in the future. Log the cage after you have read it.';return;}
+  const mm=+(+mmRaw).toFixed(1);
+  if(mm>500&&!confirm(mm+' mm in one day is extreme.\nSave it anyway?'))return;
+  const old=rainOn(d);
+  if(old&&!confirm(d+' already has '+nf(old.mm)+' mm recorded.\nReplace it with '+nf(mm)+' mm?'))return;
+  const rec=old?Object.assign({},old):{uuid:uuid(),date:d};
+  rec.mm=mm; rec.note=$('rain-note').value.trim();
+  rec.by=(CFG&&CFG.worker)||''; rec.byId=(CFG&&CFG.uid)||'';
+  rec.device=(CFG&&CFG.device)||''; rec.at=now(); rec.synced=false;
+  if(old)RAINFALL[RAINFALL.indexOf(old)]=rec; else RAINFALL.push(rec);
+  if(db)await put('rain',rec);
+  $('rain-mm').value=''; $('rain-note').value=''; $('rain-date').value=todayStr();  // next morning is one tap
+  badge(); renderRain(); renderHub();
+  toast('✓ '+nf(mm)+' mm logged for '+d);
+  if(mm>0&&d===todayStr()&&WEATHER!=='RAINY')
+    toast('🌧️ Rain recorded today — switch to Rainy mode if you are spraying',1);
+}
+function renderRain(){
+  if(!$('rainlist'))return;
+  if(!$('rain-date').value)$('rain-date').value=todayStr();
+  const ym=todayStr().slice(0,7), rows=rainSorted().slice(0,30), mx=Math.max(rainMax(),1);
+  const d7=ymd(addDays(dayStart(new Date()),-6)), d30=ymd(addDays(dayStart(new Date()),-29));
+  const dd=dryDays();
+  $('rain-kpis').innerHTML=
+    '<div class="kpi"><div class="v">'+nf(rainMonth(ym))+'</div><div class="l">mm this month</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(rainSum(d7))+'</div><div class="l">mm last 7 days</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(rainSum(d30))+'</div><div class="l">mm last 30 days</div></div>'+
+    '<div class="kpi"><div class="v">'+(dd===null?'—':dd)+'</div><div class="l">days since rain</div></div>';
+  $('rainlist').innerHTML=rows.length?('<table class="tbl"><tr><th>Date</th><th>Reading</th><th class="num">mm</th></tr>'+
+    rows.map(r=>'<tr><td>'+esc(r.date)+(r.synced?'':' <span class="cstat p">QUEUED</span>')+
+      (r.note?('<div class="pa">'+esc(r.note)+'</div>'):'')+'</td>'+
+      '<td><div class="rainbar"><div class="rainfill" style="width:'+Math.round(100*(+r.mm||0)/mx)+'%"></div></div></td>'+
+      '<td class="num"><b>'+nf(r.mm)+'</b></td></tr>').join('')+'</table>')
+    :'<div class="alertnone">No rainfall logged yet. Read the cage each morning and key the millimetres above.</div>';
+}
+async function pushRain(){
+  const batch=RAINFALL.filter(r=>!r.synced);
+  if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({rain:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j.rain){for(const x of batch){x.synced=true;if(db)await put('rain',x);}badge();return true;}
+    if(!rainWarned){rainWarned=true;
+      toast('Rainfall kept on this phone — update the Apps Script to add the RAIN tab',1);}
+    return false;
+  }catch(e){return false;}}
+let rainWarned=false;
+
+// ---- 2. programme organiser --------------------------------------------------------
+function growthOf(m){return MONTH_PHASE[m]||null;}
+function assumedLPT(p){return +p.litresPerTree||+LAST_LPT[p.mode]||0;}
+// How hard does this set draw the store down? Coverage = the worst stocked line in it.
+function drawdown(p){
+  const lpt=assumedLPT(p);
+  if(p.basis==='PER_1000L'&&!(lpt>0))
+    return {known:false,cover:null,short:0,cost:0,why:'litres per tree not set for this set yet'};
+  const pr=projectPhase(p,'ALL',lpt);
+  let worst=null,short=0;
+  pr.lines.forEach(l=>{
+    const pd=prodById(l.pid); if(!pd||!(l.required>0))return;
+    const c=onHand(pd)/l.required;
+    if(c<1)short++;
+    if(worst===null||c<worst)worst=c;});
+  return {known:true,cover:worst===null?null:+worst.toFixed(3),short:short,cost:pr.cost,lines:pr.lines.length};
+}
+function drawdownRank(){
+  return allPhases().map(p=>({p:p,d:drawdown(p)})).sort((a,b)=>{
+    if(a.d.known!==b.d.known)return a.d.known?-1:1;      // unrankable sets sink, never guessed at
+    if(a.d.short!==b.d.short)return b.d.short-a.d.short;  // most short lines first
+    const ac=a.d.cover===null?9:a.d.cover, bc=b.d.cover===null?9:b.d.cover;
+    if(ac!==bc)return ac-bc;                              // then the thinnest cover
+    return String(a.p.plan||'9999').localeCompare(String(b.p.plan||'9999'));});
+}
+function coverPill(d){
+  if(!d.known)return '<span class="cstat">NOT RANKED</span>';
+  if(d.cover===null)return '<span class="cstat">NO DOSE</span>';
+  const pct=Math.round(d.cover*100);
+  const cls=d.cover>=1?'a':(d.cover>=0.5?'p':'r');
+  return '<span class="cstat '+cls+'">'+(pct>999?'999+':pct)+'% COVERED</span>';
+}
+// ---- 3. combo set grid -------------------------------------------------------------
+function comboSlotOf(pid,aiFallback){
+  const p=prodById(pid);
+  const cat=p?String(p.cat||''):'';
+  if(COMBO_CAT[cat])return COMBO_CAT[cat];
+  const ai=String((p&&p.active_ingredient)||aiFallback||'').toLowerCase();
+  if(ai&&ai.indexOf('confirm')<0){
+    for(let i=0;i<COMBO_AI_RULES.length;i++){
+      const slot=COMBO_AI_RULES[i][0], keys=COMBO_AI_RULES[i][1];
+      for(let j=0;j<keys.length;j++) if(ai.indexOf(keys[j])>=0) return slot;}}
+  return COMBO_CAT_FALLBACK[cat]||'OTHER';
+}
+function comboSlots(rec){
+  const out={}; COMBO_ORDER.concat(['OTHER']).forEach(s=>out[s]=[]);
+  (rec.lines||[]).forEach(l=>{out[comboSlotOf(l.pid,l.ai)].push(l);});
+  return out;
+}
+// Everything the sprayer needs to know before mixing: how many FULL tanks, and what
+// the last part tank takes. A part tank mixed at full dose is the classic overdose.
+function tankPlan(trees,litresPerTree,tankL){
+  const cap=+tankL>0?+tankL:TANK_LITRES;
+  const lpt=+litresPerTree||0;
+  const litres=+(trees*lpt).toFixed(1);
+  const exact=litres/cap;
+  const full=Math.floor(exact+1e-9);
+  const partL=+(litres-full*cap).toFixed(1);
+  return {trees:trees,cap:cap,lpt:lpt,litres:litres,exact:+exact.toFixed(3),
+    full:full,partL:partL,partFrac:+(partL/cap).toFixed(4),
+    treesPerTank:lpt>0?Math.floor(cap/lpt):0};
+}
+// ---- 4. worker card: combo format + one-tap MARK DONE -------------------------------
+function comboCardHTML(r){
+  const slots=comboSlots(r);
+  const per=r.basis==='PER_1000L'?' / 1000 L tank':' / tree';
+  return '<div class="combomini">'+COMBO_ORDER.concat(slots.OTHER.length?['OTHER']:[]).map(s=>{
+    const ls=slots[s];
+    return '<div class="cmrow'+(ls.length?'':' off')+'"><div class="cmk">'+COMBO_IC[s]+' '+esc(COMBO_LABEL[s])+'</div>'+
+      '<div class="cmv">'+(ls.length?ls.map(l=>esc(l.pname)+' <b>'+nf(l.dose)+' '+esc(l.unit)+'</b>'+per).join('<br>')
+        :'<span class="exphint">not in this set</span>')+'</div></div>';}).join('')+'</div>';
+}
+let mdProg=null, mdLotVal='';
+function mdShare(){
+  if(!mdProg)return 1;
+  if(mdProg.scope!=='ALL'||!mdLotVal)return 1;
+  const t=+mdProg.trees||0; if(!t)return 1;
+  return treesInLot(mdLotVal).length/t;}
+function mdMult(){
+  if(!mdProg)return 0;
+  const sh=mdShare();
+  return mdProg.basis==='PER_1000L'?+((+mdProg.tanks||0)*sh).toFixed(3):Math.round((+mdProg.trees||0)*sh);}
+function openMarkDone(u){
+  const r=progOf(u); if(!r){toast('Task not found',1);return;}
+  mdProg=r;
+  const need=(r.scope==='ALL'?LOT_KEYS:[r.scope]).filter(L=>!lotsDone(r.uuid).includes(L));
+  mdLotVal=(r.scope!=='ALL')?r.scope:(need.length===1?need[0]:'');
+  $('md-task').textContent=monthLabel(r.month)+' · '+r.set;
+  $('md-lotwrap').style.display=(r.scope==='ALL')?'':'none';
+  LOT_KEYS.forEach(L=>{const el=$('ml-'+L);el.classList.toggle('on',L===mdLotVal);
+    el.classList.toggle('done',lotsDone(r.uuid).includes(L));});
+  $('md-crew').value=LAST_CREW.crew||'';
+  $('md-hours').value=LAST_CREW.hours||'';
+  $('md-err').textContent='';
+  $('mdmodal').classList.remove('hidden');
+  mdCalc();}
+function closeMarkDone(){$('mdmodal').classList.add('hidden');mdProg=null;}
+function mdLot(L){mdLotVal=L;LOT_KEYS.forEach(k=>$('ml-'+k).classList.toggle('on',k===L));mdCalc();}
+function mdCalc(){
+  if(!mdProg)return;
+  const m=mdMult(), foliar=mdProg.basis==='PER_1000L';
+  $('md-plan').innerHTML=foliar
+    ?('<b>'+nf(m)+' tank'+(m===1?'':'s')+'</b> of 1000 L'+(mdLotVal?(' for Lot '+esc(mdLotVal)):' — pick the lot'))
+    :('<b>'+nf(m)+' tree'+(m===1?'':'s')+'</b>'+(mdLotVal?(' in Lot '+esc(mdLotVal)):' — pick the lot'));
+  $('md-tbl').innerHTML='<tr><th>Product</th><th class="num">Will deduct</th><th class="num">On hand</th></tr>'+
+    mdProg.lines.map(l=>{const p=prodById(l.pid),oh=p?onHand(p):0,q=+(l.dose*m).toFixed(2);
+      return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
+        '<td class="num"><b>'+nf(q)+'</b> '+esc(l.unit)+'</td>'+
+        '<td class="num '+(oh<q?'lowq':'')+'">'+nf(oh)+'</td></tr>';}).join('');}
+let mdSaving=false;
+async function submitMarkDone(){
+  const err=$('md-err'); err.textContent='';
+  if(!mdProg||mdSaving)return;
+  if(!mdLotVal){err.textContent='Pick the lot that was done.';return;}
+  const m=mdMult();
+  if(!(m>0)){err.textContent='This programme has no quantity to deduct.';return;}
+  const crew=Math.round(+$('md-crew').value||0), hours=+$('md-hours').value||0;
+  if(!(crew>0)){err.textContent='How many workers were on the job?';return;}
+  if(!(hours>0)){err.textContent='How many hours did each worker put in?';return;}
+  if(lotsDone(mdProg.uuid).includes(mdLotVal)&&
+     !confirm('Lot '+mdLotVal+' was already reported for this phase.\nMark it done again anyway?'))return;
+  for(const l of mdProg.lines){
+    const p=prodById(l.pid); if(!p)continue;
+    const phi=PHI_PRODUCTS[p.name]; if(!phi)continue;
+    const days=Math.ceil((PEAK_DATE-new Date())/86400000);
+    if(days>=0&&days<phi&&!confirm('⚠ PHI WARNING\n'+p.name+' has a '+phi+'-day residue cut-off.\nProjected peak drop 21–22 Aug is in '+days+' day(s).\n\nMark done anyway?'))return;}
+  const water=+((+mdProg.litresPerTree||0)*(+mdProg.trees||0)*mdShare()).toFixed(1);
+  if(!confirm('Mark done — Lot '+mdLotVal+'\n\nThis deducts the PLANNED mix from stock:\n'+
+    mdProg.lines.map(l=>'· '+l.pname+'  '+nf(+(l.dose*m).toFixed(2))+' '+l.unit).join('\n')+
+    '\n\nIf the field used a different amount, cancel and use SUBMIT COMPLETION REPLY instead.'))return;
+  mdSaving=true;
+  const stamp=now(), rid=uuid();
+  try{
+    for(const l of mdProg.lines){
+      const p=prodById(l.pid); const q=+(l.dose*m).toFixed(2); if(!(q>0))continue;
+      await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
+        ai:l.ai||(p?p.active_ingredient:''),qty:q,unit:l.unit,lot:mdLotVal,
+        set:monthLabel(mdProg.month)+' - '+mdProg.set,
+        cost:+(q*(p?(p.cpu||0):0)).toFixed(2),
+        progId:mdProg.uuid,progSet:monthLabel(mdProg.month)+' · '+mdProg.set,replyId:rid,
+        tanks:mdProg.basis==='PER_1000L'?m:'',water:water,crew:crew,hours:hours,
+        via:'MARK_DONE',planned:true,
+        worker:CFG.worker,device:CFG.device,synced:false});}
+  } finally { mdSaving=false; }
+  LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
+  const n=mdProg.lines.length, lot=mdLotVal;
+  closeMarkDone();
+  toast('✓ Marked done · '+n+' item(s) deducted from Lot '+lot);
+  refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderTimeline();
+  renderProgCheck();renderReady();renderLabour();renderHub();}
+
+// ---- programme list, rendered three ways -------------------------------------------
+// ---- worker's task list, in the combo format ---------------------------------------
+
+// ================= v2.8 MONTH TIMELINE · TYING BALANCE · ROTTEN LOG · LOG CORRECTIONS =================
+// The Agronomist is now three tabs: THIS MONTH (a chronological timeline of the
+// month's combo sets) · WEATHER (mode + rain cage) · RECORD (finished months, kept
+// for the monthly and yearly report). The tank is fixed at 1000 L everywhere — there
+// is one power spray pump on this farm and pretending otherwise only invites a
+// mis-mixed tank.
+
+// ---- high moisture ------------------------------------------------------------------
+function rainWindow(days){
+  let s=0;
+  for(let i=0;i<days;i++){const r=rainOn(ymd(addDays(dayStart(new Date()),-i)));s+=r?(+r.mm||0):0;}
+  return +s.toFixed(1);}
+function wetFlag(){
+  const mm=rainWindow(RAIN_WET_DAYS);
+  return {wet:mm>RAIN_WET_MM,mm:mm,
+    text:mm+' mm in '+RAIN_WET_DAYS+' days — wet canopy, wash-off and root-rot pressure'};}
+
+// ---- where a set stands, read from the real records ---------------------------------
+function progsFor(pid){return PROGRAMS.filter(x=>x.phaseId===pid);}
+function setDone(r){
+  const need=r.scope==='ALL'?LOT_KEYS:[r.scope];
+  return need.every(L=>lotsDone(r.uuid).includes(L));}
+function lastOutFor(u){
+  const es=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId===u).sort((a,b)=>a.dt<b.dt?1:-1);
+  return es.length?es[0].dt.slice(0,10):null;}
+// DONE · PART (started, some lots outstanding) · LATE · DUE · NEXT
+function setStatus(p){
+  const recs=progsFor(p.id);
+  const fin=recs.find(setDone);
+  if(fin)return {st:'DONE',on:lastOutFor(fin.uuid),rec:fin};
+  const live=recs.find(x=>x.status==='ACTIVE');
+  if(live&&lotsDone(live.uuid).length)return {st:'PART',on:lastOutFor(live.uuid),rec:live};
+  const today=ymd(dayStart(new Date()));
+  if(live)return {st:(p.plan&&p.plan<today)?'LATE':'DUE',on:null,rec:live};
+  if(!p.plan)return {st:'NEXT',on:null,rec:null};
+  if(p.plan<today)return {st:'LATE',on:null,rec:null};
+  if(p.plan===today)return {st:'DUE',on:null,rec:null};
+  return {st:'NEXT',on:null,rec:null};}
+const TL_PILL={DONE:['done','✓ DONE'],PART:['due','◐ PART DONE'],LATE:['late','⚠ LATE'],
+  DUE:['due','● DUE NOW'],NEXT:['next','UPCOMING']};
+
+// ---- the fixed 1000 L tank ----------------------------------------------------------
+// Everything downstream reads this one function, so the tank size can never drift
+// between the Owner's projection and the worker's card.
+function tankFor(trees,litresPerTree){return tankPlan(trees,litresPerTree,TANK_LITRES);}
+function tankLineHTML(p,lpt,trees){
+  if(p.basis!=='PER_1000L')
+    return '<div class="tanknote">Fertiliser — broadcast <b>per tree</b> across '+trees+
+      ' tree'+(trees===1?'':'s')+'. No tank mix.</div>';
+  if(!(lpt>0))
+    return '<div class="cbwarn">This set has no <b>litres per tree</b> on record. Open ACTIVATE and enter '+
+      'what the sprayer actually applies — the app will not invent a tank count.</div>';
+  const tp=tankFor(trees,lpt);
+  return '<div class="tanknote">'+trees+' trees × '+nf(tp.lpt)+' L = '+nf(tp.litres)+' L → <b>'+tp.full+
+    ' full tank'+(tp.full===1?'':'s')+'</b>'+(tp.partL>0?(' + one part tank of <b>'+nf(tp.partL)+' L</b>'):'')+
+    '<div class="tnsub">One 1,000 L tank covers about '+tp.treesPerTank+' trees'+
+    (tp.partL>0?' · the part tank is mixed at '+Math.round(tp.partFrac*100)+'% dose':'')+'</div></div>';}
+
+// ---- the 5-part combo grid, rendered inside a timeline card -------------------------
+function comboGridHTML(p,lpt,trees){
+  const slots=comboSlots(p);
+  const fert=(p.basis!=='PER_1000L');
+  const tp=fert?null:tankFor(trees,lpt);
+  const known=fert||(lpt>0);
+  const perTank=q=>fert?null:+(q*tp.cap/1000).toFixed(2);
+  const perPart=q=>fert?null:+(q*tp.partL/1000).toFixed(2);
+  const total  =q=>fert?+(q*trees).toFixed(2):(known?+(q*tp.litres/1000).toFixed(2):null);
+  return '<div class="tblwrap cbwrap"><table class="tbl cbtbl"><tr><th>Product</th>'+
+    '<th class="num">'+(fert?'Per tree':'Goes in one tank')+'</th><th class="num">Total needed</th></tr>'+
+    COMBO_ORDER.concat(slots.OTHER.length?['OTHER']:[]).map(s=>{
+      const ls=slots[s];
+      const head='<tr class="cbhead"><td colspan="3">'+COMBO_IC[s]+' '+esc(COMBO_LABEL[s])+
+        (ls.length?'':' <span class="cbempty">— not in this set</span>')+'</td></tr>';
+      if(!ls.length)return head;
+      return head+ls.map(l=>{
+        const pd=prodById(l.pid), oh=pd?onHand(pd):0, need=total(l.qty);
+        const short=(need!==null&&oh<need);
+        return '<tr><td><div class="pn">'+esc((pd&&pd.name)||l.raw||'—')+'</div>'+
+          '<div class="pa">'+esc(aiFor(l.pid,l.ai||'')||l.ai||'—')+'</div></td>'+
+          '<td class="num"><b>'+nf(fert?l.qty:(known?perTank(l.qty):l.qty))+'</b> '+esc(l.unit)+
+          '<div class="exphint">'+(fert?'per tree':(known?'per full 1,000 L tank':'per 1,000 L tank'))+'</div>'+
+          ((!fert&&known&&tp.partL>0)?('<div class="partdose">part tank '+nf(perPart(l.qty))+' '+esc(l.unit)+'</div>'):'')+
+          '</td>'+
+          '<td class="num '+(short?'lowq':'')+'">'+(need===null?'<span class="exphint">set the litres/tree</span>'
+            :('<b>'+nf(need)+'</b> '+esc(l.unit)+'<div class="exphint">have '+nf(oh)+
+              (short?(' · short '+nf(+(need-oh).toFixed(2))):'')+'</div>'))+'</td></tr>';}).join('');
+    }).join('')+'</table></div>';}
+
+// ---- the timeline -------------------------------------------------------------------
+let tlMonth=null, tlOpen={};
+function tlMonths(){
+  return PROG_MONTH_ORDER.filter(m=>PHASE_PROGRAM.some(p=>p.month===m))
+    .concat(BLUEPRINTS.length?['My sets']:[]);}
+function tlDefaultMonth(){
+  const ms=tlMonths(), today=ymd(dayStart(new Date()));
+  // the month holding the next unfinished set, else the last month with a plan date behind us
+  let best=null;
+  allPhases().forEach(p=>{if(!p.plan)return;
+    if(p.plan>=today&&(!best||p.plan<best.plan))best=p;});
+  if(best&&ms.indexOf(best.month)>=0)return best.month;
+  return ms[ms.length-1]||null;}
+function tlSet(m){tlMonth=m;tlOpen={};renderTimeline();}
+function tlStep(d){
+  const ms=tlMonths(); if(!ms.length)return;
+  let i=ms.indexOf(tlMonth); if(i<0)i=0;
+  i=Math.max(0,Math.min(ms.length-1,i+d));
+  tlSet(ms[i]);}
+function tlToggle(id){tlOpen[id]=!tlOpen[id];renderTimeline();}
+function tlSets(){
+  return allPhases().filter(p=>p.month===tlMonth)
+    .sort((a,b)=>String(a.plan||'9999-99-99').localeCompare(String(b.plan||'9999-99-99')));}
+function tlCard(p){
+  const s=setStatus(p), pill=TL_PILL[s.st], isOpen=!!tlOpen[p.id];
+  const rec=s.rec;
+  const scope=rec?rec.scope:'ALL';
+  const trees=treesInScope(scope);
+  const lpt=rec?(+rec.litresPerTree||0):assumedLPT(p);
+  const wf=wetFlag();
+  const spray=(p.mode==='SPRAY'||p.mode==='LEAF');
+  const phi=p.lines.some(l=>PHI_PRODUCTS[(prodById(l.pid)||{}).name]);
+  const adv=weatherAdvice(p,p.lines);
+  let inner='';
+  if(isOpen){
+    inner=tankLineHTML(p,lpt,trees)+comboGridHTML(p,lpt,trees);
+    if(phi)inner+='<div class="cnote" style="color:#b3261e;font-weight:700">⚠ contains a fruit-contact product with a 14-day residue cut-off</div>';
+    if(adv&&!adv.ok)inner+=advHTML(adv);
+    if(wf.wet&&spray)inner+='<div class="wetnote">💧 '+esc(wf.text)+'. A contact spray put on now may not stay on the leaf.</div>';
+    if(s.st==='DONE'||s.st==='PART'){
+      const done=lotsDone(rec.uuid);
+      inner+='<div class="varbox ok">Reported for '+done.map(L=>'Lot '+L).join(', ')+
+        (s.on?(' · last on '+esc(s.on)):'')+'</div>';}
+    inner+='<div class="cacts">'+
+      (s.st==='DONE'
+        ?'<button class="no" style="background:#e8f0fe;color:#123a71" onclick="event.stopPropagation();openProgModal(\''+esc(p.id)+'\')">RE-ACTIVATE</button>'
+        :'<button class="ok" onclick="event.stopPropagation();openProgModal(\''+esc(p.id)+'\')">✓ ACTIVATE &amp; SEND TO WORKERS</button>')+
+      (p.custom
+        ?'<button class="no" style="background:#e8f0fe;color:#123a71" onclick="event.stopPropagation();openBlueprint(\''+esc(p.uuid||'')+'\')">EDIT SET</button>'+
+         '<button class="no" onclick="event.stopPropagation();bpDelete(\''+esc(p.uuid||'')+'\')">DELETE</button>'
+        :'<button class="no" style="background:#e8f0fe;color:#123a71" onclick="event.stopPropagation();copyToBlueprint(\''+esc(p.id)+'\')">COPY &amp; EDIT BY INGREDIENT</button>')+
+      (rec&&rec.status==='ACTIVE'?'<button class="no" onclick="event.stopPropagation();closeProgram(\''+rec.uuid+'\')">CLOSE PHASE</button>':'')+
+      '</div>';
+  }
+  return '<div class="setrow '+s.st.toLowerCase()+'" onclick="tlToggle(\''+esc(p.id)+'\')">'+
+    '<div class="sh"><div><div class="sn">'+esc(p.set)+'</div>'+
+    '<div class="sd">'+esc(MODE_LABEL[p.mode]||p.mode)+' · '+p.lines.length+' product'+(p.lines.length===1?'':'s')+
+    (p.plan?('<br>planned '+esc(p.plan)):'')+(s.on?(' · applied '+esc(s.on)):'')+'</div></div>'+
+    '<span class="pill '+pill[0]+'">'+pill[1]+'</span></div>'+
+    (rec?clockHTML(rec):'')+
+    (isOpen?inner:'<div class="tlhint">tap to open the combo set and tank count</div>')+'</div>';}
+function renderTimeline(){
+  const box=$('tlbox'); if(!box)return;
+  const ms=tlMonths();
+  if(!ms.length){box.innerHTML='<div class="alertnone">No programme loaded.</div>';return;}
+  if(ms.indexOf(tlMonth)<0)tlMonth=tlDefaultMonth()||ms[ms.length-1];
+  const i=ms.indexOf(tlMonth), sets=tlSets(), wf=wetFlag();
+  const today=ymd(dayStart(new Date()));
+  const c={DONE:0,PART:0,LATE:0,DUE:0,NEXT:0};
+  sets.forEach(p=>c[setStatus(p).st]++);
+  let rows='', line=false;
+  sets.forEach(p=>{
+    if(!line&&p.plan&&p.plan>today){line=true;
+      rows+='<div class="today"><span class="todaytag">TODAY · '+esc(today)+'</span></div>';}
+    const st=setStatus(p).st;
+    rows+='<div class="tlrow"><div class="tldate">'+(p.plan?esc(p.plan.slice(8)):'—')+
+      '<small>'+(p.plan?esc(monthLabel(tlMonth)).slice(0,3):'no date')+'</small></div>'+
+      '<div class="tldot '+st.toLowerCase()+'"></div>'+tlCard(p)+'</div>';});
+  if(!line&&sets.length)rows+='<div class="today"><span class="todaytag">TODAY · '+esc(today)+'</span></div>';
+  box.innerHTML=
+    '<div class="mrow"><div class="marrow'+(i<=0?' off':'')+'" onclick="tlStep(-1)">‹</div>'+
+    '<div class="mname">'+esc(monthLabel(tlMonth))+'<small>'+sets.length+' set'+(sets.length===1?'':'s')+
+    ' · '+c.DONE+' applied'+(c.LATE?(' · '+c.LATE+' late'):'')+'</small></div>'+
+    '<div class="marrow'+(i>=ms.length-1?' off':'')+'" onclick="tlStep(1)">›</div></div>'+
+    (wf.wet?'<div class="wetbadge">💧 HIGH MOISTURE — '+esc(wf.text)+'</div>':'')+
+    (sets.length?('<div class="tl">'+rows+'</div>')
+      :'<div class="alertnone">No set recorded for this month.</div>')+
+    '<button class="bigbtn ghost" style="margin-top:10px" onclick="openBlueprint()">＋ BUILD A SET BY ACTIVE INGREDIENT</button>';}
+
+// ---- RECORD: finished months, kept for the monthly and yearly report ----------------
+function monthRecord(m){
+  const sets=allPhases().filter(p=>p.month===m);
+  let done=0,late=0,cost=0,tanks=0;
+  sets.forEach(p=>{const s=setStatus(p);
+    if(s.st==='DONE')done++; if(s.st==='LATE')late++;
+    if(s.rec){tanks+=+s.rec.tanks||0;
+      EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId===s.rec.uuid).forEach(e=>cost+=+e.cost||0);}});
+  return {m:m,n:sets.length,done:done,late:late,cost:+cost.toFixed(2),tanks:+tanks.toFixed(2),
+    growth:growthOf(m)};}
+function renderRecord(){
+  const box=$('recbox'); if(!box)return;
+  const rows=tlMonths().map(monthRecord);
+  const tot=rows.reduce((a,r)=>({n:a.n+r.n,done:a.done+r.done,cost:a.cost+r.cost}),{n:0,done:0,cost:0});
+  box.innerHTML=
+    '<div class="kpis" style="margin-bottom:8px">'+
+    '<div class="kpi"><div class="v">'+tot.n+'</div><div class="l">sets in the programme</div></div>'+
+    '<div class="kpi"><div class="v">'+tot.done+'</div><div class="l">applied so far</div></div>'+
+    '<div class="kpi"><div class="v">'+(SHOW_VALUES?rm(tot.cost):'—')+'</div><div class="l">material used</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(rainMonth(todayStr().slice(0,7)))+'</div><div class="l">mm rain this month</div></div>'+
+    '</div>'+
+    '<div class="tblwrap"><table class="tbl"><tr><th>Month</th><th>Growth stage</th>'+
+    '<th class="num">Applied</th><th class="num">Material</th></tr>'+
+    rows.map(r=>'<tr><td><div class="pn">'+esc(monthLabel(r.m))+'</div>'+
+      (r.late?'<div class="pa" style="color:#b3261e">'+r.late+' past the plan date</div>':'')+'</td>'+
+      '<td>'+(r.growth?(GROWTH_PHASE[r.growth].ic+' '+esc(GROWTH_PHASE[r.growth].label)):'<span class="exphint">custom</span>')+'</td>'+
+      '<td class="num"><b>'+r.done+'</b> / '+r.n+'</td>'+
+      '<td class="num">'+(SHOW_VALUES?rm(r.cost):'—')+'</td></tr>').join('')+'</table></div>'+
+    '<p class="small">Every month of the programme with what was actually applied against it. This is the '+
+    'record the monthly and yearly report is built from — the working screen is THIS MONTH.</p>'+
+    '<div class="sec" style="margin-top:14px">Stock pressure by set</div>'+
+    '<div class="tblwrap" style="max-height:280px"><table class="tbl"><tr><th>Set</th><th class="num">Cover</th></tr>'+
+    drawdownRank().slice(0,12).map(o=>'<tr><td><div class="pn">'+esc(monthLabel(o.p.month))+' · '+esc(o.p.set)+'</div>'+
+      '<div class="pa">'+(o.d.known?(o.d.short?(o.d.short+' line'+(o.d.short>1?'s':'')+' short of stock'):'every line covered')
+        :esc(o.d.why))+'</div></td>'+
+      '<td class="num">'+coverPill(o.d)+'</td></tr>').join('')+'</table></div>';}
+
+// ---- blueprint: create AND modify a set from the active-ingredient dropdown ---------
+// Editing a set the Owner built reopens the same AI-first builder. A set that came off
+// the programme sheet is never edited in place — it is COPIED into a custom set, so the
+// sheet stays the reference and the change is visibly the Owner's.
+let bpEditUuid=null;
+function bpFrom(rec,nameSuffix){
+  bpEditUuid=null;
+  bpLines=(rec.lines||[]).map(l=>{const p=prodById(l.pid);
+    return {pid:l.pid,pname:(p&&p.name)||l.pname||l.raw||'',ai:String((p&&p.active_ingredient)||l.ai||''),
+      unit:l.unit||(p&&p.unit)||'',qty:+l.qty||+l.dose||0};});
+  bpBasisVal=rec.basis==='PER_TREE'?'PER_TREE':'PER_1000L';
+  $('bp-name').value=(rec.set||'')+(nameSuffix||'');
+  $('bp-kind').value=rec.bpKind||(rec.kind==='FERT'?'MANURE':'PND');
+  ['PER_1000L','PER_TREE'].forEach(k=>$('bb-'+k).classList.toggle('on',k===bpBasisVal));
+  bpKind();renderBpLines();
+  $('bp-err').textContent='';$('bp-dose').value='';
+  $('bpmodal').classList.remove('hidden');}
+function copyToBlueprint(pid){
+  const p=phaseById(pid); if(!p){toast('Set not found',1);return;}
+  $('bp-title').textContent='Copy and edit by ingredient';
+  bpFrom(p,' (my version)');
+  toast('Copied — the sheet set is untouched');}
+
+// ---- fruit tying balance -------------------------------------------------------------
+// Workers log fruits tied per tree under Daily Ops (FTIE). Every drop and every rotten
+// fruit taken off that tree comes back off the balance, so what is left is what is still
+// hanging on a string.
+function tiedOf(tree){
+  let n=0;
+  EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
+    (e.detail||[]).forEach(d=>{if(d.tree===tree)n+=+d.n||0;});});
+  return n;}
+function droppedOf(tree){
+  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree).reduce((s,e)=>s+(+e.delta||0),0);}
+function rottenOf(tree){
+  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree).reduce((s,e)=>s+(+e.delta||0),0);}
+function tiedBalance(tree){return tiedOf(tree)-droppedOf(tree)-rottenOf(tree);}
+function tiedTrees(){
+  const set={};
+  EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
+    (e.detail||[]).forEach(d=>{if(d.tree)set[d.tree]=1;});});
+  return Object.keys(set).sort();}
+function tyingMatrix(){
+  const byLot={};LOT_KEYS.forEach(L=>byLot[L]={lot:L,trees:0,tied:0,dropped:0,rotten:0,bal:0});
+  tiedTrees().forEach(id=>{
+    const t=treeById(id); if(!t||!byLot[t.lot])return;
+    const r=byLot[t.lot];
+    r.trees++; r.tied+=tiedOf(id); r.dropped+=droppedOf(id); r.rotten+=rottenOf(id);
+    r.bal+=tiedBalance(id);});
+  return LOT_KEYS.map(L=>byLot[L]).filter(r=>r.trees>0);}
+function renderTying(){
+  const box=$('tyingbox'); if(!box)return;
+  const rows=tyingMatrix();
+  const tot=rows.reduce((a,r)=>({trees:a.trees+r.trees,tied:a.tied+r.tied,dropped:a.dropped+r.dropped,
+    rotten:a.rotten+r.rotten,bal:a.bal+r.bal}),{trees:0,tied:0,dropped:0,rotten:0,bal:0});
+  const over=tiedTrees().filter(id=>tiedBalance(id)<0);
+  box.innerHTML=
+    '<div class="kpis" style="margin-bottom:8px">'+
+    '<div class="kpi"><div class="v">'+nf(tot.tied)+'</div><div class="l">fruits tied</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(tot.dropped)+'</div><div class="l">dropped since</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(tot.rotten)+'</div><div class="l">logged rotten</div></div>'+
+    '<div class="kpi"><div class="v">'+nf(tot.bal)+'</div><div class="l">still on the string</div></div></div>'+
+    (rows.length?('<div class="tblwrap"><table class="tbl"><tr><th>Lot</th><th class="num">Trees</th>'+
+      '<th class="num">Tied</th><th class="num">Off the tree</th><th class="num">Balance</th></tr>'+
+      rows.map(r=>'<tr><td><b>Lot '+r.lot+'</b></td><td class="num">'+r.trees+'</td>'+
+        '<td class="num">'+nf(r.tied)+'</td>'+
+        '<td class="num">'+nf(r.dropped+r.rotten)+'<div class="exphint">'+nf(r.dropped)+' drop · '+nf(r.rotten)+' rotten</div></td>'+
+        '<td class="num '+(r.bal<0?'lowq':'')+'"><b>'+nf(r.bal)+'</b></td></tr>').join('')+'</table></div>')
+      :'<div class="alertnone">No fruit tied yet. Assign a <b>Fruit tying</b> task in Daily Ops → ASSIGN WORK and the balance builds itself from the workers’ replies.</div>')+
+    (over.length?('<div class="cnote" style="color:#b3261e;font-weight:700">⚠ '+over.length+
+      ' tree'+(over.length>1?'s have':' has')+' more fruit off the tree than was ever tied: '+
+      over.slice(0,8).map(esc).join(', ')+(over.length>8?' …':'')+
+      '<br>Either the tying count was under-reported or untied fruit is being logged against it.</div>'):'')+
+    '<p class="small">Built from the workers’ <b>Fruit tying</b> replies. Every drop and every rotten fruit '+
+    'logged on a tree comes off its balance automatically — nobody keeps this figure by hand.</p>';}
+
+// ---- rotten fruit log ----------------------------------------------------------------
+let rotQty=1, rotCause='';
+function rotBump(d){rotQty=Math.max(1,rotQty+d);$('rot-n').textContent=rotQty;}
+function rotReset(){rotQty=1;$('rot-n').textContent=1;}
+function rotPick(c){rotCause=c;
+  ROT_ORDER.forEach(k=>$('rc-'+k).classList.toggle('on',k===c));
+  $('rot-err').textContent='';}
+function renderRotCauses(){
+  const box=$('rot-causes'); if(!box)return;
+  box.innerHTML=ROT_ORDER.map(k=>'<div id="rc-'+k+'" onclick="rotPick(\''+k+'\')">'+ROT_CAUSE[k].ic+' '+
+    esc(ROT_CAUSE[k].label)+'<span class="csub">'+esc(ROT_CAUSE[k].note)+'</span></div>').join('');}
+let savingRot=false;
+async function saveRotten(){
+  const err=$('rot-err'); err.textContent='';
+  if(!curTree||savingRot)return;
+  if(!rotCause){err.textContent='Choose why the fruit was lost — a rotten count without a cause cannot be acted on.';return;}
+  if(!(rotQty>0)){err.textContent='Enter how many fruits were lost.';return;}
+  const bal=tiedBalance(curTree.id);
+  if(bal>0&&rotQty>bal&&!confirm('⚠ '+curTree.id+' has only '+bal+' fruit still tied.\nLog '+rotQty+' rotten anyway?'))return;
+  savingRot=true;
+  try{
+    const t=curTree;
+    await persistEvent({uuid:uuid(),type:'ROTTEN',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',
+      qty:rotQty,cause:rotCause,causeLabel:ROT_CAUSE[rotCause].label,
+      estkg:+(rotQty*(AVG_KG[t.clone]||1.6)).toFixed(1),
+      worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  } finally { savingRot=false; }
+  const n=rotQty, c=ROT_CAUSE[rotCause].label, id=curTree.id;
+  rotQty=1;rotCause='';$('rot-n').textContent=1;ROT_ORDER.forEach(k=>$('rc-'+k).classList.remove('on'));
+  badge();renderTying();renderMyLogs();showCloneReadout(curTree);renderHub();
+  toast('🍂 '+n+' rotten @ '+id+' · '+c+(navigator.onLine?'':' (queued)'));}
+
+// ---- my logs + request log correction -------------------------------------------------
+// A worker never edits a log. Anything wrong goes to the Owner as a request and is only
+// applied when the Owner approves it, exactly like a clone or census correction.
+function myLogs(){
+  const me=(CFG&&CFG.worker)||'';
+  return EVENTS.filter(e=>(e.type==='DROP'||e.type==='ROTTEN')&&e.worker===me)
+    .sort((a,b)=>a.dt<b.dt?1:-1).slice(0,15);}
+function logLabel(e){
+  return e.type==='ROTTEN'
+    ? ('🍂 '+nf(e.qty)+' rotten · '+esc(e.causeLabel||e.cause||''))
+    : ('🥭 '+nf(e.qty)+' fruit · grade '+esc(e.grade||''));}
+function logAdjOf(u){
+  return EVENTS.filter(e=>(e.type==='DROP_ADJUST'||e.type==='ROTTEN_ADJUST')&&e.evUuid===u)
+    .reduce((s,e)=>s+(+e.delta||0),0);}
+function renderMyLogs(){
+  const box=$('mylogs'); if(!box)return;
+  const rows=myLogs();
+  box.style.display=rows.length?'':'none';
+  const list=$('mylogslist'); if(!list)return;
+  list.innerHTML=rows.map(e=>{
+    const adj=logAdjOf(e.uuid);
+    const pend=CORRECTIONS.some(c=>c.evUuid===e.uuid&&c.status==='PENDING');
+    return '<div class="lrow"><span><b>'+esc(e.tree)+'</b> · '+logLabel(e)+
+      (adj?(' <span class="cstat a">corrected '+(adj>0?'+':'')+nf(adj)+'</span>'):'')+
+      '<br><span class="small">'+esc(e.dt)+(e.synced?'':' · queued')+'</span></span>'+
+      (pend?'<span class="cstat p">CORRECTION SENT</span>'
+           :'<span class="linkish" onclick="openLogCorrection(\''+e.uuid+'\')">Request correction</span>')+
+      '</div>';}).join('');}
+let corrEv=null;
+function openLogCorrection(u){
+  if(!canCorrect()){toast('Not permitted for your role',1);return;}
+  const e=EVENTS.find(x=>x.uuid===u); if(!e){toast('Log not found',1);return;}
+  corrEv=e; corrTree=treeById(e.tree)||{id:e.tree,lot:e.lot,no:0,clone:e.clone||''};
+  corrClone=''; corrType='LOGQTY';
+  $('cf-tree').textContent=e.tree;
+  $('cf-current').innerHTML='Logged<br><b>'+logLabel(e)+'</b><br><span class="small">'+esc(e.dt)+'</span>';
+  $('cf-types').classList.add('hidden');
+  $('cf-clonewrap').classList.add('hidden');
+  $('cf-censuswrap').classList.add('hidden');
+  $('cf-logwrap').classList.remove('hidden');
+  $('cf-logold').textContent=nf(+e.qty||0)+(e.type==='ROTTEN'?' rotten':' fruit');
+  $('cf-logqty').value='';
+  $('cf-sub').textContent='You cannot edit a log. Send the correct number to the Owner — it only takes effect once the Owner approves it.';
+  $('cf-note').value=''; $('cf-err').textContent='';
+  $('corrmodal').classList.remove('hidden');}
+
+// ---- correction workflow, extended to cover drop and rotten logs ---------------------
+function openCorrection(){
+  if(!canCorrect()){toast('Not permitted for your role',1);return;}
+  if(!curTree){toast('Pick a tree first',1);return;}
+  corrEv=null; corrTree=curTree; corrClone=''; corrType='CLONE';
+  $('cf-tree').textContent=curTree.id;
+  $('cf-current').innerHTML='Clone on record<br><b>'+cloneLabel(curTree.clone)+'</b><br>Census Jul: <b>'+(curTree.census!=null?curTree.census:'—')+'</b>';
+  $('cf-clones').innerHTML=CLONES.map(c=>'<div data-c="'+c+'" onclick="pickCorrClone(\''+c+'\')">'+c+'</div>').join('');
+  $('cf-census').value=curTree.census!=null?curTree.census:'';
+  $('cf-types').classList.remove('hidden');
+  $('cf-logwrap').classList.add('hidden');
+  $('cf-sub').textContent='The Owner must approve before the master record changes.';
+  $('cf-note').value=''; $('cf-err').textContent='';
+  pickCorrType('CLONE');
+  $('corrmodal').classList.remove('hidden');}
+function corrSummary(c){
+  if(c.ctype==='CLONE') return 'Clone: '+(c.oldVal||'—')+'  ➔  '+c.newVal;
+  if(c.ctype==='CENSUS') return 'July census: '+(c.oldVal===''||c.oldVal==null?'—':c.oldVal)+'  ➔  '+c.newVal;
+  if(c.ctype==='LOGQTY') return (c.evType==='ROTTEN'?'Rotten count: ':'Drop count: ')+
+    (c.oldVal===''||c.oldVal==null?'—':c.oldVal)+'  ➔  '+c.newVal+
+    (c.evDt?('   ('+String(c.evDt).slice(0,16)+')'):'');
+  return 'Tag / other issue — no automatic change';}
+async function submitCorrection(){
+  if(!canCorrect()||!corrTree)return;
+  const t=corrTree, note=$('cf-note').value.trim();
+  let oldVal='', newVal='', extra={};
+  if(corrType==='LOGQTY'){
+    if(!corrEv){$('cf-err').textContent='No log selected.';return;}
+    const v=$('cf-logqty').value;
+    if(v===''||isNaN(+v)||+v<0){$('cf-err').textContent='Enter the number that should have been logged.';return;}
+    const nv=Math.round(+v);
+    if(nv===Math.round(+corrEv.qty||0)){$('cf-err').textContent='That is already the number on record.';return;}
+    if(!note){$('cf-err').textContent='Tell the Owner what happened — a count change needs a reason.';return;}
+    oldVal=Math.round(+corrEv.qty||0); newVal=nv;
+    extra={evUuid:corrEv.uuid,evType:corrEv.type,evDt:corrEv.dt};
+  }else if(corrType==='CLONE'){
+    if(!corrClone){$('cf-err').textContent='Choose the correct clone.';return;}
+    if(corrClone===t.clone){$('cf-err').textContent='That is already the clone on record.';return;}
+    oldVal=t.clone||''; newVal=corrClone;
+  }else if(corrType==='CENSUS'){
+    const v=$('cf-census').value;
+    if(v===''||isNaN(+v)||+v<0){$('cf-err').textContent='Enter the correct census count.';return;}
+    if(t.census!=null&&+v===t.census){$('cf-err').textContent='That is already the count on record.';return;}
+    oldVal=(t.census==null?'':t.census); newVal=Math.round(+v);
+  }else{
+    if(!note){$('cf-err').textContent='Describe the problem for the Owner.';return;}
+    oldVal=''; newVal='';
+  }
+  await persistCorrection(Object.assign({uuid:uuid(),dt:now(),tree:t.id,lot:t.lot,no:t.no||0,ctype:corrType,
+    oldVal:oldVal,newVal:newVal,note:note,worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,
+    status:'PENDING',decidedBy:'',decidedAt:'',synced:false},extra));
+  closeCorrection(); corrEv=null;
+  renderMyCorrections(); renderMyLogs();
+  toast('✓ Sent to Owner for approval'+(navigator.onLine?'':' (queued)'));}
+// An approved log correction never rewrites the original row — the Sheet is append-only.
+// It emits a signed adjustment event, exactly as a stock-take adjustment does, so the
+// audit trail shows both the mistake and the Owner who authorised the fix.
+async function applyLogCorrection(c){
+  if(c.ctype!=='LOGQTY'||!c.evUuid)return;
+  if(EVENTS.some(e=>e.corrId===c.uuid))return;              // idempotent: sync may replay this
+  const base=EVENTS.find(e=>e.uuid===c.evUuid);
+  const delta=+(Math.round(+c.newVal||0)-Math.round(+c.oldVal||0));
+  if(!delta)return;
+  const t=treeById(c.tree);
+  await persistEvent({uuid:uuid(),type:(c.evType==='ROTTEN'?'ROTTEN_ADJUST':'DROP_ADJUST'),dt:now(),
+    evUuid:c.evUuid,corrId:c.uuid,tree:c.tree,lot:c.lot,clone:(base&&base.clone)||(t&&t.clone)||'',
+    was:Math.round(+c.oldVal||0),now:Math.round(+c.newVal||0),delta:delta,
+    estkg:+(delta*(AVG_KG[(t&&t.clone)]||1.6)).toFixed(1),
+    reason:c.note||'',requestedBy:c.worker||'',approvedBy:CFG?CFG.worker:'',synced:false});}
+async function decideCorrection(id,ok){
+  if(!canApprove()){toast('Only the Owner can approve corrections',1);return;}
+  const c=CORRECTIONS.find(x=>x.uuid===id); if(!c||c.status!=='PENDING')return;
+  const isLog=(c.ctype==='LOGQTY');
+  const t=treeById(c.tree);
+  if(ok){
+    if(!confirm('Approve this change?\n\n'+c.tree+'\n'+corrSummary(c)+'\n\n'+
+      (isLog?'This files a signed adjustment against that log. The original row is kept.'
+            :'This permanently updates the Tree Master across the whole app.')))return;
+  }else{
+    if(!confirm('Reject this request?\n\n'+c.tree+'\n'+corrSummary(c)))return;}
+  c.status=ok?'APPROVED':'REJECTED'; c.decidedBy=CFG.worker; c.decidedAt=now(); c.synced=false;
+  if(ok){ if(isLog)await applyLogCorrection(c); else if(t)await bakeApproved(c); }
+  await persistCorrection(c);
+  renderCorrections(); renderDash(); renderTying(); renderMyLogs(); refreshInventoryViews();
+  if(curTree&&curTree.id===c.tree) selectTree(c.tree);
+  toast(ok?('✓ Approved — '+c.tree+' updated'):'Request rejected');}
+
+// ---- sync: rotten logs and log adjustments each travel on their own key --------------
+let rotWarned=false, ladjWarned=false;
+function rottenQueue(){return EVENTS.filter(e=>e.type==='ROTTEN'&&!e.synced);}
+function logAdjQueue(){return EVENTS.filter(e=>(e.type==='DROP_ADJUST'||e.type==='ROTTEN_ADJUST')&&!e.synced);}
+function q5(){return rottenQueue().length+logAdjQueue().length;}
+async function pushOwnKey(batch,key,flag,warnSetter,warnMsg){
+  if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  try{
+    const body={}; body[key]=batch;
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify(body),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j[flag]){for(const e of batch){e.synced=true;if(db)await put('events',e);}badge();return true;}
+    warnSetter(warnMsg);
+    return false;
+  }catch(e){return false;}}
+async function pushRotten(){
+  return pushOwnKey(rottenQueue(),'rotten','rotten',
+    m=>{if(!rotWarned){rotWarned=true;toast(m,1);}},
+    'Rotten fruit logs kept on this phone — update the Apps Script to add the ROTTEN_LOGS tab');}
+async function pushLogAdj(){
+  return pushOwnKey(logAdjQueue(),'logadj','logadj',
+    m=>{if(!ladjWarned){ladjWarned=true;toast(m,1);}},
+    'Approved log corrections kept on this phone — update the Apps Script to add the LOG_ADJUST tab');}
+
+// ---- tree card: the tied balance, deducted live as drops and rotten are logged -------
+function treeTieHTML(t){
+  if(!t)return '';
+  const tied=tiedOf(t.id); if(!tied)return '';
+  const bal=tiedBalance(t.id), off=droppedOf(t.id)+rottenOf(t.id);
+  return '<div class="tiebox'+(bal<0?' bad':'')+'">🪢 <b>'+nf(bal)+'</b> still tied on this tree'+
+    '<div class="tnsub">'+nf(tied)+' tied · '+nf(off)+' already off the tree'+
+    (bal<0?' · more taken off than was ever tied':'')+'</div></div>';}
+function selectTree(id){
+  const t=treeById(id);
+  if(!t){toast('Unknown tag: '+id,1);return;}
+  curTree=t;$('t-id').textContent=t.id;$('t-clone').textContent=t.clone||'?';
+  $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
+  curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
+  $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');
+  qty=1;$('qty').textContent=1;setGrade(0);
+  rotQty=1;rotCause='';if($('rot-n'))$('rot-n').textContent=1;
+  renderRotCauses();
+  if($('rot-err'))$('rot-err').textContent='';
+  if($('tiebox'))$('tiebox').innerHTML=treeTieHTML(t);
+  if($('corrbtn')) $('corrbtn').style.display=canCorrect()?'':'none';}
+async function saveDrop(){
+  if(!curTree||savingDrop)return;                     // block double-taps
+  savingDrop=true;
+  try{
+    const t=curTree;
+    if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000){
+      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW drop?')){savingDrop=false;return;}}
+    const bal=tiedBalance(t.id);
+    if(bal>0&&qty>bal&&
+       !confirm('⚠ '+t.id+' has only '+bal+' fruit still tied.\nLogging '+qty+
+                ' takes the tied balance below zero.\n\nSave anyway?')){savingDrop=false;return;}
+    await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
+      estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
+    lastDrop={tree:t.id,time:Date.now()};
+    const left=tiedBalance(t.id);
+    toast('✓ '+qty+' fruit @ '+t.id+(bal>0?(' · '+nf(Math.max(0,left))+' still tied'):'')+
+      (navigator.onLine?'':' (queued)'));
+    renderTying();renderMyLogs();
+    cancelTree();
+  } finally { savingDrop=false; }}
+
+
+// ---- worker's recipe card: the combo set, the tank, and one Confirm Completion -------
+// The card is the mixing instruction. It states the tank the farm actually owns (1,000 L),
+// how many of them the job needs, and what goes into each one — then takes one tap.
+function renderOpsTasks(){
+  const box=$('opslist');if(!box)return;
+  const t=myTasks(), today=ymd(dayStart(new Date())), wf=wetFlag();
+  box.innerHTML=t.length?t.map(function(r){
+    const done=lotsDone(r.uuid);
+    const need=(r.scope==='ALL'?LOT_KEYS:[r.scope]).filter(function(L){return done.indexOf(L)<0;});
+    const phi=r.lines.some(function(l){return PHI_PRODUCTS[(prodById(l.pid)||{}).name];});
+    const isToday=(r.plan===today)||(r.startDate===today);
+    const overdue=r.plan&&r.plan<today;
+    const spray=(r.mode==='SPRAY'||r.mode==='LEAF');
+    const tanks=+r.tanks||0;
+    return '<div class="crow'+(isToday?' todaycard':'')+'"><div class="ch">'+
+      '<div><div class="ctree">'+(isToday?'<span class="todaychip">TODAY</span> ':'')+
+      esc(monthLabel(r.month))+' · '+esc(r.set)+'</div>'+
+      '<div class="cwho">'+esc(MODE_LABEL[r.mode]||r.mode)+(r.plan?(' · planned '+esc(r.plan)):'')+
+      '<br>set by '+esc(r.by)+' · '+esc(r.at)+'</div></div>'+
+      '<span class="cstat '+(overdue?'r':'p')+'">'+(overdue?'OVERDUE':'TO DO')+'</span></div>'+
+      clockHTML(r)+
+      (r.basis==='PER_1000L'&&tanks
+        ?(function(){
+            // never hand a sprayer a decimal tank — say full tanks and the part tank in litres
+            const tp=tankFor(r.trees,+r.litresPerTree||0);
+            return '<div class="tanknote">Mix <b>'+tp.full+' full tank'+(tp.full===1?'':'s')+'</b> of 1,000 L'+
+              (tp.partL>0?(' + <b>one part tank of '+nf(tp.partL)+' L</b>'):'')+' for '+r.trees+' trees'+
+              '<div class="tnsub">'+nf(r.litresPerTree)+' L of mix per tree · one full tank covers about '+
+              tp.treesPerTank+' trees'+
+              (tp.partL>0?(' · mix the part tank at '+Math.round(tp.partFrac*100)+'% of the dose below'):'')+
+              '</div></div>';})()
+        :'<div class="tanknote">Broadcast <b>per tree</b> across '+r.trees+' trees. No tank mix.</div>')+
+      (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">⚠ fruit-contact product — check the residue cut-off with the Owner first</div>':'')+
+      (r.weather==='RAINY'?'<div class="cnote" style="color:#123a71;font-weight:700">🌧️ set while the Owner had Rainy mode on — spray only when the leaf can dry</div>':'')+
+      (wf.wet&&spray?('<div class="wetnote">💧 '+esc(wf.text)+'. Check with the Owner before spraying a contact product.</div>'):'')+
+      comboCardHTML(r)+
+      '<div class="cwho">Still to report: '+need.map(function(L){return '<span class="lotchip">LOT '+L+'</span>';}).join('')+
+      (done.length?(' · done: '+done.map(function(L){return '<span class="lotchip">LOT '+L+'</span>';}).join('')):'')+'</div>'+
+      '<div class="cacts"><button class="ok" onclick="openMarkDone(\'' + r.uuid + '\')">✓ CONFIRM COMPLETION</button>'+
+      '<button class="no" style="background:#e8f0fe;color:#123a71" onclick="openReply(\'' + r.uuid + '\')">MIXED A DIFFERENT AMOUNT</button></div></div>';}).join('')
+    :'<div class="alertnone">No task waiting. The Owner has not activated a set, or every lot has already been reported.</div>';}
+
 // ================= boot =================
 (async function(){
   await initStore();
   // spray set options
   const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   renderInOpts();renderOutOpts();renderStOpts();renderAlerts();   // inventory master ready before first paint
-  renderAgroPhases();renderOpsTasks();renderProgCheck();          // v2.5 programme views
+  renderTimeline();renderOpsTasks();renderProgCheck();          // v2.5 programme views
   renderV26();                                                    // v2.6 weather, blueprint, tasks, labour
   badge();netUpdate();
   if(LOCKED){showLock(false);return;}                 // revoked device stays locked forever

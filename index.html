@@ -264,6 +264,97 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .varbox.ok{background:var(--lite);color:var(--green);}
 .editrow{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end;}
 .minitag{font-size:9px;background:#eef1ec;color:var(--muted);border-radius:6px;padding:1px 6px;font-weight:800;}
+
+/* ===== v2.7 — rainfall, programme organiser, combo set grid ===== */
+.sortbar{display:flex;align-items:center;gap:8px;margin:2px 0 8px}
+.sortbar label{margin:0;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;letter-spacing:.3px}
+.sortbar select{flex:1;min-width:0;margin:0;padding:11px 8px;font-size:13.5px;font-weight:700;border:2px solid var(--green2);
+  border-radius:10px;background:#fff;color:var(--ink)}
+.agrohint{background:var(--lite);border-left:4px solid var(--green2);border-radius:0 8px 8px 0;
+  padding:8px 10px;font-size:12.5px;line-height:1.45;color:var(--ink);margin:0 0 10px}
+.rainrow{display:flex;gap:8px}
+.rainrow>div{flex:1}
+.rainbar{background:#e8eef3;border-radius:5px;height:14px;overflow:hidden;min-width:60px}
+.rainfill{background:linear-gradient(90deg,#4a90d9,#123a71);height:100%;border-radius:5px}
+.combohead{border-bottom:2px solid var(--lite);padding-bottom:8px;margin-bottom:10px}
+.cbtitle{font-size:17px;font-weight:800;color:var(--green)}
+.cbsub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.cbwarn{background:#fff3cd;border-left:4px solid var(--gold);border-radius:0 8px 8px 0;
+  padding:9px 11px;font-size:13px;line-height:1.45;margin-bottom:10px}
+.cbmath{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.cbm{background:var(--lite);border-radius:9px;padding:9px 6px;text-align:center}
+.cbm .v{font-size:15px;font-weight:800;color:var(--green);line-height:1.15;white-space:nowrap}
+.cbm .l{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.2}
+.cbwrap{max-height:none;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cbtbl{font-size:11px}
+.cbtbl .cbhead td{background:var(--lite);font-weight:900;font-size:11.5px;color:var(--green);
+  letter-spacing:.3px;padding:6px 8px;border-bottom:1.5px solid #cfe3d0}
+.cbtbl .cbhead .cbempty{font-weight:600;color:var(--muted);font-style:italic}
+.cbtbl td{padding:6px 3px}
+.partdose{font-size:9.5px;font-weight:800;color:#123a71;background:#e8f0fe;border-radius:5px;
+  padding:1px 4px;display:inline-block;margin-top:2px}
+.cbtbl .cbempty{color:var(--muted);font-size:12px;font-style:italic}
+.combomini{border:1.5px solid var(--lite);border-radius:10px;overflow:hidden;margin:8px 0}
+.cmrow{display:flex;border-bottom:1px solid var(--lite)}
+.cmrow:last-child{border-bottom:0}
+.cmrow.off{opacity:.45}
+.cmk{flex:0 0 40%;background:#fafbf9;padding:7px 9px;font-size:12px;font-weight:700;color:var(--ink);
+  border-right:1px solid var(--lite)}
+.cmv{flex:1;padding:7px 9px;font-size:12.5px;line-height:1.5}
+.lotbtns>div.done{background:var(--lite);color:var(--muted);text-decoration:line-through}
+
+/* ===== v2.8 — month timeline, rotten log, tying balance ===== */
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.marrow{width:40px;height:40px;border-radius:11px;background:var(--lite);color:var(--green);
+  font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex:0 0 auto;user-select:none}
+.marrow.off{opacity:.3;pointer-events:none}
+.mname{font-size:19px;font-weight:800;color:var(--green);text-align:center;flex:1;line-height:1.2}
+.mname small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.wetbadge{background:#e8f0fe;border-left:4px solid #4a90d9;border-radius:0 9px 9px 0;padding:9px 11px;
+  font-size:12.5px;font-weight:800;color:var(--blue,#123a71);margin-bottom:10px;line-height:1.45}
+.tl{position:relative;padding-left:64px}
+.tlrow{position:relative;padding-bottom:12px}
+.tlrow:before{content:'';position:absolute;left:-33px;top:8px;bottom:-6px;width:2px;background:#e2e6e1}
+.tlrow:last-child:before{display:none}
+.tldate{position:absolute;left:-64px;top:2px;width:26px;text-align:right;font-size:12px;
+  font-weight:800;color:var(--muted);line-height:1.15}
+.tldate small{display:block;font-size:9px;font-weight:600}
+.tldot{position:absolute;left:-39px;top:6px;width:14px;height:14px;border-radius:50%;
+  background:#e2e6e1;border:2.5px solid #fff}
+.tldot.done{background:var(--green2)}.tldot.late{background:var(--warn)}
+.tldot.due,.tldot.part{background:var(--gold)}
+.today{position:relative;margin:0 0 12px -64px;padding-left:64px}
+.today:before{content:'';position:absolute;left:-33px;right:0;top:50%;height:2px;background:var(--warn);opacity:.45}
+.todaytag{display:inline-block;background:var(--warn);color:#fff;font-size:9px;font-weight:900;
+  padding:3px 9px;border-radius:20px;position:relative;letter-spacing:.4px}
+.setrow{border:1.5px solid #e2e6e1;border-radius:13px;padding:11px;background:#fff;cursor:pointer}
+.setrow.done{border-color:#c3e0c5;background:#fbfefb}
+.setrow.late{border-color:#f3c9c5;background:#fffbfb}
+.setrow.due,.setrow.part{border-color:var(--gold);background:#fffdf3}
+.sh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sn{font-size:16px;font-weight:800;color:var(--green);line-height:1.25}
+.sd{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.pill{font-size:9px;font-weight:900;padding:4px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.3px}
+.pill.done{background:var(--lite);color:var(--green)}
+.pill.late{background:#fdecea;color:var(--warn)}
+.pill.due{background:var(--amberbg);color:#8a6d00}
+.pill.next{background:#eef2ee;color:var(--muted)}
+.tlhint{font-size:11px;color:var(--muted);margin-top:7px;font-style:italic}
+.tanknote{background:var(--lite);border-radius:9px;padding:9px 11px;font-size:13px;font-weight:700;
+  color:var(--green);margin:9px 0;line-height:1.5}
+.tnsub{font-size:11px;font-weight:600;color:var(--muted);margin-top:3px;line-height:1.4}
+.wetnote{background:#e8f0fe;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700;
+  color:#123a71;margin:8px 0;line-height:1.45}
+.tiebox{background:#f4f0ff;border-left:4px solid #7c5cd6;border-radius:0 10px 10px 0;padding:10px 12px;
+  font-size:13.5px;color:#3b2a6b;margin-bottom:10px;line-height:1.4}
+.tiebox.bad{background:#fdecea;border-left-color:var(--warn);color:var(--warn)}
+.tiebox b{font-size:17px}
+.rotcard{border:1.5px solid #e6d9c5;background:#fffdf7}
+.bigbtn.rot{background:#8a5a1e}
+.crow.todaycard{border-color:var(--green2);box-shadow:0 0 0 2px rgba(46,125,50,.14)}
+.todaychip{display:inline-block;background:var(--green2);color:#fff;font-size:9px;font-weight:900;
+  padding:2px 7px;border-radius:20px;letter-spacing:.4px;vertical-align:2px}
 </style>
 </head>
 <body>
@@ -373,6 +464,7 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
       <span class="clone" id="t-clone"></span>
     </div>
     <button class="corrbtn" id="corrbtn" onclick="openCorrection()">⚠ REQUEST TREE / CLONE CORRECTION</button>
+    <div id="tiebox"></div>
     <div class="card">
       <div class="sec">Fruits dropped — tally counter</div>
       <div class="stepper">
@@ -387,8 +479,31 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
       <div class="grades" id="grades"><div class="on" onclick="setGrade(0)">A</div><div onclick="setGrade(1)">B</div><div onclick="setGrade(2)">C</div></div>
     </div>
     <button class="bigbtn" onclick="saveDrop()">✓ SAVE DROP</button>
+    <div style="height:10px"></div>
+    <div class="card rotcard">
+      <div class="sec">🍂 Log rotten fruits</div>
+      <p class="small" style="margin-top:0">Fruit lost on the tree, not collected. The cause is required —
+        a rotten count without a reason cannot be acted on.</p>
+      <div class="stepper">
+        <button onclick="rotBump(-1)">−</button><div class="n" id="rot-n">1</div><button onclick="rotBump(1)">+</button>
+      </div>
+      <div class="quickadd">
+        <div onclick="rotBump(5)">+5</div><div onclick="rotBump(10)">+10</div><div onclick="rotReset()">RESET</div>
+      </div>
+      <label>Why was it lost? <span class="minitag">REQUIRED</span></label>
+      <div class="ctypes" id="rot-causes"></div>
+      <div class="pinerr" id="rot-err"></div>
+      <button class="bigbtn rot" onclick="saveRotten()">🍂 LOG ROTTEN FRUITS</button>
+    </div>
     <div style="height:8px"></div>
     <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
+  </div>
+  <div class="card" id="mylogs" style="display:none">
+    <div class="sec">My drop &amp; rotten logs</div>
+    <div id="mylogslist"></div>
+    <p class="small" style="margin-top:9px">A log cannot be edited on this phone. If a number is wrong,
+      tap <b>Request correction</b> — the Owner approves it in Pending Data Adjustments and the app files a
+      signed adjustment against the original row.</p>
   </div>
   <div class="card" id="mycorr" style="display:none">
     <div class="sec">My correction requests</div>
@@ -516,26 +631,30 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   <div class="card" id="opstasks" style="display:none">
     <div class="sec">📋 Today's tasks — from the Owner's active programme</div>
     <div id="opslist"></div>
-    <p class="small" style="margin-top:9px">Tasks are set by the Owner in the Agronomist programme and cannot be edited here. Open a task and send a completion reply — the material used is deducted from farm stock automatically.</p>
+    <p class="small" style="margin-top:9px">Tasks are set by the Owner and cannot be edited here.
+      <b>CONFIRM COMPLETION</b> deducts exactly what the Owner planned for that lot — use it when the tank was
+      mixed to the recipe above. If the field mixed a different amount, use <b>MIXED A DIFFERENT AMOUNT</b> and key
+      the real tanks. Either way the material leaves farm stock automatically and is costed to that lot.</p>
   </div>
   <div class="card" id="opshistory" style="display:none">
     <div class="sec">✓ Completion replies sent from this phone</div>
     <div id="opshistlist"></div>
   </div>
 
-  <!-- ===== AGRONOMIST · PHASE PROGRAMME (v2.5) ===== -->
-  <div class="card" id="agrophases" style="display:none">
-    <div class="sec">🌱 Phase programme — PnD, foliar &amp; fertiliser</div>
-    <div class="segs" id="agromonths"></div>
-    <div id="agrolist"></div>
-    <p class="small" style="margin-top:9px">Doses come straight from the programme sheet: foliar sets are <b>per 1000 litre tank mix</b>, fertiliser sets are <b>per tree</b>. Activating a phase projects the total volume needed and pushes the task to the workers' phones at the next sync.</p>
+  <!-- ===== AGRONOMIST · MONTH TIMELINE (v2.8, Option 3) ===== -->
+  <div class="card" id="agromonth" style="display:none">
+    <div class="sec">🗓️ Month timeline — combo sets in date order</div>
+    <div id="tlbox"></div>
+    <p class="small" style="margin-top:9px">Every tank figure on this farm is a <b>1,000 litre power spray
+      pump tank</b>. Tap a set to open its five combo blocks — Pesticide, Fungicide, Foliar, Biostimulator
+      and Trace Elements — with the dose that goes into one tank and the total the whole job needs.</p>
   </div>
-  <div class="card" id="agroproj" style="display:none">
-    <div class="sec">📐 Active programme &amp; projected requirement</div>
-    <div id="projbox"></div>
+  <div class="card" id="agrorecord" style="display:none">
+    <div class="sec">📒 Programme record — for the monthly &amp; yearly report</div>
+    <div id="recbox"></div>
   </div>
 
-  <!-- ===== AGRONOMIST · WEATHER MODE + AI BLUEPRINT (v2.6) ===== -->
+  <!-- ===== AGRONOMIST · WEATHER MODE + RAIN CAGE (v2.6 / v2.7) ===== -->
   <div class="card" id="agroweather" style="display:none">
     <div class="sec">🌦️ Weather mode</div>
     <p class="small">Set what the sky is actually doing. In <b>Rainy</b> mode the app checks every spray line against the product database and flags anything that washes off, offering a systemic stand-in that stays on the tree.</p>
@@ -545,11 +664,23 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     </div>
     <div id="wxnote" class="small"></div>
   </div>
-  <div class="card" id="agrobp" style="display:none">
-    <div class="sec">🧪 Programme blueprint — build by active ingredient</div>
-    <p class="small">Build a spray or manuring set the way an agronomist thinks: choose the <b>active ingredient</b> first, then the app shows which products in the store carry it. Brand names never drive the decision.</p>
-    <div id="bplist"></div>
-    <button class="bigbtn" style="margin-top:10px" onclick="openBlueprint()">＋ NEW PROGRAMME SET</button>
+  <div class="card" id="agrorain" style="display:none">
+    <div class="sec">🌧️ Daily rainfall — from the farm cage</div>
+    <p class="small">Read the gauge in the cage each morning and key the millimetres here. One reading per date —
+      saving the same date again corrects that day rather than adding a second row. More than
+      <b>30 mm over 3 days</b> raises the high-moisture badge on the month timeline.</p>
+    <div class="kpis" id="rain-kpis" style="margin-bottom:8px"></div>
+    <div class="rainrow">
+      <div><label>Date read</label><input type="date" id="rain-date"></div>
+      <div><label>Millimetres</label><input type="number" id="rain-mm" min="0" step="0.1" inputmode="decimal" placeholder="0.0"></div>
+    </div>
+    <label>Note (optional)</label>
+    <input id="rain-note" placeholder="e.g. heavy from 3pm, overflowed the drain">
+    <div class="pinerr" id="rain-err"></div>
+    <button class="bigbtn" onclick="saveRain()">＋ SAVE RAINFALL READING</button>
+    <div style="height:12px"></div>
+    <div class="sec">Last 30 readings</div>
+    <div id="rainlist"></div>
   </div>
 
   <!-- ===== DAILY OPS · GENERAL FIELD TASKS (v2.6) ===== -->
@@ -566,6 +697,12 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   <div class="card" id="labourcard" style="display:none">
     <div class="sec">👷 Labour logged</div>
     <div id="labourbox"></div>
+  </div>
+
+  <!-- ===== HARVEST · FRUIT TYING VARIANCE MATRIX (v2.8) ===== -->
+  <div class="card" id="tyingcard" style="display:none">
+    <div class="sec">🪢 Fruit tying — variance matrix</div>
+    <div id="tyingbox"></div>
   </div>
 
   <!-- ===== PURCHASER · UPCOMING PROGRAM STOCK CHECK (v2.5) ===== -->
@@ -695,7 +832,13 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
       <label>Correct July census count (fruits)</label>
       <input type="number" id="cf-census" min="0" inputmode="numeric" placeholder="e.g. 42">
     </div>
-    <label>Note for the Owner (optional)</label>
+    <div id="cf-logwrap" class="hidden">
+      <label>Number logged <span class="ro">CANNOT BE EDITED</span></label>
+      <div class="convnote" id="cf-logold">—</div>
+      <label>Number that should have been logged</label>
+      <input type="number" id="cf-logqty" min="0" inputmode="numeric" placeholder="e.g. 7">
+    </div>
+    <label>Note for the Owner</label>
     <input id="cf-note" placeholder="e.g. tag says MK but tree is Black Thorn" autocomplete="off">
     <div class="pinerr" id="cf-err"></div>
     <button class="bigbtn" onclick="submitCorrection()">⇧ SUBMIT TO OWNER</button>
@@ -784,10 +927,43 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   </div>
 </div>
 
+<!-- ONE-TAP MARK DONE (v2.7, Worker) — deducts the PLANNED mix -->
+<div id="mdmodal" class="modal hidden">
+  <div class="sheet">
+    <h3>Mark done</h3>
+    <p class="small">This deducts exactly what the Owner planned for the lot. If the field mixed a different
+      amount, close this and use <b>SPRAYED A DIFFERENT AMOUNT</b> instead.</p>
+    <div class="aibox" style="margin-top:12px">
+      <div><div class="cl">Task <span class="ro">SET BY OWNER</span></div><div class="av" id="md-task">—</div></div>
+    </div>
+    <div id="md-lotwrap">
+      <label>Which lot was done?</label>
+      <div class="lotbtns" id="md-lots">
+        <div id="ml-A" onclick="mdLot('A')">LOT A</div>
+        <div id="ml-B" onclick="mdLot('B')">LOT B</div>
+        <div id="ml-C" onclick="mdLot('C')">LOT C</div>
+      </div>
+    </div>
+    <div class="convnote" id="md-plan">—</div>
+    <div class="rainrow">
+      <div><label>Workers on the job</label>
+        <input type="number" id="md-crew" min="1" step="1" inputmode="numeric"></div>
+      <div><label>Hours each</label>
+        <input type="number" id="md-hours" min="0" step="any" inputmode="decimal"></div>
+    </div>
+    <p class="small">These two are remembered, so next time it is one tap.</p>
+    <div class="tblwrap" style="max-height:230px"><table class="tbl" id="md-tbl"></table></div>
+    <div class="pinerr" id="md-err"></div>
+    <button class="bigbtn" onclick="submitMarkDone()">✓ CONFIRM — DEDUCT PLANNED MIX</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeMarkDone()">CANCEL</button>
+  </div>
+</div>
+
 <!-- BLUEPRINT: build a programme set by ACTIVE INGREDIENT (v2.6, Owner) -->
 <div id="bpmodal" class="modal hidden">
   <div class="sheet">
-    <h3>New programme set</h3>
+    <h3 id="bp-title">New programme set</h3>
     <p class="small">Pick the job, then the active ingredient. Products are listed only because they carry that ingredient.</p>
     <label>Set name</label>
     <input id="bp-name" placeholder="e.g. Rain-guard fruit set">
@@ -890,14 +1066,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v2.6.2 — split build. THREE files must be uploaded together:
+     v2.8.1 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=2.6.2"></script>
-<script src="app.js?v=2.6.2"></script>
+<script src="database.js?v=2.8.1"></script>
+<script src="app.js?v=2.8.1"></script>
 </body>
 </html>
