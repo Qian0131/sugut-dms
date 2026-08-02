@@ -100,6 +100,29 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .kstat.a{background:var(--lite);color:var(--green);}
 .kstat.r{background:#fdecea;color:var(--warn);}
 .keycode{font-family:monospace;font-weight:800;letter-spacing:1px;background:#f0f3ef;border-radius:6px;padding:1px 7px;}
+/* v2.1 governance registry */
+.regrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid #eef1ec;}
+.regrow:last-child{border-bottom:none;}
+.regrow.me{background:#f4faf4;border-radius:8px;padding-left:6px;padding-right:6px;}
+.regname{font-weight:800;font-size:13.5px;line-height:1.35;}
+.regmeta{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.regacts{display:flex;gap:5px;flex-shrink:0;}
+.iconbtn{width:34px;height:34px;border-radius:10px;border:1.5px solid #d7ded6;background:#fff;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;padding:0;}
+.iconbtn:active{transform:scale(.94);}
+.iconbtn.danger{border-color:#f1c3bf;color:var(--warn);}
+.iconbtn.warn{border-color:#ffe08a;}
+.iconbtn:disabled{opacity:.3;cursor:not-allowed;}
+.modal{position:fixed;inset:0;background:#00000073;z-index:900;display:flex;align-items:flex-end;justify-content:center;}
+.modal .sheet{background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;}
+.modal h3{font-size:16px;font-weight:900;color:var(--green);margin-bottom:2px;}
+.keygen{display:flex;gap:8px;align-items:center;}
+.keygen input{font-family:monospace;font-size:22px;font-weight:800;letter-spacing:5px;text-align:center;}
+.keygen button{flex-shrink:0;background:var(--lite);color:var(--green);border:none;border-radius:10px;padding:12px 12px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.rolepick{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.rolepick div{border:2px solid #c8dcc9;border-radius:11px;padding:9px 6px;text-align:center;font-weight:800;font-size:12px;cursor:pointer;background:#fff;user-select:none;}
+.rolepick div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.rolepick .rsub{display:block;font-weight:600;font-size:9px;opacity:.75;text-transform:none;letter-spacing:0;}
+.regdirty{background:var(--amberbg);color:#7a5b00;border-radius:9px;padding:7px 10px;font-size:11px;font-weight:700;margin-bottom:9px;}
 </style>
 </head>
 <body>
@@ -235,9 +258,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <!-- DASH -->
 <div class="scr hidden" id="scr-dash">
   <div class="card" id="keyspanel">
-    <div class="sec">🔑 Master Key Control (Owner)</div>
+    <div class="sec">🔑 Master Governance &amp; User Registry (Owner)</div>
+    <div id="regdirty" class="regdirty hidden"></div>
     <div id="keylist"></div>
-    <p class="small" style="margin-top:8px">To revoke someone for real: open the Google Sheet → <b>WORKERS</b> tab → change their Status to <b>Resigned</b>. Their app wipes &amp; locks the next time that phone finds internet. To change a key: edit the AccessKey cell the same way.</p>
+    <div style="height:10px"></div>
+    <button class="bigbtn" onclick="openUserForm()" style="padding:12px;font-size:14px">＋ ADD STAFF MEMBER</button>
+    <div style="height:7px"></div>
+    <button class="bigbtn ghost" id="pushregbtn" onclick="pushRegistry(true)" style="padding:11px;font-size:13px">⇧ PUSH REGISTRY TO GOOGLE SHEET</button>
+    <p class="small" style="margin-top:9px">Changes save on this phone straight away. They reach the other phones after you push to the Google Sheet and those phones sync. A staff member you <b>revoke</b> or <b>delete</b> gets wiped and locked the next time their phone finds internet.</p>
     <div style="height:8px"></div>
     <button class="bigbtn ghost" onclick="simulateKill()" style="padding:10px;font-size:13px">🧪 TEST KILL SWITCH ON THIS DEVICE (simulation)</button>
   </div>
@@ -259,6 +287,37 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   <p class="small" style="text-align:center">Full farm-wide dashboard (all phones combined) lives in the Google Sheets database.</p>
 </div>
 
+<!-- ADD / EDIT STAFF MODAL -->
+<div id="usermodal" class="modal hidden">
+  <div class="sheet">
+    <h3 id="um-title">Add staff member</h3>
+    <p class="small" id="um-sub">Give them a name, a role, and a 6-digit access key.</p>
+    <label>Full name</label>
+    <input id="um-name" placeholder="e.g. Ahmad bin Salleh" autocomplete="off">
+    <label>Role</label>
+    <div class="rolepick" id="um-roles">
+      <div data-role="WORKER" onclick="pickRole('WORKER')">FARM WORKER<span class="rsub">Harvest + Stock Out</span></div>
+      <div data-role="PURCHASER" onclick="pickRole('PURCHASER')">SDK PURCHASER<span class="rsub">Stock In only</span></div>
+      <div data-role="MARKETING" onclick="pickRole('MARKETING')">MARKETING<span class="rsub">Full access</span></div>
+      <div data-role="OWNER" onclick="pickRole('OWNER')">OWNER / ADMIN<span class="rsub">Full access + registry</span></div>
+    </div>
+    <label>6-digit access key</label>
+    <div class="keygen">
+      <input id="um-key" inputmode="numeric" maxlength="6" placeholder="000000">
+      <button type="button" onclick="genKey()">🎲 GENERATE</button>
+    </div>
+    <label>Status</label>
+    <div class="lotbtns" id="um-status">
+      <div class="on" id="um-active" onclick="pickStatus('Active')">ACTIVE</div>
+      <div id="um-revoked" onclick="pickStatus('Revoked')">REVOKED</div>
+    </div>
+    <div class="pinerr" id="um-err"></div>
+    <button class="bigbtn" onclick="saveUser()">✓ SAVE</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="closeUserForm()">CANCEL</button>
+  </div>
+</div>
+
 <div class="nav">
   <div class="on" id="nav-harvest" onclick="go('harvest')"><span class="ic">🥭</span>Harvest</div>
   <div id="nav-stock" onclick="go('stock')"><span class="ic">📦</span>Stock</div>
@@ -275,15 +334,16 @@ const WORKERS=['Owner','Purchaser','Worker 1','Worker 2','Marketing'];
 
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.0';
-// Default access keys — the WORKERS tab in the Google Sheet is the master copy
-// (columns AccessKey + Status). Values fetched at sync override these.
+const APP_VERSION = 'v2.1';
+// Seed registry. The Owner edits this live in the app (Owner tab → Master Governance
+// & User Registry); pushing mirrors it into the WORKERS tab of the Google Sheet, which
+// is what every other phone reads at the hotspot.
 const DEFAULT_KEYS = [
-  {name:'Owner',     role:'OWNER',     key:'738291', status:'Active'},
-  {name:'Marketing', role:'MARKETING', key:'903172', status:'Active'},
-  {name:'Purchaser', role:'PURCHASER', key:'452817', status:'Active'},
-  {name:'Worker 1',  role:'WORKER',    key:'619304', status:'Active'},
-  {name:'Worker 2',  role:'WORKER',    key:'287465', status:'Active'}
+  {id:'U-OWNER',  name:'Owner',     role:'OWNER',     key:'738291', status:'Active'},
+  {id:'U-MKT',    name:'Marketing', role:'MARKETING', key:'903172', status:'Active'},
+  {id:'U-PURCH',  name:'Purchaser', role:'PURCHASER', key:'452817', status:'Active'},
+  {id:'U-WKR1',   name:'Worker 1',  role:'WORKER',    key:'619304', status:'Active'},
+  {id:'U-WKR2',   name:'Worker 2',  role:'WORKER',    key:'287465', status:'Active'}
 ];
 const ROLE_TABS = { // which bottom tabs each role may see
   OWNER:     ['harvest','stock','sync','dash'],
@@ -308,15 +368,17 @@ function put(store,obj){return new Promise(res=>{if(!db){res();return;}const tx=
 function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
 function all(store){return new Promise(res=>{if(!db){res(null);return;}const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(null);});}
 
-let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.slice(), LOCKED=false;
+let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.map(k=>({...k})), LOCKED=false, REG_DIRTY=false;
 async function initStore(){
   db=await idb();
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
     const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
     const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
     const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
+    const rd=kv.find(x=>x.k==='regdirty'); REG_DIRTY=!!(rd&&rd.v);
   }
   else { EVENTS=mem.events; CFG=mem.config; }
+  KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
 }
 async function persistEvent(ev){ EVENTS.push(ev); if(db) await put('events',ev); else mem.events=EVENTS; badge(); }
 async function persistCfg(){ if(db) await put('kv',{k:'cfg',v:CFG}); else mem.config=CFG; }
@@ -330,7 +392,7 @@ function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFul
 function todayStr(){return now().slice(0,10);}
 function pending(){return EVENTS.filter(e=>!e.synced).length;}
 function badge(){$('qbadge').textContent=pending();}
-function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&pending()>0&&CFG&&CFG.url)doSync(true);}
+function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');if(on&&(pending()>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
 
 // ================= navigation (role-aware) =================
@@ -372,7 +434,7 @@ async function tryLogin(){
   const w=findKey(pin);
   if(!w){$('pinerr').textContent='Wrong key. Try again.';pin='';setTimeout(renderPin,600);return;}
   if(String(w.status).toLowerCase()!=='active'){$('pinerr').textContent='This key is deactivated. Contact owner.';pin='';setTimeout(renderPin,900);return;}
-  CFG=Object.assign({},CFG||{},{worker:w.name,role:w.role,key:w.key});
+  CFG=Object.assign({},CFG||{},{worker:w.name,role:w.role,key:w.key,uid:w.id});
   await persistCfg();pin='';
   toast('Welcome, '+w.name);
   applyRole();
@@ -380,10 +442,16 @@ async function tryLogin(){
 function showLogin(){['harvest','stock','sync','dash'].forEach(x=>{$('scr-'+x).classList.add('hidden');$('nav-'+x).style.display='none';});
   $('scr-setup').classList.add('hidden');$('scr-login').classList.remove('hidden');$('ttl').textContent='Login';buildKeypad();}
 async function logout(){if(!confirm('Log out of this device? (Queued events stay saved)'))return;
-  CFG=Object.assign({},CFG,{worker:null,role:null,key:null});await persistCfg();showLogin();}
+  CFG=Object.assign({},CFG,{worker:null,role:null,key:null,uid:null});await persistCfg();showLogin();}
+async function forceLogout(msg){
+  CFG=Object.assign({},CFG,{worker:null,role:null,key:null,uid:null});await persistCfg();
+  showLogin();$('pinerr').textContent=msg||'Your access key was changed. Ask the Owner for the new one.';}
 
 // ================= kill switch =================
-function showLock(sim){$('wipeoverlay').classList.add('hidden');$('lockscreen').classList.remove('hidden');$('simnote').classList.toggle('hidden',!sim);}
+function showLock(sim){$('wipeoverlay').classList.add('hidden');
+  if(!sim){['login','setup','harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).classList.add('hidden'));
+    document.querySelector('.nav').classList.add('hidden');}
+  $('lockscreen').classList.remove('hidden');$('simnote').classList.toggle('hidden',!sim);}
 let simTaps=0;
 async function realWipe(){
   // 1. wipe events + config + keys from IndexedDB
@@ -412,30 +480,154 @@ async function refreshMasters(){
   if(!CFG||!CFG.url||!navigator.onLine)return;
   try{
     const r=await fetch(CFG.url);const j=await r.json();
-    if(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length){
-      const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
-        name:w.Name||w.WorkerID, role:String(w.Role||'').toUpperCase().includes('OWNER')?'OWNER':
-          String(w.Role||'').toUpperCase().includes('MARKET')?'MARKETING':
-          String(w.Role||'').toUpperCase().includes('PURCH')?'PURCHASER':'WORKER',
-        key:String(w.AccessKey).trim(), status:String(w.Status||'Active').trim()}));
-      if(ks.length){KEYS=ks;if(db)await put('kv',{k:'keys',v:KEYS});}
-      // hidden revocation check for the CURRENT user
-      if(CFG.key){
-        const me=findKey(String(CFG.key));
-        if(me&&String(me.status).toLowerCase()!=='active'){await runWipeSequence(false);return;}
-      }
-      renderKeys();
+    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return;
+    const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
+      id:String(w.WorkerID||w.Name||'').trim()||newUid(),
+      name:w.Name||w.WorkerID,
+      role:String(w.Role||'').toUpperCase().includes('OWNER')?'OWNER':
+        String(w.Role||'').toUpperCase().includes('MARKET')?'MARKETING':
+        String(w.Role||'').toUpperCase().includes('PURCH')?'PURCHASER':'WORKER',
+      key:String(w.AccessKey).trim(),
+      status:String(w.Status||'Active').trim()}));
+    if(!ks.length)return;
+
+    // ---- kill switch: judge THIS device against the sheet, before anything else ----
+    if(CFG.key){
+      const byId=CFG.uid?ks.find(x=>x.id===CFG.uid):null;
+      const byName=ks.find(x=>String(x.name).trim().toLowerCase()===String(CFG.worker||'').trim().toLowerCase());
+      const byKey=ks.find(x=>String(x.key)===String(CFG.key));
+      const me=byId||byName||byKey;
+      if(!me){                                  // deleted from the registry entirely
+        await runWipeSequence(false);return;}
+      if(String(me.status).toLowerCase()!=='active'){   // revoked / resigned
+        await runWipeSequence(false);return;}
+      if(String(me.key)!==String(CFG.key)){      // Owner changed their key — not a wipe
+        KEYS=ks;if(db)await put('kv',{k:'keys',v:KEYS});
+        await forceLogout('Your access key was changed. Ask the Owner for the new 6-digit key.');return;}
+      CFG.uid=me.id;CFG.worker=me.name;CFG.role=me.role;await persistCfg();
     }
+
+    // ---- local unpushed edits always win until they are pushed ----
+    if(REG_DIRTY){renderKeys();return;}
+    // rows the Owner deleted stay in the sheet as Status=Deleted (audit trail) but
+    // must not reappear in the app's registry
+    KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');
+    if(db)await put('kv',{k:'keys',v:KEYS});
+    applyRole();renderKeys();
   }catch(e){/* offline or sheet unreachable — check again next sync */}}
 
-// ================= owner key panel =================
+// ================= owner: master governance & user registry =================
+const ROLE_LABEL={OWNER:'Owner / Admin',MARKETING:'Marketing',PURCHASER:'Sandakan Purchaser',WORKER:'Farm Worker'};
+function isActive(k){return String(k.status||'').toLowerCase()==='active';}
+function isMe(k){return CFG&&CFG.uid&&k.id===CFG.uid;}
+function activeOwners(list){return (list||KEYS).filter(k=>isActive(k)&&k.role==='OWNER').length;}
+async function persistKeys(dirty){
+  KEYS.forEach(k=>{if(!k.id)k.id=newUid();});
+  if(dirty)REG_DIRTY=true;
+  if(db){await put('kv',{k:'keys',v:KEYS});await put('kv',{k:'regdirty',v:REG_DIRTY});}
+  renderKeys();}
+function newUid(){return 'U'+Math.abs(Date.now()%100000000).toString(36).toUpperCase()+Math.floor(Math.random()*900+100);}
+
 function renderKeys(){
   const el=$('keylist');if(!el)return;
-  el.innerHTML=KEYS.map(k=>{
-    const active=String(k.status).toLowerCase()==='active';
-    return '<div class="krow"><span><b>'+k.name+'</b> <span class="small">· '+k.role+'</span></span>'+
-      '<span style="display:flex;align-items:center;gap:8px"><span class="keycode">'+k.key+'</span>'+
-      '<span class="kstat '+(active?'a':'r')+'">'+(active?'ACTIVE':'REVOKED')+'</span></span></div>';}).join('');}
+  const d=$('regdirty');
+  if(d){d.classList.toggle('hidden',!REG_DIRTY);
+    if(REG_DIRTY)d.textContent='⚠ '+ (CFG&&CFG.url?'Registry changed on this phone. Push it to the Google Sheet so the other phones get it.':'Registry changed. Set the Sync URL in Settings to share it with the other phones.');}
+  const pb=$('pushregbtn');if(pb)pb.style.display=REG_DIRTY?'':'none';
+  if(!KEYS.length){el.innerHTML='<div class="small">No staff in the registry yet — tap ADD STAFF MEMBER.</div>';return;}
+  const order={OWNER:0,MARKETING:1,PURCHASER:2,WORKER:3};
+  el.innerHTML=[...KEYS].sort((a,b)=>(order[a.role]??9)-(order[b.role]??9)||String(a.name).localeCompare(String(b.name))).map(k=>{
+    const a=isActive(k), me=isMe(k);
+    return '<div class="regrow'+(me?' me':'')+'">'+
+      '<div style="min-width:0"><div class="regname">'+esc(k.name)+(me?' <span class="small">(you)</span>':'')+'</div>'+
+      '<div class="regmeta">'+(ROLE_LABEL[k.role]||k.role)+'</div>'+
+      '<div style="margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="keycode">'+esc(k.key)+'</span>'+
+      '<span class="kstat '+(a?'a':'r')+'">'+(a?'ACTIVE':'REVOKED')+'</span></div></div>'+
+      '<div class="regacts">'+
+        '<button class="iconbtn" title="Edit" onclick="openUserForm(\''+k.id+'\')">✏️</button>'+
+        '<button class="iconbtn warn" title="'+(a?'Revoke':'Restore')+'" onclick="toggleUser(\''+k.id+'\')"'+(me?' disabled':'')+'>'+(a?'⏻':'↩')+'</button>'+
+        '<button class="iconbtn danger" title="Delete" onclick="deleteUser(\''+k.id+'\')"'+(me?' disabled':'')+'>🗑</button>'+
+      '</div></div>';}).join('');}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ---- add / edit form ----
+let editingId=null, formRole='WORKER', formStatus='Active';
+function pickRole(r){formRole=r;[...$('um-roles').children].forEach(el=>el.classList.toggle('on',el.dataset.role===r));}
+function pickStatus(s){formStatus=s;$('um-active').classList.toggle('on',s==='Active');$('um-revoked').classList.toggle('on',s!=='Active');}
+function genKey(){let k;do{k=String(Math.floor(100000+Math.random()*900000));}while(KEYS.some(x=>String(x.key)===k&&x.id!==editingId));$('um-key').value=k;}
+function openUserForm(id){
+  editingId=id||null;
+  const k=id?KEYS.find(x=>x.id===id):null;
+  $('um-title').textContent=k?'Edit staff member':'Add staff member';
+  $('um-sub').textContent=k?'Change their name, role, access key or status.':'Give them a name, a role, and a 6-digit access key.';
+  $('um-name').value=k?k.name:'';
+  $('um-key').value=k?k.key:'';
+  pickRole(k?k.role:'WORKER');
+  pickStatus(k&&!isActive(k)?'Revoked':'Active');
+  $('um-err').textContent='';
+  if(!k)genKey();
+  $('usermodal').classList.remove('hidden');
+  setTimeout(()=>$('um-name').focus(),80);}
+function closeUserForm(){$('usermodal').classList.add('hidden');editingId=null;}
+async function saveUser(){
+  const name=$('um-name').value.trim();
+  const key=$('um-key').value.trim();
+  const err=m=>{$('um-err').textContent=m;};
+  if(name.length<2)return err('Enter the staff member’s name.');
+  if(!/^\d{6}$/.test(key))return err('The access key must be exactly 6 digits.');
+  if(KEYS.some(x=>String(x.key).trim()===key&&x.id!==editingId))return err('That key is already used by '+KEYS.find(x=>String(x.key).trim()===key).name+'.');
+  if(KEYS.some(x=>x.name.trim().toLowerCase()===name.toLowerCase()&&x.id!==editingId))return err('There is already a staff member named '+name+'.');
+  // never allow the farm to be left without a way in
+  const after=KEYS.map(x=>x.id===editingId?{...x,role:formRole,status:formStatus}:x);
+  if(editingId&&!activeOwners(after))return err('You must keep at least one ACTIVE Owner in the registry.');
+  if(editingId){
+    const k=KEYS.find(x=>x.id===editingId);
+    const keyChanged=String(k.key)!==key;
+    k.name=name;k.role=formRole;k.key=key;k.status=formStatus;
+    if(isMe(k)){ // keep this device's own session in step with its new details
+      CFG=Object.assign({},CFG,{worker:name,role:formRole,key:key});await persistCfg();applyRole();}
+    await persistKeys(true);
+    toast('✓ '+name+' updated'+(keyChanged?' · new key '+key:''));
+  }else{
+    KEYS.push({id:newUid(),name,role:formRole,key,status:formStatus});
+    await persistKeys(true);
+    toast('✓ '+name+' added · key '+key);
+  }
+  closeUserForm();}
+async function toggleUser(id){
+  const k=KEYS.find(x=>x.id===id);if(!k)return;
+  if(isMe(k)){toast('You cannot revoke your own access',1);return;}
+  const a=isActive(k);
+  if(a&&activeOwners(KEYS.map(x=>x.id===id?{...x,status:'Revoked'}:x))===0){toast('Keep at least one active Owner',1);return;}
+  if(a&&!confirm('Revoke '+k.name+'?\n\nTheir key stops working immediately on this phone. After you push the registry, their own phone wipes its data and locks the next time it finds internet.'))return;
+  k.status=a?'Revoked':'Active';
+  await persistKeys(true);
+  toast(a?('⛔ '+k.name+' revoked'):('✓ '+k.name+' restored'));}
+async function deleteUser(id){
+  const k=KEYS.find(x=>x.id===id);if(!k)return;
+  if(isMe(k)){toast('You cannot delete your own account',1);return;}
+  if(activeOwners(KEYS.filter(x=>x.id!==id))===0){toast('Keep at least one active Owner',1);return;}
+  if(!confirm('DELETE '+k.name+' from the registry?\n\nThis removes them completely. After you push the registry, their phone wipes all farm data and locks permanently.\n\nTheir already-synced records stay in the Google Sheet.'))return;
+  KEYS=KEYS.filter(x=>x.id!==id);
+  await persistKeys(true);
+  toast('🗑 '+k.name+' deleted');}
+
+// ---- push the registry up to the WORKERS tab ----
+async function pushRegistry(manual){
+  if(!REG_DIRTY)return true;
+  if(!CFG||!CFG.url){if(manual)toast('Set the Sync URL in Settings first',1);return false;}
+  if(!navigator.onLine){if(manual)toast('No internet — it will push at the office hotspot',1);return false;}
+  const btn=$('pushregbtn');if(btn)btn.textContent='Uploading registry…';
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({registry:KEYS.map(k=>({
+        id:k.id,name:k.name,role:k.role,key:String(k.key),status:isActive(k)?'Active':'Revoked'}))}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(!j||!j.ok)throw new Error((j&&j.error)||'server error');
+    REG_DIRTY=false;if(db)await put('kv',{k:'regdirty',v:false});
+    renderKeys();toast('✓ Registry pushed to Google Sheet');return true;
+  }catch(e){toast('Registry push failed: '+e.message,1);return false;}
+  finally{const b=$('pushregbtn');if(b)b.textContent='⇧ PUSH REGISTRY TO GOOGLE SHEET';}}
 
 // ================= setup =================
 function showSetup(){['harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).classList.add('hidden'));
@@ -444,7 +636,10 @@ function showSetup(){['harvest','stock','sync','dash'].forEach(x=>$('scr-'+x).cl
   if(CFG){$('su-device').value=CFG.device||'';$('su-url').value=CFG.url||'';}}
 function editSetup(){showSetup();}
 async function saveSetup(){CFG=Object.assign({},CFG,{device:$('su-device').value.trim()||'phone-01',url:$('su-url').value.trim()});
-  await persistCfg();toast('Saved. Selamat bekerja, '+CFG.worker+'!');applyRole();go(homeTab());}
+  await persistCfg();toast('Saved. Selamat bekerja, '+CFG.worker+'!');applyRole();go(homeTab());
+  // pull the real registry straight away, so this phone never pushes the sample
+  // seed users over the top of the live WORKERS tab
+  if(CFG.url&&!REG_DIRTY)await refreshMasters();}
 
 // ================= harvest =================
 let qty=1,grade='A',curTree=null,scanner=null;
@@ -546,7 +741,9 @@ async function doSync(auto){
   if(syncing)return;
   if(!CFG||!CFG.url){if(!auto)toast('Set the Sync URL in Settings first',1);return;}
   if(!navigator.onLine){if(!auto)toast('No internet connection',1);return;}
-  const batch=EVENTS.filter(e=>!e.synced); if(!batch.length)return;
+  if(REG_DIRTY)await pushRegistry();          // registry changes go up first
+  const batch=EVENTS.filter(e=>!e.synced);
+  if(!batch.length){await refreshMasters();return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
