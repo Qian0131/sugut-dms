@@ -257,11 +257,11 @@ const GRADE_META={
 };
 
 /* =====================================================================
-   14. v3.0 — RETAILER CREDIT MASTER
-   Two SAMPLE retailers with RM 10,000 opening credit each, exactly as the
-   brief asks, so the morning basket-weighing flow can be tested before the
-   real buyers are keyed in. The Owner edits this list in
-   Marketing -> PRICES & RETAILERS; the edited list is what persists.
+   14. v3.1 — RETAILER CREDIT MASTER
+   `Roll` is the alliance retailer the price matrix below was negotiated
+   for; the other two are sample buyers so the morning weighing flow can be
+   tested before the real accounts are keyed in. The Owner edits this list
+   in Marketing -> PRICES & RETAILERS and the edited list is what persists.
 
    `opening_credit_rm` is the ONLY stored money figure. The live figure,
    `current_credit_balance_rm`, is DERIVED from the event log
@@ -270,15 +270,86 @@ const GRADE_META={
    it. Delete a dispatch and the credit comes back by itself.
    ===================================================================== */
 const RETAILER_SEED=[
-  {id:'RT-01', name:'Sandakan Fresh Fruit Trading', contact:'013-000 0001', opening_credit_rm:10000},
-  {id:'RT-02', name:'Kota Kinabalu Durian Hub',     contact:'016-000 0002', opening_credit_rm:10000}
+  {id:'RT-01', name:'Roll',                          contact:'',             opening_credit_rm:10000, status:'Active'},
+  {id:'RT-02', name:'Sandakan Fresh Fruit Trading',  contact:'013-000 0001', opening_credit_rm:10000, status:'Active'},
+  {id:'RT-03', name:'Kota Kinabalu Durian Hub',      contact:'016-000 0002', opening_credit_rm:10000, status:'Active'}
 ];
+/* The alliance buyer the matrix was agreed with. Used once, on first run of
+   v3.1, to make sure this account exists on a phone that already carries a
+   v3.0 retailer list. After that the Owner owns the list completely. */
+const ALLIANCE_RETAILER='Roll';
 
-/* Per-KG market prices. SEED FIGURES ONLY — placeholders so the form can be
-   tested. The Owner sets the real prices in Marketing -> PRICES & RETAILERS
-   and nobody else can change them. */
-const GRADE_PRICE_SEED={A:45,B:28,C:15};
+/* =====================================================================
+   15. v3.1 — THE CLONE x GRADE PRICE MATRIX
+   Grade is NOT one farm-wide ladder any more. Each clone carries its own
+   ladder because Black Thorn at 1.4 kg is still a premium fruit while a
+   Musang King at 1.4 kg is a middle grade, and 101 / UM / B24 are simply
+   never sorted into a third tier.
+
+   CLONE_GRADES  — which letters exist for that clone. BT, B24, 101 and UM
+                   have NO Grade C at all; it is absent from the dropdown,
+                   absent from the invoice and absent from the price editor.
+   GRADE_BAND    — the per-FRUIT weight window each letter covers, in kg.
+                   `max:null` means open-ended. These bands drive the
+                   auto-grade hint on the scale: key the fruit count with
+                   the weight and the app works out the average fruit and
+                   tells the marketer which letter that average falls in.
+   CLONE_PRICE_SEED — the agreed opening figures per KG. SEED ONLY: the
+                   Owner overwrites them daily on the market-trend panel,
+                   and the edited matrix is what every invoice is built
+                   from. Never read a price off this constant at runtime,
+                   read it off CLONE_PRICE.
+   ===================================================================== */
+const CLONE_SELL_ORDER=['MK','BT','B24','101','UM','TB'];
+const CLONE_GRADES={
+  MK   :['A','B','C'],
+  BT   :['A','B'],
+  B24  :['A','B'],
+  '101':['A','B'],
+  UM   :['A','B'],
+  TB   :['A','B']        // unverified clone — sold on the 2-grade ladder until identified
+};
+const BAND_TOP={min:1.5,max:null};      // >= 1.5 kg
+const GRADE_BAND={
+  MK   :{A:{min:1.5,max:null}, B:{min:1.0,max:1.5}, C:{min:0,max:1.0}},
+  BT   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  B24  :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  '101':{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  UM   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  TB   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}}
+};
+const CLONE_PRICE_SEED={
+  MK   :{A:40, B:30, C:25},   // Musang King  — the only 3-grade ladder
+  BT   :{A:45, B:35},         // Black Thorn  — top of the book
+  B24  :{A:25, B:20},         // B24          — priced with 101 / UM
+  '101':{A:25, B:20},
+  UM   :{A:25, B:20},         // Udang Merah
+  TB   :{A:25, B:20}
+};
+
+/* =====================================================================
+   16. v3.1 — BASKET TARE MASTER
+   The scale reads GROSS: fruit plus whatever it is sitting in. The tare is
+   subtracted automatically before a single sen is calculated, so nobody is
+   ever invoiced for the weight of a plastic crate.
+
+   THESE TWO FIGURES ARE PLACEHOLDERS. Put an EMPTY red box on the scale,
+   then an EMPTY blue crate, and key the real readings into
+   Marketing -> PRICES & RETAILERS -> BASKET TARE. Until that is done the
+   dispatch screen shows an amber "tare not verified" note.
+   ===================================================================== */
+const BASKET_SEED=[
+  {id:'RED',  name:'Standard Red Box', tare_kg:2.0, ic:'🟥'},
+  {id:'BLUE', name:'Heavy Blue Crate', tare_kg:3.5, ic:'🟦'},
+  {id:'NONE', name:'Loose / no basket',tare_kg:0,   ic:'🍈'}
+];
+const BASKET_TARE_VERIFIED_SEED=false;
+
+/* Invoice serials run INV-YYYYMMDD-XXX, restarting at 001 every calendar
+   day, allocated at the moment the dispatch is confirmed. */
+const INVOICE_PREFIX='INV';
 
 /* A dispatch that would take a retailer below this figure raises the
-   CRITICAL alert. Zero = credit may not go negative. */
+   CRITICAL alert and locks the checkout button. Zero = credit may not go
+   negative without the Owner's 6-digit key. */
 const CREDIT_FLOOR_RM=0;

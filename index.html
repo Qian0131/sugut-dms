@@ -409,6 +409,44 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .invbox .ir.tot{border-top:1px solid rgba(255,255,255,.28);margin-top:5px;padding-top:7px;font-weight:900;font-size:15px}
 .invbox .ir .lbl{opacity:.85}
 .bigbtn.tie{background:#7c5cd6}
+/* ===== v3.1 — scale lines, override lock, WhatsApp receipt, price matrix ===== */
+.dline{border:1.5px solid #dfe6df;border-radius:13px;padding:10px 10px 8px;margin-bottom:10px;background:#fbfdfb;}
+.dline .dlhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.dline .dltag{font-size:10.5px;font-weight:900;letter-spacing:.4px;color:var(--green);}
+.dline .dlx{font-size:11.5px;color:var(--warn);text-decoration:underline;cursor:pointer;}
+.dline label{margin-top:6px;}
+.dl3{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dlnet{background:var(--lite);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:11.5px;
+       font-weight:700;color:var(--green);line-height:1.45;}
+.dlnet .v{float:right;font-weight:900;font-size:13px;}
+.dlwarn{font-size:11px;color:#8a5a1e;margin-top:5px;font-weight:700;line-height:1.5;}
+.dlwarn:empty{display:none;}
+.critbox.flash{animation:critflash 1.1s ease-in-out infinite;}
+@keyframes critflash{0%,100%{opacity:1}50%{opacity:.42}}
+.ovrbox{border:2px dashed var(--warn);border-radius:13px;padding:11px;margin-top:11px;background:#fff8f7;}
+.ovrbox input[type=password]{letter-spacing:9px;font-size:19px;text-align:center;font-weight:800;}
+.ovrok{border:2px solid var(--green2);background:var(--lite);border-radius:13px;padding:11px;
+       margin-top:11px;font-size:12.5px;font-weight:900;color:var(--green);line-height:1.5;}
+.wabtn{background:#25D366;margin-top:9px;}
+.wabtn:active{background:#1da851;}
+.lastinv{background:var(--lite);border-radius:11px;padding:9px 11px;margin-top:13px;
+         font-size:12px;font-weight:700;color:var(--green);}
+.rcpt{width:100%;min-height:230px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;
+      line-height:1.45;border:1.5px solid #dfe6df;border-radius:11px;padding:9px;margin-top:6px;
+      background:#fbfdfb;color:#22331f;}
+.invno{display:inline-block;background:#eef3ff;color:#1a3f8f;border-radius:6px;padding:1px 5px;
+       font-size:10px;font-weight:900;letter-spacing:.2px;}
+.tbl.pmx input{width:78px;text-align:right;padding:7px;font-size:13px;}
+.tbl .nogrd{color:#b9c3b9;font-weight:800;}
+.trendrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.trendbtn{flex:1;min-width:64px;background:#fff;border:1.6px solid var(--green2);color:var(--green);
+          border-radius:11px;padding:10px 4px;font-size:12px;font-weight:900;cursor:pointer;
+          text-align:center;user-select:none;}
+.trendbtn:active{background:var(--lite);transform:scale(.98);}
+.trendrow input{margin:0;}
+.credok.credlow{background:#fdecea!important;color:#8c1d18!important;}
+.tarewarn{background:var(--amberbg);color:#7a5b00;border-radius:11px;padding:9px 11px;
+          font-size:11.5px;font-weight:700;line-height:1.5;margin-bottom:9px;}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
 </head>
@@ -812,34 +850,46 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div id="ty-recent"></div>
   </div>
 
-  <!-- ===== MARKETING · MORNING BASKET WEIGHING · DISPATCH (v3.0) ===== -->
+  <!-- ===== MARKETING · MORNING BASKET WEIGHING · DISPATCH (v3.1) =====
+       One scale line per basket load. The scale reads GROSS; the app takes the basket's
+       own weight off it before a single sen is calculated, prices the net against that
+       clone's own grade ladder, allocates an INV-YYYYMMDD-XXX serial and takes the value
+       off the retailer's prepaid credit. Owner and Marketing only. -->
   <div class="card" id="dispatchcard" style="display:none">
     <div class="sec">⚖️ Morning basket weighing — dispatch to retailer</div>
+    <div class="convnote" id="dp-invno">—</div>
     <div id="disp-alert"></div>
     <label>Retailer</label>
-    <select id="dp-ret" onchange="dispCalc()"></select>
+    <select id="dp-ret" onchange="dispRetChanged()"></select>
     <div id="dp-credit" class="credok">—</div>
-    <label style="margin-top:10px">Net basket weight delivered (KG)</label>
+
+    <div class="sec" style="margin-top:14px">Scale lines — one line per basket load</div>
+    <div id="dp-tarewarn"></div>
     <div id="dp-rows"></div>
+    <button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addDispLine()">＋ ADD ANOTHER SCALE LINE</button>
+
     <div class="invbox" id="dp-inv"></div>
     <label>Note (optional)</label>
     <input id="dp-note" placeholder="e.g. lorry BKS 4412, driver Amin">
+    <div id="dp-ovrbox"></div>
     <div class="pinerr" id="dp-err"></div>
-    <button class="bigbtn" onclick="saveDispatch()">✓ CONFIRM DISPATCH &amp; INVOICE</button>
-    <p class="small" style="margin-top:9px">Confirming writes one immutable row into the marketing delivery
-      ledger and takes the order value straight off that retailer’s credit balance. A dispatch row is never
-      edited afterwards — a mistake is corrected with a credit adjustment, so the trail stays complete.</p>
+    <button class="bigbtn" id="dp-go" onclick="saveDispatch()">✓ CONFIRM DISPATCH &amp; INVOICE</button>
+    <div id="dp-receipt"></div>
+    <p class="small" style="margin-top:9px">Confirming allocates the next invoice serial, writes one
+      immutable row into the marketing delivery ledger and takes the order value straight off that
+      retailer’s credit balance. A dispatch row is never edited afterwards — a mistake is corrected with
+      a credit adjustment, so the trail stays complete.</p>
   </div>
 
-  <!-- ===== MARKETING · DELIVERY LEDGER + RETAILER CREDIT (v3.0) ===== -->
+  <!-- ===== MARKETING · DELIVERY LEDGER + RETAILER CREDIT (v3.1) ===== -->
   <div class="card" id="mktledger" style="display:none">
     <div class="sec">🧾 Marketing delivery ledger</div>
     <div id="mktledgerbox"></div>
   </div>
 
-  <!-- ===== MARKETING · OWNER-ONLY PRICES + RETAILER MASTER (v3.0) ===== -->
+  <!-- ===== MARKETING · PRICE MATRIX + BASKET TARE + RETAILER MASTER (v3.1) ===== -->
   <div class="card" id="pricecard" style="display:none">
-    <div class="sec">💲 Grade prices &amp; retailer master</div>
+    <div class="sec">💲 Price matrix, basket tare &amp; retailer master</div>
     <div id="pricebox"></div>
   </div>
 
@@ -1210,14 +1260,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v3.0.0 — split build. THREE files must be uploaded together:
+     v3.1.0 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.0.0"></script>
-<script src="app.js?v=3.0.0"></script>
+<script src="database.js?v=3.1.0"></script>
+<script src="app.js?v=3.1.0"></script>
 </body>
 </html>

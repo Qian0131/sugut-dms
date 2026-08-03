@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.0.0';   // v3.0.0 — tying tracker tile, A/B/C grade counters, retailer credit ledger
+const APP_VERSION = 'v3.1.0';   // v3.1.0 — clone x grade price matrix, basket tare, invoice serials, WhatsApp receipts, credit override
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -39,11 +39,17 @@ let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.map(k=>({...k})), LOCKED=false, REG_D
 // v2.2 — offline queue of worker-submitted corrections + the approved overrides
 // that have been burned into TREE_MASTER.
 let CORRECTIONS=[], TREE_FIX={};
-// v3.0 — retailer master + Owner-controlled per-KG grade prices. Both are small
-// Owner-managed registries, held in kv exactly like the staff registry, NOT in the
-// event log. The money that moves is in the event log; these two are the settings
-// that money is calculated from.
-let RETAILERS=RETAILER_SEED.map(r=>({...r})), GRADE_PRICE={...GRADE_PRICE_SEED}, RET_DIRTY=false;
+// v3.1 — retailer master, the clone x grade price matrix and the basket tare master.
+// All three are small Owner-managed registries, held in kv exactly like the staff
+// registry, NOT in the event log. The money that MOVES is in the event log; these are
+// only the settings that money is calculated from, so an edit re-prices nothing that
+// has already been invoiced.
+let RETAILERS=RETAILER_SEED.map(r=>({...r})),
+    CLONE_PRICE=priceMatrixCopy(CLONE_PRICE_SEED),
+    PRICE_META={at:'',by:''},
+    BASKETS=BASKET_SEED.map(b=>({...b})),
+    TARE_VERIFIED=BASKET_TARE_VERIFIED_SEED,
+    RET_DIRTY=false;
 async function initStore(){
   db=await idb();
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
@@ -62,8 +68,35 @@ async function initStore(){
     const wx=kv.find(x=>x.k==='weather'); if(wx&&wx.v) WEATHER=String(wx.v);
     const lc=kv.find(x=>x.k==='lastcrew'); if(lc&&lc.v&&typeof lc.v==='object') LAST_CREW=lc.v;
     const rt=kv.find(x=>x.k==='retailers'); if(rt&&Array.isArray(rt.v)&&rt.v.length) RETAILERS=rt.v;
-    const gp=kv.find(x=>x.k==='gradeprice'); if(gp&&gp.v&&typeof gp.v==='object') GRADE_PRICE=Object.assign({...GRADE_PRICE_SEED},gp.v);
+    // v3.1 — the clone x grade matrix. A saved table only ever OVERLAYS the seed, so a
+    // clone or a grade added in a later release appears immediately instead of coming
+    // back as RM 0 on a phone that already has a v3.1 table stored.
+    const cp=kv.find(x=>x.k==='cloneprice');
+    if(cp&&cp.v&&typeof cp.v==='object'){
+      const merged=priceMatrixCopy(CLONE_PRICE_SEED);
+      Object.keys(cp.v).forEach(c=>{ if(!merged[c])return;
+        Object.keys(cp.v[c]||{}).forEach(g=>{ if(hasGrade(c,g))merged[c][g]=+cp.v[c][g]||0; });});
+      CLONE_PRICE=merged;}
+    const pm=kv.find(x=>x.k==='pricemeta'); if(pm&&pm.v&&typeof pm.v==='object') PRICE_META=pm.v;
+    const bk=kv.find(x=>x.k==='baskets');
+    if(bk&&Array.isArray(bk.v)&&bk.v.length){
+      BASKETS=BASKET_SEED.map(seed=>{
+        const saved=bk.v.find(x=>String(x.id)===String(seed.id));
+        return saved?{...seed,tare_kg:+saved.tare_kg||0,name:saved.name||seed.name}:{...seed};});}
+    const tk=kv.find(x=>x.k==='tareok'); TARE_VERIFIED=!!(tk&&tk.v);
     const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
+    // v3.1 — the alliance buyer the price matrix was agreed with. Added ONCE to a phone
+    // upgrading from v3.0, never re-added if the Owner later renames or removes it.
+    const rs=kv.find(x=>x.k==='rollseed');
+    if(!(rs&&rs.v)){
+      if(!RETAILERS.some(r=>String(r.name).trim().toLowerCase()===ALLIANCE_RETAILER.toLowerCase())){
+        let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
+        RETAILERS.unshift({id:'RT-'+String(n).padStart(2,'0'),name:ALLIANCE_RETAILER,contact:'',
+          opening_credit_rm:10000,status:'Active'});
+        RET_DIRTY=true;
+        await put('kv',{k:'retailers',v:RETAILERS});
+        await put('kv',{k:'retdirty',v:RET_DIRTY});}
+      await put('kv',{k:'rollseed',v:true});}
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
@@ -3378,21 +3411,65 @@ async function pushSales(){
     m=>{if(!saleWarned){saleWarned=true;toast(m,1);}},
     'Sales kept on this phone — update the Apps Script to add the SALES tab');}
 
-// ================= v3.0 MARKETING · RETAILER SCALE LEDGER =============================
-// The morning flow: baskets come off the scale, the supervisor keys the net weight per
-// grade against a retailer, and the order value comes straight off that retailer's
-// credit. Nothing here is a stored balance — `current_credit_balance_rm` is DERIVED
-// from opening credit + top-ups − dispatches, so it can never drift from the deliveries
-// behind it, and an approved credit adjustment corrects it without editing history.
+// ================= v3.1 MARKETING · RETAILER SCALE LEDGER =============================
+// The morning flow, end to end: a basket comes off the scale GROSS, the app takes the
+// basket's own weight off it, the net is priced from that clone's own grade ladder, the
+// load gets a serial number, the order value comes straight off the retailer's prepaid
+// credit, and the marketer copies a WhatsApp receipt to the buyer before the lorry moves.
+//
+// Nothing here is a stored balance — `current_credit_balance_rm` is DERIVED from opening
+// credit + top-ups − dispatches, so it can never drift from the deliveries behind it, and
+// a mistake is corrected with a signed credit adjustment, never by editing history.
 
 function canSetPrice(){return myRole()==='OWNER';}          // prices are the Owner's alone
+function canDispatch(){return FULL_ROLES.indexOf(myRole())>=0;}   // Owner + Marketing only
 async function persistRetailers(){
   if(db){await put('kv',{k:'retailers',v:RETAILERS});await put('kv',{k:'retdirty',v:RET_DIRTY});}}
-async function persistPrices(){ if(db)await put('kv',{k:'gradeprice',v:GRADE_PRICE}); }
+async function persistPrices(){
+  if(db){await put('kv',{k:'cloneprice',v:CLONE_PRICE});
+         await put('kv',{k:'pricemeta',v:PRICE_META});}}
+async function persistBaskets(){
+  if(db){await put('kv',{k:'baskets',v:BASKETS});await put('kv',{k:'tareok',v:TARE_VERIFIED});}}
+
+// ---- the price matrix ----------------------------------------------------------------
+/** Deep copy of a clone x grade table — the seed must never be mutated by an edit. */
+function priceMatrixCopy(src){const o={};Object.keys(src||{}).forEach(c=>{o[c]=Object.assign({},src[c]);});return o;}
+/** Only the letters that clone is actually sorted into. BT / B24 / 101 / UM have no C. */
+function gradesFor(clone){return CLONE_GRADES[clone]||['A','B'];}
+function hasGrade(clone,g){return gradesFor(clone).indexOf(g)>=0;}
+function bandOf(clone,g){return (GRADE_BAND[clone]||{})[g]||null;}
+function bandText(clone,g){
+  const b=bandOf(clone,g); if(!b)return'';
+  if(b.max==null)return '≥ '+nf(b.min)+' kg';
+  if(!b.min)      return '< '+nf(b.max)+' kg';
+  return nf(b.min)+' – <'+nf(b.max)+' kg';}
+/** The same window, short enough to survive a half-width phone dropdown. */
+function bandShort(clone,g){
+  const b=bandOf(clone,g); if(!b)return'';
+  if(b.max==null)return '≥'+nf(b.min)+'kg';
+  if(!b.min)      return '<'+nf(b.max)+'kg';
+  return nf(b.min)+'–'+nf(b.max)+'kg';}
+/** Which letter an individual fruit of this weight falls in, for the scale hint. */
+function gradeForWeight(clone,kg){
+  kg=+kg||0; const gs=gradesFor(clone);
+  for(let i=0;i<gs.length;i++){const b=bandOf(clone,gs[i]); if(!b)continue;
+    if(kg>=b.min&&(b.max==null||kg<b.max))return gs[i];}
+  return gs[gs.length-1]||'';}
+/** THE price lookup. Everything that touches money goes through here. */
+function priceOf(clone,g){
+  if(!hasGrade(clone,g))return 0;
+  const row=CLONE_PRICE[clone]||{}; return +(row[g]||0);}
+function basePriceOf(clone,g){
+  if(!hasGrade(clone,g))return 0;
+  const row=CLONE_PRICE_SEED[clone]||{}; return +(row[g]||0);}
+
+// ---- baskets and tare ----------------------------------------------------------------
+function basketById(id){return BASKETS.find(b=>String(b.id)===String(id))||BASKETS[0]||{id:'NONE',name:'Loose',tare_kg:0};}
+function tareOf(id){return +(basketById(id).tare_kg||0);}
+
+// ---- retailers and derived credit ----------------------------------------------------
 function retailerById(id){return RETAILERS.find(r=>String(r.id)===String(id))||null;}
 function activeRetailers(){return RETAILERS.filter(r=>String(r.status||'Active').toLowerCase()!=='deleted');}
-function priceOf(g){return +(GRADE_PRICE[g]||0);}
-
 function dispatchEvents(id){
   return EVENTS.filter(e=>e.type==='DISPATCH'&&(!id||String(e.retailer_id)===String(id)));}
 function topupEvents(id){
@@ -3411,6 +3488,28 @@ function retailerLedger(id){
     current_credit_balance_rm:retailerCredit(id),
     deliveries:dispatchEvents(id).length};}
 
+// ---- invoice serialisation -----------------------------------------------------------
+/** `INV-YYYYMMDD-XXX`, restarting at 001 each calendar day. */
+function invoiceDay(dt){return String(dt||now()).slice(0,10).replace(/-/g,'');}
+function invoicePrefix(dt){return INVOICE_PREFIX+'-'+invoiceDay(dt)+'-';}
+function nextInvoiceSerial(dt){
+  const pre=invoicePrefix(dt); let max=0;
+  EVENTS.forEach(e=>{
+    if(e.type!=='DISPATCH')return;
+    const s=String(e.invoice_no||'');
+    if(s.indexOf(pre)!==0)return;
+    const n=parseInt(s.slice(pre.length),10);
+    if(!isNaN(n)&&n>max)max=n;});
+  return pre+String(max+1).padStart(3,'0');}
+/** Two phones can both be offline at 07:00 and both allocate ...-003. The serial format
+ *  is fixed by the buyer's paperwork so we do not mangle it — instead the ledger flags
+ *  any serial that ended up on two different loads, and the Owner reissues one. */
+function duplicateSerials(){
+  const seen={}, dup={};
+  dispatchEvents().forEach(e=>{const s=String(e.invoice_no||''); if(!s)return;
+    if(seen[s]&&seen[s]!==e.uuid)dup[s]=true; else seen[s]=e.uuid;});
+  return dup;}
+
 /**
  * `marketing_delivery_ledger` — one immutable row per confirmed dispatch, oldest first,
  * carrying the credit balance as it stood AFTER that row. The balance is recomputed
@@ -3428,107 +3527,357 @@ function marketingDeliveryLedger(){
     if(bal[id]===undefined)bal[id]=0;
     if(e.type==='CREDIT_TOPUP'){
       bal[id]=+(bal[id]+(+e.amount_rm||0)).toFixed(2);
-      out.push({kind:'TOPUP',uuid:e.uuid,timestamp:e.dt,retailer_id:id,
+      out.push({kind:'TOPUP',uuid:e.uuid,invoice_no:'',timestamp:e.dt,retailer_id:id,
         retailer_name:e.retailer_name||(retailerById(id)||{}).name||id,
         kg_A:0,kg_B:0,kg_C:0,total_kg:0,total_order_value_rm:-(+e.amount_rm||0),
-        remaining_credit_balance_rm:bal[id],note:e.note||'',by:e.worker||'',synced:!!e.synced});
+        remaining_credit_balance_rm:bal[id],note:e.note||'',by:e.worker||'',
+        over_credit:false,synced:!!e.synced});
       return;}
     bal[id]=+(bal[id]-(+e.total_value_rm||0)).toFixed(2);
-    out.push({kind:'DISPATCH',uuid:e.uuid,timestamp:e.dt,retailer_id:id,
+    out.push({kind:'DISPATCH',uuid:e.uuid,invoice_no:e.invoice_no||'',timestamp:e.dt,retailer_id:id,
       retailer_name:e.retailer_name||(retailerById(id)||{}).name||id,
       kg_A:+e.kg_A||0,kg_B:+e.kg_B||0,kg_C:+e.kg_C||0,total_kg:+e.total_kg||0,
       total_order_value_rm:+e.total_value_rm||0,
-      remaining_credit_balance_rm:bal[id],note:e.note||'',by:e.worker||'',synced:!!e.synced});});
+      remaining_credit_balance_rm:bal[id],note:e.note||'',by:e.worker||'',
+      over_credit:!!e.over_credit,synced:!!e.synced});});
   return out.reverse();}                                   // newest first for the screen
+/** The true credit left after a given dispatch, recomputed — used on the receipt. */
+function creditAfterUuid(u){
+  const row=marketingDeliveryLedger().find(x=>x.uuid===u);
+  return row?row.remaining_credit_balance_rm:0;}
 
-// ---- the dispatch form ---------------------------------------------------------------
-function dispKg(g){const el=$('dp-kg-'+g);return el?Math.max(0,+el.value||0):0;}
+// ======================= THE SCALE FORM ==============================================
+// One line per basket load: clone, grade, basket type, how many baskets, the GROSS
+// reading, and optionally how many fruits are in it. Tare comes off automatically.
+let DLINES=[], DLSEQ=0;
+let OVR_OK=false, OVR_BY='', LAST_INVOICE_UUID='';
+function newDispLine(){
+  return {k:'L'+(++DLSEQ),clone:'MK',grade:'A',basket:'RED',baskets:1,gross:'',fruits:''};}
+function dispLines(){ if(!DLINES.length)DLINES=[newDispLine()]; return DLINES; }
+function dlFind(k){return DLINES.find(l=>l.k===k)||null;}
+
+/** Everything money-related about one scale line, in one place. */
+function lineCalc(l){
+  const baskets=Math.max(0,Math.floor(+l.baskets||0));
+  const tare  =+((tareOf(l.basket)*baskets).toFixed(3));
+  const gross =Math.max(0,+l.gross||0);
+  const net   =+(Math.max(0,gross-tare).toFixed(2));
+  const price =priceOf(l.clone,l.grade);
+  const value =+((net*price).toFixed(2));
+  const fruits=Math.max(0,Math.floor(+l.fruits||0));
+  const avg   =(fruits>0&&net>0)?+((net/fruits).toFixed(2)):0;
+  const sugg  =avg>0?gradeForWeight(l.clone,avg):'';
+  return {baskets,tare,gross,net,price,value,fruits,avg,sugg};}
+
 function dispTotals(){
-  let kg=0, val=0; const per={};
-  GRADE_ORDER.forEach(g=>{const k=dispKg(g), v=+(k*priceOf(g)).toFixed(2);
-    per[g]={kg:k,value:v}; kg+=k; val+=v;});
-  return {per:per, total_kg:+kg.toFixed(2), total_value_rm:+val.toFixed(2)};}
+  let gross=0,tare=0,net=0,val=0;
+  const byGrade={A:0,B:0,C:0}, lines=[];
+  dispLines().forEach(l=>{
+    const c=lineCalc(l);
+    if(!(c.net>0))return;
+    gross+=c.gross; tare+=c.tare; net+=c.net; val+=c.value;
+    byGrade[l.grade]=+((byGrade[l.grade]||0)+c.net).toFixed(2);
+    lines.push({clone:l.clone,clone_name:CLONE_NAME[l.clone]||l.clone,grade:l.grade,
+      band:bandText(l.clone,l.grade),
+      basket:l.basket,basket_name:basketById(l.basket).name,baskets:c.baskets,
+      gross_kg:c.gross,tare_kg:c.tare,net_kg:c.net,
+      price_rm:c.price,value_rm:c.value,fruits:c.fruits,avg_fruit_kg:c.avg});});
+  return {lines:lines,
+    total_gross_kg:+gross.toFixed(2), total_tare_kg:+tare.toFixed(2),
+    total_kg:+net.toFixed(2), total_value_rm:+val.toFixed(2),
+    kg_A:+(byGrade.A||0).toFixed(2), kg_B:+(byGrade.B||0).toFixed(2), kg_C:+(byGrade.C||0).toFixed(2)};}
+
+function dlSet(k,field,v){
+  const l=dlFind(k); if(!l)return;
+  l[field]=v;
+  if(field==='clone'&&!hasGrade(l.clone,l.grade))l.grade=gradesFor(l.clone)[0];
+  if(field==='clone'||field==='basket'){renderDispLines();}
+  dispCalc();}
+function addDispLine(){ DLINES.push(newDispLine()); renderDispLines(); dispCalc(); }
+function removeDispLine(k){
+  DLINES=DLINES.filter(l=>l.k!==k);
+  if(!DLINES.length)DLINES=[newDispLine()];
+  renderDispLines(); dispCalc();}
+
+function renderDispLines(){
+  const box=$('dp-rows'); if(!box)return;
+  box.innerHTML=dispLines().map((l,i)=>{
+    const gs=gradesFor(l.clone);
+    return '<div class="dline" id="dl-'+esc(l.k)+'">'+
+      '<div class="dlhead"><span class="dltag">SCALE LINE '+(i+1)+'</span>'+
+      (dispLines().length>1?'<span class="dlx" onclick="removeDispLine(\''+esc(l.k)+'\')">remove</span>':'')+'</div>'+
+      '<div class="dl3">'+
+        '<div><label>Clone</label><select onchange="dlSet(\''+esc(l.k)+'\',\'clone\',this.value)">'+
+          CLONE_SELL_ORDER.map(c=>'<option value="'+esc(c)+'"'+(c===l.clone?' selected':'')+'>'+
+            esc(CLONE_NAME[c]||c)+' ('+esc(c)+')</option>').join('')+'</select></div>'+
+        '<div><label>Grade</label><select onchange="dlSet(\''+esc(l.k)+'\',\'grade\',this.value)">'+
+          gs.map(g=>'<option value="'+g+'"'+(g===l.grade?' selected':'')+'>'+g+' · '+
+            esc(bandShort(l.clone,g))+'</option>').join('')+'</select></div>'+
+      '</div>'+
+      '<div class="dl3">'+
+        '<div><label>Basket type</label><select onchange="dlSet(\''+esc(l.k)+'\',\'basket\',this.value)">'+
+          BASKETS.map(b=>'<option value="'+esc(b.id)+'"'+(b.id===l.basket?' selected':'')+'>'+
+            (b.ic?b.ic+' ':'')+esc(b.name)+' −'+nf(b.tare_kg)+' kg</option>').join('')+'</select></div>'+
+        '<div><label>How many baskets</label><input type="number" min="0" step="1" inputmode="numeric" '+
+          'value="'+esc(l.baskets)+'" oninput="dlSet(\''+esc(l.k)+'\',\'baskets\',this.value)"></div>'+
+      '</div>'+
+      '<div class="dl3">'+
+        '<div><label>GROSS on scale (kg)</label><input type="number" min="0" step="any" inputmode="decimal" '+
+          'placeholder="0.00" value="'+esc(l.gross)+'" oninput="dlSet(\''+esc(l.k)+'\',\'gross\',this.value)"></div>'+
+        '<div><label>Fruit count (optional)</label><input type="number" min="0" step="1" inputmode="numeric" '+
+          'placeholder="0" value="'+esc(l.fruits)+'" oninput="dlSet(\''+esc(l.k)+'\',\'fruits\',this.value)"></div>'+
+      '</div>'+
+      '<div class="dlnet" id="dln-'+esc(l.k)+'">—</div>'+
+      '<div class="dlwarn" id="dlw-'+esc(l.k)+'"></div>'+
+    '</div>';}).join('');}
+
+function renderLineTotals(){
+  dispLines().forEach(l=>{
+    const c=lineCalc(l), n=$('dln-'+l.k), w=$('dlw-'+l.k);
+    if(n)n.innerHTML='Gross '+nf(c.gross)+' kg − tare '+nf(c.tare)+' kg = NET <b>'+nf(c.net)+
+      ' kg</b> × '+rm(c.price)+'/kg<span class="v">'+rm(c.value)+'</span>';
+    if(w){
+      const bits=[];
+      if(!(c.price>0)&&c.net>0)
+        bits.push('⚠ No price set for '+esc(CLONE_NAME[l.clone]||l.clone)+' Grade '+l.grade+
+                  ' — the Owner sets it in PRICES & RETAILERS.');
+      if(c.gross>0&&c.net<=0)
+        bits.push('⚠ The basket tare is equal to or heavier than the gross reading — check the scale.');
+      if(c.avg>0){
+        bits.push('Average fruit '+nf(c.avg)+' kg → that falls in <b>Grade '+c.sugg+'</b>'+
+          (c.sugg!==l.grade?' , not Grade '+l.grade+'. Re-check the sort before dispatching.':' ✓'));}
+      w.innerHTML=bits.join('<br>');}});
+  // the placeholder-tare warning is a standing condition, not a per-line one — it belongs
+  // once above the lines, or it shouts the same sentence at every basket on the screen.
+  const tw=$('dp-tarewarn');
+  if(tw)tw.innerHTML=(!TARE_VERIFIED&&dispLines().some(l=>tareOf(l.basket)>0))
+    ? '<div class="tarewarn">⚠ Basket tare weights are still the factory placeholders. Put an EMPTY '+
+      'basket on the scale and set the real figures in PRICES &amp; RETAILERS — until then every net '+
+      'weight on this screen may be wrong.</div>' : '';}
+
 function dispCalc(){
+  renderLineTotals();
   const t=dispTotals(), id=$('dp-ret')?$('dp-ret').value:'';
   const inv=$('dp-inv');
-  if(inv)inv.innerHTML=GRADE_ORDER.map(g=>
-      '<div class="ir"><span class="lbl">Grade '+g+' — '+nf(t.per[g].kg)+' kg × '+rm(priceOf(g))+'/kg</span>'+
-      '<span>'+rm(t.per[g].value)+'</span></div>').join('')+
-    '<div class="ir tot"><span>TOTAL ORDER VALUE</span><span>'+rm(t.total_value_rm)+'</span></div>';
-  const cb=$('dp-credit'), ab=$('disp-alert');
-  if(!id){if(cb){cb.className='credok';cb.textContent='Select a retailer.';} if(ab)ab.innerHTML=''; return;}
-  const before=retailerCredit(id), after=+(before-t.total_value_rm).toFixed(2);
+  if(inv)inv.innerHTML=(t.lines.length
+      ? t.lines.map(x=>'<div class="ir"><span class="lbl">'+esc(x.clone_name)+' · Grade '+x.grade+
+          ' — '+nf(x.net_kg)+' kg × '+rm(x.price_rm)+'</span><span>'+rm(x.value_rm)+'</span></div>').join('')
+      : '<div class="ir"><span class="lbl">No weight keyed yet</span><span>—</span></div>')+
+    '<div class="ir"><span class="lbl">Gross '+nf(t.total_gross_kg)+' kg − basket tare '+
+      nf(t.total_tare_kg)+' kg</span><span>NET '+nf(t.total_kg)+' kg</span></div>'+
+    '<div class="ir tot"><span>TOTAL INVOICE VALUE</span><span>'+rm(t.total_value_rm)+'</span></div>';
+  const nb=$('dp-invno');
+  if(nb)nb.innerHTML='Next invoice serial: <b>'+esc(nextInvoiceSerial())+'</b>';
+  const cb=$('dp-credit'), ab=$('disp-alert'), go=$('dp-go');
+  if(!id){
+    if(cb){cb.className='credok';cb.textContent='Select a retailer.';}
+    if(ab)ab.innerHTML='';
+    if($('dp-ovrbox'))$('dp-ovrbox').innerHTML='';
+    if(go){go.disabled=false;go.textContent='✓ CONFIRM DISPATCH & INVOICE';}
+    return;}
+  const before=retailerCredit(id), after=+((before-t.total_value_rm).toFixed(2));
   const r=retailerById(id)||{};
-  if(cb){cb.className='credok';
+  const short=after<CREDIT_FLOOR_RM;
+  if(cb){cb.className='credok'+(short?' credlow':'');
     cb.innerHTML='<b>'+esc(r.name||id)+'</b> · credit now <b>'+rm(before)+'</b>'+
       (t.total_value_rm?(' → after this dispatch <b>'+rm(after)+'</b>'):'');}
-  if(ab)ab.innerHTML=(after<CREDIT_FLOOR_RM)
-    ? '<div class="critbox">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
+  if(ab)ab.innerHTML=short
+    ? '<div class="critbox flash">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
       '<span style="font-weight:700;font-size:11.5px">'+esc(r.name||id)+' holds '+rm(before)+
       ' but this load is worth '+rm(t.total_value_rm)+' — it would leave '+rm(after)+'.</span></div>'
-    : '';}
+    : '';
+  renderOverrideBox(short,r,before,after,t.total_value_rm);
+  if(go){
+    const locked=short&&!OVR_OK;
+    go.disabled=locked;
+    go.textContent=locked?'🔒 LOCKED — CREDIT EXCEEDED'
+      :(short?'✓ CONFIRM DISPATCH (OVERRIDE)':'✓ CONFIRM DISPATCH & INVOICE');}}
+
+// ---- admin overdraft override --------------------------------------------------------
+function renderOverrideBox(short,r,before,after,val){
+  const box=$('dp-ovrbox'); if(!box)return;
+  if(!short){box.innerHTML='';return;}
+  if(OVR_OK){
+    box.innerHTML='<div class="ovrok">🔓 ADMIN OVERRIDE ACTIVE — authorised by '+esc(OVR_BY)+
+      '.<br><span style="font-weight:600">Confirming will take '+esc(r.name||'')+
+      ' to '+rm(after)+' and flag the account as overdrawn until it is settled.</span></div>';
+    return;}
+  box.innerHTML='<div class="ovrbox">'+
+    '<div style="font-weight:900;font-size:12.5px;color:#8c1d18">🔒 Checkout locked</div>'+
+    '<div class="small" style="margin-top:4px">This load is worth '+rm(val)+' and '+esc(r.name||'')+
+      ' only holds '+rm(before)+'. The Owner may release it by keying their 6-digit access key below; '+
+      'the account then goes into negative tracking and shows as overdrawn everywhere.</div>'+
+    '<label style="margin-top:8px">Admin Password Override</label>'+
+    '<input type="password" id="dp-ovr" inputmode="numeric" maxlength="6" autocomplete="off" '+
+      'placeholder="••••••" oninput="if(this.value.length===6)tryOverride()">'+
+    '<div class="pinerr" id="dp-ovrerr"></div>'+
+    '<button class="bigbtn ghost" style="margin-top:6px;padding:11px;font-size:13px" '+
+      'onclick="tryOverride()">🔓 UNLOCK DISPATCH</button>'+
+  '</div>';}
+function tryOverride(){
+  const el=$('dp-ovr'), er=$('dp-ovrerr'); if(!el)return;
+  const k=findKey(String(el.value||'').trim());
+  if(!k||k.role!=='OWNER'||String(k.status).toLowerCase()!=='active'){
+    if(er)er.textContent='That is not an active Owner access key.';
+    el.value=''; return;}
+  OVR_OK=true; OVR_BY=k.name;
+  toast('🔓 Override authorised by '+k.name);
+  dispCalc();}
+function clearOverride(){OVR_OK=false;OVR_BY='';}
+function dispRetChanged(){clearOverride();dispCalc();}
+
 function renderDispatch(){
-  const box=$('dp-rows'); if(!box)return;
   const sel=$('dp-ret');
   if(sel){const keep=sel.value;
     sel.innerHTML='<option value="">— select retailer —</option>'+activeRetailers().map(r=>
       '<option value="'+esc(r.id)+'">'+esc(r.name)+' · credit '+rm(retailerCredit(r.id))+'</option>').join('');
     sel.value=keep&&retailerById(keep)?keep:'';}
-  if(!box.children.length){
-    box.innerHTML=GRADE_ORDER.map(g=>
-      '<div class="selrow" style="margin-bottom:2px"><div><label>Grade '+g+' (KG)</label>'+
-      '<input type="number" id="dp-kg-'+g+'" min="0" step="any" inputmode="decimal" placeholder="0" oninput="dispCalc()"></div>'+
-      '<div><label>Price / KG</label><input value="'+rm(priceOf(g))+'" disabled></div></div>').join('');}
-  else GRADE_ORDER.forEach((g,i)=>{const row=box.children[i];
-    if(row&&row.children[1])row.children[1].querySelector('input').value=rm(priceOf(g));});
-  dispCalc();}
+  renderDispLines();
+  dispCalc();
+  renderReceiptBox();}
+
+// ---- confirm -------------------------------------------------------------------------
 let savingDisp=false;
 async function saveDispatch(){
   const err=$('dp-err'); if(err)err.textContent='';
   if(savingDisp)return;
+  if(!canDispatch()){toast('Only the Owner or Marketing can dispatch',1);return;}
   const id=$('dp-ret').value, r=retailerById(id);
   if(!r){err.textContent='Select the retailer this load is going to.';return;}
   const t=dispTotals();
-  if(!(t.total_kg>0)){err.textContent='Key in the net basket weight for at least one grade.';return;}
-  const missing=GRADE_ORDER.filter(g=>t.per[g].kg>0&&!(priceOf(g)>0));
-  if(missing.length){err.textContent='No price is set for Grade '+missing.join(', ')+
+  if(!(t.total_kg>0)){err.textContent='Key the gross scale reading for at least one line.';return;}
+  const unpriced=t.lines.filter(x=>!(x.price_rm>0));
+  if(unpriced.length){err.textContent='No price is set for '+
+    unpriced.map(x=>x.clone+' Grade '+x.grade).join(', ')+
     '. The Owner sets the per-KG prices in PRICES & RETAILERS.';return;}
   const avail=collectedKg()-soldKg();
   if(t.total_kg>avail&&!confirm('⚠ Only '+nf(Math.max(0,avail))+' kg of collected fruit is still undispatched.\n'+
      'Send '+nf(t.total_kg)+' kg anyway?'))return;
-  const before=retailerCredit(id), after=+(before-t.total_value_rm).toFixed(2);
-  let over=false;
-  if(after<CREDIT_FLOOR_RM){
-    over=true;
-    if(!confirm('CRITICAL: Insufficient Retailer Credit for Dispatch!\n\n'+r.name+' holds '+rm(before)+
-      ' and this load is worth '+rm(t.total_value_rm)+'.\nConfirming leaves the account at '+rm(after)+'.\n\n'+
-      'Send it anyway and flag the account?'))return;}
+  const before=retailerCredit(id), after=+((before-t.total_value_rm).toFixed(2));
+  const over=after<CREDIT_FLOOR_RM;
+  if(over&&!OVR_OK){
+    err.textContent='Credit exceeded. The Owner must key the 6-digit override to release this dispatch.';
+    return;}
+  if(over&&!confirm('ADMIN OVERRIDE — authorised by '+OVR_BY+'.\n\n'+r.name+' holds '+rm(before)+
+    ' and this load is worth '+rm(t.total_value_rm)+'.\nConfirming leaves the account at '+rm(after)+
+    ' (overdrawn).\n\nSend it?'))return;
   savingDisp=true;
+  const u=uuid(), stamp=now(), serial=nextInvoiceSerial(stamp);
   try{
-    await persistEvent({uuid:uuid(),type:'DISPATCH',dt:now(),
+    await persistEvent({uuid:u,type:'DISPATCH',dt:stamp,
+      invoice_no:serial,
       retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
-      kg_A:t.per.A.kg, kg_B:t.per.B.kg, kg_C:t.per.C.kg,
-      price_A:priceOf('A'), price_B:priceOf('B'), price_C:priceOf('C'),
-      value_A:t.per.A.value, value_B:t.per.B.value, value_C:t.per.C.value,
+      lines:t.lines, lines_json:JSON.stringify(t.lines), line_count:t.lines.length,
+      kg_A:t.kg_A, kg_B:t.kg_B, kg_C:t.kg_C,
+      total_gross_kg:t.total_gross_kg, total_tare_kg:t.total_tare_kg,
       total_kg:t.total_kg, total_value_rm:t.total_value_rm,
-      credit_before_rm:before, credit_after_rm:after, over_credit:over,
+      credit_before_rm:before, credit_after_rm:after,
+      over_credit:over, override_by:over?OVR_BY:'', override_at:over?stamp:'',
       note:$('dp-note').value.trim(),
       worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
   } finally { savingDisp=false; }
-  GRADE_ORDER.forEach(g=>{const el=$('dp-kg-'+g);if(el)el.value='';});
+  LAST_INVOICE_UUID=u;
+  DLINES=[newDispLine()];
   $('dp-note').value='';
+  clearOverride();
   badge(); renderDispatch(); renderMktLedger(); renderMarketing(); renderHub();
-  toast('✓ '+nf(t.total_kg)+' kg to '+r.name+' · '+rm(t.total_value_rm)+' · credit '+rm(after)+
-    (navigator.onLine?'':' (queued)'));}
+  toast('✓ '+serial+' · '+nf(t.total_kg)+' kg to '+r.name+' · '+rm(t.total_value_rm)+
+    (navigator.onLine?'':' (queued)'));
+  copyReceipt(u,true);}
+
+// ======================= WHATSAPP RECEIPT ============================================
+/** Robust clipboard write — the async API is blocked on plain http:// and inside some
+ *  in-app browsers, so there is always the hidden-textarea fallback behind it. */
+async function copyToClipboard(s){
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(s);return true;} }catch(e){}
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=s; ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='0'; ta.style.left='0'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,s.length);
+    const ok=document.execCommand('copy'); document.body.removeChild(ta); return ok;
+  }catch(e){return false;}}
+
+/** The lines of a dispatch, whether it was written by v3.1 (clone lines) or v3.0
+ *  (three blended A/B/C weights). An old row must still print a readable receipt. */
+function receiptLines(e){
+  if(Array.isArray(e.lines)&&e.lines.length)return e.lines;
+  if(typeof e.lines_json==='string'&&e.lines_json){
+    try{const p=JSON.parse(e.lines_json); if(Array.isArray(p)&&p.length)return p;}catch(x){}}
+  return ['A','B','C'].filter(g=>+e['kg_'+g]>0).map(g=>({
+    clone:'', clone_name:'Mixed', grade:g, band:'',
+    basket:'', basket_name:'', baskets:0,
+    gross_kg:+e['kg_'+g]||0, tare_kg:0, net_kg:+e['kg_'+g]||0,
+    price_rm:+e['price_'+g]||0, value_rm:+e['value_'+g]||0, fruits:0, avg_fruit_kg:0}));}
+
+function receiptText(e){
+  if(!e)return '';
+  const lines=receiptLines(e);
+  const bal=creditAfterUuid(e.uuid);
+  const L=[];
+  L.push('🍈 *SUGUT DURIAN FARM* 🍈');
+  L.push('━━━━━━━━━━━━━');
+  L.push('🧾 Invoice: *'+(e.invoice_no||'—')+'*');
+  L.push('🗓️ '+(e.dt||''));
+  L.push('👤 Retailer: *'+(e.retailer_name||'')+'*'+(e.contact?(' ('+e.contact+')'):''));
+  L.push('━━━━━━━━━━━━━');
+  L.push('📦 *DELIVERY BREAKDOWN*');
+  lines.forEach(x=>{
+    L.push('• '+(x.clone_name||x.clone||'Mixed')+' · *Grade '+x.grade+'*'+
+      (x.band?(' ('+x.band+')'):''));
+    if(+x.tare_kg>0)
+      L.push('   ⚖️ Gross '+nf(x.gross_kg)+' kg − tare '+nf(x.tare_kg)+' kg'+
+        (x.basket_name?(' ('+x.baskets+'× '+x.basket_name+')'):''));
+    L.push('   Net *'+nf(x.net_kg)+' kg* × '+rm(x.price_rm)+'/kg = *'+rm(x.value_rm)+'*'+
+      (+x.fruits>0?('  · '+x.fruits+' fruits, avg '+nf(x.avg_fruit_kg)+' kg'):''));});
+  L.push('━━━━━━━━━━━━━');
+  if(+e.total_tare_kg>0)
+    L.push('⚖️ Gross '+nf(e.total_gross_kg)+' kg − baskets '+nf(e.total_tare_kg)+' kg');
+  L.push('⚖️ *TOTAL NET WEIGHT: '+nf(e.total_kg)+' kg*');
+  L.push('💰 *TOTAL INVOICE: '+rm(e.total_value_rm)+'*');
+  L.push('━━━━━━━━━━━━━');
+  L.push('💳 Credit before: '+rm(e.credit_before_rm));
+  L.push((bal<0?'🔴':'💳')+' *Credit balance: '+rm(bal)+'*');
+  if(bal<CREDIT_FLOOR_RM)
+    L.push('⚠️ *ACCOUNT OVERDRAWN — settlement required.*'+
+      (e.override_by?(' Released by '+e.override_by+'.'):''));
+  if(e.note)L.push('📝 Note: '+e.note);
+  L.push('━━━━━━━━━━━━━');
+  L.push('✅ Weighed & logged by '+(e.worker||'')+' · Sugut DMS');
+  return L.join('\n');}
+
+async function copyReceipt(u,quiet){
+  const e=EVENTS.find(x=>x.uuid===u&&x.type==='DISPATCH');
+  if(!e){toast('That invoice is not on this phone',1);return;}
+  const txt=receiptText(e);
+  const ok=await copyToClipboard(txt);
+  if(ok){toast('📋 Receipt for '+(e.invoice_no||'')+' copied — paste it into WhatsApp');}
+  else{
+    const box=$('dp-receipt');
+    if(box){box.innerHTML='<div class="sec" style="margin-top:12px">Receipt — copy this text</div>'+
+      '<textarea class="rcpt" readonly onclick="this.select()">'+esc(txt)+'</textarea>'+
+      '<div class="small">This browser blocked the clipboard. Tap the box, hold, and choose Copy.</div>';
+      box.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    if(!quiet)toast('Clipboard blocked — the text is shown below',1);}}
+
+function renderReceiptBox(){
+  const box=$('dp-receipt'); if(!box)return;
+  const e=LAST_INVOICE_UUID?EVENTS.find(x=>x.uuid===LAST_INVOICE_UUID):null;
+  if(!e){box.innerHTML='';return;}
+  box.innerHTML='<div class="lastinv">Last invoice <b>'+esc(e.invoice_no||'')+'</b> · '+
+    esc(e.retailer_name||'')+' · '+nf(e.total_kg)+' kg · '+rm(e.total_value_rm)+'</div>'+
+    '<button class="bigbtn wabtn" onclick="copyReceipt(\''+esc(e.uuid)+'\')">📋 Copy WhatsApp Receipt Text</button>';}
 
 // ---- the ledger view -----------------------------------------------------------------
 function renderMktLedger(){
   const box=$('mktledgerbox'); if(!box)return;
   const rows=marketingDeliveryLedger();
+  const dup=duplicateSerials();
   const cards=activeRetailers().map(r=>retailerLedger(r.id)).filter(Boolean);
   const broke=cards.filter(c=>c.current_credit_balance_rm<CREDIT_FLOOR_RM);
   box.innerHTML=
-    (broke.length?('<div class="critbox">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
+    (broke.length?('<div class="critbox">CRITICAL: Retailer account overdrawn — dispatch is locked '+
+      'until the Owner overrides or credit is topped up.<br>'+
       '<span style="font-weight:700;font-size:11.5px">'+
       broke.map(c=>esc(c.name)+' — '+rm(c.current_credit_balance_rm)).join('<br>')+'</span></div>'):'')+
     '<div class="tblwrap"><table class="tbl">'+
@@ -3542,13 +3891,19 @@ function renderMktLedger(){
     '</table></div>'+
     '<div class="sec" style="margin-top:14px">Delivery ledger — newest first</div>'+
     (rows.length?('<div class="tblwrap"><table class="tbl">'+
-      '<tr><th>When / retailer</th><th class="num">A · B · C (kg)</th><th class="num">Order value</th><th class="num">Credit left</th></tr>'+
-      rows.slice(0,60).map(x=>'<tr><td><div class="pn">'+esc(x.retailer_name)+
-        (x.kind==='TOPUP'?' <span class="cstat a">TOP-UP</span>':'')+'</div>'+
+      '<tr><th>Invoice / retailer</th><th class="num">Net kg</th><th class="num">Order value</th><th class="num">Credit left</th></tr>'+
+      rows.slice(0,60).map(x=>'<tr><td><div class="pn">'+
+        (x.invoice_no?('<span class="invno">'+esc(x.invoice_no)+'</span> '):'')+esc(x.retailer_name)+
+        (x.kind==='TOPUP'?' <span class="cstat a">TOP-UP</span>':'')+
+        (x.over_credit?' <span class="cstat r">OVERRIDE</span>':'')+
+        (dup[x.invoice_no]?' <span class="cstat r">DUPLICATE SERIAL</span>':'')+'</div>'+
         '<div class="pa">'+esc(x.timestamp)+(x.synced?'':' · queued')+
-        (x.note?(' · '+esc(x.note)):'')+'</div></td>'+
-        '<td class="num">'+(x.kind==='TOPUP'?'—':(nf(x.kg_A)+' · '+nf(x.kg_B)+' · '+nf(x.kg_C)+
-          '<div class="exphint">'+nf(x.total_kg)+' kg total</div>'))+'</td>'+
+        (x.note?(' · '+esc(x.note)):'')+'</div>'+
+        (x.kind==='DISPATCH'?('<div><span class="linkish" onclick="copyReceipt(\''+esc(x.uuid)+
+          '\')">📋 copy WhatsApp receipt</span></div>'):'')+'</td>'+
+        '<td class="num">'+(x.kind==='TOPUP'?'—':(nf(x.total_kg)+
+          '<div class="exphint">A '+nf(x.kg_A)+' · B '+nf(x.kg_B)+
+          (x.kg_C?(' · C '+nf(x.kg_C)):'')+'</div>'))+'</td>'+
         '<td class="num"><b>'+(SHOW_VALUES?rm(x.total_order_value_rm):'—')+'</b></td>'+
         '<td class="num '+(x.remaining_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'">'+
         (SHOW_VALUES?rm(x.remaining_credit_balance_rm):'—')+'</td></tr>').join('')+'</table></div>')
@@ -3556,19 +3911,61 @@ function renderMktLedger(){
     '<p class="small">Every row is immutable. A dispatch is never edited — if a weight was wrong, '+
     'the Owner posts a credit top-up with the reason, so the mistake and the fix both stay on the record.</p>';}
 
-// ---- Owner-only prices and retailer master -------------------------------------------
+// ---- Owner-only price matrix, basket tare and retailer master ------------------------
 function renderPrices(){
   const box=$('pricebox'); if(!box)return;
   const own=canSetPrice();
+  const cell=(c,g)=>{
+    if(!hasGrade(c,g))return '<td class="num nogrd">—</td>';
+    return '<td class="num">'+(own
+      ?('<input type="number" id="pr-'+esc(c)+'-'+g+'" min="0" step="0.01" inputmode="decimal" value="'+
+        priceOf(c,g)+'">')
+      :('<b>'+rm(priceOf(c,g))+'</b>'))+
+      '<div class="exphint">'+esc(bandText(c,g))+'</div></td>';};
   box.innerHTML=
-    '<div class="tblwrap"><table class="tbl"><tr><th>Grade</th><th class="num">Price per KG</th></tr>'+
-    GRADE_ORDER.map(g=>'<tr><td><b>'+esc(GRADE_META[g].label)+'</b><div class="exphint">'+
-      esc(GRADE_META[g].note)+'</div></td><td class="num">'+
-      (own?('<input type="number" id="pr-'+g+'" min="0" step="0.01" inputmode="decimal" value="'+
-            priceOf(g)+'" style="width:100px;text-align:right">')
-          :('<b>'+rm(priceOf(g))+'</b>'))+'</td></tr>').join('')+'</table></div>'+
-    (own?'<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE GRADE PRICES</button>'
-        :'<div class="cnote">Only the Owner can change a price. These are the figures every invoice is built from.</div>')+
+    '<div class="cnote">Prices are per KG of <b>net</b> weight. Black Thorn, B24, 101 and Udang Merah '+
+      'are two-grade clones — they have no Grade C anywhere in the system.</div>'+
+    (PRICE_META.at?('<div class="exphint" style="margin:6px 0">Last changed '+esc(PRICE_META.at)+
+      (PRICE_META.by?(' by '+esc(PRICE_META.by)):'')+'</div>'):'')+
+    '<div class="tblwrap"><table class="tbl pmx">'+
+    '<tr><th>Clone</th><th class="num">Grade A</th><th class="num">Grade B</th><th class="num">Grade C</th></tr>'+
+    CLONE_SELL_ORDER.map(c=>'<tr><td><b>'+esc(CLONE_NAME[c]||c)+'</b><div class="exphint">'+esc(c)+
+      ' · '+gradesFor(c).length+'-grade</div></td>'+cell(c,'A')+cell(c,'B')+cell(c,'C')+'</tr>').join('')+
+    '</table></div>'+
+    (own?(
+      '<div class="sec" style="margin-top:12px">📈 Daily market trend modifier</div>'+
+      '<div class="small">Nudge every price in the table above before the lorry leaves. '+
+        'Nothing is saved until you tap SAVE.</div>'+
+      '<div class="trendrow">'+
+        '<div class="trendbtn" onclick="trendNudge(-10)">−10%</div>'+
+        '<div class="trendbtn" onclick="trendNudge(-5)">−5%</div>'+
+        '<div class="trendbtn" onclick="trendNudge(5)">+5%</div>'+
+        '<div class="trendbtn" onclick="trendNudge(10)">+10%</div>'+
+      '</div>'+
+      '<div class="trendrow">'+
+        '<input type="number" id="pr-pct" step="0.5" inputmode="decimal" placeholder="custom %" style="flex:2">'+
+        '<div class="trendbtn" onclick="trendNudge(+($(\'pr-pct\').value||0))">APPLY %</div>'+
+        '<div class="trendbtn" onclick="trendReset()">RESET TO AGREED BASE</div>'+
+      '</div>'+
+      '<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE PRICE MATRIX</button>')
+      :'<div class="cnote">Only the Owner can change a price. These are the figures every invoice is built from.</div>')+
+
+    '<div class="sec" style="margin-top:16px">⚖️ Basket tare</div>'+
+    (TARE_VERIFIED?'':'<div class="critbox" style="margin-bottom:8px">These tare weights have NOT been '+
+      'verified yet. Put an EMPTY basket on the scale, key the reading here, then tick the box — until '+
+      'then every net weight may be wrong.</div>')+
+    '<div class="tblwrap"><table class="tbl"><tr><th>Basket</th><th class="num">Empty weight (kg)</th></tr>'+
+    BASKETS.map(b=>'<tr><td><b>'+(b.ic?b.ic+' ':'')+esc(b.name)+'</b><div class="exphint">'+esc(b.id)+'</div></td>'+
+      '<td class="num">'+(own&&b.id!=='NONE'
+        ?('<input type="number" id="bt-'+esc(b.id)+'" min="0" step="0.01" inputmode="decimal" value="'+
+          (+b.tare_kg||0)+'" style="width:90px;text-align:right">')
+        :('<b>'+nf(b.tare_kg)+' kg</b>'))+'</td></tr>').join('')+'</table></div>'+
+    (own?('<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">'+
+      '<input type="checkbox" id="bt-ok" '+(TARE_VERIFIED?'checked':'')+' style="width:auto">'+
+      'I have weighed the empty baskets — these figures are real</label>'+
+      '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
+        'onclick="saveBaskets()">✓ SAVE BASKET TARE</button>'):'')+
+
     '<div class="sec" style="margin-top:16px">Retailers</div>'+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Retailer</th><th class="num">Credit left</th><th class="num"></th></tr>'+
@@ -3582,16 +3979,48 @@ function renderPrices(){
     (own?'<button class="bigbtn ghost" style="margin-top:9px" onclick="addRetailer()">+ ADD RETAILER</button>':'')+
     '<p class="small">Credit left = opening credit + top-ups − everything invoiced. It is worked out from the '+
     'delivery ledger every time this screen opens, so it always agrees with the rows above it.</p>';}
+
+/** Move every editable cell by a percentage — the daily market trend, applied in one tap.
+ *  It only touches the INPUTS; nothing is committed until SAVE PRICE MATRIX. */
+function trendNudge(pct){
+  if(!canSetPrice())return;
+  pct=+pct||0; if(!pct){toast('Key a percentage first',1);return;}
+  CLONE_SELL_ORDER.forEach(c=>gradesFor(c).forEach(g=>{
+    const el=$('pr-'+c+'-'+g); if(!el)return;
+    const v=+el.value||0;
+    el.value=(Math.round(v*(1+pct/100)*100)/100).toFixed(2);}));
+  toast((pct>0?'+':'')+pct+'% applied — tap SAVE to commit');}
+function trendReset(){
+  if(!canSetPrice())return;
+  CLONE_SELL_ORDER.forEach(c=>gradesFor(c).forEach(g=>{
+    const el=$('pr-'+c+'-'+g); if(el)el.value=basePriceOf(c,g).toFixed(2);}));
+  toast('Back to the agreed base matrix — tap SAVE to commit');}
 async function savePrices(){
   if(!canSetPrice()){toast('Only the Owner can set prices',1);return;}
   const next={};
-  for(const g of GRADE_ORDER){
-    const v=$('pr-'+g)?$('pr-'+g).value:'';
-    if(v===''||isNaN(+v)||+v<0){toast('Grade '+g+' price is not a valid figure',1);return;}
-    next[g]=+(+v).toFixed(2);}
-  GRADE_PRICE=next; await persistPrices();
+  for(const c of CLONE_SELL_ORDER){
+    next[c]={};
+    for(const g of gradesFor(c)){
+      const el=$('pr-'+c+'-'+g); const v=el?el.value:'';
+      if(v===''||isNaN(+v)||+v<0){toast(c+' Grade '+g+' is not a valid figure',1);return;}
+      next[c][g]=+(+v).toFixed(2);}}
+  CLONE_PRICE=next;
+  PRICE_META={at:now(),by:(CFG&&CFG.worker)||''};
+  await persistPrices();
   renderPrices(); renderDispatch();
-  toast('✓ Grade prices saved');}
+  toast('✓ Price matrix saved');}
+async function saveBaskets(){
+  if(!canSetPrice()){toast('Only the Owner can set the basket tare',1);return;}
+  for(const b of BASKETS){
+    if(b.id==='NONE'){b.tare_kg=0;continue;}
+    const el=$('bt-'+b.id); if(!el)continue;
+    const v=el.value;
+    if(v===''||isNaN(+v)||+v<0){toast(b.name+' tare is not a valid figure',1);return;}
+    b.tare_kg=+(+v).toFixed(2);}
+  TARE_VERIFIED=!!($('bt-ok')&&$('bt-ok').checked);
+  await persistBaskets();
+  renderPrices(); renderDispatch();
+  toast('✓ Basket tare saved'+(TARE_VERIFIED?'':' — still marked unverified'));}
 async function addRetailer(){
   if(!canSetPrice()){toast('Only the Owner can add a retailer',1);return;}
   const name=prompt('Retailer name'); if(!name||!name.trim())return;
