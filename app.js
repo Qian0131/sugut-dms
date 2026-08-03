@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.1.0';   // v3.1.0 — clone x grade price matrix, basket tare, invoice serials, WhatsApp receipts, credit override
+const APP_VERSION = 'v3.2.0';   // v3.2.0 — Option A retailer record card, dual-signature yield audit, append-only hardening
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -130,7 +130,8 @@ function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
   (typeof q5==='function'?q5():0)+
   (typeof q6==='function'?q6():0)+
   (typeof q7==='function'?q7():0)+
-  (typeof q8==='function'?q8():0);}
+  (typeof q8==='function'?q8():0)+
+  (typeof q9==='function'?q9():0);}
 function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
   const q=pending()+corrUnsynced()+q4();
@@ -232,7 +233,7 @@ const MODULES={
   harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, rotten',
     tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[]},
           {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES},
-          {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
+          {k:'today',t:'FARM TODAY',scr:'dash',panels:['yieldstrip','kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
   // v3.0 — the tying tracker is its own tile. Hidden from the Sandakan Purchaser.
   tying:{ic:'🎗️',name:'Fruit Tying Tracker',sub:'tally clicker, rope, balances',
     tabs:[{k:'tally',t:'TALLY CLICKER',scr:'dash',panels:['tallycard']},
@@ -255,7 +256,7 @@ const MODULES={
   // v3.0 — Marketing is now the morning dispatch desk: weigh the baskets, invoice the
   // retailer, watch the credit come down. Owner and Marketing only.
   mkt:{ic:'🚚',name:'Marketing',sub:'dispatch, retailer credit',
-    tabs:[{k:'disp',  t:'DISPATCH',           scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES},
+    tabs:[{k:'disp',  t:'RETAILERS',          scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES},
           {k:'ledger',t:'DELIVERY LEDGER',    scr:'dash',panels:['mktledger'],  roles:FULL_ROLES},
           {k:'price', t:'PRICES & RETAILERS', scr:'dash',panels:['pricecard'],  roles:FULL_ROLES},
           {k:'sell',  t:'OTHER SALES',        scr:'dash',panels:['mktpanel'],   roles:FULL_ROLES}]},
@@ -263,6 +264,9 @@ const MODULES={
     tabs:[{k:'sum',   t:'COSTING',    scr:'dash',panels:['ledgercard'],roles:FULL_ROLES},
           {k:'labour',t:'LABOUR',     scr:'dash',panels:['labourcard'],roles:FULL_ROLES},
           {k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES},
+          // v3.2 — the dual-signature yield audit is the Owner's alone. Marketing weighs
+          // the fruit, so Marketing does not get to mark its own homework.
+          {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER']},
           {k:'reg',   t:'STAFF',      scr:'dash',panels:['keyspanel'], roles:FULL_ROLES}]}
 };
 // Option C — six big tiles, in this order. The role gate is applied here AND again in
@@ -278,7 +282,7 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
   'agrorain','agromonth','agrorecord','tyingcard','wavecard','mktpanel',
-  'tallycard','dispatchcard','mktledger','pricecard'];
+  'tallycard','dispatchcard','mktledger','pricecard','yieldaudit','yieldstrip'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -302,6 +306,8 @@ function roleAllows(id){
     case 'tallycard': return full||myRole()==='WORKER';
     // v3.0 — anything carrying a retailer credit balance is Owner / Marketing only
     case 'dispatchcard': case 'mktledger': case 'pricecard': return full;
+    // v3.2 — the yield audit names who counted and who weighed. Owner only.
+    case 'yieldaudit': case 'yieldstrip': return myRole()==='OWNER';
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
     case 'kpis': case 'phibox': case 'lotcard':
@@ -317,7 +323,12 @@ function tileBadge(k){
     if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
       if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
     const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
-  if(k==='costadmin'){const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
+  if(k==='costadmin'){
+    // v3.2 — an unresolved yield mismatch outranks a pending correction: it is the one
+    // that means fruit may be walking off the farm.
+    const y=(typeof yieldFlags==='function'&&myRole()==='OWNER')?yieldFlags().length:0;
+    if(y)return {t:y+' YIELD ALERT'+(y>1?'S':'')};
+    const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
     return n?{t:n+' PENDING',amber:1}:null;}
   if(k==='mkt'){const kg=Math.round(collectedKg()-soldKg());
     return kg>0?{t:nf(kg)+' KG READY',amber:1}:null;}
@@ -387,7 +398,8 @@ function openModule(k,tabKey){
 function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
   renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();
-  renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();}
+  renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();
+  renderYieldAudit();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
     renderGradeRows();refreshTreeBoard();}
@@ -410,12 +422,23 @@ function renderForTab(k,t){
   if(k==='mkt'&&t==='disp')renderDispatch();
   if(k==='mkt'&&t==='ledger')renderMktLedger();
   if(k==='mkt'&&t==='price')renderPrices();
+  if(k==='costadmin'&&t==='yield')renderYieldAudit();
   if(k==='mkt'&&t==='sell')renderMarketing();
   if(k==='costadmin'&&t==='sum')renderLedgerSummary();
   if(k==='costadmin'&&t==='labour')renderLabour();
   if(k==='costadmin'&&t==='corr')renderCorrections();
   if(k==='costadmin'&&t==='reg')renderKeys();}
+/** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
+ *  back in — possibly as a different person — left the previous user's open retailer
+ *  card, their half-keyed baskets and any granted overdraft override on the screen. */
+function resetMarketingView(){
+  if(typeof MKT_SEL!=='undefined')MKT_SEL='';
+  if(typeof DLINES!=='undefined')DLINES=[];
+  if(typeof DNOTE!=='undefined')DNOTE='';
+  if(typeof clearOverride==='function')clearOverride();
+  if(typeof LAST_INVOICE_UUID!=='undefined')LAST_INVOICE_UUID='';}
 function applyRole(){
+  resetMarketingView();
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
   SHOW_VALUES=full;                                   // gates every RM figure in the app
@@ -1190,11 +1213,41 @@ function refreshInventoryViews(){
   badge();}
 
 // ================= sync =================
+// v3.2 — one description of an event, used by the sync list AND by the void audit row,
+// so what the Owner sees on screen is literally what lands in the audit trail.
+function describeEvent(e){
+  if(!e)return '';
+  if(e.type==='DROP')        return '🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree+(e.grade?(' · Grade '+e.grade):'');
+  if(e.type==='ROTTEN')      return '🍂 '+e.qty+' rotten @ '+e.tree+(e.cause?(' · '+e.cause):'');
+  if(e.type==='TIE')         return '🎗️ '+e.n+' tied @ '+e.tree;
+  if(e.type==='STOCK_OUT')   return '📦→ '+e.qty+' '+(e.unit||'')+' '+(e.pname||'')+(e.lot?(' · Lot '+e.lot):'');
+  if(e.type==='STOCK_IN')    return '📦← '+e.qty+' '+(e.unit||'')+' '+(e.pname||'')+(e.ref?(' · '+e.ref):'');
+  if(e.type==='STOCK_ADJUST')return '🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+(e.unit||'')+' '+(e.pname||'');
+  if(e.type==='DISPATCH')    return '🚚 '+(e.invoice_no||'')+' · '+nf(e.total_kg)+' kg → '+(e.retailer_name||'');
+  if(e.type==='CREDIT_TOPUP')return '💳 '+rm(e.amount_rm)+' credit → '+(e.retailer_name||'');
+  if(e.type==='LOG_VOID')    return '⛔ voided: '+(e.detail||e.targetType||'');
+  if(e.type==='YIELD_ACK')   return '✍️ yield answer for '+(e.day||'');
+  return (e.type||'event')+' '+(e.qty!=null?e.qty:'');}
+
+/** v3.2 — nobody deletes a record. The Owner may VOID a row that has not yet reached the
+ *  Google Sheet, and that voiding is itself an event, so the removal can never be hidden.
+ *  A worker or purchaser has no delete path at all — their only route is a correction
+ *  request, which lands on the Owner's Pending Data Adjustments dashboard. */
+function canVoidEntry(){return myRole()==='OWNER';}
+function isTreeLog(e){return e&&(e.type==='DROP'||e.type==='ROTTEN'||e.type==='TIE')&&!!e.tree;}
+
 function renderSync(){
   $('cfginfo').innerHTML=(CFG?('Worker: <b>'+(CFG.worker||'—')+'</b> <span class="small">('+(CFG.role||'')+')</span> · Device: <b>'+(CFG.device||'—')+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>'+APP_VERSION+'</b> · <span class="linkish" onclick="logout()">log out</span>';
+  const ap=$('appendnote');
+  if(ap)ap.innerHTML='<b>🔒 This log is append-only.</b> '+(canVoidEntry()
+    ? 'As Owner you may void an entry that has not yet reached the Google Sheet — voiding writes a '+
+      'permanent audit row naming you and your reason. Anything already synced can never be removed by anyone.'
+    : 'Nothing here can be deleted or edited from this phone. If a number is wrong, tap '+
+      '<b>Request correction</b> — it goes to the Owner’s Pending Data Adjustments dashboard, and the '+
+      'original entry stays on the record either way.');
   const L=$('ledger');
   L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
-    let d;
+    let d=describeEvent(e);
     if(e.type==='DROP') d='🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
     else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'')+(e.progSet?(' · '+e.progSet):'');
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
@@ -1202,24 +1255,56 @@ function renderSync(){
     else if(e.type==='TASK_DONE') d='🛠️ '+esc(e.kindLabel||e.kind||'task')+' · Lot '+esc(e.lot||'')+
       (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(e.hours*e.crew)+' man-h';
     else d=e.type;
+    // v3.2 — the delete control is gone for everyone except the Owner, and even then it
+    // is a VOID that leaves a trace. Workers get the governed correction path instead.
     const right=e.synced
       ? '<span class="tag s">SYNCED</span>'
-      : '<span style="display:flex;align-items:center;gap:6px"><span class="tag q">QUEUED</span><span onclick="removeEvent(\''+e.uuid+'\')" style="color:#b3261e;font-weight:800;font-size:15px;padding:2px 8px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer">✕</span></span>';
-    return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span></span>'+right+'</div>';}).join('')
+      : (canVoidEntry()
+        ? '<span style="display:flex;align-items:center;gap:6px"><span class="tag q">QUEUED</span>'+
+          '<span onclick="removeEvent(\''+e.uuid+'\')" style="color:#b3261e;font-weight:800;font-size:11px;'+
+          'padding:4px 8px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer">VOID</span></span>'
+        : '<span class="tag q">QUEUED</span>');
+    const ask=(!canVoidEntry()&&isTreeLog(e)&&canCorrect())
+      ? '<div><span class="linkish" onclick="openLogCorrection(\''+e.uuid+'\')">📝 Request correction</span></div>'
+      : '';
+    return '<div class="lrow"><span>'+d+'<br><span class="small">'+e.dt+' · '+e.worker+'</span>'+ask+'</span>'+right+'</div>';}).join('')
   :'<div class="small">No events yet.</div>';
   // v2.6.1 — a phone with an empty queue still needs to PULL the Owner's new work.
   // The button used to disable itself here, which left a worker with no way to ask.
   const b=$('syncbtn');const n=pending()+corrUnsynced()+q4();
   b.disabled=false;
   b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'⇩ CHECK FOR NEW WORK';}
+/**
+ * v3.2 ANTI-MANIPULATION. Before this release ANY role could silently delete a queued
+ * entry from their own phone before it ever synced — a worker could log 40 fruits, think
+ * better of it, and remove the row with nothing upstream ever knowing. That hole is shut:
+ *   · Worker / Purchaser: no delete path exists at all. They request a correction.
+ *   · Owner: may void a row that has NOT yet reached the sheet, and the void itself is a
+ *     LOG_VOID event carrying who, what and why. It syncs like any other record.
+ *   · Anything already synced is untouchable for everyone, always.
+ */
 async function removeEvent(u){
   const e=EVENTS.find(x=>x.uuid===u);
-  if(!e||e.synced)return; // synced events can never be removed from the phone
-  const d=e.type==='DROP'?(e.qty+'× '+(e.clone||'?')+' @ '+e.tree):(e.qty+' '+(e.unit||'')+' '+(e.pname||''));
-  if(!confirm('Delete this entry (not yet synced)?\n'+d))return;
+  if(!e)return;
+  if(e.synced){toast('Synced records can never be removed. Request a correction.',1);return;}
+  if(!canVoidEntry()){
+    toast('Records cannot be deleted. Tap “Request correction” — the Owner decides.',1);return;}
+  const d=describeEvent(e);
+  const res=await askForm({
+    title:'Void this queued entry',
+    sub:'“'+d+'” has not reached the Google Sheet yet. Voiding writes a permanent audit row naming you, '+
+        'the entry and your reason — the removal itself can never be hidden.',
+    f1:{label:'Reason for voiding',type:'text',value:'',placeholder:'e.g. keyed twice by mistake'},
+    ok:'⛔ VOID THIS ENTRY'});
+  if(!res)return;
+  if(!res.v1.trim()){toast('A reason is required to void an entry',1);return;}
+  await persistEvent({uuid:uuid(),type:'LOG_VOID',dt:now(),
+    targetUuid:e.uuid,targetType:e.type||'',targetDt:e.dt||'',targetWorker:e.worker||'',
+    detail:d,reason:res.v1.trim(),
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
   EVENTS=EVENTS.filter(x=>x.uuid!==u);
   if(db)await del('events',u); else mem.events=EVENTS;
-  badge();renderSync();toast('Entry deleted');}
+  badge();renderSync();toast('Entry voided — the audit row stays on the record');}
 // Correction requests travel in their own payload key so the tested DROP/STOCK
 // event pipeline is untouched. If the Google Sheet still runs the old Apps Script
 // (no `corrections:true` in the reply) nothing is marked synced — the queue simply
@@ -1278,10 +1363,13 @@ async function doSync(auto){
   await pushSales();                          // then marketing sales (own payload key)
   await pushRetailers();                      // then the retailer master (own payload key)
   await pushDispatch();                       // then retailer dispatches + credit top-ups
+  await pushAudit();                          // then the anti-manipulation audit trail
+  // Anything with its own payload key MUST also be excluded here, or it goes up twice.
   const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE'
     &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST'
     &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE'
-    &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP');
+    &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP'
+    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -3411,13 +3499,13 @@ async function pushSales(){
     m=>{if(!saleWarned){saleWarned=true;toast(m,1);}},
     'Sales kept on this phone — update the Apps Script to add the SALES tab');}
 
-// ================= v3.1 MARKETING · RETAILER SCALE LEDGER =============================
-// The morning flow, end to end: a basket comes off the scale GROSS, the app takes the
-// basket's own weight off it, the net is priced from that clone's own grade ladder, the
-// load gets a serial number, the order value comes straight off the retailer's prepaid
-// credit, and the marketer copies a WhatsApp receipt to the buyer before the lorry moves.
+// ================= v3.2 MARKETING · RETAILER RECORD CARD ==============================
+// Option A, locked in. The Marketing tile opens on a LIST of retailer cards. Tapping one
+// opens that retailer's isolated transaction profile: their details, their live prepaid
+// credit, the Add Basket scale form, and their own invoices — nothing about any other
+// buyer is on the screen while you are working on this one.
 //
-// Nothing here is a stored balance — `current_credit_balance_rm` is DERIVED from opening
+// Nothing here is a stored balance. `current_credit_balance_rm` is DERIVED from opening
 // credit + top-ups − dispatches, so it can never drift from the deliveries behind it, and
 // a mistake is corrected with a signed credit adjustment, never by editing history.
 
@@ -3431,7 +3519,7 @@ async function persistPrices(){
 async function persistBaskets(){
   if(db){await put('kv',{k:'baskets',v:BASKETS});await put('kv',{k:'tareok',v:TARE_VERIFIED});}}
 
-// ---- the price matrix ----------------------------------------------------------------
+// ---- the contract price matrix -------------------------------------------------------
 /** Deep copy of a clone x grade table — the seed must never be mutated by an edit. */
 function priceMatrixCopy(src){const o={};Object.keys(src||{}).forEach(c=>{o[c]=Object.assign({},src[c]);});return o;}
 /** Only the letters that clone is actually sorted into. BT / B24 / 101 / UM have no C. */
@@ -3455,7 +3543,10 @@ function gradeForWeight(clone,kg){
   for(let i=0;i<gs.length;i++){const b=bandOf(clone,gs[i]); if(!b)continue;
     if(kg>=b.min&&(b.max==null||kg<b.max))return gs[i];}
   return gs[gs.length-1]||'';}
-/** THE price lookup. Everything that touches money goes through here. */
+/** THE price lookup. Everything that touches money goes through here.
+ *  One contract book applies to every retailer — the alliance rates agreed with Roll.
+ *  A second buyer on different rates would need a per-retailer override; that is a
+ *  deliberate next module, not something half-built here. */
 function priceOf(clone,g){
   if(!hasGrade(clone,g))return 0;
   const row=CLONE_PRICE[clone]||{}; return +(row[g]||0);}
@@ -3469,7 +3560,12 @@ function tareOf(id){return +(basketById(id).tare_kg||0);}
 
 // ---- retailers and derived credit ----------------------------------------------------
 function retailerById(id){return RETAILERS.find(r=>String(r.id)===String(id))||null;}
-function activeRetailers(){return RETAILERS.filter(r=>String(r.status||'Active').toLowerCase()!=='deleted');}
+/** Everything still on the books — suspended included. Used by the master list. */
+function listedRetailers(){return RETAILERS.filter(r=>String(r.status||'Active').toLowerCase()!=='deleted');}
+/** Only those you may actually invoice today. A suspended buyer keeps their history
+ *  but disappears from the dispatch list — nothing is ever deleted. */
+function activeRetailers(){return RETAILERS.filter(r=>String(r.status||'Active')==='Active');}
+function suspendedRetailers(){return RETAILERS.filter(r=>String(r.status||'Active')==='Suspended');}
 function dispatchEvents(id){
   return EVENTS.filter(e=>e.type==='DISPATCH'&&(!id||String(e.retailer_id)===String(id)));}
 function topupEvents(id){
@@ -3483,6 +3579,7 @@ function retailerCredit(id){
 function retailerLedger(id){
   const r=retailerById(id); if(!r)return null;
   return {retailer_id:r.id, name:r.name, contact:r.contact||'',
+    status:String(r.status||'Active'),
     opening_credit_rm:+r.opening_credit_rm||0,
     topped_up_rm:retailerTopup(id), invoiced_rm:retailerSpend(id),
     current_credit_balance_rm:retailerCredit(id),
@@ -3549,8 +3646,9 @@ function creditAfterUuid(u){
 // ======================= THE SCALE FORM ==============================================
 // One line per basket load: clone, grade, basket type, how many baskets, the GROSS
 // reading, and optionally how many fruits are in it. Tare comes off automatically.
-let DLINES=[], DLSEQ=0;
+let DLINES=[], DLSEQ=0, DNOTE='';
 let OVR_OK=false, OVR_BY='', LAST_INVOICE_UUID='';
+let MKT_SEL='';                       // '' = the retailer list; else the open record card
 function newDispLine(){
   return {k:'L'+(++DLSEQ),clone:'MK',grade:'A',basket:'RED',baskets:1,gross:'',fruits:''};}
 function dispLines(){ if(!DLINES.length)DLINES=[newDispLine()]; return DLINES; }
@@ -3570,19 +3668,19 @@ function lineCalc(l){
   return {baskets,tare,gross,net,price,value,fruits,avg,sugg};}
 
 function dispTotals(){
-  let gross=0,tare=0,net=0,val=0;
+  let gross=0,tare=0,net=0,val=0,fruits=0;
   const byGrade={A:0,B:0,C:0}, lines=[];
   dispLines().forEach(l=>{
     const c=lineCalc(l);
     if(!(c.net>0))return;
-    gross+=c.gross; tare+=c.tare; net+=c.net; val+=c.value;
+    gross+=c.gross; tare+=c.tare; net+=c.net; val+=c.value; fruits+=c.fruits;
     byGrade[l.grade]=+((byGrade[l.grade]||0)+c.net).toFixed(2);
     lines.push({clone:l.clone,clone_name:CLONE_NAME[l.clone]||l.clone,grade:l.grade,
       band:bandText(l.clone,l.grade),
       basket:l.basket,basket_name:basketById(l.basket).name,baskets:c.baskets,
       gross_kg:c.gross,tare_kg:c.tare,net_kg:c.net,
       price_rm:c.price,value_rm:c.value,fruits:c.fruits,avg_fruit_kg:c.avg});});
-  return {lines:lines,
+  return {lines:lines, fruit_count:fruits,
     total_gross_kg:+gross.toFixed(2), total_tare_kg:+tare.toFixed(2),
     total_kg:+net.toFixed(2), total_value_rm:+val.toFixed(2),
     kg_A:+(byGrade.A||0).toFixed(2), kg_B:+(byGrade.B||0).toFixed(2), kg_C:+(byGrade.C||0).toFixed(2)};}
@@ -3604,7 +3702,7 @@ function renderDispLines(){
   box.innerHTML=dispLines().map((l,i)=>{
     const gs=gradesFor(l.clone);
     return '<div class="dline" id="dl-'+esc(l.k)+'">'+
-      '<div class="dlhead"><span class="dltag">SCALE LINE '+(i+1)+'</span>'+
+      '<div class="dlhead"><span class="dltag">BASKET '+(i+1)+'</span>'+
       (dispLines().length>1?'<span class="dlx" onclick="removeDispLine(\''+esc(l.k)+'\')">remove</span>':'')+'</div>'+
       '<div class="dl3">'+
         '<div><label>Clone</label><select onchange="dlSet(\''+esc(l.k)+'\',\'clone\',this.value)">'+
@@ -3656,8 +3754,9 @@ function renderLineTotals(){
       'weight on this screen may be wrong.</div>' : '';}
 
 function dispCalc(){
+  if(!MKT_SEL)return;
   renderLineTotals();
-  const t=dispTotals(), id=$('dp-ret')?$('dp-ret').value:'';
+  const t=dispTotals(), id=MKT_SEL;
   const inv=$('dp-inv');
   if(inv)inv.innerHTML=(t.lines.length
       ? t.lines.map(x=>'<div class="ir"><span class="lbl">'+esc(x.clone_name)+' · Grade '+x.grade+
@@ -3669,17 +3768,11 @@ function dispCalc(){
   const nb=$('dp-invno');
   if(nb)nb.innerHTML='Next invoice serial: <b>'+esc(nextInvoiceSerial())+'</b>';
   const cb=$('dp-credit'), ab=$('disp-alert'), go=$('dp-go');
-  if(!id){
-    if(cb){cb.className='credok';cb.textContent='Select a retailer.';}
-    if(ab)ab.innerHTML='';
-    if($('dp-ovrbox'))$('dp-ovrbox').innerHTML='';
-    if(go){go.disabled=false;go.textContent='✓ CONFIRM DISPATCH & INVOICE';}
-    return;}
   const before=retailerCredit(id), after=+((before-t.total_value_rm).toFixed(2));
   const r=retailerById(id)||{};
   const short=after<CREDIT_FLOOR_RM;
   if(cb){cb.className='credok'+(short?' credlow':'');
-    cb.innerHTML='<b>'+esc(r.name||id)+'</b> · credit now <b>'+rm(before)+'</b>'+
+    cb.innerHTML='Credit now <b>'+rm(before)+'</b>'+
       (t.total_value_rm?(' → after this dispatch <b>'+rm(after)+'</b>'):'');}
   if(ab)ab.innerHTML=short
     ? '<div class="critbox flash">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
@@ -3724,17 +3817,114 @@ function tryOverride(){
   toast('🔓 Override authorised by '+k.name);
   dispCalc();}
 function clearOverride(){OVR_OK=false;OVR_BY='';}
-function dispRetChanged(){clearOverride();dispCalc();}
+
+// ======================= OPTION A · THE RECORD CARD ==================================
+function openRetailerCard(id){
+  if(!retailerById(id))return;
+  MKT_SEL=id; clearOverride(); DLINES=[newDispLine()]; DNOTE='';
+  renderDispatch();
+  const s=$('scr-dash'); if(s)s.scrollTop=0;}
+function backToRetailers(){ MKT_SEL=''; clearOverride(); renderDispatch();
+  const s=$('scr-dash'); if(s)s.scrollTop=0;}
 
 function renderDispatch(){
-  const sel=$('dp-ret');
-  if(sel){const keep=sel.value;
-    sel.innerHTML='<option value="">— select retailer —</option>'+activeRetailers().map(r=>
-      '<option value="'+esc(r.id)+'">'+esc(r.name)+' · credit '+rm(retailerCredit(r.id))+'</option>').join('');
-    sel.value=keep&&retailerById(keep)?keep:'';}
+  const stage=$('dp-stage'); if(!stage)return;
+  if(!canDispatch()){stage.innerHTML='';MKT_SEL='';return;}
+  if(MKT_SEL&&!retailerById(MKT_SEL))MKT_SEL='';
+  if(!MKT_SEL){stage.innerHTML=retailerListHtml();return;}
+  stage.innerHTML=retailerCardHtml(MKT_SEL);
   renderDispLines();
   dispCalc();
   renderReceiptBox();}
+
+function retailerListHtml(){
+  const own=canSetPrice(), act=activeRetailers(), susp=suspendedRetailers();
+  return '<div class="sec">🚚 Retailers — tap a card to weigh and invoice</div>'+
+    (act.length? act.map(r=>{
+        const c=retailerLedger(r.id), low=c.current_credit_balance_rm<CREDIT_FLOOR_RM;
+        return '<div class="retcard'+(low?' over':'')+'" onclick="openRetailerCard(\''+esc(r.id)+'\')">'+
+          '<div class="rc-top"><div><div class="rc-name">'+esc(r.name)+'</div>'+
+            '<div class="rc-sub">'+esc(r.id)+' · '+esc(r.contact||'no contact')+'</div></div>'+
+            '<span class="cstat '+(low?'r':'a')+'">'+(low?'OVERDRAWN':'ACTIVE')+'</span></div>'+
+          '<div class="credtile'+(low?' over':'')+'"><div class="l">LIVE PREPAID CREDIT</div>'+
+            '<div class="v">'+(SHOW_VALUES?rm(c.current_credit_balance_rm):'— — —')+'</div></div>'+
+          '<div class="rc-foot">'+c.deliveries+' deliver'+(c.deliveries===1?'y':'ies')+
+            ' · invoiced '+(SHOW_VALUES?rm(c.invoiced_rm):'—')+
+            '<span class="rc-go">OPEN ›</span></div></div>';}).join('')
+      :'<div class="alertnone">No active retailer yet.'+(own?' Tap ADD RETAILER below.':'')+'</div>')+
+    (own?'<button class="bigbtn ghost" style="padding:13px;font-size:14px" onclick="openRetForm(\'\')">＋ ADD RETAILER</button>':'')+
+    (susp.length?('<div class="sec" style="margin-top:15px">Suspended — history kept, cannot be invoiced</div>'+
+      susp.map(r=>{const c=retailerLedger(r.id);
+        return '<div class="retcard susp"><div class="rc-top"><div><div class="rc-name">'+esc(r.name)+'</div>'+
+          '<div class="rc-sub">'+esc(r.id)+' · '+c.deliveries+' past deliver'+(c.deliveries===1?'y':'ies')+
+          ' · credit '+(SHOW_VALUES?rm(c.current_credit_balance_rm):'—')+'</div></div>'+
+          '<span class="cstat s">SUSPENDED</span></div>'+
+          (own?'<div class="rc-foot"><span class="linkish" onclick="openRetForm(\''+esc(r.id)+
+            '\')">reactivate or edit</span></div>':'')+'</div>';}).join(''))
+      :'')+
+    '<p class="small">A retailer is never deleted. Suspending takes them off this list but keeps every '+
+    'invoice they ever received, so the ledger still adds up.</p>';}
+
+function retailerCardHtml(id){
+  const r=retailerById(id), c=retailerLedger(id), own=canSetPrice();
+  const low=c.current_credit_balance_rm<CREDIT_FLOOR_RM;
+  const mine=dispatchEvents(id).slice()
+    .sort((a,b)=>String(a.dt)<String(b.dt)?1:(String(a.dt)>String(b.dt)?-1:0)).slice(0,8);
+  const dup=duplicateSerials();
+  return '<div class="rc-back" onclick="backToRetailers()">‹ ALL RETAILERS</div>'+
+
+    // ---- the profile head: who they are, what they hold ----
+    '<div class="profile'+(low?' over':'')+'">'+
+      '<div class="rc-name big">'+esc(r.name)+'</div>'+
+      '<div class="rc-sub">'+esc(r.id)+' · '+esc(r.contact||'no contact recorded')+
+        (r.status==='Suspended'?' · <b>SUSPENDED</b>':'')+'</div>'+
+      '<div class="credtile big'+(low?' over':'')+'">'+
+        '<div class="l">LIVE PREPAID CREDIT BALANCE</div>'+
+        '<div class="v">'+(SHOW_VALUES?rm(c.current_credit_balance_rm):'— — —')+'</div>'+
+        '<div class="w">opening '+rm(c.opening_credit_rm)+' + top-ups '+rm(c.topped_up_rm)+
+          ' − invoiced '+rm(c.invoiced_rm)+'</div></div>'+
+      (own?('<div class="rc-acts">'+
+        '<span class="linkish" onclick="openRetForm(\''+esc(id)+'\')">✏️ edit details</span>'+
+        '<span class="linkish" onclick="topUpRetailer(\''+esc(id)+'\')">＋ post credit top-up</span>'+
+        '</div>'):'')+
+    '</div>'+
+
+    // ---- the scale form ----
+    (r.status==='Suspended'
+      ? '<div class="critbox" style="margin-top:14px">This retailer is suspended and cannot be invoiced. '+
+        'Reactivate them in ✏️ edit details first.</div>'
+      : ('<div class="sec" style="margin-top:15px">⚖️ Add basket — morning weighing</div>'+
+    '<div class="convnote" id="dp-invno">—</div>'+
+    '<div id="disp-alert"></div>'+
+    '<div id="dp-credit" class="credok">—</div>'+
+    '<div id="dp-tarewarn"></div>'+
+    '<div id="dp-rows"></div>'+
+    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addDispLine()">＋ ADD ANOTHER BASKET</button>'+
+    '<div class="invbox" id="dp-inv"></div>'+
+    '<label>Note (optional)</label>'+
+    '<input id="dp-note" placeholder="e.g. lorry BKS 4412, driver Amin" value="'+esc(DNOTE)+
+      '" oninput="DNOTE=this.value">'+
+    '<div id="dp-ovrbox"></div>'+
+    '<div class="pinerr" id="dp-err"></div>'+
+    '<button class="bigbtn" id="dp-go" onclick="saveDispatch()">✓ CONFIRM DISPATCH &amp; INVOICE</button>'+
+    '<div id="dp-receipt"></div>'))+
+
+    // ---- this retailer's own invoices, nobody else's ----
+    '<div class="sec" style="margin-top:17px">🧾 '+esc(r.name)+'’s invoices</div>'+
+    (mine.length?('<div class="tblwrap"><table class="tbl">'+
+      '<tr><th>Invoice</th><th class="num">Net kg</th><th class="num">Value</th><th></th></tr>'+
+      mine.map(e=>'<tr><td><div class="pn">'+
+        (e.invoice_no?('<span class="invno">'+esc(e.invoice_no)+'</span>'):'—')+
+        (e.over_credit?' <span class="cstat r">OVERRIDE</span>':'')+
+        (dup[e.invoice_no]?' <span class="cstat r">DUP</span>':'')+'</div>'+
+        '<div class="pa">'+esc(e.dt)+(e.synced?'':' · queued')+'</div></td>'+
+        '<td class="num">'+nf(e.total_kg)+'</td>'+
+        '<td class="num"><b>'+(SHOW_VALUES?rm(e.total_value_rm):'—')+'</b></td>'+
+        '<td class="num"><span class="linkish" onclick="copyReceipt(\''+esc(e.uuid)+'\')">📋</span></td></tr>').join('')+
+      '</table></div>')
+      :'<div class="alertnone">No invoice for this retailer yet.</div>')+
+    '<p class="small">Only this retailer’s transactions appear on this card. Every row is immutable — a '+
+    'wrong weight is corrected with a credit adjustment, never by editing the invoice.</p>';}
 
 // ---- confirm -------------------------------------------------------------------------
 let savingDisp=false;
@@ -3742,10 +3932,11 @@ async function saveDispatch(){
   const err=$('dp-err'); if(err)err.textContent='';
   if(savingDisp)return;
   if(!canDispatch()){toast('Only the Owner or Marketing can dispatch',1);return;}
-  const id=$('dp-ret').value, r=retailerById(id);
-  if(!r){err.textContent='Select the retailer this load is going to.';return;}
+  const id=MKT_SEL, r=retailerById(id);
+  if(!r){if(err)err.textContent='Open a retailer card first.';return;}
+  if(String(r.status||'Active')!=='Active'){if(err)err.textContent='This retailer is suspended.';return;}
   const t=dispTotals();
-  if(!(t.total_kg>0)){err.textContent='Key the gross scale reading for at least one line.';return;}
+  if(!(t.total_kg>0)){err.textContent='Key the gross scale reading for at least one basket.';return;}
   const unpriced=t.lines.filter(x=>!(x.price_rm>0));
   if(unpriced.length){err.textContent='No price is set for '+
     unpriced.map(x=>x.clone+' Grade '+x.grade).join(', ')+
@@ -3768,19 +3959,18 @@ async function saveDispatch(){
       invoice_no:serial,
       retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
       lines:t.lines, lines_json:JSON.stringify(t.lines), line_count:t.lines.length,
-      kg_A:t.kg_A, kg_B:t.kg_B, kg_C:t.kg_C,
+      kg_A:t.kg_A, kg_B:t.kg_B, kg_C:t.kg_C, fruit_count:t.fruit_count,
       total_gross_kg:t.total_gross_kg, total_tare_kg:t.total_tare_kg,
       total_kg:t.total_kg, total_value_rm:t.total_value_rm,
       credit_before_rm:before, credit_after_rm:after,
       over_credit:over, override_by:over?OVR_BY:'', override_at:over?stamp:'',
-      note:$('dp-note').value.trim(),
+      note:DNOTE.trim(),
       worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
   } finally { savingDisp=false; }
   LAST_INVOICE_UUID=u;
-  DLINES=[newDispLine()];
-  $('dp-note').value='';
+  DLINES=[newDispLine()]; DNOTE='';
   clearOverride();
-  badge(); renderDispatch(); renderMktLedger(); renderMarketing(); renderHub();
+  badge(); renderDispatch(); renderMktLedger(); renderMarketing(); renderYieldAudit(); renderHub();
   toast('✓ '+serial+' · '+nf(t.total_kg)+' kg to '+r.name+' · '+rm(t.total_value_rm)+
     (navigator.onLine?'':' (queued)'));
   copyReceipt(u,true);}
@@ -3798,7 +3988,7 @@ async function copyToClipboard(s){
     const ok=document.execCommand('copy'); document.body.removeChild(ta); return ok;
   }catch(e){return false;}}
 
-/** The lines of a dispatch, whether it was written by v3.1 (clone lines) or v3.0
+/** The lines of a dispatch, whether it was written by v3.1+ (clone lines) or v3.0
  *  (three blended A/B/C weights). An old row must still print a readable receipt. */
 function receiptLines(e){
   if(Array.isArray(e.lines)&&e.lines.length)return e.lines;
@@ -3868,12 +4058,12 @@ function renderReceiptBox(){
     esc(e.retailer_name||'')+' · '+nf(e.total_kg)+' kg · '+rm(e.total_value_rm)+'</div>'+
     '<button class="bigbtn wabtn" onclick="copyReceipt(\''+esc(e.uuid)+'\')">📋 Copy WhatsApp Receipt Text</button>';}
 
-// ---- the ledger view -----------------------------------------------------------------
+// ---- the ledger view (all retailers together) ----------------------------------------
 function renderMktLedger(){
   const box=$('mktledgerbox'); if(!box)return;
   const rows=marketingDeliveryLedger();
   const dup=duplicateSerials();
-  const cards=activeRetailers().map(r=>retailerLedger(r.id)).filter(Boolean);
+  const cards=listedRetailers().map(r=>retailerLedger(r.id)).filter(Boolean);
   const broke=cards.filter(c=>c.current_credit_balance_rm<CREDIT_FLOOR_RM);
   box.innerHTML=
     (broke.length?('<div class="critbox">CRITICAL: Retailer account overdrawn — dispatch is locked '+
@@ -3882,8 +4072,9 @@ function renderMktLedger(){
       broke.map(c=>esc(c.name)+' — '+rm(c.current_credit_balance_rm)).join('<br>')+'</span></div>'):'')+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Retailer</th><th class="num">Opening</th><th class="num">Invoiced</th><th class="num">Credit left</th></tr>'+
-    cards.map(c=>'<tr><td><div class="pn">'+esc(c.name)+'</div><div class="pa">'+esc(c.contact||'')+
-      ' · '+c.deliveries+' deliver'+(c.deliveries===1?'y':'ies')+'</div></td>'+
+    cards.map(c=>'<tr><td><div class="pn">'+esc(c.name)+
+      (c.status==='Suspended'?' <span class="cstat s">SUSPENDED</span>':'')+'</div><div class="pa">'+
+      esc(c.contact||'')+' · '+c.deliveries+' deliver'+(c.deliveries===1?'y':'ies')+'</div></td>'+
       '<td class="num">'+(SHOW_VALUES?rm(c.opening_credit_rm+c.topped_up_rm):'—')+'</td>'+
       '<td class="num">'+(SHOW_VALUES?rm(c.invoiced_rm):'—')+'</td>'+
       '<td class="num '+(c.current_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'"><b>'+
@@ -3907,7 +4098,7 @@ function renderMktLedger(){
         '<td class="num"><b>'+(SHOW_VALUES?rm(x.total_order_value_rm):'—')+'</b></td>'+
         '<td class="num '+(x.remaining_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'">'+
         (SHOW_VALUES?rm(x.remaining_credit_balance_rm):'—')+'</td></tr>').join('')+'</table></div>')
-      :'<div class="alertnone">No dispatch confirmed yet. Weigh the baskets on the DISPATCH tab.</div>')+
+      :'<div class="alertnone">No dispatch confirmed yet. Open a retailer card on the RETAILERS tab.</div>')+
     '<p class="small">Every row is immutable. A dispatch is never edited — if a weight was wrong, '+
     'the Owner posts a credit top-up with the reason, so the mistake and the fix both stay on the record.</p>';}
 
@@ -3923,8 +4114,9 @@ function renderPrices(){
       :('<b>'+rm(priceOf(c,g))+'</b>'))+
       '<div class="exphint">'+esc(bandText(c,g))+'</div></td>';};
   box.innerHTML=
-    '<div class="cnote">Prices are per KG of <b>net</b> weight. Black Thorn, B24, 101 and Udang Merah '+
-      'are two-grade clones — they have no Grade C anywhere in the system.</div>'+
+    '<div class="cnote">Contract price book — the alliance rates agreed with <b>Roll</b>, applied to every '+
+      'retailer. Prices are per KG of <b>net</b> weight. Black Thorn, B24, 101 and Udang Merah are '+
+      'two-grade clones — they have no Grade C anywhere in the system.</div>'+
     (PRICE_META.at?('<div class="exphint" style="margin:6px 0">Last changed '+esc(PRICE_META.at)+
       (PRICE_META.by?(' by '+esc(PRICE_META.by)):'')+'</div>'):'')+
     '<div class="tblwrap"><table class="tbl pmx">'+
@@ -3966,17 +4158,19 @@ function renderPrices(){
       '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
         'onclick="saveBaskets()">✓ SAVE BASKET TARE</button>'):'')+
 
-    '<div class="sec" style="margin-top:16px">Retailers</div>'+
+    '<div class="sec" style="margin-top:16px">Retailer master</div>'+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Retailer</th><th class="num">Credit left</th><th class="num"></th></tr>'+
-    activeRetailers().map(r=>{const c=retailerLedger(r.id);
-      return '<tr><td><div class="pn">'+esc(r.name)+'</div><div class="pa">'+esc(r.id)+' · '+esc(r.contact||'no contact')+'</div></td>'+
+    listedRetailers().map(r=>{const c=retailerLedger(r.id);
+      return '<tr><td><div class="pn">'+esc(r.name)+
+        (c.status==='Suspended'?' <span class="cstat s">SUSPENDED</span>':'')+'</div>'+
+        '<div class="pa">'+esc(r.id)+' · '+esc(r.contact||'no contact')+'</div></td>'+
         '<td class="num '+(c.current_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'"><b>'+rm(c.current_credit_balance_rm)+'</b>'+
         '<div class="exphint">opening '+rm(c.opening_credit_rm)+'</div></td>'+
-        '<td class="num">'+(own?('<span class="linkish" onclick="topUpRetailer(\''+esc(r.id)+'\')">+ credit</span>'+
-          '<div><span class="linkish" onclick="editRetailer(\''+esc(r.id)+'\')">edit</span></div>'):'')+'</td></tr>';}).join('')+
+        '<td class="num">'+(own?('<span class="linkish" onclick="openRetForm(\''+esc(r.id)+'\')">edit</span>'+
+          '<div><span class="linkish" onclick="topUpRetailer(\''+esc(r.id)+'\')">+ credit</span></div>'):'')+'</td></tr>';}).join('')+
     '</table></div>'+
-    (own?'<button class="bigbtn ghost" style="margin-top:9px" onclick="addRetailer()">+ ADD RETAILER</button>':'')+
+    (own?'<button class="bigbtn ghost" style="margin-top:9px" onclick="openRetForm(\'\')">+ ADD RETAILER</button>':'')+
     '<p class="small">Credit left = opening credit + top-ups − everything invoiced. It is worked out from the '+
     'delivery ledger every time this screen opens, so it always agrees with the rows above it.</p>';}
 
@@ -4021,52 +4215,239 @@ async function saveBaskets(){
   await persistBaskets();
   renderPrices(); renderDispatch();
   toast('✓ Basket tare saved'+(TARE_VERIFIED?'':' — still marked unverified'));}
-async function addRetailer(){
-  if(!canSetPrice()){toast('Only the Owner can add a retailer',1);return;}
-  const name=prompt('Retailer name'); if(!name||!name.trim())return;
-  if(RETAILERS.some(r=>r.name.trim().toLowerCase()===name.trim().toLowerCase())){toast('That retailer already exists',1);return;}
-  const contact=prompt('Contact number (optional)')||'';
-  const cr=prompt('Opening credit balance (RM)','10000');
-  if(cr===null)return;
-  if(isNaN(+cr)){toast('That is not a number',1);return;}
-  let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
-  RETAILERS.push({id:'RT-'+String(n).padStart(2,'0'),name:name.trim(),contact:contact.trim(),
-    opening_credit_rm:+(+cr).toFixed(2),status:'Active'});
+
+// ======================= THE RETAILER RECORD FORM ====================================
+// Replaces the chain of grey browser prompts. Same modal shell as the staff key form,
+// so the two master-data screens behave identically. Opening credit is editable here —
+// it is a settings figure, not money that has moved. Money that has moved is corrected
+// with a credit top-up, which is an EVENT and keeps its own audit trail.
+let editingRet=null, retFormStatus='Active';
+function pickRetStatus(s){
+  retFormStatus=s;
+  const a=$('rf-active'), b=$('rf-susp');
+  if(a)a.className=(s==='Active'?'on':'');
+  if(b)b.className=(s==='Suspended'?'on':'');}
+function openRetForm(id){
+  if(!canSetPrice()){toast('Only the Owner can add or edit a retailer',1);return;}
+  const r=id?retailerById(id):null;
+  editingRet=r?r.id:null;
+  $('rf-title').textContent=r?('Edit '+r.name):'Add retailer';
+  $('rf-sub').textContent=r?'Change anything here. The live balance stays derived from the deliveries.'
+                           :'Name them, give them an opening credit, done.';
+  $('rf-name').value=r?r.name:'';
+  $('rf-con').value =r?(r.contact||''):'';
+  $('rf-open').value=r?(+r.opening_credit_rm||0).toFixed(2):'10000.00';
+  pickRetStatus(r?String(r.status||'Active'):'Active');
+  $('rf-err').textContent='';
+  const d=$('rf-derived');
+  if(r){const c=retailerLedger(r.id);
+    d.classList.remove('hidden');
+    d.innerHTML='Topped up '+rm(c.topped_up_rm)+' · invoiced '+rm(c.invoiced_rm)+'<br>'+
+      'Credit left right now <b>'+rm(c.current_credit_balance_rm)+'</b><br>'+
+      '<span style="font-size:10.5px">This figure is worked out from the delivery ledger every time it is '+
+      'shown — never typed, never stored, so it cannot drift. To move it, post a credit top-up.</span>';}
+  else d.classList.add('hidden');
+  $('rf-extra').innerHTML=r
+    ? '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="topUpRetailer(\''+
+        esc(r.id)+'\',1)">＋ POST A CREDIT TOP-UP</button>'
+    : '';
+  $('retmodal').classList.remove('hidden');
+  setTimeout(()=>{const n=$('rf-name');if(n)n.focus();},80);}
+function closeRetForm(){$('retmodal').classList.add('hidden');editingRet=null;}
+async function saveRetForm(){
+  if(!canSetPrice()){toast('Only the Owner can add or edit a retailer',1);return;}
+  const err=m=>{$('rf-err').textContent=m;};
+  const name=$('rf-name').value.trim();
+  const con =$('rf-con').value.trim();
+  const open=$('rf-open').value;
+  if(name.length<2)return err('Enter the retailer’s name.');
+  if(RETAILERS.some(r=>r.name.trim().toLowerCase()===name.toLowerCase()&&r.id!==editingRet))
+    return err('There is already a retailer named '+name+'.');
+  if(open===''||isNaN(+open)||+open<0)return err('Opening credit must be a figure of zero or more.');
+  if(editingRet){
+    const r=retailerById(editingRet);
+    r.name=name; r.contact=con;
+    r.opening_credit_rm=+(+open).toFixed(2);
+    r.status=retFormStatus;
+  } else {
+    let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
+    RETAILERS.push({id:'RT-'+String(n).padStart(2,'0'),name:name,contact:con,
+      opening_credit_rm:+(+open).toFixed(2),status:retFormStatus});}
   RET_DIRTY=true; await persistRetailers();
-  renderPrices(); renderDispatch(); renderMktLedger();
-  toast('✓ Retailer added');}
-async function editRetailer(id){
-  if(!canSetPrice()){toast('Only the Owner can edit a retailer',1);return;}
-  const r=retailerById(id); if(!r)return;
-  const name=prompt('Retailer name',r.name); if(name===null)return;
-  if(!name.trim()){toast('The name cannot be blank',1);return;}
-  const contact=prompt('Contact number',r.contact||''); if(contact===null)return;
-  r.name=name.trim(); r.contact=contact.trim();
-  RET_DIRTY=true; await persistRetailers();
-  renderPrices(); renderDispatch(); renderMktLedger();
-  toast('✓ Retailer updated');}
-/** A top-up is an EVENT, not an edit — the credit line has the same audit trail as a delivery. */
-async function topUpRetailer(id){
+  closeRetForm();
+  if(MKT_SEL&&!activeRetailers().some(r=>r.id===MKT_SEL))MKT_SEL='';
+  renderDispatch(); renderPrices(); renderMktLedger();
+  toast('✓ Retailer saved');}
+
+/** A top-up is an EVENT, not an edit — the credit line has the same audit trail as a
+ *  delivery, so a wrong opening figure and its fix both stay on the record. */
+async function topUpRetailer(id,fromForm){
   if(!canSetPrice()){toast('Only the Owner can add credit',1);return;}
   const r=retailerById(id); if(!r)return;
-  const v=prompt('Add how much credit for '+r.name+'? (RM)\nUse a minus figure to take credit back.');
-  if(v===null)return;
+  if(fromForm)closeRetForm();
+  const res=await askForm({
+    title:'Credit top-up — '+r.name,
+    sub:'Payment received, or a correction. A minus figure takes credit back. This writes an audit row; it never edits an invoice.',
+    f1:{label:'Amount (RM)',type:'number',value:'',placeholder:'e.g. 5000'},
+    f2:{label:'Reason',type:'text',value:'',placeholder:'e.g. bank-in 3 Aug, ref 8842'},
+    ok:'＋ POST CREDIT'});
+  if(!res)return;
+  const v=res.v1;
   if(v===''||isNaN(+v)||+v===0){toast('That is not a usable figure',1);return;}
-  const note=prompt('Reason (payment received, correction, ...)')||'';
+  if(!res.v2.trim()){toast('A reason is required for a credit movement',1);return;}
   await persistEvent({uuid:uuid(),type:'CREDIT_TOPUP',dt:now(),
-    retailer_id:r.id,retailer_name:r.name,amount_rm:+(+v).toFixed(2),note:note.trim(),
+    retailer_id:r.id,retailer_name:r.name,amount_rm:+(+v).toFixed(2),note:res.v2.trim(),
     worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
   badge(); renderPrices(); renderDispatch(); renderMktLedger();
   toast('✓ '+rm(+v)+' credit posted to '+r.name);}
 
-// ---- sync: dispatches and the retailer master each ride their own key ----------------
-let dispWarned=false, retWarned=false;
+// ======================= v3.2 DUAL-SIGNATURE YIELD AUDIT =============================
+// Two signatures on the same night's fruit: the worker who COUNTED it at the tree, and
+// the marketer who WEIGHED it at the shed. Divide the weight by the count and you get the
+// average fruit. Outside 0.8–4.0 kg that is not a durian, it is a discrepancy — and the
+// direction of the error says where to look.
+function ydPad(n){return String(n).padStart(2,'0');}
+function prevDayStr(d){
+  const t=new Date(d+'T00:00:00');
+  if(isNaN(t.getTime()))return d;
+  t.setDate(t.getDate()-1);
+  return t.getFullYear()+'-'+ydPad(t.getMonth()+1)+'-'+ydPad(t.getDate());}
+
+function yieldAudit(){
+  const days={};
+  EVENTS.filter(e=>e.type==='DISPATCH').forEach(e=>{
+    const d=String(e.dt||'').slice(0,10); if(d.length!==10)return;
+    const row=days[d]||(days[d]={kg:0,value:0,invoices:[],scale:{},declared:0});
+    row.kg=+((row.kg+(+e.total_kg||0)).toFixed(2));
+    row.value=+((row.value+(+e.total_value_rm||0)).toFixed(2));
+    row.declared+=(+e.fruit_count||0);
+    if(e.invoice_no)row.invoices.push(e.invoice_no);
+    if(e.worker)row.scale[e.worker]=1;});
+  const acks={};
+  EVENTS.filter(e=>e.type==='YIELD_ACK').forEach(e=>{acks[e.day]=e;});
+  return Object.keys(days).sort().reverse().map(d=>{
+    const row=days[d];
+    const from=prevDayStr(d)+' '+ydPad(YIELD_WINDOW_HOUR)+':00';
+    const to  =d+' '+ydPad(YIELD_WINDOW_HOUR)+':00';
+    const drops=EVENTS.filter(e=>e.type==='DROP'&&String(e.dt)>=from&&String(e.dt)<to);
+    const fruits=drops.reduce((s,e)=>s+(+e.qty||0),0);
+    const field={}; drops.forEach(e=>{if(e.worker)field[e.worker]=1;});
+    // Classify on the RAW ratio, display the rounded one. Rounding first let
+    // 150 kg / 188 fruits (0.7978 kg) round up to 0.80 and slip past the floor.
+    const avgRaw=fruits>0?(row.kg/fruits):0;
+    const avg=fruits>0?+(avgRaw.toFixed(2)):0;
+    let status='OK', why='';
+    if(!fruits){
+      status='UNMATCHED';
+      why=nf(row.kg)+' kg left the farm but NO harvest count was logged for that night at all. '+
+          'Either the collection was never keyed in, or fruit moved without ever being counted at a tree.';}
+    else if(avgRaw<YIELD_MIN_KG){
+      status='LOW';
+      why=fruits+' fruits were counted in the orchard but only '+nf(row.kg)+' kg reached the scale — '+
+          'that averages '+nf(avg)+' kg a fruit, below the '+nf(YIELD_MIN_KG)+' kg floor. Fruit is going '+
+          'missing between the tree and the weighing shed, or the field count was inflated.';}
+    else if(avgRaw>YIELD_MAX_KG){
+      status='HIGH';
+      why=nf(row.kg)+' kg was weighed out against only '+fruits+' counted fruits — '+nf(avg)+
+          ' kg a fruit, above the '+nf(YIELD_MAX_KG)+' kg ceiling. Fruit reached the scale that was '+
+          'never logged at a tree, or the field count was under-reported.';}
+    const ack=acks[d]||null;
+    return {day:d, dispatch_kg:row.kg, value_rm:row.value, invoices:row.invoices,
+      window_from:from, window_to:to,
+      harvest_fruits:fruits, declared_fruits:row.declared,
+      avg_fruit_kg:avg, status:status, why:why,
+      signed_field:Object.keys(field), signed_scale:Object.keys(row.scale),
+      acknowledged:!!ack, ack_reason:ack?ack.reason:'', ack_by:ack?ack.worker:'', ack_at:ack?ack.dt:''};});}
+
+/** Open mismatches — what the Owner still has to answer for. */
+function yieldFlags(){return yieldAudit().filter(r=>r.status!=='OK'&&!r.acknowledged);}
+
+function renderYieldAudit(){
+  const box=$('yieldbox');
+  const strip=$('yieldstrip');
+  const flags=yieldFlags();
+  if(strip)strip.innerHTML=(flags.length&&myRole()==='OWNER')
+    ? '<div class="critbox" style="text-align:left">⚠ YIELD COUNT vs WEIGHT MISMATCH — '+flags.length+
+      ' day'+(flags.length>1?'s':'')+' unresolved<br><span style="font-weight:700;font-size:11.5px">'+
+      flags.slice(0,3).map(f=>esc(f.day)+' · '+(f.status==='UNMATCHED'?'no field count':
+        (nf(f.avg_fruit_kg)+' kg per fruit'))).join('<br>')+
+      '</span><div style="margin-top:6px"><span class="linkish" onclick="goYieldAudit()">open the yield audit ›</span></div></div>'
+    : '';
+  if(!box)return;
+  if(myRole()!=='OWNER'){box.innerHTML='<div class="alertnone">Owner only.</div>';return;}
+  const rows=yieldAudit();
+  box.innerHTML=
+    '<div class="cnote">Every morning’s weighed-out kilos divided by the fruit counted in the orchard the '+
+      'night before (noon to noon). A real durian averages <b>'+nf(YIELD_MIN_KG)+'–'+nf(YIELD_MAX_KG)+
+      ' kg</b>. Outside that, the two signatures disagree and somebody has to explain why.</div>'+
+    (flags.length
+      ? '<div class="critbox">⚠ '+flags.length+' unresolved mismatch'+(flags.length>1?'es':'')+'</div>'
+      : '<div class="okbox">✓ Every dispatched day reconciles against its harvest count.</div>')+
+    (rows.length? rows.map(r=>{
+        const bad=r.status!=='OK';
+        return '<div class="ycard'+(bad&&!r.acknowledged?' bad':(bad?' answered':''))+'">'+
+          '<div class="rc-top"><div class="yday">'+esc(r.day)+'<div class="pa">night of '+
+            esc(r.window_from.slice(0,10))+' → morning of '+esc(r.day)+'</div></div>'+
+            (r.status==='OK'?'<span class="cstat a">OK</span>'
+              :(r.acknowledged?'<span class="cstat p">ANSWERED</span>'
+                :'<span class="cstat r">'+r.status+'</span>'))+'</div>'+
+          '<div class="ygrid">'+
+            '<div><div class="l">COUNTED</div><div class="v">'+nf(r.harvest_fruits)+'</div><div class="u">fruits</div></div>'+
+            '<div><div class="l">WEIGHED</div><div class="v">'+nf(r.dispatch_kg)+'</div><div class="u">kg</div></div>'+
+            '<div><div class="l">AVG FRUIT</div><div class="v'+(bad?' bad':'')+'">'+
+              (r.harvest_fruits?nf(r.avg_fruit_kg):'—')+'</div><div class="u">kg each</div></div>'+
+          '</div>'+
+          (bad?('<div class="ymsg">'+esc(r.why)+'</div>'):'')+
+          '<div class="ysig">✍️ counted by <b>'+esc(r.signed_field.join(', ')||'nobody')+
+            '</b> · weighed by <b>'+esc(r.signed_scale.join(', ')||'—')+'</b>'+
+            (r.invoices.length?('<br>'+esc(r.invoices.join(', '))):'')+'</div>'+
+          (r.acknowledged?('<div class="yack">Answered by '+esc(r.ack_by)+' on '+esc(r.ack_at)+
+            ': “'+esc(r.ack_reason)+'”</div>'):'')+
+          (bad&&!r.acknowledged?('<button class="bigbtn ghost" style="padding:11px;font-size:13px;margin-top:9px" '+
+            'onclick="acknowledgeYield(\''+esc(r.day)+'\')">✍️ RECORD THE EXPLANATION</button>'):'')+
+        '</div>';}).join('')
+      :'<div class="alertnone">Nothing to audit yet — no dispatch has been confirmed.</div>')+
+    '<p class="small">An alert is never cleared by editing a figure. The Owner records the explanation and '+
+    'both the alert and the answer stay on the record for good.</p>;'.slice(0,-1);}
+
+function goYieldAudit(){ openModule('costadmin','yield'); }
+
+async function acknowledgeYield(day){
+  if(myRole()!=='OWNER'){toast('Only the Owner can answer a yield alert',1);return;}
+  const row=yieldAudit().find(r=>r.day===day); if(!row)return;
+  const res=await askForm({
+    title:'Yield mismatch — '+day,
+    sub:row.why,
+    f1:{label:'What actually happened?',type:'text',value:'',
+        placeholder:'e.g. 120 fruits held back overnight for the Sunday load'},
+    ok:'✍️ RECORD THE EXPLANATION'});
+  if(!res)return;
+  if(!res.v1.trim()){toast('An explanation is required',1);return;}
+  await persistEvent({uuid:uuid(),type:'YIELD_ACK',dt:now(),day:day,
+    dispatch_kg:row.dispatch_kg,harvest_fruits:row.harvest_fruits,avg_fruit_kg:row.avg_fruit_kg,
+    flag:row.status,reason:res.v1.trim(),
+    signed_field:row.signed_field.join(', '),signed_scale:row.signed_scale.join(', '),
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  badge(); renderYieldAudit(); renderHub();
+  toast('✓ Explanation recorded against '+day);}
+
+// ---- sync: dispatches, the retailer master and the audit trail each ride their own key
+let dispWarned=false, retWarned=false, audWarned=false;
 function dispQueue(){return EVENTS.filter(e=>(e.type==='DISPATCH'||e.type==='CREDIT_TOPUP')&&!e.synced);}
 function q8(){return dispQueue().length;}
+/** v3.2 — LOG_VOID and YIELD_ACK are the anti-manipulation trail. They ride their OWN key
+ *  so a backend that predates v3.2 simply keeps them queued instead of failing the whole
+ *  upload the way an unknown type in the generic `events` batch would. */
+function auditQueue(){return EVENTS.filter(e=>(e.type==='LOG_VOID'||e.type==='YIELD_ACK')&&!e.synced);}
+function q9(){return auditQueue().length;}
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',
     m=>{if(!dispWarned){dispWarned=true;toast(m,1);}},
     'Dispatches kept on this phone — update the Apps Script to add the MKT_DISPATCH tab');}
+async function pushAudit(){
+  return pushOwnKey(auditQueue(),'audit','audit',
+    m=>{if(!audWarned){audWarned=true;toast(m,1);}},
+    'Audit trail kept on this phone — update the Apps Script to add the AUDIT_LOG tab');}
 async function pushRetailers(){
   if(!RET_DIRTY||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
@@ -4088,6 +4469,35 @@ async function mergeRetailers(list){
     status:String(x.status||'Active')}));
   if(!rows.length)return;
   RETAILERS=rows; await persistRetailers();}
+
+// ======================= a small reusable ask-form ===================================
+// Replaces the grey browser prompt() chains. One or two fields, a real Cancel, and a
+// promise so the calling code reads top to bottom.
+let _askResolve=null;
+function askForm(o){
+  return new Promise(res=>{
+    _askResolve=res;
+    $('ak-title').textContent=o.title||'';
+    $('ak-sub').textContent=o.sub||'';
+    const f1=o.f1||{label:'Value',type:'text',value:'',placeholder:''};
+    $('ak-lab1').textContent=f1.label||'';
+    const i1=$('ak-in1');
+    i1.type=f1.type||'text'; i1.value=f1.value||''; i1.placeholder=f1.placeholder||'';
+    i1.inputMode=(f1.type==='number')?'decimal':'text';
+    const w2=$('ak-wrap2');
+    if(o.f2){ w2.classList.remove('hidden');
+      $('ak-lab2').textContent=o.f2.label||'';
+      const i2=$('ak-in2'); i2.type=o.f2.type||'text'; i2.value=o.f2.value||'';
+      i2.placeholder=o.f2.placeholder||''; }
+    else w2.classList.add('hidden');
+    $('ak-ok').textContent=o.ok||'✓ SAVE';
+    $('askmodal').classList.remove('hidden');
+    setTimeout(()=>i1.focus(),80);});}
+function askDone(ok){
+  $('askmodal').classList.add('hidden');
+  const r=_askResolve; _askResolve=null;
+  if(!r)return;
+  r(ok?{v1:String($('ak-in1').value||''),v2:String($('ak-in2').value||'')}:null);}
 
 // ================= boot =================
 (async function(){

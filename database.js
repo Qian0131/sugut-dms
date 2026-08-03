@@ -353,3 +353,27 @@ const INVOICE_PREFIX='INV';
    CRITICAL alert and locks the checkout button. Zero = credit may not go
    negative without the Owner's 6-digit key. */
 const CREDIT_FLOOR_RM=0;
+
+/* =====================================================================
+   17. v3.2 — DUAL-SIGNATURE YIELD AUDIT
+   Two people sign for the same fruit on the same night: the worker who
+   COUNTS it at the tree, and the marketer who WEIGHS it at the shed the
+   next morning. Divide one by the other and you get the average fruit
+   that night. A durian that averages under 0.8 kg or over 4.0 kg is not a
+   durian — it is a bookkeeping problem, and it points in a direction:
+
+     avg TOO LOW   more fruit was counted in the orchard than ever reached
+                   the scale  ->  leakage between tree and shed, or an
+                   inflated count.
+     avg TOO HIGH  more weight was weighed out than was ever counted at a
+                   tree  ->  fruit reached the scale off the books.
+
+   The pairing window ends at noon on the dispatch day and starts at noon
+   the day before, because durian drops at night and is weighed the next
+   morning. Both signatories are named on the alert so the Owner knows who
+   to ask, and an alert is CLEARED by acknowledging it with a reason —
+   never by editing either figure.
+   ===================================================================== */
+const YIELD_MIN_KG=0.8;          // below this, fruit went missing
+const YIELD_MAX_KG=4.0;          // above this, fruit arrived off the books
+const YIELD_WINDOW_HOUR=12;      // the night's harvest = the 24 h ending at noon

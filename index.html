@@ -447,6 +447,53 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .credok.credlow{background:#fdecea!important;color:#8c1d18!important;}
 .tarewarn{background:var(--amberbg);color:#7a5b00;border-radius:11px;padding:9px 11px;
           font-size:11.5px;font-weight:700;line-height:1.5;margin-bottom:9px;}
+/* ===== v3.2 — Option A record cards, retailer form, yield audit ===== */
+.retcard{border:1.6px solid #dfe6df;border-radius:15px;padding:12px;margin-bottom:10px;background:#fff;
+         cursor:pointer;transition:transform .08s;}
+.retcard:active{transform:scale(.985);}
+.retcard.over{border-color:var(--warn);background:#fffbfb;}
+.retcard.susp{opacity:.72;cursor:default;background:#fafbfa;}
+.rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.rc-name{font-size:16px;font-weight:900;color:var(--green);line-height:1.25;}
+.rc-name.big{font-size:21px;}
+.rc-sub{font-size:11px;color:#7a8a77;margin-top:2px;}
+.rc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;
+         font-size:11px;color:#7a8a77;font-weight:600;}
+.rc-go{color:var(--green2);font-weight:900;font-size:11.5px;}
+.rc-back{display:inline-block;color:var(--green2);font-weight:900;font-size:12px;letter-spacing:.4px;
+         padding:7px 0;cursor:pointer;}
+.rc-acts{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.profile{border:2px solid var(--green2);border-radius:16px;padding:13px;background:#fff;}
+.profile.over{border-color:var(--warn);}
+.credtile{background:var(--green);border-radius:12px;padding:11px 13px;margin-top:10px;color:#fff;}
+.credtile.over{background:#8c1d18;}
+.credtile .l{font-size:9.5px;font-weight:900;letter-spacing:.7px;opacity:.85;}
+.credtile .v{font-size:22px;font-weight:900;line-height:1.2;margin-top:2px;}
+.credtile.big .v{font-size:28px;}
+.credtile .w{font-size:10.5px;opacity:.85;margin-top:4px;font-weight:600;}
+.derived{background:#f4f7f4;border-radius:11px;padding:10px 11px;margin-top:11px;font-size:11.5px;
+         color:#5b6b58;line-height:1.55;}
+.derived b{color:var(--green);font-size:13.5px;}
+.okbox{background:var(--lite);border:2px solid var(--green2);border-radius:12px;padding:11px;
+       font-size:12.5px;font-weight:800;color:var(--green);margin:9px 0;}
+.ymsg{font-size:11px;color:#8c1d18;font-weight:700;line-height:1.55;margin-top:5px;}
+.yack{font-size:11px;color:var(--green);font-weight:700;line-height:1.55;margin-top:5px;
+      background:var(--lite);border-radius:9px;padding:7px 9px;}
+.appendnote{background:#eef2ee;border-radius:12px;padding:11px;font-size:11.5px;color:#4a5a47;
+            line-height:1.6;margin:11px 0;}
+#yieldstrip:empty{display:none;}
+.ycard{border:1.6px solid #dfe6df;border-radius:14px;padding:12px;margin-bottom:10px;background:#fff;}
+.ycard.bad{border-color:var(--warn);background:#fffbfb;}
+.ycard.answered{border-color:var(--amber);background:#fffdf6;}
+.yday{font-size:15.5px;font-weight:900;color:var(--green);line-height:1.25;}
+.ygrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px;}
+.ygrid>div{background:#f4f7f4;border-radius:10px;padding:8px 6px;text-align:center;}
+.ygrid .l{font-size:8.5px;font-weight:900;letter-spacing:.5px;color:#7a8a77;}
+.ygrid .v{font-size:19px;font-weight:900;color:var(--green);line-height:1.2;}
+.ygrid .v.bad{color:var(--warn);}
+.ygrid .u{font-size:9px;color:#7a8a77;font-weight:700;}
+.ysig{font-size:10.5px;color:#5b6b58;margin-top:9px;line-height:1.6;}
+.ycard .ymsg{margin-top:9px;}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
 </head>
@@ -689,6 +736,7 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div class="sec">⚙ Settings <span class="linkish" style="float:right" onclick="editSetup()">edit</span></div>
     <div class="small" id="cfginfo"></div>
   </div>
+  <div class="appendnote" id="appendnote"></div>
   <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
   <p class="small" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
   <div class="card">
@@ -699,6 +747,12 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 
 <!-- DASH -->
 <div class="scr hidden" id="scr-dash">
+  <!-- ===== v3.2 · DUAL-SIGNATURE YIELD AUDIT (Owner only) ===== -->
+  <div class="card" id="yieldaudit" style="display:none">
+    <div class="sec">🔍 Yield count vs weight audit</div>
+    <div id="yieldbox"></div>
+  </div>
+
   <div class="card" id="corrpanel">
     <div class="sec">📋 Pending Data Adjustments <span class="cbadge hidden" id="corrcount">0</span></div>
     <div id="corrlist"></div>
@@ -850,35 +904,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div id="ty-recent"></div>
   </div>
 
-  <!-- ===== MARKETING · MORNING BASKET WEIGHING · DISPATCH (v3.1) =====
-       One scale line per basket load. The scale reads GROSS; the app takes the basket's
-       own weight off it before a single sen is calculated, prices the net against that
-       clone's own grade ladder, allocates an INV-YYYYMMDD-XXX serial and takes the value
-       off the retailer's prepaid credit. Owner and Marketing only. -->
+  <!-- ===== MARKETING · OPTION A RECORD CARD (v3.2) =====
+       Two states, both rendered by renderDispatch():
+         1. the retailer LIST  — one card per active buyer with their live credit
+         2. the record CARD    — that buyer's isolated transaction profile: details,
+            live prepaid credit, the Add Basket scale form, and their own invoices.
+       Owner and Marketing only; a Worker or Purchaser never reaches this panel. -->
   <div class="card" id="dispatchcard" style="display:none">
-    <div class="sec">⚖️ Morning basket weighing — dispatch to retailer</div>
-    <div class="convnote" id="dp-invno">—</div>
-    <div id="disp-alert"></div>
-    <label>Retailer</label>
-    <select id="dp-ret" onchange="dispRetChanged()"></select>
-    <div id="dp-credit" class="credok">—</div>
-
-    <div class="sec" style="margin-top:14px">Scale lines — one line per basket load</div>
-    <div id="dp-tarewarn"></div>
-    <div id="dp-rows"></div>
-    <button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addDispLine()">＋ ADD ANOTHER SCALE LINE</button>
-
-    <div class="invbox" id="dp-inv"></div>
-    <label>Note (optional)</label>
-    <input id="dp-note" placeholder="e.g. lorry BKS 4412, driver Amin">
-    <div id="dp-ovrbox"></div>
-    <div class="pinerr" id="dp-err"></div>
-    <button class="bigbtn" id="dp-go" onclick="saveDispatch()">✓ CONFIRM DISPATCH &amp; INVOICE</button>
-    <div id="dp-receipt"></div>
-    <p class="small" style="margin-top:9px">Confirming allocates the next invoice serial, writes one
-      immutable row into the marketing delivery ledger and takes the order value straight off that
-      retailer’s credit balance. A dispatch row is never edited afterwards — a mistake is corrected with
-      a credit adjustment, so the trail stays complete.</p>
+    <div id="dp-stage"></div>
   </div>
 
   <!-- ===== MARKETING · DELIVERY LEDGER + RETAILER CREDIT (v3.1) ===== -->
@@ -969,7 +1002,51 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div class="sec">Today by clone (marketing view)</div>
     <div id="mkt"><div class="lrow"><span>—</span><span class="small">no drops yet</span></div></div>
   </div>
+  <div id="yieldstrip"></div>
   <p class="small" id="dashnote" style="text-align:center">Full farm-wide dashboard (all phones combined) lives in the Google Sheets database.</p>
+</div>
+
+<!-- ===== v3.2 · ADD / EDIT RETAILER (Option A record form) ===== -->
+<div id="retmodal" class="modal hidden">
+  <div class="sheet">
+    <h3 id="rf-title">Add retailer</h3>
+    <p class="small" id="rf-sub">Name them, give them an opening credit, done.</p>
+    <label>Retailer name</label>
+    <input id="rf-name" placeholder="e.g. Roll" autocomplete="off">
+    <label>Contact number</label>
+    <input id="rf-con" placeholder="e.g. 013-000 0001" inputmode="tel" autocomplete="off">
+    <label>Opening credit (RM)</label>
+    <input id="rf-open" inputmode="decimal" placeholder="10000.00">
+    <label>Status</label>
+    <div class="lotbtns" id="rf-status">
+      <div class="on" id="rf-active" onclick="pickRetStatus('Active')">ACTIVE</div>
+      <div id="rf-susp" onclick="pickRetStatus('Suspended')">SUSPENDED</div>
+    </div>
+    <div class="derived hidden" id="rf-derived"></div>
+    <div class="pinerr" id="rf-err"></div>
+    <button class="bigbtn" onclick="saveRetForm()">✓ SAVE RETAILER</button>
+    <div id="rf-extra"></div>
+    <button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="closeRetForm()">CANCEL</button>
+    <p class="small">A retailer is never deleted. Suspending takes them off the dispatch list but keeps
+      every invoice they ever received, so the ledger still adds up.</p>
+  </div>
+</div>
+
+<!-- ===== v3.2 · REUSABLE ASK FORM — replaces the grey browser prompt() chains ===== -->
+<div id="askmodal" class="modal hidden">
+  <div class="sheet">
+    <h3 id="ak-title">—</h3>
+    <p class="small" id="ak-sub"></p>
+    <label id="ak-lab1">Value</label>
+    <input id="ak-in1" autocomplete="off">
+    <div id="ak-wrap2" class="hidden">
+      <label id="ak-lab2">Reason</label>
+      <input id="ak-in2" autocomplete="off">
+    </div>
+    <div class="pinerr" id="ak-err"></div>
+    <button class="bigbtn" id="ak-ok" onclick="askDone(1)">✓ SAVE</button>
+    <button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="askDone(0)">CANCEL</button>
+  </div>
 </div>
 
 <!-- ADD / EDIT STAFF MODAL -->
@@ -1260,14 +1337,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v3.1.0 — split build. THREE files must be uploaded together:
+     v3.2.0 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.1.0"></script>
-<script src="app.js?v=3.1.0"></script>
+<script src="database.js?v=3.2.0"></script>
+<script src="app.js?v=3.2.0"></script>
 </body>
 </html>
