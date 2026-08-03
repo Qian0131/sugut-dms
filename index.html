@@ -350,7 +350,6 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   font-size:13.5px;color:#3b2a6b;margin-bottom:10px;line-height:1.4}
 .tiebox.bad{background:#fdecea;border-left-color:var(--warn);color:var(--warn)}
 .tiebox b{font-size:17px}
-.rotcard{border:1.5px solid #e6d9c5;background:#fffdf7}
 .bigbtn.rot{background:#8a5a1e}
 .crow.todaycard{border-color:var(--green2);box-shadow:0 0 0 2px rgba(46,125,50,.14)}
 .todaychip{display:inline-block;background:var(--green2);color:#fff;font-size:9px;font-weight:900;
@@ -372,6 +371,43 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .bwarn{background:#ffd54f;color:#3a2f00;border-radius:9px;padding:8px 10px;font-size:12px;
   font-weight:700;margin-top:8px;line-height:1.45}
 .tiecard{border:1.5px solid #ddd4f5;background:#fbfaff}
+/* ===== v3.0 — grading cards, tally clicker, retailer ledger ===== */
+.gradecard{border:2.5px solid #2e7d32;background:#f6fbf6}
+.rotcard{border:2.5px solid #8a5a1e;background:#fffdf7}
+.cardtag{display:inline-block;font-size:9px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+  border-radius:7px;padding:2px 8px;margin-bottom:6px;}
+.cardtag.good{background:#2e7d32;color:#fff}
+.cardtag.bad{background:#8a5a1e;color:#fff}
+.grow{border:1.5px solid #d5e6d6;border-radius:13px;padding:10px;margin-bottom:9px;background:#fff}
+.grow.hot{border-color:#2e7d32;box-shadow:0 0 0 2px #e3f2e4}
+.grow .ghead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.grow .gname{font-weight:900;font-size:15px;color:var(--green)}
+.grow .gnote{font-size:9.5px;color:var(--muted);font-weight:700}
+.grow .stepper button{width:52px;height:52px;font-size:27px;border-radius:14px}
+.grow .stepper .n{font-size:33px;min-width:62px}
+.lotbtns.tiny div{font-size:10.5px;padding:7px 0}
+.gtot{background:#e8f3e9;border-radius:11px;padding:10px;font-weight:900;font-size:13px;
+  color:var(--green);text-align:center;margin:4px 0 8px}
+.gtot.zero{background:var(--lite);color:var(--muted);font-weight:700}
+.tapbtn{width:100%;padding:34px 12px;margin-top:10px;border:none;border-radius:20px;background:#7c5cd6;color:#fff;
+  font-size:19px;font-weight:900;letter-spacing:.3px;line-height:1.35;cursor:pointer;
+  box-shadow:0 5px 0 #5b3fb0;user-select:none;-webkit-tap-highlight-color:transparent;}
+.tapbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #5b3fb0;}
+.tapbtn:disabled{background:#c3bbdd;box-shadow:0 5px 0 #a79cc9;}
+.tallybox{text-align:center;font-size:15px;font-weight:800;color:var(--green);margin-top:12px}
+.tallybox span{display:block;font-size:56px;font-weight:900;line-height:1.05;color:#5b3fb0}
+.undobtn{width:100%;margin-top:8px;padding:11px;border-radius:12px;border:2px dashed #b9a9e8;
+  background:#fff;color:#5b3fb0;font-size:13px;font-weight:800;cursor:pointer}
+.undobtn:disabled{opacity:.45}
+.corrreq{border:1.5px solid #d9a406;background:#fff8e1;color:#7a5b00;border-radius:9px;
+  padding:6px 10px;font-size:10px;font-weight:900;cursor:pointer;flex-shrink:0;white-space:nowrap}
+.critbox{background:#fdecea;border:2px solid var(--warn);color:#8c1d18;border-radius:12px;padding:11px;
+  font-weight:900;font-size:12.5px;margin-bottom:9px;animation:tflash 1.3s infinite}
+.credok{background:var(--lite);border-radius:11px;padding:10px;font-weight:800;font-size:12px;color:var(--green)}
+.invbox{background:#0f3b16;color:#fff;border-radius:14px;padding:12px;margin-top:8px}
+.invbox .ir{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0}
+.invbox .ir.tot{border-top:1px solid rgba(255,255,255,.28);margin-top:5px;padding-top:7px;font-weight:900;font-size:15px}
+.invbox .ir .lbl{opacity:.85}
 .bigbtn.tie{background:#7c5cd6}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
@@ -485,56 +521,39 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <button class="corrbtn" id="corrbtn" onclick="openCorrection()">⚠ REQUEST TREE / CLONE CORRECTION</button>
     <div id="assetboard"></div>
 
-    <div class="card tiecard">
-      <div class="sec">🪢 Counter A — tying round</div>
-      <p class="small" style="margin-top:0">New ropes tied on this tree during this size-cycle.</p>
-      <div class="stepper">
-        <button onclick="tieBump(-1)">−</button><div class="n" id="tie-n">1</div><button onclick="tieBump(1)">+</button>
-      </div>
-      <div class="quickadd">
-        <div onclick="tieBump(5)">+5</div><div onclick="tieBump(10)">+10</div><div onclick="tieReset()">RESET</div>
-      </div>
-      <div class="convnote" id="tie-rope">—</div>
-      <div class="pinerr" id="tie-err"></div>
-      <button class="bigbtn tie" onclick="saveTieRound()">🪢 SAVE TYING ROUND</button>
+    <!-- ============ CARD A · GOOD FRUIT · GRADE COUNTERS (v3.0) ============ -->
+    <div class="card gradecard">
+      <span class="cardtag good">Card A · good fruit</span>
+      <div class="sec">🥭 Good fruit collected — count each grade</div>
+      <p class="small" style="margin-top:0">Count Grade A, B and C separately. For every grade say whether the
+        fruit came off <b>Secured (Tied)</b> — a string was on it — or <b>Unsecured (Untied)</b>, meaning it was
+        never tied. Leave a grade on 0 if none was picked.</p>
+      <div id="graderows"></div>
+      <div class="gtot zero" id="g-tot">Nothing counted yet.</div>
+      <div class="pinerr" id="g-err"></div>
+      <button class="bigbtn" onclick="saveDrop()">✓ SAVE GOOD FRUIT</button>
     </div>
 
-    <div class="card">
-      <div class="sec">🥭 Counter B — drop collection</div>
-      <label>What was collected? <span class="minitag">REQUIRED</span></label>
-      <div class="lotbtns" id="dropkind">
-        <div class="on" id="dk-SECURED" onclick="pickDropKind('SECURED')">🪢 SECURED<span class="csub">string on it</span></div>
-        <div id="dk-UNSECURED" onclick="pickDropKind('UNSECURED')">🍃 UNSECURED<span class="csub">no string</span></div>
-      </div>
-      <div class="convnote" id="drop-hint">—</div>
-      <div class="stepper">
-        <button onclick="bump(-1)">−</button><div class="n" id="qty">1</div><button onclick="bump(1)">+</button>
-      </div>
-      <div class="quickadd">
-        <div onclick="bump(5)">+5</div><div onclick="bump(10)">+10</div><div onclick="resetQty()">RESET</div>
-      </div>
-      <label>Grade</label>
-      <div class="grades" id="grades"><div class="on" onclick="setGrade(0)">A</div><div onclick="setGrade(1)">B</div><div onclick="setGrade(2)">C</div></div>
-      <button class="bigbtn" onclick="saveDrop()">✓ SAVE DROP</button>
-    </div>
-
+    <!-- ============ CARD B · ROTTEN LOSS COUNTER (v3.0) ============ -->
     <div class="card rotcard">
-      <div class="sec">🍂 Log rotten fruits</div>
-      <p class="small" style="margin-top:0">Fruit lost on the tree, not collected. Both answers are required —
-        a rotten count without a reason cannot be acted on, and without tied/untied the balance cannot be corrected.</p>
+      <span class="cardtag bad">Card B · loss</span>
+      <div class="sec">🍂 Rotten fruit lost</div>
+      <p class="small" style="margin-top:0">Fruit lost on the tree, not collected. Leave it on 0 if nothing was lost.</p>
       <div class="stepper">
-        <button onclick="rotBump(-1)">−</button><div class="n" id="rot-n">1</div><button onclick="rotBump(1)">+</button>
+        <button onclick="rotBump(-1)">−</button><div class="n" id="rot-n">0</div><button onclick="rotBump(1)">+</button>
       </div>
       <div class="quickadd">
-        <div onclick="rotBump(5)">+5</div><div onclick="rotBump(10)">+10</div><div onclick="rotReset()">RESET</div>
+        <div onclick="rotBump(5)">+5</div><div onclick="rotBump(10)">+10</div><div onclick="rotReset()">CLEAR</div>
       </div>
-      <label>Was it tied? <span class="minitag">REQUIRED</span></label>
-      <div class="lotbtns" id="rottied">
-        <div id="rt-T" onclick="rotTie(true)">🪢 TIED<span class="csub">frees a string</span></div>
-        <div id="rt-U" onclick="rotTie(false)">🍃 UNTIED<span class="csub">never tied</span></div>
+      <div id="rot-extra" class="hidden">
+        <label>Damage cause <span class="minitag">REQUIRED</span></label>
+        <select id="rot-cause" onchange="rotPickSel()"></select>
+        <label>Was it tied? <span class="minitag">REQUIRED</span></label>
+        <div class="lotbtns" id="rottied">
+          <div id="rt-T" onclick="rotTie(true)">🩢 TIED<span class="csub">frees a string</span></div>
+          <div id="rt-U" onclick="rotTie(false)">🍃 UNTIED<span class="csub">never tied</span></div>
+        </div>
       </div>
-      <label>Why was it lost? <span class="minitag">REQUIRED</span></label>
-      <div class="ctypes" id="rot-causes"></div>
       <div class="pinerr" id="rot-err"></div>
       <button class="bigbtn rot" onclick="saveRotten()">🍂 LOG ROTTEN FRUITS</button>
     </div>
@@ -544,9 +563,10 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   <div class="card" id="mylogs" style="display:none">
     <div class="sec">My drop &amp; rotten logs</div>
     <div id="mylogslist"></div>
-    <p class="small" style="margin-top:9px">A log cannot be edited on this phone. If a number is wrong,
-      tap <b>Request correction</b> — the Owner approves it in Pending Data Adjustments and the app files a
-      signed adjustment against the original row.</p>
+    <p class="small" style="margin-top:9px">A saved entry cannot be edited on this phone. If a number is wrong,
+      tap <b>📝 Request Log Correction</b> — it goes to the Owner’s <b>Pending Data Adjustments</b>
+      dashboard for approval or rejection, and only an approved request files a signed adjustment against the
+      original row. The original is never overwritten.</p>
   </div>
   <div class="card" id="mycorr" style="display:none">
     <div class="sec">My correction requests</div>
@@ -768,6 +788,59 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
     <div class="convnote" id="sl-amt">Enter the weight and the price per kilo.</div>
     <div class="pinerr" id="sl-err"></div>
     <button class="bigbtn" onclick="saveSale()">✓ LOG SALE</button>
+  </div>
+
+  <!-- ===== 🎗️ FRUIT TYING TRACKER · WAY 4 TALLY CLICKER (v3.0) ===== -->
+  <div class="card tiecard" id="tallycard" style="display:none">
+    <div class="sec">🎗️ Fruit Tying Tracker</div>
+    <p class="small" style="margin-top:0">Lock the tree in first, then tap once for every fruit you tie.
+      Nothing leaves this screen until you press <b>Complete Tree &amp; Save to Queue</b>.</p>
+    <div class="selrow">
+      <div><label>Lot</label><select id="ty-lot" onchange="tyLotChange()"></select></div>
+      <div><label>Tree number</label><select id="ty-tree" onchange="tyTreeChange()"></select></div>
+    </div>
+    <div class="clonebox">
+      <div><div class="cl">Clone <span class="ro">READ-ONLY</span></div><div class="cv" id="ty-clone">—</div></div>
+      <div class="cr" id="ty-info">select a tree</div>
+    </div>
+    <button class="tapbtn" id="ty-tap" onclick="tyTap()">[ 🎗️ TAP TO LOG 1 FRUIT TIED ]</button>
+    <div class="tallybox">Current Session Tally: <span id="ty-n">0</span></div>
+    <button class="undobtn" id="ty-undo" onclick="tyUndo()">[ ↩️ Undo Mis-tap ]</button>
+    <div class="convnote" id="ty-rope">—</div>
+    <div class="pinerr" id="ty-err"></div>
+    <button class="bigbtn tie" onclick="tySave()">[ 💾 Complete Tree &amp; Save to Queue ]</button>
+    <div id="ty-recent"></div>
+  </div>
+
+  <!-- ===== MARKETING · MORNING BASKET WEIGHING · DISPATCH (v3.0) ===== -->
+  <div class="card" id="dispatchcard" style="display:none">
+    <div class="sec">⚖️ Morning basket weighing — dispatch to retailer</div>
+    <div id="disp-alert"></div>
+    <label>Retailer</label>
+    <select id="dp-ret" onchange="dispCalc()"></select>
+    <div id="dp-credit" class="credok">—</div>
+    <label style="margin-top:10px">Net basket weight delivered (KG)</label>
+    <div id="dp-rows"></div>
+    <div class="invbox" id="dp-inv"></div>
+    <label>Note (optional)</label>
+    <input id="dp-note" placeholder="e.g. lorry BKS 4412, driver Amin">
+    <div class="pinerr" id="dp-err"></div>
+    <button class="bigbtn" onclick="saveDispatch()">✓ CONFIRM DISPATCH &amp; INVOICE</button>
+    <p class="small" style="margin-top:9px">Confirming writes one immutable row into the marketing delivery
+      ledger and takes the order value straight off that retailer’s credit balance. A dispatch row is never
+      edited afterwards — a mistake is corrected with a credit adjustment, so the trail stays complete.</p>
+  </div>
+
+  <!-- ===== MARKETING · DELIVERY LEDGER + RETAILER CREDIT (v3.0) ===== -->
+  <div class="card" id="mktledger" style="display:none">
+    <div class="sec">🧾 Marketing delivery ledger</div>
+    <div id="mktledgerbox"></div>
+  </div>
+
+  <!-- ===== MARKETING · OWNER-ONLY PRICES + RETAILER MASTER (v3.0) ===== -->
+  <div class="card" id="pricecard" style="display:none">
+    <div class="sec">💲 Grade prices &amp; retailer master</div>
+    <div id="pricebox"></div>
   </div>
 
   <!-- ===== HARVEST · FRUIT TYING VARIANCE MATRIX (v2.8) ===== -->
@@ -1137,14 +1210,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v2.9.0 — split build. THREE files must be uploaded together:
+     v3.0.0 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=2.9.0"></script>
-<script src="app.js?v=2.9.0"></script>
+<script src="database.js?v=3.0.0"></script>
+<script src="app.js?v=3.0.0"></script>
 </body>
 </html>

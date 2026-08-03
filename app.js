@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v2.9.0';   // v2.9.0 — Option C six tiles, tree ledger, dual counters, untied wave, rope
+const APP_VERSION = 'v3.0.0';   // v3.0.0 — tying tracker tile, A/B/C grade counters, retailer credit ledger
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -39,6 +39,11 @@ let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.map(k=>({...k})), LOCKED=false, REG_D
 // v2.2 — offline queue of worker-submitted corrections + the approved overrides
 // that have been burned into TREE_MASTER.
 let CORRECTIONS=[], TREE_FIX={};
+// v3.0 — retailer master + Owner-controlled per-KG grade prices. Both are small
+// Owner-managed registries, held in kv exactly like the staff registry, NOT in the
+// event log. The money that moves is in the event log; these two are the settings
+// that money is calculated from.
+let RETAILERS=RETAILER_SEED.map(r=>({...r})), GRADE_PRICE={...GRADE_PRICE_SEED}, RET_DIRTY=false;
 async function initStore(){
   db=await idb();
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
@@ -56,6 +61,9 @@ async function initStore(){
     const lp=kv.find(x=>x.k==='lastlpt'); if(lp&&lp.v&&typeof lp.v==='object') LAST_LPT=lp.v;
     const wx=kv.find(x=>x.k==='weather'); if(wx&&wx.v) WEATHER=String(wx.v);
     const lc=kv.find(x=>x.k==='lastcrew'); if(lc&&lc.v&&typeof lc.v==='object') LAST_CREW=lc.v;
+    const rt=kv.find(x=>x.k==='retailers'); if(rt&&Array.isArray(rt.v)&&rt.v.length) RETAILERS=rt.v;
+    const gp=kv.find(x=>x.k==='gradeprice'); if(gp&&gp.v&&typeof gp.v==='object') GRADE_PRICE=Object.assign({...GRADE_PRICE_SEED},gp.v);
+    const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
@@ -88,7 +96,8 @@ function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
   (typeof rainUnsynced==='function'?rainUnsynced():0)+
   (typeof q5==='function'?q5():0)+
   (typeof q6==='function'?q6():0)+
-  (typeof q7==='function'?q7():0);}
+  (typeof q7==='function'?q7():0)+
+  (typeof q8==='function'?q8():0);}
 function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
   const q=pending()+corrUnsynced()+q4();
@@ -183,15 +192,18 @@ async function bakeApproved(c){
 // render at all) — so calling straight into a module exposes nothing extra.
 const SCREENS=['home','harvest','stock','sync','dash'];
 const FULL_ROLES=['OWNER','MARKETING'];
-// The worker is the person physically tying fruit to the branch, so TYING must reach
-// them. It is the only harvest tab a worker may open besides the tree board.
-const TIE_ROLES=['OWNER','MARKETING','WORKER'];
 const MODULES={
-  harvest:{ic:'🥭',name:'Harvest',sub:'tie, drop, rotten',
-    tabs:[{k:'log', t:'TREE BOARD',scr:'harvest',panels:[]},
+  // v3.0 — tying has LEFT this module. The collection screen is now two cards only:
+  // Card A good fruit by grade, Card B rotten loss. Nothing else competes for the
+  // worker's thumb while fruit is being counted.
+  harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, rotten',
+    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[]},
           {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES},
-          {k:'tie', t:'TYING',     scr:'dash',panels:['tyingcard'],roles:TIE_ROLES},
           {k:'today',t:'FARM TODAY',scr:'dash',panels:['kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
+  // v3.0 — the tying tracker is its own tile. Hidden from the Sandakan Purchaser.
+  tying:{ic:'🎗️',name:'Fruit Tying Tracker',sub:'tally clicker, rope, balances',
+    tabs:[{k:'tally',t:'TALLY CLICKER',scr:'dash',panels:['tallycard']},
+          {k:'bal',  t:'BALANCES',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES}]},
   ops:{ic:'📋',name:'Daily Ops',sub:'tasks, replies, stock out',
     tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
           {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']},
@@ -207,8 +219,13 @@ const MODULES={
           {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES},
           {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES},
           {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES}]},
-  mkt:{ic:'🚚',name:'Marketing',sub:'ready to sell, sales value',
-    tabs:[{k:'sell',t:'SALES',    scr:'dash',panels:['mktpanel'],roles:FULL_ROLES}]},
+  // v3.0 — Marketing is now the morning dispatch desk: weigh the baskets, invoice the
+  // retailer, watch the credit come down. Owner and Marketing only.
+  mkt:{ic:'🚚',name:'Marketing',sub:'dispatch, retailer credit',
+    tabs:[{k:'disp',  t:'DISPATCH',           scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES},
+          {k:'ledger',t:'DELIVERY LEDGER',    scr:'dash',panels:['mktledger'],  roles:FULL_ROLES},
+          {k:'price', t:'PRICES & RETAILERS', scr:'dash',panels:['pricecard'],  roles:FULL_ROLES},
+          {k:'sell',  t:'OTHER SALES',        scr:'dash',panels:['mktpanel'],   roles:FULL_ROLES}]},
   costadmin:{ic:'💰',name:'Costing / Admin',sub:'ledger, labour, staff keys',
     tabs:[{k:'sum',   t:'COSTING',    scr:'dash',panels:['ledgercard'],roles:FULL_ROLES},
           {k:'labour',t:'LABOUR',     scr:'dash',panels:['labourcard'],roles:FULL_ROLES},
@@ -218,16 +235,17 @@ const MODULES={
 // Option C — six big tiles, in this order. The role gate is applied here AND again in
 // roleAllows(), so calling straight into a module still exposes nothing extra.
 const HUB_ORDER={
-  OWNER:    ['harvest','inv','agro','ops','mkt','costadmin'],   // unrestricted
-  MARKETING:['harvest','inv','agro','ops','mkt','costadmin'],
-  WORKER:   ['harvest','ops'],          // Harvest + Daily Ops ONLY
-  PURCHASER:['inv']                     // Inventory ONLY — stock in + low-stock alerts
+  OWNER:    ['harvest','tying','inv','agro','ops','mkt','costadmin'],   // unrestricted
+  MARKETING:['harvest','tying','inv','agro','ops','mkt','costadmin'],
+  WORKER:   ['harvest','tying','ops'],  // Harvest + Fruit Tying + Daily Ops ONLY
+  PURCHASER:['inv']                     // Inventory ONLY — no harvest, no tying, no money
 };
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
-  'agrorain','agromonth','agrorecord','tyingcard','wavecard','mktpanel'];
+  'agrorain','agromonth','agrorecord','tyingcard','wavecard','mktpanel',
+  'tallycard','dispatchcard','mktledger','pricecard'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -245,9 +263,12 @@ function roleAllows(id){
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
     case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
-    case 'tyingcard':                  return full||r==='WORKER';
-    case 'agrorain': case 'agromonth': case 'agrorecord':
+    case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard':
     case 'wavecard': case 'mktpanel': return full;
+    // v3.0 — the tally clicker is a field tool: worker + Owner/Marketing, never the Purchaser
+    case 'tallycard': return full||myRole()==='WORKER';
+    // v3.0 — anything carrying a retailer credit balance is Owner / Marketing only
+    case 'dispatchcard': case 'mktledger': case 'pricecard': return full;
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
     case 'kpis': case 'phibox': case 'lotcard':
@@ -269,6 +290,13 @@ function tileBadge(k){
     return kg>0?{t:nf(kg)+' KG READY',amber:1}:null;}
   if(k==='harvest'){const b=LOT_KEYS.reduce((s,L)=>s+lotLedger(L).current_tied_balance,0);
     return b>0?{t:nf(b)+' ON STRING'}:null;}
+  if(k==='tying'){
+    const rope=ropeOnHand();
+    if(rope<0)return {t:'ROPE SHORT'};                       // red, flashing — key the rolls in
+    const today=todayStr();
+    const n=EVENTS.filter(e=>e.type==='TIE'&&String(e.dt||'').slice(0,10)===today)
+      .reduce((a,e)=>a+(+e.n||0),0);
+    return n?{t:nf(n)+' TIED TODAY',amber:1}:null;}
   return null;}
 function renderHub(){
   if(!$('hubtiles'))return;
@@ -325,12 +353,15 @@ function openModule(k,tabKey){
   $('scr-'+tab.scr).scrollTop=0;}
 function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
-  renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();}
+  renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();
+  renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();}
 function renderForTab(k,t){
-  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();refreshTreeBoard();}
+  if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
+    renderGradeRows();refreshTreeBoard();}
   if(k==='harvest'&&t==='wave')renderWave();
-  if(k==='harvest'&&t==='tie')renderTying();
   if(k==='harvest'&&t==='today')renderDash();
+  if(k==='tying'&&t==='tally')renderTally();
+  if(k==='tying'&&t==='bal')renderTying();
   if(k==='ops'&&t==='tasks'){renderOpsTasks();renderGeneralTasks();renderOpsHistory();}
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='ops'&&t==='assign')renderAssign();
@@ -343,7 +374,10 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='inv'&&t==='lvl')renderInvCC();
   if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
-  if(k==='mkt')renderMarketing();
+  if(k==='mkt'&&t==='disp')renderDispatch();
+  if(k==='mkt'&&t==='ledger')renderMktLedger();
+  if(k==='mkt'&&t==='price')renderPrices();
+  if(k==='mkt'&&t==='sell')renderMarketing();
   if(k==='costadmin'&&t==='sum')renderLedgerSummary();
   if(k==='costadmin'&&t==='labour')renderLabour();
   if(k==='costadmin'&&t==='corr')renderCorrections();
@@ -364,7 +398,7 @@ function applyRole(){
 function homeTab(){return 'home';}
 // Legacy entry points kept so older call sites and the deploy guide still work.
 const LEGACY_GO={harvest:'harvest',dash:'harvest',stock:'inv',ops:'ops',
-  ledger:'costadmin',admin:'costadmin',mkt:'mkt'};
+  ledger:'costadmin',admin:'costadmin',mkt:'mkt',tie:'tying',tying:'tying'};
 function go(s){
   if(s==='home'){goHome();return;}
   if(s==='sync'){hideAllPanels();$('subbar').classList.add('hidden');showScreen('sync');
@@ -492,6 +526,7 @@ async function refreshMasters(){
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
     const inProg=(j&&j.ok&&Array.isArray(j.programs))?j.programs:null;
     const inTask=(j&&j.ok&&Array.isArray(j.tasks))?j.tasks:null;
+    const inRet =(j&&j.ok&&Array.isArray(j.retailers))?j.retailers:null;
     // v2.5.1: if the WORKERS tab is unreadable the kill switch cannot be evaluated, so
     // nothing is ingested either — a revoked phone must not keep receiving farm data.
     if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return got;
@@ -525,6 +560,7 @@ async function refreshMasters(){
     if(inCorr)await mergeCorrections(inCorr);   // device is cleared — safe to ingest
     if(inProg)got.programs=await mergePrograms(inProg);  // agronomist phases from the Owner's phone
     if(inTask)got.tasks=await mergeTasks(inTask);        // general field jobs from the Owner's phone
+    if(inRet)await mergeRetailers(inRet);               // retailer master + opening credit
 
     // ---- local unpushed edits always win until they are pushed ----
     if(REG_DIRTY){renderKeys();return got;}
@@ -709,9 +745,54 @@ function pickLot(l,el){curLot=l;if(el){[...$('lotbtns').children].forEach(x=>x.c
   if($('h-lot').options.length)$('h-lot').value=l;
   renderGrid(); buildTreeSelect();}
 function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
-function bump(d){qty=Math.max(1,qty+d);$('qty').textContent=qty;}
-function resetQty(){qty=1;$('qty').textContent=1;}
-function setGrade(i){grade=['A','B','C'][i];[...$('grades').children].forEach((el,j)=>el.classList.toggle('on',j===i));}
+// v3.0 — Card A. Three independent counters, one per grade, each with its own
+// SECURED / UNSECURED answer, because a tree can drop tied Grade A and untied
+// Grade C in the same round and the two mean completely different things.
+// GCOUNT/GKIND are the whole state of the card; SAVE turns them into one DROP
+// event per grade that has a count, then clears them.
+let GCOUNT={A:0,B:0,C:0}, GKIND={A:'SECURED',B:'SECURED',C:'SECURED'};
+function gTotal(){return GRADE_ORDER.reduce((s,g)=>s+(GCOUNT[g]||0),0);}
+function gBump(g,d){GCOUNT[g]=Math.max(0,(GCOUNT[g]||0)+d);paintGrade(g);gTotalPaint();}
+function gZero(g){GCOUNT[g]=0;paintGrade(g);gTotalPaint();}
+function gKind(g,k){GKIND[g]=k;paintGrade(g);gTotalPaint();}
+function gClearAll(){GRADE_ORDER.forEach(g=>{GCOUNT[g]=0;GKIND[g]='SECURED';});
+  GRADE_ORDER.forEach(paintGrade);gTotalPaint();const e=$('g-err');if(e)e.textContent='';}
+function paintGrade(g){
+  const n=$('g-n-'+g); if(n)n.textContent=GCOUNT[g]||0;
+  const row=$('grow-'+g); if(row)row.classList.toggle('hot',(GCOUNT[g]||0)>0);
+  DROP_ORDER.forEach(k=>{const el=$('gs-'+g+'-'+k);if(el)el.classList.toggle('on',GKIND[g]===k);});}
+function gTotalPaint(){
+  const box=$('g-tot'); if(!box)return;
+  const tot=gTotal();
+  if(!tot){box.className='gtot zero';box.textContent='Nothing counted yet.';return;}
+  box.className='gtot';
+  const parts=GRADE_ORDER.filter(g=>GCOUNT[g]>0)
+    .map(g=>GCOUNT[g]+' × '+g+' ('+(GKIND[g]==='SECURED'?'secured':'unsecured')+')');
+  box.innerHTML=tot+' fruit — '+parts.join(' · ');}
+function renderGradeRows(){
+  const box=$('graderows'); if(!box)return;
+  box.innerHTML=GRADE_ORDER.map(g=>{
+    const m=GRADE_META[g];
+    return '<div class="grow" id="grow-'+g+'">'+
+      '<div class="ghead"><span class="gname">'+esc(m.label)+'</span>'+
+        '<span class="gnote">'+esc(m.note)+'</span></div>'+
+      '<div class="stepper">'+
+        '<button onclick="gBump(\''+g+'\',-1)">−</button>'+
+        '<div class="n" id="g-n-'+g+'">0</div>'+
+        '<button onclick="gBump(\''+g+'\',1)">+</button></div>'+
+      '<div class="quickadd">'+
+        '<div onclick="gBump(\''+g+'\',5)">+5</div>'+
+        '<div onclick="gBump(\''+g+'\',10)">+10</div>'+
+        '<div onclick="gZero(\''+g+'\')">CLEAR</div></div>'+
+      '<div class="lotbtns tiny">'+
+        '<div id="gs-'+g+'-SECURED" onclick="gKind(\''+g+'\',\'SECURED\')">🪢 Secured (Tied)</div>'+
+        '<div id="gs-'+g+'-UNSECURED" onclick="gKind(\''+g+'\',\'UNSECURED\')">🍃 Unsecured (Untied)</div>'+
+      '</div></div>';}).join('');
+  GRADE_ORDER.forEach(paintGrade); gTotalPaint();}
+// legacy shims — older call sites (and the QR deep links) still reference these
+function bump(d){gBump('A',d);}
+function resetQty(){gClearAll();}
+function setGrade(i){/* the grade is now per-counter; kept so old call sites do not throw */}
 let savingDrop=false, lastDrop={tree:null,time:0};
 // ================= stock =================
 // ================= v2.3 INVENTORY MASTER =================
@@ -1162,9 +1243,12 @@ async function doSync(auto){
   await pushTying();                          // then continuous tying rounds (own payload key)
   await pushTieAdj();                         // then approved tying corrections (own payload key)
   await pushSales();                          // then marketing sales (own payload key)
+  await pushRetailers();                      // then the retailer master (own payload key)
+  await pushDispatch();                       // then retailer dispatches + credit top-ups
   const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE'
     &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST'
-    &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE');
+    &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE'
+    &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -2581,16 +2665,30 @@ function renderTying(){
     'off its balance automatically — nobody keeps this figure by hand.</p>';}
 
 // ---- rotten fruit log ----------------------------------------------------------------
-let rotQty=1, rotCause='';
-function rotBump(d){rotQty=Math.max(1,rotQty+d);$('rot-n').textContent=rotQty;}
-function rotReset(){rotQty=1;$('rot-n').textContent=1;}
+// v3.0 — Card B. The counter starts at ZERO, because most trees lose nothing and a
+// counter sitting on 1 invites a phantom rotten fruit. The cause dropdown and the
+// tied/untied toggle only appear once the count is above zero — and once they appear
+// they are both mandatory.
+let rotQty=0, rotCause='';
+function rotBump(d){rotQty=Math.max(0,rotQty+d);$('rot-n').textContent=rotQty;rotExtras();}
+function rotReset(){rotQty=0;rotCause='';rotTied=null;
+  if($('rot-n'))$('rot-n').textContent=0;
+  if($('rot-cause'))$('rot-cause').value='';
+  ['T','U'].forEach(k=>{const el=$('rt-'+k);if(el)el.classList.remove('on');});
+  if($('rot-err'))$('rot-err').textContent='';
+  rotExtras();}
+function rotExtras(){
+  const x=$('rot-extra'); if(x)x.classList.toggle('hidden',!(rotQty>0));}
 function rotPick(c){rotCause=c;
-  ROT_ORDER.forEach(k=>$('rc-'+k).classList.toggle('on',k===c));
-  $('rot-err').textContent='';}
+  const sel=$('rot-cause'); if(sel&&sel.value!==c)sel.value=c;
+  if($('rot-err'))$('rot-err').textContent='';}
+function rotPickSel(){rotPick($('rot-cause').value);}
 function renderRotCauses(){
-  const box=$('rot-causes'); if(!box)return;
-  box.innerHTML=ROT_ORDER.map(k=>'<div id="rc-'+k+'" onclick="rotPick(\''+k+'\')">'+ROT_CAUSE[k].ic+' '+
-    esc(ROT_CAUSE[k].label)+'<span class="csub">'+esc(ROT_CAUSE[k].note)+'</span></div>').join('');}
+  const sel=$('rot-cause'); if(!sel)return;
+  sel.innerHTML='<option value="">— choose the damage cause —</option>'+
+    ROT_ORDER.map(k=>'<option value="'+k+'">'+ROT_CAUSE[k].ic+' '+esc(ROT_CAUSE[k].label)+
+      ' — '+esc(ROT_CAUSE[k].note)+'</option>').join('');
+  sel.value=rotCause||''; rotExtras();}
 let savingRot=false;
 // ---- my logs + request log correction -------------------------------------------------
 // A worker never edits a log. Anything wrong goes to the Owner as a request and is only
@@ -2607,7 +2705,7 @@ function renderMyLogs(){
       (adj?(' <span class="cstat a">corrected '+(adj>0?'+':'')+nf(adj)+'</span>'):'')+
       '<br><span class="small">'+esc(e.dt)+(e.synced?'':' · queued')+'</span></span>'+
       (pend?'<span class="cstat p">CORRECTION SENT</span>'
-           :'<span class="linkish" onclick="openLogCorrection(\''+e.uuid+'\')">Request correction</span>')+
+           :'<button class="corrreq" onclick="openLogCorrection(\''+e.uuid+'\')">📝 Request Log Correction</button>')+
       '</div>';}).join('');}
 let corrEv=null;
 // ---- correction workflow, extended to cover drop and rotten logs ---------------------
@@ -2829,52 +2927,118 @@ function lotLedger(lot){
     if(L.untied_hanging_estimate===null)out.noCensus++; else out.untied_hanging_estimate+=L.untied_hanging_estimate;});
   return out;}
 
-// ---- Counter A: continuous tying rounds ----------------------------------------------
-let tieQty=1, savingTie=false;
-function tieBump(d){tieQty=Math.max(1,tieQty+d);if($('tie-n'))$('tie-n').textContent=tieQty;ropeHint();}
-function tieReset(){tieQty=1;if($('tie-n'))$('tie-n').textContent=1;ropeHint();}
+// ---- tying rounds: one shared commit, used by the v3.0 tally clicker -----------------
+let savingTie=false;
 function ropeNeeded(n){return +((+n||0)*ROPE_M_PER_FRUIT).toFixed(2);}
 function ropeOnHand(){const p=prodById(ROPE_PID);return p?onHand(p):0;}
-function ropeHint(){
-  const box=$('tie-rope'); if(!box)return;
-  const need=ropeNeeded(tieQty), have=ropeOnHand();
-  box.innerHTML='Uses <b>'+nf(need)+' m</b> of rope ('+ROPE_M_PER_FRUIT+' m per fruit) · store shows <b>'+
-    nf(have)+' m</b>'+(have<need?' <span style="color:#b3261e;font-weight:800">— short, ask the Purchaser to key the rolls in</span>':'');}
-async function saveTieRound(){
-  const err=$('tie-err'); if(err)err.textContent='';
-  if(!curTree||savingTie)return;
-  if(!(tieQty>0)){if(err)err.textContent='Enter how many fruits were tied.';return;}
-  const L=treeLedger(curTree.id);
-  if(L.has_census&&L.untied_hanging_estimate!==null&&tieQty>L.untied_hanging_estimate&&
-     !confirm('⚠ '+curTree.id+' has about '+L.untied_hanging_estimate+' untied fruit left by the July census.\n'+
-              'Tying '+tieQty+' takes it past that.\n\nSave anyway?'))return;
-  const need=ropeNeeded(tieQty), have=ropeOnHand();
+/**
+ * The ONE place a tying round becomes events. A TIE event for the count, and an
+ * ordinary STOCK_OUT for the rope it consumed — ROPE_M_PER_FRUIT (1.5 m) per fruit —
+ * so rope lands in the same moving-average costing as every other material and the
+ * lot's rope balance falls by itself. Both rows carry the same roundId, so the tying
+ * and the rope that paid for it can always be matched up again in the Sheet.
+ */
+async function commitTieRound(t,n){
+  const need=ropeNeeded(n), stamp=now(), rid=uuid();
+  await persistEvent({uuid:uuid(),type:'TIE',dt:stamp,tree:t.id,lot:t.lot,clone:t.clone||'',
+    n:n,ropeM:need,roundId:rid,
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  const rp=prodById(ROPE_PID);
+  if(rp&&need>0) await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:ROPE_PID,pname:rp.name,
+    ai:'',qty:need,unit:rp.unit,lot:t.lot,set:'Fruit tying',
+    cost:+(need*(rp.cpu||0)).toFixed(2),roundId:rid,tree:t.id,
+    worker:CFG.worker,device:CFG.device,synced:false});
+  return need;}
+
+// ================= v3.0 FRUIT TYING TRACKER — WAY 4 TALLY CLICKER =====================
+// Its own tile, off the collection screen entirely. Lock the tree in, tap once per
+// fruit, undo a mis-tap, then save the whole tree in one go. The tally is local until
+// saved, so a mis-tap costs nothing and no half-counted tree reaches the ledger.
+let tyTree=null, tyTally=0, tyLot='B';
+function tyBuildLots(){
+  const s=$('ty-lot'); if(!s)return;
+  if(!s.options.length){
+    s.innerHTML=LOTS.map(l=>'<option value="'+l+'">Lot '+l+' ('+treesInLot(l).length+' trees)</option>').join('');}
+  s.value=tyLot;}
+function tyBuildTrees(){
+  const s=$('ty-tree'); if(!s)return;
+  s.innerHTML='<option value="">— select tree —</option>'+treesInLot(tyLot).map(t=>
+    '<option value="'+t.id+'">'+t.id+'  ·  Tree '+t.no+'</option>').join('');
+  s.value=tyTree?tyTree.id:'';}
+function tyLotChange(){
+  if(tyTally>0&&!confirm('You have '+tyTally+' fruit counted on '+(tyTree?tyTree.id:'this tree')+
+     ' that is not saved yet.\n\nChange lot and throw that tally away?')){$('ty-lot').value=tyLot;return;}
+  tyLot=$('ty-lot').value; tyTree=null; tyTally=0; tyBuildTrees(); tyPaint();}
+function tyTreeChange(){
+  const id=$('ty-tree').value;
+  if(tyTally>0&&tyTree&&id!==tyTree.id&&
+     !confirm('You have '+tyTally+' fruit counted on '+tyTree.id+' that is not saved yet.\n\n'+
+              'Change tree and throw that tally away?')){$('ty-tree').value=tyTree.id;return;}
+  tyTree=treeById(id)||null; tyTally=0; tyPaint();}
+function tyTap(){
+  if(!tyTree){const e=$('ty-err');if(e)e.textContent='Lock the Lot and the Tree Number in first.';return;}
+  tyTally++; tyPaint();}
+function tyUndo(){ if(tyTally>0)tyTally--; tyPaint(); }
+function tyPaint(){
+  const n=$('ty-n'); if(n)n.textContent=tyTally;
+  const cl=$('ty-clone'); if(cl)cl.textContent=tyTree?(tyTree.clone||'NOT RECORDED'):'—';
+  const inf=$('ty-info');
+  if(inf){
+    if(!tyTree)inf.innerHTML='select a tree';
+    else{const L=treeLedger(tyTree.id);
+      inf.innerHTML=cloneLabel(tyTree.clone)+'<br>On the string now: <b>'+nf(L.current_tied_balance)+'</b>'+
+        '<br>Untied still hanging: <b>'+(L.untied_hanging_estimate===null?'no census':nf(Math.max(0,L.untied_hanging_estimate)))+'</b>';}}
+  const tap=$('ty-tap'); if(tap)tap.disabled=!tyTree;
+  const und=$('ty-undo'); if(und)und.disabled=!(tyTally>0);
+  const rope=$('ty-rope');
+  if(rope){
+    const need=ropeNeeded(tyTally), have=ropeOnHand();
+    rope.innerHTML=tyTally
+      ? ('This tree will draw <b>'+nf(need)+' m</b> of rope ('+ROPE_M_PER_FRUIT+' m per fruit) · store shows <b>'+
+         nf(have)+' m</b>'+(have<need?' <span style="color:#b3261e;font-weight:800">— short, ask the Purchaser to key the rolls in</span>':''))
+      : ('Every fruit tied draws <b>'+ROPE_M_PER_FRUIT+' m</b> of rope out of the store automatically · store shows <b>'+nf(have)+' m</b>');}
+  const e=$('ty-err'); if(e&&tyTree&&tyTally)e.textContent='';
+  tyRecent();}
+function tyRecent(){
+  const box=$('ty-recent'); if(!box)return;
+  const me=(CFG&&CFG.worker)||'';
+  const rows=EVENTS.filter(e=>e.type==='TIE'&&e.worker===me).sort((a,b)=>a.dt<b.dt?1:-1).slice(0,6);
+  box.innerHTML=rows.length
+    ? ('<div class="sec" style="margin-top:14px">Trees you finished</div>'+rows.map(e=>
+        '<div class="lrow"><span><b>'+esc(e.tree)+'</b> · 🎗️ '+nf(e.n)+' tied · '+nf(e.ropeM||0)+' m rope'+
+        '<br><span class="small">'+esc(e.dt)+(e.synced?'':' · queued')+'</span></span></div>').join(''))
+    : '';}
+async function tySave(){
+  const err=$('ty-err'); if(err)err.textContent='';
+  if(savingTie)return;
+  if(!tyTree){if(err)err.textContent='Lock the Lot and the Tree Number in first.';return;}
+  if(!(tyTally>0)){if(err)err.textContent='Tap the big button once for every fruit you tied.';return;}
+  const L=treeLedger(tyTree.id);
+  if(L.has_census&&L.untied_hanging_estimate!==null&&tyTally>L.untied_hanging_estimate&&
+     !confirm('⚠ '+tyTree.id+' has about '+L.untied_hanging_estimate+' untied fruit left by the July census.\n'+
+              'Tying '+tyTally+' takes it past that.\n\nSave anyway?'))return;
+  const need=ropeNeeded(tyTally), have=ropeOnHand();
   if(have<need&&!confirm('⚠ The store shows only '+nf(have)+' m of rope and this needs '+nf(need)+' m.\n\n'+
-     'Log the tying anyway? The rope balance will go negative until the Purchaser keys the rolls in.'))return;
+     'Save the tying anyway? The rope balance will go negative until the Purchaser keys the rolls in.'))return;
   savingTie=true;
-  const stamp=now(), rid=uuid(), t=curTree;
-  try{
-    await persistEvent({uuid:uuid(),type:'TIE',dt:stamp,tree:t.id,lot:t.lot,clone:t.clone||'',
-      n:tieQty,ropeM:need,roundId:rid,
-      worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
-    const rp=prodById(ROPE_PID);
-    if(rp&&need>0) await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:ROPE_PID,pname:rp.name,
-      ai:'',qty:need,unit:rp.unit,lot:t.lot,set:'Fruit tying',
-      cost:+(need*(rp.cpu||0)).toFixed(2),roundId:rid,tree:t.id,
-      worker:CFG.worker,device:CFG.device,synced:false});
-  } finally { savingTie=false; }
-  const n=tieQty, id=t.id;
-  tieQty=1; if($('tie-n'))$('tie-n').textContent=1;
-  badge(); refreshTreeBoard(); renderTying(); renderMyLogs(); refreshInventoryViews(); renderHub();
-  toast('🪢 '+n+' tied @ '+id+' · '+nf(need)+' m rope used'+(navigator.onLine?'':' (queued)'));}
+  const t=tyTree, n=tyTally;
+  try{ await commitTieRound(t,n); } finally { savingTie=false; }
+  tyTally=0; tyTree=null;
+  const sel=$('ty-tree'); if(sel)sel.value='';
+  tyPaint(); badge(); refreshTreeBoard(); renderTying(); renderMyLogs();
+  refreshInventoryViews(); renderHub();
+  toast('🎗️ '+n+' tied @ '+t.id+' · '+nf(ropeNeeded(n))+' m rope drawn'+(navigator.onLine?'':' (queued)'));}
+function renderTally(){
+  if(!$('tallycard'))return;
+  tyBuildLots(); tyBuildTrees(); tyPaint();}
 
 // ---- Counter B: the drop collection split --------------------------------------------
 let dropKind='SECURED';
+// v3.0 — the single SECURED/UNSECURED toggle became one toggle per grade row.
+// Kept as a shim so any older call site sets the default for all three at once.
 function pickDropKind(k){dropKind=k;
-  DROP_ORDER.forEach(x=>{const el=$('dk-'+x);if(el)el.classList.toggle('on',x===k);});
-  const h=$('drop-hint');
-  if(h)h.innerHTML=DROP_KIND[k].ic+' <b>'+esc(DROP_KIND[k].label)+'</b> — '+esc(DROP_KIND[k].note)+
-    (k==='SECURED'?'. Comes off the tied balance.':'. Comes off the untied estimate — it was never tied.');}
+  if(DROP_KIND[k]&&typeof GKIND==='object')GRADE_ORDER.forEach(g=>{GKIND[g]=k;});
+  if(typeof paintGrade==='function')GRADE_ORDER.forEach(paintGrade);}
 
 // ---- the Tree Asset Board ------------------------------------------------------------
 function boardHTML(t){
@@ -2897,10 +3061,13 @@ function boardHTML(t){
       : (est<0?'<div class="bwarn">More fruit has been tied and collected than the July census counted. The census undercounted this tree.</div>':''))+
     (L.current_tied_balance<0?'<div class="bwarn">More secured fruit has come off than was ever tied on this tree.</div>':'')+
     '</div>';}
+// v3.0 — the read-only ledger board is an OWNER view. A worker on the collection
+// screen sees the two counters and nothing else; the numbers they would have to
+// interpret are exactly what slows a picking round down.
+function canSeeBoard(){return FULL_ROLES.indexOf(myRole())>=0;}
 function refreshTreeBoard(){
   if(!curTree)return;
-  const b=$('assetboard'); if(b)b.innerHTML=boardHTML(curTree);
-  ropeHint();}
+  const b=$('assetboard'); if(b)b.innerHTML=canSeeBoard()?boardHTML(curTree):'';}
 
 // ---- lot-level view of the whole wave -------------------------------------------------
 function renderWave(){
@@ -2953,38 +3120,55 @@ function ropeCardHTML(){
       '<b>Inventory → STOCK IN</b> and it corrects itself.</div>':'');}
 
 // ---- the two save paths, rewritten for the split -------------------------------------
+/**
+ * v3.0 — Card A save. Every grade with a count above zero becomes its OWN immutable
+ * DROP event carrying its own grade letter and its own secured flag, so the ledger
+ * splits secured off the tied balance and unsecured off the untied estimate exactly
+ * as before, and Marketing can price the same letters the worker counted. One tap on
+ * SAVE, up to three rows — never one blended row that nobody can take apart later.
+ */
 async function saveDrop(){
+  const err=$('g-err'); if(err)err.textContent='';
   if(!curTree||savingDrop)return;
+  const tot=gTotal();
+  if(!tot){if(err)err.textContent='Count at least one fruit before saving.';return;}
   savingDrop=true;
   try{
-    const t=curTree, secured=(dropKind==='SECURED');
+    const t=curTree;
     if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000){
-      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW drop?')){savingDrop=false;return;}}
+      if(!confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW collection?')){savingDrop=false;return;}}
     const L=treeLedger(t.id);
-    if(secured&&L.current_tied_balance>0&&qty>L.current_tied_balance&&
+    const sec=GRADE_ORDER.filter(g=>GKIND[g]==='SECURED').reduce((a,g)=>a+(GCOUNT[g]||0),0);
+    const uns=tot-sec;
+    if(sec>0&&L.current_tied_balance>0&&sec>L.current_tied_balance&&
        !confirm('⚠ '+t.id+' has only '+L.current_tied_balance+' fruit still on the string.\n'+
-                'Logging '+qty+' secured takes it below zero.\n\nSave anyway?')){savingDrop=false;return;}
-    if(!secured&&L.untied_hanging_estimate!==null&&L.untied_hanging_estimate>0&&qty>L.untied_hanging_estimate&&
+                'Logging '+sec+' secured takes it below zero.\n\nSave anyway?')){savingDrop=false;return;}
+    if(uns>0&&L.untied_hanging_estimate!==null&&L.untied_hanging_estimate>0&&uns>L.untied_hanging_estimate&&
        !confirm('⚠ '+t.id+' has about '+L.untied_hanging_estimate+' untied fruit left by the July census.\n'+
-                'Logging '+qty+' unsecured takes it past that.\n\nSave anyway?')){savingDrop=false;return;}
-    await persistEvent({uuid:uuid(),type:'DROP',dt:now(),tree:t.id,lot:t.lot,clone:t.clone||'',qty,grade,
-      secured:secured,dropKind:dropKind,
-      estkg:+(qty*(AVG_KG[t.clone]||1.6)).toFixed(1),worker:CFG.worker,device:CFG.device,synced:false});
+                'Logging '+uns+' unsecured takes it past that.\n\nSave anyway?')){savingDrop=false;return;}
+    const stamp=now(), roundId=uuid();
+    for(const g of GRADE_ORDER){
+      const n=GCOUNT[g]||0; if(!(n>0))continue;
+      const secured=(GKIND[g]==='SECURED');
+      await persistEvent({uuid:uuid(),type:'DROP',dt:stamp,tree:t.id,lot:t.lot,clone:t.clone||'',
+        qty:n,grade:g,secured:secured,dropKind:GKIND[g],pickId:roundId,
+        estkg:+(n*(AVG_KG[t.clone]||1.6)).toFixed(1),
+        worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});}
     lastDrop={tree:t.id,time:Date.now()};
     const after=treeLedger(t.id);
-    toast('✓ '+qty+' '+(secured?'secured':'unsecured')+' @ '+t.id+' · '+
-      (secured?(nf(Math.max(0,after.current_tied_balance))+' still on the string')
-              :(after.untied_hanging_estimate===null?'no census on this tree':nf(Math.max(0,after.untied_hanging_estimate))+' untied left'))+
-      (navigator.onLine?'':' (queued)'));
+    const parts=GRADE_ORDER.filter(g=>GCOUNT[g]>0).map(g=>GCOUNT[g]+g);
+    gClearAll();
+    toast('✓ '+parts.join(' + ')+' @ '+t.id+' · '+nf(Math.max(0,after.current_tied_balance))+
+      ' still on the string'+(navigator.onLine?'':' (queued)'));
     refreshTreeBoard();renderTying();renderWave();renderMyLogs();renderHub();
   } finally { savingDrop=false; }}
 
 async function saveRotten(){
   const err=$('rot-err'); if(err)err.textContent='';
   if(!curTree||savingRot)return;
-  if(!rotCause){err.textContent='Choose why the fruit was lost — a rotten count without a cause cannot be acted on.';return;}
+  if(!(rotQty>0)){err.textContent='Nothing to log — the rotten counter is on zero.';return;}
+  if(!rotCause){err.textContent='Tag the damage cause — a rotten count without a cause cannot be acted on.';return;}
   if(rotTied===null){err.textContent='Say whether the fruit was tied or untied.';return;}
-  if(!(rotQty>0)){err.textContent='Enter how many fruits were lost.';return;}
   const L=treeLedger(curTree.id);
   if(rotTied&&L.current_tied_balance>0&&rotQty>L.current_tied_balance&&
      !confirm('⚠ '+curTree.id+' has only '+L.current_tied_balance+' fruit still on the string.\nLog '+rotQty+' rotten anyway?'))return;
@@ -2997,10 +3181,7 @@ async function saveRotten(){
       worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
   } finally { savingRot=false; }
   const n=rotQty, c=ROT_CAUSE[rotCause].label, id=curTree.id, wasTied=rotTied;
-  rotQty=1;rotCause='';rotTied=null;
-  if($('rot-n'))$('rot-n').textContent=1;
-  ROT_ORDER.forEach(k=>{const el=$('rc-'+k);if(el)el.classList.remove('on');});
-  ['T','U'].forEach(k=>{const el=$('rt-'+k);if(el)el.classList.remove('on');});
+  rotReset();
   badge();refreshTreeBoard();renderTying();renderWave();renderMyLogs();renderHub();
   toast('🍂 '+n+' rotten @ '+id+' · '+c+' · '+(wasTied?'was tied':'untied')+(navigator.onLine?'':' (queued)'));}
 
@@ -3017,14 +3198,9 @@ function selectTree(id){
   $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
   curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
   $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');
-  qty=1;$('qty').textContent=1;setGrade(0);pickDropKind('SECURED');
-  tieQty=1; if($('tie-n'))$('tie-n').textContent=1;
-  rotQty=1;rotCause='';rotTied=null;
-  if($('rot-n'))$('rot-n').textContent=1;
-  renderRotCauses();
-  ['T','U'].forEach(k=>{const el=$('rt-'+k);if(el)el.classList.remove('on');});
-  if($('rot-err'))$('rot-err').textContent='';
-  if($('tie-err'))$('tie-err').textContent='';
+  renderGradeRows(); gClearAll();
+  renderRotCauses(); rotReset();
+  if($('g-err'))$('g-err').textContent='';
   refreshTreeBoard();
   if($('corrbtn')) $('corrbtn').style.display=canCorrect()?'':'none';}
 
@@ -3139,7 +3315,10 @@ function collectedRows(){
     if(!by[k])by[k]={date:(e.dt||'').slice(0,10),grade:e.grade||'?',n:0,kg:0};
     by[k].n+=+e.qty||0; by[k].kg+=+e.estkg||0;});
   return Object.values(by).sort((a,b)=>a.date<b.date?1:-1);}
-function soldKg(){return EVENTS.filter(e=>e.type==='SALE').reduce((s,e)=>s+(+e.kg||0),0);}
+// v3.0 — "sold" now means anything that has left the farm: a free-text SALE or a
+// weighed retailer DISPATCH. Both are counted here or the ready-to-sell figure lies.
+function soldKg(){return EVENTS.filter(e=>e.type==='SALE').reduce((s,e)=>s+(+e.kg||0),0)
+  + EVENTS.filter(e=>e.type==='DISPATCH').reduce((s,e)=>s+(+e.total_kg||0),0);}
 function collectedKg(){return EVENTS.filter(e=>e.type==='DROP').reduce((s,e)=>s+(+e.estkg||0),0);}
 function salesRows(){return EVENTS.filter(e=>e.type==='SALE').sort((a,b)=>a.dt<b.dt?1:-1);}
 function salesTotal(){return EVENTS.filter(e=>e.type==='SALE').reduce((s,e)=>s+(+e.amount||0),0);}
@@ -3198,6 +3377,288 @@ async function pushSales(){
   return pushOwnKey(saleQueue(),'sales','sales',
     m=>{if(!saleWarned){saleWarned=true;toast(m,1);}},
     'Sales kept on this phone — update the Apps Script to add the SALES tab');}
+
+// ================= v3.0 MARKETING · RETAILER SCALE LEDGER =============================
+// The morning flow: baskets come off the scale, the supervisor keys the net weight per
+// grade against a retailer, and the order value comes straight off that retailer's
+// credit. Nothing here is a stored balance — `current_credit_balance_rm` is DERIVED
+// from opening credit + top-ups − dispatches, so it can never drift from the deliveries
+// behind it, and an approved credit adjustment corrects it without editing history.
+
+function canSetPrice(){return myRole()==='OWNER';}          // prices are the Owner's alone
+async function persistRetailers(){
+  if(db){await put('kv',{k:'retailers',v:RETAILERS});await put('kv',{k:'retdirty',v:RET_DIRTY});}}
+async function persistPrices(){ if(db)await put('kv',{k:'gradeprice',v:GRADE_PRICE}); }
+function retailerById(id){return RETAILERS.find(r=>String(r.id)===String(id))||null;}
+function activeRetailers(){return RETAILERS.filter(r=>String(r.status||'Active').toLowerCase()!=='deleted');}
+function priceOf(g){return +(GRADE_PRICE[g]||0);}
+
+function dispatchEvents(id){
+  return EVENTS.filter(e=>e.type==='DISPATCH'&&(!id||String(e.retailer_id)===String(id)));}
+function topupEvents(id){
+  return EVENTS.filter(e=>e.type==='CREDIT_TOPUP'&&(!id||String(e.retailer_id)===String(id)));}
+function retailerSpend(id){return dispatchEvents(id).reduce((s,e)=>s+(+e.total_value_rm||0),0);}
+function retailerTopup(id){return topupEvents(id).reduce((s,e)=>s+(+e.amount_rm||0),0);}
+/** The live credit figure, named exactly as the schema calls it. */
+function retailerCredit(id){
+  const r=retailerById(id); if(!r)return 0;
+  return +((+r.opening_credit_rm||0)+retailerTopup(id)-retailerSpend(id)).toFixed(2);}
+function retailerLedger(id){
+  const r=retailerById(id); if(!r)return null;
+  return {retailer_id:r.id, name:r.name, contact:r.contact||'',
+    opening_credit_rm:+r.opening_credit_rm||0,
+    topped_up_rm:retailerTopup(id), invoiced_rm:retailerSpend(id),
+    current_credit_balance_rm:retailerCredit(id),
+    deliveries:dispatchEvents(id).length};}
+
+/**
+ * `marketing_delivery_ledger` — one immutable row per confirmed dispatch, oldest first,
+ * carrying the credit balance as it stood AFTER that row. The balance is recomputed
+ * here rather than read off the event, so a dispatch that syncs in late from another
+ * phone slots into the right place in the running balance instead of corrupting it.
+ */
+function marketingDeliveryLedger(){
+  const rows=EVENTS.filter(e=>e.type==='DISPATCH'||e.type==='CREDIT_TOPUP')
+    .slice().sort((a,b)=>String(a.dt)<String(b.dt)?-1:(String(a.dt)>String(b.dt)?1:0));
+  const bal={};
+  RETAILERS.forEach(r=>{bal[r.id]=+r.opening_credit_rm||0;});
+  const out=[];
+  rows.forEach(e=>{
+    const id=e.retailer_id;
+    if(bal[id]===undefined)bal[id]=0;
+    if(e.type==='CREDIT_TOPUP'){
+      bal[id]=+(bal[id]+(+e.amount_rm||0)).toFixed(2);
+      out.push({kind:'TOPUP',uuid:e.uuid,timestamp:e.dt,retailer_id:id,
+        retailer_name:e.retailer_name||(retailerById(id)||{}).name||id,
+        kg_A:0,kg_B:0,kg_C:0,total_kg:0,total_order_value_rm:-(+e.amount_rm||0),
+        remaining_credit_balance_rm:bal[id],note:e.note||'',by:e.worker||'',synced:!!e.synced});
+      return;}
+    bal[id]=+(bal[id]-(+e.total_value_rm||0)).toFixed(2);
+    out.push({kind:'DISPATCH',uuid:e.uuid,timestamp:e.dt,retailer_id:id,
+      retailer_name:e.retailer_name||(retailerById(id)||{}).name||id,
+      kg_A:+e.kg_A||0,kg_B:+e.kg_B||0,kg_C:+e.kg_C||0,total_kg:+e.total_kg||0,
+      total_order_value_rm:+e.total_value_rm||0,
+      remaining_credit_balance_rm:bal[id],note:e.note||'',by:e.worker||'',synced:!!e.synced});});
+  return out.reverse();}                                   // newest first for the screen
+
+// ---- the dispatch form ---------------------------------------------------------------
+function dispKg(g){const el=$('dp-kg-'+g);return el?Math.max(0,+el.value||0):0;}
+function dispTotals(){
+  let kg=0, val=0; const per={};
+  GRADE_ORDER.forEach(g=>{const k=dispKg(g), v=+(k*priceOf(g)).toFixed(2);
+    per[g]={kg:k,value:v}; kg+=k; val+=v;});
+  return {per:per, total_kg:+kg.toFixed(2), total_value_rm:+val.toFixed(2)};}
+function dispCalc(){
+  const t=dispTotals(), id=$('dp-ret')?$('dp-ret').value:'';
+  const inv=$('dp-inv');
+  if(inv)inv.innerHTML=GRADE_ORDER.map(g=>
+      '<div class="ir"><span class="lbl">Grade '+g+' — '+nf(t.per[g].kg)+' kg × '+rm(priceOf(g))+'/kg</span>'+
+      '<span>'+rm(t.per[g].value)+'</span></div>').join('')+
+    '<div class="ir tot"><span>TOTAL ORDER VALUE</span><span>'+rm(t.total_value_rm)+'</span></div>';
+  const cb=$('dp-credit'), ab=$('disp-alert');
+  if(!id){if(cb){cb.className='credok';cb.textContent='Select a retailer.';} if(ab)ab.innerHTML=''; return;}
+  const before=retailerCredit(id), after=+(before-t.total_value_rm).toFixed(2);
+  const r=retailerById(id)||{};
+  if(cb){cb.className='credok';
+    cb.innerHTML='<b>'+esc(r.name||id)+'</b> · credit now <b>'+rm(before)+'</b>'+
+      (t.total_value_rm?(' → after this dispatch <b>'+rm(after)+'</b>'):'');}
+  if(ab)ab.innerHTML=(after<CREDIT_FLOOR_RM)
+    ? '<div class="critbox">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
+      '<span style="font-weight:700;font-size:11.5px">'+esc(r.name||id)+' holds '+rm(before)+
+      ' but this load is worth '+rm(t.total_value_rm)+' — it would leave '+rm(after)+'.</span></div>'
+    : '';}
+function renderDispatch(){
+  const box=$('dp-rows'); if(!box)return;
+  const sel=$('dp-ret');
+  if(sel){const keep=sel.value;
+    sel.innerHTML='<option value="">— select retailer —</option>'+activeRetailers().map(r=>
+      '<option value="'+esc(r.id)+'">'+esc(r.name)+' · credit '+rm(retailerCredit(r.id))+'</option>').join('');
+    sel.value=keep&&retailerById(keep)?keep:'';}
+  if(!box.children.length){
+    box.innerHTML=GRADE_ORDER.map(g=>
+      '<div class="selrow" style="margin-bottom:2px"><div><label>Grade '+g+' (KG)</label>'+
+      '<input type="number" id="dp-kg-'+g+'" min="0" step="any" inputmode="decimal" placeholder="0" oninput="dispCalc()"></div>'+
+      '<div><label>Price / KG</label><input value="'+rm(priceOf(g))+'" disabled></div></div>').join('');}
+  else GRADE_ORDER.forEach((g,i)=>{const row=box.children[i];
+    if(row&&row.children[1])row.children[1].querySelector('input').value=rm(priceOf(g));});
+  dispCalc();}
+let savingDisp=false;
+async function saveDispatch(){
+  const err=$('dp-err'); if(err)err.textContent='';
+  if(savingDisp)return;
+  const id=$('dp-ret').value, r=retailerById(id);
+  if(!r){err.textContent='Select the retailer this load is going to.';return;}
+  const t=dispTotals();
+  if(!(t.total_kg>0)){err.textContent='Key in the net basket weight for at least one grade.';return;}
+  const missing=GRADE_ORDER.filter(g=>t.per[g].kg>0&&!(priceOf(g)>0));
+  if(missing.length){err.textContent='No price is set for Grade '+missing.join(', ')+
+    '. The Owner sets the per-KG prices in PRICES & RETAILERS.';return;}
+  const avail=collectedKg()-soldKg();
+  if(t.total_kg>avail&&!confirm('⚠ Only '+nf(Math.max(0,avail))+' kg of collected fruit is still undispatched.\n'+
+     'Send '+nf(t.total_kg)+' kg anyway?'))return;
+  const before=retailerCredit(id), after=+(before-t.total_value_rm).toFixed(2);
+  let over=false;
+  if(after<CREDIT_FLOOR_RM){
+    over=true;
+    if(!confirm('CRITICAL: Insufficient Retailer Credit for Dispatch!\n\n'+r.name+' holds '+rm(before)+
+      ' and this load is worth '+rm(t.total_value_rm)+'.\nConfirming leaves the account at '+rm(after)+'.\n\n'+
+      'Send it anyway and flag the account?'))return;}
+  savingDisp=true;
+  try{
+    await persistEvent({uuid:uuid(),type:'DISPATCH',dt:now(),
+      retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
+      kg_A:t.per.A.kg, kg_B:t.per.B.kg, kg_C:t.per.C.kg,
+      price_A:priceOf('A'), price_B:priceOf('B'), price_C:priceOf('C'),
+      value_A:t.per.A.value, value_B:t.per.B.value, value_C:t.per.C.value,
+      total_kg:t.total_kg, total_value_rm:t.total_value_rm,
+      credit_before_rm:before, credit_after_rm:after, over_credit:over,
+      note:$('dp-note').value.trim(),
+      worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
+  } finally { savingDisp=false; }
+  GRADE_ORDER.forEach(g=>{const el=$('dp-kg-'+g);if(el)el.value='';});
+  $('dp-note').value='';
+  badge(); renderDispatch(); renderMktLedger(); renderMarketing(); renderHub();
+  toast('✓ '+nf(t.total_kg)+' kg to '+r.name+' · '+rm(t.total_value_rm)+' · credit '+rm(after)+
+    (navigator.onLine?'':' (queued)'));}
+
+// ---- the ledger view -----------------------------------------------------------------
+function renderMktLedger(){
+  const box=$('mktledgerbox'); if(!box)return;
+  const rows=marketingDeliveryLedger();
+  const cards=activeRetailers().map(r=>retailerLedger(r.id)).filter(Boolean);
+  const broke=cards.filter(c=>c.current_credit_balance_rm<CREDIT_FLOOR_RM);
+  box.innerHTML=
+    (broke.length?('<div class="critbox">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
+      '<span style="font-weight:700;font-size:11.5px">'+
+      broke.map(c=>esc(c.name)+' — '+rm(c.current_credit_balance_rm)).join('<br>')+'</span></div>'):'')+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Retailer</th><th class="num">Opening</th><th class="num">Invoiced</th><th class="num">Credit left</th></tr>'+
+    cards.map(c=>'<tr><td><div class="pn">'+esc(c.name)+'</div><div class="pa">'+esc(c.contact||'')+
+      ' · '+c.deliveries+' deliver'+(c.deliveries===1?'y':'ies')+'</div></td>'+
+      '<td class="num">'+(SHOW_VALUES?rm(c.opening_credit_rm+c.topped_up_rm):'—')+'</td>'+
+      '<td class="num">'+(SHOW_VALUES?rm(c.invoiced_rm):'—')+'</td>'+
+      '<td class="num '+(c.current_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'"><b>'+
+      (SHOW_VALUES?rm(c.current_credit_balance_rm):'—')+'</b></td></tr>').join('')+
+    '</table></div>'+
+    '<div class="sec" style="margin-top:14px">Delivery ledger — newest first</div>'+
+    (rows.length?('<div class="tblwrap"><table class="tbl">'+
+      '<tr><th>When / retailer</th><th class="num">A · B · C (kg)</th><th class="num">Order value</th><th class="num">Credit left</th></tr>'+
+      rows.slice(0,60).map(x=>'<tr><td><div class="pn">'+esc(x.retailer_name)+
+        (x.kind==='TOPUP'?' <span class="cstat a">TOP-UP</span>':'')+'</div>'+
+        '<div class="pa">'+esc(x.timestamp)+(x.synced?'':' · queued')+
+        (x.note?(' · '+esc(x.note)):'')+'</div></td>'+
+        '<td class="num">'+(x.kind==='TOPUP'?'—':(nf(x.kg_A)+' · '+nf(x.kg_B)+' · '+nf(x.kg_C)+
+          '<div class="exphint">'+nf(x.total_kg)+' kg total</div>'))+'</td>'+
+        '<td class="num"><b>'+(SHOW_VALUES?rm(x.total_order_value_rm):'—')+'</b></td>'+
+        '<td class="num '+(x.remaining_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'">'+
+        (SHOW_VALUES?rm(x.remaining_credit_balance_rm):'—')+'</td></tr>').join('')+'</table></div>')
+      :'<div class="alertnone">No dispatch confirmed yet. Weigh the baskets on the DISPATCH tab.</div>')+
+    '<p class="small">Every row is immutable. A dispatch is never edited — if a weight was wrong, '+
+    'the Owner posts a credit top-up with the reason, so the mistake and the fix both stay on the record.</p>';}
+
+// ---- Owner-only prices and retailer master -------------------------------------------
+function renderPrices(){
+  const box=$('pricebox'); if(!box)return;
+  const own=canSetPrice();
+  box.innerHTML=
+    '<div class="tblwrap"><table class="tbl"><tr><th>Grade</th><th class="num">Price per KG</th></tr>'+
+    GRADE_ORDER.map(g=>'<tr><td><b>'+esc(GRADE_META[g].label)+'</b><div class="exphint">'+
+      esc(GRADE_META[g].note)+'</div></td><td class="num">'+
+      (own?('<input type="number" id="pr-'+g+'" min="0" step="0.01" inputmode="decimal" value="'+
+            priceOf(g)+'" style="width:100px;text-align:right">')
+          :('<b>'+rm(priceOf(g))+'</b>'))+'</td></tr>').join('')+'</table></div>'+
+    (own?'<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE GRADE PRICES</button>'
+        :'<div class="cnote">Only the Owner can change a price. These are the figures every invoice is built from.</div>')+
+    '<div class="sec" style="margin-top:16px">Retailers</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Retailer</th><th class="num">Credit left</th><th class="num"></th></tr>'+
+    activeRetailers().map(r=>{const c=retailerLedger(r.id);
+      return '<tr><td><div class="pn">'+esc(r.name)+'</div><div class="pa">'+esc(r.id)+' · '+esc(r.contact||'no contact')+'</div></td>'+
+        '<td class="num '+(c.current_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'"><b>'+rm(c.current_credit_balance_rm)+'</b>'+
+        '<div class="exphint">opening '+rm(c.opening_credit_rm)+'</div></td>'+
+        '<td class="num">'+(own?('<span class="linkish" onclick="topUpRetailer(\''+esc(r.id)+'\')">+ credit</span>'+
+          '<div><span class="linkish" onclick="editRetailer(\''+esc(r.id)+'\')">edit</span></div>'):'')+'</td></tr>';}).join('')+
+    '</table></div>'+
+    (own?'<button class="bigbtn ghost" style="margin-top:9px" onclick="addRetailer()">+ ADD RETAILER</button>':'')+
+    '<p class="small">Credit left = opening credit + top-ups − everything invoiced. It is worked out from the '+
+    'delivery ledger every time this screen opens, so it always agrees with the rows above it.</p>';}
+async function savePrices(){
+  if(!canSetPrice()){toast('Only the Owner can set prices',1);return;}
+  const next={};
+  for(const g of GRADE_ORDER){
+    const v=$('pr-'+g)?$('pr-'+g).value:'';
+    if(v===''||isNaN(+v)||+v<0){toast('Grade '+g+' price is not a valid figure',1);return;}
+    next[g]=+(+v).toFixed(2);}
+  GRADE_PRICE=next; await persistPrices();
+  renderPrices(); renderDispatch();
+  toast('✓ Grade prices saved');}
+async function addRetailer(){
+  if(!canSetPrice()){toast('Only the Owner can add a retailer',1);return;}
+  const name=prompt('Retailer name'); if(!name||!name.trim())return;
+  if(RETAILERS.some(r=>r.name.trim().toLowerCase()===name.trim().toLowerCase())){toast('That retailer already exists',1);return;}
+  const contact=prompt('Contact number (optional)')||'';
+  const cr=prompt('Opening credit balance (RM)','10000');
+  if(cr===null)return;
+  if(isNaN(+cr)){toast('That is not a number',1);return;}
+  let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
+  RETAILERS.push({id:'RT-'+String(n).padStart(2,'0'),name:name.trim(),contact:contact.trim(),
+    opening_credit_rm:+(+cr).toFixed(2),status:'Active'});
+  RET_DIRTY=true; await persistRetailers();
+  renderPrices(); renderDispatch(); renderMktLedger();
+  toast('✓ Retailer added');}
+async function editRetailer(id){
+  if(!canSetPrice()){toast('Only the Owner can edit a retailer',1);return;}
+  const r=retailerById(id); if(!r)return;
+  const name=prompt('Retailer name',r.name); if(name===null)return;
+  if(!name.trim()){toast('The name cannot be blank',1);return;}
+  const contact=prompt('Contact number',r.contact||''); if(contact===null)return;
+  r.name=name.trim(); r.contact=contact.trim();
+  RET_DIRTY=true; await persistRetailers();
+  renderPrices(); renderDispatch(); renderMktLedger();
+  toast('✓ Retailer updated');}
+/** A top-up is an EVENT, not an edit — the credit line has the same audit trail as a delivery. */
+async function topUpRetailer(id){
+  if(!canSetPrice()){toast('Only the Owner can add credit',1);return;}
+  const r=retailerById(id); if(!r)return;
+  const v=prompt('Add how much credit for '+r.name+'? (RM)\nUse a minus figure to take credit back.');
+  if(v===null)return;
+  if(v===''||isNaN(+v)||+v===0){toast('That is not a usable figure',1);return;}
+  const note=prompt('Reason (payment received, correction, ...)')||'';
+  await persistEvent({uuid:uuid(),type:'CREDIT_TOPUP',dt:now(),
+    retailer_id:r.id,retailer_name:r.name,amount_rm:+(+v).toFixed(2),note:note.trim(),
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  badge(); renderPrices(); renderDispatch(); renderMktLedger();
+  toast('✓ '+rm(+v)+' credit posted to '+r.name);}
+
+// ---- sync: dispatches and the retailer master each ride their own key ----------------
+let dispWarned=false, retWarned=false;
+function dispQueue(){return EVENTS.filter(e=>(e.type==='DISPATCH'||e.type==='CREDIT_TOPUP')&&!e.synced);}
+function q8(){return dispQueue().length;}
+async function pushDispatch(){
+  return pushOwnKey(dispQueue(),'dispatch','dispatch',
+    m=>{if(!dispWarned){dispWarned=true;toast(m,1);}},
+    'Dispatches kept on this phone — update the Apps Script to add the MKT_DISPATCH tab');}
+async function pushRetailers(){
+  if(!RET_DIRTY||!CFG||!CFG.url||!navigator.onLine)return false;
+  try{
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({retailers:RETAILERS}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(j&&j.ok&&j.retailers){RET_DIRTY=false;await persistRetailers();return true;}
+    if(!retWarned){retWarned=true;
+      toast('Retailer master kept on this phone — update the Apps Script to add the RETAILERS tab',1);}
+    return false;
+  }catch(e){return false;}}
+/** The sheet is the master once a retailer list has been pushed — unless this phone
+ *  holds an unpushed edit, exactly like the staff registry (local dirty always wins). */
+async function mergeRetailers(list){
+  if(RET_DIRTY)return;
+  const rows=list.filter(x=>x&&(x.id||x.name)).map(x=>({
+    id:String(x.id||x.name).trim(), name:String(x.name||x.id).trim(),
+    contact:String(x.contact||''), opening_credit_rm:+x.opening_credit_rm||0,
+    status:String(x.status||'Active')}));
+  if(!rows.length)return;
+  RETAILERS=rows; await persistRetailers();}
 
 // ================= boot =================
 (async function(){

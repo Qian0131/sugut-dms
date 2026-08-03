@@ -242,3 +242,43 @@ const DROP_KIND={
   UNSECURED:{label:'Unsecured drop',ic:'🍃', note:'no string — an early drop wave'}
 };
 const DROP_ORDER=['SECURED','UNSECURED'];
+
+/* =====================================================================
+   13. v3.0 — FRUIT GRADING
+   Every good fruit collected is counted under one of three grades. The
+   grade travels on the DROP event itself, so the harvest count, the
+   marketing basket and the retailer invoice all read the same letter.
+   ===================================================================== */
+const GRADE_ORDER=['A','B','C'];
+const GRADE_META={
+  A:{label:'Grade A', note:'export / premium pick'},
+  B:{label:'Grade B', note:'local premium'},
+  C:{label:'Grade C', note:'kampung / processing'}
+};
+
+/* =====================================================================
+   14. v3.0 — RETAILER CREDIT MASTER
+   Two SAMPLE retailers with RM 10,000 opening credit each, exactly as the
+   brief asks, so the morning basket-weighing flow can be tested before the
+   real buyers are keyed in. The Owner edits this list in
+   Marketing -> PRICES & RETAILERS; the edited list is what persists.
+
+   `opening_credit_rm` is the ONLY stored money figure. The live figure,
+   `current_credit_balance_rm`, is DERIVED from the event log
+   (opening + top-ups - dispatches) exactly like every other balance in
+   this app, so a stored total can never drift from the deliveries behind
+   it. Delete a dispatch and the credit comes back by itself.
+   ===================================================================== */
+const RETAILER_SEED=[
+  {id:'RT-01', name:'Sandakan Fresh Fruit Trading', contact:'013-000 0001', opening_credit_rm:10000},
+  {id:'RT-02', name:'Kota Kinabalu Durian Hub',     contact:'016-000 0002', opening_credit_rm:10000}
+];
+
+/* Per-KG market prices. SEED FIGURES ONLY — placeholders so the form can be
+   tested. The Owner sets the real prices in Marketing -> PRICES & RETAILERS
+   and nobody else can change them. */
+const GRADE_PRICE_SEED={A:45,B:28,C:15};
+
+/* A dispatch that would take a retailer below this figure raises the
+   CRITICAL alert. Zero = credit may not go negative. */
+const CREDIT_FLOOR_RM=0;
