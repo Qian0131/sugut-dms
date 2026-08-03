@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.3.0';   // v3.3.0 — Owner Master Database Control: CRUD, backdate, orchard expansion, purge, offline QR
+const APP_VERSION = 'v3.3.1';   // v3.3.1 — backdate engine gained the rotten-loss form (cause + tied/untied, checked against the balance as it stood then)
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -4752,7 +4752,7 @@ let MDB_NEXT_NO='', MDB_NEXT_LOT='A';
 // The backdate forms remember which lot and tree you were on. Saving a round re-renders
 // the section, and without this the Owner would have to re-pick the lot and the tree for
 // every single one of a long run of historical rounds on the SAME tree.
-let MDB_BK={tieLot:'',tieTree:'',drLot:'',drTree:''};
+let MDB_BK={tieLot:'',tieTree:'',drLot:'',drTree:'',rtLot:'',rtTree:''};
 
 // ---- reading a row's live state ------------------------------------------------------
 /** Every signed reversal/correction aimed at this row. */
@@ -4892,7 +4892,7 @@ function refreshEverything(){
 function mdbDtValue(id){
   const el=$(id); if(!el||!el.value)return '';
   return String(el.value).replace('T',' ').slice(0,16);}
-function mdbBkKey(sel){return sel==='bk-tie-lot'?'tie':'dr';}
+function mdbBkKey(sel){return sel==='bk-tie-lot'?'tie':(sel==='bk-rt-lot'?'rt':'dr');}
 function mdbBackLots(sel,treeSel){
   const s=$(sel); if(!s)return;
   const k=mdbBkKey(sel), want=MDB_BK[k+'Lot']||LOTS[0];
@@ -4958,6 +4958,48 @@ async function mdbBackDrop(){
   rebuildLedgers();badge();refreshEverything();
   toast('✓ '+n+' Grade '+grade+' from '+t.id+' backdated to '+dt);}
 
+async function mdbBackRotten(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const err=$('bk-rt-err'); err.textContent='';
+  const id=$('bk-rt-tree').value, n=Math.floor(+$('bk-rt-n').value||0), dt=mdbDtValue('bk-rt-dt');
+  const cause=$('bk-rt-cause').value, tied=$('bk-rt-tied').value==='TIED';
+  if(!id)  return err.textContent='Choose the tree these rotten fruits came from.';
+  if(!(n>0))return err.textContent='How many rotten fruits? Must be more than zero.';
+  if(!cause||!ROT_CAUSE[cause])
+    return err.textContent='Tag the damage cause — a rotten count without a cause cannot be acted on.';
+  if(!dt)  return err.textContent='Choose the date and time the rotten fruit was found.';
+  if(dt>now()) return err.textContent='That is in the future. The backdate engine is for work already done.';
+  const t=treeById(id); if(!t)return err.textContent='That tree is not in the census.';
+  // the same sanity check the live rotten card applies, but against the balance as it
+  // stood ON THAT DAY, not today — a backdated loss must be judged against its own moment
+  if(tied){
+    const balThen=tiedAsOf(t.id,dt)-droppedAsOf(t.id,dt);
+    if(balThen>0&&n>balThen&&!confirm('⚠ On '+dt.slice(0,10)+', '+t.id+' had only '+nf(balThen)+
+       ' fruit still on the string.\nLog '+n+' rotten anyway?'))return;}
+  await persistEvent({uuid:uuid(),type:'ROTTEN',dt:dt,tree:t.id,lot:t.lot,clone:t.clone||'',
+    qty:n,cause:cause,causeLabel:ROT_CAUSE[cause].label,tied:tied,
+    estkg:+(n*(AVG_KG[t.clone]||1.6)).toFixed(1),
+    backdated:true,enteredAt:now(),
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  MDB_BK.rtLot=t.lot; MDB_BK.rtTree=t.id;
+  $('bk-rt-n').value='';
+  rebuildLedgers();badge();refreshEverything();
+  toast('🍂 '+n+' rotten @ '+t.id+' · '+ROT_CAUSE[cause].label+' backdated to '+dt);}
+
+/** What the tree's figures were on a given date — so a backdated loss is checked against
+ *  the balance as it stood THEN, not against today's. */
+function tiedAsOf(tree,dt){
+  return (typeof tiedMigOf==='function'?tiedMigOf(tree):0)
+    + EVENTS.filter(e=>e.type==='TIE'&&e.tree===tree&&String(e.dt)<=dt)
+        .reduce((s,e)=>s+(+e.n||0),0)
+    + EVENTS.filter(e=>e.type==='TIE_ADJUST'&&e.tree===tree&&String(e.dt)<=dt)
+        .reduce((s,e)=>s+(+e.delta||0),0);}
+function droppedAsOf(tree,dt){
+  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&isSecuredDrop(e)&&String(e.dt)<=dt)
+        .reduce((s,e)=>s+(+e.qty||0),0)
+    + EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&isTiedRotten(e)&&String(e.dt)<=dt)
+        .reduce((s,e)=>s+(+e.qty||0),0);}
+
 // ---- 3. DYNAMIC ORCHARD EXPANSION ----------------------------------------------------
 // New trees are appended to the SAME census array every dropdown reads, so a tree added
 // here is instantly pickable on the worker's collection and tying screens. It is stored
@@ -5015,6 +5057,7 @@ function rebuildAllTreePickers(){
     if(typeof buildTreeSelect==='function')buildTreeSelect();
     mdbBackLots('bk-tie-lot','bk-tie-tree');
     mdbBackLots('bk-dr-lot','bk-dr-tree');
+    mdbBackLots('bk-rt-lot','bk-rt-tree');
   }catch(x){}}
 
 // ---- 4. MASTER TRIAL DATA PURGE ------------------------------------------------------
@@ -5163,7 +5206,9 @@ function renderMasterDB(){
     :MDB_SEC==='trees'? mdbTreesHtml()
     :MDB_SEC==='purge'? mdbPurgeHtml()
     :                   mdbQrSectionHtml());
-  if(MDB_SEC==='back'){ mdbBackLots('bk-tie-lot','bk-tie-tree'); mdbBackLots('bk-dr-lot','bk-dr-tree'); }}
+  if(MDB_SEC==='back'){ mdbBackLots('bk-tie-lot','bk-tie-tree');
+                        mdbBackLots('bk-dr-lot','bk-dr-tree');
+                        mdbBackLots('bk-rt-lot','bk-rt-tree'); }}
 
 function mdbDataHtml(){
   const def=MDB_LOGS[MDB_LOG], rows=mdbRows(MDB_LOG);
@@ -5249,7 +5294,27 @@ function mdbBackHtml(){
     '<label>Date &amp; time of the collection</label>'+
     '<input type="datetime-local" id="bk-dr-dt" value="'+esc(today)+'T07:00" max="'+esc(today)+'T23:59">'+
     '<div class="pinerr" id="bk-dr-err"></div>'+
-    '<button class="bigbtn" onclick="mdbBackDrop()">🕓 LOG THIS HISTORICAL COLLECTION</button>';}
+    '<button class="bigbtn" onclick="mdbBackDrop()">🕓 LOG THIS HISTORICAL COLLECTION</button>'+
+
+    '<div class="sec" style="margin-top:17px">🍂 Backdate a rotten loss</div>'+
+    '<div class="dl3">'+
+      '<div><label>Lot</label><select id="bk-rt-lot" onchange="mdbBackTrees(\'bk-rt-lot\',\'bk-rt-tree\')"></select></div>'+
+      '<div><label>Rotten fruits</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-rt-n" placeholder="0"></div>'+
+    '</div>'+
+    '<label>Tree</label><select id="bk-rt-tree"></select>'+
+    '<label>Damage cause</label><select id="bk-rt-cause">'+
+      Object.keys(ROT_CAUSE).map(c=>'<option value="'+esc(c)+'">'+ROT_CAUSE[c].ic+' '+
+        esc(ROT_CAUSE[c].label)+' — '+esc(ROT_CAUSE[c].note)+'</option>').join('')+'</select>'+
+    '<label>Was the fruit tied?</label><select id="bk-rt-tied">'+
+      '<option value="TIED">🪢 Was tied — comes off the tied balance</option>'+
+      '<option value="UNTIED">🍃 Untied — an early loss, never on a string</option></select>'+
+    '<label>Date &amp; time the rotten fruit was found</label>'+
+    '<input type="datetime-local" id="bk-rt-dt" value="'+esc(today)+'T07:00" max="'+esc(today)+'T23:59">'+
+    '<div class="pinerr" id="bk-rt-err"></div>'+
+    '<button class="bigbtn rot" onclick="mdbBackRotten()">🕓 LOG THIS HISTORICAL ROTTEN LOSS</button>'+
+    '<p class="small">A tied rotten fruit comes off that tree\u2019s tied balance; an untied one never was on '+
+      'a string, so it only reduces the hanging estimate. The check against the tied balance is made '+
+      'against the balance as it stood <b>on that date</b>, not today\u2019s.</p>';}
 
 function mdbTreesHtml(){
   const byLot={};LOTS.forEach(l=>byLot[l]=treesInLot(l).length);
