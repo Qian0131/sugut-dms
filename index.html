@@ -540,6 +540,13 @@ input[type=datetime-local]{font-family:inherit;}
 .clnbox.on{background:var(--green2);border-color:var(--green2);}
 .tbl tr.picked td{background:var(--lite);}
 .tbl tr[onclick]{cursor:pointer;}
+/* ===== v3.5.1 — sync health, so a wrong-looking total can explain itself ===== */
+.synchealth{border-radius:13px;padding:12px;margin:11px 0;background:#fff;border:1.6px solid #dfe6df;}
+.synchealth .shok{font-weight:900;font-size:13px;color:var(--green);}
+.synchealth .shbad{font-weight:900;font-size:13px;color:var(--warn);}
+.synchealth .shwait{font-weight:900;font-size:13px;color:#7a5b00;}
+.synchealth .shbody{font-size:11.5px;color:#4a5a47;line-height:1.6;margin-top:5px;}
+.synchealth .shwarn{color:#7a5b00;font-weight:700;}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
 </head>
@@ -782,6 +789,7 @@ input[type=datetime-local]{font-family:inherit;}
     <div class="sec">⚙ Settings <span class="linkish" style="float:right" onclick="editSetup()">edit</span></div>
     <div class="small" id="cfginfo"></div>
   </div>
+  <div id="synchealth"></div>
   <div class="appendnote" id="appendnote"></div>
   <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
   <p class="small" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
@@ -1393,14 +1401,14 @@ input[type=datetime-local]{font-family:inherit;}
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v3.5.0 — split build. THREE files must be uploaded together:
+     v3.5.1 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.5.0"></script>
-<script src="app.js?v=3.5.0"></script>
+<script src="database.js?v=3.5.1"></script>
+<script src="app.js?v=3.5.1"></script>
 </body>
 </html>

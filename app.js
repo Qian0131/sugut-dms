@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.5.0';   // v3.5.0 — every phone shows the SAME tree balance: the Sheet now returns farm-wide per-tree totals
+const APP_VERSION = 'v3.5.1';   // v3.5.1 — Sync screen now says WHY a total is what it is; empty stats payload no longer adopted
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -64,7 +64,7 @@ let ADDED_TREES=[], APP_URL='';
  * a row pushed AFTER the stats were fetched is still added, so there is no window in
  * which a fruit is counted twice or dropped.
  */
-let statsWarned=false;
+let statsWarned=false, STATS_FAULT='', STATS_META=null;
 let TREE_STATS=null;    // {at:'YYYY-MM-DD HH:MM', trees:{ 'B-045':{tied,secured,untied,rotTied,rotUntied} }}
 function statOf(tree,k){
   const t=TREE_STATS&&TREE_STATS.trees?TREE_STATS.trees[tree]:null;
@@ -671,13 +671,29 @@ async function refreshMasters(){
     if(inRet)await mergeRetailers(inRet);               // retailer master + opening credit
     // v3.5 — adopt the farm-wide per-tree totals. This is what makes the Owner's phone and
     // the workers' phones show the same tied balance.
+    const inMeta=(j&&j.treestatsmeta&&typeof j.treestatsmeta==='object')?j.treestatsmeta:null;
     if(inStats){
-      TREE_STATS={at:now(),trees:inStats};
-      if(db)await put('kv',{k:'treestats',v:TREE_STATS});
-      rebuildLedgers();
-    } else if(!statsWarned){
-      statsWarned=true;
-      toast('Tree totals are still per-phone — update the Apps Script to share them',1);
+      const nTrees=Object.keys(inStats).length;
+      // {} is truthy. Adopting an EMPTY payload would zero every farm-wide figure and make
+      // the totals smaller than before — worse than the problem it is meant to fix. If the
+      // Sheet found nothing while this phone is holding uploaded rows, the aggregation
+      // clearly did not read the log tabs, so keep the old behaviour and say so.
+      const haveUploaded=EVENTS.some(e=>e.synced&&
+        (e.type==='TIE'||e.type==='DROP'||e.type==='ROTTEN'));
+      if(nTrees>0||!haveUploaded){
+        TREE_STATS={at:now(),trees:inStats,meta:inMeta||null,trees_n:nTrees};
+        if(db)await put('kv',{k:'treestats',v:TREE_STATS});
+        rebuildLedgers();
+      } else {
+        STATS_FAULT='empty';
+        STATS_META=inMeta;
+        if(!statsWarned){statsWarned=true;
+          toast('The Sheet returned no tree totals — check the Sync screen',1);}
+      }
+    } else {
+      STATS_FAULT='missing';
+      if(!statsWarned){statsWarned=true;
+        toast('Tree totals are still per-phone — update the Apps Script to share them',1);}
     }
 
     // ---- local unpushed edits always win until they are pushed ----
@@ -1300,8 +1316,47 @@ function describeEvent(e){
 function canVoidEntry(){return myRole()==='OWNER';}
 function isTreeLog(e){return e&&(e.type==='DROP'||e.type==='ROTTEN'||e.type==='TIE')&&!!e.tree;}
 
+/**
+ * v3.5.1 — "why do two phones show different numbers?" must be answerable from the phone.
+ * This says, in one block: is the farm-wide total arriving, when did it last arrive, which
+ * Sheet tabs it was built from, and how much of what you can see is only on this phone.
+ */
+function syncHealthHtml(){
+  const mine=EVENTS.filter(e=>!e.synced&&
+    (e.type==='TIE'||e.type==='DROP'||e.type==='ROTTEN')).length;
+  const meta=(TREE_STATS&&TREE_STATS.meta)||STATS_META||null;
+  const tabTxt=meta&&meta.tabs?Object.keys(meta.tabs).map(k=>k+' ('+meta.tabs[k]+')').join(', '):'';
+  const missTxt=meta&&meta.missing&&meta.missing.length?meta.missing.join(', '):'';
+  let head, body;
+  if(TREE_STATS&&TREE_STATS.trees&&Object.keys(TREE_STATS.trees).length){
+    head='<div class="shok">✓ Farm-wide tree totals ARE arriving</div>';
+    body='Last received <b>'+esc(TREE_STATS.at)+'</b> covering <b>'+
+      Object.keys(TREE_STATS.trees).length+' trees</b>.'+
+      (tabTxt?('<br>Built from: '+esc(tabTxt)):'')+
+      (missTxt?('<br><span class="shwarn">Tabs not found: '+esc(missTxt)+'</span>'):'')+
+      '<br>Every phone that has synced since then shows the same figures.';
+  } else if(STATS_FAULT==='empty'){
+    head='<div class="shbad">✗ The Sheet is answering, but found no log rows</div>';
+    body='The Apps Script is updated, but it could not read your tying / drop / rotten tabs, so it '+
+      'returned nothing. Until that is fixed each phone still shows only its own work.'+
+      (tabTxt?('<br>Tabs it did read: '+esc(tabTxt)):'')+
+      (missTxt?('<br><b>Tabs it could NOT find: '+esc(missTxt)+'</b> — check the tab names in your '+
+        'Google Sheet match these exactly.'):'');
+  } else if(STATS_FAULT==='missing'){
+    head='<div class="shbad">✗ Farm-wide totals are NOT arriving</div>';
+    body='Your Google Sheet is still running the old Apps Script. Until it is updated and '+
+      '<b>re-deployed as a New version</b>, each phone shows only the work keyed on it — which is '+
+      'why two phones disagree.';
+  } else {
+    head='<div class="shwait">• Not checked yet</div>';
+    body='Press SYNC NOW. If this phone has never reached the Sheet it shows only its own work.';
+  }
+  return '<div class="synchealth">'+head+'<div class="shbody">'+body+
+    '<br>On this phone and not yet uploaded: <b>'+mine+'</b> row'+(mine===1?'':'s')+'.</div></div>';}
+
 function renderSync(){
   $('cfginfo').innerHTML=(CFG?('Worker: <b>'+(CFG.worker||'—')+'</b> <span class="small">('+(CFG.role||'')+')</span> · Device: <b>'+(CFG.device||'—')+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>'+APP_VERSION+'</b> · <span class="linkish" onclick="logout()">log out</span>';
+  const sh=$('synchealth'); if(sh)sh.innerHTML=syncHealthHtml();
   const ap=$('appendnote');
   if(ap)ap.innerHTML='<b>🔒 This log is append-only.</b> '+(canVoidEntry()
     ? 'As Owner you may void an entry that has not yet reached the Google Sheet — voiding writes a '+
@@ -1318,7 +1373,8 @@ function renderSync(){
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
     else if(e.type==='TASK_DONE') d='🛠️ '+esc(e.kindLabel||e.kind||'task')+' · Lot '+esc(e.lot||'')+
       (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(e.hours*e.crew)+' man-h';
-    else d=e.type;
+    // v3.5.1 — this used to end `else d=e.type`, which threw away describeEvent()'s wording
+    // and showed a bare "TIE" / "DISPATCH" for every row it did not name explicitly.
     // v3.2 — the delete control is gone for everyone except the Owner, and even then it
     // is a VOID that leaves a trace. Workers get the governed correction path instead.
     const right=e.synced
