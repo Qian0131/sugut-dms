@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.3.1';   // v3.3.1 — backdate engine gained the rotten-loss form (cause + tied/untied, checked against the balance as it stood then)
+const APP_VERSION = 'v3.4.1';   // v3.4.1 — clean-up audit row carries its full summary in a column the Sheet actually writes
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -402,7 +402,13 @@ function openModule(k,tabKey){
   // sub-tab bar, pinned under the header — hidden when a module has only one section
   const sb=$('subbar');
   if(tabs.length>1){sb.classList.remove('hidden');
-    sb.innerHTML=tabs.map(t=>'<div class="'+(t.k===tab.k?'on':'')+'" onclick="openModule(\''+k+'\',\''+t.k+'\')">'+esc(t.t)+'</div>').join('');}
+    sb.innerHTML=tabs.map(t=>'<div class="'+(t.k===tab.k?'on':'')+'" onclick="openModule(\''+k+'\',\''+t.k+'\')">'+esc(t.t)+'</div>').join('');
+    // v3.3.2 — Costing/Admin now has six tabs and the last ones sit off the right edge of a
+    // phone. Without this you have to already know to swipe sideways to find them, which is
+    // exactly the tab a first-time Owner is looking for.
+    const act=sb.querySelector('.on');
+    if(act&&act.scrollIntoView)try{act.scrollIntoView({block:'nearest',inline:'center'});}catch(x){}
+    if(sb.scrollWidth>sb.clientWidth+4)sb.classList.add('scrolls'); else sb.classList.remove('scrolls');}
   else {sb.classList.add('hidden');sb.innerHTML='';}
   renderForTab(k,tab.k);
   $('scr-'+tab.scr).scrollTop=0;}
@@ -1238,6 +1244,8 @@ function describeEvent(e){
   if(e.type==='DISPATCH')    return '🚚 '+(e.invoice_no||'')+' · '+nf(e.total_kg)+' kg → '+(e.retailer_name||'');
   if(e.type==='CREDIT_TOPUP')return '💳 '+rm(e.amount_rm)+' credit → '+(e.retailer_name||'');
   if(e.type==='LOG_VOID')    return '⛔ voided: '+(e.detail||e.targetType||'');
+  if(e.type==='ADMIN_CLEANUP')return '🗳️ clean-up: '+(e.removed||0)+' records removed';
+  if(e.type==='ADMIN_PURGE') return '☢️ purge: '+(e.wiped||0)+' records wiped';
   if(e.type==='YIELD_ACK')   return '✍️ yield answer for '+(e.day||'');
   return (e.type||'event')+' '+(e.qty!=null?e.qty:'');}
 
@@ -1381,7 +1389,7 @@ async function doSync(auto){
     &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST'
     &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE'
     &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP'
-    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK'&&e.type!=='ADMIN_PURGE');
+    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK'&&e.type!=='ADMIN_PURGE'&&e.type!=='ADMIN_CLEANUP');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -4451,7 +4459,7 @@ function q8(){return dispQueue().length;}
  *  so a backend that predates v3.2 simply keeps them queued instead of failing the whole
  *  upload the way an unknown type in the generic `events` batch would. */
 function auditQueue(){return EVENTS.filter(e=>
-  (e.type==='LOG_VOID'||e.type==='YIELD_ACK'||e.type==='ADMIN_PURGE')&&!e.synced);}
+  (e.type==='LOG_VOID'||e.type==='YIELD_ACK'||e.type==='ADMIN_PURGE'||e.type==='ADMIN_CLEANUP')&&!e.synced);}
 function q9(){return auditQueue().length;}
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',
@@ -4745,7 +4753,7 @@ var QR=(function(){
 // ############################################################################
 
 function canMasterAdmin(){return myRole()==='OWNER';}
-let MDB_SEC='data', MDB_LOG='harvest', MDB_EDIT='', MDB_PURGE_ARMED=false;
+let MDB_SEC='data', MDB_LOG='harvest', MDB_EDIT='';
 // the next tree number to offer. Held here, NOT in the input, because saving a tree
 // re-renders the whole section and would wipe anything written straight to the field.
 let MDB_NEXT_NO='', MDB_NEXT_LOT='A';
@@ -4841,7 +4849,7 @@ function mdbRowLabel(e){
   if(e.type==='STOCK_OUT')return '📦→ '+(e.pname||'')+(e.lot?(' · Lot '+e.lot):'');
   return e.type;}
 
-function mdbSec(s){MDB_SEC=s;MDB_EDIT='';MDB_PURGE_ARMED=false;renderMasterDB();}
+function mdbSec(s){MDB_SEC=s;MDB_EDIT='';CLN.sel={};CLN.unlocked=false;renderMasterDB();}
 function mdbPickLog(k){MDB_LOG=k;MDB_EDIT='';renderMasterDB();}
 function mdbEditRow(u){if(!canMasterAdmin())return;MDB_EDIT=u;renderMasterDB();}
 function mdbCancelEdit(){MDB_EDIT='';renderMasterDB();}
@@ -5060,89 +5068,269 @@ function rebuildAllTreePickers(){
     mdbBackLots('bk-rt-lot','bk-rt-tree');
   }catch(x){}}
 
-// ---- 4. MASTER TRIAL DATA PURGE ------------------------------------------------------
-// Clears the pre-season testing records off THIS phone. What it keeps is as important as
-// what it wipes: the staff registry, the tree census (including trees added above), the
-// retailer master, the price matrix, the basket tare — and the migrated tying opening
-// balance, which is real farm data from the Google Sheet, not a test record. That opening
-// balance is a constant read straight out of database.js, so it survives by construction.
-function purgeCounts(){
-  const c=t=>EVENTS.filter(e=>e.type===t).length;
-  return {
-    wipe:[
-      {k:'Fruit drops',        n:c('DROP')},
-      {k:'Rotten logs',        n:c('ROTTEN')},
-      {k:'Tying rounds',       n:c('TIE')},
-      {k:'Stock in / out',     n:c('STOCK_IN')+c('STOCK_OUT')},
-      {k:'Stock-take adjustments',n:c('STOCK_ADJUST')},
-      {k:'Signed corrections', n:c('DROP_ADJUST')+c('ROTTEN_ADJUST')+c('TIE_ADJUST')},
-      {k:'Retailer dispatches',n:c('DISPATCH')},
-      {k:'Credit top-ups',     n:c('CREDIT_TOPUP')},
-      {k:'Other sales',        n:c('SALE')},
-      {k:'Task completions',   n:c('TASK_DONE')},
-      {k:'Audit + yield rows', n:c('LOG_VOID')+c('YIELD_ACK')},
-      {k:'Correction requests',n:CORRECTIONS.length},
-      {k:'Activated programmes',n:(typeof PROGRAMS!=='undefined'?PROGRAMS.length:0)},
-      {k:'Assigned tasks',     n:(typeof TASKS!=='undefined'?TASKS.length:0)},
-      {k:'AI blueprints',      n:(typeof BLUEPRINTS!=='undefined'?BLUEPRINTS.length:0)},
-      {k:'Rainfall readings',  n:(typeof RAINFALL!=='undefined'?RAINFALL.length:0)}
-    ],
-    keep:[
-      {k:'Staff access keys',  n:KEYS.length},
-      {k:'Tree census',        n:TREE_MASTER.length},
-      {k:'Trees you added',    n:ADDED_TREES.length},
-      {k:'Tying opening balance',n:(typeof TIE_MIGRATION==='undefined'?0:
-          TIE_MIGRATION.reduce((s,r)=>s+(+r.n||0),0))+' fruits'},
-      {k:'Retailers',          n:RETAILERS.length},
-      {k:'Price matrix + basket tare',n:'kept'},
-      {k:'Product master',     n:(typeof INVENTORY_RECON!=='undefined'?INVENTORY_RECON.length:0)},
-      {k:'Approved census corrections',n:Object.keys(TREE_FIX||{}).length}
-    ]};}
+// ---- 4. SELECTIVE CLEAN-UP (replaces the blanket purge) ------------------------------
+// The farm's imported data and the Owner's test entries live in the same log, so a
+// wipe-everything button is the wrong instrument: it cannot tell them apart. This screen
+// filters the log down, lets the Owner tick exactly the rows that were tests, shows what
+// removing them does to the balances, and only then removes them.
+//
+// The imported master data is safe from this screen BY CONSTRUCTION: the 959-fruit tying
+// opening balance, the 171-tree census and the opening stock are constants inside
+// database.js, not events, so nothing here can reach them.
+let CLN={from:'',to:'',types:[],who:'',dev:'',sel:{},unlocked:false};
 
-function mdbArmPurge(){ MDB_PURGE_ARMED=true; renderMasterDB();
-  setTimeout(()=>{const el=$('pg-word');if(el)el.focus();},120);}
-function mdbDisarmPurge(){ MDB_PURGE_ARMED=false; renderMasterDB(); }
+const CLN_TYPES=[
+  {k:'DROP',       t:'Fruit drops'},
+  {k:'ROTTEN',     t:'Rotten logs'},
+  {k:'TIE',        t:'Tying rounds'},
+  {k:'STOCK_IN',   t:'Stock in'},
+  {k:'STOCK_OUT',  t:'Stock out'},
+  {k:'STOCK_ADJUST',t:'Stock-take'},
+  {k:'DISPATCH',   t:'Dispatches'},
+  {k:'CREDIT_TOPUP',t:'Credit top-ups'},
+  {k:'SALE',       t:'Other sales'},
+  {k:'TASK_DONE',  t:'Task done'},
+  {k:'ADJ',        t:'Signed corrections'},
+  {k:'CORR',       t:'Correction requests'}
+];
+const CLN_ADJ=['DROP_ADJUST','ROTTEN_ADJUST','TIE_ADJUST'];
+function clnTypeMatch(type){
+  if(!CLN.types.length)return true;
+  if(CLN.types.indexOf('ADJ')>=0&&CLN_ADJ.indexOf(type)>=0)return true;
+  return CLN.types.indexOf(type)>=0;}
 
-async function mdbRunPurge(){
-  if(!canMasterAdmin()){toast('Owner only',1);return;}
-  const err=$('pg-err'); if(err)err.textContent='';
-  const word=String(($('pg-word')||{}).value||'').trim().toUpperCase();
-  const key =String(($('pg-key') ||{}).value||'').trim();
-  if(word!=='PURGE'){ if(err)err.textContent='Type the word PURGE to confirm — that word exactly.'; return; }
-  const k=findKey(key);
+/** Every row the filters currently let through, events and correction requests together. */
+function cleanupRows(){
+  const out=[];
+  const push=(o)=>{
+    if(CLN.from&&String(o.dt).slice(0,10)<CLN.from)return;
+    if(CLN.to  &&String(o.dt).slice(0,10)>CLN.to)  return;
+    if(CLN.who &&String(o.who||'')!==CLN.who)return;
+    if(CLN.dev &&String(o.dev||'')!==CLN.dev)return;
+    out.push(o);};
+  EVENTS.forEach(e=>{
+    if(e.type==='ADMIN_PURGE'||e.type==='ADMIN_CLEANUP')return;   // the audit trail is not junk
+    if(!clnTypeMatch(e.type))return;
+    push({kind:'EV',uuid:e.uuid,dt:e.dt||'',type:e.type,label:describeEvent(e),
+      qty:logQtyOf(e),who:e.worker||'',dev:e.device||'',synced:!!e.synced,
+      backdated:!!e.backdated,ev:e});});
+  if(!CLN.types.length||CLN.types.indexOf('CORR')>=0){
+    CORRECTIONS.forEach(c=>push({kind:'CORR',uuid:c.uuid,dt:c.dt||'',type:'CORR',
+      label:'📝 correction request · '+(c.tree||'')+' · '+String(c.status||'').toUpperCase(),
+      qty:0,who:c.requestedBy||c.worker||'',dev:c.device||'',synced:!!c.synced,ev:c}));}
+  return out.sort((a,b)=>String(a.dt)<String(b.dt)?1:(String(a.dt)>String(b.dt)?-1:0));}
+
+function clnPeople(){const s={};EVENTS.forEach(e=>{if(e.worker)s[e.worker]=1;});return Object.keys(s).sort();}
+function clnDevices(){const s={};EVENTS.forEach(e=>{if(e.device)s[e.device]=1;});return Object.keys(s).sort();}
+
+/**
+ * Removing a tying round without its rope leaves rope consumed for nothing, and removing a
+ * row while a signed correction still points at it leaves that correction skewing the
+ * ledger for ever. So the selection quietly grows to include what it depends on, and the
+ * screen says how many were added.
+ */
+function cleanupExpand(ids){
+  const set={}; ids.forEach(u=>set[u]=1);
+  const rounds={};
+  EVENTS.forEach(e=>{ if(set[e.uuid]&&e.type==='TIE'&&e.roundId)rounds[e.roundId]=1; });
+  let added=0;
+  EVENTS.forEach(e=>{
+    if(set[e.uuid])return;
+    if(e.evUuid&&set[e.evUuid]){set[e.uuid]=1;added++;return;}          // its corrections
+    if(e.roundId&&rounds[e.roundId]){set[e.uuid]=1;added++;return;}     // the rope it drew
+  });
+  return {ids:Object.keys(set), added:added};}
+
+/** What the balances lose if these rows go — shown BEFORE anything is removed. */
+function cleanupImpact(ids){
+  const set={}; ids.forEach(u=>set[u]=1);
+  const im={rows:ids.length,tied:0,collected:0,rotten:0,stockIn:0,stockOut:0,
+            dispatchKg:0,dispatchRM:0,topupRM:0,corr:0,synced:0,trees:{}};
+  EVENTS.forEach(e=>{
+    if(!set[e.uuid])return;
+    if(e.synced)im.synced++;
+    if(e.tree)im.trees[e.tree]=1;
+    if(e.type==='TIE')          im.tied      +=+e.n||0;
+    if(e.type==='TIE_ADJUST')   im.tied      +=+e.delta||0;
+    if(e.type==='DROP')         im.collected +=+e.qty||0;
+    if(e.type==='DROP_ADJUST')  im.collected +=+e.delta||0;
+    if(e.type==='ROTTEN')       im.rotten    +=+e.qty||0;
+    if(e.type==='ROTTEN_ADJUST')im.rotten    +=+e.delta||0;
+    if(e.type==='STOCK_IN')     im.stockIn++;
+    if(e.type==='STOCK_OUT')    im.stockOut++;
+    if(e.type==='DISPATCH'){    im.dispatchKg+=+e.total_kg||0; im.dispatchRM+=+e.total_value_rm||0; }
+    if(e.type==='CREDIT_TOPUP') im.topupRM   +=+e.amount_rm||0;});
+  CORRECTIONS.forEach(c=>{if(set[c.uuid])im.corr++;});
+  im.treeCount=Object.keys(im.trees).length;
+  return im;}
+
+// ---- selection plumbing --------------------------------------------------------------
+function clnSelCount(){return Object.keys(CLN.sel).length;}
+function clnToggle(u){ if(CLN.sel[u])delete CLN.sel[u]; else CLN.sel[u]=1; renderMasterDB(); }
+function clnSelectShown(){ cleanupRows().forEach(r=>CLN.sel[r.uuid]=1); renderMasterDB(); }
+function clnClearSel(){ CLN.sel={}; renderMasterDB(); }
+function clnSetFilter(f,v){ CLN[f]=v; renderMasterDB(); }
+function clnToggleType(k){
+  const i=CLN.types.indexOf(k);
+  if(i>=0)CLN.types.splice(i,1); else CLN.types.push(k);
+  renderMasterDB();}
+function clnResetFilters(){ CLN.from='';CLN.to='';CLN.types=[];CLN.who='';CLN.dev=''; renderMasterDB(); }
+function clnUnlock(){
+  const el=$('cln-key'); if(!el)return;
+  const k=findKey(String(el.value||'').trim());
   if(!k||k.role!=='OWNER'||String(k.status).toLowerCase()!=='active'){
-    if(err)err.textContent='That is not an active Owner access key.'; return; }
-  const before=purgeCounts();
-  const total=before.wipe.reduce((s,r)=>s+(+r.n||0),0);
-  if(!confirm('LAST CHECK.\n\nThis wipes '+total+' trial records off this phone for good.\n\n'+
-    'KEPT: staff keys, all '+TREE_MASTER.length+' trees, the tying opening balance, retailers, prices.\n\n'+
-    'The Google Sheet is NOT touched — its rows stay until you delete them there.\n\nGo ahead?'))return;
+    const e=$('cln-keyerr'); if(e)e.textContent='That is not an active Owner access key.';
+    el.value=''; return;}
+  CLN.unlocked=true; toast('🔓 Clean-up unlocked'); renderMasterDB();}
 
-  // 1. clear the operational object stores, leaving kv (settings + registries) alone
+async function cleanupDelete(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  if(!CLN.unlocked){toast('Unlock with the Owner key first',1);return;}
+  const picked=Object.keys(CLN.sel);
+  if(!picked.length){toast('Nothing ticked yet',1);return;}
+  const ex=cleanupExpand(picked), im=cleanupImpact(ex.ids);
+  const lines=['Remove '+ex.ids.length+' record'+(ex.ids.length===1?'':'s')+' from this phone?'];
+  if(ex.added)lines.push('('+ex.added+' linked row'+(ex.added===1?'':'s')+' added automatically — '+
+    'rope drawn by a tying round, and any correction pointing at a row you ticked.)');
+  lines.push('');
+  if(im.tied)      lines.push('• '+nf(im.tied)+' tied fruit come off the tied balance');
+  if(im.collected) lines.push('• '+nf(im.collected)+' collected fruit removed');
+  if(im.rotten)    lines.push('• '+nf(im.rotten)+' rotten fruit removed');
+  if(im.stockIn||im.stockOut)lines.push('• '+(im.stockIn+im.stockOut)+' stock movements reversed');
+  if(im.dispatchKg)lines.push('• '+nf(im.dispatchKg)+' kg / '+rm(im.dispatchRM)+' of dispatches removed');
+  if(im.topupRM)   lines.push('• '+rm(im.topupRM)+' of credit top-ups removed');
+  if(im.corr)      lines.push('• '+im.corr+' correction request'+(im.corr===1?'':'s')+' removed');
+  if(im.synced)    lines.push('','⚠ '+im.synced+' of these already reached the Google Sheet. They will '+
+    'still be in the Sheet afterwards — delete those rows there too.');
+  lines.push('','This cannot be undone on this phone.');
+  if(!confirm(lines.join('\n')))return;
+
+  const set={}; ex.ids.forEach(u=>set[u]=1);
+  const gone=EVENTS.filter(e=>set[e.uuid]);
+  const goneCorr=CORRECTIONS.filter(c=>set[c.uuid]);
+  const summary=[];
+  const byType={}; gone.forEach(e=>{byType[e.type]=(byType[e.type]||0)+1;});
+  Object.keys(byType).forEach(t=>summary.push(t+': '+byType[t]));
+  if(goneCorr.length)summary.push('CORRECTION: '+goneCorr.length);
+
+  EVENTS=EVENTS.filter(e=>!set[e.uuid]);
+  CORRECTIONS=CORRECTIONS.filter(c=>!set[c.uuid]);
   if(db){
-    await new Promise(res=>{
-      const tx=db.transaction(['events','corrections','programs','tasks','blueprints','rain'],'readwrite');
-      ['events','corrections','programs','tasks','blueprints','rain']
-        .forEach(s=>{try{tx.objectStore(s).clear();}catch(x){}});
-      tx.oncomplete=res; tx.onerror=res; });}
-  EVENTS=[]; CORRECTIONS=[];
-  if(typeof PROGRAMS  !=='undefined')PROGRAMS=[];
-  if(typeof TASKS     !=='undefined')TASKS=[];
-  if(typeof BLUEPRINTS!=='undefined')BLUEPRINTS=[];
-  if(typeof RAINFALL  !=='undefined')RAINFALL=[];
-  if(typeof LAST_LPT  !=='undefined')LAST_LPT={};
+    for(const e of gone)      {try{await del('events',e.uuid);}catch(x){}}
+    for(const c of goneCorr)  {try{await del('corrections',c.uuid);}catch(x){}}}
 
-  // 2. the purge itself is the first row of the new season, so it can never be denied
-  await persistEvent({uuid:uuid(),type:'ADMIN_PURGE',dt:now(),
-    wiped:total, detail:before.wipe.filter(r=>+r.n>0).map(r=>r.k+': '+r.n).join(' · '),
-    kept_trees:TREE_MASTER.length, kept_staff:KEYS.length,
-    reason:'Pre-season trial data reset',
+  // one audit row for the whole batch — a clean-up should never be invisible
+  // The AUDIT_LOG tab writes only the columns it knows by name, so anything not in its
+  // header would be silently dropped. Everything that matters therefore goes into `reason`,
+  // which IS written verbatim — that way the Sheet keeps the whole story and no Apps Script
+  // update is needed to record a clean-up properly.
+  const filterTxt='from '+(CLN.from||'any')+' to '+(CLN.to||'any')+
+    ' · types '+(CLN.types.length?CLN.types.join(','):'all')+
+    ' · by '+(CLN.who||'anyone')+' · device '+(CLN.dev||'any');
+  await persistEvent({uuid:uuid(),type:'ADMIN_CLEANUP',dt:now(),
+    removed:ex.ids.length, auto_linked:ex.added, was_synced:im.synced,
+    detail:summary.join(' · '),
+    filter:filterTxt,
+    reason:'Selective trial-data clean-up — '+ex.ids.length+' removed'+
+      (ex.added?(' ('+ex.added+' auto-linked)'):'')+
+      (im.synced?(', '+im.synced+' of them already in the Sheet'):'')+
+      ' · '+summary.join(', ')+' · filter: '+filterTxt,
     worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
 
-  MDB_PURGE_ARMED=false;
-  applyTreeFixes(); applyInvOverrides(); rebuildLedgers();
-  rebuildAllTreePickers(); refreshEverything(); badge();
-  toast('☢️ '+total+' trial records purged — census, staff and opening balance kept');}
+  CLN.sel={};
+  rebuildLedgers(); rebuildAllTreePickers(); refreshEverything(); badge();
+  toast('✓ '+ex.ids.length+' record'+(ex.ids.length===1?'':'s')+' removed');}
+
+function mdbCleanHtml(){
+  const rows=cleanupRows(), n=clnSelCount();
+  const ex=n?cleanupExpand(Object.keys(CLN.sel)):{ids:[],added:0};
+  const im=n?cleanupImpact(ex.ids):null;
+  const people=clnPeople(), devs=clnDevices();
+  const shownSel=rows.filter(r=>CLN.sel[r.uuid]).length;
+  return '<div class="cnote">Filter the log down, tick the rows that were tests, and remove just those. '+
+      'Your imported data cannot be reached from here — the <b>959-fruit tying opening balance</b>, the '+
+      '<b>171-tree census</b> and the <b>opening stock</b> live in the app\u2019s own data file, not in this '+
+      'log, so no tick box can touch them.</div>'+
+
+    '<div class="sec" style="margin-top:12px">1 · Narrow it down</div>'+
+    '<div class="dl3">'+
+      '<div><label>From date</label><input type="date" id="cln-from" value="'+esc(CLN.from)+
+        '" onchange="clnSetFilter(\'from\',this.value)"></div>'+
+      '<div><label>To date</label><input type="date" id="cln-to" value="'+esc(CLN.to)+
+        '" onchange="clnSetFilter(\'to\',this.value)"></div>'+
+    '</div>'+
+    '<label>Record type — tap to include, leave all off for everything</label>'+
+    '<div class="clnchips">'+CLN_TYPES.map(t=>
+      '<div class="'+(CLN.types.indexOf(t.k)>=0?'on':'')+'" onclick="clnToggleType(\''+t.k+'\')">'+
+      esc(t.t)+'</div>').join('')+'</div>'+
+    '<div class="dl3">'+
+      '<div><label>Keyed by</label><select onchange="clnSetFilter(\'who\',this.value)">'+
+        '<option value="">anyone</option>'+people.map(p=>'<option value="'+esc(p)+'"'+
+          (p===CLN.who?' selected':'')+'>'+esc(p)+'</option>').join('')+'</select></div>'+
+      '<div><label>From device</label><select onchange="clnSetFilter(\'dev\',this.value)">'+
+        '<option value="">any</option>'+devs.map(d=>'<option value="'+esc(d)+'"'+
+          (d===CLN.dev?' selected':'')+'>'+esc(d)+'</option>').join('')+'</select></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:7px;margin-top:8px">'+
+      '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="clnResetFilters()">RESET FILTERS</button>'+
+      '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="clnSelectShown()">TICK ALL '+rows.length+' SHOWN</button>'+
+    '</div>'+
+
+    '<div class="sec" style="margin-top:14px">2 · Tick what was a test</div>'+
+    '<div class="clnbar"><b>'+rows.length+'</b> row'+(rows.length===1?'':'s')+' shown · <b>'+n+
+      '</b> ticked'+(n?(' <span class="linkish" onclick="clnClearSel()">clear</span>'):'')+'</div>'+
+    (rows.length?('<div class="tblwrap"><table class="tbl">'+
+      rows.slice(0,150).map(r=>'<tr class="'+(CLN.sel[r.uuid]?'picked':'')+'" onclick="clnToggle(\''+
+        esc(r.uuid)+'\')"><td style="width:34px" class="num">'+
+        '<span class="clnbox'+(CLN.sel[r.uuid]?' on':'')+'">'+(CLN.sel[r.uuid]?'✓':'')+'</span></td>'+
+        '<td><div class="pn">'+esc(r.label)+
+          (r.backdated?' <span class="cstat a">BACKDATED</span>':'')+'</div>'+
+        '<div class="pa">'+esc(r.dt)+' · '+esc(r.who||'?')+' · '+esc(r.dev||'?')+
+          (r.synced?' · <b>in the Sheet</b>':' · queued')+'</div></td>'+
+        '<td class="num">'+(r.qty?nf(r.qty):'')+'</td></tr>').join('')+'</table></div>'+
+      (rows.length>150?('<div class="exphint">Showing the newest 150 of '+rows.length+
+        ' — narrow the dates to see the rest.</div>'):''))
+      :'<div class="alertnone">No rows match these filters.</div>')+
+
+    (n?('<div class="sec" style="margin-top:14px">3 · What removing them does</div>'+
+      (ex.added?('<div class="tarewarn">'+ex.added+' linked row'+(ex.added===1?'':'s')+
+        ' will go too — the rope a ticked tying round drew, and any signed correction pointing at a '+
+        'ticked row. Leaving those behind would skew the ledger.</div>'):'')+
+      '<div class="tblwrap full"><table class="tbl">'+
+      '<tr><td><b>Records removed</b></td><td class="num"><b>'+ex.ids.length+'</b></td></tr>'+
+      (im.tied?      '<tr><td>Tied balance falls by</td><td class="num">'+nf(im.tied)+' fruit</td></tr>':'')+
+      (im.collected? '<tr><td>Collected fruit removed</td><td class="num">'+nf(im.collected)+'</td></tr>':'')+
+      (im.rotten?    '<tr><td>Rotten fruit removed</td><td class="num">'+nf(im.rotten)+'</td></tr>':'')+
+      (im.stockIn+im.stockOut?'<tr><td>Stock movements reversed</td><td class="num">'+
+        (im.stockIn+im.stockOut)+'</td></tr>':'')+
+      (im.dispatchKg?'<tr><td>Dispatches removed</td><td class="num">'+nf(im.dispatchKg)+' kg · '+
+        rm(im.dispatchRM)+'</td></tr>':'')+
+      (im.topupRM?   '<tr><td>Credit top-ups removed</td><td class="num">'+rm(im.topupRM)+'</td></tr>':'')+
+      (im.corr?      '<tr><td>Correction requests removed</td><td class="num">'+im.corr+'</td></tr>':'')+
+      (im.treeCount? '<tr><td>Trees affected</td><td class="num">'+im.treeCount+'</td></tr>':'')+
+      '</table></div>'+
+      (im.synced?('<div class="critbox"><b>'+im.synced+'</b> of these already reached the Google Sheet. '+
+        'Removing them here cleans this phone only — delete those rows in the Sheet as well, or the next '+
+        'person to open it will still see them.</div>'):
+        '<div class="okbox">None of these have reached the Google Sheet yet, so removing them here is the '+
+        'end of it — nothing to clean up in the Sheet.</div>')+
+
+      '<div class="sec" style="margin-top:13px">4 · Confirm</div>'+
+      (CLN.unlocked
+        ? ('<div class="ovrok" style="margin-top:0">🔓 Unlocked — you can remove batches until you leave '+
+            'this screen.</div>'+
+           '<button class="bigbtn danger" onclick="cleanupDelete()">🗑️ REMOVE THE '+ex.ids.length+
+            ' TICKED RECORD'+(ex.ids.length===1?'':'S')+'</button>')
+        : ('<label>Owner 6-digit access key</label>'+
+           '<input id="cln-key" type="password" inputmode="numeric" maxlength="6" autocomplete="off" '+
+             'placeholder="••••••" style="letter-spacing:9px;font-size:19px;text-align:center;font-weight:800" '+
+             'oninput="if(this.value.length===6)clnUnlock()">'+
+           '<div class="pinerr" id="cln-keyerr"></div>'+
+           '<button class="bigbtn ghost" onclick="clnUnlock()">🔓 UNLOCK CLEAN-UP</button>'))+
+      '<p class="small">Ticked rows are removed outright — no strike-through, no leftover reversal rows. '+
+      'One summary line is recorded saying how many went, who removed them and what the filters were, so a '+
+      'clean-up is never invisible.</p>')
+     :'<div class="small" style="margin-top:12px">Tick at least one row to see what removing it would do.</div>');}
 
 // ---- 5. QR DISTRIBUTION --------------------------------------------------------------
 // The URL defaults to wherever this page is being served from, so it is right without
@@ -5194,7 +5382,7 @@ function mdbPrintQr(){
 // enters the DOM. Every mutating function above independently re-checks canMasterAdmin(),
 // so reaching one from the console achieves nothing either.
 const MDB_SECTIONS=[['data','🗂️ DATA'],['back','🕓 BACKDATE'],['trees','🌳 TREES'],
-                    ['purge','☢️ PURGE'],['qr','📱 QR']];
+                    ['purge','🗳️ CLEAN UP'],['qr','📱 QR']];
 function renderMasterDB(){
   const box=$('masterdbbox'); if(!box)return;
   if(!canMasterAdmin()){ box.innerHTML=''; return; }        // stripped from the DOM entirely
@@ -5204,7 +5392,7 @@ function renderMasterDB(){
     (MDB_SEC==='data' ? mdbDataHtml()
     :MDB_SEC==='back' ? mdbBackHtml()
     :MDB_SEC==='trees'? mdbTreesHtml()
-    :MDB_SEC==='purge'? mdbPurgeHtml()
+    :MDB_SEC==='purge'? mdbCleanHtml()
     :                   mdbQrSectionHtml());
   if(MDB_SEC==='back'){ mdbBackLots('bk-tie-lot','bk-tie-tree');
                         mdbBackLots('bk-dr-lot','bk-dr-tree');
@@ -5357,42 +5545,6 @@ function mdbTreesHtml(){
       '<p class="small">A tree can only be removed while it has no logged work. Once a fruit has been '+
         'tied or collected on it, it stays — removing it would orphan that history.</p>')
      :'');}
-
-function mdbPurgeHtml(){
-  const c=purgeCounts();
-  const total=c.wipe.reduce((s,r)=>s+(+r.n||0),0);
-  if(!MDB_PURGE_ARMED){
-    return '<div class="cnote">Clears the pre-season testing records off this phone and leaves your '+
-        'setup intact. Two confirmations are required.</div>'+
-      '<div class="ygrid" style="margin-top:10px">'+
-        '<div><div class="l">WILL BE WIPED</div><div class="v bad">'+total+'</div><div class="u">records</div></div>'+
-        '<div><div class="l">TREES KEPT</div><div class="v">'+TREE_MASTER.length+'</div><div class="u">census</div></div>'+
-        '<div><div class="l">STAFF KEPT</div><div class="v">'+KEYS.length+'</div><div class="u">keys</div></div>'+
-      '</div>'+
-      '<button class="bigbtn danger" style="margin-top:13px" onclick="mdbArmPurge()">'+
-        '☢️ RESET SYSTEM: PURGE ALL TRIAL DATA</button>'+
-      '<p class="small">This touches this phone only. The Google Sheet keeps its rows until you delete '+
-        'them there yourself.</p>';}
-  return '<div class="critbox flash">☢️ CONFIRM 1 of 2 — read this before you go on.</div>'+
-    '<div class="sec" style="margin-top:11px">Will be wiped</div>'+
-    '<div class="tblwrap"><table class="tbl">'+
-      c.wipe.map(r=>'<tr><td>'+esc(r.k)+'</td><td class="num '+(+r.n>0?'lowq':'')+'"><b>'+r.n+'</b></td></tr>').join('')+
-      '<tr><td><b>TOTAL</b></td><td class="num"><b>'+total+'</b></td></tr></table></div>'+
-    '<div class="sec" style="margin-top:13px">Will be kept</div>'+
-    '<div class="tblwrap"><table class="tbl">'+
-      c.keep.map(r=>'<tr><td>'+esc(r.k)+'</td><td class="num"><b>'+esc(String(r.n))+'</b></td></tr>').join('')+
-    '</table></div>'+
-    '<div class="okbox">Your <b>959-fruit tying opening balance</b> is migrated farm data, not a test '+
-      'record. It lives in the app’s own data file, so it survives this purge and your tree balances '+
-      'start correct.</div>'+
-    '<label style="margin-top:12px">Type the word PURGE to confirm</label>'+
-    '<input id="pg-word" autocomplete="off" placeholder="PURGE" style="letter-spacing:3px;font-weight:800">'+
-    '<label>Owner 6-digit access key</label>'+
-    '<input id="pg-key" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••" '+
-      'style="letter-spacing:9px;font-size:19px;text-align:center;font-weight:800">'+
-    '<div class="pinerr" id="pg-err"></div>'+
-    '<button class="bigbtn danger" onclick="mdbRunPurge()">☢️ CONFIRM 2 of 2 — WIPE '+total+' RECORDS</button>'+
-    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="mdbDisarmPurge()">CANCEL</button>';}
 
 function mdbQrSectionHtml(){
   const url=APP_URL||appUrlDefault();

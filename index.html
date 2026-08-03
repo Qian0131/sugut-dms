@@ -240,6 +240,9 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tbl .pa{font-size:9.5px;color:#26418f;}
 .tbl .lowq{color:var(--warn);font-weight:900;}
 .tblwrap{max-height:340px;overflow-y:auto;margin-top:4px;}
+/* A confirmation list must never sit in an inner scroll box - a clipped row is a row
+   the Owner did not read before wiping it. */
+.tblwrap.full{max-height:none;overflow-y:visible;}
 .segs{display:flex;gap:6px;margin:8px 0 4px;}
 .segs div{flex:1;text-align:center;border:1.5px solid #c8dcc9;border-radius:9px;padding:7px 2px;font-weight:800;font-size:10.5px;cursor:pointer;background:#fff;user-select:none;}
 .segs div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
@@ -520,6 +523,23 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .qrurl{font-size:10.5px;color:#5b6b58;word-break:break-all;text-align:center;margin:7px 0 11px;
        font-weight:600;}
 input[type=datetime-local]{font-family:inherit;}
+/* a fading edge so it is obvious the tab row keeps going sideways */
+.subbar{position:relative;}
+.subbar.scrolls{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent 100%);
+                mask-image:linear-gradient(90deg,#000 88%,transparent 100%);}
+/* ===== v3.4 — selective clean-up ===== */
+.clnchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+.clnchips div{padding:6px 9px;border-radius:9px;background:#fff;border:1.5px solid #c8dcc9;
+              color:#5b6b58;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.clnchips div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.clnbar{background:var(--lite);border-radius:10px;padding:8px 11px;font-size:12px;color:var(--green);
+        font-weight:700;margin:7px 0;}
+.clnbox{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;
+        border:2px solid #c8dcc9;border-radius:6px;background:#fff;color:#fff;font-weight:900;
+        font-size:13px;}
+.clnbox.on{background:var(--green2);border-color:var(--green2);}
+.tbl tr.picked td{background:var(--lite);}
+.tbl tr[onclick]{cursor:pointer;}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
 </head>
@@ -1373,14 +1393,14 @@ input[type=datetime-local]{font-family:inherit;}
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v3.3.1 — split build. THREE files must be uploaded together:
+     v3.4.1 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.3.1"></script>
-<script src="app.js?v=3.3.1"></script>
+<script src="database.js?v=3.4.1"></script>
+<script src="app.js?v=3.4.1"></script>
 </body>
 </html>
