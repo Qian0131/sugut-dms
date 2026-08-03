@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.4.1';   // v3.4.1 — clean-up audit row carries its full summary in a column the Sheet actually writes
+const APP_VERSION = 'v3.5.0';   // v3.5.0 — every phone shows the SAME tree balance: the Sheet now returns farm-wide per-tree totals
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -48,6 +48,36 @@ let CORRECTIONS=[], TREE_FIX={};
 // Both are kv registries: TREE_MASTER itself ships inside database.js and is replaced on
 // every upgrade, so an added tree that lived only there would vanish at the next release.
 let ADDED_TREES=[], APP_URL='';
+/**
+ * v3.5 — THE FIX FOR "TWO PHONES, TWO DIFFERENT TOTALS".
+ *
+ * Until now events only ever travelled UP. `doGet` returned trees, products, workers,
+ * corrections, programmes, tasks and retailers — never a single drop or tying round. So
+ * each phone's tree balance was built ONLY from the rows keyed on that phone, plus the
+ * migrated opening balance. The Owner's phone showed its own work, the worker's phone
+ * showed its own, and the two could never agree. Nothing was corrupt; each phone was
+ * honestly reporting a partial picture, which is worse, because it looks authoritative.
+ *
+ * The Sheet now returns a small per-tree total (`treestats`) covering every phone's rows.
+ * A tree's figure = the Sheet's total + only those local rows the Sheet has not seen yet.
+ * `syncedAt` is what makes that exact: a row already counted in `treestats` is skipped,
+ * a row pushed AFTER the stats were fetched is still added, so there is no window in
+ * which a fruit is counted twice or dropped.
+ */
+let statsWarned=false;
+let TREE_STATS=null;    // {at:'YYYY-MM-DD HH:MM', trees:{ 'B-045':{tied,secured,untied,rotTied,rotUntied} }}
+function statOf(tree,k){
+  const t=TREE_STATS&&TREE_STATS.trees?TREE_STATS.trees[tree]:null;
+  return t?(+t[k]||0):0;}
+/** Does this local row still need adding on top of the Sheet's total? */
+function countsLocally(e){
+  if(!TREE_STATS)return true;                 // never fetched: this phone is all we know
+  if(!e.synced)return true;                   // not in the Sheet yet
+  return String(e.syncedAt||'')>String(TREE_STATS.at||'');   // pushed after the stats
+}
+function statsAge(){
+  if(!TREE_STATS||!TREE_STATS.at)return null;
+  return TREE_STATS.at;}
 let RETAILERS=RETAILER_SEED.map(r=>({...r})),
     CLONE_PRICE=priceMatrixCopy(CLONE_PRICE_SEED),
     PRICE_META={at:'',by:''},
@@ -91,6 +121,7 @@ async function initStore(){
     const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
     const at=kv.find(x=>x.k==='addtrees'); if(at&&Array.isArray(at.v)) ADDED_TREES=at.v;
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
+    const ts=kv.find(x=>x.k==='treestats'); if(ts&&ts.v&&ts.v.trees) TREE_STATS=ts.v;
     // v3.1 — the alliance buyer the price matrix was agreed with. Added ONCE to a phone
     // upgrading from v3.0, never re-added if the Owner later renames or removes it.
     const rs=kv.find(x=>x.k==='rollseed');
@@ -601,6 +632,9 @@ async function refreshMasters(){
     const inProg=(j&&j.ok&&Array.isArray(j.programs))?j.programs:null;
     const inTask=(j&&j.ok&&Array.isArray(j.tasks))?j.tasks:null;
     const inRet =(j&&j.ok&&Array.isArray(j.retailers))?j.retailers:null;
+    // v3.5 — the per-tree totals across EVERY phone. Stamped with the moment of the fetch
+    // so a row pushed after this point is still added on top instead of being lost.
+    const inStats=(j&&j.ok&&j.treestats&&typeof j.treestats==='object')?j.treestats:null;
     // v2.5.1: if the WORKERS tab is unreadable the kill switch cannot be evaluated, so
     // nothing is ingested either — a revoked phone must not keep receiving farm data.
     if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))return got;
@@ -635,6 +669,16 @@ async function refreshMasters(){
     if(inProg)got.programs=await mergePrograms(inProg);  // agronomist phases from the Owner's phone
     if(inTask)got.tasks=await mergeTasks(inTask);        // general field jobs from the Owner's phone
     if(inRet)await mergeRetailers(inRet);               // retailer master + opening credit
+    // v3.5 — adopt the farm-wide per-tree totals. This is what makes the Owner's phone and
+    // the workers' phones show the same tied balance.
+    if(inStats){
+      TREE_STATS={at:now(),trees:inStats};
+      if(db)await put('kv',{k:'treestats',v:TREE_STATS});
+      rebuildLedgers();
+    } else if(!statsWarned){
+      statsWarned=true;
+      toast('Tree totals are still per-phone — update the Apps Script to share them',1);
+    }
 
     // ---- local unpushed edits always win until they are pushed ----
     if(REG_DIRTY){renderKeys();return got;}
@@ -1358,7 +1402,7 @@ async function pushAdjustments(){
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.adjustments){
-      for(const e of batch){e.synced=true;if(db)await put('events',e);}
+      for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}
       rebuildLedgers();badge();return true;}
     if(!adjWarned){adjWarned=true;
       toast('Stock-take adjustments kept on this phone — update the Apps Script to share them',1);}
@@ -1402,7 +1446,7 @@ async function doSync(auto){
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
     const j=await r.json();
-    if(j&&j.ok){for(const e of batch){e.synced=true;if(db)await put('events',e);}rebuildLedgers();badge();renderSync();
+    if(j&&j.ok){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}rebuildLedgers();badge();renderSync();
       toast('✓ '+batch.length+' events synced to Google Sheets');
       refreshMasters(); // hidden hotspot token validation runs after every sync
     }
@@ -2265,7 +2309,7 @@ async function pushTaskLogs(){
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({tasklogs:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
-    if(j&&j.ok&&j.tasklogs){for(const e of batch){e.synced=true;if(db)await put('events',e);}badge();return true;}
+    if(j&&j.ok&&j.tasklogs){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}badge();return true;}
     if(!tlogWarned){tlogWarned=true;
       toast('Work reports kept on this phone — update the Apps Script to upload them',1);}
     return false;
@@ -2939,7 +2983,7 @@ async function pushOwnKey(batch,key,flag,warnSetter,warnMsg){
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify(body),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
-    if(j&&j.ok&&j[flag]){for(const e of batch){e.synced=true;if(db)await put('events',e);}badge();return true;}
+    if(j&&j.ok&&j[flag]){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}badge();return true;}
     warnSetter(warnMsg);
     return false;
   }catch(e){return false;}}
@@ -3016,24 +3060,29 @@ function censusCount(tree){const t=treeById(tree);return (t&&t.census!=null)?+t.
 // balances stay exactly as they were.
 function isSecuredDrop(e){return e.secured!==false;}
 function securedDropsOf(tree){
-  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&isSecuredDrop(e)).reduce((s,e)=>s+(+e.qty||0),0)
-       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured!==false).reduce((s,e)=>s+(+e.delta||0),0);}
+  return statOf(tree,'secured')
+       + EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&isSecuredDrop(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured!==false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 function untiedDropsOf(tree){
-  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&!isSecuredDrop(e)).reduce((s,e)=>s+(+e.qty||0),0)
-       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured===false).reduce((s,e)=>s+(+e.delta||0),0);}
+  return statOf(tree,'untied')
+       + EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&!isSecuredDrop(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured===false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 function totalDroppedOf(tree){return securedDropsOf(tree)+untiedDropsOf(tree);}
 // Rotten fruit is classified the same way — a rotten fruit that was tied frees its string.
 function isTiedRotten(e){return e.tied!==false;}
 function rottenTiedOf(tree){
-  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&isTiedRotten(e)).reduce((s,e)=>s+(+e.qty||0),0)
-       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied!==false).reduce((s,e)=>s+(+e.delta||0),0);}
+  return statOf(tree,'rotTied')
+       + EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&isTiedRotten(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied!==false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 function rottenUntiedOf(tree){
-  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&!isTiedRotten(e)).reduce((s,e)=>s+(+e.qty||0),0)
-       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied===false).reduce((s,e)=>s+(+e.delta||0),0);}
+  return statOf(tree,'rotUntied')
+       + EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&!isTiedRotten(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
+       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied===false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 // Counter A writes TIE events; the Owner-assigned Fruit tying task still writes TASK_DONE.
 function tieRoundsOf(tree){
-  return EVENTS.filter(e=>e.type==='TIE'&&e.tree===tree).reduce((s,e)=>s+(+e.n||0),0)
-       + EVENTS.filter(e=>e.type==='TIE_ADJUST'&&e.tree===tree).reduce((s,e)=>s+(+e.delta||0),0);}
+  return statOf(tree,'tied')
+       + EVENTS.filter(e=>e.type==='TIE'&&e.tree===tree&&countsLocally(e)).reduce((s,e)=>s+(+e.n||0),0)
+       + EVENTS.filter(e=>e.type==='TIE_ADJUST'&&e.tree===tree&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 
 /**
  * The running ledger for one tree. Property names are the schema's, verbatim.
@@ -3355,6 +3404,8 @@ function tiedBalance(tree){return tiedOf(tree)-securedDropsOf(tree)-rottenTiedOf
 function tiedTrees(){
   const set={};
   if(typeof TIE_MIGRATION!=='undefined')TIE_MIGRATION.forEach(r=>{if(r.t)set[r.t]=1;});
+  if(TREE_STATS&&TREE_STATS.trees)Object.keys(TREE_STATS.trees).forEach(t=>{
+    const v=TREE_STATS.trees[t]; if(v&&(+v.tied||+v.secured||+v.untied||+v.rotTied||+v.rotUntied))set[t]=1;});
   EVENTS.filter(e=>e.type==='TASK_DONE'&&e.kind==='FTIE').forEach(e=>{
     (e.detail||[]).forEach(d=>{if(d.tree)set[d.tree]=1;});});
   EVENTS.filter(e=>e.type==='TIE').forEach(e=>{if(e.tree)set[e.tree]=1;});
