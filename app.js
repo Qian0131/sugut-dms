@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.2.0';   // v3.2.0 — Option A retailer record card, dual-signature yield audit, append-only hardening
+const APP_VERSION = 'v3.3.0';   // v3.3.0 — Owner Master Database Control: CRUD, backdate, orchard expansion, purge, offline QR
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -44,6 +44,10 @@ let CORRECTIONS=[], TREE_FIX={};
 // registry, NOT in the event log. The money that MOVES is in the event log; these are
 // only the settings that money is calculated from, so an edit re-prices nothing that
 // has already been invoiced.
+// v3.3 — trees the Owner added after install, and the address the QR points at.
+// Both are kv registries: TREE_MASTER itself ships inside database.js and is replaced on
+// every upgrade, so an added tree that lived only there would vanish at the next release.
+let ADDED_TREES=[], APP_URL='';
 let RETAILERS=RETAILER_SEED.map(r=>({...r})),
     CLONE_PRICE=priceMatrixCopy(CLONE_PRICE_SEED),
     PRICE_META={at:'',by:''},
@@ -85,6 +89,8 @@ async function initStore(){
         return saved?{...seed,tare_kg:+saved.tare_kg||0,name:saved.name||seed.name}:{...seed};});}
     const tk=kv.find(x=>x.k==='tareok'); TARE_VERIFIED=!!(tk&&tk.v);
     const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
+    const at=kv.find(x=>x.k==='addtrees'); if(at&&Array.isArray(at.v)) ADDED_TREES=at.v;
+    const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
     // v3.1 — the alliance buyer the price matrix was agreed with. Added ONCE to a phone
     // upgrading from v3.0, never re-added if the Owner later renames or removes it.
     const rs=kv.find(x=>x.k==='rollseed');
@@ -100,6 +106,7 @@ async function initStore(){
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
+  applyAddedTrees();                            // Owner-added trees BEFORE anything reads the census
   applyTreeFixes();                             // approved corrections are permanent
   applyInvOverrides();                          // Owner's min-stock / AI edits are permanent
   rebuildLedgers();                             // materialise stock_in / stock_out / adjust ledgers
@@ -267,6 +274,9 @@ const MODULES={
           // v3.2 — the dual-signature yield audit is the Owner's alone. Marketing weighs
           // the fruit, so Marketing does not get to mark its own homework.
           {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER']},
+          // v3.3 — the Owner's master override suite. OWNER only, and the panel renders
+          // an empty string for anyone else so none of its markup reaches the DOM.
+          {k:'master',t:'🔐 MASTER DB',scr:'dash',panels:['masterdb'], roles:['OWNER']},
           {k:'reg',   t:'STAFF',      scr:'dash',panels:['keyspanel'], roles:FULL_ROLES}]}
 };
 // Option C — six big tiles, in this order. The role gate is applied here AND again in
@@ -282,7 +292,7 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
   'agrorain','agromonth','agrorecord','tyingcard','wavecard','mktpanel',
-  'tallycard','dispatchcard','mktledger','pricecard','yieldaudit','yieldstrip'];
+  'tallycard','dispatchcard','mktledger','pricecard','yieldaudit','yieldstrip','masterdb'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -308,6 +318,7 @@ function roleAllows(id){
     case 'dispatchcard': case 'mktledger': case 'pricecard': return full;
     // v3.2 — the yield audit names who counted and who weighed. Owner only.
     case 'yieldaudit': case 'yieldstrip': return myRole()==='OWNER';
+    case 'masterdb': return myRole()==='OWNER';
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
     case 'kpis': case 'phibox': case 'lotcard':
@@ -399,7 +410,7 @@ function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
   renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();
   renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();
-  renderYieldAudit();}
+  renderYieldAudit();renderMasterDB();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
     renderGradeRows();refreshTreeBoard();}
@@ -423,6 +434,7 @@ function renderForTab(k,t){
   if(k==='mkt'&&t==='ledger')renderMktLedger();
   if(k==='mkt'&&t==='price')renderPrices();
   if(k==='costadmin'&&t==='yield')renderYieldAudit();
+  if(k==='costadmin'&&t==='master')renderMasterDB();
   if(k==='mkt'&&t==='sell')renderMarketing();
   if(k==='costadmin'&&t==='sum')renderLedgerSummary();
   if(k==='costadmin'&&t==='labour')renderLabour();
@@ -1369,7 +1381,7 @@ async function doSync(auto){
     &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST'
     &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE'
     &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP'
-    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK');
+    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK'&&e.type!=='ADMIN_PURGE');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -4438,7 +4450,8 @@ function q8(){return dispQueue().length;}
 /** v3.2 — LOG_VOID and YIELD_ACK are the anti-manipulation trail. They ride their OWN key
  *  so a backend that predates v3.2 simply keeps them queued instead of failing the whole
  *  upload the way an unknown type in the generic `events` batch would. */
-function auditQueue(){return EVENTS.filter(e=>(e.type==='LOG_VOID'||e.type==='YIELD_ACK')&&!e.synced);}
+function auditQueue(){return EVENTS.filter(e=>
+  (e.type==='LOG_VOID'||e.type==='YIELD_ACK'||e.type==='ADMIN_PURGE')&&!e.synced);}
 function q9(){return auditQueue().length;}
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',
@@ -4498,6 +4511,839 @@ function askDone(ok){
   const r=_askResolve; _askResolve=null;
   if(!r)return;
   r(ok?{v1:String($('ak-in1').value||''),v2:String($('ak-in2').value||'')}:null);}
+
+/* ============================================================================
+   SELF-CONTAINED QR ENCODER — byte mode, versions 1-10, EC level L or M.
+   No CDN, no dependency: the office hotspot may be the only connection the farm
+   has, and a QR that silently fails to draw because a script did not load is
+   worse than no QR at all.
+   ============================================================================ */
+var QR=(function(){
+  // ---- GF(256) with the QR primitive polynomial 0x11D ----
+  var EXP=new Array(512), LOG=new Array(256);
+  (function(){ var x=1;
+    for(var i=0;i<255;i++){ EXP[i]=x; LOG[x]=i; x<<=1; if(x&0x100)x^=0x11D; }
+    for(var j=255;j<512;j++)EXP[j]=EXP[j-255]; })();
+  function gmul(a,b){ return (a===0||b===0)?0:EXP[LOG[a]+LOG[b]]; }
+  function rsPoly(n){ var p=[1];
+    for(var i=0;i<n;i++){ var q=[];
+      for(var j=0;j<=p.length;j++){
+        var v=0;
+        if(j<p.length)v^=p[j];
+        if(j>0)v^=gmul(p[j-1],EXP[i]);
+        q[j]=v; }
+      p=q; }
+    return p; }
+  function rsEncode(data,ecLen){
+    var gen=rsPoly(ecLen), res=new Array(ecLen).fill(0);
+    for(var i=0;i<data.length;i++){
+      var factor=data[i]^res[0];
+      res.shift(); res.push(0);
+      for(var j=0;j<ecLen;j++)res[j]^=gmul(gen[j+1]!==undefined?gen[j+1]:0,factor);
+    }
+    return res; }
+
+  // ---- per-version tables, EC level L then M ----
+  // [ecPerBlock, blocksG1, dataPerBlockG1, blocksG2, dataPerBlockG2]
+  var RS={
+    L:[null,[7,1,19,0,0],[10,1,34,0,0],[15,1,55,0,0],[20,1,80,0,0],[26,1,108,0,0],
+       [18,2,68,0,0],[20,2,78,0,0],[24,2,97,0,0],[30,2,116,0,0],[18,2,68,2,69]],
+    M:[null,[10,1,16,0,0],[16,1,28,0,0],[26,1,44,0,0],[18,2,32,0,0],[24,2,43,0,0],
+       [16,4,27,0,0],[18,4,31,0,0],[22,2,38,2,39],[22,3,36,2,37],[26,4,43,1,44]]
+  };
+  var CAP={ L:[0,17,32,53,78,106,134,154,192,230,271],
+            M:[0,14,26,42,62,84,106,122,152,180,213] };
+  var ALIGN=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50]];
+  var ECBITS={L:1,M:0};                      // the 2-bit EC indicator used in format info
+
+  function bchFormat(fmt){
+    var d=fmt<<10;
+    for(var i=4;i>=0;i--) if(d&(1<<(i+10))) d^=0x537<<i;   // G(x)=0x537
+    return ((fmt<<10)|d)^0x5412; }
+  function bchVersion(v){
+    var d=v<<12;
+    for(var i=5;i>=0;i--) if(d&(1<<(i+12))) d^=0x1F25<<i;  // G(x)=0x1F25
+    return (v<<12)|d; }
+
+  function utf8Bytes(s){
+    var out=[];
+    for(var i=0;i<s.length;i++){
+      var c=s.charCodeAt(i);
+      if(c<0x80)out.push(c);
+      else if(c<0x800){out.push(0xC0|(c>>6),0x80|(c&63));}
+      else if(c>=0xD800&&c<0xDC00&&i+1<s.length){
+        var c2=s.charCodeAt(++i), cp=0x10000+((c-0xD800)<<10)+(c2-0xDC00);
+        out.push(0xF0|(cp>>18),0x80|((cp>>12)&63),0x80|((cp>>6)&63),0x80|(cp&63));}
+      else {out.push(0xE0|(c>>12),0x80|((c>>6)&63),0x80|(c&63));}
+    }
+    return out; }
+
+  /** Build the module matrix for `text`. Returns {size, modules:[[bool]]}. */
+  function encode(text,ecl){
+    ecl=ecl||'M';
+    var bytes=utf8Bytes(text), ver=0;
+    for(var v=1;v<=10;v++) if(CAP[ecl][v]>=bytes.length){ver=v;break;}
+    if(!ver){ if(ecl!=='L')return encode(text,'L');
+              throw new Error('URL too long for this encoder ('+bytes.length+' bytes)'); }
+
+    // ---- bit stream: mode 0100 + count + data + terminator + pad ----
+    var bits=[];
+    function push(val,len){ for(var i=len-1;i>=0;i--)bits.push((val>>i)&1); }
+    push(4,4);
+    push(bytes.length, ver<10?8:16);
+    for(var i=0;i<bytes.length;i++)push(bytes[i],8);
+    var t=RS[ecl][ver], totalData=t[1]*t[2]+t[3]*t[4], capBits=totalData*8;
+    for(var k=0;k<4&&bits.length<capBits;k++)bits.push(0);       // terminator
+    while(bits.length%8)bits.push(0);
+    var pads=[0xEC,0x11], pi=0;
+    while(bits.length<capBits){ push(pads[pi++%2],8); }
+    var data=[];
+    for(var b=0;b<bits.length;b+=8){
+      var byte=0; for(var q=0;q<8;q++)byte=(byte<<1)|bits[b+q];
+      data.push(byte); }
+
+    // ---- split into blocks, compute EC, interleave ----
+    var blocks=[], ecs=[], off=0, nb=t[1]+t[3];
+    for(var bi=0;bi<nb;bi++){
+      var len=bi<t[1]?t[2]:t[4];
+      var chunk=data.slice(off,off+len); off+=len;
+      blocks.push(chunk); ecs.push(rsEncode(chunk,t[0])); }
+    var maxD=Math.max(t[2],t[4]), out=[];
+    for(var c=0;c<maxD;c++) for(var bb=0;bb<nb;bb++) if(c<blocks[bb].length)out.push(blocks[bb][c]);
+    for(var c2=0;c2<t[0];c2++) for(var b2=0;b2<nb;b2++) out.push(ecs[b2][c2]);
+
+    // ---- matrix ----
+    var size=ver*4+17;
+    var m=[], reserved=[];
+    for(var y=0;y<size;y++){ m.push(new Array(size).fill(0)); reserved.push(new Array(size).fill(0)); }
+    function setF(x,y,val){ if(x<0||y<0||x>=size||y>=size)return; m[y][x]=val?1:0; reserved[y][x]=1; }
+    function finder(cx,cy){
+      for(var dy=-1;dy<=7;dy++)for(var dx=-1;dx<=7;dx++){
+        var x=cx+dx,y=cy+dy;
+        if(x<0||y<0||x>=size||y>=size)continue;
+        var on=(dx>=0&&dx<=6&&(dy===0||dy===6))||(dy>=0&&dy<=6&&(dx===0||dx===6))||
+               (dx>=2&&dx<=4&&dy>=2&&dy<=4);
+        setF(x,y,on); } }
+    finder(0,0); finder(size-7,0); finder(0,size-7);
+    for(var a=8;a<size-8;a++){ setF(a,6,a%2===0); setF(6,a,a%2===0); }   // timing
+    var ac=ALIGN[ver];
+    for(var i1=0;i1<ac.length;i1++)for(var j1=0;j1<ac.length;j1++){
+      var ax=ac[i1], ay=ac[j1];
+      if((ax<=8&&ay<=8)||(ax<=8&&ay>=size-9)||(ax>=size-9&&ay<=8))continue;
+      for(var dy2=-2;dy2<=2;dy2++)for(var dx2=-2;dx2<=2;dx2++)
+        setF(ax+dx2,ay+dy2, Math.max(Math.abs(dx2),Math.abs(dy2))!==1); }
+    setF(8,size-8,1);                                                   // dark module
+    for(var r=0;r<9;r++){ if(r!==6){setF(r,8,0);setF(8,r,0);} }          // format areas
+    setF(8,6,0); setF(6,8,0);
+    for(var r2=0;r2<8;r2++){ setF(size-1-r2,8,0); setF(8,size-1-r2,0); }
+    if(ver>=7){ for(var v2=0;v2<18;v2++){
+      setF(Math.floor(v2/3), size-11+(v2%3), 0);
+      setF(size-11+(v2%3), Math.floor(v2/3), 0); } }
+
+    // ---- zig-zag data placement ----
+    var idx=0, bitPos=0, upward=true;
+    for(var col=size-1;col>0;col-=2){
+      if(col===6)col--;                                   // skip the vertical timing column
+      for(var rr=0;rr<size;rr++){
+        var yy=upward?(size-1-rr):rr;
+        for(var cc=0;cc<2;cc++){
+          var xx=col-cc;
+          if(reserved[yy][xx])continue;
+          var bit=0;
+          if(idx<out.length){ bit=(out[idx]>>(7-bitPos))&1;
+            bitPos++; if(bitPos===8){bitPos=0;idx++;} }
+          m[yy][xx]=bit; } }
+      upward=!upward; }
+
+    // ---- masking: apply each, score, keep the best ----
+    function maskFn(k,x,y){
+      switch(k){
+        case 0: return (x+y)%2===0;
+        case 1: return y%2===0;
+        case 2: return x%3===0;
+        case 3: return (x+y)%3===0;
+        case 4: return (Math.floor(y/2)+Math.floor(x/3))%2===0;
+        case 5: return ((x*y)%2)+((x*y)%3)===0;
+        case 6: return (((x*y)%2)+((x*y)%3))%2===0;
+        case 7: return (((x+y)%2)+((x*y)%3))%2===0; } }
+    function penalty(g){
+      var p=0,n=size,i,j,run,last,dark=0;
+      for(i=0;i<n;i++){ run=1;last=g[i][0];
+        for(j=1;j<n;j++){ if(g[i][j]===last)run++; else {if(run>=5)p+=3+(run-5);run=1;last=g[i][j];} }
+        if(run>=5)p+=3+(run-5); }
+      for(j=0;j<n;j++){ run=1;last=g[0][j];
+        for(i=1;i<n;i++){ if(g[i][j]===last)run++; else {if(run>=5)p+=3+(run-5);run=1;last=g[i][j];} }
+        if(run>=5)p+=3+(run-5); }
+      for(i=0;i<n-1;i++)for(j=0;j<n-1;j++){
+        var s=g[i][j]+g[i][j+1]+g[i+1][j]+g[i+1][j+1];
+        if(s===0||s===4)p+=3; }
+      var pat=[1,0,1,1,1,0,1,0,0,0,0];
+      function match(get){ var c=0;
+        for(var a2=0;a2+11<=n;a2++){ var okk=true;
+          for(var b3=0;b3<11;b3++) if(get(a2+b3)!==pat[b3]){okk=false;break;}
+          if(okk)c++; }
+        return c; }
+      for(i=0;i<n;i++){ p+=40*match(function(z){return g[i][z];});
+                        p+=40*match(function(z){return g[z][i];}); }
+      for(i=0;i<n;i++)for(j=0;j<n;j++)dark+=g[i][j];
+      p+=10*Math.floor(Math.abs(dark*100/(n*n)-50)/5);
+      return p; }
+
+    var best=null,bestScore=Infinity,bestMask=0;
+    for(var mk=0;mk<8;mk++){
+      var g2=[];
+      for(var y3=0;y3<size;y3++){ g2.push(m[y3].slice());
+        for(var x3=0;x3<size;x3++) if(!reserved[y3][x3]&&maskFn(mk,x3,y3)) g2[y3][x3]^=1; }
+      // format info for this mask
+      var fmt=bchFormat((ECBITS[ecl]<<3)|mk);
+      for(var f=0;f<15;f++){
+        var bit2=(fmt>>f)&1;
+        if(f<6)g2[f][8]=bit2; else if(f===6)g2[7][8]=bit2; else if(f===7)g2[8][8]=bit2;
+        else if(f===8)g2[8][7]=bit2; else g2[8][14-f]=bit2;
+        if(f<8)g2[8][size-1-f]=bit2; else g2[size-15+f][8]=bit2; }
+      g2[size-8][8]=1;                                        // dark module survives masking
+      if(ver>=7){ var vi=bchVersion(ver);
+        for(var v3=0;v3<18;v3++){ var bit3=(vi>>v3)&1;
+          g2[Math.floor(v3/3)][size-11+(v3%3)]=bit3;
+          g2[size-11+(v3%3)][Math.floor(v3/3)]=bit3; } }
+      var sc=penalty(g2);
+      if(sc<bestScore){bestScore=sc;best=g2;bestMask=mk;} }
+    return {size:size,version:ver,ec:ecl,mask:bestMask,modules:best}; }
+
+  /** Crisp SVG at any print size — scales without blurring, unlike a canvas bitmap. */
+  function svg(text,opts){
+    opts=opts||{};
+    var q=(opts.quiet===undefined)?4:opts.quiet, px=opts.scale||8;
+    var r=encode(text,opts.ec||'M'), n=r.size, total=(n+q*2)*px;
+    var d='';
+    for(var y=0;y<n;y++)for(var x=0;x<n;x++)
+      if(r.modules[y][x]) d+='M'+((x+q)*px)+' '+((y+q)*px)+'h'+px+'v'+px+'h-'+px+'z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="'+total+'" height="'+total+
+      '" viewBox="0 0 '+total+' '+total+'" shape-rendering="crispEdges">'+
+      '<rect width="'+total+'" height="'+total+'" fill="#fff"/>'+
+      '<path d="'+d+'" fill="#000"/></svg>'; }
+
+  return {encode:encode, svg:svg};
+})();
+
+
+// ############################################################################
+// ##  v3.3 — OWNER MASTER DATABASE CONTROL                                   ##
+// ##  Full CRUD for the Owner across every local log, PLUS the backdate       ##
+// ##  engine, orchard expansion, trial purge and the offline QR distributor.  ##
+// ##                                                                          ##
+// ##  HOW "DELETE" WORKS HERE, AND WHY.                                       ##
+// ##  Every row also lives in the Google Sheet and on the workers' phones. A  ##
+// ##  local-only erase would leave your phone saying tree B-045 has 0 tied    ##
+// ##  while the worker's phone still says 24 — the two devices would never    ##
+// ##  agree again. So a delete writes a SIGNED REVERSAL of the same shape the ##
+// ##  approved-correction path already uses (DROP_ADJUST / ROTTEN_ADJUST /    ##
+// ##  TIE_ADJUST / STOCK_ADJUST). The row instantly stops counting in every   ##
+// ##  total on every screen, the reversal syncs to the Sheet and to every     ##
+// ##  phone, and last week's yield alerts cannot quietly rewrite themselves.  ##
+// ##  It behaves exactly like a delete; it just cannot desynchronise.         ##
+// ############################################################################
+
+function canMasterAdmin(){return myRole()==='OWNER';}
+let MDB_SEC='data', MDB_LOG='harvest', MDB_EDIT='', MDB_PURGE_ARMED=false;
+// the next tree number to offer. Held here, NOT in the input, because saving a tree
+// re-renders the whole section and would wipe anything written straight to the field.
+let MDB_NEXT_NO='', MDB_NEXT_LOT='A';
+// The backdate forms remember which lot and tree you were on. Saving a round re-renders
+// the section, and without this the Owner would have to re-pick the lot and the tree for
+// every single one of a long run of historical rounds on the SAME tree.
+let MDB_BK={tieLot:'',tieTree:'',drLot:'',drTree:''};
+
+// ---- reading a row's live state ------------------------------------------------------
+/** Every signed reversal/correction aimed at this row. */
+function adjustsFor(u){
+  return EVENTS.filter(e=>e.evUuid===u&&
+    (e.type==='DROP_ADJUST'||e.type==='ROTTEN_ADJUST'||e.type==='TIE_ADJUST'||e.type==='STOCK_ADJUST'));}
+/** What the row counts as RIGHT NOW: what was keyed, plus every signed adjustment. */
+function rowLiveQty(e){
+  return logQtyOf(e)+adjustsFor(e.uuid).reduce((s,a)=>s+(+a.delta||0),0)*
+    ((e.type==='STOCK_OUT')?-1:1);}
+function rowIsVoided(e){return EVENTS.some(a=>a.evUuid===e.uuid&&a.adminVoid);}
+function rowWasEdited(e){return EVENTS.some(a=>a.evUuid===e.uuid&&a.adminEdit);}
+
+/**
+ * THE one place an Owner edit or delete becomes events. Emits the same signed shapes the
+ * approved-correction path emits, so every ledger in the app already accounts for them
+ * and not one aggregate had to be touched to make this work.
+ */
+async function writeAdjust(e,newQty,reason,isVoid){
+  const oldQty=rowLiveQty(e);
+  const delta=+(Math.round(newQty)-Math.round(oldQty));
+  if(!delta&&!isVoid)return false;
+  const stamp=now(), tag={adminEdit:!isVoid,adminVoid:!!isVoid,
+    reason:reason, approvedBy:CFG.worker, requestedBy:CFG.worker,
+    device:CFG.device, worker:CFG.worker, synced:false};
+
+  if(e.type==='DROP'||e.type==='ROTTEN'){
+    const t=treeById(e.tree);
+    const type=e.type==='ROTTEN'?'ROTTEN_ADJUST':'DROP_ADJUST';
+    const rec=Object.assign({uuid:uuid(),type:type,dt:stamp,evUuid:e.uuid,
+      tree:e.tree,lot:e.lot,clone:e.clone||(t&&t.clone)||'',
+      was:Math.round(oldQty),now:Math.round(newQty),delta:delta,
+      estkg:+(delta*(AVG_KG[(t&&t.clone)]||1.6)).toFixed(1)},tag);
+    if(type==='DROP_ADJUST')   rec.secured=isSecuredDrop(e);
+    if(type==='ROTTEN_ADJUST') rec.tied   =isTiedRotten(e);
+    await persistEvent(rec);
+    return true;}
+
+  if(e.type==='TIE'){
+    const t=treeById(e.tree);
+    const rec=Object.assign({uuid:uuid(),type:'TIE_ADJUST',dt:stamp,evUuid:e.uuid,
+      tree:e.tree,lot:e.lot,clone:e.clone||(t&&t.clone)||'',
+      was:Math.round(oldQty),now:Math.round(newQty),delta:delta,
+      ropeM:+(delta*ROPE_M_PER_FRUIT).toFixed(2)},tag);
+    await persistEvent(rec);
+    // a tying round that is reversed must give its rope back, or the store never balances
+    const rp=prodById(ROPE_PID);
+    if(rp&&rec.ropeM) await persistEvent({uuid:uuid(),type:'STOCK_ADJUST',dt:stamp,
+      pid:ROPE_PID,pname:rp.name,ai:'',unit:rp.unit,delta:-rec.ropeM,
+      systemQty:onHand(rp),counted:onHand(rp)-rec.ropeM,
+      note:'Rope re-stated with an Owner '+(isVoid?'void':'edit')+' of tying on '+e.tree+' — '+reason,
+      evUuid:e.uuid,adminEdit:!isVoid,adminVoid:!!isVoid,
+      worker:CFG.worker,device:CFG.device,synced:false});
+    return true;}
+
+  if(e.type==='STOCK_IN'||e.type==='STOCK_OUT'){
+    const p=prodById(e.pid);
+    // stock OUT leaving the store is a negative movement, so reversing it ADDS back
+    const signed=(e.type==='STOCK_OUT')?-delta:delta;
+    await persistEvent(Object.assign({uuid:uuid(),type:'STOCK_ADJUST',dt:stamp,
+      pid:e.pid,pname:e.pname||'',ai:e.ai||'',unit:e.unit||'',
+      delta:signed, systemQty:p?onHand(p):0, counted:(p?onHand(p):0)+signed,
+      note:'Owner '+(isVoid?'void':'edit')+' of '+e.type+' — '+reason,
+      evUuid:e.uuid},tag));
+    return true;}
+
+  toast('That row type cannot be adjusted',1);
+  return false;}
+
+// ---- the three log tables ------------------------------------------------------------
+const MDB_LOGS={
+  harvest  :{t:'harvest_log',   ic:'🥭', types:['DROP','ROTTEN'],       unit:'fruits'},
+  tying    :{t:'tying_log',     ic:'🎗️', types:['TIE'],                 unit:'fruits'},
+  inventory:{t:'inventory_ledger',ic:'📦',types:['STOCK_IN','STOCK_OUT'],unit:''}
+};
+function mdbRows(kind){
+  const def=MDB_LOGS[kind]||MDB_LOGS.harvest;
+  return EVENTS.filter(e=>def.types.indexOf(e.type)>=0)
+    .slice().sort((a,b)=>String(a.dt)<String(b.dt)?1:(String(a.dt)>String(b.dt)?-1:0));}
+function mdbRowLabel(e){
+  if(e.type==='DROP')     return '🥭 '+(e.clone||'?')+' Grade '+(e.grade||'?')+' @ '+e.tree+
+                                 (isSecuredDrop(e)?'':' · untied');
+  if(e.type==='ROTTEN')   return '🍂 rotten @ '+e.tree+(e.causeLabel?(' · '+e.causeLabel):'');
+  if(e.type==='TIE')      return '🎗️ tied @ '+e.tree+' · '+nf(e.ropeM||0)+' m rope';
+  if(e.type==='STOCK_IN') return '📦← '+(e.pname||'')+(e.ref?(' · '+e.ref):'');
+  if(e.type==='STOCK_OUT')return '📦→ '+(e.pname||'')+(e.lot?(' · Lot '+e.lot):'');
+  return e.type;}
+
+function mdbSec(s){MDB_SEC=s;MDB_EDIT='';MDB_PURGE_ARMED=false;renderMasterDB();}
+function mdbPickLog(k){MDB_LOG=k;MDB_EDIT='';renderMasterDB();}
+function mdbEditRow(u){if(!canMasterAdmin())return;MDB_EDIT=u;renderMasterDB();}
+function mdbCancelEdit(){MDB_EDIT='';renderMasterDB();}
+
+async function mdbSaveEdit(u){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const e=EVENTS.find(x=>x.uuid===u); if(!e)return;
+  const el=$('mdb-q-'+u), rl=$('mdb-r-'+u);
+  const v=el?el.value:'', reason=rl?String(rl.value||'').trim():'';
+  if(v===''||isNaN(+v)||+v<0){toast('That is not a valid figure',1);return;}
+  if(!reason){toast('A reason is required — it travels with the correction',1);return;}
+  const changed=await writeAdjust(e,+v,reason,false);
+  MDB_EDIT='';
+  if(changed){rebuildLedgers();badge();refreshEverything();toast('✓ Row corrected to '+nf(+v));}
+  else {renderMasterDB();toast('Nothing changed');}}
+
+async function mdbDeleteRow(u){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const e=EVENTS.find(x=>x.uuid===u); if(!e)return;
+  if(rowIsVoided(e)){toast('That row is already voided',1);return;}
+  const res=await askForm({
+    title:'Delete this row',
+    sub:mdbRowLabel(e)+' · '+nf(rowLiveQty(e))+' — recorded '+e.dt+' by '+(e.worker||'?')+
+        '. It will stop counting everywhere immediately. A signed reversal syncs to the Sheet and to '+
+        'every phone so no device is left disagreeing.',
+    f1:{label:'Reason for deleting',type:'text',value:'',placeholder:'e.g. keyed against the wrong tree'},
+    ok:'🗑️ DELETE THIS ROW'});
+  if(!res)return;
+  if(!res.v1.trim()){toast('A reason is required',1);return;}
+  await writeAdjust(e,0,res.v1.trim(),true);
+  rebuildLedgers();badge();refreshEverything();
+  toast('✓ Row deleted — it now counts as zero everywhere');}
+
+/** After any master edit, every screen that shows a total has to be redrawn. */
+function refreshEverything(){
+  try{
+    renderMasterDB();renderDash&&renderDash();renderTying&&renderTying();
+    renderStock&&renderStock();renderAlerts&&renderAlerts();renderMktLedger&&renderMktLedger();
+    renderYieldAudit&&renderYieldAudit();renderWave&&renderWave();renderMyLogs&&renderMyLogs();
+    refreshTreeBoard&&refreshTreeBoard();renderHub&&renderHub();renderSync&&renderSync();
+  }catch(x){}}
+
+// ---- 2. HISTORICAL BACKDATE ENGINE ---------------------------------------------------
+// Work done before the app existed still has to reach the ledger, or every tree balance
+// starts wrong. Backdated rows carry the date the work HAPPENED plus `enteredAt`, the
+// moment it was keyed — so a row entered three weeks late can never be mistaken for one
+// logged in the field that morning.
+function mdbDtValue(id){
+  const el=$(id); if(!el||!el.value)return '';
+  return String(el.value).replace('T',' ').slice(0,16);}
+function mdbBkKey(sel){return sel==='bk-tie-lot'?'tie':'dr';}
+function mdbBackLots(sel,treeSel){
+  const s=$(sel); if(!s)return;
+  const k=mdbBkKey(sel), want=MDB_BK[k+'Lot']||LOTS[0];
+  s.innerHTML=LOTS.map(l=>'<option value="'+l+'"'+(l===want?' selected':'')+'>Lot '+l+
+    ' ('+treesInLot(l).length+' trees)</option>').join('');
+  s.value=want;
+  mdbBackTrees(sel,treeSel);}
+function mdbBackTrees(sel,treeSel){
+  const s=$(sel), t=$(treeSel); if(!s||!t)return;
+  const k=mdbBkKey(sel);
+  MDB_BK[k+'Lot']=s.value;
+  const keep=MDB_BK[k+'Tree'];
+  t.innerHTML='<option value="">— select tree —</option>'+treesInLot(s.value).map(x=>
+    '<option value="'+x.id+'">'+x.id+' · Tree '+x.no+' · '+(x.clone||'?')+'</option>').join('');
+  if(keep&&treesInLot(s.value).some(x=>x.id===keep)) t.value=keep; else MDB_BK[k+'Tree']='';
+  t.onchange=function(){MDB_BK[k+'Tree']=t.value;};}
+
+async function mdbBackTie(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const err=$('bk-tie-err'); err.textContent='';
+  const id=$('bk-tie-tree').value, n=Math.floor(+$('bk-tie-n').value||0), dt=mdbDtValue('bk-tie-dt');
+  const note=String($('bk-tie-note').value||'').trim();
+  if(!id)  return err.textContent='Choose the tree this tying round was done on.';
+  if(!(n>0))return err.textContent='How many fruits were tied? Must be more than zero.';
+  if(!dt)  return err.textContent='Choose the date and time the tying was actually done.';
+  if(dt>now()) return err.textContent='That is in the future. The backdate engine is for work already done.';
+  const t=treeById(id); if(!t)return err.textContent='That tree is not in the census.';
+  const need=ropeNeeded(n), rid=uuid();
+  await persistEvent({uuid:uuid(),type:'TIE',dt:dt,tree:t.id,lot:t.lot,clone:t.clone||'',
+    n:n,ropeM:need,roundId:rid,
+    backdated:true,enteredAt:now(),note:note,
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  const rp=prodById(ROPE_PID);
+  if(rp&&need>0) await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:dt,pid:ROPE_PID,pname:rp.name,
+    ai:'',qty:need,unit:rp.unit,lot:t.lot,set:'Fruit tying (backdated)',
+    cost:+(need*(rp.cpu||0)).toFixed(2),roundId:rid,tree:t.id,
+    backdated:true,enteredAt:now(),
+    worker:CFG.worker,device:CFG.device,synced:false});
+  MDB_BK.tieLot=t.lot; MDB_BK.tieTree=t.id;      // stay on this tree for the next round
+  $('bk-tie-n').value=''; $('bk-tie-note').value='';
+  rebuildLedgers();badge();refreshEverything();
+  toast('✓ '+n+' tied on '+t.id+' backdated to '+dt);}
+
+async function mdbBackDrop(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const err=$('bk-dr-err'); err.textContent='';
+  const id=$('bk-dr-tree').value, n=Math.floor(+$('bk-dr-n').value||0), dt=mdbDtValue('bk-dr-dt');
+  const grade=$('bk-dr-grade').value, kind=$('bk-dr-kind').value;
+  if(!id)  return err.textContent='Choose the tree these fruits were collected from.';
+  if(!(n>0))return err.textContent='How many fruits were collected? Must be more than zero.';
+  if(!dt)  return err.textContent='Choose the date and time the collection was actually done.';
+  if(dt>now()) return err.textContent='That is in the future. The backdate engine is for work already done.';
+  const t=treeById(id); if(!t)return err.textContent='That tree is not in the census.';
+  if(!hasGrade(t.clone||'MK',grade))
+    return err.textContent=(CLONE_NAME[t.clone]||t.clone)+' is not sorted into Grade '+grade+'.';
+  await persistEvent({uuid:uuid(),type:'DROP',dt:dt,tree:t.id,lot:t.lot,clone:t.clone||'',
+    qty:n,grade:grade,estkg:+(n*(AVG_KG[t.clone]||1.6)).toFixed(1),
+    secured:kind==='SECURED',dropKind:kind,pickId:uuid(),
+    backdated:true,enteredAt:now(),
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  MDB_BK.drLot=t.lot; MDB_BK.drTree=t.id;
+  $('bk-dr-n').value='';
+  rebuildLedgers();badge();refreshEverything();
+  toast('✓ '+n+' Grade '+grade+' from '+t.id+' backdated to '+dt);}
+
+// ---- 3. DYNAMIC ORCHARD EXPANSION ----------------------------------------------------
+// New trees are appended to the SAME census array every dropdown reads, so a tree added
+// here is instantly pickable on the worker's collection and tying screens. It is stored
+// separately in kv and re-applied on every boot, because TREE_MASTER itself ships inside
+// database.js and is replaced whenever the app is upgraded.
+async function persistAddedTrees(){ if(db)await put('kv',{k:'addtrees',v:ADDED_TREES}); }
+function applyAddedTrees(){
+  let n=0;
+  ADDED_TREES.forEach(t=>{
+    if(TREE_MASTER.some(x=>x.id===t.id))return;
+    TREE_MASTER.push({id:t.id,lot:t.lot,no:+t.no,clone:t.clone||'',census:null,added:true});n++;});
+  if(n){ TREE_MASTER.sort((a,b)=>a.lot<b.lot?-1:(a.lot>b.lot?1:(a.no-b.no)));
+         if(typeof recalcCensusTotals==='function')recalcCensusTotals(); }
+  return n;}
+function treeHasHistory(id){
+  return EVENTS.some(e=>e.tree===id);}
+
+async function mdbAddTree(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const err=$('at-err'); err.textContent='';
+  const lot=$('at-lot').value, no=Math.floor(+$('at-no').value||0), clone=$('at-clone').value;
+  if(LOTS.indexOf(lot)<0) return err.textContent='Choose Lot A, B or C.';
+  if(!(no>0&&no<1000))    return err.textContent='Tree number must be between 1 and 999.';
+  const id=lot+'-'+String(no).padStart(3,'0');
+  if(TREE_MASTER.some(t=>t.id===id))
+    return err.textContent=id+' already exists in the census.';
+  ADDED_TREES.push({id:id,lot:lot,no:no,clone:clone,addedBy:CFG.worker,addedAt:now()});
+  await persistAddedTrees();
+  applyAddedTrees();
+  MDB_NEXT_LOT=lot; MDB_NEXT_NO=String(no+1);          // next spot, ready for a fast run of 20
+  rebuildLedgers();
+  rebuildAllTreePickers();
+  refreshEverything();
+  toast('✓ '+id+' added — now '+TREE_MASTER.length+' trees, live in every dropdown');}
+
+async function mdbRemoveTree(id){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  if(treeHasHistory(id)){toast('That tree already has logged work — it cannot be removed',1);return;}
+  if(!confirm('Remove '+id+' from the census?\n\nIt has no logged work, so nothing is lost.'))return;
+  ADDED_TREES=ADDED_TREES.filter(t=>t.id!==id);
+  const i=TREE_MASTER.findIndex(t=>t.id===id);
+  if(i>=0)TREE_MASTER.splice(i,1);
+  await persistAddedTrees();
+  if(typeof recalcCensusTotals==='function')recalcCensusTotals();
+  rebuildLedgers(); rebuildAllTreePickers(); refreshEverything();
+  toast('✓ '+id+' removed — now '+TREE_MASTER.length+' trees');}
+
+/** Every screen that caches a tree list has to be rebuilt, or a new tree is invisible
+ *  on exactly the screens the workers use. */
+function rebuildAllTreePickers(){
+  try{
+    if(typeof buildLotSelect==='function')buildLotSelect();
+    if(typeof tyBuildLots==='function'){const s=$('ty-lot');if(s)s.innerHTML='';tyBuildLots();}
+    if(typeof tyBuildTrees==='function')tyBuildTrees();
+    if(typeof buildTreeSelect==='function')buildTreeSelect();
+    mdbBackLots('bk-tie-lot','bk-tie-tree');
+    mdbBackLots('bk-dr-lot','bk-dr-tree');
+  }catch(x){}}
+
+// ---- 4. MASTER TRIAL DATA PURGE ------------------------------------------------------
+// Clears the pre-season testing records off THIS phone. What it keeps is as important as
+// what it wipes: the staff registry, the tree census (including trees added above), the
+// retailer master, the price matrix, the basket tare — and the migrated tying opening
+// balance, which is real farm data from the Google Sheet, not a test record. That opening
+// balance is a constant read straight out of database.js, so it survives by construction.
+function purgeCounts(){
+  const c=t=>EVENTS.filter(e=>e.type===t).length;
+  return {
+    wipe:[
+      {k:'Fruit drops',        n:c('DROP')},
+      {k:'Rotten logs',        n:c('ROTTEN')},
+      {k:'Tying rounds',       n:c('TIE')},
+      {k:'Stock in / out',     n:c('STOCK_IN')+c('STOCK_OUT')},
+      {k:'Stock-take adjustments',n:c('STOCK_ADJUST')},
+      {k:'Signed corrections', n:c('DROP_ADJUST')+c('ROTTEN_ADJUST')+c('TIE_ADJUST')},
+      {k:'Retailer dispatches',n:c('DISPATCH')},
+      {k:'Credit top-ups',     n:c('CREDIT_TOPUP')},
+      {k:'Other sales',        n:c('SALE')},
+      {k:'Task completions',   n:c('TASK_DONE')},
+      {k:'Audit + yield rows', n:c('LOG_VOID')+c('YIELD_ACK')},
+      {k:'Correction requests',n:CORRECTIONS.length},
+      {k:'Activated programmes',n:(typeof PROGRAMS!=='undefined'?PROGRAMS.length:0)},
+      {k:'Assigned tasks',     n:(typeof TASKS!=='undefined'?TASKS.length:0)},
+      {k:'AI blueprints',      n:(typeof BLUEPRINTS!=='undefined'?BLUEPRINTS.length:0)},
+      {k:'Rainfall readings',  n:(typeof RAINFALL!=='undefined'?RAINFALL.length:0)}
+    ],
+    keep:[
+      {k:'Staff access keys',  n:KEYS.length},
+      {k:'Tree census',        n:TREE_MASTER.length},
+      {k:'Trees you added',    n:ADDED_TREES.length},
+      {k:'Tying opening balance',n:(typeof TIE_MIGRATION==='undefined'?0:
+          TIE_MIGRATION.reduce((s,r)=>s+(+r.n||0),0))+' fruits'},
+      {k:'Retailers',          n:RETAILERS.length},
+      {k:'Price matrix + basket tare',n:'kept'},
+      {k:'Product master',     n:(typeof INVENTORY_RECON!=='undefined'?INVENTORY_RECON.length:0)},
+      {k:'Approved census corrections',n:Object.keys(TREE_FIX||{}).length}
+    ]};}
+
+function mdbArmPurge(){ MDB_PURGE_ARMED=true; renderMasterDB();
+  setTimeout(()=>{const el=$('pg-word');if(el)el.focus();},120);}
+function mdbDisarmPurge(){ MDB_PURGE_ARMED=false; renderMasterDB(); }
+
+async function mdbRunPurge(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const err=$('pg-err'); if(err)err.textContent='';
+  const word=String(($('pg-word')||{}).value||'').trim().toUpperCase();
+  const key =String(($('pg-key') ||{}).value||'').trim();
+  if(word!=='PURGE'){ if(err)err.textContent='Type the word PURGE to confirm — that word exactly.'; return; }
+  const k=findKey(key);
+  if(!k||k.role!=='OWNER'||String(k.status).toLowerCase()!=='active'){
+    if(err)err.textContent='That is not an active Owner access key.'; return; }
+  const before=purgeCounts();
+  const total=before.wipe.reduce((s,r)=>s+(+r.n||0),0);
+  if(!confirm('LAST CHECK.\n\nThis wipes '+total+' trial records off this phone for good.\n\n'+
+    'KEPT: staff keys, all '+TREE_MASTER.length+' trees, the tying opening balance, retailers, prices.\n\n'+
+    'The Google Sheet is NOT touched — its rows stay until you delete them there.\n\nGo ahead?'))return;
+
+  // 1. clear the operational object stores, leaving kv (settings + registries) alone
+  if(db){
+    await new Promise(res=>{
+      const tx=db.transaction(['events','corrections','programs','tasks','blueprints','rain'],'readwrite');
+      ['events','corrections','programs','tasks','blueprints','rain']
+        .forEach(s=>{try{tx.objectStore(s).clear();}catch(x){}});
+      tx.oncomplete=res; tx.onerror=res; });}
+  EVENTS=[]; CORRECTIONS=[];
+  if(typeof PROGRAMS  !=='undefined')PROGRAMS=[];
+  if(typeof TASKS     !=='undefined')TASKS=[];
+  if(typeof BLUEPRINTS!=='undefined')BLUEPRINTS=[];
+  if(typeof RAINFALL  !=='undefined')RAINFALL=[];
+  if(typeof LAST_LPT  !=='undefined')LAST_LPT={};
+
+  // 2. the purge itself is the first row of the new season, so it can never be denied
+  await persistEvent({uuid:uuid(),type:'ADMIN_PURGE',dt:now(),
+    wiped:total, detail:before.wipe.filter(r=>+r.n>0).map(r=>r.k+': '+r.n).join(' · '),
+    kept_trees:TREE_MASTER.length, kept_staff:KEYS.length,
+    reason:'Pre-season trial data reset',
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+
+  MDB_PURGE_ARMED=false;
+  applyTreeFixes(); applyInvOverrides(); rebuildLedgers();
+  rebuildAllTreePickers(); refreshEverything(); badge();
+  toast('☢️ '+total+' trial records purged — census, staff and opening balance kept');}
+
+// ---- 5. QR DISTRIBUTION --------------------------------------------------------------
+// The URL defaults to wherever this page is being served from, so it is right without
+// anybody configuring anything. The encoder is built in — no CDN — because the office
+// hotspot may be the only signal on the farm and a QR that fails to draw is useless.
+function appUrlDefault(){
+  try{
+    const l=location;
+    if(l.protocol==='file:')return '';
+    return l.origin+l.pathname;
+  }catch(x){return '';}}
+async function persistAppUrl(){ if(db)await put('kv',{k:'appurl',v:APP_URL}); }
+async function mdbSaveUrl(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const v=String(($('qr-url')||{}).value||'').trim();
+  if(!v){toast('Key the address workers should open',1);return;}
+  if(!/^https?:\/\//i.test(v)){toast('The address must start with http:// or https://',1);return;}
+  APP_URL=v; await persistAppUrl(); renderMasterDB(); toast('✓ App address saved');}
+function mdbQrHtml(){
+  const url=APP_URL||appUrlDefault();
+  if(!url) return '<div class="critbox">No app address set yet. This page is open from a file, so there '+
+    'is nothing to point a QR code at. Key the web address workers should open, then tap SAVE.</div>';
+  let svg='';
+  try{ svg=QR.svg(url,{scale:7,ec:'M'}); }
+  catch(x){ return '<div class="critbox">That address is too long to fit in a QR code ('+
+    url.length+' characters). Use a shorter link.</div>'; }
+  return '<div class="qrbox">'+svg+'</div>'+
+    '<div class="qrurl">'+esc(url)+'</div>';}
+async function mdbCopyUrl(){
+  const url=APP_URL||appUrlDefault(); if(!url)return;
+  const ok=await copyToClipboard(url);
+  toast(ok?'📋 Address copied':'Clipboard blocked — read it off the screen',ok?0:1);}
+function mdbPrintQr(){
+  const url=APP_URL||appUrlDefault(); if(!url)return;
+  let svg=''; try{ svg=QR.svg(url,{scale:12,ec:'M'}); }catch(x){toast('Address too long',1);return;}
+  const w=window.open('','_blank');
+  if(!w){toast('Your browser blocked the print window',1);return;}
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sugut DMS — scan to install</title>'+
+    '<style>body{font-family:system-ui,sans-serif;text-align:center;padding:26px;color:#1b4620}'+
+    'h1{font-size:20px;margin:0 0 2px}p{font-size:13px;color:#5b6b58;margin:2px 0 16px}'+
+    'code{font-size:12px;word-break:break-all;color:#22331f}svg{max-width:82vw;height:auto}</style></head><body>'+
+    '<h1>Sugut Durian Farm — DMS</h1><p>Scan with the phone camera to open the app, then '+
+    'choose <b>Add to Home screen</b></p>'+svg+'<p><code>'+esc(url)+'</code></p></body></html>');
+  w.document.close();}
+
+// ---- THE PANEL -----------------------------------------------------------------------
+// SECURITY: for any role other than OWNER this writes an EMPTY STRING. No table, no form,
+// no button, no onclick handler for the CRUD, the purge, the tree form or the QR ever
+// enters the DOM. Every mutating function above independently re-checks canMasterAdmin(),
+// so reaching one from the console achieves nothing either.
+const MDB_SECTIONS=[['data','🗂️ DATA'],['back','🕓 BACKDATE'],['trees','🌳 TREES'],
+                    ['purge','☢️ PURGE'],['qr','📱 QR']];
+function renderMasterDB(){
+  const box=$('masterdbbox'); if(!box)return;
+  if(!canMasterAdmin()){ box.innerHTML=''; return; }        // stripped from the DOM entirely
+  box.innerHTML=
+    '<div class="mdbnav">'+MDB_SECTIONS.map(([k,t])=>
+      '<div class="'+(k===MDB_SEC?'on':'')+'" onclick="mdbSec(\''+k+'\')">'+t+'</div>').join('')+'</div>'+
+    (MDB_SEC==='data' ? mdbDataHtml()
+    :MDB_SEC==='back' ? mdbBackHtml()
+    :MDB_SEC==='trees'? mdbTreesHtml()
+    :MDB_SEC==='purge'? mdbPurgeHtml()
+    :                   mdbQrSectionHtml());
+  if(MDB_SEC==='back'){ mdbBackLots('bk-tie-lot','bk-tie-tree'); mdbBackLots('bk-dr-lot','bk-dr-tree'); }}
+
+function mdbDataHtml(){
+  const def=MDB_LOGS[MDB_LOG], rows=mdbRows(MDB_LOG);
+  return '<div class="cnote">Full read / edit / delete across every local log. An edit or a delete '+
+      'writes a <b>signed reversal</b> that syncs to the Google Sheet and to every phone, so the row '+
+      'stops counting everywhere at once and no two devices are ever left disagreeing.</div>'+
+    '<div class="mdbtabs">'+Object.keys(MDB_LOGS).map(k=>
+      '<div class="'+(k===MDB_LOG?'on':'')+'" onclick="mdbPickLog(\''+k+'\')">'+
+      MDB_LOGS[k].ic+' '+MDB_LOGS[k].t+'</div>').join('')+'</div>'+
+    '<div class="exphint" style="margin:7px 0">'+rows.length+' row'+(rows.length===1?'':'s')+
+      ' · newest first · showing up to 80</div>'+
+    (rows.length?('<div class="tblwrap"><table class="tbl mdbt">'+
+      '<tr><th>Row</th><th class="num">Qty</th><th class="num">Actions</th></tr>'+
+      rows.slice(0,80).map(e=>{
+        const voided=rowIsVoided(e), edited=rowWasEdited(e), live=rowLiveQty(e);
+        if(MDB_EDIT===e.uuid){
+          return '<tr class="edit"><td colspan="3">'+
+            '<div class="pn">'+esc(mdbRowLabel(e))+'</div>'+
+            '<div class="pa">'+esc(e.dt)+' · '+esc(e.worker||'?')+'</div>'+
+            '<div class="dl3" style="margin-top:8px">'+
+              '<div><label>Correct quantity ('+esc(def.unit||e.unit||'')+')</label>'+
+                '<input type="number" min="0" step="any" inputmode="decimal" id="mdb-q-'+esc(e.uuid)+
+                '" value="'+live+'"></div>'+
+              '<div><label>Reason</label><input id="mdb-r-'+esc(e.uuid)+
+                '" placeholder="e.g. miscounted"></div>'+
+            '</div>'+
+            '<div style="display:flex;gap:7px;margin-top:8px">'+
+              '<button class="bigbtn" style="padding:11px;font-size:13px" onclick="mdbSaveEdit(\''+esc(e.uuid)+
+                '\')">✓ SAVE CORRECTION</button>'+
+              '<button class="bigbtn ghost" style="padding:11px;font-size:13px" onclick="mdbCancelEdit()">CANCEL</button>'+
+            '</div></td></tr>';}
+        return '<tr'+(voided?' class="void"':'')+'><td>'+
+          '<div class="pn">'+esc(mdbRowLabel(e))+
+            (voided?' <span class="cstat r">DELETED</span>':'')+
+            (!voided&&edited?' <span class="cstat p">EDITED</span>':'')+
+            (e.backdated?' <span class="cstat a">BACKDATED</span>':'')+'</div>'+
+          '<div class="pa">'+esc(e.dt)+' · '+esc(e.worker||'?')+(e.synced?'':' · queued')+
+            (e.backdated&&e.enteredAt?(' · keyed '+esc(e.enteredAt)):'')+'</div></td>'+
+          '<td class="num"><b>'+nf(live)+'</b>'+
+            (live!==logQtyOf(e)?('<div class="exphint">was '+nf(logQtyOf(e))+'</div>'):'')+'</td>'+
+          '<td class="num nowrap">'+
+            (voided?'<span class="exphint">voided</span>'
+              :('<span class="mdbbtn" onclick="mdbEditRow(\''+esc(e.uuid)+'\')">✏️ Edit</span>'+
+                '<span class="mdbbtn del" onclick="mdbDeleteRow(\''+esc(e.uuid)+'\')">🗑️ Delete</span>'))+
+          '</td></tr>';}).join('')+'</table></div>')
+      :'<div class="alertnone">No rows in this log yet.</div>')+
+    '<p class="small">A deleted row stays visible here, struck through and marked DELETED, and counts as '+
+    'zero in every total. That is what lets you prove later what was removed and why.</p>';}
+
+function mdbBackHtml(){
+  const today=todayStr();
+  return '<div class="cnote">For work finished <b>before</b> the app was in use. The row carries the date '+
+      'the work actually happened, plus the moment you keyed it, so a late entry can never be mistaken '+
+      'for one logged live in the field.</div>'+
+
+    '<div class="sec" style="margin-top:13px">🎗️ Backdate a tying round</div>'+
+    '<div class="dl3">'+
+      '<div><label>Lot</label><select id="bk-tie-lot" onchange="mdbBackTrees(\'bk-tie-lot\',\'bk-tie-tree\')"></select></div>'+
+      '<div><label>Fruits tied</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-tie-n" placeholder="0"></div>'+
+    '</div>'+
+    '<label>Tree</label><select id="bk-tie-tree"></select>'+
+    '<label>Date &amp; time the tying was done</label>'+
+    '<input type="datetime-local" id="bk-tie-dt" value="'+esc(today)+'T08:00" max="'+esc(today)+'T23:59">'+
+    '<label>Note (optional)</label><input id="bk-tie-note" placeholder="e.g. from the 21 July field book">'+
+    '<div class="pinerr" id="bk-tie-err"></div>'+
+    '<button class="bigbtn tie" onclick="mdbBackTie()">🕓 LOG THIS HISTORICAL TYING ROUND</button>'+
+    '<p class="small">Rope is deducted at '+nf(ROPE_M_PER_FRUIT)+' m a fruit and dated to the same day, '+
+      'so the store balance follows the history instead of jumping today.</p>'+
+
+    '<div class="sec" style="margin-top:17px">🥭 Backdate a collection</div>'+
+    '<div class="dl3">'+
+      '<div><label>Lot</label><select id="bk-dr-lot" onchange="mdbBackTrees(\'bk-dr-lot\',\'bk-dr-tree\')"></select></div>'+
+      '<div><label>Fruits collected</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-dr-n" placeholder="0"></div>'+
+    '</div>'+
+    '<label>Tree</label><select id="bk-dr-tree"></select>'+
+    '<div class="dl3">'+
+      '<div><label>Grade</label><select id="bk-dr-grade">'+
+        GRADE_ORDER.map(g=>'<option value="'+g+'">Grade '+g+'</option>').join('')+'</select></div>'+
+      '<div><label>Was it tied?</label><select id="bk-dr-kind">'+
+        '<option value="SECURED">🪢 Secured — string still on</option>'+
+        '<option value="UNSECURED">🍃 Unsecured — early drop</option></select></div>'+
+    '</div>'+
+    '<label>Date &amp; time of the collection</label>'+
+    '<input type="datetime-local" id="bk-dr-dt" value="'+esc(today)+'T07:00" max="'+esc(today)+'T23:59">'+
+    '<div class="pinerr" id="bk-dr-err"></div>'+
+    '<button class="bigbtn" onclick="mdbBackDrop()">🕓 LOG THIS HISTORICAL COLLECTION</button>';}
+
+function mdbTreesHtml(){
+  const byLot={};LOTS.forEach(l=>byLot[l]=treesInLot(l).length);
+  return '<div class="cnote">A tree added here goes straight into the same census array every screen '+
+      'reads, so it is pickable on the worker collection and tying dropdowns the moment you save it.</div>'+
+    '<div class="ygrid" style="margin-top:10px">'+LOTS.map(l=>
+      '<div><div class="l">LOT '+l+'</div><div class="v">'+byLot[l]+'</div><div class="u">trees</div></div>').join('')+
+    '</div>'+
+    '<div class="exphint" style="margin:8px 0 0">Census total: <b>'+TREE_MASTER.length+' trees</b>'+
+      (ADDED_TREES.length?(' · '+ADDED_TREES.length+' added by you'):'')+'</div>'+
+
+    '<div class="sec" style="margin-top:14px">➕ Add a tree</div>'+
+    '<div class="dl3">'+
+      '<div><label>Lot</label><select id="at-lot">'+
+        LOTS.map(l=>'<option value="'+l+'"'+(l===MDB_NEXT_LOT?' selected':'')+'>Lot '+l+'</option>').join('')+
+        '</select></div>'+
+      '<div><label>Tree number</label><input type="number" min="1" max="999" step="1" inputmode="numeric" '+
+        'id="at-no" placeholder="e.g. 67" value="'+esc(MDB_NEXT_NO)+'"></div>'+
+    '</div>'+
+    '<label>Clone</label><select id="at-clone">'+
+      CLONE_SELL_ORDER.map(c=>'<option value="'+esc(c)+'">'+esc(CLONE_NAME[c]||c)+' ('+esc(c)+')</option>').join('')+
+      '<option value="">Not recorded yet</option></select>'+
+    '<div class="pinerr" id="at-err"></div>'+
+    '<button class="bigbtn" onclick="mdbAddTree()">🌳 ADD TREE TO CENSUS</button>'+
+    '<p class="small">The tree number box steps up by one after each save, so keying a run of 20 new '+
+      'planting spots is twenty taps, not twenty forms.</p>'+
+
+    (ADDED_TREES.length?('<div class="sec" style="margin-top:16px">Trees you have added</div>'+
+      '<div class="tblwrap"><table class="tbl">'+
+      '<tr><th>Tree</th><th>Clone</th><th class="num"></th></tr>'+
+      ADDED_TREES.slice().sort((a,b)=>a.id<b.id?-1:1).map(t=>{
+        const used=treeHasHistory(t.id);
+        return '<tr><td><div class="pn">'+esc(t.id)+'</div><div class="pa">added '+esc(t.addedAt||'')+
+          ' by '+esc(t.addedBy||'')+'</div></td>'+
+          '<td>'+esc(CLONE_NAME[t.clone]||t.clone||'—')+'</td>'+
+          '<td class="num">'+(used
+            ?'<span class="exphint">has work logged</span>'
+            :'<span class="mdbbtn del" onclick="mdbRemoveTree(\''+esc(t.id)+'\')">remove</span>')+
+          '</td></tr>';}).join('')+'</table></div>'+
+      '<p class="small">A tree can only be removed while it has no logged work. Once a fruit has been '+
+        'tied or collected on it, it stays — removing it would orphan that history.</p>')
+     :'');}
+
+function mdbPurgeHtml(){
+  const c=purgeCounts();
+  const total=c.wipe.reduce((s,r)=>s+(+r.n||0),0);
+  if(!MDB_PURGE_ARMED){
+    return '<div class="cnote">Clears the pre-season testing records off this phone and leaves your '+
+        'setup intact. Two confirmations are required.</div>'+
+      '<div class="ygrid" style="margin-top:10px">'+
+        '<div><div class="l">WILL BE WIPED</div><div class="v bad">'+total+'</div><div class="u">records</div></div>'+
+        '<div><div class="l">TREES KEPT</div><div class="v">'+TREE_MASTER.length+'</div><div class="u">census</div></div>'+
+        '<div><div class="l">STAFF KEPT</div><div class="v">'+KEYS.length+'</div><div class="u">keys</div></div>'+
+      '</div>'+
+      '<button class="bigbtn danger" style="margin-top:13px" onclick="mdbArmPurge()">'+
+        '☢️ RESET SYSTEM: PURGE ALL TRIAL DATA</button>'+
+      '<p class="small">This touches this phone only. The Google Sheet keeps its rows until you delete '+
+        'them there yourself.</p>';}
+  return '<div class="critbox flash">☢️ CONFIRM 1 of 2 — read this before you go on.</div>'+
+    '<div class="sec" style="margin-top:11px">Will be wiped</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+      c.wipe.map(r=>'<tr><td>'+esc(r.k)+'</td><td class="num '+(+r.n>0?'lowq':'')+'"><b>'+r.n+'</b></td></tr>').join('')+
+      '<tr><td><b>TOTAL</b></td><td class="num"><b>'+total+'</b></td></tr></table></div>'+
+    '<div class="sec" style="margin-top:13px">Will be kept</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+      c.keep.map(r=>'<tr><td>'+esc(r.k)+'</td><td class="num"><b>'+esc(String(r.n))+'</b></td></tr>').join('')+
+    '</table></div>'+
+    '<div class="okbox">Your <b>959-fruit tying opening balance</b> is migrated farm data, not a test '+
+      'record. It lives in the app’s own data file, so it survives this purge and your tree balances '+
+      'start correct.</div>'+
+    '<label style="margin-top:12px">Type the word PURGE to confirm</label>'+
+    '<input id="pg-word" autocomplete="off" placeholder="PURGE" style="letter-spacing:3px;font-weight:800">'+
+    '<label>Owner 6-digit access key</label>'+
+    '<input id="pg-key" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••" '+
+      'style="letter-spacing:9px;font-size:19px;text-align:center;font-weight:800">'+
+    '<div class="pinerr" id="pg-err"></div>'+
+    '<button class="bigbtn danger" onclick="mdbRunPurge()">☢️ CONFIRM 2 of 2 — WIPE '+total+' RECORDS</button>'+
+    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="mdbDisarmPurge()">CANCEL</button>';}
+
+function mdbQrSectionHtml(){
+  const url=APP_URL||appUrlDefault();
+  return '<div class="cnote">Point a new worker’s camera at this code to open the app, then have them '+
+      'choose <b>Add to Home screen</b>. The code is drawn on the phone itself — no internet needed to '+
+      'produce it, so it still works at the office hotspot with the signal down.</div>'+
+    '<label style="margin-top:11px">App address workers should open</label>'+
+    '<input id="qr-url" value="'+esc(url)+'" placeholder="https://…" autocomplete="off">'+
+    '<div style="display:flex;gap:7px;margin-top:8px">'+
+      '<button class="bigbtn" style="padding:11px;font-size:13px" onclick="mdbSaveUrl()">✓ SAVE</button>'+
+      '<button class="bigbtn ghost" style="padding:11px;font-size:13px" onclick="mdbCopyUrl()">📋 COPY</button>'+
+    '</div>'+
+    mdbQrHtml()+
+    (url?'<button class="bigbtn ghost" onclick="mdbPrintQr()">🖨️ OPEN A BIG VERSION TO PRINT OR SHOW</button>':'')+
+    '<p class="small">The address defaults to wherever this page is being served from, so it is usually '+
+      'already correct. Change it only if the workers should open a different link.</p>';}
 
 // ================= boot =================
 (async function(){

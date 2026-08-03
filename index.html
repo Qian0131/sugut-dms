@@ -494,6 +494,32 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .ygrid .u{font-size:9px;color:#7a8a77;font-weight:700;}
 .ysig{font-size:10.5px;color:#5b6b58;margin-top:9px;line-height:1.6;}
 .ycard .ymsg{margin-top:9px;}
+/* ===== v3.3 — Master Database Control ===== */
+.mdbnav{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;margin-bottom:11px;}
+.mdbnav div{white-space:nowrap;padding:8px 11px;border-radius:10px;background:#eef2ee;color:#5b6b58;
+            font-size:11px;font-weight:900;cursor:pointer;letter-spacing:.2px;}
+.mdbnav div.on{background:var(--green);color:#fff;}
+.mdbtabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;}
+.mdbtabs div{white-space:nowrap;padding:7px 10px;border-radius:9px;background:#fff;color:var(--green);
+             border:1.5px solid var(--green2);font-size:10.5px;font-weight:900;cursor:pointer;}
+.mdbtabs div.on{background:var(--green2);color:#fff;}
+.mdbbtn{display:inline-block;background:#fff;border:1.5px solid var(--green2);color:var(--green);
+        border-radius:9px;padding:5px 8px;font-size:10.5px;font-weight:900;cursor:pointer;
+        margin:2px 0 2px 4px;white-space:nowrap;}
+.mdbbtn:active{transform:scale(.96);}
+.mdbbtn.del{border-color:var(--warn);color:var(--warn);}
+.tbl td.nowrap{white-space:nowrap;}
+.tbl tr.void td{opacity:.5;text-decoration:line-through;}
+.tbl tr.void td .cstat{text-decoration:none;opacity:1;}
+.tbl tr.edit td{background:var(--lite);}
+.bigbtn.danger{background:var(--warn);}
+.bigbtn.danger:active{background:#8c1d18;}
+.qrbox{background:#fff;border:1.6px solid #dfe6df;border-radius:14px;padding:12px;margin-top:12px;
+       text-align:center;}
+.qrbox svg{max-width:100%;height:auto;}
+.qrurl{font-size:10.5px;color:#5b6b58;word-break:break-all;text-align:center;margin:7px 0 11px;
+       font-weight:600;}
+input[type=datetime-local]{font-family:inherit;}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
 </style>
 </head>
@@ -747,6 +773,16 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 
 <!-- DASH -->
 <div class="scr hidden" id="scr-dash">
+  <!-- ===== v3.3 · OWNER MASTER DATABASE CONTROL (Owner only) =====
+       The container is empty markup. renderMasterDB() writes an EMPTY STRING for any role
+       other than OWNER, so for a Farm Worker or Sandakan Purchaser none of the CRUD tables,
+       the backdate forms, the tree form, the purge button or the QR element ever exists in
+       the DOM at all - there is nothing to find with a devtools inspector. -->
+  <div class="card" id="masterdb" style="display:none">
+    <div class="sec">🔐 Master Database Control</div>
+    <div id="masterdbbox"></div>
+  </div>
+
   <!-- ===== v3.2 · DUAL-SIGNATURE YIELD AUDIT (Owner only) ===== -->
   <div class="card" id="yieldaudit" style="display:none">
     <div class="sec">🔍 Yield count vs weight audit</div>
@@ -1337,14 +1373,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================================
-     v3.2.0 — split build. THREE files must be uploaded together:
+     v3.3.0 — split build. THREE files must be uploaded together:
        index.html   (this file — layout + styling)
        database.js  (static census / material / programme data)
        app.js       (all logic)
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.2.0"></script>
-<script src="app.js?v=3.2.0"></script>
+<script src="database.js?v=3.3.0"></script>
+<script src="app.js?v=3.3.0"></script>
 </body>
 </html>
