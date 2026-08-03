@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.5.1';   // v3.5.1 — Sync screen now says WHY a total is what it is; empty stats payload no longer adopted
+const APP_VERSION = 'v3.6.0';   // v3.6.0 — multi-merchant contract matrix, scale photo proof + three-way handshake, daily & monthly summary ledger
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -83,7 +83,16 @@ let RETAILERS=RETAILER_SEED.map(r=>({...r})),
     PRICE_META={at:'',by:''},
     BASKETS=BASKET_SEED.map(b=>({...b})),
     TARE_VERIFIED=BASKET_TARE_VERIFIED_SEED,
-    RET_DIRTY=false;
+    RET_DIRTY=false,
+    // v3.6 — man-hours have been logged since v2.6 but never priced. This is what turns
+    // them into the labour column of the monthly matrix. Placeholder until the Owner
+    // confirms it, exactly like the basket tare.
+    LABOUR_RATE=LABOUR_RATE_SEED,
+    LABOUR_RATE_OK=LABOUR_RATE_VERIFIED_SEED,
+    // v3.6 — the contract book: retailer id -> clone -> grade -> RM/kg. Held apart from
+    // the retailer rows so editing a merchant's contact details can never disturb their
+    // negotiated rates.
+    RET_CONTRACT={};
 async function initStore(){
   db=await idb();
   if(db){ EVENTS=(await all('events'))||[]; const kv=(await all('kv'))||[];
@@ -122,6 +131,10 @@ async function initStore(){
     const at=kv.find(x=>x.k==='addtrees'); if(at&&Array.isArray(at.v)) ADDED_TREES=at.v;
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
     const ts=kv.find(x=>x.k==='treestats'); if(ts&&ts.v&&ts.v.trees) TREE_STATS=ts.v;
+    // v3.6 — the labour rate that prices man-hours into the monthly matrix.
+    const lr=kv.find(x=>x.k==='labrate'); if(lr&&+lr.v>0) LABOUR_RATE=+lr.v;
+    const lro=kv.find(x=>x.k==='labrateok'); LABOUR_RATE_OK=!!(lro&&lro.v);
+
     // v3.1 — the alliance buyer the price matrix was agreed with. Added ONCE to a phone
     // upgrading from v3.0, never re-added if the Owner later renames or removes it.
     const rs=kv.find(x=>x.k==='rollseed');
@@ -134,6 +147,53 @@ async function initStore(){
         await put('kv',{k:'retailers',v:RETAILERS});
         await put('kv',{k:'retdirty',v:RET_DIRTY});}
       await put('kv',{k:'rollseed',v:true});}
+
+    // ---- v3.6 — the one-time multi-merchant migration --------------------------------
+    // A phone upgrading from v3.5 already holds a saved retailer list, so changing the
+    // seed alone would change nothing. This runs EXACTLY ONCE (kv `retmig`) and is
+    // deliberately narrow: it re-bases Roll to the agreed RM 15,000 opening, adds Seng
+    // Kee and Default Cash if they are missing, retires the two v3.1 sample buyers, and
+    // attaches the contract matrices. It never touches a retailer the Owner created, and
+    // it never deletes anything — a retired sample buyer goes to status Deleted so its
+    // history survives.
+    const rmg=kv.find(x=>x.k==='retmig');
+    if(String(rmg&&rmg.v||'')!==RETAILER_MIGRATION_TAG){
+      const byName=n=>RETAILERS.find(r=>String(r.name).trim().toLowerCase()===n.toLowerCase());
+      let touched=false;
+      RETAILER_SEED.forEach(seed=>{
+        const found=RETAILERS.find(r=>String(r.id)===seed.id)||byName(seed.name);
+        if(found){
+          found.id=found.id||seed.id;
+          found.opening_credit_rm=seed.opening_credit_rm;   // re-based to the agreed figure
+          found.pricing=seed.pricing;
+          if(String(found.status||'Active').toLowerCase()==='deleted')found.status='Active';
+        } else {
+          RETAILERS.push({...seed});
+        }
+        touched=true;});
+      // the two v3.1 sample buyers, retired but never erased
+      ['Sandakan Fresh Fruit Trading','Kota Kinabalu Durian Hub'].forEach(n=>{
+        const s=byName(n); if(s&&String(s.status).toLowerCase()!=='deleted'){s.status='Deleted';touched=true;}});
+      RETAILERS.forEach(r=>{ if(!r.pricing)r.pricing=RETAILER_CONTRACT_SEED[r.id]?'CONTRACT':'SPOT'; });
+      if(touched){RET_DIRTY=true;
+        await put('kv',{k:'retailers',v:RETAILERS});
+        await put('kv',{k:'retdirty',v:RET_DIRTY});}
+      await put('kv',{k:'retmig',v:RETAILER_MIGRATION_TAG});}
+
+    // The contract book itself is stored separately from the retailer rows so an edit to
+    // a merchant's details can never blow away their rates, and vice versa. Same overlay
+    // rule as the spot matrix: a saved book LAYERS onto the seed, so a clone or grade
+    // added in a later release appears at its seeded rate instead of RM 0.
+    const rc=kv.find(x=>x.k==='retcontract');
+    RET_CONTRACT=contractBookCopy(RETAILER_CONTRACT_SEED);
+    if(rc&&rc.v&&typeof rc.v==='object'){
+      Object.keys(rc.v).forEach(rid=>{
+        if(!RET_CONTRACT[rid])RET_CONTRACT[rid]={};
+        Object.keys(rc.v[rid]||{}).forEach(c=>{
+          if(!CLONE_GRADES[c])return;
+          if(!RET_CONTRACT[rid][c])RET_CONTRACT[rid][c]={};
+          Object.keys(rc.v[rid][c]||{}).forEach(g=>{
+            if(hasGrade(c,g))RET_CONTRACT[rid][c][g]=+rc.v[rid][c][g]||0;});});});}
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
@@ -276,8 +336,11 @@ const MODULES={
   tying:{ic:'🎗️',name:'Fruit Tying Tracker',sub:'tally clicker, rope, balances',
     tabs:[{k:'tally',t:'TALLY CLICKER',scr:'dash',panels:['tallycard']},
           {k:'bal',  t:'BALANCES',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES}]},
-  ops:{ic:'📋',name:'Daily Ops',sub:'tasks, replies, stock out',
+  ops:{ic:'📋',name:'Daily Ops',sub:'tasks, scale, stock out',
     tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
+          // v3.6 — the worker's Morning Scale Dispatch. Weight and a photo, never a price.
+          {k:'scale',t:'⚖️ MORNING SCALE',scr:'dash',panels:['scalecard'],
+           roles:['OWNER','MARKETING','WORKER']},
           {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']},
           {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES}]},
   agro:{ic:'🌱',name:'Agronomist',sub:'month timeline, weather, record',
@@ -295,11 +358,17 @@ const MODULES={
   // retailer, watch the credit come down. Owner and Marketing only.
   mkt:{ic:'🚚',name:'Marketing',sub:'dispatch, retailer credit',
     tabs:[{k:'disp',  t:'RETAILERS',          scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES},
+          // v3.6 — photo proof waiting to be audited. First tab after the retailer list
+          // because it is the first thing the marketer does every morning.
+          {k:'verify',t:'📷 VERIFY',          scr:'dash',panels:['verifycard'], roles:FULL_ROLES},
           {k:'ledger',t:'DELIVERY LEDGER',    scr:'dash',panels:['mktledger'],  roles:FULL_ROLES},
           {k:'price', t:'PRICES & RETAILERS', scr:'dash',panels:['pricecard'],  roles:FULL_ROLES},
           {k:'sell',  t:'OTHER SALES',        scr:'dash',panels:['mktpanel'],   roles:FULL_ROLES}]},
-  costadmin:{ic:'💰',name:'Costing / Admin',sub:'ledger, labour, staff keys',
-    tabs:[{k:'sum',   t:'COSTING',    scr:'dash',panels:['ledgercard'],roles:FULL_ROLES},
+  costadmin:{ic:'💰',name:'Costing / Admin',sub:'summary, ledger, labour, keys',
+    tabs:[// v3.6 — the two reporting views the Owner asked for, in front of the raw ledger
+          {k:'daily', t:'📅 DAILY AUDIT',scr:'dash',panels:['dailyaudit'],  roles:FULL_ROLES},
+          {k:'matrix',t:'📊 MONTH LEDGER',scr:'dash',panels:['matrixledger'],roles:FULL_ROLES},
+          {k:'sum',   t:'COSTING',    scr:'dash',panels:['ledgercard'],roles:FULL_ROLES},
           {k:'labour',t:'LABOUR',     scr:'dash',panels:['labourcard'],roles:FULL_ROLES},
           {k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES},
           // v3.2 — the dual-signature yield audit is the Owner's alone. Marketing weighs
@@ -323,7 +392,10 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
   'agrorain','agromonth','agrorecord','tyingcard','wavecard','mktpanel',
-  'tallycard','dispatchcard','mktledger','pricecard','yieldaudit','yieldstrip','masterdb'];
+  'tallycard','dispatchcard','mktledger','pricecard','yieldaudit','yieldstrip','masterdb',
+  // v3.6 — a panel that is NOT in this list is never hidden by hideAllPanels() and leaks
+  // onto every other screen. That has bitten this codebase once already.
+  'scalecard','verifycard','dailyaudit','matrixledger'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -347,6 +419,13 @@ function roleAllows(id){
     case 'tallycard': return full||myRole()==='WORKER';
     // v3.0 — anything carrying a retailer credit balance is Owner / Marketing only
     case 'dispatchcard': case 'mktledger': case 'pricecard': return full;
+    // v3.6 — the worker's scale form shows weight and a photo, never a price, so a
+    // Worker may reach it. The verification hub deducts credit, so they may not.
+    case 'scalecard':    return full||myRole()==='WORKER';
+    case 'verifycard':   return full;
+    // v3.6 — the summary ledger carries revenue per merchant and spend per lot.
+    // Owner and Marketer only, exactly as briefed.
+    case 'dailyaudit': case 'matrixledger': return full;
     // v3.2 — the yield audit names who counted and who weighed. Owner only.
     case 'yieldaudit': case 'yieldstrip': return myRole()==='OWNER';
     case 'masterdb': return myRole()==='OWNER';
@@ -360,7 +439,14 @@ function roleAllows(id){
 function tileBadge(k){
   if(k==='inv'){const n=programShortages().length||lowStock().length;
     return n?{t:(programShortages().length?programShortages().length+' SHORT':n+' LOW')}:null;}
-  if(k==='ops'){const n=myTasks().length+myGeneralTasks().length;return n?{t:n+' TASK'+(n>1?'S':'')}:null;}
+  if(k==='ops'){
+    // v3.6 — a load the marketer sent back outranks a routine task: the fruit is sitting
+    // on the scale and nobody is invoicing it until the worker re-weighs.
+    if(myRole()==='WORKER'){
+      const back=EVENTS.filter(e=>e.type==='DISPATCH_REJECT'&&
+        String(e.dt||'').slice(0,10)===todayStr()).length;
+      if(back)return {t:back+' RETURNED'};}
+    const n=myTasks().length+myGeneralTasks().length;return n?{t:n+' TASK'+(n>1?'S':'')}:null;}
   if(k==='agro'){
     if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
       if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
@@ -372,7 +458,12 @@ function tileBadge(k){
     if(y)return {t:y+' YIELD ALERT'+(y>1?'S':'')};
     const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
     return n?{t:n+' PENDING',amber:1}:null;}
-  if(k==='mkt'){const kg=Math.round(collectedKg()-soldKg());
+  if(k==='mkt'){
+    // v3.6 — photo proof waiting on a human beats a standing "kg ready" figure. Red, not
+    // amber: a load sitting unverified is fruit that has been weighed and not invoiced.
+    const p=pendingDispatches().length;
+    if(p)return {t:p+' TO VERIFY'};
+    const kg=Math.round(collectedKg()-soldKg());
     return kg>0?{t:nf(kg)+' KG READY',amber:1}:null;}
   if(k==='harvest'){const b=LOT_KEYS.reduce((s,L)=>s+lotLedger(L).current_tied_balance,0);
     return b>0?{t:nf(b)+' ON STRING'}:null;}
@@ -447,7 +538,8 @@ function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
   renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();
   renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();
-  renderYieldAudit();renderMasterDB();}
+  renderYieldAudit();renderMasterDB();
+  renderScaleCard();renderVerify();renderDailyAudit();renderMatrix();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
     renderGradeRows();refreshTreeBoard();}
@@ -456,6 +548,7 @@ function renderForTab(k,t){
   if(k==='tying'&&t==='tally')renderTally();
   if(k==='tying'&&t==='bal')renderTying();
   if(k==='ops'&&t==='tasks'){renderOpsTasks();renderGeneralTasks();renderOpsHistory();}
+  if(k==='ops'&&t==='scale')renderScaleCard();
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='ops'&&t==='assign')renderAssign();
   if(k==='agro'&&t==='month')renderTimeline();
@@ -468,8 +561,11 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='lvl')renderInvCC();
   if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
   if(k==='mkt'&&t==='disp')renderDispatch();
+  if(k==='mkt'&&t==='verify')renderVerify();
   if(k==='mkt'&&t==='ledger')renderMktLedger();
   if(k==='mkt'&&t==='price')renderPrices();
+  if(k==='costadmin'&&t==='daily')renderDailyAudit();
+  if(k==='costadmin'&&t==='matrix')renderMatrix();
   if(k==='costadmin'&&t==='yield')renderYieldAudit();
   if(k==='costadmin'&&t==='master')renderMasterDB();
   if(k==='mkt'&&t==='sell')renderMarketing();
@@ -485,7 +581,18 @@ function resetMarketingView(){
   if(typeof DLINES!=='undefined')DLINES=[];
   if(typeof DNOTE!=='undefined')DNOTE='';
   if(typeof clearOverride==='function')clearOverride();
-  if(typeof LAST_INVOICE_UUID!=='undefined')LAST_INVOICE_UUID='';}
+  if(typeof LAST_INVOICE_UUID!=='undefined')LAST_INVOICE_UUID='';
+  // v3.6 — same rule for every new piece of module-level view state. PHOTO_SEEN in
+  // particular MUST be cleared: it is the record that THIS person looked at the photo,
+  // and inheriting it would let the next marketer approve a load sight unseen.
+  if(typeof VERIFY_SEL!=='undefined')VERIFY_SEL='';
+  if(typeof PHOTO_SEEN!=='undefined')PHOTO_SEEN={};
+  if(typeof PRICE_SEL!=='undefined')PRICE_SEL='SPOT';
+  if(typeof WLINES!=='undefined')WLINES=[];
+  if(typeof W_PHOTO!=='undefined')W_PHOTO='';
+  if(typeof W_NOTE!=='undefined')W_NOTE='';
+  if(typeof W_RET!=='undefined')W_RET='';
+  if(typeof closePhoto==='function')closePhoto();}
 function applyRole(){
   resetMarketingView();
   const r=myRole();
@@ -669,6 +776,13 @@ async function refreshMasters(){
     if(inProg)got.programs=await mergePrograms(inProg);  // agronomist phases from the Owner's phone
     if(inTask)got.tasks=await mergeTasks(inTask);        // general field jobs from the Owner's phone
     if(inRet)await mergeRetailers(inRet);               // retailer master + opening credit
+    // v3.6 — pending scale photos come DOWN too. The worker weighs on one phone and the
+    // marketer audits on another; without this the hub would only ever show loads
+    // weighed on the marketer's own device, which is the v3.5 divergence bug again.
+    const inReq=(j&&j.ok&&Array.isArray(j.dispatchreqs))?j.dispatchreqs:null;
+    if(inReq){
+      const n=await mergeDispatchReqs(inReq);
+      if(n){got.dispatchreqs=n; if(typeof renderVerify==='function')renderVerify();}}
     // v3.5 — adopt the farm-wide per-tree totals. This is what makes the Owner's phone and
     // the workers' phones show the same tied balance.
     const inMeta=(j&&j.treestatsmeta&&typeof j.treestatsmeta==='object')?j.treestatsmeta:null;
@@ -1482,14 +1596,16 @@ async function doSync(auto){
   await pushTieAdj();                         // then approved tying corrections (own payload key)
   await pushSales();                          // then marketing sales (own payload key)
   await pushRetailers();                      // then the retailer master (own payload key)
+  await pushDispatchReqs();                   // v3.6 — scale photo requests (own payload key)
   await pushDispatch();                       // then retailer dispatches + credit top-ups
   await pushAudit();                          // then the anti-manipulation audit trail
   // Anything with its own payload key MUST also be excluded here, or it goes up twice.
   const batch=EVENTS.filter(e=>!e.synced&&e.type!=='STOCK_ADJUST'&&e.type!=='TASK_DONE'
     &&e.type!=='ROTTEN'&&e.type!=='DROP_ADJUST'&&e.type!=='ROTTEN_ADJUST'
     &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE'
-    &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP'
-    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK'&&e.type!=='ADMIN_PURGE'&&e.type!=='ADMIN_CLEANUP');
+    &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP'&&e.type!=='DISPATCH_REQ'
+    &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK'&&e.type!=='ADMIN_PURGE'&&e.type!=='ADMIN_CLEANUP'
+    &&e.type!=='DISPATCH_REJECT');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     if(!auto){                       // the person pressed the button — always answer them
@@ -2327,13 +2443,49 @@ function labourByMonth(){
   labourRows().forEach(r=>{const k=String(r.dt).slice(0,7);
     if(!m[k])m[k]={k:k,mh:0,n:0};m[k].mh+=r.mh;m[k].n++;});
   return Object.values(m).sort((a,b)=>b.k.localeCompare(a.k));}
+/** v3.6 — the rate that turns man-hours into the labour column of the monthly matrix.
+ *  Same honesty rule as the basket tare: it ships as a placeholder and SAYS so until the
+ *  Owner confirms the real figure. */
+function labourRateHtml(){
+  const own=canSetPrice();
+  return '<div class="sec">💵 Labour cost rate</div>'+
+    (LABOUR_RATE_OK?'':'<div class="critbox">This rate has NOT been confirmed. '+rm(LABOUR_RATE)+
+      ' per man-hour is a placeholder — every labour and margin figure in the month ledger is '+
+      'indicative until you set the real one.</div>')+
+    (own?('<label>RM per man-hour</label>'+
+      '<input type="number" id="lr-rate" min="0" step="0.01" inputmode="decimal" value="'+
+        (+LABOUR_RATE||0).toFixed(2)+'">'+
+      '<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">'+
+        '<input type="checkbox" id="lr-ok" '+(LABOUR_RATE_OK?'checked':'')+' style="width:auto">'+
+        'This is the farm’s real rate</label>'+
+      '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
+        'onclick="saveLabourRate()">✓ SAVE LABOUR RATE</button>')
+      :('<div class="cnote">Rate in use: <b>'+rm(LABOUR_RATE)+'</b> per man-hour'+
+        (LABOUR_RATE_OK?'':' (placeholder)')+'. Only the Owner can change it.</div>'))+
+    '<div class="exphint" style="margin-top:6px">Man-hours come from the crew size and hours on every '+
+      'completion reply. Multiply them by this rate and you have the labour column of the month ledger, '+
+      'allocated to the lot the job was done on.</div>';}
+async function saveLabourRate(){
+  if(!canSetPrice()){toast('Only the Owner can set the labour rate',1);return;}
+  const el=$('lr-rate'); const v=el?el.value:'';
+  if(v===''||isNaN(+v)||+v<0){toast('The rate must be a figure of zero or more',1);return;}
+  LABOUR_RATE=+(+v).toFixed(2);
+  LABOUR_RATE_OK=!!($('lr-ok')&&$('lr-ok').checked);
+  await persistLabourRate();
+  renderLabour(); renderMatrix();
+  toast('✓ Labour rate saved'+(LABOUR_RATE_OK?'':' — still marked unconfirmed'));}
+
 function renderLabour(){
   const box=$('labourbox'); if(!box)return;
   const rows=labourRows(), months=labourByMonth();
-  if(!rows.length){box.innerHTML='<div class="small">No labour logged yet. Every completion reply now asks for the crew size and hours.</div>';return;}
-  box.innerHTML='<div class="tblwrap"><table class="tbl">'+
-    '<tr><th>Month</th><th class="num">Reports</th><th class="num">Man-hours</th></tr>'+
-    months.map(m=>'<tr><td><b>'+esc(m.k)+'</b></td><td class="num">'+m.n+'</td><td class="num"><b>'+nf(m.mh)+'</b></td></tr>').join('')+
+  if(!rows.length){box.innerHTML=labourRateHtml()+
+    '<div class="small" style="margin-top:10px">No labour logged yet. Every completion reply now asks for the crew size and hours.</div>';return;}
+  box.innerHTML=labourRateHtml()+
+    '<div class="sec" style="margin-top:12px">Man-hours by month</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Month</th><th class="num">Reports</th><th class="num">Man-hours</th><th class="num">Cost</th></tr>'+
+    months.map(m=>'<tr><td><b>'+esc(m.k)+'</b></td><td class="num">'+m.n+'</td><td class="num"><b>'+nf(m.mh)+
+      '</b></td><td class="num">'+(SHOW_VALUES?rm(m.mh*LABOUR_RATE):'—')+'</td></tr>').join('')+
     '</table></div><div class="sec" style="margin-top:10px">Latest entries</div>'+
     rows.slice(0,12).map(r=>'<div class="lrow"><span><b>'+esc(r.what)+'</b> · Lot '+esc(r.lot||'—')+
       '<br><span class="small">'+esc(r.dt)+' · '+esc(r.worker||'')+' · '+r.crew+' × '+nf(r.hours)+' h</span></span>'+
@@ -3670,16 +3822,74 @@ function gradeForWeight(clone,kg){
   for(let i=0;i<gs.length;i++){const b=bandOf(clone,gs[i]); if(!b)continue;
     if(kg>=b.min&&(b.max==null||kg<b.max))return gs[i];}
   return gs[gs.length-1]||'';}
-/** THE price lookup. Everything that touches money goes through here.
- *  One contract book applies to every retailer — the alliance rates agreed with Roll.
- *  A second buyer on different rates would need a per-retailer override; that is a
- *  deliberate next module, not something half-built here. */
-function priceOf(clone,g){
+/** Deep copy of the whole contract book — the seed must never be mutated by an edit. */
+function contractBookCopy(src){
+  const o={};
+  Object.keys(src||{}).forEach(rid=>{o[rid]=priceMatrixCopy(src[rid]);});
+  return o;}
+
+/* ---- v3.6 · the multi-merchant contract engine ---------------------------------------
+   Two kinds of buyer, and the difference matters commercially:
+
+     CONTRACT  rates were negotiated and signed. They live in RET_CONTRACT under that
+               merchant's id, and the Owner's daily market-trend panel does NOT reach
+               them — otherwise a morning trend move would silently rewrite a signed
+               contract and the farm would invoice at a rate nobody agreed to.
+     SPOT      no contract. The invoice is built from CLONE_PRICE, the matrix the Owner
+               moves every morning. 'Default Cash' is exactly this: a walk-in buyer at
+               today's market rate.
+
+   Every screen that shows money resolves through priceOf(clone, grade, retailerId).
+   Called with no retailer it falls back to the spot matrix, which is what every
+   pre-v3.6 call site did — so nothing that already worked changes meaning.            */
+function pricingModeOf(id){
+  const r=retailerById(id);
+  if(!r)return 'SPOT';
+  return String(r.pricing||'SPOT').toUpperCase()==='CONTRACT'?'CONTRACT':'SPOT';}
+function isContractRetailer(id){return pricingModeOf(id)==='CONTRACT';}
+/** That merchant's own book, created empty on first read so the editor has somewhere
+ *  to write. Never returns the shared spot matrix by accident. */
+function contractOf(id){
+  if(!id)return null;
+  if(!RET_CONTRACT[id])RET_CONTRACT[id]={};
+  return RET_CONTRACT[id];}
+/** The whole visible ladder for one merchant, used by the editor and the receipt. */
+function priceTableFor(id){
+  const out={};
+  CLONE_SELL_ORDER.forEach(c=>{out[c]={};
+    gradesFor(c).forEach(g=>{out[c][g]=priceOf(c,g,id);});});
+  return out;}
+
+/* Passed as the merchant when a screen must produce WEIGHT AND NOTHING ELSE — the
+   worker's Morning Scale form. '' cannot be used for this: '' means "no merchant named",
+   which correctly falls through to the spot matrix, and a worker's phone would then be
+   holding live prices it is not entitled to. An explicit sentinel says what is meant. */
+const NO_PRICE='__WEIGHT_ONLY__';
+
+/** THE price lookup. Everything that touches money goes through here. */
+function priceOf(clone,g,retailerId){
+  if(retailerId===NO_PRICE)return 0;
   if(!hasGrade(clone,g))return 0;
+  if(retailerId&&isContractRetailer(retailerId)){
+    const row=(RET_CONTRACT[retailerId]||{})[clone]||{};
+    const v=+(row[g]||0);
+    if(v>0)return v;
+    // A contract with a hole in it must NOT quietly fall through to the spot rate — that
+    // is how a farm invoices Grade C at a price the buyer never agreed to. Zero here is
+    // deliberate: the scale form refuses the line and names the missing rate.
+    return 0;}
   const row=CLONE_PRICE[clone]||{}; return +(row[g]||0);}
-function basePriceOf(clone,g){
+/** The seeded figure, for the "reset to agreed rate" control in the editor. */
+function basePriceOf(clone,g,retailerId){
   if(!hasGrade(clone,g))return 0;
+  if(retailerId&&isContractRetailer(retailerId)){
+    const row=(RETAILER_CONTRACT_SEED[retailerId]||{})[clone]||{};
+    return +(row[g]||0);}
   const row=CLONE_PRICE_SEED[clone]||{}; return +(row[g]||0);}
+async function persistContracts(){
+  if(db)await put('kv',{k:'retcontract',v:RET_CONTRACT});}
+async function persistLabourRate(){
+  if(db){await put('kv',{k:'labrate',v:LABOUR_RATE});await put('kv',{k:'labrateok',v:LABOUR_RATE_OK});}}
 
 // ---- baskets and tare ----------------------------------------------------------------
 function basketById(id){return BASKETS.find(b=>String(b.id)===String(id))||BASKETS[0]||{id:'NONE',name:'Loose',tare_kg:0};}
@@ -3707,6 +3917,7 @@ function retailerLedger(id){
   const r=retailerById(id); if(!r)return null;
   return {retailer_id:r.id, name:r.name, contact:r.contact||'',
     status:String(r.status||'Active'),
+    pricing:pricingModeOf(id),
     opening_credit_rm:+r.opening_credit_rm||0,
     topped_up_rm:retailerTopup(id), invoiced_rm:retailerSpend(id),
     current_credit_balance_rm:retailerCredit(id),
@@ -3781,24 +3992,32 @@ function newDispLine(){
 function dispLines(){ if(!DLINES.length)DLINES=[newDispLine()]; return DLINES; }
 function dlFind(k){return DLINES.find(l=>l.k===k)||null;}
 
-/** Everything money-related about one scale line, in one place. */
-function lineCalc(l){
+/** Everything money-related about one scale line, in one place.
+ *  v3.6 — the price now depends on WHO is buying, so the merchant travels in. Omitted,
+ *  it falls back to the retailer whose card is open, which is what every v3.1 call site
+ *  meant when there was only one contract book. */
+function lineCalc(l,retId){
+  const rid=(retId===undefined?MKT_SEL:retId)||'';
   const baskets=Math.max(0,Math.floor(+l.baskets||0));
   const tare  =+((tareOf(l.basket)*baskets).toFixed(3));
   const gross =Math.max(0,+l.gross||0);
   const net   =+(Math.max(0,gross-tare).toFixed(2));
-  const price =priceOf(l.clone,l.grade);
+  const price =priceOf(l.clone,l.grade,rid);
   const value =+((net*price).toFixed(2));
   const fruits=Math.max(0,Math.floor(+l.fruits||0));
   const avg   =(fruits>0&&net>0)?+((net/fruits).toFixed(2)):0;
   const sugg  =avg>0?gradeForWeight(l.clone,avg):'';
   return {baskets,tare,gross,net,price,value,fruits,avg,sugg};}
 
-function dispTotals(){
+/** v3.6 — totals for a set of scale lines priced against ONE merchant. `src` lets the
+ *  worker's Morning Scale form and the Marketer's verification hub reuse the identical
+ *  arithmetic instead of growing a second, drifting copy of it. */
+function dispTotals(retId,src){
   let gross=0,tare=0,net=0,val=0,fruits=0;
   const byGrade={A:0,B:0,C:0}, lines=[];
-  dispLines().forEach(l=>{
-    const c=lineCalc(l);
+  const rid=(retId===undefined?MKT_SEL:retId)||'';
+  (src||dispLines()).forEach(l=>{
+    const c=lineCalc(l,rid);
     if(!(c.net>0))return;
     gross+=c.gross; tare+=c.tare; net+=c.net; val+=c.value; fruits+=c.fruits;
     byGrade[l.grade]=+((byGrade[l.grade]||0)+c.net).toFixed(2);
@@ -3864,8 +4083,11 @@ function renderLineTotals(){
     if(w){
       const bits=[];
       if(!(c.price>0)&&c.net>0)
-        bits.push('⚠ No price set for '+esc(CLONE_NAME[l.clone]||l.clone)+' Grade '+l.grade+
-                  ' — the Owner sets it in PRICES & RETAILERS.');
+        bits.push('⚠ No '+(isContractRetailer(MKT_SEL)?'contract':'spot')+' rate for '+
+                  esc(CLONE_NAME[l.clone]||l.clone)+' Grade '+l.grade+
+                  (isContractRetailer(MKT_SEL)
+                    ?(' in '+esc((retailerById(MKT_SEL)||{}).name||'')+'’s contract — the Owner sets it in PRICES & RETAILERS.')
+                    :' — the Owner sets it in PRICES & RETAILERS.'));
       if(c.gross>0&&c.net<=0)
         bits.push('⚠ The basket tare is equal to or heavier than the gross reading — check the scale.');
       if(c.avg>0){
@@ -3992,6 +4214,31 @@ function retailerListHtml(){
     '<p class="small">A retailer is never deleted. Suspending takes them off this list but keeps every '+
     'invoice they ever received, so the ledger still adds up.</p>';}
 
+/** v3.6 — which price book this screen is working from, stated before a single kg is
+ *  keyed. The commonest costly mistake on a two-merchant farm is invoicing one buyer at
+ *  the other's rates, and it is invisible unless the screen says so out loud. */
+function contractBanner(id){
+  const r=retailerById(id); if(!r)return '';
+  const contract=isContractRetailer(id);
+  const tbl=priceTableFor(id);
+  const bits=CLONE_SELL_ORDER.filter(c=>gradesFor(c).some(g=>tbl[c][g]>0))
+    .map(c=>esc(c)+' '+gradesFor(c).filter(g=>tbl[c][g]>0)
+      .map(g=>g+' '+nf(tbl[c][g])).join(' / '));
+  const holes=[];
+  CLONE_SELL_ORDER.forEach(c=>gradesFor(c).forEach(g=>{if(!(tbl[c][g]>0))holes.push(c+' '+g);}));
+  return '<div class="ctrbanner '+(contract?'ctr':'spot')+'">'+
+    '<div class="ctrhead">'+(contract?'📜 CONTRACT PRICING':'📈 DAILY SPOT PRICING')+
+      ' · '+esc(r.name)+'</div>'+
+    '<div class="ctrbody">'+(contract
+      ? 'These are '+esc(r.name)+'’s own negotiated rates. The Owner’s daily market-trend '+
+        'panel does not move them.'
+      : 'No contract on file — this load prices at today’s market rate from the Owner’s '+
+        'trend panel, and it changes when the Owner changes it.')+'</div>'+
+    (SHOW_VALUES&&bits.length?('<div class="ctrrates">'+bits.join(' · ')+' <span class="ctrunit">RM/kg</span></div>'):'')+
+    (holes.length?('<div class="ctrhole">⚠ No rate for '+esc(holes.join(', '))+
+      ' — a basket of those cannot be invoiced until the Owner sets it.</div>'):'')+
+    '</div>';}
+
 function retailerCardHtml(id){
   const r=retailerById(id), c=retailerLedger(id), own=canSetPrice();
   const low=c.current_credit_balance_rm<CREDIT_FLOOR_RM;
@@ -4021,6 +4268,7 @@ function retailerCardHtml(id){
       ? '<div class="critbox" style="margin-top:14px">This retailer is suspended and cannot be invoiced. '+
         'Reactivate them in ✏️ edit details first.</div>'
       : ('<div class="sec" style="margin-top:15px">⚖️ Add basket — morning weighing</div>'+
+    contractBanner(id)+
     '<div class="convnote" id="dp-invno">—</div>'+
     '<div id="disp-alert"></div>'+
     '<div id="dp-credit" class="credok">—</div>'+
@@ -4185,6 +4433,822 @@ function renderReceiptBox(){
     esc(e.retailer_name||'')+' · '+nf(e.total_kg)+' kg · '+rm(e.total_value_rm)+'</div>'+
     '<button class="bigbtn wabtn" onclick="copyReceipt(\''+esc(e.uuid)+'\')">📋 Copy WhatsApp Receipt Text</button>';}
 
+/* ======================================================================================
+   v3.6 · PHOTO PROOF & THE THREE-WAY HANDSHAKE
+   ======================================================================================
+   Three people now sign for the same fruit, and no one of them can complete a sale alone:
+
+     1  WORKER      weighs the baskets at the shed and PHOTOGRAPHS the scale display.
+                    They key the reading, pick the merchant, and submit. They never see a
+                    ringgit — the request carries weight and a photo, no money at all.
+     2  MARKETER    opens the request, taps the photo, reads the scale in the picture,
+                    and compares it with what was typed. Only then does Approve unlock.
+     3  THE LEDGER  approval writes the ordinary immutable DISPATCH event — invoice
+                    serial, credit deduction, WhatsApp receipt — exactly as a direct
+                    dispatch does, so everything downstream already understands it.
+
+   WHY THE REQUEST CARRIES NO MONEY. The value is worked out at APPROVAL, from the
+   contract in force at that moment. A worker's phone therefore never holds a price, and
+   a request that sits overnight cannot invoice at yesterday's rate by accident.
+
+   The photo is a plain base64 string on the event. It is downscaled in the browser
+   before it enters the queue — see compressPhoto() — because it has to travel
+   worker phone -> Sheet -> marketer phone over a shared hotspot.
+   ====================================================================================== */
+
+/** Downscale + re-encode a camera photo until it fits PHOTO_MAX_CHARS.
+ *  Returns a data URL string, or rejects with a message the field can act on. */
+function compressPhoto(file){
+  return new Promise((resolve,reject)=>{
+    if(!file)return reject(new Error('No photo selected.'));
+    if(!/^image\//.test(file.type||''))return reject(new Error('That file is not a photo.'));
+    const fr=new FileReader();
+    fr.onerror=()=>reject(new Error('The phone could not read that photo.'));
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('That photo could not be opened.'));
+      img.onload=()=>{
+        try{
+          const scale=Math.min(1,PHOTO_MAX_PX/Math.max(img.width||1,img.height||1));
+          const w=Math.max(1,Math.round((img.width||1)*scale));
+          const h=Math.max(1,Math.round((img.height||1)*scale));
+          const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+          const cx=cv.getContext('2d');
+          cx.fillStyle='#fff'; cx.fillRect(0,0,w,h);      // JPEG has no alpha; avoid black edges
+          cx.drawImage(img,0,0,w,h);
+          // Step the quality down until the string fits a spreadsheet cell. A photo of a
+          // lit LCD in a dark shed compresses badly, so this loop is not decoration.
+          let q=PHOTO_Q_START, out=cv.toDataURL('image/jpeg',q);
+          while(out.length>PHOTO_MAX_CHARS&&q>PHOTO_Q_FLOOR){
+            q=+(q-0.08).toFixed(2); out=cv.toDataURL('image/jpeg',q);}
+          if(out.length>PHOTO_MAX_CHARS)
+            return reject(new Error('That photo is too detailed to send. Take it again closer to the scale display.'));
+          resolve(out);
+        }catch(e){reject(new Error('This phone cannot resize photos. Try the built-in camera app.'));}};
+      img.src=fr.result;};
+    fr.readAsDataURL(file);});}
+
+/** Roughly how big the stored string is, for the screens that say so. */
+function photoKB(s){return s?Math.round(String(s).length/1024):0;}
+
+// ---- the worker's Morning Scale Dispatch form ---------------------------------------
+let WLINES=[], WLSEQ=0, W_RET='', W_PHOTO='', W_NOTE='', wSaving=false;
+function newWLine(){
+  return {k:'W'+(++WLSEQ),clone:'MK',grade:'A',basket:'RED',baskets:1,gross:'',fruits:''};}
+function wLines(){ if(!WLINES.length)WLINES=[newWLine()]; return WLINES; }
+function wlFind(k){return WLINES.find(l=>l.k===k)||null;}
+function wlSet(k,f,v){
+  const l=wlFind(k); if(!l)return;
+  l[f]=v;
+  if(f==='clone'&&!hasGrade(l.clone,l.grade))l.grade=gradesFor(l.clone)[0];
+  if(f==='clone'||f==='basket')renderWLines();
+  wCalc();}
+function addWLine(){WLINES.push(newWLine());renderWLines();wCalc();}
+function removeWLine(k){
+  WLINES=WLINES.filter(l=>l.k!==k);
+  if(!WLINES.length)WLINES=[newWLine()];
+  renderWLines(); wCalc();}
+function setWRet(v){W_RET=v||'';wCalc();}
+
+/** A worker may weigh; Owner and Marketing may too, so a one-person morning still works. */
+function canWeigh(){const r=myRole();return r==='WORKER'||FULL_ROLES.indexOf(r)>=0;}
+
+function renderScaleCard(){
+  const box=$('scalebox'); if(!box)return;
+  if(!canWeigh()){box.innerHTML='';return;}
+  const act=activeRetailers();
+  const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''));
+  box.innerHTML=
+    '<div class="cnote">Weigh the baskets, key the GROSS reading exactly as the scale shows it, then '+
+      '<b>photograph the scale display</b>. Marketing checks your photo against your figures before the '+
+      'load is invoiced. You are recording weight only — no prices are shown on this screen.</div>'+
+    (act.length?'':'<div class="critbox">No active merchant on this phone yet. Sync once at the office '+
+      'hotspot so the retailer list arrives.</div>')+
+    '<label>Sending to which merchant</label>'+
+    '<select id="w-ret" onchange="setWRet(this.value)">'+
+      '<option value="">— choose the buyer —</option>'+
+      act.map(r=>'<option value="'+esc(r.id)+'"'+(W_RET===r.id?' selected':'')+'>'+esc(r.name)+'</option>').join('')+
+    '</select>'+
+    (TARE_VERIFIED?'':'<div class="tarewarn">⚠ Basket tare weights are still the factory placeholders — '+
+      'tell the Owner to weigh an empty basket. Your GROSS reading is still recorded exactly as you key it.</div>')+
+    '<div id="w-rows"></div>'+
+    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addWLine()">＋ ADD ANOTHER BASKET</button>'+
+    '<div class="wtot" id="w-tot">—</div>'+
+
+    // ---- the mandatory photo ----
+    '<div class="sec" style="margin-top:14px">📷 Photo proof — required</div>'+
+    '<div class="photobox" id="w-photobox">'+
+      (W_PHOTO
+        ? '<img class="photothumb" src="'+W_PHOTO+'" onclick="showPhoto(\''+esc(W_PHOTO)+'\',\'Your scale photo\')">'+
+          '<div class="photometa">Photo attached · '+photoKB(W_PHOTO)+' KB<br>'+
+            '<span class="linkish" onclick="clearWPhoto()">retake</span></div>'
+        : '<div class="photonone">No photo yet. The load cannot be submitted without one.</div>')+
+    '</div>'+
+    '<label class="camlbl" for="w-cam">[ 📷 Take Photo of Scale Weight ]</label>'+
+    '<input type="file" id="w-cam" accept="image/*" capture="environment" '+
+      'style="display:none" onchange="onWPhoto(this)">'+
+    '<div class="exphint">Hold the phone square to the scale so the numbers are readable. The photo is '+
+      'shrunk automatically so it will still send on a slow hotspot.</div>'+
+
+    '<label>Note (optional)</label>'+
+    '<input id="w-note" placeholder="e.g. lorry BKS 4412, driver Amin" value="'+esc(W_NOTE)+
+      '" oninput="W_NOTE=this.value">'+
+    '<div class="pinerr" id="w-err"></div>'+
+    '<button class="bigbtn" id="w-go" onclick="submitScaleDispatch()">📤 SUBMIT TO MARKETING FOR APPROVAL</button>'+
+
+    // ---- what this worker has already sent, and where it got to ----
+    '<div class="sec" style="margin-top:16px">📤 Waiting on Marketing</div>'+
+    (mine.length?mine.map(e=>'<div class="reqrow">'+
+        (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'" onclick="showPhoto(\''+esc(e.uuid)+
+          '\',\'Scale photo\',1)">'):'<div class="reqthumb none">no photo</div>')+
+        '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
+        '<div class="pa">'+esc(e.dt)+(e.synced?'':' · queued on this phone')+'</div></div>'+
+        '<span class="cstat s">PENDING</span></div>').join('')
+      :'<div class="alertnone">Nothing waiting. Everything you sent has been approved or returned.</div>')+
+    myRecentDecisions();
+  renderWLines(); wCalc();}
+
+/** Approved and returned loads, so a worker sees the outcome instead of a silence. */
+function myRecentDecisions(){
+  const mineIds={};
+  EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&(!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')))mineIds[e.uuid]=e;});
+  const out=[];
+  EVENTS.forEach(e=>{
+    if(e.type==='DISPATCH'&&e.req_uuid&&mineIds[e.req_uuid])
+      out.push({dt:e.dt,ok:true,kg:+e.total_kg||0,who:e.verified_by||e.worker||'',
+        name:e.retailer_name||'',why:''});
+    if(e.type==='DISPATCH_REJECT'&&mineIds[e.targetUuid])
+      out.push({dt:e.dt,ok:false,kg:+(mineIds[e.targetUuid].total_kg)||0,who:e.worker||'',
+        name:mineIds[e.targetUuid].retailer_name||'',why:e.reason||''});});
+  if(!out.length)return '';
+  out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
+  return '<div class="sec" style="margin-top:14px">Recently decided</div>'+
+    out.slice(0,6).map(x=>'<div class="reqrow"><div class="reqmid">'+
+      '<b>'+nf(x.kg)+' kg</b> → '+esc(x.name)+'<div class="pa">'+esc(x.dt)+' · '+esc(x.who)+
+      (x.why?(' · '+esc(x.why)):'')+'</div></div>'+
+      '<span class="cstat '+(x.ok?'a':'r')+'">'+(x.ok?'APPROVED':'RETURNED')+'</span></div>').join('');}
+
+function renderWLines(){
+  const box=$('w-rows'); if(!box)return;
+  box.innerHTML=wLines().map((l,i)=>{
+    const gs=gradesFor(l.clone);
+    return '<div class="dline">'+
+      '<div class="dlhead"><span class="dltag">BASKET '+(i+1)+'</span>'+
+      (wLines().length>1?'<span class="dlx" onclick="removeWLine(\''+esc(l.k)+'\')">remove</span>':'')+'</div>'+
+      '<div class="dl3">'+
+        '<div><label>Clone</label><select onchange="wlSet(\''+esc(l.k)+'\',\'clone\',this.value)">'+
+          CLONE_SELL_ORDER.map(c=>'<option value="'+esc(c)+'"'+(c===l.clone?' selected':'')+'>'+
+            esc(CLONE_NAME[c]||c)+' ('+esc(c)+')</option>').join('')+'</select></div>'+
+        '<div><label>Grade</label><select onchange="wlSet(\''+esc(l.k)+'\',\'grade\',this.value)">'+
+          gs.map(g=>'<option value="'+g+'"'+(g===l.grade?' selected':'')+'>'+g+' · '+
+            esc(bandShort(l.clone,g))+'</option>').join('')+'</select></div>'+
+      '</div>'+
+      '<div class="dl3">'+
+        '<div><label>Basket type</label><select onchange="wlSet(\''+esc(l.k)+'\',\'basket\',this.value)">'+
+          BASKETS.map(b=>'<option value="'+esc(b.id)+'"'+(b.id===l.basket?' selected':'')+'>'+
+            (b.ic?b.ic+' ':'')+esc(b.name)+' −'+nf(b.tare_kg)+' kg</option>').join('')+'</select></div>'+
+        '<div><label>How many baskets</label><input type="number" min="0" step="1" inputmode="numeric" '+
+          'value="'+esc(l.baskets)+'" oninput="wlSet(\''+esc(l.k)+'\',\'baskets\',this.value)"></div>'+
+      '</div>'+
+      '<div class="dl3">'+
+        '<div><label>GROSS on scale (kg)</label><input type="number" min="0" step="any" inputmode="decimal" '+
+          'placeholder="0.00" value="'+esc(l.gross)+'" oninput="wlSet(\''+esc(l.k)+'\',\'gross\',this.value)"></div>'+
+        '<div><label>Fruit count (optional)</label><input type="number" min="0" step="1" inputmode="numeric" '+
+          'placeholder="0" value="'+esc(l.fruits)+'" oninput="wlSet(\''+esc(l.k)+'\',\'fruits\',this.value)"></div>'+
+      '</div>'+
+      '<div class="dlnet" id="wln-'+esc(l.k)+'">—</div>'+
+    '</div>';}).join('');}
+
+/** Weight only. Passing '' as the merchant forces every price to resolve to zero, which
+ *  is the point: no ringgit figure can reach a worker's screen from this path. */
+function wCalc(){
+  wLines().forEach(l=>{
+    const c=lineCalc(l,NO_PRICE), n=$('wln-'+l.k);
+    if(n)n.innerHTML='Gross '+nf(c.gross)+' kg − tare '+nf(c.tare)+' kg = NET <b>'+nf(c.net)+' kg</b>'+
+      (c.avg>0?('<span class="v">avg '+nf(c.avg)+' kg → Grade '+c.sugg+
+        (c.sugg!==l.grade?' ⚠':' ✓')+'</span>'):'');});
+  const t=dispTotals(NO_PRICE,wLines()), el=$('w-tot');
+  if(el)el.innerHTML=t.total_kg>0
+    ? 'TOTAL NET <b>'+nf(t.total_kg)+' kg</b> in '+t.lines.length+' basket line'+
+      (t.lines.length===1?'':'s')+(t.fruit_count?(' · '+t.fruit_count+' fruits'):'')
+    : 'Key the gross reading for at least one basket.';}
+
+async function onWPhoto(input){
+  const err=$('w-err'); if(err)err.textContent='';
+  const f=input&&input.files&&input.files[0];
+  input.value='';                                   // so re-picking the same file re-fires
+  if(!f)return;
+  toast('Shrinking the photo…');
+  try{
+    W_PHOTO=await compressPhoto(f);
+    renderScaleCard();
+    toast('📷 Photo attached · '+photoKB(W_PHOTO)+' KB');
+  }catch(e){ if(err)err.textContent=e.message; toast(e.message,1); }}
+function clearWPhoto(){W_PHOTO='';renderScaleCard();}
+
+async function submitScaleDispatch(){
+  const err=$('w-err'); if(err)err.textContent='';
+  if(wSaving)return;
+  if(!canWeigh()){toast('You are not set up to weigh',1);return;}
+  const r=retailerById(W_RET);
+  if(!r){if(err)err.textContent='Choose which merchant this load is going to.';return;}
+  if(String(r.status||'Active')!=='Active'){if(err)err.textContent='That merchant is suspended.';return;}
+  const t=dispTotals(NO_PRICE,wLines());
+  if(!(t.total_kg>0)){if(err)err.textContent='Key the gross scale reading for at least one basket.';return;}
+  if(!W_PHOTO){if(err)err.textContent='A photo of the scale display is required before this can be sent.';return;}
+  wSaving=true;
+  const u=uuid(), stamp=now();
+  try{
+    await persistEvent({uuid:u,type:'DISPATCH_REQ',dt:stamp,
+      retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
+      lines:t.lines, lines_json:JSON.stringify(t.lines), line_count:t.lines.length,
+      kg_A:t.kg_A, kg_B:t.kg_B, kg_C:t.kg_C, fruit_count:t.fruit_count,
+      total_gross_kg:t.total_gross_kg, total_tare_kg:t.total_tare_kg, total_kg:t.total_kg,
+      photo_b64:W_PHOTO, photo_kb:photoKB(W_PHOTO),
+      note:W_NOTE.trim(),
+      worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
+  } finally { wSaving=false; }
+  WLINES=[newWLine()]; W_PHOTO=''; W_NOTE=''; W_RET='';
+  badge(); renderScaleCard(); renderVerify(); renderHub();
+  toast('📤 '+nf(t.total_kg)+' kg sent to Marketing for approval'+(navigator.onLine?'':' (queued)'));}
+
+// ---- the pending queue, derived from the ledger like everything else -----------------
+/** A request is OPEN until a DISPATCH quotes its uuid or a DISPATCH_REJECT returns it.
+ *  Derived, never stored — so a decision syncing in from the Marketer's phone closes the
+ *  request on the worker's phone with no extra message type. */
+function reqDecision(u){
+  const ok=EVENTS.find(e=>e.type==='DISPATCH'&&String(e.req_uuid||'')===String(u));
+  if(ok)return {state:'APPROVED',ev:ok};
+  const no=EVENTS.find(e=>e.type==='DISPATCH_REJECT'&&String(e.targetUuid||'')===String(u));
+  if(no)return {state:'RETURNED',ev:no};
+  return {state:'PENDING',ev:null};}
+function dispatchRequests(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ');}
+function pendingDispatches(){
+  return dispatchRequests().filter(e=>reqDecision(e.uuid).state==='PENDING')
+    .sort((a,b)=>String(a.dt).localeCompare(String(b.dt)));}
+/** The name the brief uses. Same list, exposed so the schema reads as written. */
+function pending_dispatches(){return pendingDispatches();}
+function reqById(u){return dispatchRequests().find(e=>e.uuid===u)||null;}
+/**
+ * Re-price lines that have ALREADY been weighed.
+ *
+ * This is not the same job as dispTotals(), and conflating the two was a real bug: a
+ * raw scale line carries `gross` + basket + count and has to have its tare taken off,
+ * while a line on a submitted request is finished — `net_kg` is settled and the only
+ * open question is what that weight is worth to THIS merchant. Running a finished line
+ * back through the raw calculator reads `gross` as undefined and silently values the
+ * whole load at zero, which looks exactly like an empty load.
+ *
+ * The worker's net weight is therefore never recomputed here, only re-priced. If the
+ * marketer disputes the weight itself, the load is returned, not quietly adjusted.
+ */
+function repriceLines(lines,retId){
+  let gross=0,tare=0,net=0,val=0,fruits=0;
+  const byGrade={A:0,B:0,C:0}, out=[];
+  (lines||[]).forEach(x=>{
+    const nk=+x.net_kg||0; if(!(nk>0))return;
+    const price=priceOf(x.clone,x.grade,retId);
+    const value=+((nk*price).toFixed(2));
+    gross+=(+x.gross_kg||nk); tare+=(+x.tare_kg||0); net+=nk; val+=value; fruits+=(+x.fruits||0);
+    byGrade[x.grade]=+((byGrade[x.grade]||0)+nk).toFixed(2);
+    out.push({...x, price_rm:price, value_rm:value,
+      clone_name:x.clone_name||CLONE_NAME[x.clone]||x.clone||'Mixed'});});
+  return {lines:out, fruit_count:fruits,
+    total_gross_kg:+gross.toFixed(2), total_tare_kg:+tare.toFixed(2),
+    total_kg:+net.toFixed(2), total_value_rm:+val.toFixed(2),
+    kg_A:+(byGrade.A||0).toFixed(2), kg_B:+(byGrade.B||0).toFixed(2), kg_C:+(byGrade.C||0).toFixed(2)};}
+
+/** Scale lines off a request, tolerating the JSON round trip through the Sheet. */
+function reqLines(e){
+  if(!e)return [];
+  if(Array.isArray(e.lines)&&e.lines.length)return e.lines;
+  if(typeof e.lines_json==='string'&&e.lines_json){
+    try{const p=JSON.parse(e.lines_json); if(Array.isArray(p))return p;}catch(x){}}
+  return [];}
+
+// ---- the photo lightbox --------------------------------------------------------------
+// PHOTO_SEEN is what makes the audit real rather than a checkbox: Approve stays disabled
+// until the Marketer has actually opened the picture at full size on this device.
+let PHOTO_SEEN={};
+function showPhoto(src,title,isUuid){
+  let img=src;
+  if(isUuid){const e=reqById(src); img=e?e.photo_b64:''; if(e)PHOTO_SEEN[e.uuid]=true;}
+  if(!img){toast('That photo has not reached this phone yet — sync at the hotspot',1);return;}
+  const box=$('lightbox'); if(!box)return;
+  $('lb-title').textContent=title||'Scale photo';
+  $('lb-img').src=img;
+  box.classList.remove('hidden');
+  if(isUuid)renderVerify();}
+function closePhoto(){const b=$('lightbox');if(b)b.classList.add('hidden');const i=$('lb-img');if(i)i.src='';}
+
+// ---- the Marketer's verification hub -------------------------------------------------
+let VERIFY_SEL='', vSaving=false;
+function openVerify(u){VERIFY_SEL=(VERIFY_SEL===u?'':u);renderVerify();}
+
+function renderVerify(){
+  const box=$('verifybox'); if(!box)return;
+  if(!canDispatch()){box.innerHTML='';VERIFY_SEL='';return;}
+  const q=pendingDispatches();
+  box.innerHTML=
+    '<div class="cnote">Every load a worker weighed, waiting on you. <b>Open the photo</b> and read the '+
+      'scale in the picture against the figures beside it. Approve writes the invoice, takes the credit '+
+      'down and copies the WhatsApp receipt — so it is checked here or it is not checked at all.</div>'+
+    (q.length?q.map(e=>verifyCardHtml(e)).join('')
+      :'<div class="alertnone">Nothing waiting. Workers submit loads from Daily Ops → MORNING SCALE.</div>')+
+    verifyHistory();}
+
+function verifyCardHtml(e){
+  const open=VERIFY_SEL===e.uuid;
+  const seen=!!PHOTO_SEEN[e.uuid];
+  const t=repriceLines(reqLines(e),e.retailer_id);
+  const before=retailerCredit(e.retailer_id), after=+((before-t.total_value_rm).toFixed(2));
+  const short=after<CREDIT_FLOOR_RM;
+  const unpriced=t.lines.filter(x=>!(x.price_rm>0));
+  const r=retailerById(e.retailer_id);
+  return '<div class="vcard'+(open?' open':'')+'">'+
+    '<div class="vhead" onclick="openVerify(\''+esc(e.uuid)+'\')">'+
+      (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'">'):'<div class="reqthumb none">no photo</div>')+
+      '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
+        '<div class="pa">'+esc(e.dt)+' · weighed by '+esc(e.worker||'')+(e.synced?'':' · queued')+'</div></div>'+
+      '<span class="cstat '+(seen?'a':'s')+'">'+(seen?'PHOTO SEEN':'CHECK')+'</span>'+
+    '</div>'+
+    (!open?'':(
+      // ---- the audit itself: photo on one side, what was typed on the other ----
+      '<div class="vbody">'+
+      '<div class="vsplit">'+
+        '<div class="vphoto">'+
+          (e.photo_b64
+            ? '<img class="photothumb big" src="'+e.photo_b64+'" onclick="showPhoto(\''+esc(e.uuid)+
+              '\',\'Scale photo — '+esc(e.worker||'')+'\',1)">'+
+              '<div class="photometa">Tap to enlarge · '+(+e.photo_kb||photoKB(e.photo_b64))+' KB</div>'
+            : '<div class="photonone">This load carries no photo. It was submitted by an older build — '+
+              'check it against the worker directly before approving.</div>')+
+        '</div>'+
+        '<div class="vfields">'+
+          reqLines(e).map(x=>'<div class="vf"><span class="lbl">'+esc(x.clone_name||x.clone)+' · Grade '+
+            esc(x.grade)+'</span><span>'+nf(x.gross_kg)+' gross − '+nf(x.tare_kg)+' tare = <b>'+
+            nf(x.net_kg)+' kg</b>'+(x.fruits?(' · '+x.fruits+' fruits'):'')+'</span></div>').join('')+
+          '<div class="vf tot"><span>TOTAL NET</span><span><b>'+nf(e.total_kg)+' kg</b></span></div>'+
+          (e.note?('<div class="vf"><span class="lbl">Note</span><span>'+esc(e.note)+'</span></div>'):'')+
+        '</div>'+
+      '</div>'+
+      contractBanner(e.retailer_id)+
+      '<div class="invbox">'+
+        t.lines.map(x=>'<div class="ir"><span class="lbl">'+esc(x.clone_name)+' · Grade '+x.grade+
+          ' — '+nf(x.net_kg)+' kg × '+rm(x.price_rm)+'</span><span>'+rm(x.value_rm)+'</span></div>').join('')+
+        '<div class="ir tot"><span>INVOICE VALUE</span><span>'+rm(t.total_value_rm)+'</span></div>'+
+      '</div>'+
+      '<div class="credok'+(short?' credlow':'')+'">Credit now <b>'+rm(before)+'</b> → after this '+
+        'dispatch <b>'+rm(after)+'</b></div>'+
+      (unpriced.length?('<div class="critbox">No rate on file for '+
+        esc(unpriced.map(x=>x.clone+' Grade '+x.grade).join(', '))+' under '+esc((r||{}).name||'')+
+        '’s price book. Set it in PRICES &amp; RETAILERS before approving.</div>'):'')+
+      (short?('<div class="critbox flash">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
+        '<span style="font-weight:700;font-size:11.5px">'+esc((r||{}).name||'')+' holds '+rm(before)+
+        ' but this load is worth '+rm(t.total_value_rm)+'.</span></div>'):'')+
+      (!seen?('<div class="mustsee">🔒 Open the photo first. Approve unlocks once you have looked at '+
+        'the scale display on this phone.</div>'):'')+
+      '<button class="bigbtn" '+((!seen||unpriced.length||short)?'disabled ':'')+
+        'onclick="approveReq(\''+esc(e.uuid)+'\')">'+
+        (!seen?'🔒 AUDIT THE PHOTO FIRST'
+              :(unpriced.length?'🔒 MISSING PRICE'
+              :(short?'🔒 CREDIT EXCEEDED — top up or dispatch from the retailer card'
+              :'✓ APPROVE &amp; DISPATCH')))+'</button>'+
+      '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
+        'onclick="rejectReq(\''+esc(e.uuid)+'\')">↩ RETURN TO WORKER</button>'+
+      '</div>'));}
+
+/** Recently decided loads stay visible for a day so a mistake is noticed while it is
+ *  still fresh. The rows are read-only — a wrong approval is fixed with a credit top-up,
+ *  never by unpicking the invoice. */
+function verifyHistory(){
+  const rows=dispatchRequests().map(e=>({e:e,d:reqDecision(e.uuid)}))
+    .filter(x=>x.d.state!=='PENDING')
+    .sort((a,b)=>String(b.e.dt).localeCompare(String(a.e.dt))).slice(0,10);
+  if(!rows.length)return '';
+  return '<div class="sec" style="margin-top:15px">Recently decided</div>'+
+    rows.map(x=>'<div class="reqrow">'+
+      (x.e.photo_b64?('<img class="reqthumb" src="'+x.e.photo_b64+'" onclick="showPhoto(\''+
+        esc(x.e.uuid)+'\',\'Scale photo\',1)">'):'<div class="reqthumb none">no photo</div>')+
+      '<div class="reqmid"><b>'+nf(x.e.total_kg)+' kg</b> → '+esc(x.e.retailer_name||'')+
+      '<div class="pa">'+esc(x.e.dt)+' · '+esc(x.e.worker||'')+
+      (x.d.state==='APPROVED'&&x.d.ev.invoice_no?(' · '+esc(x.d.ev.invoice_no)):'')+
+      (x.d.state==='RETURNED'&&x.d.ev.reason?(' · '+esc(x.d.ev.reason)):'')+'</div></div>'+
+      '<span class="cstat '+(x.d.state==='APPROVED'?'a':'r')+'">'+x.d.state+'</span></div>').join('');}
+
+/** THE handshake completing. Writes the ordinary DISPATCH event, so the invoice serial,
+ *  the credit deduction, the delivery ledger, the yield audit and the WhatsApp receipt
+ *  all behave exactly as they do for a direct dispatch — one code path downstream. */
+async function approveReq(u){
+  if(vSaving)return;
+  if(!canDispatch()){toast('Only the Owner or Marketing can approve a dispatch',1);return;}
+  const e=reqById(u); if(!e){toast('That load is not on this phone',1);return;}
+  if(reqDecision(u).state!=='PENDING'){toast('That load has already been decided',1);renderVerify();return;}
+  if(!PHOTO_SEEN[u]){toast('Open the photo and check it first',1);return;}
+  const r=retailerById(e.retailer_id);
+  if(!r){toast('That merchant is no longer on the list',1);return;}
+  if(String(r.status||'Active')!=='Active'){toast('That merchant is suspended',1);return;}
+  const t=repriceLines(reqLines(e),e.retailer_id);
+  if(!(t.total_kg>0)){toast('This load has no weight on it',1);return;}
+  if(t.lines.some(x=>!(x.price_rm>0))){toast('A rate is missing — set it in PRICES & RETAILERS',1);return;}
+  const before=retailerCredit(e.retailer_id), after=+((before-t.total_value_rm).toFixed(2));
+  if(after<CREDIT_FLOOR_RM){toast('Credit exceeded — top up, or dispatch from the retailer card with an Owner override',1);return;}
+  if(!confirm('Approve '+nf(t.total_kg)+' kg to '+r.name+' for '+rm(t.total_value_rm)+'?\n\n'+
+    'Weighed by '+(e.worker||'')+', photo checked by '+((CFG&&CFG.worker)||'')+'.\n'+
+    'This writes the invoice and takes the credit down to '+rm(after)+'.'))return;
+  vSaving=true;
+  const du=uuid(), stamp=now(), serial=nextInvoiceSerial(stamp);
+  try{
+    await persistEvent({uuid:du,type:'DISPATCH',dt:stamp,
+      invoice_no:serial,
+      retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
+      pricing:pricingModeOf(r.id),
+      lines:t.lines, lines_json:JSON.stringify(t.lines), line_count:t.lines.length,
+      kg_A:t.kg_A, kg_B:t.kg_B, kg_C:t.kg_C, fruit_count:t.fruit_count,
+      total_gross_kg:t.total_gross_kg, total_tare_kg:t.total_tare_kg,
+      total_kg:t.total_kg, total_value_rm:t.total_value_rm,
+      credit_before_rm:before, credit_after_rm:after,
+      over_credit:false, override_by:'', override_at:'',
+      // the three signatures, on the row itself
+      req_uuid:e.uuid, weighed_by:e.worker||'', weighed_at:e.dt,
+      verified_by:CFG.worker, verified_at:stamp, photo_kb:+e.photo_kb||photoKB(e.photo_b64),
+      note:e.note||'',
+      worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
+  } finally { vSaving=false; }
+  LAST_INVOICE_UUID=du;
+  VERIFY_SEL='';
+  badge(); renderVerify(); renderDispatch(); renderMktLedger(); renderMarketing();
+  renderYieldAudit(); renderScaleCard(); renderDailyAudit(); renderMatrix(); renderHub();
+  toast('✓ '+serial+' · '+nf(t.total_kg)+' kg to '+r.name+' · '+rm(t.total_value_rm));
+  copyReceipt(du,true);}
+
+/** Returning a load is an EVENT with a written reason, not a deletion. The worker's
+ *  original request stays on the record beside the reason it came back. */
+async function rejectReq(u){
+  if(!canDispatch()){toast('Only the Owner or Marketing can return a load',1);return;}
+  const e=reqById(u); if(!e)return;
+  if(reqDecision(u).state!=='PENDING'){toast('That load has already been decided',1);return;}
+  const res=await askForm({
+    title:'Return to '+(e.worker||'the worker'),
+    sub:'Say what does not match, in the words you would use on the radio. The worker sees this and re-weighs.',
+    f1:{label:'What is wrong',type:'text',value:'',placeholder:'e.g. photo shows 41.2 kg, form says 51.2'},
+    ok:'↩ RETURN LOAD'});
+  if(!res)return;
+  const why=String(res.v1||'').trim();
+  if(why.length<4){toast('Give the worker a reason they can act on',1);return;}
+  await persistEvent({uuid:uuid(),type:'DISPATCH_REJECT',dt:now(),
+    targetUuid:e.uuid, targetType:'DISPATCH_REQ', targetDt:e.dt, targetWorker:e.worker||'',
+    detail:{kg:+e.total_kg||0,retailer:e.retailer_name||''},
+    reason:why, worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
+  VERIFY_SEL='';
+  badge(); renderVerify(); renderScaleCard(); renderHub();
+  toast('↩ Returned to '+(e.worker||'the worker'));}
+
+// ---- sync: requests get their own payload key, per the v3.2 rule ---------------------
+let dreqWarned=false;
+function dreqQueue(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ'&&!e.synced);}
+async function pushDispatchReqs(){
+  return pushOwnKey(dreqQueue(),'dispatchreqs','dispatchreqs',
+    m=>{if(!dreqWarned){dreqWarned=true;toast(m,1);}},
+    'Scale photos kept on this phone — update the Apps Script to add the DISPATCH_REQ tab');}
+/** Requests come back DOWN as well as up: the worker weighs on one phone and the
+ *  Marketer audits on another, so without this the hub would only ever show loads
+ *  weighed on the Marketer's own device — the v3.5 divergence bug, repeated. */
+async function mergeDispatchReqs(list){
+  if(!Array.isArray(list)||!list.length)return 0;
+  let n=0;
+  for(const x of list){
+    if(!x||!x.uuid)continue;
+    if(EVENTS.some(e=>e.uuid===x.uuid))continue;
+    const e={...x,type:'DISPATCH_REQ',synced:true,syncedAt:now()};
+    if(typeof e.lines==='string'){try{e.lines=JSON.parse(e.lines);}catch(err){e.lines=[];}}
+    EVENTS.push(e); if(db)await put('events',e); n++;}
+  if(n)rebuildLedgers();
+  return n;}
+
+/* ======================================================================================
+   v3.6 · THE MULTI-MERCHANT SUMMARY LEDGER            Owner + Marketer only
+   ======================================================================================
+   Two views over the same append-only log, answering two different questions:
+
+     DAILY AUDIT    "what happened yesterday?" - one row per day, chronological, with the
+                    tying count, the good-vs-rotten split by cause, the kilos that left
+                    the farm, who bought them, and the scale photo behind each load.
+     MONTH LEDGER   "is this farm making money?" - a year/month grid of yield per clone,
+                    revenue per merchant, material and labour spend per lot, and the
+                    proportion of the store that was drawn down.
+
+   Nothing here is stored. Both are computed from EVENTS every time the screen opens, so
+   a late-syncing phone corrects the history instead of corrupting it.
+   ====================================================================================== */
+
+/** Moving average costing, done properly.
+ *  Until v3.6 a stock-out was valued at the product's BASELINE unit price, which meant a
+ *  drum bought cheaply in June and a drum bought dearly in August cost the same to issue.
+ *  This walks every stock movement in date order and keeps a running (quantity, value)
+ *  per product, so an issue is valued at the average of what is actually in the store at
+ *  that moment - which is what "moving average" means and what an auditor expects.
+ *  Returns the cost of each STOCK_OUT keyed by event uuid. */
+function movingAvgCost(){
+  const pos={};                                   // pid -> {q, v}
+  INVENTORY_RECON.forEach(p=>{pos[p.id]={q:+p.stock||0,v:(+p.stock||0)*(+p.cpu||0)};});
+  const rows=EVENTS.filter(e=>e.type==='STOCK_IN'||e.type==='STOCK_OUT'||e.type==='STOCK_ADJUST')
+    .slice().sort((a,b)=>String(a.dt).localeCompare(String(b.dt)));
+  const cost={}, avgAt={};
+  rows.forEach(e=>{
+    const pid=e.pid; if(!pid)return;
+    if(!pos[pid]){const p=prodById(pid);pos[pid]={q:0,v:0};if(p){pos[pid].q=+p.stock||0;pos[pid].v=(+p.stock||0)*(+p.cpu||0);}}
+    const P=pos[pid];
+    const avg=P.q>0?(P.v/P.q):((prodById(pid)||{}).cpu||0);
+    avgAt[e.uuid]=avg;
+    if(e.type==='STOCK_IN'){
+      const q=+e.qty||0, v=(e.cost!=null?+e.cost:q*avg);
+      P.q+=q; P.v+=v;}
+    else if(e.type==='STOCK_OUT'){
+      const q=+e.qty||0, v=+(q*avg).toFixed(4);
+      cost[e.uuid]=v;
+      P.q=+(P.q-q).toFixed(4); P.v=+(P.v-v).toFixed(4);
+      if(P.q<=0){P.q=Math.max(0,P.q);P.v=Math.max(0,P.v);}}   // an over-issue cannot leave negative value behind
+    else {
+      const d=+e.delta||0, v=(e.cost!=null?+e.cost:d*avg);
+      P.q+=d; P.v+=v;}});
+  return {cost:cost, avgAt:avgAt};}
+/** What one stock-out actually cost the farm, moving-average first, baseline as fallback. */
+function outCostOf(e,mac){
+  if(mac&&mac.cost[e.uuid]!=null)return +mac.cost[e.uuid];
+  const p=prodById(e.pid);
+  return (e.cost!=null?+e.cost:(+e.qty||0)*((p&&p.cpu)||0));}
+
+// ---- the tree-log day roll-up --------------------------------------------------------
+/** Every field figure for one calendar day, with the corrections already applied.
+ *  Corrections matter here: a day that was over-counted and then fixed must read as the
+ *  fixed figure, or the daily audit disagrees with the tree balances on the same phone. */
+function dayField(){
+  const d={};
+  const touch=k=>{if(!d[k])d[k]={day:k,tied:0,good:0,rotten:0,
+    causes:{ANIMAL:0,PEST:0,DISEASE:0,OTHER:0},kg:0,dispatch_kg:0,dispatch_rm:0,
+    loads:[],buyers:{}};return d[k];};
+  EVENTS.forEach(e=>{
+    const k=String(e.dt||'').slice(0,10); if(k.length!==10)return;
+    if(e.type==='TIE')          touch(k).tied+=(+e.n||0);
+    else if(e.type==='TIE_ADJUST')  touch(k).tied+=(+e.delta||0);
+    else if(e.type==='DROP'){const r=touch(k);r.good+=(+e.qty||0);r.kg+=(+e.estkg||0);}
+    else if(e.type==='DROP_ADJUST') touch(k).good+=(+e.delta||0);
+    else if(e.type==='ROTTEN'){const r=touch(k);r.rotten+=(+e.qty||0);
+      const c=ROT_CAUSE[e.cause]?e.cause:'OTHER'; r.causes[c]=(r.causes[c]||0)+(+e.qty||0);}
+    else if(e.type==='ROTTEN_ADJUST'){const r=touch(k);r.rotten+=(+e.delta||0);
+      const c=ROT_CAUSE[e.cause]?e.cause:'OTHER'; r.causes[c]=(r.causes[c]||0)+(+e.delta||0);}
+    else if(e.type==='DISPATCH'){const r=touch(k);
+      r.dispatch_kg+=(+e.total_kg||0); r.dispatch_rm+=(+e.total_value_rm||0);
+      r.buyers[e.retailer_name||e.retailer_id||'—']=(r.buyers[e.retailer_name||e.retailer_id||'—']||0)+(+e.total_kg||0);
+      r.loads.push(e);}});
+  return Object.values(d).sort((a,b)=>b.day.localeCompare(a.day));}
+
+/** The scale photo behind a dispatch, if the load came through the handshake. */
+function photoForDispatch(e){
+  if(!e||!e.req_uuid)return null;
+  const q=reqById(e.req_uuid);
+  return (q&&q.photo_b64)?q:null;}
+
+let DAILY_LIMIT=14;
+function moreDaily(){DAILY_LIMIT+=14;renderDailyAudit();}
+
+function renderDailyAudit(){
+  const box=$('dailybox'); if(!box)return;
+  if(!roleAllows('dailyaudit')){box.innerHTML='';return;}
+  const days=dayField();
+  if(!days.length){box.innerHTML='<div class="alertnone">Nothing logged yet. This list fills itself from '+
+    'the tying, harvest and dispatch records as the season runs.</div>';return;}
+  const shown=days.slice(0,DAILY_LIMIT);
+  const tot=days.reduce((a,r)=>({tied:a.tied+r.tied,good:a.good+r.good,rotten:a.rotten+r.rotten,
+    kg:a.kg+r.dispatch_kg,rm:a.rm+r.dispatch_rm}),{tied:0,good:0,rotten:0,kg:0,rm:0});
+  const lossPct=(tot.good+tot.rotten)>0?(tot.rotten/(tot.good+tot.rotten)*100):0;
+  box.innerHTML=
+    '<div class="kpis" style="margin-bottom:8px">'+
+      '<div class="kpi"><div class="v">'+nf(tot.tied)+'</div><div class="l">counts tied</div></div>'+
+      '<div class="kpi"><div class="v">'+nf(tot.good)+'</div><div class="l">good drops</div></div>'+
+      '<div class="kpi'+(lossPct>15?' bad':'')+'"><div class="v">'+nf(tot.rotten)+'</div><div class="l">rotten · '+
+        nf(lossPct)+'%</div></div>'+
+      '<div class="kpi"><div class="v">'+nf(tot.kg)+'</div><div class="l">kg dispatched</div></div>'+
+    '</div>'+
+    '<div class="cnote">One row per day, newest first. <b>Tied</b> is what went onto the string that day; '+
+      '<b>good</b> and <b>rotten</b> are what came off it. Approved corrections are already folded in, so '+
+      'these figures agree with the tree balances. Tap 📷 to see the scale photo the load was invoiced from.</div>'+
+    shown.map(r=>{
+      const off=r.good+r.rotten;
+      const pct=off>0?(r.rotten/off*100):0;
+      const buyers=Object.keys(r.buyers);
+      return '<div class="dayrow">'+
+        '<div class="dayhead"><b>'+esc(r.day)+'</b>'+
+          (pct>15?'<span class="cstat r">'+nf(pct)+'% LOSS</span>':(off?('<span class="cstat a">'+nf(pct)+'% loss</span>'):''))+
+        '</div>'+
+        '<div class="daygrid">'+
+          '<div><span class="dl">tied</span><b>'+nf(r.tied)+'</b></div>'+
+          '<div><span class="dl">good drops</span><b>'+nf(r.good)+'</b></div>'+
+          '<div><span class="dl">rotten</span><b>'+nf(r.rotten)+'</b></div>'+
+          '<div><span class="dl">net kg out</span><b>'+nf(r.dispatch_kg)+'</b></div>'+
+        '</div>'+
+        (r.rotten>0?('<div class="causerow">'+ROT_ORDER.filter(c=>r.causes[c])
+          .map(c=>'<span class="causechip">'+ROT_CAUSE[c].ic+' '+esc(ROT_CAUSE[c].label)+' '+
+            nf(r.causes[c])+'</span>').join('')+
+          (r.causes.OTHER?('<span class="causechip">❓ Unstated '+nf(r.causes.OTHER)+'</span>'):'')+
+          '</div>'):'')+
+        (buyers.length
+          ? ('<div class="buyrow">→ '+buyers.map(b=>esc(b)+' '+nf(r.buyers[b])+' kg').join(' · ')+
+             (SHOW_VALUES?(' <b>'+rm(r.dispatch_rm)+'</b>'):'')+'</div>'+
+             '<div class="loadrow">'+r.loads.map(e=>{
+               const ph=photoForDispatch(e);
+               return '<span class="loadchip">'+
+                 (ph?('<span class="linkish" onclick="showPhoto(\''+esc(ph.uuid)+'\',\'Scale photo — '+
+                   esc(e.invoice_no||'')+'\',1)">📷</span> '):'<span class="nophoto" title="no photo — direct dispatch">▫</span> ')+
+                 '<span class="linkish" onclick="copyReceipt(\''+esc(e.uuid)+'\')">'+
+                 esc(e.invoice_no||'invoice')+'</span></span>';}).join('')+'</div>')
+          : '<div class="buyrow dim">nothing dispatched this day</div>')+
+      '</div>';}).join('')+
+    (days.length>shown.length
+      ? ('<button class="bigbtn ghost" style="padding:11px;font-size:13px" onclick="moreDaily()">SHOW '+
+         Math.min(14,days.length-shown.length)+' MORE DAYS ('+(days.length-shown.length)+' left)</button>')
+      : '')+
+    '<p class="small">📷 opens the photo the worker took of the scale; ▫ marks a load dispatched directly '+
+      'by Marketing without a worker submission, so it has no photo behind it. Tapping the invoice number '+
+      'copies its WhatsApp receipt.</p>';}
+
+// ---- the monthly / yearly matrix -----------------------------------------------------
+/** Everything the month grid needs, in one pass. Months come from EVERY kind of activity,
+ *  not just stock movements, so a month with harvest but no purchases still appears. */
+function buildMonthMatrix(){
+  const mac=movingAvgCost();
+  const inv=buildLedgerSummary();               // opening / receipts / closing, per month
+  const invBy={}; inv.months.forEach(m=>{invBy[m.key]=m;});
+  const M={};
+  const touch=k=>{if(!M[k])M[k]={key:k,year:k.slice(0,4),
+      clone:{}, revenue:{}, revenue_total:0, kg_total:0, fruit:0, invoices:0,
+      material:{A:0,B:0,C:0,'—':0}, labour:{A:0,B:0,C:0,'—':0}, manhours:0,
+      tied:0, good:0, rotten:0};return M[k];};
+
+  // yield + revenue, off the dispatch lines
+  EVENTS.forEach(e=>{
+    const k=String(e.dt||'').slice(0,7); if(k.length!==7)return;
+    if(e.type==='TIE')             touch(k).tied+=(+e.n||0);
+    else if(e.type==='TIE_ADJUST') touch(k).tied+=(+e.delta||0);
+    else if(e.type==='DROP')       touch(k).good+=(+e.qty||0);
+    else if(e.type==='DROP_ADJUST')touch(k).good+=(+e.delta||0);
+    else if(e.type==='ROTTEN')     touch(k).rotten+=(+e.qty||0);
+    else if(e.type==='ROTTEN_ADJUST')touch(k).rotten+=(+e.delta||0);
+    else if(e.type==='DISPATCH'){
+      const m=touch(k);
+      m.invoices++; m.kg_total+=(+e.total_kg||0); m.fruit+=(+e.fruit_count||0);
+      const nm=e.retailer_name||(retailerById(e.retailer_id)||{}).name||e.retailer_id||'—';
+      m.revenue[nm]=+((m.revenue[nm]||0)+(+e.total_value_rm||0)).toFixed(2);
+      m.revenue_total=+(m.revenue_total+(+e.total_value_rm||0)).toFixed(2);
+      receiptLines(e).forEach(x=>{
+        const c=x.clone||'—';
+        m.clone[c]=+((m.clone[c]||0)+(+x.net_kg||0)).toFixed(2);});}
+    else if(e.type==='STOCK_OUT'){
+      const m=touch(k);
+      const L=LOT_KEYS.indexOf(e.lot)>=0?e.lot:'—';
+      m.material[L]=+(m.material[L]+outCostOf(e,mac)).toFixed(2);}});
+
+  // labour: man-hours already logged since v2.6, now priced
+  labourRows().forEach(r=>{
+    const k=String(r.dt||'').slice(0,7); if(k.length!==7)return;
+    const m=touch(k);
+    const L=LOT_KEYS.indexOf(r.lot)>=0?r.lot:'—';
+    m.labour[L]=+(m.labour[L]+(r.mh*LABOUR_RATE)).toFixed(2);
+    m.manhours+=r.mh;});
+
+  const months=Object.values(M).sort((a,b)=>a.key.localeCompare(b.key));
+  months.forEach(m=>{
+    const iv=invBy[m.key];
+    // Rolling material drawdown:  (opening + receipts - closing) / (opening + receipts)
+    // i.e. what proportion of everything that passed through the store was actually used.
+    const openV=iv?iv.openVal:0, inV=iv?iv.inVal:0, closeV=iv?iv.closeVal:0;
+    const avail=openV+inV;
+    m.open_val=openV; m.in_val=inV; m.close_val=closeV;
+    m.drawdown_pct=avail>0?+(((avail-closeV)/avail)*100).toFixed(1):0;
+    m.material_total=+LOT_KEYS.concat(['—']).reduce((s,L)=>s+m.material[L],0).toFixed(2);
+    m.labour_total  =+LOT_KEYS.concat(['—']).reduce((s,L)=>s+m.labour[L],0).toFixed(2);
+    m.spend_total   =+(m.material_total+m.labour_total).toFixed(2);
+    m.margin_rm     =+(m.revenue_total-m.spend_total).toFixed(2);
+    m.label=MONTH_NAME[+m.key.slice(5,7)-1]+' '+m.year;});
+
+  const years={};
+  months.forEach(m=>{
+    if(!years[m.year])years[m.year]={year:m.year,months:[],clone:{},revenue:{},
+      revenue_total:0,kg_total:0,material_total:0,labour_total:0,spend_total:0,manhours:0,
+      tied:0,good:0,rotten:0};
+    const y=years[m.year];
+    y.months.push(m);
+    Object.keys(m.clone).forEach(c=>{y.clone[c]=+((y.clone[c]||0)+m.clone[c]).toFixed(2);});
+    Object.keys(m.revenue).forEach(n=>{y.revenue[n]=+((y.revenue[n]||0)+m.revenue[n]).toFixed(2);});
+    y.revenue_total=+(y.revenue_total+m.revenue_total).toFixed(2);
+    y.kg_total+=m.kg_total; y.manhours+=m.manhours;
+    y.material_total=+(y.material_total+m.material_total).toFixed(2);
+    y.labour_total  =+(y.labour_total+m.labour_total).toFixed(2);
+    y.spend_total   =+(y.spend_total+m.spend_total).toFixed(2);
+    y.tied+=m.tied; y.good+=m.good; y.rotten+=m.rotten;});
+  Object.values(years).forEach(y=>{y.margin_rm=+(y.revenue_total-y.spend_total).toFixed(2);});
+  return {months:months.slice().reverse(),
+          years:Object.values(years).sort((a,b)=>b.year.localeCompare(a.year))};}
+
+let MTX_OPEN={};
+function toggleMtx(k){MTX_OPEN[k]=!MTX_OPEN[k];renderMatrix();}
+
+function renderMatrix(){
+  const box=$('matrixbox'); if(!box)return;
+  if(!roleAllows('matrixledger')){box.innerHTML='';return;}
+  const d=buildMonthMatrix();
+  if(!d.months.length){box.innerHTML='<div class="alertnone">No month has any activity yet. This grid '+
+    'builds itself from the harvest, dispatch, stock and labour records.</div>';return;}
+  const merchants=listedRetailers().map(r=>r.name);
+  // a merchant that has been renamed still has revenue under the old name — show it
+  d.months.forEach(m=>Object.keys(m.revenue).forEach(n=>{if(merchants.indexOf(n)<0)merchants.push(n);}));
+  const clones=CLONE_SELL_ORDER.filter(c=>d.months.some(m=>m.clone[c]>0));
+
+  box.innerHTML=
+    (LABOUR_RATE_OK?'':'<div class="critbox">Labour is priced at the placeholder rate of '+rm(LABOUR_RATE)+
+      ' per man-hour. Set the real rate in the LABOUR tab — until then every labour and margin figure '+
+      'on this screen is indicative only.</div>')+
+    '<div class="cnote">Sorted newest first. Tap a month to open its lot-by-lot spend and the merchant '+
+      'revenue split. <b>Drawdown %</b> is how much of everything that passed through the store was '+
+      'actually issued: (opening + receipts − closing) ÷ (opening + receipts).</div>'+
+
+    // ---- the year roll-up ----
+    d.years.map(y=>'<div class="yrbox"><div class="yrhead">'+esc(y.year)+
+      '<span>'+(SHOW_VALUES?rm(y.revenue_total):'—')+' revenue</span></div>'+
+      '<div class="yrgrid">'+
+        '<div><span class="dl">net kg sold</span><b>'+nf(y.kg_total)+'</b></div>'+
+        '<div><span class="dl">material</span><b>'+(SHOW_VALUES?rm(y.material_total):'—')+'</b></div>'+
+        '<div><span class="dl">labour</span><b>'+(SHOW_VALUES?rm(y.labour_total):'—')+'</b></div>'+
+        '<div class="'+(y.margin_rm<0?'neg':'pos')+'"><span class="dl">revenue − spend</span><b>'+
+          (SHOW_VALUES?rm(y.margin_rm):'—')+'</b></div>'+
+      '</div></div>').join('')+
+
+    // ---- TABLE 1 — yield volume per clone ----
+    '<div class="sec" style="margin-top:14px">🥭 Monthly yield volume — net KG per clone</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Month</th>'+clones.map(c=>'<th class="num">'+esc(c)+'</th>').join('')+
+      '<th class="num">TOTAL</th></tr>'+
+    d.months.map(m=>'<tr><td><b>'+esc(m.label)+'</b></td>'+
+      clones.map(c=>'<td class="num">'+(m.clone[c]?nf(m.clone[c]):'—')+'</td>').join('')+
+      '<td class="num"><b>'+nf(m.kg_total)+'</b></td></tr>').join('')+
+    '</table></div>'+
+
+    // ---- TABLE 2 — revenue per merchant ----
+    '<div class="sec" style="margin-top:14px">💰 Monthly revenue — RM per merchant</div>'+
+    // Figures are shown WITHOUT the "RM" prefix and without sen: three merchants plus a
+    // total is four money columns, and "RM 12,400.00" in every cell pushes the total off
+    // the right edge of a phone. The unit is stated once, in the heading.
+    (SHOW_VALUES?('<div class="tblwrap"><table class="tbl">'+
+      '<tr><th>Month</th>'+merchants.map(n=>'<th class="num">'+esc(n)+'</th>').join('')+
+        '<th class="num">TOTAL</th></tr>'+
+      d.months.map(m=>'<tr><td><b>'+esc(m.label)+'</b></td>'+
+        merchants.map(n=>'<td class="num">'+(m.revenue[n]?nf(Math.round(m.revenue[n])):'—')+'</td>').join('')+
+        '<td class="num"><b>'+nf(Math.round(m.revenue_total))+'</b></td></tr>').join('')+
+      '</table></div>'+
+      '<div class="exphint">Ringgit, rounded to the nearest one. Swipe the table sideways if a '+
+        'merchant is off the edge.</div>')
+      :'<div class="alertnone">Money figures are hidden for your role.</div>')+
+
+    // ---- TABLE 3 — spend per lot + drawdown, expandable ----
+    '<div class="sec" style="margin-top:14px">🧾 Monthly spend per lot &amp; material drawdown</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Month</th><th class="num">Material</th><th class="num">Labour</th>'+
+      '<th class="num">Drawdown</th></tr>'+
+    d.months.map(m=>{
+      const open=!!MTX_OPEN[m.key];
+      return '<tr class="clickrow" onclick="toggleMtx(\''+esc(m.key)+'\')">'+
+        '<td><b>'+esc(m.label)+'</b><div class="exphint">'+(open?'▾ tap to close':'▸ tap for the lot split')+'</div></td>'+
+        '<td class="num">'+(SHOW_VALUES?rm(m.material_total):'—')+'</td>'+
+        '<td class="num">'+(SHOW_VALUES?rm(m.labour_total):'—')+
+          '<div class="exphint">'+nf(m.manhours)+' man-h</div></td>'+
+        '<td class="num '+(m.drawdown_pct>80?'lowq':'')+'"><b>'+nf(m.drawdown_pct)+'%</b></td></tr>'+
+        (open?('<tr><td colspan="4" class="expcell">'+
+          '<div class="tblwrap"><table class="tbl sub">'+
+          '<tr><th>Lot</th><th class="num">Material</th><th class="num">Labour</th><th class="num">Total</th></tr>'+
+          LOT_KEYS.concat(['—']).map(L=>{
+            const mt=m.material[L]||0, lb=m.labour[L]||0;
+            if(!mt&&!lb&&L==='—')return '';
+            return '<tr><td><b>'+(L==='—'?'Not allocated':'Lot '+L)+'</b></td>'+
+              '<td class="num">'+(SHOW_VALUES?rm(mt):'—')+'</td>'+
+              '<td class="num">'+(SHOW_VALUES?rm(lb):'—')+'</td>'+
+              '<td class="num"><b>'+(SHOW_VALUES?rm(mt+lb):'—')+'</b></td></tr>';}).join('')+
+          '</table></div>'+
+          '<div class="drawbox">Opening store '+(SHOW_VALUES?rm(m.open_val):'—')+
+            ' + received '+(SHOW_VALUES?rm(m.in_val):'—')+
+            ' − closing '+(SHOW_VALUES?rm(m.close_val):'—')+
+            ' = <b>'+nf(m.drawdown_pct)+'%</b> drawn down.<br>'+
+            '<span class="small">Issues are valued at the <b>moving average</b> cost of what was in the '+
+            'store at the moment they were taken, not at a fixed list price.</span></div>'+
+          '<div class="drawbox">Field that month: '+nf(m.tied)+' tied · '+nf(m.good)+' good · '+
+            nf(m.rotten)+' rotten · '+m.invoices+' invoice'+(m.invoices===1?'':'s')+'</div>'+
+          '</td></tr>'):'');}).join('')+
+    '</table></div>'+
+    '<p class="small">Every figure is recomputed from the append-only log each time this screen opens, so '+
+      'a phone that syncs in late corrects the history rather than corrupting it. Material spend is '+
+      'allocated to the lot the worker keyed on Stock Out; anything logged before per-lot allocation '+
+      'existed sits under <b>Not allocated</b>.</p>';}
+
 // ---- the ledger view (all retailers together) ----------------------------------------
 function renderMktLedger(){
   const box=$('mktledgerbox'); if(!box)return;
@@ -4230,21 +5294,46 @@ function renderMktLedger(){
     'the Owner posts a credit top-up with the reason, so the mistake and the fix both stay on the record.</p>';}
 
 // ---- Owner-only price matrix, basket tare and retailer master ------------------------
+// v3.6 — this screen now has a MERCHANT PICKER at the top. Choosing a contract buyer
+// loads THEIR book and hides the trend controls (a trend move must never reach a signed
+// contract). Choosing "Daily spot" loads CLONE_PRICE and the trend controls come back.
+let PRICE_SEL='SPOT';                 // 'SPOT' or a retailer id
+function setPriceSel(v){PRICE_SEL=v||'SPOT';renderPrices();}
+/** The id the price grid is currently editing, or '' when it is the spot matrix. */
+function priceSelId(){return PRICE_SEL==='SPOT'?'':PRICE_SEL;}
+
 function renderPrices(){
   const box=$('pricebox'); if(!box)return;
   const own=canSetPrice();
+  const rid=priceSelId(), contract=!!rid&&isContractRetailer(rid);
+  const r=rid?retailerById(rid):null;
+  if(rid&&!r){PRICE_SEL='SPOT';return renderPrices();}
   const cell=(c,g)=>{
     if(!hasGrade(c,g))return '<td class="num nogrd">—</td>';
     return '<td class="num">'+(own
       ?('<input type="number" id="pr-'+esc(c)+'-'+g+'" min="0" step="0.01" inputmode="decimal" value="'+
-        priceOf(c,g)+'">')
-      :('<b>'+rm(priceOf(c,g))+'</b>'))+
+        priceOf(c,g,rid)+'">')
+      :('<b>'+rm(priceOf(c,g,rid))+'</b>'))+
       '<div class="exphint">'+esc(bandText(c,g))+'</div></td>';};
+  const contractBuyers=listedRetailers().filter(x=>isContractRetailer(x.id));
+  const spotBuyers=listedRetailers().filter(x=>!isContractRetailer(x.id));
   box.innerHTML=
-    '<div class="cnote">Contract price book — the alliance rates agreed with <b>Roll</b>, applied to every '+
-      'retailer. Prices are per KG of <b>net</b> weight. Black Thorn, B24, 101 and Udang Merah are '+
-      'two-grade clones — they have no Grade C anywhere in the system.</div>'+
-    (PRICE_META.at?('<div class="exphint" style="margin:6px 0">Last changed '+esc(PRICE_META.at)+
+    // ---- the merchant picker: whose book am I editing? ----
+    '<div class="sec">Which price book?</div>'+
+    '<select id="pr-who" onchange="setPriceSel(this.value)">'+
+      '<option value="SPOT"'+(PRICE_SEL==='SPOT'?' selected':'')+'>📈 Daily spot market — used by '+
+        (spotBuyers.length?esc(spotBuyers.map(x=>x.name).join(', ')):'no merchant yet')+'</option>'+
+      contractBuyers.map(x=>'<option value="'+esc(x.id)+'"'+(PRICE_SEL===x.id?' selected':'')+
+        '>📜 '+esc(x.name)+' — contract</option>').join('')+
+    '</select>'+
+    (contract
+      ? '<div class="cnote"><b>'+esc(r.name)+'</b>’s negotiated contract, per KG of <b>net</b> weight. '+
+        'These rates belong to this merchant alone — the daily market trend does not touch them, so a '+
+        'morning price move can never rewrite a signed contract.</div>'
+      : '<div class="cnote">The <b>daily spot market</b> matrix. Every merchant with no contract on file '+
+        'invoices from this table, and the trend buttons below move it. Prices are per KG of <b>net</b> '+
+        'weight. Black Thorn, B24, 101 and Udang Merah are two-grade clones — no Grade C anywhere.</div>')+
+    (!contract&&PRICE_META.at?('<div class="exphint" style="margin:6px 0">Last changed '+esc(PRICE_META.at)+
       (PRICE_META.by?(' by '+esc(PRICE_META.by)):'')+'</div>'):'')+
     '<div class="tblwrap"><table class="tbl pmx">'+
     '<tr><th>Clone</th><th class="num">Grade A</th><th class="num">Grade B</th><th class="num">Grade C</th></tr>'+
@@ -4252,9 +5341,11 @@ function renderPrices(){
       ' · '+gradesFor(c).length+'-grade</div></td>'+cell(c,'A')+cell(c,'B')+cell(c,'C')+'</tr>').join('')+
     '</table></div>'+
     (own?(
+      // the trend modifier belongs to the SPOT book only — see the note above
+      (contract?'':(
       '<div class="sec" style="margin-top:12px">📈 Daily market trend modifier</div>'+
-      '<div class="small">Nudge every price in the table above before the lorry leaves. '+
-        'Nothing is saved until you tap SAVE.</div>'+
+      '<div class="small">Nudge every spot price in the table above before the lorry leaves. '+
+        'Contract merchants are unaffected. Nothing is saved until you tap SAVE.</div>'+
       '<div class="trendrow">'+
         '<div class="trendbtn" onclick="trendNudge(-10)">−10%</div>'+
         '<div class="trendbtn" onclick="trendNudge(-5)">−5%</div>'+
@@ -4264,10 +5355,25 @@ function renderPrices(){
       '<div class="trendrow">'+
         '<input type="number" id="pr-pct" step="0.5" inputmode="decimal" placeholder="custom %" style="flex:2">'+
         '<div class="trendbtn" onclick="trendNudge(+($(\'pr-pct\').value||0))">APPLY %</div>'+
-        '<div class="trendbtn" onclick="trendReset()">RESET TO AGREED BASE</div>'+
-      '</div>'+
-      '<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE PRICE MATRIX</button>')
+      '</div>'))+
+      '<div class="trendrow"><div class="trendbtn" onclick="trendReset()">RESET TO AGREED BASE</div></div>'+
+      '<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE '+
+        (contract?('CONTRACT — '+esc(r.name).toUpperCase()):'SPOT PRICE MATRIX')+'</button>')
       :'<div class="cnote">Only the Owner can change a price. These are the figures every invoice is built from.</div>')+
+
+    // ---- the whole book at a glance, so two contracts can be compared side by side ----
+    '<div class="sec" style="margin-top:16px">📊 All merchants — Grade A comparison</div>'+
+    '<div class="tblwrap"><table class="tbl">'+
+    '<tr><th>Merchant</th>'+CLONE_SELL_ORDER.filter(c=>c!=='TB')
+      .map(c=>'<th class="num">'+esc(c)+'</th>').join('')+'</tr>'+
+    listedRetailers().map(x=>'<tr><td><div class="pn">'+esc(x.name)+'</div>'+
+      '<div class="pa">'+(isContractRetailer(x.id)?'📜 contract':'📈 spot')+'</div></td>'+
+      CLONE_SELL_ORDER.filter(c=>c!=='TB').map(c=>{const p=priceOf(c,'A',x.id);
+        return '<td class="num'+(p>0?'':' lowq')+'">'+(p>0?nf(p):'—')+'</td>';}).join('')+
+      '</tr>').join('')+
+    '</table></div>'+
+    '<div class="exphint">Grade A, RM per net KG. A dash means no rate is on file for that clone — a '+
+      'basket of it cannot be invoiced to that merchant until the Owner sets one.</div>'+
 
     '<div class="sec" style="margin-top:16px">⚖️ Basket tare</div>'+
     (TARE_VERIFIED?'':'<div class="critbox" style="margin-bottom:8px">These tare weights have NOT been '+
@@ -4313,11 +5419,13 @@ function trendNudge(pct){
   toast((pct>0?'+':'')+pct+'% applied — tap SAVE to commit');}
 function trendReset(){
   if(!canSetPrice())return;
+  const rid=priceSelId();
   CLONE_SELL_ORDER.forEach(c=>gradesFor(c).forEach(g=>{
-    const el=$('pr-'+c+'-'+g); if(el)el.value=basePriceOf(c,g).toFixed(2);}));
-  toast('Back to the agreed base matrix — tap SAVE to commit');}
+    const el=$('pr-'+c+'-'+g); if(el)el.value=basePriceOf(c,g,rid).toFixed(2);}));
+  toast('Back to the agreed base '+(rid?'contract':'matrix')+' — tap SAVE to commit');}
 async function savePrices(){
   if(!canSetPrice()){toast('Only the Owner can set prices',1);return;}
+  const rid=priceSelId();
   const next={};
   for(const c of CLONE_SELL_ORDER){
     next[c]={};
@@ -4325,11 +5433,18 @@ async function savePrices(){
       const el=$('pr-'+c+'-'+g); const v=el?el.value:'';
       if(v===''||isNaN(+v)||+v<0){toast(c+' Grade '+g+' is not a valid figure',1);return;}
       next[c][g]=+(+v).toFixed(2);}}
-  CLONE_PRICE=next;
-  PRICE_META={at:now(),by:(CFG&&CFG.worker)||''};
-  await persistPrices();
-  renderPrices(); renderDispatch();
-  toast('✓ Price matrix saved');}
+  if(rid){
+    // one merchant's contract — nothing else in the book is touched
+    RET_CONTRACT[rid]=next;
+    await persistContracts();
+    RET_DIRTY=true; await persistRetailers();
+    toast('✓ '+((retailerById(rid)||{}).name||rid)+'’s contract saved');
+  } else {
+    CLONE_PRICE=next;
+    PRICE_META={at:now(),by:(CFG&&CFG.worker)||''};
+    await persistPrices();
+    toast('✓ Daily spot matrix saved');}
+  renderPrices(); renderDispatch(); renderVerify();}
 async function saveBaskets(){
   if(!canSetPrice()){toast('Only the Owner can set the basket tare',1);return;}
   for(const b of BASKETS){
@@ -4348,12 +5463,23 @@ async function saveBaskets(){
 // so the two master-data screens behave identically. Opening credit is editable here —
 // it is a settings figure, not money that has moved. Money that has moved is corrected
 // with a credit top-up, which is an EVENT and keeps its own audit trail.
-let editingRet=null, retFormStatus='Active';
+let editingRet=null, retFormStatus='Active', retFormPricing='SPOT';
 function pickRetStatus(s){
   retFormStatus=s;
   const a=$('rf-active'), b=$('rf-susp');
   if(a)a.className=(s==='Active'?'on':'');
   if(b)b.className=(s==='Suspended'?'on':'');}
+/** v3.6 — CONTRACT or SPOT. Switching an existing merchant to CONTRACT seeds their book
+ *  from the spot matrix so it is never empty, which would silently price them at RM 0. */
+function pickRetPricing(p){
+  retFormPricing=(String(p).toUpperCase()==='CONTRACT')?'CONTRACT':'SPOT';
+  const a=$('rf-spot'), b=$('rf-contract');
+  if(a)a.className=(retFormPricing==='SPOT'?'on':'');
+  if(b)b.className=(retFormPricing==='CONTRACT'?'on':'');
+  const n=$('rf-pricenote');
+  if(n)n.innerHTML=retFormPricing==='CONTRACT'
+    ? 'Their own negotiated rates. Set them in the price book picker after saving — the Owner’s daily trend will not move them.'
+    : 'Invoices at today’s market rate from the Owner’s spot matrix, and changes when the Owner changes it.';}
 function openRetForm(id){
   if(!canSetPrice()){toast('Only the Owner can add or edit a retailer',1);return;}
   const r=id?retailerById(id):null;
@@ -4363,8 +5489,9 @@ function openRetForm(id){
                            :'Name them, give them an opening credit, done.';
   $('rf-name').value=r?r.name:'';
   $('rf-con').value =r?(r.contact||''):'';
-  $('rf-open').value=r?(+r.opening_credit_rm||0).toFixed(2):'10000.00';
+  $('rf-open').value=r?(+r.opening_credit_rm||0).toFixed(2):'15000.00';
   pickRetStatus(r?String(r.status||'Active'):'Active');
+  pickRetPricing(r?pricingModeOf(r.id):'SPOT');
   $('rf-err').textContent='';
   const d=$('rf-derived');
   if(r){const c=retailerLedger(r.id);
@@ -4391,20 +5518,29 @@ async function saveRetForm(){
   if(RETAILERS.some(r=>r.name.trim().toLowerCase()===name.toLowerCase()&&r.id!==editingRet))
     return err('There is already a retailer named '+name+'.');
   if(open===''||isNaN(+open)||+open<0)return err('Opening credit must be a figure of zero or more.');
+  let newId=editingRet;
   if(editingRet){
     const r=retailerById(editingRet);
     r.name=name; r.contact=con;
     r.opening_credit_rm=+(+open).toFixed(2);
     r.status=retFormStatus;
+    r.pricing=retFormPricing;
   } else {
     let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
-    RETAILERS.push({id:'RT-'+String(n).padStart(2,'0'),name:name,contact:con,
-      opening_credit_rm:+(+open).toFixed(2),status:retFormStatus});}
+    newId='RT-'+String(n).padStart(2,'0');
+    RETAILERS.push({id:newId,name:name,contact:con,
+      opening_credit_rm:+(+open).toFixed(2),status:retFormStatus,pricing:retFormPricing});}
+  // A merchant switched to CONTRACT with an empty book would price every basket at RM 0
+  // and the scale form would refuse every line. Seed their book from the spot matrix so
+  // it opens at today's rates and the Owner edits from there.
+  if(retFormPricing==='CONTRACT'&&newId&&!Object.keys(RET_CONTRACT[newId]||{}).length){
+    RET_CONTRACT[newId]=priceMatrixCopy(RETAILER_CONTRACT_SEED[newId]||CLONE_PRICE);
+    await persistContracts();}
   RET_DIRTY=true; await persistRetailers();
   closeRetForm();
   if(MKT_SEL&&!activeRetailers().some(r=>r.id===MKT_SEL))MKT_SEL='';
-  renderDispatch(); renderPrices(); renderMktLedger();
-  toast('✓ Retailer saved');}
+  renderDispatch(); renderPrices(); renderMktLedger(); renderVerify();
+  toast('✓ Retailer saved'+(retFormPricing==='CONTRACT'?' — set their contract rates in the price book':''));}
 
 /** A top-up is an EVENT, not an edit — the credit line has the same audit trail as a
  *  delivery, so a wrong opening figure and its fix both stay on the record. */
@@ -4566,7 +5702,10 @@ function q8(){return dispQueue().length;}
  *  so a backend that predates v3.2 simply keeps them queued instead of failing the whole
  *  upload the way an unknown type in the generic `events` batch would. */
 function auditQueue(){return EVENTS.filter(e=>
-  (e.type==='LOG_VOID'||e.type==='YIELD_ACK'||e.type==='ADMIN_PURGE'||e.type==='ADMIN_CLEANUP')&&!e.synced);}
+  (e.type==='LOG_VOID'||e.type==='YIELD_ACK'||e.type==='ADMIN_PURGE'||e.type==='ADMIN_CLEANUP'
+   // v3.6 — a returned load is an audit row, not a deletion. It rides the existing audit
+   // key so no backend change is needed for the reject path.
+   ||e.type==='DISPATCH_REJECT')&&!e.synced);}
 function q9(){return auditQueue().length;}
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',
@@ -4579,7 +5718,13 @@ async function pushAudit(){
 async function pushRetailers(){
   if(!RET_DIRTY||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({retailers:RETAILERS}),
+    // v3.6 — the contract book rides with the merchant row as JSON, the same way the
+    // dispatch line breakdown does, because a spreadsheet cell cannot hold a nested table.
+    const payload=RETAILERS.map(r=>({...r,
+      pricing:pricingModeOf(r.id),
+      current_credit_balance_rm:retailerCredit(r.id),
+      contract:isContractRetailer(r.id)?JSON.stringify(RET_CONTRACT[r.id]||{}):''}));
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({retailers:payload}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.retailers){RET_DIRTY=false;await persistRetailers();return true;}
@@ -4594,9 +5739,26 @@ async function mergeRetailers(list){
   const rows=list.filter(x=>x&&(x.id||x.name)).map(x=>({
     id:String(x.id||x.name).trim(), name:String(x.name||x.id).trim(),
     contact:String(x.contact||''), opening_credit_rm:+x.opening_credit_rm||0,
-    status:String(x.status||'Active')}));
+    status:String(x.status||'Active'),
+    // v3.6 — a backend that predates the PriceProfile column sends nothing here. Falling
+    // back to SPOT would quietly move a contract merchant onto the daily trend, so the
+    // local mode is kept whenever the sheet has no opinion.
+    pricing:String(x.pricing||pricingModeOf(String(x.id||x.name).trim())||'SPOT').toUpperCase()}));
   if(!rows.length)return;
-  RETAILERS=rows; await persistRetailers();}
+  RETAILERS=rows;
+  // ...and the same rule for the contract book itself: an empty payload never wipes a
+  // book this phone already holds.
+  list.forEach(x=>{
+    const id=String(x.id||x.name).trim();
+    let book=x.contract;
+    if(typeof book==='string'&&book){try{book=JSON.parse(book);}catch(e){book=null;}}
+    if(!book||typeof book!=='object'||!Object.keys(book).length)return;
+    if(!RET_CONTRACT[id])RET_CONTRACT[id]={};
+    Object.keys(book).forEach(c=>{ if(!CLONE_GRADES[c])return;
+      if(!RET_CONTRACT[id][c])RET_CONTRACT[id][c]={};
+      Object.keys(book[c]||{}).forEach(g=>{ if(hasGrade(c,g))RET_CONTRACT[id][c][g]=+book[c][g]||0;});});});
+  await persistContracts();
+  await persistRetailers();}
 
 // ======================= a small reusable ask-form ===================================
 // Replaces the grey browser prompt() chains. One or two fields, a real Cancel, and a

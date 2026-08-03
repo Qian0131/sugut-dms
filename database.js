@@ -257,26 +257,109 @@ const GRADE_META={
 };
 
 /* =====================================================================
-   14. v3.1 — RETAILER CREDIT MASTER
-   `Roll` is the alliance retailer the price matrix below was negotiated
-   for; the other two are sample buyers so the morning weighing flow can be
-   tested before the real accounts are keyed in. The Owner edits this list
-   in Marketing -> PRICES & RETAILERS and the edited list is what persists.
+   14. v3.1 / v3.6 — MULTI-MERCHANT CREDIT MASTER
+   The Owner edits this list in Marketing -> PRICES & RETAILERS and the
+   edited list is what persists.
 
    `opening_credit_rm` is the ONLY stored money figure. The live figure,
    `current_credit_balance_rm`, is DERIVED from the event log
    (opening + top-ups - dispatches) exactly like every other balance in
    this app, so a stored total can never drift from the deliveries behind
    it. Delete a dispatch and the credit comes back by itself.
+
+   v3.6 REPLACED THIS LIST. It is now three independent merchant accounts,
+   each carrying its own `pricing` mode and — for a contract buyer — its own
+   `contract` clone x grade matrix. The two v3.1 sample buyers are retired.
+
+   `pricing` is the whole of the new engine:
+     'CONTRACT'  this merchant has negotiated rates. `contract` is read and
+                 the Owner's daily spot panel is IGNORED for them, so a
+                 trend move never silently rewrites a signed contract.
+     'SPOT'      no contract. Prices come from CLONE_PRICE, the matrix the
+                 Owner moves on the market-trend panel every morning. This
+                 is what 'Default Cash' is for: a walk-in buyer at today's
+                 market rate.
+
+   `current_credit_balance_rm` appears on every retailer object so the shape
+   matches the schema, but READ IT THROUGH retailerCredit(id) — it is
+   DERIVED from opening + top-ups - dispatches, never stored, so it can
+   never drift from the deliveries behind it. The seed value below is the
+   opening figure repeated, nothing more.
    ===================================================================== */
 const RETAILER_SEED=[
-  {id:'RT-01', name:'Roll',                          contact:'',             opening_credit_rm:10000, status:'Active'},
-  {id:'RT-02', name:'Sandakan Fresh Fruit Trading',  contact:'013-000 0001', opening_credit_rm:10000, status:'Active'},
-  {id:'RT-03', name:'Kota Kinabalu Durian Hub',      contact:'016-000 0002', opening_credit_rm:10000, status:'Active'}
+  {id:'RT-01',   name:'Roll',         contact:'',  opening_credit_rm:15000,
+   current_credit_balance_rm:15000, status:'Active', pricing:'CONTRACT'},
+  {id:'RT-02',   name:'Seng Kee',     contact:'',  opening_credit_rm:15000,
+   current_credit_balance_rm:15000, status:'Active', pricing:'CONTRACT'},
+  {id:'RT-CASH', name:'Default Cash', contact:'',  opening_credit_rm:0,
+   current_credit_balance_rm:0,     status:'Active', pricing:'SPOT'}
 ];
-/* The alliance buyer the matrix was agreed with. Used once, on first run of
-   v3.1, to make sure this account exists on a phone that already carries a
-   v3.0 retailer list. After that the Owner owns the list completely. */
+
+/* The contract book, one matrix per merchant, keyed by retailer id.
+   B24 and TB are NOT in either negotiated brief. B24 was agreed on 3 Aug to
+   follow 101 / UM, and TB is the unidentified clone sold on the same
+   2-grade ladder — both mirror the 101 / UM line in each contract so a
+   basket of them can never invoice at RM 0. Correct them in
+   Marketing -> PRICES & RETAILERS when the buyer confirms a rate. */
+const RETAILER_CONTRACT_SEED={
+  'RT-01':{                        // Roll — the alliance rates
+    MK   :{A:40, B:30, C:25},
+    BT   :{A:45, B:35},
+    B24  :{A:25, B:20},
+    '101':{A:25, B:20},
+    UM   :{A:25, B:20},
+    TB   :{A:25, B:20}
+  },
+  'RT-02':{                        // Seng Kee — RM 1-2 above Roll across the book
+    MK   :{A:42, B:32, C:26},
+    BT   :{A:47, B:36},
+    B24  :{A:26, B:21},
+    '101':{A:26, B:21},
+    UM   :{A:26, B:21},
+    TB   :{A:26, B:21}
+  }
+};
+/* Stamped into kv `retmig` the first time a phone upgrades to v3.6, so the
+   merchant migration runs exactly once and never re-writes a list the Owner
+   has since edited. */
+const RETAILER_MIGRATION_TAG='v3.6';
+const CASH_RETAILER_ID='RT-CASH';
+
+/* =====================================================================
+   14b. v3.6 — SCALE PHOTO PROOF
+   The worker photographs the digital scale display; the marketer audits
+   that photo before a single ringgit of credit moves. The image is
+   downscaled and re-encoded IN THE BROWSER before it ever enters the
+   queue, because it has to travel worker phone -> Google Sheet -> marketer
+   phone over a shared office hotspot, and a raw phone photo is 3-4 MB.
+
+   640 px on the long edge keeps a scale display perfectly legible while
+   landing around 25-35 KB of base64 — comfortably inside a Google Sheets
+   cell, which caps at 50,000 characters. PHOTO_MAX_CHARS is the hard
+   ceiling: the encoder steps quality down until it fits, so a busy photo
+   can never produce a row the Sheet silently refuses to write.
+   ===================================================================== */
+const PHOTO_MAX_PX=640;
+const PHOTO_Q_START=0.62;
+const PHOTO_Q_FLOOR=0.30;
+const PHOTO_MAX_CHARS=46000;
+
+/* =====================================================================
+   14c. v3.6 — LABOUR COSTING RATE
+   Man-hours have been logged since v2.6, but never priced. The monthly
+   matrix needs a RM figure per lot, so hours are multiplied by this rate.
+
+   THIS FIGURE IS A PLACEHOLDER, exactly like the basket tare weights.
+   The Owner sets the real daily/hourly rate in Costing -> LABOUR, and
+   until they do, an amber banner sits above every labour column that
+   depends on it. Do not present these RM totals as verified.
+   ===================================================================== */
+const LABOUR_RATE_SEED=8.00;             // RM per man-hour
+const LABOUR_RATE_VERIFIED_SEED=false;
+
+/* The alliance buyer the original matrix was agreed with. Used once, on
+   first run, to make sure this account exists on a phone that already
+   carries an older retailer list. After that the Owner owns the list. */
 const ALLIANCE_RETAILER='Roll';
 
 /* =====================================================================

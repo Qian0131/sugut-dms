@@ -548,6 +548,111 @@ input[type=datetime-local]{font-family:inherit;}
 .synchealth .shbody{font-size:11.5px;color:#4a5a47;line-height:1.6;margin-top:5px;}
 .synchealth .shwarn{color:#7a5b00;font-weight:700;}
 .lotbtns>div .csub{display:block;font-size:9px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none}
+
+/* ============================================================================
+   v3.6 — contract pricing, photo proof, and the summary ledger
+   ============================================================================ */
+
+/* ---- which price book is in force, stated before a kg is keyed ---- */
+.ctrbanner{border-radius:12px;padding:10px 11px;margin:8px 0;border:1.6px solid;}
+.ctrbanner.ctr{background:#eef4ff;border-color:#9db8e8;}
+.ctrbanner.spot{background:#fff8e6;border-color:#e0c46a;}
+.ctrbanner .ctrhead{font-weight:900;font-size:12px;letter-spacing:.2px;}
+.ctrbanner.ctr .ctrhead{color:#1c3f7a;}
+.ctrbanner.spot .ctrhead{color:#7a5b00;}
+.ctrbanner .ctrbody{font-size:11px;line-height:1.55;margin-top:3px;color:#3d4a3c;}
+.ctrbanner .ctrrates{font-size:11px;font-weight:800;margin-top:6px;color:#20301f;
+  background:rgba(255,255,255,.72);border-radius:8px;padding:6px 8px;line-height:1.7;}
+.ctrbanner .ctrrates .ctrunit{font-weight:600;opacity:.7;}
+.ctrbanner .ctrhole{font-size:11px;font-weight:800;color:#8c1d18;margin-top:6px;}
+
+/* ---- the worker's scale form ---- */
+.wtot{background:var(--lite);border-radius:11px;padding:11px;font-weight:800;font-size:13px;
+  color:var(--green);margin-top:8px;text-align:center;}
+.camlbl{display:block;text-align:center;background:var(--green);color:#fff;border-radius:14px;
+  padding:15px 12px;font-weight:900;font-size:15px;margin-top:6px;cursor:pointer;
+  letter-spacing:.3px;box-shadow:0 2px 0 rgba(0,0,0,.12);}
+.camlbl:active{transform:translateY(1px);box-shadow:none;}
+.photobox{display:flex;gap:10px;align-items:center;background:#fff;border:1.6px dashed #c8d3c6;
+  border-radius:13px;padding:10px;margin-bottom:8px;min-height:64px;}
+.photonone{font-size:11.5px;color:#7a5b00;font-weight:700;line-height:1.5;}
+.photometa{font-size:11px;color:#4a5a47;line-height:1.6;}
+.photothumb{width:74px;height:74px;object-fit:cover;border-radius:10px;border:1.6px solid #dfe6df;
+  cursor:pointer;flex:none;}
+.photothumb.big{width:100%;height:auto;max-height:230px;object-fit:contain;background:#111;}
+
+/* ---- pending / decided request rows ---- */
+.reqrow{display:flex;gap:9px;align-items:center;background:#fff;border:1.4px solid #e6ece5;
+  border-radius:12px;padding:9px;margin-bottom:7px;}
+.reqthumb{width:46px;height:46px;object-fit:cover;border-radius:9px;flex:none;cursor:pointer;
+  border:1.4px solid #dfe6df;}
+.reqthumb.none{display:flex;align-items:center;justify-content:center;font-size:8.5px;
+  color:#9aa79a;background:#f4f6f3;text-align:center;line-height:1.2;cursor:default;}
+.reqmid{flex:1;font-size:12.5px;font-weight:700;color:#20301f;min-width:0;}
+.reqmid .pa{font-weight:600;font-size:10.5px;color:#6b7a68;margin-top:2px;}
+
+/* ---- the verification card ---- */
+.vcard{border:1.6px solid #dfe6df;border-radius:15px;background:#fff;margin-bottom:10px;overflow:hidden;}
+.vcard.open{border-color:var(--green2);box-shadow:0 2px 10px rgba(0,0,0,.07);}
+.vhead{display:flex;gap:9px;align-items:center;padding:10px;cursor:pointer;}
+.vhead:active{background:var(--lite);}
+.vbody{padding:0 11px 12px;}
+.vsplit{display:grid;grid-template-columns:1fr;gap:9px;}
+@media(min-width:520px){.vsplit{grid-template-columns:1fr 1fr;}}
+.vphoto{min-width:0;}
+.vfields{background:var(--lite);border-radius:11px;padding:9px;}
+.vf{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;padding:3px 0;
+  color:#20301f;line-height:1.5;}
+.vf .lbl{opacity:.75;font-weight:700;}
+.vf.tot{border-top:1px solid #cfe0cc;margin-top:4px;padding-top:6px;font-weight:900;font-size:13px;}
+.mustsee{background:var(--amberbg);color:#7a5b00;border-radius:11px;padding:10px;
+  font-size:11.5px;font-weight:800;line-height:1.5;margin:8px 0;}
+.bigbtn:disabled{opacity:.55;filter:grayscale(.4);}
+
+/* ---- the photo lightbox ---- */
+#lightbox .lbwrap{background:#111;border-radius:16px;overflow:hidden;width:100%;max-width:560px;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);}
+#lightbox .lbbar{display:flex;justify-content:space-between;align-items:center;color:#fff;
+  font-weight:800;font-size:12.5px;padding:11px 13px;background:#000;}
+#lightbox .lbx{font-size:19px;line-height:1;cursor:pointer;padding:0 4px;}
+#lightbox img{display:block;width:100%;height:auto;max-height:66vh;object-fit:contain;background:#000;}
+#lightbox .lbfoot{color:#cfd6cd;font-size:11px;line-height:1.55;padding:10px 13px;background:#000;}
+
+/* ---- the daily operational audit ---- */
+.dayrow{border:1.5px solid #e6ece5;border-radius:14px;padding:10px 11px;margin-bottom:8px;background:#fff;}
+.dayhead{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#20301f;}
+.daygrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:7px;}
+.daygrid>div{background:var(--lite);border-radius:9px;padding:6px 5px;text-align:center;}
+.daygrid .dl{display:block;font-size:8.5px;font-weight:700;color:#6b7a68;text-transform:uppercase;
+  letter-spacing:.2px;margin-bottom:2px;}
+.daygrid b{font-size:14px;color:#20301f;}
+.causerow{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.causechip{background:#fdecea;color:#8c1d18;border-radius:8px;padding:4px 7px;font-size:10px;font-weight:800;}
+.buyrow{font-size:11.5px;font-weight:700;color:#20301f;margin-top:7px;line-height:1.5;}
+.buyrow.dim{color:#9aa79a;font-weight:600;}
+.loadrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+.loadchip{background:var(--lite);border-radius:8px;padding:4px 8px;font-size:10.5px;font-weight:700;}
+.loadchip .nophoto{color:#9aa79a;}
+
+/* ---- the month matrix ---- */
+.yrbox{border:1.6px solid #dfe6df;border-radius:14px;padding:10px 11px;margin-bottom:8px;background:#fff;}
+.yrhead{display:flex;justify-content:space-between;align-items:baseline;font-weight:900;
+  font-size:15px;color:#20301f;}
+.yrhead span{font-size:12px;font-weight:800;color:var(--green);}
+.yrgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:7px;}
+@media(min-width:460px){.yrgrid{grid-template-columns:repeat(4,1fr);}}
+.yrgrid>div{background:var(--lite);border-radius:9px;padding:6px 7px;}
+.yrgrid .dl{display:block;font-size:8.5px;font-weight:700;color:#6b7a68;text-transform:uppercase;
+  letter-spacing:.2px;margin-bottom:2px;}
+.yrgrid b{font-size:13.5px;color:#20301f;}
+.yrgrid .pos b{color:var(--green);}
+.yrgrid .neg b{color:var(--warn);}
+.tbl tr.clickrow{cursor:pointer;}
+.tbl td.expcell{background:#f7faf6;padding:9px;}
+.tbl .sub th,.tbl .sub td{font-size:11px;}
+.drawbox{background:#fff;border:1.3px solid #e6ece5;border-radius:10px;padding:8px 9px;
+  font-size:11.5px;line-height:1.6;color:#20301f;margin-top:7px;}
+.kpi.bad .v{color:var(--warn);}
 </style>
 </head>
 <body>
@@ -978,6 +1083,34 @@ input[type=datetime-local]{font-family:inherit;}
     <div id="dp-stage"></div>
   </div>
 
+  <!-- ===== DAILY OPS · WORKER MORNING SCALE DISPATCH (v3.6) =====
+       Weight and a photo. No price is rendered on this panel for any role, which is why
+       a Worker is allowed to reach it at all. -->
+  <div class="card" id="scalecard" style="display:none">
+    <div class="sec">⚖️ Morning scale dispatch</div>
+    <div id="scalebox"></div>
+  </div>
+
+  <!-- ===== MARKETING · PHOTO VERIFICATION HUB (v3.6) =====
+       The middle leg of the three-way handshake. Owner and Marketing only — approving
+       here moves a merchant's credit. -->
+  <div class="card" id="verifycard" style="display:none">
+    <div class="sec">📷 Verify scale photos</div>
+    <div id="verifybox"></div>
+  </div>
+
+  <!-- ===== COSTING · DAILY OPERATIONAL AUDIT (v3.6) ===== -->
+  <div class="card" id="dailyaudit" style="display:none">
+    <div class="sec">📅 Daily operational audit</div>
+    <div id="dailybox"></div>
+  </div>
+
+  <!-- ===== COSTING · MONTHLY / YEARLY MATRIX LEDGER (v3.6) ===== -->
+  <div class="card" id="matrixledger" style="display:none">
+    <div class="sec">📊 Monthly &amp; yearly matrix ledger</div>
+    <div id="matrixbox"></div>
+  </div>
+
   <!-- ===== MARKETING · DELIVERY LEDGER + RETAILER CREDIT (v3.1) ===== -->
   <div class="card" id="mktledger" style="display:none">
     <div class="sec">🧾 Marketing delivery ledger</div>
@@ -1080,7 +1213,13 @@ input[type=datetime-local]{font-family:inherit;}
     <label>Contact number</label>
     <input id="rf-con" placeholder="e.g. 013-000 0001" inputmode="tel" autocomplete="off">
     <label>Opening credit (RM)</label>
-    <input id="rf-open" inputmode="decimal" placeholder="10000.00">
+    <input id="rf-open" inputmode="decimal" placeholder="15000.00">
+    <label>Pricing</label>
+    <div class="lotbtns" id="rf-pricing">
+      <div class="on" id="rf-spot" onclick="pickRetPricing('SPOT')">📈 DAILY SPOT</div>
+      <div id="rf-contract" onclick="pickRetPricing('CONTRACT')">📜 CONTRACT</div>
+    </div>
+    <div class="exphint" id="rf-pricenote"></div>
     <label>Status</label>
     <div class="lotbtns" id="rf-status">
       <div class="on" id="rf-active" onclick="pickRetStatus('Active')">ACTIVE</div>
@@ -1093,6 +1232,20 @@ input[type=datetime-local]{font-family:inherit;}
     <button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="closeRetForm()">CANCEL</button>
     <p class="small">A retailer is never deleted. Suspending takes them off the dispatch list but keeps
       every invoice they ever received, so the ledger still adds up.</p>
+  </div>
+</div>
+
+<!-- ===== v3.6 · SCALE PHOTO LIGHTBOX =====
+     Opening this is what unlocks Approve. It is deliberately full-screen: a 60px
+     thumbnail is not an audit, and the whole point is that a person reads the numbers
+     on the scale display with their own eyes. -->
+<div id="lightbox" class="modal hidden" onclick="closePhoto()">
+  <div class="lbwrap" onclick="event.stopPropagation()">
+    <div class="lbbar"><span id="lb-title">Scale photo</span>
+      <span class="lbx" onclick="closePhoto()">✕</span></div>
+    <img id="lb-img" alt="scale photo">
+    <div class="lbfoot">Read the weight on the scale and check it against the figures on the
+      form. If they do not match, return the load to the worker with the reason.</div>
   </div>
 </div>
 
@@ -1408,7 +1561,7 @@ input[type=datetime-local]{font-family:inherit;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.5.1"></script>
-<script src="app.js?v=3.5.1"></script>
+<script src="database.js?v=3.6.0"></script>
+<script src="app.js?v=3.6.0"></script>
 </body>
 </html>
