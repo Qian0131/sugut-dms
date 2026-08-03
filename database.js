@@ -176,16 +176,33 @@ const COMBO_AI_RULES=[
 const COMBO_CAT_FALLBACK={Foliar:'FOL',Fertiliser:'FOL',Powder:'TE','Growth Reg':'BIO'};
 
 /* =====================================================================
-   9. v2.8 — ROTTEN FRUIT CAUSES + HIGH-MOISTURE THRESHOLD
-   A rotten count is never accepted without a cause: the reason is what
+   9. v2.8 / v3.7 — FRUIT LOSS CAUSES + HIGH-MOISTURE THRESHOLD
+   A loss count is never accepted without a cause: the reason is what
    turns a loss figure into an agronomic decision.
+
+   v3.7 ADDED `UNRIPE`, and renamed the card this list sits under from "Rotten" to
+   "Loss" — because an unripe durian is not rotten, and a heading that says otherwise
+   makes the app state something untrue. It also matters agronomically: animal, pest and
+   disease all point at pest management, while unripe points at water or nutrient stress,
+   and premature drop is one of the earliest stress signals the farm gets. Burying it in
+   a rot bucket would hide exactly the thing worth seeing early.
+
+   ADDING A FIFTH CAUSE IS A PURE DATA CHANGE. Every screen that shows a cause - the
+   collect dropdown, the Owner's backdate modal, the daily-audit chips - loops over
+   ROT_ORDER or Object.keys(ROT_CAUSE). Nothing below needs editing.
    ===================================================================== */
-const ROT_ORDER=['ANIMAL','PEST','DISEASE'];
+const ROT_ORDER=['ANIMAL','PEST','DISEASE','UNRIPE'];
 const ROT_CAUSE={
   ANIMAL :{label:'Animal damage',     ic:'🐿️',note:'squirrel, monkey, rat, civet'},
   PEST   :{label:'Pest infestation',  ic:'🐛',note:'fruit borer, weevil, fruit fly'},
-  DISEASE:{label:'Disease rot',       ic:'🍄',note:'Phytophthora, anthracnose, stem-end rot'}
+  DISEASE:{label:'Disease rot',       ic:'🍄',note:'Phytophthora, anthracnose, stem-end rot'},
+  UNRIPE :{label:'Unripe',            ic:'🟢',note:'not mature — usually water or nutrient stress'}
 };
+/* The four causes are not all the same KIND of loss. Animal, pest and disease are damage;
+   unripe is a physiological drop. The daily audit keeps them apart in the tooltip so the
+   Owner reads a stress signal as a stress signal, not as another pest problem. */
+const ROT_KIND={ANIMAL:'DAMAGE',PEST:'DAMAGE',DISEASE:'DAMAGE',UNRIPE:'PHYSIOLOGICAL'};
+
 // Cumulative rainfall over RAIN_WET_DAYS above RAIN_WET_MM raises the high-moisture
 // badge on the timeline: wet canopy, wash-off risk, and Phytophthora pressure.
 const RAIN_WET_DAYS=3;
@@ -460,3 +477,248 @@ const CREDIT_FLOOR_RM=0;
 const YIELD_MIN_KG=0.8;          // below this, fruit went missing
 const YIELD_MAX_KG=4.0;          // above this, fruit arrived off the books
 const YIELD_WINDOW_HOUR=12;      // the night's harvest = the 24 h ending at noon
+
+/* =====================================================================
+   21. v3.7 — LANGUAGE TABLES (worker screens only)
+   Two tables, same keys. EN is the source of truth and the fallback: if a
+   key is missing from MS the app shows the English rather than a blank,
+   so a term added in a later release degrades gracefully instead of
+   leaving a worker staring at an empty button.
+
+   SCOPE. Only the screens a Farm Worker can actually reach are in here -
+   login, the home tiles, Collect, the Tally Clicker, the Morning Scale,
+   Today's Tasks, Stock Out and Sync. The costing ledger, contract matrix
+   and audit trail are deliberately absent: a wrong Malay term for
+   "moving average cost" or "credit overdraft" reads as authoritative and
+   is more dangerous than plain English.
+
+   NEVER PUT THESE IN HERE:
+     - tree IDs (A-001)      they are printed on the physical QR tags
+     - clone codes and names (MK, Musang King)  the trade's own words
+     - grade letters A/B/C   they reach the buyer's invoice
+     - numbers, dates, weights, invoice serials
+     - chemical and fertiliser product names - the label on the drum is
+       the safety record, and a translated brand name is a real hazard
+
+   The Malay below is the glossary the Owner approved on 3 Aug 2026.
+   Correcting a term is a one-line edit here; nothing else needs touching.
+   ===================================================================== */
+const EN={
+  /* --- shell, tiles, sections --- */
+  hubnote:'Only the sections you are allowed to use are shown.<br>Tap a tile to open it · tap ← or 🏠 to come back.',
+  menuhead:'Choose a section. Every one is a full-width row — nothing is hidden off the side of the screen.',
+  nav_home:'Home', nav_sync:'Sync',
+  m_harvest:'Harvest',      m_tying:'Fruit Tying',   m_scale:'Morning Scale',
+  m_ops:'Daily Ops',        m_inv:'Inventory',
+  s_collect:'COLLECT',      s_collect_d:'Count good fruit by grade, and loss with its cause',
+  s_tally:'TALLY CLICKER',  s_tally_d:'Tap-count fruit onto the string, tree by tree',
+  s_scale:'MORNING SCALE',  s_scale_d:'Weigh the baskets and photograph the scale display',
+  s_tasks:"TODAY'S TASKS",  s_tasks_d:'The jobs assigned to you, with one-tap completion',
+  s_stockout:'STOCK OUT',   s_stockout_d:'Draw material from the store, against a lot',
+  s_stockin:'STOCK IN',     s_stockin_d:'Receive goods against a supplier invoice',
+  s_progcheck:'PROGRAM CHECK', s_progcheck_d:'Will the active spray programme run out?',
+  s_nextphase:'NEXT PHASE', s_nextphase_d:'What to order now for the phase after this one',
+  /* --- login --- */
+  login_title:'Login', login_ask:'Key in your 6-digit access key',
+  login_wrong:'Wrong key. Try again.',
+  login_off:'This key is deactivated. Contact owner.',
+  login_welcome:'Welcome,',
+  /* --- fruit words --- */
+  w_tree:'Tree', w_lot:'Lot', w_good:'Good fruit', w_loss:'Loss', w_rotten:'Rotten',
+  w_drop:'Drop', w_secured:'Secured drop', w_unsecured:'Unsecured drop',
+  w_count:'Count', w_grade:'Grade', w_cause:'Cause', w_fruits:'fruits',
+  c_ANIMAL:'Animal damage',  c_ANIMAL_n:'squirrel, monkey, rat, civet',
+  c_PEST:'Pest infestation', c_PEST_n:'fruit borer, weevil, fruit fly',
+  c_DISEASE:'Disease rot',   c_DISEASE_n:'Phytophthora, anthracnose, stem-end rot',
+  c_UNRIPE:'Unripe',         c_UNRIPE_n:'not mature — usually water or nutrient stress',
+  /* --- tying --- */
+  w_tie:'Tie', w_rope:'Rope', w_ontree:'Still on the tree', w_balance:'Balance',
+  /* --- the morning scale --- */
+  sc_head:'Morning scale dispatch',
+  sc_intro:'Weigh the baskets, key the GROSS reading exactly as the scale shows it, then <b>photograph the scale display</b>. Marketing checks your photo against your figures before the load is invoiced. You are recording weight only — no prices are shown on this screen.',
+  sc_nomerchant:'No active merchant on this phone yet. Sync once at the office hotspot so the retailer list arrives.',
+  sc_towhich:'Sending to which merchant', sc_choose:'— choose the buyer —',
+  sc_tarewarn:'⚠ Basket tare weights are still the factory placeholders — tell the Owner to weigh an empty basket. Your GROSS reading is still recorded exactly as you key it.',
+  sc_basket:'BASKET', sc_clone:'Clone', sc_grade:'Grade', sc_baskettype:'Basket type',
+  sc_howmany:'How many baskets', sc_gross:'GROSS on scale (kg)', sc_fruitcount:'Fruit count (optional)',
+  sc_addbasket:'＋ ADD ANOTHER BASKET',
+  sc_photohead:'📷 Photo proof — required',
+  sc_nophoto:'No photo yet. The load cannot be submitted without one.',
+  sc_photook:'Photo attached', sc_retake:'retake',
+  sc_takephoto:'[ 📷 Take Photo of Scale Weight ]',
+  sc_photohint:'Hold the phone square to the scale so the numbers are readable. The photo is shrunk automatically so it will still send on a slow hotspot.',
+  sc_note:'Note (optional)', sc_noteph:'e.g. lorry BKS 4412, driver Amin',
+  sc_submit:'📤 SUBMIT TO MARKETING FOR APPROVAL',
+  sc_waiting:'📤 Waiting on Marketing',
+  sc_nothingwaiting:'Nothing waiting. Everything you sent has been approved or returned.',
+  sc_decided:'Recently decided',
+  sc_pending:'PENDING', sc_approved:'APPROVED', sc_returned:'RETURNED',
+  sc_queued:'queued on this phone',
+  sc_total:'TOTAL NET', sc_keyfirst:'Key the gross reading for at least one basket.',
+  sc_gross_calc:'Gross', sc_tare_calc:'tare', sc_net_calc:'NET', sc_avg:'avg',
+  /* --- scale errors and toasts --- */
+  e_pickmerchant:'Choose which merchant this load is going to.',
+  e_suspended:'That merchant is suspended.',
+  e_needweight:'Key the gross scale reading for at least one basket.',
+  e_needphoto:'A photo of the scale display is required before this can be sent.',
+  e_notphoto:'That file is not a photo.',
+  e_photobig:'That photo is too detailed to send. Take it again closer to the scale display.',
+  e_photoread:'The phone could not read that photo.',
+  t_shrinking:'Shrinking the photo…', t_photoon:'📷 Photo attached',
+  t_sent:'sent to Marketing for approval', t_queuedsuffix:'(queued)',
+  /* --- shared buttons --- */
+  b_save:'Save', b_cancel:'Cancel', b_remove:'remove', b_confirm:'Confirm',
+  w_note:'Note', w_key:'Access key', w_queued:'Queued — not sent yet',
+  /* --- sync --- */
+  sy_head:'Send the day’s work to the office',
+  sy_online:'ONLINE', sy_offline:'OFFLINE',
+  bk_red:'Standard Red Box', bk_blue:'Heavy Blue Crate', bk_none:'Loose / no basket',
+  ts_harvest:'grade A/B/C, loss', ts_tying:'tally clicker, rope, balances',
+  ts_scale:'weigh, photograph, send', ts_ops:'tasks, stock out',
+  ts_inv:'stock in/out, levels, alerts',
+  ca_tag:'Card A · good fruit', ca_head:'🥭 Good fruit collected — count each grade',
+  ca_note:'Count Grade A, B and C separately. For every grade say whether the fruit came off <b>Secured (Tied)</b> — a string was on it — or <b>Unsecured (Untied)</b>, meaning it was never tied. Leave a grade on 0 if none was picked.',
+  ca_none:'Nothing counted yet.', ca_save:'✓ SAVE GOOD FRUIT',
+  cb_tag:'Card B · loss', cb_head:'🍂 Fruit lost — not sellable',
+  cb_note:'Fruit that cannot be sold — rotten, damaged, or dropped before it was ripe. Leave it on 0 if nothing was lost.',
+  cb_cause:'Loss cause', cb_tied:'Was it tied?', w_required:'REQUIRED',
+  cb_tiedyes:'🩢 TIED<span class="csub">frees a string</span>',
+  cb_tiedno:'🍃 UNTIED<span class="csub">never tied</span>',
+  cb_save:'🍂 LOG FRUIT LOST',
+  h_scan:'SCAN TREE TAG', h_treeno:'Tree number', h_usetree:'✓ USE THIS TREE',
+  h_ortap:'Or tap the tree number', cb_choose:'— choose the loss cause —',
+  h_scansub:'camera QR scan · or', h_picklist:'pick tree from list',
+  h_selecttree:'select a tree', w_clone:'Clone', w_readonly:'READ-ONLY',
+  ty_head:'🎗️ Fruit Tying Tracker',
+  ty_note:'Lock the tree in first, then tap once for every fruit you tie. Nothing leaves this screen until you press <b>Complete Tree &amp; Save to Queue</b>.',
+  ty_tap:'[ 🎗️ TAP TO LOG 1 FRUIT TIED ]', ty_tally:'Current Session Tally:',
+  ty_undo:'[ ↩️ Undo Mis-tap ]', ty_save:'[ 💾 Complete Tree &amp; Save to Queue ]',
+  ty_selecttree:'— select tree —', ty_none:'Lock a tree in first.',
+  ty_rope:'Every fruit tied draws 1.5 m of rope out of the store automatically',
+  ty_store:'store shows',
+  op_head:"📋 Today's tasks — from the Owner's active programme",
+  op_note:'Tasks are set by the Owner and cannot be edited here. <b>CONFIRM COMPLETION</b> deducts exactly what the Owner planned for that lot — use it when the tank was mixed to the recipe above. If the field mixed a different amount, use <b>MIXED A DIFFERENT AMOUNT</b> and key the real tanks. Either way the material leaves farm stock automatically and is costed to that lot.',
+  op_sent:'✓ Completion replies sent from this phone',
+  op_gen:'🛠️ General field tasks',
+  op_gennote:'Pruning, weeding, fruit tying, branch tying and fruit trimming. Each task asks for the counts that matter for that job — the app will not accept a reply without them.',
+  op_notask:'No task waiting. The Owner has not activated a set, or every lot has already been reported.',
+  op_noreply:'No completion reply sent from this phone yet.',
+  op_nogen:'No general task waiting.',
+  so_head:'📤 Material Stock Out — issued to the field', so_product:'Product',
+  so_search:'Search brand or active ingredient…', so_ai:'Active ingredient',
+  so_qty:'Quantity used', so_lot:'Target lot applied', so_set:'For spray set',
+  so_save:'✓ SAVE STOCK OUT',
+  so_note:'Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.',
+  so_phi:'fruit-contact, 14-day PHI', so_confirm:'(confirm — see label)', so_onhand:'on hand', so_nomatch:'— no match —',
+  ty_onstring:'On the string now:', ty_untied:'Untied still hanging:', ty_nocensus:'no census',
+  role_OWNER:'Owner / Admin', role_MARKETING:'Marketing',
+  role_PURCHASER:'Sandakan Purchaser', role_WORKER:'Farm Worker',
+  bg_onstring:'ON STRING', bg_tiedtoday:'TIED TODAY', bg_tasks:'TASKS', bg_ropeshort:'ROPE SHORT'
+};
+
+/* Bahasa Malaysia — the terms the Owner approved. Anything missing here simply
+   shows the English above, which is why a partial table is safe to ship. */
+const MS={
+  hubnote:'Hanya bahagian yang dibenarkan untuk anda sahaja dipaparkan.<br>Tekan satu petak untuk buka · tekan ← atau 🏠 untuk kembali.',
+  menuhead:'Pilih satu bahagian. Semuanya baris penuh — tiada apa-apa tersembunyi di tepi skrin.',
+  nav_home:'Utama', nav_sync:'Hantar Data',
+  m_harvest:'Kutip Buah',   m_tying:'Ikat Buah',     m_scale:'Timbang Pagi',
+  m_ops:'Kerja Harian',     m_inv:'Stok',
+  s_collect:'KUTIP',        s_collect_d:'Kira buah elok ikut gred, dan buah rosak dengan sebabnya',
+  s_tally:'KIRA IKAT',      s_tally_d:'Tekan untuk kira buah yang diikat, pokok demi pokok',
+  s_scale:'TIMBANG PAGI',   s_scale_d:'Timbang bakul dan ambil gambar skrin penimbang',
+  s_tasks:'KERJA HARI INI', s_tasks_d:'Kerja yang diberi kepada anda, satu tekan untuk sahkan siap',
+  s_stockout:'AMBIL BAHAN', s_stockout_d:'Ambil bahan dari stor, untuk lot tertentu',
+  s_stockin:'TERIMA BAHAN', s_stockin_d:'Terima barang dengan invois pembekal',
+  s_progcheck:'SEMAK PROGRAM', s_progcheck_d:'Cukupkah bahan untuk program semburan sekarang?',
+  s_nextphase:'FASA SETERUSNYA', s_nextphase_d:'Apa perlu dipesan untuk fasa selepas ini',
+  login_title:'Log Masuk', login_ask:'Masukkan kunci masuk 6 angka anda',
+  login_wrong:'Kunci salah. Cuba lagi.',
+  login_off:'Kunci ini telah dimatikan. Hubungi tuan ladang.',
+  login_welcome:'Selamat datang,',
+  w_tree:'Pokok', w_lot:'Lot', w_good:'Buah Elok', w_loss:'Buah Rosak', w_rotten:'Buah Busuk',
+  w_drop:'Buah Gugur', w_secured:'Gugur Bertali', w_unsecured:'Gugur Tanpa Tali',
+  w_count:'Bilangan', w_grade:'Gred', w_cause:'Sebab', w_fruits:'biji',
+  c_ANIMAL:'Rosak Haiwan',   c_ANIMAL_n:'tupai, monyet, tikus, musang',
+  c_PEST:'Serangan Perosak', c_PEST_n:'ulat penggerek buah, kumbang, lalat buah',
+  c_DISEASE:'Reput Penyakit',c_DISEASE_n:'Phytophthora, antraknos, reput hujung tangkai',
+  c_UNRIPE:'Buah Muda',      c_UNRIPE_n:'belum cukup tua — biasanya kurang air atau baja',
+  w_tie:'Ikat', w_rope:'Tali', w_ontree:'Masih Di Pokok', w_balance:'Baki',
+  sc_head:'Timbang pagi',
+  sc_intro:'Timbang bakul, masukkan bacaan BERAT KASAR tepat seperti pada penimbang, kemudian <b>ambil gambar skrin penimbang</b>. Marketing akan semak gambar anda dengan angka anda sebelum muatan diinvoiskan. Anda merekod berat sahaja — tiada harga dipaparkan di skrin ini.',
+  sc_nomerchant:'Belum ada pembeli aktif dalam telefon ini. Hantar data sekali di hotspot pejabat supaya senarai pembeli sampai.',
+  sc_towhich:'Hantar kepada pembeli mana', sc_choose:'— pilih pembeli —',
+  sc_tarewarn:'⚠ Berat bakul kosong masih angka sementara — beritahu tuan ladang supaya timbang bakul kosong. Bacaan BERAT KASAR anda tetap direkod tepat seperti anda masukkan.',
+  sc_basket:'BAKUL', sc_clone:'Klon', sc_grade:'Gred', sc_baskettype:'Jenis bakul',
+  sc_howmany:'Berapa bakul', sc_gross:'BERAT KASAR pada penimbang (kg)', sc_fruitcount:'Bilangan buah (pilihan)',
+  sc_addbasket:'＋ TAMBAH BAKUL LAGI',
+  sc_photohead:'📷 Bukti gambar — wajib',
+  sc_nophoto:'Belum ada gambar. Muatan tidak boleh dihantar tanpa gambar.',
+  sc_photook:'Gambar disertakan', sc_retake:'ambil semula',
+  sc_takephoto:'[ 📷 Ambil Gambar Timbangan ]',
+  sc_photohint:'Pegang telefon tegak dengan penimbang supaya nombor jelas dibaca. Gambar dikecilkan sendiri supaya boleh dihantar walaupun talian perlahan.',
+  sc_note:'Catatan (pilihan)', sc_noteph:'cth. lori BKS 4412, pemandu Amin',
+  sc_submit:'📤 HANTAR UNTUK KELULUSAN',
+  sc_waiting:'📤 Menunggu Kelulusan',
+  sc_nothingwaiting:'Tiada yang menunggu. Semua yang anda hantar sudah diluluskan atau dikembalikan.',
+  sc_decided:'Baru diputuskan',
+  sc_pending:'MENUNGGU', sc_approved:'DILULUSKAN', sc_returned:'DIKEMBALIKAN',
+  sc_queued:'dalam simpanan telefon ini',
+  sc_total:'JUMLAH BERSIH', sc_keyfirst:'Masukkan bacaan berat kasar untuk sekurang-kurangnya satu bakul.',
+  sc_gross_calc:'Berat kasar', sc_tare_calc:'berat bakul', sc_net_calc:'BERSIH', sc_avg:'purata',
+  e_pickmerchant:'Pilih pembeli untuk muatan ini.',
+  e_suspended:'Pembeli ini digantung.',
+  e_needweight:'Masukkan bacaan berat kasar untuk sekurang-kurangnya satu bakul.',
+  e_needphoto:'Gambar skrin penimbang wajib sebelum ini boleh dihantar.',
+  e_notphoto:'Fail itu bukan gambar.',
+  e_photobig:'Gambar itu terlalu besar untuk dihantar. Ambil semula lebih dekat dengan skrin penimbang.',
+  e_photoread:'Telefon tidak dapat membaca gambar itu.',
+  t_shrinking:'Mengecilkan gambar…', t_photoon:'📷 Gambar disertakan',
+  t_sent:'dihantar kepada Marketing untuk kelulusan', t_queuedsuffix:'(dalam simpanan)',
+  b_save:'Simpan', b_cancel:'Batal', b_remove:'buang', b_confirm:'Sahkan',
+  w_note:'Catatan', w_key:'Kunci Masuk', w_queued:'Belum Dihantar',
+  sy_head:'Hantar kerja hari ini ke pejabat',
+  sy_online:'DALAM TALIAN', sy_offline:'LUAR TALIAN',
+  bk_red:'Kotak Merah Biasa', bk_blue:'Bakul Biru Berat', bk_none:'Tanpa bakul',
+  ts_harvest:'gred A/B/C, buah rosak', ts_tying:'kira ikat, tali, baki',
+  ts_scale:'timbang, ambil gambar, hantar', ts_ops:'kerja, ambil bahan',
+  ts_inv:'terima/ambil bahan, paras stok',
+  ca_tag:'Kad A · buah elok', ca_head:'🥭 Buah elok dikutip — kira ikut gred',
+  ca_note:'Kira Gred A, B dan C berasingan. Bagi setiap gred, nyatakan sama ada buah itu <b>Bertali (Diikat)</b> — ada tali padanya — atau <b>Tanpa Tali</b>, bermakna ia tidak pernah diikat. Biarkan gred pada 0 jika tiada dikutip.',
+  ca_none:'Belum ada yang dikira.', ca_save:'✓ SIMPAN BUAH ELOK',
+  cb_tag:'Kad B · buah rosak', cb_head:'🍂 Buah rosak — tidak boleh dijual',
+  cb_note:'Buah yang tidak boleh dijual — busuk, rosak, atau gugur sebelum masak. Biarkan pada 0 jika tiada yang rosak.',
+  cb_cause:'Sebab rosak', cb_tied:'Adakah ia diikat?', w_required:'WAJIB',
+  cb_tiedyes:'🩢 BERTALI<span class="csub">tali terlepas</span>',
+  cb_tiedno:'🍃 TANPA TALI<span class="csub">tidak pernah diikat</span>',
+  cb_save:'🍂 REKOD BUAH ROSAK',
+  h_scan:'IMBAS TAG POKOK', h_treeno:'Nombor pokok', h_usetree:'✓ GUNA POKOK INI',
+  h_ortap:'Atau tekan nombor pokok', cb_choose:'— pilih sebab rosak —',
+  h_scansub:'imbas QR dengan kamera · atau', h_picklist:'pilih pokok dari senarai',
+  h_selecttree:'pilih satu pokok', w_clone:'Klon', w_readonly:'BACA SAHAJA',
+  ty_head:'🎗️ Rekod Ikat Buah',
+  ty_note:'Kunci pokok dahulu, kemudian tekan sekali bagi setiap buah yang anda ikat. Tiada apa-apa keluar dari skrin ini sehingga anda tekan <b>Siap Pokok &amp; Simpan</b>.',
+  ty_tap:'[ 🎗️ TEKAN UNTUK REKOD 1 BUAH DIIKAT ]', ty_tally:'Jumlah sesi ini:',
+  ty_undo:'[ ↩️ Batal Tekan Silap ]', ty_save:'[ 💾 Siap Pokok &amp; Simpan ]',
+  ty_selecttree:'— pilih pokok —', ty_none:'Kunci satu pokok dahulu.',
+  ty_rope:'Setiap buah yang diikat menolak 1.5 m tali dari stor secara automatik',
+  ty_store:'stor ada',
+  op_head:'📋 Kerja hari ini — dari program aktif tuan ladang',
+  op_note:'Kerja ditetapkan oleh tuan ladang dan tidak boleh diubah di sini. <b>SAHKAN SIAP</b> akan menolak tepat seperti yang dirancang untuk lot itu — guna ia apabila tangki dicampur ikut resipi di atas. Jika di ladang campur jumlah lain, guna <b>CAMPUR JUMLAH LAIN</b> dan masukkan bilangan tangki sebenar. Apa pun, bahan akan keluar dari stok ladang secara automatik dan dikira kos untuk lot itu.',
+  op_sent:'✓ Laporan siap yang dihantar dari telefon ini',
+  op_gen:'🛠️ Kerja ladang am',
+  op_gennote:'Cantas, cabut rumput, ikat buah, ikat dahan dan buang buah. Setiap kerja meminta bilangan yang penting untuk kerja itu — aplikasi tidak akan terima laporan tanpa bilangan itu.',
+  op_notask:'Tiada kerja menunggu. Tuan ladang belum aktifkan set, atau semua lot sudah dilaporkan.',
+  op_noreply:'Belum ada laporan siap dihantar dari telefon ini.',
+  op_nogen:'Tiada kerja am menunggu.',
+  so_head:'📤 Ambil Bahan — dikeluarkan ke ladang', so_product:'Bahan',
+  so_search:'Cari nama jenama atau bahan aktif…', so_ai:'Bahan aktif',
+  so_qty:'Jumlah digunakan', so_lot:'Lot yang disembur', so_set:'Untuk set semburan',
+  so_save:'✓ SIMPAN AMBIL BAHAN',
+  so_note:'Menyimpan akan terus menolak stok ladang di telefon ini dan menunggu giliran untuk dihantar.',
+  so_phi:'sentuh buah, PHI 14 hari', so_confirm:'(sahkan — lihat label)', so_onhand:'stok ada', so_nomatch:'— tiada padanan —',
+  ty_onstring:'Masih di tali sekarang:', ty_untied:'Belum diikat, masih tergantung:', ty_nocensus:'tiada banci',
+  role_OWNER:'Tuan Ladang / Admin', role_MARKETING:'Marketing',
+  role_PURCHASER:'Pembeli Sandakan', role_WORKER:'Pekerja Ladang',
+  bg_onstring:'DI TALI', bg_tiedtoday:'DIIKAT HARI INI', bg_tasks:'KERJA', bg_ropeshort:'TALI TIDAK CUKUP'
+};

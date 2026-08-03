@@ -628,6 +628,9 @@ input[type=datetime-local]{font-family:inherit;}
 .daygrid b{font-size:14px;color:#20301f;}
 .causerow{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
 .causechip{background:#fdecea;color:#8c1d18;border-radius:8px;padding:4px 7px;font-size:10px;font-weight:800;}
+/* v3.7 — an unripe drop is a PHYSIOLOGICAL loss, not damage. Amber, not red: it points
+   at water or nutrient stress, which is a different conversation from pest control. */
+.causechip.phys{background:var(--amberbg);color:#7a5b00;}
 .buyrow{font-size:11.5px;font-weight:700;color:#20301f;margin-top:7px;line-height:1.5;}
 .buyrow.dim{color:#9aa79a;font-weight:600;}
 .loadrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
@@ -653,6 +656,31 @@ input[type=datetime-local]{font-family:inherit;}
 .drawbox{background:#fff;border:1.3px solid #e6ece5;border-radius:10px;padding:8px 9px;
   font-size:11.5px;line-height:1.6;color:#20301f;margin-top:7px;}
 .kpi.bad .v{color:var(--warn);}
+
+/* ============================================================================
+   v3.7 — the section menu (strict Big Tile) and the language chip
+   ============================================================================ */
+#scr-menu{padding:12px 11px 20px;}
+.menuhead{font-size:11.5px;color:#5d6b5b;line-height:1.6;margin-bottom:11px;padding:0 2px;}
+.mrow2{display:flex;align-items:center;gap:12px;background:#fff;border:1.6px solid #dfe6df;
+  border-radius:16px;padding:15px 13px;margin-bottom:10px;cursor:pointer;min-height:72px;
+  box-shadow:0 1px 2px rgba(0,0,0,.03);}
+.mrow2:active{transform:scale(.99);background:var(--lite);}
+.mrow2 .mi{font-size:23px;width:32px;text-align:center;flex:none;}
+.mrow2 .mt{flex:1;min-width:0;}
+.mrow2 .mn{font-weight:900;font-size:14.5px;line-height:1.25;color:#20301f;}
+.mrow2 .md{font-size:11px;color:#6b7a68;margin-top:3px;line-height:1.45;}
+.mrow2 .mg{color:var(--green2);font-weight:900;font-size:17px;flex:none;}
+.mrow2 .mb{background:var(--warn);color:#fff;border-radius:20px;padding:3px 8px;font-size:9px;
+  font-weight:900;flex:none;}
+.mrow2 .mb.amber{background:#c98a00;}
+
+/* BM / EN language chip — lives in the header so it is reachable from any worker screen */
+.langchip{display:flex;gap:0;background:rgba(0,0,0,.22);border-radius:20px;overflow:hidden;flex:none;
+  margin-left:6px;}
+.langchip span{padding:5px 9px;font-size:9.5px;font-weight:900;color:#cfe0cc;cursor:pointer;
+  letter-spacing:.4px;}
+.langchip span.on{background:#fff;color:var(--green);}
 </style>
 </head>
 <body>
@@ -660,6 +688,9 @@ input[type=datetime-local]{font-family:inherit;}
   <div class="farm">S.H.A. HUP AIK PLANTATION · SUGUT DURIAN FARM</div>
   <div class="row">
     <div class="ttlwrap" onclick="hubBack()"><span class="bk hidden" id="backbtn">←</span><div class="ttl" id="ttl">Sugut DMS</div></div>
+    <!-- v3.7 — BM / EN, available to every role. The Owner must be able to flip a
+         worker's phone to English while standing next to them at the shed. -->
+    <div class="langchip" id="langchip"></div>
     <div style="display:flex;align-items:center">
       <span class="pill" id="netpill">● OFFLINE</span>
       <span class="qbadge" id="qbadge">0</span>
@@ -713,6 +744,9 @@ input[type=datetime-local]{font-family:inherit;}
   </div>
 </div>
 
+<!-- v3.7 — the horizontal sub-tab bar is retired. The element stays (hidden, never
+     rendered into) purely so any older call site cannot hit a null reference; the
+     section menu below replaces it. -->
 <div class="subbar hidden" id="subbar"></div>
 
 <!-- HOME HUB (v2.4) -->
@@ -722,14 +756,25 @@ input[type=datetime-local]{font-family:inherit;}
     <div class="hd" id="hub-dev">—</div>
   </div>
   <div class="tiles" id="hubtiles"></div>
-  <p class="hubnote">Only the sections you are allowed to use are shown.<br>Tap a tile to open it · tap ← or 🏠 to come back.</p>
+  <p class="hubnote" data-t="hubnote">Only the sections you are allowed to use are shown.<br>Tap a tile to open it · tap ← or 🏠 to come back.</p>
+</div>
+
+<!-- ===== SECTION MENU (v3.7) =====================================================
+     The strict Big Tile layer. A tile with more than one section opens THIS instead
+     of a horizontal chip bar: one full-width row per section, each with a line saying
+     what it does. Nothing can sit off the right edge of the phone, so there is no
+     hidden content to discover by swiping. A tile with exactly one section skips this
+     screen entirely and opens straight into the work. -->
+<div class="scr hidden" id="scr-menu">
+  <div class="menuhead" id="menuhead"></div>
+  <div id="menulist"></div>
 </div>
 
 <!-- HARVEST -->
 <div class="scr hidden" id="scr-harvest">
   <div class="scanbox" id="scanbox" onclick="startScan()">
-    <div class="i">▣</div><div class="t">SCAN TREE TAG</div>
-    <div class="s">camera QR scan · or <span class="linkish" onclick="event.stopPropagation();showPicker()">pick tree from list</span></div>
+    <div class="i">▣</div><div class="t" data-t="h_scan">SCAN TREE TAG</div>
+    <div class="s"><span data-t="h_scansub">camera QR scan · or</span> <span class="linkish" onclick="event.stopPropagation();showPicker()" data-t="h_picklist">pick tree from list</span></div>
   </div>
   <div id="qrview"></div>
   <div id="picker" class="hidden">
@@ -737,21 +782,21 @@ input[type=datetime-local]{font-family:inherit;}
     <div class="card">
       <div class="sec">Select tree · Tree Master (<span id="tm-count">0</span> trees)</div>
       <div class="selrow">
-        <div><label>Lot</label><select id="h-lot" onchange="onLotChange()"></select></div>
-        <div><label>Tree number</label><select id="h-tree" onchange="onTreeChange()"></select></div>
+        <div><label data-t="w_lot">Lot</label><select id="h-lot" onchange="onLotChange()"></select></div>
+        <div><label data-t="h_treeno">Tree number</label><select id="h-tree" onchange="onTreeChange()"></select></div>
       </div>
       <div class="clonebox">
         <div>
-          <div class="cl">Clone <span class="ro">READ-ONLY</span></div>
+          <div class="cl"><span data-t="w_clone">Clone</span> <span class="ro" data-t="w_readonly">READ-ONLY</span></div>
           <div class="cv" id="h-clone">—</div>
         </div>
-        <div class="cr" id="h-cloneinfo">select a tree</div>
+        <div class="cr" id="h-cloneinfo" data-t="h_selecttree">select a tree</div>
       </div>
       <div style="height:10px"></div>
-      <button class="bigbtn" onclick="confirmTreePick()">✓ USE THIS TREE</button>
+      <button class="bigbtn" onclick="confirmTreePick()" data-t="h_usetree">✓ USE THIS TREE</button>
     </div>
     <div class="card">
-      <div class="sec">Or tap the tree number</div>
+      <div class="sec" data-t="h_ortap">Or tap the tree number</div>
       <div class="lotbtns" id="lotbtns"><div class="on" onclick="pickLot('A',this)">Lot A</div><div onclick="pickLot('B',this)">Lot B</div><div onclick="pickLot('C',this)">Lot C</div></div>
       <div class="pickgrid" id="pickgrid"></div>
     </div>
@@ -766,22 +811,24 @@ input[type=datetime-local]{font-family:inherit;}
 
     <!-- ============ CARD A · GOOD FRUIT · GRADE COUNTERS (v3.0) ============ -->
     <div class="card gradecard">
-      <span class="cardtag good">Card A · good fruit</span>
-      <div class="sec">🥭 Good fruit collected — count each grade</div>
-      <p class="small" style="margin-top:0">Count Grade A, B and C separately. For every grade say whether the
+      <span class="cardtag good" data-t="ca_tag">Card A · good fruit</span>
+      <div class="sec" data-t="ca_head">🥭 Good fruit collected — count each grade</div>
+      <p class="small" style="margin-top:0" data-t="ca_note">Count Grade A, B and C separately. For every grade say whether the
         fruit came off <b>Secured (Tied)</b> — a string was on it — or <b>Unsecured (Untied)</b>, meaning it was
         never tied. Leave a grade on 0 if none was picked.</p>
       <div id="graderows"></div>
-      <div class="gtot zero" id="g-tot">Nothing counted yet.</div>
+      <div class="gtot zero" id="g-tot" data-t="ca_none">Nothing counted yet.</div>
       <div class="pinerr" id="g-err"></div>
-      <button class="bigbtn" onclick="saveDrop()">✓ SAVE GOOD FRUIT</button>
+      <button class="bigbtn" onclick="saveDrop()" data-t="ca_save">✓ SAVE GOOD FRUIT</button>
     </div>
 
     <!-- ============ CARD B · ROTTEN LOSS COUNTER (v3.0) ============ -->
     <div class="card rotcard">
-      <span class="cardtag bad">Card B · loss</span>
-      <div class="sec">🍂 Rotten fruit lost</div>
-      <p class="small" style="margin-top:0">Fruit lost on the tree, not collected. Leave it on 0 if nothing was lost.</p>
+      <span class="cardtag bad" data-t="cb_tag">Card B · loss</span>
+      <!-- v3.7 — was "Rotten fruit lost". An unripe durian is not rotten, and now that
+           UNRIPE is one of the four causes the heading has to cover all of them. -->
+      <div class="sec" data-t="cb_head">🍂 Fruit lost — not sellable</div>
+      <p class="small" style="margin-top:0" data-t="cb_note">Fruit that cannot be sold — rotten, damaged, or dropped before it was ripe. Leave it on 0 if nothing was lost.</p>
       <div class="stepper">
         <button onclick="rotBump(-1)">−</button><div class="n" id="rot-n">0</div><button onclick="rotBump(1)">+</button>
       </div>
@@ -789,16 +836,16 @@ input[type=datetime-local]{font-family:inherit;}
         <div onclick="rotBump(5)">+5</div><div onclick="rotBump(10)">+10</div><div onclick="rotReset()">CLEAR</div>
       </div>
       <div id="rot-extra" class="hidden">
-        <label>Damage cause <span class="minitag">REQUIRED</span></label>
+        <label><span data-t="cb_cause">Loss cause</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
         <select id="rot-cause" onchange="rotPickSel()"></select>
-        <label>Was it tied? <span class="minitag">REQUIRED</span></label>
+        <label><span data-t="cb_tied">Was it tied?</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
         <div class="lotbtns" id="rottied">
-          <div id="rt-T" onclick="rotTie(true)">🩢 TIED<span class="csub">frees a string</span></div>
-          <div id="rt-U" onclick="rotTie(false)">🍃 UNTIED<span class="csub">never tied</span></div>
+          <div id="rt-T" onclick="rotTie(true)" data-t="cb_tiedyes">🩢 TIED<span class="csub">frees a string</span></div>
+          <div id="rt-U" onclick="rotTie(false)" data-t="cb_tiedno">🍃 UNTIED<span class="csub">never tied</span></div>
         </div>
       </div>
       <div class="pinerr" id="rot-err"></div>
-      <button class="bigbtn rot" onclick="saveRotten()">🍂 LOG ROTTEN FRUITS</button>
+      <button class="bigbtn rot" onclick="saveRotten()" data-t="cb_save">🍂 LOG FRUIT LOST</button>
     </div>
 
     <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
@@ -856,28 +903,28 @@ input[type=datetime-local]{font-family:inherit;}
 
   <!-- MATERIAL STOCK OUT — Farm Worker (Owner/Marketing may also use it) -->
   <div class="card" id="pnl-out" style="display:none">
-    <div class="sec">📤 Material Stock Out — issued to the field</div>
-    <label>Product</label>
-    <input id="out-search" placeholder="Search brand or active ingredient…" oninput="renderOutOpts()">
+    <div class="sec" data-t="so_head">📤 Material Stock Out — issued to the field</div>
+    <label data-t="so_product">Product</label>
+    <input id="out-search" placeholder="Search brand or active ingredient…" data-tph="so_search" oninput="renderOutOpts()">
     <select id="out-prod" size="5" style="margin-top:6px" onchange="onOutProd()"></select>
     <div class="aibox">
-      <div><div class="cl">Active ingredient <span class="ro">READ-ONLY</span></div><div class="av" id="out-ai">—</div></div>
+      <div><div class="cl"><span data-t="so_ai">Active ingredient</span> <span class="ro" data-t="w_readonly">READ-ONLY</span></div><div class="av" id="out-ai">—</div></div>
       <div class="cr" id="out-onhand">—</div>
     </div>
-    <label>Quantity used (<span id="out-unitlbl">ml/gm</span>)</label>
+    <label><span data-t="so_qty">Quantity used</span> (<span id="out-unitlbl">ml/gm</span>)</label>
     <input type="number" id="out-qty" min="0" step="any" inputmode="decimal" value="1000" oninput="onOutCalc()">
     <div class="convnote" id="out-conv">—</div>
-    <label>Target lot applied <span class="minitag">REQUIRED</span></label>
+    <label><span data-t="so_lot">Target lot applied</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
     <div class="lotbtns" id="out-lots">
       <div id="ol-A" onclick="pickOutLot('A')">LOT A</div>
       <div id="ol-B" onclick="pickOutLot('B')">LOT B</div>
       <div id="ol-C" onclick="pickOutLot('C')">LOT C</div>
     </div>
-    <label>For spray set</label>
+    <label data-t="so_set">For spray set</label>
     <select id="sset"></select>
     <div class="pinerr" id="out-err"></div>
-    <button class="bigbtn" onclick="submitStockOut()">✓ SAVE STOCK OUT</button>
-    <p class="small" style="margin-top:8px">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
+    <button class="bigbtn" onclick="submitStockOut()" data-t="so_save">✓ SAVE STOCK OUT</button>
+    <p class="small" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
   </div>
 
   <!-- LIVE STOCK ON HAND -->
@@ -953,15 +1000,15 @@ input[type=datetime-local]{font-family:inherit;}
   </div>
   <!-- ===== DAILY OPS · TODAY'S TASKS (v2.5) ===== -->
   <div class="card" id="opstasks" style="display:none">
-    <div class="sec">📋 Today's tasks — from the Owner's active programme</div>
+    <div class="sec" data-t="op_head">📋 Today's tasks — from the Owner's active programme</div>
     <div id="opslist"></div>
-    <p class="small" style="margin-top:9px">Tasks are set by the Owner and cannot be edited here.
+    <p class="small" style="margin-top:9px" data-t="op_note">Tasks are set by the Owner and cannot be edited here.
       <b>CONFIRM COMPLETION</b> deducts exactly what the Owner planned for that lot — use it when the tank was
       mixed to the recipe above. If the field mixed a different amount, use <b>MIXED A DIFFERENT AMOUNT</b> and key
       the real tanks. Either way the material leaves farm stock automatically and is costed to that lot.</p>
   </div>
   <div class="card" id="opshistory" style="display:none">
-    <div class="sec">✓ Completion replies sent from this phone</div>
+    <div class="sec" data-t="op_sent">✓ Completion replies sent from this phone</div>
     <div id="opshistlist"></div>
   </div>
 
@@ -1009,9 +1056,9 @@ input[type=datetime-local]{font-family:inherit;}
 
   <!-- ===== DAILY OPS · GENERAL FIELD TASKS (v2.6) ===== -->
   <div class="card" id="opsgeneral" style="display:none">
-    <div class="sec">🛠️ General field tasks</div>
+    <div class="sec" data-t="op_gen">🛠️ General field tasks</div>
     <div id="genlist"></div>
-    <p class="small" style="margin-top:9px">Pruning, weeding, fruit tying, branch tying and fruit trimming. Each task asks for the counts that matter for that job — the app will not accept a reply without them.</p>
+    <p class="small" style="margin-top:9px" data-t="op_gennote">Pruning, weeding, fruit tying, branch tying and fruit trimming. Each task asks for the counts that matter for that job — the app will not accept a reply without them.</p>
   </div>
   <div class="card" id="opsassign" style="display:none">
     <div class="sec">📌 Assign a general task</div>
@@ -1053,23 +1100,23 @@ input[type=datetime-local]{font-family:inherit;}
 
   <!-- ===== 🎗️ FRUIT TYING TRACKER · WAY 4 TALLY CLICKER (v3.0) ===== -->
   <div class="card tiecard" id="tallycard" style="display:none">
-    <div class="sec">🎗️ Fruit Tying Tracker</div>
-    <p class="small" style="margin-top:0">Lock the tree in first, then tap once for every fruit you tie.
+    <div class="sec" data-t="ty_head">🎗️ Fruit Tying Tracker</div>
+    <p class="small" style="margin-top:0" data-t="ty_note">Lock the tree in first, then tap once for every fruit you tie.
       Nothing leaves this screen until you press <b>Complete Tree &amp; Save to Queue</b>.</p>
     <div class="selrow">
-      <div><label>Lot</label><select id="ty-lot" onchange="tyLotChange()"></select></div>
-      <div><label>Tree number</label><select id="ty-tree" onchange="tyTreeChange()"></select></div>
+      <div><label data-t="w_lot">Lot</label><select id="ty-lot" onchange="tyLotChange()"></select></div>
+      <div><label data-t="h_treeno">Tree number</label><select id="ty-tree" onchange="tyTreeChange()"></select></div>
     </div>
     <div class="clonebox">
-      <div><div class="cl">Clone <span class="ro">READ-ONLY</span></div><div class="cv" id="ty-clone">—</div></div>
-      <div class="cr" id="ty-info">select a tree</div>
+      <div><div class="cl"><span data-t="w_clone">Clone</span> <span class="ro" data-t="w_readonly">READ-ONLY</span></div><div class="cv" id="ty-clone">—</div></div>
+      <div class="cr" id="ty-info" data-t="h_selecttree">select a tree</div>
     </div>
-    <button class="tapbtn" id="ty-tap" onclick="tyTap()">[ 🎗️ TAP TO LOG 1 FRUIT TIED ]</button>
-    <div class="tallybox">Current Session Tally: <span id="ty-n">0</span></div>
-    <button class="undobtn" id="ty-undo" onclick="tyUndo()">[ ↩️ Undo Mis-tap ]</button>
+    <button class="tapbtn" id="ty-tap" onclick="tyTap()" data-t="ty_tap">[ 🎗️ TAP TO LOG 1 FRUIT TIED ]</button>
+    <div class="tallybox"><span data-t="ty_tally">Current Session Tally:</span> <span id="ty-n">0</span></div>
+    <button class="undobtn" id="ty-undo" onclick="tyUndo()" data-t="ty_undo">[ ↩️ Undo Mis-tap ]</button>
     <div class="convnote" id="ty-rope">—</div>
     <div class="pinerr" id="ty-err"></div>
-    <button class="bigbtn tie" onclick="tySave()">[ 💾 Complete Tree &amp; Save to Queue ]</button>
+    <button class="bigbtn tie" onclick="tySave()" data-t="ty_save">[ 💾 Complete Tree &amp; Save to Queue ]</button>
     <div id="ty-recent"></div>
   </div>
 
@@ -1087,7 +1134,7 @@ input[type=datetime-local]{font-family:inherit;}
        Weight and a photo. No price is rendered on this panel for any role, which is why
        a Worker is allowed to reach it at all. -->
   <div class="card" id="scalecard" style="display:none">
-    <div class="sec">⚖️ Morning scale dispatch</div>
+    <div class="sec" data-t="sc_head">⚖️ Morning scale dispatch</div>
     <div id="scalebox"></div>
   </div>
 
@@ -1548,8 +1595,8 @@ input[type=datetime-local]{font-family:inherit;}
 </div>
 
 <div class="nav">
-  <div class="on" id="nav-home" onclick="goHome()"><span class="ic">🏠</span>Home</div>
-  <div id="nav-sync" onclick="go('sync')"><span class="ic">⇅</span>Sync</div>
+  <div class="on" id="nav-home" onclick="goHome()"><span class="ic">🏠</span><span data-t="nav_home">Home</span></div>
+  <div id="nav-sync" onclick="go('sync')"><span class="ic">⇅</span><span data-t="nav_sync">Sync</span></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -1561,7 +1608,7 @@ input[type=datetime-local]{font-family:inherit;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.6.0"></script>
-<script src="app.js?v=3.6.0"></script>
+<script src="database.js?v=3.7.0"></script>
+<script src="app.js?v=3.7.0"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.6.0';   // v3.6.0 — multi-merchant contract matrix, scale photo proof + three-way handshake, daily & monthly summary ledger
+const APP_VERSION = 'v3.7.0';   // v3.7.0 — strict Big Tile navigation, Morning Scale worker tile, UNRIPE loss cause, Bahasa Malaysia for worker screens
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -134,6 +134,11 @@ async function initStore(){
     // v3.6 — the labour rate that prices man-hours into the monthly matrix.
     const lr=kv.find(x=>x.k==='labrate'); if(lr&&+lr.v>0) LABOUR_RATE=+lr.v;
     const lro=kv.find(x=>x.k==='labrateok'); LABOUR_RATE_OK=!!(lro&&lro.v);
+    // v3.7 — the chosen language. Only an EXPLICIT choice is stored; with nothing saved,
+    // applyRole() picks the default from the role, so a fresh worker phone opens in Malay
+    // while a phone whose owner has tapped EN stays in English for good.
+    const lg=kv.find(x=>x.k==='lang'); if(lg&&(lg.v==='ms'||lg.v==='en')) LANG=lg.v;
+    LANG_SET=!!(lg&&lg.v);
 
     // v3.1 — the alliance buyer the price matrix was agreed with. Added ONCE to a phone
     // upgrading from v3.0, never re-added if the Owner later renames or removes it.
@@ -196,6 +201,10 @@ async function initStore(){
             if(hasGrade(c,g))RET_CONTRACT[rid][c][g]=+rc.v[rid][c][g]||0;});});});}
   }
   else { EVENTS=mem.events; CFG=mem.config; CORRECTIONS=mem.corrections; }
+  // v3.7 — settle the language HERE, before anything renders. Deciding it in applyRole()
+  // (which runs after the boot paint) left every worker panel drawn in English and only
+  // repainted on the next interaction. First paint must already be right.
+  if(!LANG_SET)LANG=((CFG&&CFG.role)==='WORKER')?'ms':'en';
   KEYS.forEach(k=>{if(!k.id)k.id=newUid();});   // registries saved by v2.0 had no ids
   applyAddedTrees();                            // Owner-added trees BEFORE anything reads the census
   applyTreeFixes();                             // approved corrections are permanent
@@ -317,76 +326,169 @@ async function bakeApproved(c){
   else if(c.ctype==='CENSUS') TREE_FIX[c.tree].census=Math.round(+c.newVal);
   else if(c.note) TREE_FIX[c.tree].note=c.note;
   await persistTreeFix(); applyTreeFixes();}
+/* ======================================================================================
+   v3.7 · LANGUAGE — Bahasa Malaysia for the worker's screens
+   ======================================================================================
+   Deliberately NOT a whole-app translation. A Farm Worker reaches 254 distinct strings
+   across 22 render functions; the app holds about 1,700. The other 1,450 are the costing
+   ledger, the contract matrix and the audit trail — moving-average cost, drawdown
+   percentage, credit overdraft — where a wrong Malay term reads as authoritative and is
+   more dangerous than plain English. So the worker's world is translated completely and
+   the management screens stay English.
+
+   Three rules that make this safe:
+     1. tr(key) FALLS BACK TO ENGLISH on a missing key. A screen can never render blank,
+        and a term added later simply shows in English until it is translated.
+     2. Nothing that identifies a physical thing is translated - tree IDs are printed on
+        the QR tags, clone codes and grade letters reach the buyer's invoice, and chemical
+        product names are the safety record on the drum.
+     3. The BM / EN chip is available to EVERY role, not just the worker. The Owner has to
+        be able to flip a worker's phone to English while standing next to them, or
+        troubleshooting over the radio becomes guesswork.
+   ====================================================================================== */
+let LANG='en', LANG_SET=false;
+function isMs(){return LANG==='ms';}
+/** THE lookup. Falls back to English, then to the key itself, so nothing renders empty. */
+function tr(key,en){
+  if(LANG==='ms'){
+    const v=(typeof MS!=='undefined')?MS[key]:null;
+    if(v!=null&&v!=='')return v;}
+  const e=(typeof EN!=='undefined')?EN[key]:null;
+  return (e!=null&&e!=='')?e:(en!=null?en:key);}
+/** Module / section names travel through the same table when they carry a `tn` key. */
+function moduleLabel(m){return m?(m.tn?tr(m.tn,m.name):m.name):'';}
+/** The small grey line under a tile name. Translated only where a worker sees it. */
+function tileSub(k,m){
+  const s=MS_TILE_SUB[k];
+  return (s&&isMs())?tr(s,m.sub):m.sub;}
+/** Loss-cause label and note, translated. `c_<KEY>` / `c_<KEY>_n` — so a fifth cause
+ *  added to ROT_CAUSE only needs two more dictionary lines, no code. */
+function causeLabel(k){return tr('c_'+k,(ROT_CAUSE[k]||{}).label||k);}
+function causeNote(k){return tr('c_'+k+'_n',(ROT_CAUSE[k]||{}).note||'');}
+const MS_TILE_SUB={harvest:'ts_harvest',tying:'ts_tying',scale:'ts_scale',ops:'ts_ops',inv:'ts_inv'};
+function tabLabel(x){return x?(x.tn?tr(x.tn,x.t):x.t):'';}
+function sectionDesc(x){return x?(x.tn?tr(x.tn+'_d',x.d||''):(x.d||'')):'';}
+
+async function setLang(l){
+  LANG=(l==='ms')?'ms':'en';
+  // An explicit tap is a CHOICE and outranks the role default for good — including for
+  // the rest of this session, which is why the in-memory flag is set too, not just kv.
+  LANG_SET=true;
+  if(db)await put('kv',{k:'lang',v:LANG});
+  applyStaticLang();
+  renderLangChip();
+  // repaint whatever is on screen right now, at whatever depth
+  renderHub();
+  if(curModule&&inMenu)openMenu(curModule);
+  else if(curModule&&curTab)openModule(curModule,curTab);
+}
+function renderLangChip(){
+  const el=$('langchip'); if(!el)return;
+  el.innerHTML='<span class="'+(LANG==='ms'?'on':'')+'" onclick="setLang(\'ms\')">BM</span>'+
+               '<span class="'+(LANG==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</span>';}
+/** Static markup carries data-t / data-tph, so index.html needs no JS rewrite to switch. */
+function applyStaticLang(){
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const k=el.getAttribute('data-t');
+    if(!el.dataset.ten)el.dataset.ten=el.innerHTML;      // remember the English once
+    const v=(LANG==='ms'&&typeof MS!=='undefined'&&MS[k])?MS[k]:el.dataset.ten;
+    el.innerHTML=v;});
+  document.querySelectorAll('[data-tph]').forEach(el=>{
+    const k=el.getAttribute('data-tph');
+    if(!el.dataset.tphen)el.dataset.tphen=el.getAttribute('placeholder')||'';
+    const v=(LANG==='ms'&&typeof MS!=='undefined'&&MS[k])?MS[k]:el.dataset.tphen;
+    el.setAttribute('placeholder',v);});}
+
 // ================= v2.5 SIX-MODULE HUB + CLEAN SUB-TAB BARS =================
 // Six major sections, each a big tile. A module with more than one section shows a
 // sub-tab bar pinned under the header. Two independent gates decide what a person
 // sees: HUB_ORDER (which tiles they are given) and roleAllows() (which panels may
 // render at all) — so calling straight into a module exposes nothing extra.
-const SCREENS=['home','harvest','stock','sync','dash'];
+// v3.7 — 'menu' is the section list a multi-section tile opens onto. It is a real screen
+// so the existing show/hide machinery governs it like any other.
+const SCREENS=['home','menu','harvest','stock','sync','dash'];
 const FULL_ROLES=['OWNER','MARKETING'];
 const MODULES={
   // v3.0 — tying has LEFT this module. The collection screen is now two cards only:
   // Card A good fruit by grade, Card B rotten loss. Nothing else competes for the
   // worker's thumb while fruit is being counted.
-  harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, rotten',
-    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[]},
-          {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES},
-          {k:'today',t:'FARM TODAY',scr:'dash',panels:['yieldstrip','kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES}]},
+  harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
+    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],ic:'🥭',tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
+          {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES,ic:'🌊',d:'How much of the crop is still on the string'},
+          {k:'today',t:'FARM TODAY',scr:'dash',panels:['yieldstrip','kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES,ic:'📈',d:'Today across all three lots'}]},
   // v3.0 — the tying tracker is its own tile. Hidden from the Sandakan Purchaser.
-  tying:{ic:'🎗️',name:'Fruit Tying Tracker',sub:'tally clicker, rope, balances',
-    tabs:[{k:'tally',t:'TALLY CLICKER',scr:'dash',panels:['tallycard']},
-          {k:'bal',  t:'BALANCES',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES}]},
-  ops:{ic:'📋',name:'Daily Ops',sub:'tasks, scale, stock out',
-    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory']},
-          // v3.6 — the worker's Morning Scale Dispatch. Weight and a photo, never a price.
-          {k:'scale',t:'⚖️ MORNING SCALE',scr:'dash',panels:['scalecard'],
-           roles:['OWNER','MARKETING','WORKER']},
-          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard']},
-          {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES}]},
+  tying:{ic:'🎗️',name:'Fruit Tying',sub:'tally clicker, rope, balances',tn:'m_tying',
+    tabs:[{k:'tally',t:'TALLY CLICKER',scr:'dash',panels:['tallycard'],ic:'🎗️',tn:'s_tally',d:'Tap-count fruit onto the string, tree by tree'},
+          {k:'bal',  t:'BALANCES',     scr:'dash',panels:['tyingcard'],roles:FULL_ROLES,ic:'⚖️',d:'What each tree still owes against what was tied'}]},
+  // v3.7 — the Morning Scale is its own tile now. It is a daily, time-critical, single
+  // screen job, and as the second chip inside Daily Ops it was a two-tap job whose
+  // location a worker had to remember. One section, so it opens straight into the form.
+  scale:{ic:'⚖️',name:'Morning Scale',sub:'weigh, photograph, send',tn:'m_scale',
+    tabs:[{k:'scale',t:'MORNING SCALE',scr:'dash',panels:['scalecard'],
+           roles:['OWNER','MARKETING','WORKER'],ic:'⚖️',tn:'s_scale',
+           d:'Weigh the baskets and photograph the scale display'}]},
+  ops:{ic:'📋',name:'Daily Ops',sub:'tasks, stock out',tn:'m_ops',
+    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory'],ic:'📋',tn:'s_tasks',d:'The jobs assigned to you, with one-tap completion'},
+          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],ic:'📤',tn:'s_stockout',d:'Draw material from the store, against a lot'},
+          {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES,ic:'👷',d:'Give the crew their jobs'},
+          // kept for Owner / Marketing only — for them weighing is occasional stand-in
+          // work, not their morning, so it does not earn a tile of its own.
+          {k:'scale',t:'MORNING SCALE',scr:'dash',panels:['scalecard'],roles:FULL_ROLES,ic:'⚖️',d:'Weigh the baskets and photograph the scale display'}]},
   agro:{ic:'🌱',name:'Agronomist',sub:'month timeline, weather, record',
-    tabs:[{k:'month',t:'THIS MONTH',scr:'dash',panels:['agromonth'],  roles:FULL_ROLES},
-          {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','agrorain'],roles:FULL_ROLES},
-          {k:'rec',  t:'RECORD',    scr:'dash',panels:['agrorecord'], roles:FULL_ROLES}]},
-  inv:{ic:'📦',name:'Inventory',sub:'stock in, alerts, levels',
-    tabs:[{k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER']},
-          {k:'chk', t:'PROGRAM CHECK',scr:'dash', panels:['progcheck'],                        roles:['OWNER','MARKETING','PURCHASER']},
-          {k:'next',t:'NEXT PHASE',   scr:'dash', panels:['progready'],                        roles:['OWNER','MARKETING','PURCHASER']},
-          {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES},
-          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES},
-          {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES}]},
-  // v3.0 — Marketing is now the morning dispatch desk: weigh the baskets, invoice the
+    tabs:[{k:'month',t:'THIS MONTH',scr:'dash',panels:['agromonth'],  roles:FULL_ROLES,ic:'🌱',d:'The phase timeline and what is due'},
+          {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','agrorain'],roles:FULL_ROLES,ic:'🌧️',d:'Rain gauge and spray-window advice'},
+          {k:'rec',  t:'RECORD',    scr:'dash',panels:['agrorecord'], roles:FULL_ROLES,ic:'📝',d:'Log what was actually applied'}]},
+  // v3.7 — reordered: the four hands-on sections first, the two planning ones last.
+  // The landing section is still STOCK IN, so no muscle memory breaks.
+  inv:{ic:'📦',name:'Inventory',sub:'stock in/out, levels, alerts',tn:'m_inv',
+    tabs:[{k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'📥',tn:'s_stockin',d:'Receive goods against a supplier invoice'},
+          {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES,ic:'📤',d:'Draw material for a job, against a lot'},
+          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES,ic:'📦',d:'Live valuation, reorder alerts, active ingredients'},
+          {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES,ic:'🧾',d:'Physical count vs system, posted as an adjustment'},
+          {k:'chk', t:'PROGRAM CHECK',scr:'dash', panels:['progcheck'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'🔍',tn:'s_progcheck',d:'Will the active spray programme run out?'},
+          {k:'next',t:'NEXT PHASE',   scr:'dash', panels:['progready'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'📅',tn:'s_nextphase',d:'What to order now for the phase after this one'}]},
+  // v3.0 — Marketing is the morning dispatch desk: weigh the baskets, invoice the
   // retailer, watch the credit come down. Owner and Marketing only.
-  mkt:{ic:'🚚',name:'Marketing',sub:'dispatch, retailer credit',
-    tabs:[{k:'disp',  t:'RETAILERS',          scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES},
-          // v3.6 — photo proof waiting to be audited. First tab after the retailer list
+  mkt:{ic:'🚚',name:'Marketing',sub:'dispatch, merchant credit',
+    tabs:[{k:'disp',  t:'RETAILERS',          scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES,ic:'🚚',d:'Open a merchant card and invoice a load'},
+          // v3.6 — photo proof waiting to be audited. First after the merchant list,
           // because it is the first thing the marketer does every morning.
-          {k:'verify',t:'📷 VERIFY',          scr:'dash',panels:['verifycard'], roles:FULL_ROLES},
-          {k:'ledger',t:'DELIVERY LEDGER',    scr:'dash',panels:['mktledger'],  roles:FULL_ROLES},
-          {k:'price', t:'PRICES & RETAILERS', scr:'dash',panels:['pricecard'],  roles:FULL_ROLES},
-          {k:'sell',  t:'OTHER SALES',        scr:'dash',panels:['mktpanel'],   roles:FULL_ROLES}]},
-  costadmin:{ic:'💰',name:'Costing / Admin',sub:'summary, ledger, labour, keys',
-    tabs:[// v3.6 — the two reporting views the Owner asked for, in front of the raw ledger
-          {k:'daily', t:'📅 DAILY AUDIT',scr:'dash',panels:['dailyaudit'],  roles:FULL_ROLES},
-          {k:'matrix',t:'📊 MONTH LEDGER',scr:'dash',panels:['matrixledger'],roles:FULL_ROLES},
-          {k:'sum',   t:'COSTING',    scr:'dash',panels:['ledgercard'],roles:FULL_ROLES},
-          {k:'labour',t:'LABOUR',     scr:'dash',panels:['labourcard'],roles:FULL_ROLES},
-          {k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES},
+          {k:'verify',t:'VERIFY PHOTOS',      scr:'dash',panels:['verifycard'], roles:FULL_ROLES,ic:'📷',d:'Audit a worker photo before the credit moves'},
+          {k:'ledger',t:'DELIVERY LEDGER',    scr:'dash',panels:['mktledger'],  roles:FULL_ROLES,ic:'🧾',d:'Every dispatch and top-up, newest first'},
+          {k:'price', t:'PRICES & MERCHANTS', scr:'dash',panels:['pricecard'],  roles:FULL_ROLES,ic:'💲',d:'Contract books, daily spot matrix, basket tare'},
+          {k:'sell',  t:'OTHER SALES',        scr:'dash',panels:['mktpanel'],   roles:FULL_ROLES,ic:'🏷️',d:'Cash sales outside the merchant accounts'}]},
+  // v3.7 — what you READ, split from what you ADMINISTER. Month Ledger is weekly;
+  // Master DB is twice a season. They should not be neighbours on one list.
+  reports:{ic:'📊',name:'Reports',sub:'audit, ledger, costing, labour',
+    tabs:[{k:'daily', t:'DAILY AUDIT', scr:'dash',panels:['dailyaudit'],  roles:FULL_ROLES,ic:'📅',d:'Day by day: tied, good, loss, kg out'},
+          {k:'matrix',t:'MONTH LEDGER',scr:'dash',panels:['matrixledger'],roles:FULL_ROLES,ic:'📊',d:'Yield, revenue, spend and drawdown by month'},
+          {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:FULL_ROLES,ic:'📒',d:'The raw stock ledger, month by month'},
+          {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:FULL_ROLES,ic:'💵',d:'Man-hours and the rate they are priced at'}]},
+  admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',
+    tabs:[{k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES,ic:'✏️',d:'Approve or reject field correction requests'},
           // v3.2 — the dual-signature yield audit is the Owner's alone. Marketing weighs
           // the fruit, so Marketing does not get to mark its own homework.
-          {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER']},
+          {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER'],ic:'🔎',d:'Fruit counted vs fruit weighed — the mismatch list'},
           // v3.3 — the Owner's master override suite. OWNER only, and the panel renders
           // an empty string for anyone else so none of its markup reaches the DOM.
-          {k:'master',t:'🔐 MASTER DB',scr:'dash',panels:['masterdb'], roles:['OWNER']},
-          {k:'reg',   t:'STAFF',      scr:'dash',panels:['keyspanel'], roles:FULL_ROLES}]}
+          {k:'master',t:'MASTER DB',   scr:'dash',panels:['masterdb'], roles:['OWNER'],ic:'🔐',d:'Owner override suite, tree expansion, QR tags'},
+          {k:'reg',   t:'STAFF',       scr:'dash',panels:['keyspanel'],roles:FULL_ROLES,ic:'🔑',d:'Access keys and who may do what'}]}
 };
-// Option C — six big tiles, in this order. The role gate is applied here AND again in
-// roleAllows(), so calling straight into a module still exposes nothing extra.
+// v3.7 — tile order per role. The role gate is applied here AND again in roleAllows(),
+// so calling straight into a module still exposes nothing extra.
+// Owner/Marketing: 8 tiles — which renders in the same four rows of a 2-column grid as
+// seven did, so splitting Costing/Admin costs no screen height at all.
+// Worker: 4 tiles, three of which have ONE section and therefore open at a single tap.
 const HUB_ORDER={
-  OWNER:    ['harvest','tying','inv','agro','ops','mkt','costadmin'],   // unrestricted
-  MARKETING:['harvest','tying','inv','agro','ops','mkt','costadmin'],
-  WORKER:   ['harvest','tying','ops'],  // Harvest + Fruit Tying + Daily Ops ONLY
-  PURCHASER:['inv']                     // Inventory ONLY — no harvest, no tying, no money
+  OWNER:    ['harvest','tying','inv','agro','ops','mkt','reports','admin'],
+  MARKETING:['harvest','tying','inv','agro','ops','mkt','reports','admin'],
+  WORKER:   ['harvest','tying','scale','ops'],   // + Morning Scale as its own tile
+  PURCHASER:['inv']                              // Inventory ONLY — no harvest, no money
 };
+/* v3.7 legacy shim — 'costadmin' was split into 'reports' + 'admin'. Anything still
+   asking for the old key (a saved deep link, an older guide, a stale test) lands on
+   Reports rather than bouncing the person to Home with no explanation. */
+const MODULE_ALIAS={costadmin:'reports'};
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
   'opstasks','opshistory','agrophases','agroproj','progcheck',
@@ -439,19 +541,23 @@ function roleAllows(id){
 function tileBadge(k){
   if(k==='inv'){const n=programShortages().length||lowStock().length;
     return n?{t:(programShortages().length?programShortages().length+' SHORT':n+' LOW')}:null;}
+  // v3.7 — the returned-load badge sits on the Morning Scale tile, which is the tile the
+  // worker has to open to fix it. On Daily Ops it pointed at the wrong place.
+  if(k==='scale'){
+    const back=EVENTS.filter(e=>e.type==='DISPATCH_REJECT'&&
+      String(e.dt||'').slice(0,10)===todayStr()).length;
+    if(back)return {t:back+' '+tr('sc_returned')};
+    const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')).length;
+    return mine?{t:mine+' '+tr('sc_pending'),amber:1}:null;}
   if(k==='ops'){
-    // v3.6 — a load the marketer sent back outranks a routine task: the fruit is sitting
-    // on the scale and nobody is invoicing it until the worker re-weighs.
-    if(myRole()==='WORKER'){
-      const back=EVENTS.filter(e=>e.type==='DISPATCH_REJECT'&&
-        String(e.dt||'').slice(0,10)===todayStr()).length;
-      if(back)return {t:back+' RETURNED'};}
-    const n=myTasks().length+myGeneralTasks().length;return n?{t:n+' TASK'+(n>1?'S':'')}:null;}
+    const n=myTasks().length+myGeneralTasks().length;return n?{t:n+' '+tr('bg_tasks')}:null;}
   if(k==='agro'){
     if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
       if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
     const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
-  if(k==='costadmin'){
+  // v3.7 — costadmin was split; the yield alert and the pending queue follow the section
+  // they belong to, so a badge always names a tile that can actually resolve it.
+  if(k==='admin'){
     // v3.2 — an unresolved yield mismatch outranks a pending correction: it is the one
     // that means fruit may be walking off the farm.
     const y=(typeof yieldFlags==='function'&&myRole()==='OWNER')?yieldFlags().length:0;
@@ -466,25 +572,25 @@ function tileBadge(k){
     const kg=Math.round(collectedKg()-soldKg());
     return kg>0?{t:nf(kg)+' KG READY',amber:1}:null;}
   if(k==='harvest'){const b=LOT_KEYS.reduce((s,L)=>s+lotLedger(L).current_tied_balance,0);
-    return b>0?{t:nf(b)+' ON STRING'}:null;}
+    return b>0?{t:nf(b)+' '+tr('bg_onstring')}:null;}
   if(k==='tying'){
     const rope=ropeOnHand();
-    if(rope<0)return {t:'ROPE SHORT'};                       // red, flashing — key the rolls in
+    if(rope<0)return {t:tr('bg_ropeshort')};                 // red, flashing — key the rolls in
     const today=todayStr();
     const n=EVENTS.filter(e=>e.type==='TIE'&&String(e.dt||'').slice(0,10)===today)
       .reduce((a,e)=>a+(+e.n||0),0);
-    return n?{t:nf(n)+' TIED TODAY',amber:1}:null;}
+    return n?{t:nf(n)+' '+tr('bg_tiedtoday'),amber:1}:null;}
   return null;}
 function renderHub(){
   if(!$('hubtiles'))return;
   $('hub-name').textContent=(CFG&&CFG.worker)||'—';
-  $('hub-role').textContent=ROLE_LABEL[myRole()]||myRole();
+  $('hub-role').textContent=tr('role_'+myRole(),ROLE_LABEL[myRole()]||myRole());
   $('hub-dev').innerHTML=((CFG&&CFG.device)||'—')+'<br>'+APP_VERSION;
   $('hubtiles').innerHTML=hubTiles().map(k=>{
     const m=MODULES[k];if(!m)return '';
     const b=tileBadge(k);
     return '<div class="tile" onclick="openModule(\''+k+'\')"><span class="ti">'+m.ic+'</span>'+
-      '<div class="tn">'+esc(m.name)+'</div><div class="ts">'+esc(m.sub)+'</div>'+
+      '<div class="tn">'+esc(moduleLabel(m))+'</div><div class="ts">'+esc(tileSub(k,m))+'</div>'+
       (b?'<div class="tbadge'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>':'')+'</div>';}).join('');}
 function showScreen(x){
   SCREENS.forEach(k=>$('scr-'+k).classList.toggle('hidden',k!==x));
@@ -497,43 +603,93 @@ function hideAllPanels(){
     el.style.display='none';});}
 function goHome(){
   if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}   // v2.5.1: the hub is never reachable without a key
-  curModule=null;curTab=null;
+  curModule=null;curTab=null;inMenu=false;
   hideAllPanels();
   $('subbar').classList.add('hidden');$('subbar').innerHTML='';
   showScreen('home');
   $('backbtn').classList.add('hidden');
   $('ttl').textContent='Sugut DMS';
   renderHub();}
+/** v3.7 — ← now walks back one level at a time: section → section menu → home. Going
+ *  straight to Home from a section would make the menu a screen you can only reach by
+ *  starting over, which is exactly the trap the chip bar had. */
 function hubBack(){
   if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}    // v2.5.1: tapping the title never bypasses login
-  if($('scr-home').classList.contains('hidden')) goHome(); }
+  if($('scr-home').classList.contains('hidden')){
+    if(curModule&&!inMenu&&tabsFor(curModule).length>1){openMenu(curModule);return;}
+    goHome();}}
+/* ======================================================================================
+   v3.7 · STRICT BIG TILE ROUTING
+   ======================================================================================
+   Home → tile → section, and every step is a full-width thumb target.
+
+   The horizontal chip bar is gone. It had grown to the point where the Owner's
+   Costing / Admin bar was 430 px wider than the phone — more than a whole screen width
+   of sections reachable only by swiping a strip that does not look swipeable. Four of
+   seven tiles overflowed. A vertical list cannot do that: it can only get longer, and a
+   long list is something people already know how to scroll.
+
+   openModule(k) with no section named opens the MENU for a multi-section tile, and goes
+   straight into the work for a single-section one. openModule(k, sectionKey) still opens
+   that section directly, so every existing call site, deep link and test keeps working.
+   ====================================================================================== */
+let inMenu=false;
+
 function openModule(k,tabKey){
+  k=MODULE_ALIAS[k]||k;
   const m=MODULES[k];
   if(!m||hubTiles().indexOf(k)<0){goHome();return;}
   const tabs=tabsFor(k);
   if(!tabs.length){goHome();return;}
+  // No section named and more than one to choose from -> show the menu, not a guess.
+  if(!tabKey&&tabs.length>1){openMenu(k);return;}
   const tab=tabs.find(t=>t.k===tabKey)||tabs[0];
-  curModule=k;curTab=tab.k;
+  curModule=k;curTab=tab.k;inMenu=false;
   hideAllPanels();
   (tab.panels||[]).forEach(id=>{const el=$(id);if(!el||!roleAllows(id))return;
     if(id==='phibox'){el.dataset.dashhide='';return;}
     el.style.display='';});
   showScreen(tab.scr);
   $('backbtn').classList.remove('hidden');
-  $('ttl').textContent=m.name;
-  // sub-tab bar, pinned under the header — hidden when a module has only one section
-  const sb=$('subbar');
-  if(tabs.length>1){sb.classList.remove('hidden');
-    sb.innerHTML=tabs.map(t=>'<div class="'+(t.k===tab.k?'on':'')+'" onclick="openModule(\''+k+'\',\''+t.k+'\')">'+esc(t.t)+'</div>').join('');
-    // v3.3.2 — Costing/Admin now has six tabs and the last ones sit off the right edge of a
-    // phone. Without this you have to already know to swipe sideways to find them, which is
-    // exactly the tab a first-time Owner is looking for.
-    const act=sb.querySelector('.on');
-    if(act&&act.scrollIntoView)try{act.scrollIntoView({block:'nearest',inline:'center'});}catch(x){}
-    if(sb.scrollWidth>sb.clientWidth+4)sb.classList.add('scrolls'); else sb.classList.remove('scrolls');}
-  else {sb.classList.add('hidden');sb.innerHTML='';}
+  // The header names the SECTION, with the tile above it, so a person who has drilled two
+  // levels down can still see where they are.
+  $('ttl').textContent=tabs.length>1?tabLabel(tab):moduleLabel(m);
+  const sb=$('subbar'); sb.classList.add('hidden'); sb.innerHTML='';   // retired in v3.7
   renderForTab(k,tab.k);
   $('scr-'+tab.scr).scrollTop=0;}
+
+/** The section list for one tile. One row per section, nothing off the right edge. */
+function openMenu(k){
+  const m=MODULES[k]; if(!m)return goHome();
+  const tabs=tabsFor(k); if(!tabs.length)return goHome();
+  if(tabs.length===1)return openModule(k,tabs[0].k);
+  curModule=k;curTab=null;inMenu=true;
+  hideAllPanels();
+  const sb=$('subbar'); sb.classList.add('hidden'); sb.innerHTML='';
+  $('menuhead').innerHTML=tr('menuhead');
+  $('menulist').innerHTML=tabs.map(x=>{
+    const b=sectionBadge(k,x.k);
+    return '<div class="mrow2" onclick="openModule(\''+esc(k)+'\',\''+esc(x.k)+'\')">'+
+      '<div class="mi">'+(x.ic||'▫')+'</div>'+
+      '<div class="mt"><div class="mn">'+esc(tabLabel(x))+'</div>'+
+        '<div class="md">'+esc(sectionDesc(x))+'</div></div>'+
+      (b?('<div class="mb'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>'):'')+
+      '<div class="mg">›</div></div>';}).join('');
+  showScreen('menu');
+  $('backbtn').classList.remove('hidden');
+  $('ttl').textContent=moduleLabel(m);
+  $('scr-menu').scrollTop=0;}
+
+/** A count worth carrying onto the row itself, so the menu says where the work is. */
+function sectionBadge(k,tk){
+  if(k==='mkt'&&tk==='verify'){const n=pendingDispatches().length; return n?{t:String(n)}:null;}
+  if(k==='admin'&&tk==='corr'){
+    const n=CORRECTIONS.filter(c=>String(c.status).toUpperCase()==='PENDING').length;
+    return n?{t:String(n),amber:1}:null;}
+  if(k==='admin'&&tk==='yield'&&myRole()==='OWNER'){
+    const n=(typeof yieldFlags==='function')?yieldFlags().length:0; return n?{t:String(n)}:null;}
+  if(k==='inv'&&tk==='lvl'){const n=lowStock().length; return n?{t:String(n),amber:1}:null;}
+  return null;}
 function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
   renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();
@@ -564,15 +720,16 @@ function renderForTab(k,t){
   if(k==='mkt'&&t==='verify')renderVerify();
   if(k==='mkt'&&t==='ledger')renderMktLedger();
   if(k==='mkt'&&t==='price')renderPrices();
-  if(k==='costadmin'&&t==='daily')renderDailyAudit();
-  if(k==='costadmin'&&t==='matrix')renderMatrix();
-  if(k==='costadmin'&&t==='yield')renderYieldAudit();
-  if(k==='costadmin'&&t==='master')renderMasterDB();
+  if(k==='reports'&&t==='daily')renderDailyAudit();
+  if(k==='reports'&&t==='matrix')renderMatrix();
+  if(k==='admin'&&t==='yield')renderYieldAudit();
+  if(k==='admin'&&t==='master')renderMasterDB();
   if(k==='mkt'&&t==='sell')renderMarketing();
-  if(k==='costadmin'&&t==='sum')renderLedgerSummary();
-  if(k==='costadmin'&&t==='labour')renderLabour();
-  if(k==='costadmin'&&t==='corr')renderCorrections();
-  if(k==='costadmin'&&t==='reg')renderKeys();}
+  if(k==='reports'&&t==='sum')renderLedgerSummary();
+  if(k==='reports'&&t==='labour')renderLabour();
+  if(k==='admin'&&t==='corr')renderCorrections();
+  if(k==='admin'&&t==='reg')renderKeys();
+  if(k==='scale'&&t==='scale')renderScaleCard();}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -598,6 +755,13 @@ function applyRole(){
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
   SHOW_VALUES=full;                                   // gates every RM figure in the app
+  // v3.7 — a Farm Worker on a phone nobody has set a language on starts in Malay.
+  // An explicit tap on BM or EN is remembered and always wins over this default.
+  const wasLang=LANG;
+  if(!LANG_SET)LANG=(r==='WORKER')?'ms':'en';
+  applyStaticLang(); renderLangChip();
+  // a different person logged in on this phone — repaint anything language-dependent
+  if(wasLang!==LANG&&typeof renderV26==='function')renderV26();
   // regulatory guardrail: the Sandakan Purchaser never sees harvest or correction tools
   const harvestOK=hubTiles().indexOf('harvest')>=0;
   if($('scr-harvest')) $('scr-harvest').style.display=harvestOK?'':'none';
@@ -610,7 +774,7 @@ function applyRole(){
 function homeTab(){return 'home';}
 // Legacy entry points kept so older call sites and the deploy guide still work.
 const LEGACY_GO={harvest:'harvest',dash:'harvest',stock:'inv',ops:'ops',
-  ledger:'costadmin',admin:'costadmin',mkt:'mkt',tie:'tying',tying:'tying'};
+  ledger:'reports',admin:'admin',mkt:'mkt',tie:'tying',tying:'tying'};
 function go(s){
   if(s==='home'){goHome();return;}
   if(s==='sync'){hideAllPanels();$('subbar').classList.add('hidden');showScreen('sync');
@@ -634,12 +798,14 @@ function buildKeypad(){
 function renderPin(){const r=$('pinrow');r.innerHTML='';for(let i=0;i<6;i++){const b=document.createElement('div');b.className='pinbox'+(i<pin.length?' filled':'');b.textContent=i<pin.length?'•':'';r.appendChild(b);}$('pinerr').textContent='';}
 async function tryLogin(){
   const w=findKey(pin);
-  if(!w){$('pinerr').textContent='Wrong key. Try again.';pin='';setTimeout(renderPin,600);return;}
-  if(String(w.status).toLowerCase()!=='active'){$('pinerr').textContent='This key is deactivated. Contact owner.';pin='';setTimeout(renderPin,900);return;}
+  if(!w){$('pinerr').textContent=tr('login_wrong');pin='';setTimeout(renderPin,600);return;}
+  if(String(w.status).toLowerCase()!=='active'){$('pinerr').textContent=tr('login_off');pin='';setTimeout(renderPin,900);return;}
   CFG=Object.assign({},CFG||{},{worker:w.name,role:w.role,key:w.key,uid:w.id});
   await persistCfg();pin='';
-  toast('Welcome, '+w.name);
+  // applyRole settles the language for THIS person first — greeting them in the previous
+  // user's language would be the very first thing they saw.
   applyRole();
+  toast(tr('login_welcome')+' '+w.name);
   $('nav-home').style.display='';$('nav-sync').style.display='';
   if(!CFG.url||!CFG.device) showSetup(); else goHome();}
 function showLogin(){SCREENS.forEach(x=>$('scr-'+x).classList.add('hidden'));
@@ -970,7 +1136,7 @@ function buildLotSelect(){
   s.value=curLot; $('tm-count').textContent=TREE_MASTER.length; buildTreeSelect();}
 function buildTreeSelect(){
   const s=$('h-tree');
-  s.innerHTML='<option value="">— select tree —</option>'+treesInLot(curLot).map(t=>
+  s.innerHTML='<option value="">'+esc(tr('ty_selecttree'))+'</option>'+treesInLot(curLot).map(t=>
     '<option value="'+t.id+'">'+t.id+'  ·  Tree '+t.no+'</option>').join('');
   s.value=''; showCloneReadout(null);}
 function onLotChange(){curLot=$('h-lot').value;
@@ -1156,8 +1322,8 @@ function fillProdSelect(selId,searchId){
   sel.innerHTML='';
   INVENTORY_RECON.filter(p=>matchProd(p,q)).forEach(p=>{
     const o=document.createElement('option');o.value=p.id;
-    o.textContent=p.name+' · '+(p.active_ingredient||'—');sel.appendChild(o);});
-  if(!sel.options.length){const o=document.createElement('option');o.value='';o.textContent='— no match —';sel.appendChild(o);}
+    o.textContent=p.name+' · '+(aiText(p)||'—');sel.appendChild(o);});
+  if(!sel.options.length){const o=document.createElement('option');o.value='';o.textContent=tr('so_nomatch');sel.appendChild(o);}
   if(keep&&[...sel.options].some(o=>o.value===keep))sel.value=keep; else sel.selectedIndex=0;
 }
 
@@ -1202,10 +1368,21 @@ async function submitStockIn(){
 // ---- Farm Worker: Material Stock Out ----
 let outLot='';
 function renderOutOpts(){fillProdSelect('out-prod','out-search');onOutProd();}
+/** The active ingredient as shown to a worker. A real AI is printed verbatim; the
+ *  "(confirm - see label)" placeholder is app copy and is translated. */
+function aiText(p){
+  let a=String((p&&p.active_ingredient)||'');
+  // Two products carry their residue cut-off inside this field. The warning is the one
+  // part of it a worker must be able to read in their own language; the chemistry is not.
+  a=a.replace('fruit-contact, 14-day PHI',tr('so_phi'));
+  a=a.replace('(confirm — see label)',tr('so_confirm'));
+  return a;}
 function onOutProd(){const p=prodById($('out-prod').value);
-  $('out-ai').textContent=p?(p.active_ingredient||'—'):'—';
+  // the product name and the real active ingredient are NEVER translated - the drum
+  // label is the safety record. Only the "not yet confirmed" placeholder is UI copy.
+  $('out-ai').textContent=p?(aiText(p)||'—'):'—';
   $('out-unitlbl').textContent=p?p.unit:'ml/gm';
-  $('out-onhand').innerHTML=p?('on hand<br><b>'+nf(onHand(p))+' '+esc(p.unit)+'</b>'):'—';
+  $('out-onhand').innerHTML=p?(esc(tr('so_onhand'))+'<br><b>'+nf(onHand(p))+' '+esc(p.unit)+'</b>'):'—';
   onOutCalc();}
 function pickOutLot(l){outLot=l;LOT_KEYS.forEach(k=>$('ol-'+k).classList.toggle('on',k===l));}
 function onOutCalc(){const p=prodById($('out-prod').value);if(!p){$('out-conv').textContent='—';return;}
@@ -1243,7 +1420,7 @@ function renderStock(){
   $('stocklist').innerHTML=list.length?list.map(p=>{
     const oh=onHand(p),low=isLow(p);
     const right=nf(oh)+' '+esc(p.unit)+(low?' ⚠':'')+(SHOW_VALUES?('<br><span class="small">'+rm(valueOf(p))+'</span>'):'');
-    return '<div class="lrow"><span><b>'+esc(p.name)+'</b><br><span class="small" style="color:#26418f">'+esc(p.active_ingredient||'—')+'</span></span>'+
+    return '<div class="lrow"><span><b>'+esc(p.name)+'</b><br><span class="small" style="color:#26418f">'+esc(aiText(p)||'—')+'</span></span>'+
       '<span style="text-align:right;font-weight:700;color:'+(low?'#b3261e':'#1b5e20')+'">'+right+'</span></div>';}).join('')
     :'<div class="small">No product matches that search.</div>';}
 
@@ -1256,7 +1433,7 @@ function renderAlerts(){
   // the rest one tap away so the Stock In form is never buried under the alerts
   const CAP=5, shown=alertsAll?low:low.slice(0,CAP);
   const card=p=>'<div class="alertrow"><div class="an">'+esc(p.name)+'</div>'+
-    '<div class="ai">'+esc(p.active_ingredient||'—')+'</div>'+
+    '<div class="ai">'+esc(aiText(p)||'—')+'</div>'+
     '<div class="aq">'+nf(onHand(p))+' '+esc(p.unit)+' left · minimum '+nf(p.min_stock_threshold)+' '+esc(p.unit)+
     ' ('+nf(toCont(p,p.min_stock_threshold))+' '+esc(p.container)+')</div></div>';
   box.innerHTML='<div class="alertbig">⚠ '+low.length+' PRODUCT'+(low.length>1?'S':'')+' BELOW MINIMUM — REORDER NOW</div>'+
@@ -1923,7 +2100,7 @@ function renderOpsHistory(){
     '<br><span class="small">'+esc(g.dt)+' · '+esc(g.worker)+' · '+nf(g.tanks)+' tank(s) · '+nf(g.water)+' L water</span></span>'+
     '<span style="text-align:right;font-weight:800">'+g.n+' item'+(g.n>1?'s':'')+
     (SHOW_VALUES?('<br><span class="small">'+rm(g.cost)+'</span>'):'')+'</span></div>').join('')
-    :'<div class="small">No completion reply sent from this phone yet.</div>';}
+    :'<div class="small">'+esc(tr('op_noreply'))+'</div>';}
 
 let rpProg=null,rpLotVal='';
 // v2.5.1 — a completion reply covers ONE lot. When the phase was activated for the
@@ -2342,7 +2519,7 @@ function renderGeneralTasks(){
       '<div class="cwho">Still to report: '+need.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')+
       (done.length?(' · done: '+done.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')):'')+'</div>'+
       '<div class="cacts"><button class="ok" onclick="openGeneral(\''+x.uuid+'\')">✓ REPORT WORK DONE</button></div></div>';}).join('')
-    :'<div class="alertnone">No general task waiting.</div>';}
+    :'<div class="alertnone">'+esc(tr('op_nogen'))+'</div>';}
 
 // ---- 5. worker reply for a general task: structure enforced per job type ------------
 let grTask=null, grLotVal='', grRows=[];
@@ -3078,9 +3255,9 @@ function rotPick(c){rotCause=c;
 function rotPickSel(){rotPick($('rot-cause').value);}
 function renderRotCauses(){
   const sel=$('rot-cause'); if(!sel)return;
-  sel.innerHTML='<option value="">— choose the damage cause —</option>'+
-    ROT_ORDER.map(k=>'<option value="'+k+'">'+ROT_CAUSE[k].ic+' '+esc(ROT_CAUSE[k].label)+
-      ' — '+esc(ROT_CAUSE[k].note)+'</option>').join('');
+  sel.innerHTML='<option value="">'+esc(tr('cb_choose'))+'</option>'+
+    ROT_ORDER.map(k=>'<option value="'+k+'">'+ROT_CAUSE[k].ic+' '+esc(causeLabel(k))+
+      ' — '+esc(causeNote(k))+'</option>').join('');
   sel.value=rotCause||''; rotExtras();}
 let savingRot=false;
 // ---- my logs + request log correction -------------------------------------------------
@@ -3253,7 +3430,7 @@ function renderOpsTasks(){
       (done.length?(' · done: '+done.map(function(L){return '<span class="lotchip">LOT '+L+'</span>';}).join('')):'')+'</div>'+
       '<div class="cacts"><button class="ok" onclick="openMarkDone(\'' + r.uuid + '\')">✓ CONFIRM COMPLETION</button>'+
       '<button class="no" style="background:#e8f0fe;color:#123a71" onclick="openReply(\'' + r.uuid + '\')">MIXED A DIFFERENT AMOUNT</button></div></div>';}).join('')
-    :'<div class="alertnone">No task waiting. The Owner has not activated a set, or every lot has already been reported.</div>';}
+    :'<div class="alertnone">'+esc(tr('op_notask'))+'</div>';}
 
 
 // ================= v2.9 TREE LEDGER · DUAL COUNTERS · UNTIED WAVE · ROPE =================
@@ -3360,7 +3537,7 @@ function tyBuildLots(){
   s.value=tyLot;}
 function tyBuildTrees(){
   const s=$('ty-tree'); if(!s)return;
-  s.innerHTML='<option value="">— select tree —</option>'+treesInLot(tyLot).map(t=>
+  s.innerHTML='<option value="">'+esc(tr('ty_selecttree'))+'</option>'+treesInLot(tyLot).map(t=>
     '<option value="'+t.id+'">'+t.id+'  ·  Tree '+t.no+'</option>').join('');
   s.value=tyTree?tyTree.id:'';}
 function tyLotChange(){
@@ -3382,10 +3559,10 @@ function tyPaint(){
   const cl=$('ty-clone'); if(cl)cl.textContent=tyTree?(tyTree.clone||'NOT RECORDED'):'—';
   const inf=$('ty-info');
   if(inf){
-    if(!tyTree)inf.innerHTML='select a tree';
+    if(!tyTree)inf.innerHTML=esc(tr('h_selecttree'));
     else{const L=treeLedger(tyTree.id);
-      inf.innerHTML=cloneLabel(tyTree.clone)+'<br>On the string now: <b>'+nf(L.current_tied_balance)+'</b>'+
-        '<br>Untied still hanging: <b>'+(L.untied_hanging_estimate===null?'no census':nf(Math.max(0,L.untied_hanging_estimate)))+'</b>';}}
+      inf.innerHTML=cloneLabel(tyTree.clone)+'<br>'+esc(tr('ty_onstring'))+' <b>'+nf(L.current_tied_balance)+'</b>'+
+        '<br>'+esc(tr('ty_untied'))+' <b>'+(L.untied_hanging_estimate===null?esc(tr('ty_nocensus')):nf(Math.max(0,L.untied_hanging_estimate)))+'</b>';}}
   const tap=$('ty-tap'); if(tap)tap.disabled=!tyTree;
   const und=$('ty-undo'); if(und)und.disabled=!(tyTally>0);
   const rope=$('ty-rope');
@@ -3394,7 +3571,7 @@ function tyPaint(){
     rope.innerHTML=tyTally
       ? ('This tree will draw <b>'+nf(need)+' m</b> of rope ('+ROPE_M_PER_FRUIT+' m per fruit) · store shows <b>'+
          nf(have)+' m</b>'+(have<need?' <span style="color:#b3261e;font-weight:800">— short, ask the Purchaser to key the rolls in</span>':''))
-      : ('Every fruit tied draws <b>'+ROPE_M_PER_FRUIT+' m</b> of rope out of the store automatically · store shows <b>'+nf(have)+' m</b>');}
+      : (esc(tr('ty_rope'))+' · '+esc(tr('ty_store'))+' <b>'+nf(have)+' m</b>');}
   const e=$('ty-err'); if(e&&tyTree&&tyTally)e.textContent='';
   tyRecent();}
 function tyRecent(){
@@ -4460,13 +4637,13 @@ function renderReceiptBox(){
  *  Returns a data URL string, or rejects with a message the field can act on. */
 function compressPhoto(file){
   return new Promise((resolve,reject)=>{
-    if(!file)return reject(new Error('No photo selected.'));
-    if(!/^image\//.test(file.type||''))return reject(new Error('That file is not a photo.'));
+    if(!file)return reject(tErr('e_needphoto','No photo selected.'));
+    if(!/^image\//.test(file.type||''))return reject(tErr('e_notphoto','That file is not a photo.'));
     const fr=new FileReader();
-    fr.onerror=()=>reject(new Error('The phone could not read that photo.'));
+    fr.onerror=()=>reject(tErr('e_photoread','The phone could not read that photo.'));
     fr.onload=()=>{
       const img=new Image();
-      img.onerror=()=>reject(new Error('That photo could not be opened.'));
+      img.onerror=()=>reject(tErr('e_photoread','That photo could not be opened.'));
       img.onload=()=>{
         try{
           const scale=Math.min(1,PHOTO_MAX_PX/Math.max(img.width||1,img.height||1));
@@ -4482,11 +4659,16 @@ function compressPhoto(file){
           while(out.length>PHOTO_MAX_CHARS&&q>PHOTO_Q_FLOOR){
             q=+(q-0.08).toFixed(2); out=cv.toDataURL('image/jpeg',q);}
           if(out.length>PHOTO_MAX_CHARS)
-            return reject(new Error('That photo is too detailed to send. Take it again closer to the scale display.'));
+            return reject(tErr('e_photobig','That photo is too detailed to send. Take it again closer to the scale display.'));
           resolve(out);
-        }catch(e){reject(new Error('This phone cannot resize photos. Try the built-in camera app.'));}};
+        }catch(e){reject(tErr('e_photoread','This phone cannot resize photos. Try the built-in camera app.'));}};
       img.src=fr.result;};
     fr.readAsDataURL(file);});}
+
+/** An Error that also carries the translation key for its message, so a field-facing
+ *  failure can be shown in the worker's own language without the thrower knowing which
+ *  language is active. */
+function tErr(key,en){const e=new Error(en);e.tkey=key;return e;}
 
 /** Roughly how big the stored string is, for the screens that say so. */
 function photoKB(s){return s?Math.round(String(s).length/1024):0;}
@@ -4519,52 +4701,48 @@ function renderScaleCard(){
   const act=activeRetailers();
   const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''));
   box.innerHTML=
-    '<div class="cnote">Weigh the baskets, key the GROSS reading exactly as the scale shows it, then '+
-      '<b>photograph the scale display</b>. Marketing checks your photo against your figures before the '+
-      'load is invoiced. You are recording weight only — no prices are shown on this screen.</div>'+
-    (act.length?'':'<div class="critbox">No active merchant on this phone yet. Sync once at the office '+
-      'hotspot so the retailer list arrives.</div>')+
-    '<label>Sending to which merchant</label>'+
+    '<div class="cnote">'+tr('sc_intro')+'</div>'+
+    (act.length?'':'<div class="critbox">'+esc(tr('sc_nomerchant'))+'</div>')+
+    '<label>'+esc(tr('sc_towhich'))+'</label>'+
     '<select id="w-ret" onchange="setWRet(this.value)">'+
-      '<option value="">— choose the buyer —</option>'+
+      '<option value="">'+esc(tr('sc_choose'))+'</option>'+
       act.map(r=>'<option value="'+esc(r.id)+'"'+(W_RET===r.id?' selected':'')+'>'+esc(r.name)+'</option>').join('')+
     '</select>'+
-    (TARE_VERIFIED?'':'<div class="tarewarn">⚠ Basket tare weights are still the factory placeholders — '+
-      'tell the Owner to weigh an empty basket. Your GROSS reading is still recorded exactly as you key it.</div>')+
+    (TARE_VERIFIED?'':'<div class="tarewarn">'+esc(tr('sc_tarewarn'))+'</div>')+
     '<div id="w-rows"></div>'+
-    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addWLine()">＋ ADD ANOTHER BASKET</button>'+
+    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addWLine()">'+
+      esc(tr('sc_addbasket'))+'</button>'+
     '<div class="wtot" id="w-tot">—</div>'+
 
     // ---- the mandatory photo ----
-    '<div class="sec" style="margin-top:14px">📷 Photo proof — required</div>'+
+    '<div class="sec" style="margin-top:14px">'+esc(tr('sc_photohead'))+'</div>'+
     '<div class="photobox" id="w-photobox">'+
       (W_PHOTO
-        ? '<img class="photothumb" src="'+W_PHOTO+'" onclick="showPhoto(\''+esc(W_PHOTO)+'\',\'Your scale photo\')">'+
-          '<div class="photometa">Photo attached · '+photoKB(W_PHOTO)+' KB<br>'+
-            '<span class="linkish" onclick="clearWPhoto()">retake</span></div>'
-        : '<div class="photonone">No photo yet. The load cannot be submitted without one.</div>')+
+        ? '<img class="photothumb" src="'+W_PHOTO+'" onclick="showPhoto(\''+esc(W_PHOTO)+'\',\''+esc(tr('sc_photook'))+'\')">'+
+          '<div class="photometa">'+esc(tr('sc_photook'))+' · '+photoKB(W_PHOTO)+' KB<br>'+
+            '<span class="linkish" onclick="clearWPhoto()">'+esc(tr('sc_retake'))+'</span></div>'
+        : '<div class="photonone">'+esc(tr('sc_nophoto'))+'</div>')+
     '</div>'+
-    '<label class="camlbl" for="w-cam">[ 📷 Take Photo of Scale Weight ]</label>'+
+    '<label class="camlbl" for="w-cam">'+esc(tr('sc_takephoto'))+'</label>'+
     '<input type="file" id="w-cam" accept="image/*" capture="environment" '+
       'style="display:none" onchange="onWPhoto(this)">'+
-    '<div class="exphint">Hold the phone square to the scale so the numbers are readable. The photo is '+
-      'shrunk automatically so it will still send on a slow hotspot.</div>'+
+    '<div class="exphint">'+esc(tr('sc_photohint'))+'</div>'+
 
-    '<label>Note (optional)</label>'+
-    '<input id="w-note" placeholder="e.g. lorry BKS 4412, driver Amin" value="'+esc(W_NOTE)+
+    '<label>'+esc(tr('sc_note'))+'</label>'+
+    '<input id="w-note" placeholder="'+esc(tr('sc_noteph'))+'" value="'+esc(W_NOTE)+
       '" oninput="W_NOTE=this.value">'+
     '<div class="pinerr" id="w-err"></div>'+
-    '<button class="bigbtn" id="w-go" onclick="submitScaleDispatch()">📤 SUBMIT TO MARKETING FOR APPROVAL</button>'+
+    '<button class="bigbtn" id="w-go" onclick="submitScaleDispatch()">'+esc(tr('sc_submit'))+'</button>'+
 
     // ---- what this worker has already sent, and where it got to ----
-    '<div class="sec" style="margin-top:16px">📤 Waiting on Marketing</div>'+
+    '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
     (mine.length?mine.map(e=>'<div class="reqrow">'+
         (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'" onclick="showPhoto(\''+esc(e.uuid)+
-          '\',\'Scale photo\',1)">'):'<div class="reqthumb none">no photo</div>')+
+          '\',\''+esc(tr('sc_photook'))+'\',1)">'):'<div class="reqthumb none">—</div>')+
         '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
-        '<div class="pa">'+esc(e.dt)+(e.synced?'':' · queued on this phone')+'</div></div>'+
-        '<span class="cstat s">PENDING</span></div>').join('')
-      :'<div class="alertnone">Nothing waiting. Everything you sent has been approved or returned.</div>')+
+        '<div class="pa">'+esc(e.dt)+(e.synced?'':' · '+esc(tr('sc_queued')))+'</div></div>'+
+        '<span class="cstat s">'+esc(tr('sc_pending'))+'</span></div>').join('')
+      :'<div class="alertnone">'+esc(tr('sc_nothingwaiting'))+'</div>')+
     myRecentDecisions();
   renderWLines(); wCalc();}
 
@@ -4582,68 +4760,78 @@ function myRecentDecisions(){
         name:mineIds[e.targetUuid].retailer_name||'',why:e.reason||''});});
   if(!out.length)return '';
   out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
-  return '<div class="sec" style="margin-top:14px">Recently decided</div>'+
+  return '<div class="sec" style="margin-top:14px">'+esc(tr('sc_decided'))+'</div>'+
     out.slice(0,6).map(x=>'<div class="reqrow"><div class="reqmid">'+
       '<b>'+nf(x.kg)+' kg</b> → '+esc(x.name)+'<div class="pa">'+esc(x.dt)+' · '+esc(x.who)+
       (x.why?(' · '+esc(x.why)):'')+'</div></div>'+
-      '<span class="cstat '+(x.ok?'a':'r')+'">'+(x.ok?'APPROVED':'RETURNED')+'</span></div>').join('');}
+      '<span class="cstat '+(x.ok?'a':'r')+'">'+esc(tr(x.ok?'sc_approved':'sc_returned'))+
+      '</span></div>').join('');}
 
 function renderWLines(){
   const box=$('w-rows'); if(!box)return;
   box.innerHTML=wLines().map((l,i)=>{
     const gs=gradesFor(l.clone);
     return '<div class="dline">'+
-      '<div class="dlhead"><span class="dltag">BASKET '+(i+1)+'</span>'+
-      (wLines().length>1?'<span class="dlx" onclick="removeWLine(\''+esc(l.k)+'\')">remove</span>':'')+'</div>'+
+      '<div class="dlhead"><span class="dltag">'+esc(tr('sc_basket'))+' '+(i+1)+'</span>'+
+      (wLines().length>1?'<span class="dlx" onclick="removeWLine(\''+esc(l.k)+'\')">'+
+        esc(tr('b_remove'))+'</span>':'')+'</div>'+
       '<div class="dl3">'+
-        '<div><label>Clone</label><select onchange="wlSet(\''+esc(l.k)+'\',\'clone\',this.value)">'+
+        // clone codes and names are NEVER translated — they are the trade's own words
+        '<div><label>'+esc(tr('sc_clone'))+'</label><select onchange="wlSet(\''+esc(l.k)+'\',\'clone\',this.value)">'+
           CLONE_SELL_ORDER.map(c=>'<option value="'+esc(c)+'"'+(c===l.clone?' selected':'')+'>'+
             esc(CLONE_NAME[c]||c)+' ('+esc(c)+')</option>').join('')+'</select></div>'+
-        '<div><label>Grade</label><select onchange="wlSet(\''+esc(l.k)+'\',\'grade\',this.value)">'+
+        // grade letters are NEVER translated — they reach the buyer's invoice
+        '<div><label>'+esc(tr('sc_grade'))+'</label><select onchange="wlSet(\''+esc(l.k)+'\',\'grade\',this.value)">'+
           gs.map(g=>'<option value="'+g+'"'+(g===l.grade?' selected':'')+'>'+g+' · '+
             esc(bandShort(l.clone,g))+'</option>').join('')+'</select></div>'+
       '</div>'+
       '<div class="dl3">'+
-        '<div><label>Basket type</label><select onchange="wlSet(\''+esc(l.k)+'\',\'basket\',this.value)">'+
+        '<div><label>'+esc(tr('sc_baskettype'))+'</label><select onchange="wlSet(\''+esc(l.k)+'\',\'basket\',this.value)">'+
           BASKETS.map(b=>'<option value="'+esc(b.id)+'"'+(b.id===l.basket?' selected':'')+'>'+
-            (b.ic?b.ic+' ':'')+esc(b.name)+' −'+nf(b.tare_kg)+' kg</option>').join('')+'</select></div>'+
-        '<div><label>How many baskets</label><input type="number" min="0" step="1" inputmode="numeric" '+
+            (b.ic?b.ic+' ':'')+esc(basketName(b))+' −'+nf(b.tare_kg)+' kg</option>').join('')+'</select></div>'+
+        '<div><label>'+esc(tr('sc_howmany'))+'</label><input type="number" min="0" step="1" inputmode="numeric" '+
           'value="'+esc(l.baskets)+'" oninput="wlSet(\''+esc(l.k)+'\',\'baskets\',this.value)"></div>'+
       '</div>'+
       '<div class="dl3">'+
-        '<div><label>GROSS on scale (kg)</label><input type="number" min="0" step="any" inputmode="decimal" '+
+        '<div><label>'+esc(tr('sc_gross'))+'</label><input type="number" min="0" step="any" inputmode="decimal" '+
           'placeholder="0.00" value="'+esc(l.gross)+'" oninput="wlSet(\''+esc(l.k)+'\',\'gross\',this.value)"></div>'+
-        '<div><label>Fruit count (optional)</label><input type="number" min="0" step="1" inputmode="numeric" '+
+        '<div><label>'+esc(tr('sc_fruitcount'))+'</label><input type="number" min="0" step="1" inputmode="numeric" '+
           'placeholder="0" value="'+esc(l.fruits)+'" oninput="wlSet(\''+esc(l.k)+'\',\'fruits\',this.value)"></div>'+
       '</div>'+
       '<div class="dlnet" id="wln-'+esc(l.k)+'">—</div>'+
     '</div>';}).join('');}
+/** Basket names are farm objects, not chemistry — safe to translate, and they are the
+ *  one thing on the scale form a worker picks by sight rather than by reading. */
+function basketName(b){
+  const k={RED:'bk_red',BLUE:'bk_blue',NONE:'bk_none'}[b.id];
+  return k?tr(k,b.name):b.name;}
 
 /** Weight only. Passing '' as the merchant forces every price to resolve to zero, which
  *  is the point: no ringgit figure can reach a worker's screen from this path. */
 function wCalc(){
   wLines().forEach(l=>{
     const c=lineCalc(l,NO_PRICE), n=$('wln-'+l.k);
-    if(n)n.innerHTML='Gross '+nf(c.gross)+' kg − tare '+nf(c.tare)+' kg = NET <b>'+nf(c.net)+' kg</b>'+
-      (c.avg>0?('<span class="v">avg '+nf(c.avg)+' kg → Grade '+c.sugg+
+    if(n)n.innerHTML=esc(tr('sc_gross_calc'))+' '+nf(c.gross)+' kg − '+esc(tr('sc_tare_calc'))+' '+
+      nf(c.tare)+' kg = '+esc(tr('sc_net_calc'))+' <b>'+nf(c.net)+' kg</b>'+
+      (c.avg>0?('<span class="v">'+esc(tr('sc_avg'))+' '+nf(c.avg)+' kg → '+esc(tr('w_grade'))+' '+c.sugg+
         (c.sugg!==l.grade?' ⚠':' ✓')+'</span>'):'');});
-  const t=dispTotals(NO_PRICE,wLines()), el=$('w-tot');
-  if(el)el.innerHTML=t.total_kg>0
-    ? 'TOTAL NET <b>'+nf(t.total_kg)+' kg</b> in '+t.lines.length+' basket line'+
-      (t.lines.length===1?'':'s')+(t.fruit_count?(' · '+t.fruit_count+' fruits'):'')
-    : 'Key the gross reading for at least one basket.';}
+  const tot=dispTotals(NO_PRICE,wLines()), el=$('w-tot');
+  if(el)el.innerHTML=tot.total_kg>0
+    ? esc(tr('sc_total'))+' <b>'+nf(tot.total_kg)+' kg</b> · '+tot.lines.length+' '+
+      esc(tr('sc_basket')).toLowerCase()+(tot.fruit_count?(' · '+tot.fruit_count+' '+esc(tr('w_fruits'))):'')
+    : esc(tr('sc_keyfirst'));}
 
 async function onWPhoto(input){
   const err=$('w-err'); if(err)err.textContent='';
   const f=input&&input.files&&input.files[0];
   input.value='';                                   // so re-picking the same file re-fires
   if(!f)return;
-  toast('Shrinking the photo…');
+  toast(tr('t_shrinking'));
   try{
     W_PHOTO=await compressPhoto(f);
     renderScaleCard();
-    toast('📷 Photo attached · '+photoKB(W_PHOTO)+' KB');
-  }catch(e){ if(err)err.textContent=e.message; toast(e.message,1); }}
+    toast(tr('t_photoon')+' · '+photoKB(W_PHOTO)+' KB');
+  }catch(e){ const m=tr(e.tkey||'',e.message); if(err)err.textContent=m; toast(m,1); }}
 function clearWPhoto(){W_PHOTO='';renderScaleCard();}
 
 async function submitScaleDispatch(){
@@ -4651,26 +4839,26 @@ async function submitScaleDispatch(){
   if(wSaving)return;
   if(!canWeigh()){toast('You are not set up to weigh',1);return;}
   const r=retailerById(W_RET);
-  if(!r){if(err)err.textContent='Choose which merchant this load is going to.';return;}
-  if(String(r.status||'Active')!=='Active'){if(err)err.textContent='That merchant is suspended.';return;}
-  const t=dispTotals(NO_PRICE,wLines());
-  if(!(t.total_kg>0)){if(err)err.textContent='Key the gross scale reading for at least one basket.';return;}
-  if(!W_PHOTO){if(err)err.textContent='A photo of the scale display is required before this can be sent.';return;}
+  if(!r){if(err)err.textContent=tr('e_pickmerchant');return;}
+  if(String(r.status||'Active')!=='Active'){if(err)err.textContent=tr('e_suspended');return;}
+  const tot=dispTotals(NO_PRICE,wLines());
+  if(!(tot.total_kg>0)){if(err)err.textContent=tr('e_needweight');return;}
+  if(!W_PHOTO){if(err)err.textContent=tr('e_needphoto');return;}
   wSaving=true;
   const u=uuid(), stamp=now();
   try{
     await persistEvent({uuid:u,type:'DISPATCH_REQ',dt:stamp,
       retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
-      lines:t.lines, lines_json:JSON.stringify(t.lines), line_count:t.lines.length,
-      kg_A:t.kg_A, kg_B:t.kg_B, kg_C:t.kg_C, fruit_count:t.fruit_count,
-      total_gross_kg:t.total_gross_kg, total_tare_kg:t.total_tare_kg, total_kg:t.total_kg,
+      lines:tot.lines, lines_json:JSON.stringify(tot.lines), line_count:tot.lines.length,
+      kg_A:tot.kg_A, kg_B:tot.kg_B, kg_C:tot.kg_C, fruit_count:tot.fruit_count,
+      total_gross_kg:tot.total_gross_kg, total_tare_kg:tot.total_tare_kg, total_kg:tot.total_kg,
       photo_b64:W_PHOTO, photo_kb:photoKB(W_PHOTO),
       note:W_NOTE.trim(),
       worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
   } finally { wSaving=false; }
   WLINES=[newWLine()]; W_PHOTO=''; W_NOTE=''; W_RET='';
   badge(); renderScaleCard(); renderVerify(); renderHub();
-  toast('📤 '+nf(t.total_kg)+' kg sent to Marketing for approval'+(navigator.onLine?'':' (queued)'));}
+  toast('📤 '+nf(tot.total_kg)+' kg '+tr('t_sent')+(navigator.onLine?'':' '+tr('t_queuedsuffix')));}
 
 // ---- the pending queue, derived from the ledger like everything else -----------------
 /** A request is OPEN until a DISPATCH quotes its uuid or a DISPATCH_REJECT returns it.
@@ -4985,8 +5173,11 @@ function outCostOf(e,mac){
  *  fixed figure, or the daily audit disagrees with the tree balances on the same phone. */
 function dayField(){
   const d={};
+  // v3.7 — built from ROT_ORDER, never hardcoded. Adding a fifth loss cause is then a
+  // pure data change in database.js with no edit anywhere in this file.
+  const blankCauses=()=>{const c={OTHER:0};ROT_ORDER.forEach(k=>{c[k]=0;});return c;};
   const touch=k=>{if(!d[k])d[k]={day:k,tied:0,good:0,rotten:0,
-    causes:{ANIMAL:0,PEST:0,DISEASE:0,OTHER:0},kg:0,dispatch_kg:0,dispatch_rm:0,
+    causes:blankCauses(),kg:0,dispatch_kg:0,dispatch_rm:0,
     loads:[],buyers:{}};return d[k];};
   EVENTS.forEach(e=>{
     const k=String(e.dt||'').slice(0,10); if(k.length!==10)return;
@@ -5049,8 +5240,8 @@ function renderDailyAudit(){
           '<div><span class="dl">net kg out</span><b>'+nf(r.dispatch_kg)+'</b></div>'+
         '</div>'+
         (r.rotten>0?('<div class="causerow">'+ROT_ORDER.filter(c=>r.causes[c])
-          .map(c=>'<span class="causechip">'+ROT_CAUSE[c].ic+' '+esc(ROT_CAUSE[c].label)+' '+
-            nf(r.causes[c])+'</span>').join('')+
+          .map(c=>'<span class="causechip'+(ROT_KIND[c]==='PHYSIOLOGICAL'?' phys':'')+'">'+
+            ROT_CAUSE[c].ic+' '+esc(ROT_CAUSE[c].label)+' '+nf(r.causes[c])+'</span>').join('')+
           (r.causes.OTHER?('<span class="causechip">❓ Unstated '+nf(r.causes.OTHER)+'</span>'):'')+
           '</div>'):'')+
         (buyers.length
@@ -5673,7 +5864,7 @@ function renderYieldAudit(){
     '<p class="small">An alert is never cleared by editing a figure. The Owner records the explanation and '+
     'both the alert and the answer stay on the record for good.</p>;'.slice(0,-1);}
 
-function goYieldAudit(){ openModule('costadmin','yield'); }
+function goYieldAudit(){ openModule('admin','yield'); }
 
 async function acknowledgeYield(day){
   if(myRole()!=='OWNER'){toast('Only the Owner can answer a yield alert',1);return;}
@@ -6753,15 +6944,15 @@ function mdbBackHtml(){
     '<div class="pinerr" id="bk-dr-err"></div>'+
     '<button class="bigbtn" onclick="mdbBackDrop()">🕓 LOG THIS HISTORICAL COLLECTION</button>'+
 
-    '<div class="sec" style="margin-top:17px">🍂 Backdate a rotten loss</div>'+
+    '<div class="sec" style="margin-top:17px">🍂 Backdate a fruit loss</div>'+
     '<div class="dl3">'+
       '<div><label>Lot</label><select id="bk-rt-lot" onchange="mdbBackTrees(\'bk-rt-lot\',\'bk-rt-tree\')"></select></div>'+
-      '<div><label>Rotten fruits</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-rt-n" placeholder="0"></div>'+
+      '<div><label>Fruits lost</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-rt-n" placeholder="0"></div>'+
     '</div>'+
     '<label>Tree</label><select id="bk-rt-tree"></select>'+
-    '<label>Damage cause</label><select id="bk-rt-cause">'+
-      Object.keys(ROT_CAUSE).map(c=>'<option value="'+esc(c)+'">'+ROT_CAUSE[c].ic+' '+
-        esc(ROT_CAUSE[c].label)+' — '+esc(ROT_CAUSE[c].note)+'</option>').join('')+'</select>'+
+    '<label>Loss cause</label><select id="bk-rt-cause">'+
+      ROT_ORDER.map(c=>'<option value="'+esc(c)+'">'+ROT_CAUSE[c].ic+' '+
+        esc(causeLabel(c))+' — '+esc(causeNote(c))+'</option>').join('')+'</select>'+
     '<label>Was the fruit tied?</label><select id="bk-rt-tied">'+
       '<option value="TIED">🪢 Was tied — comes off the tied balance</option>'+
       '<option value="UNTIED">🍃 Untied — an early loss, never on a string</option></select>'+
