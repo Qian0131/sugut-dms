@@ -626,6 +626,9 @@ const EN={
   bl_norot:'Rotten and unripe fruit are not counted here — they never became sellable stock.',
   bl_fruits:'fruits',
   s_backlog:'BACKLOG', s_backlog_d:'Fruit collected, fruit dispatched, what is still in the shed',
+  /* --- v3.9.2 · when each basket was actually weighed --- */
+  ts_keyed:'keyed', ts_head:'Weighing times — basket by basket',
+  ts_sent:'Sent to Marketing', ts_window:'weighed',
   /* --- scale errors and toasts --- */
   e_pickmerchant:'Choose which merchant this load is going to.',
   e_suspended:'That merchant is suspended.',
@@ -806,6 +809,9 @@ const MS={
   bl_norot:'Buah busuk dan mentah tidak dikira di sini — ia tidak pernah menjadi stok jualan.',
   bl_fruits:'biji',
   s_backlog:'BAKI BUAH', s_backlog_d:'Buah dikutip, buah dihantar, apa yang masih dalam stor',
+  /* --- v3.9.2 · masa setiap bakul ditimbang --- */
+  ts_keyed:'direkod', ts_head:'Masa timbang — setiap bakul',
+  ts_sent:'Dihantar ke Marketing', ts_window:'ditimbang',
   e_pickmerchant:'Pilih pembeli untuk muatan ini.',
   e_suspended:'Pembeli ini digantung.',
   e_needweight:'Masukkan bacaan berat kasar untuk sekurang-kurangnya satu bakul.',

@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.9.1';   // v3.9.1 — v3.9.0 plus the phone-keyboard fixes on the vehicle plate: no write-back mid-keystroke, caps keyboard, autocorrect off, and focus held across a repaint
+const APP_VERSION = 'v3.9.2';   // v3.9.2 — a button tap now closes the keyboard instead of reopening it over the buttons, and every basket records the second it was keyed and photographed
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -239,6 +239,15 @@ function uuid(){ if(crypto&&crypto.randomUUID)return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c=='x'?r:(r&0x3|0x8)).toString(16);});}
 function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
 function todayStr(){return now().slice(0,10);}
+/* v3.9.2 — the rest of the app stamps to the minute, which is right for a day's work. A
+   worker weighing ten baskets can do three inside one minute, so the moment a basket was
+   KEYED is stamped to the second. Same string shape, two characters longer, so every
+   existing slice(0,10) / localeCompare still behaves. */
+function nowSec(){const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+
+    p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());}
+/** Just the clock time out of any of our stamps, for a screen that already shows the date. */
+function hm(ts){const m=String(ts||'').match(/(\d{2}:\d{2})(:\d{2})?/);return m?m[1]+(m[2]||''):'';}
 function pending(){return EVENTS.filter(e=>!e.synced).length;}
 function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
 function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
@@ -4766,6 +4775,11 @@ function wlSet(k,f,v){
   const l=wlFind(k); if(!l)return;
   if(f==='baskets')return;                 // v3.8 — one basket per row, not negotiable
   l[f]=v;
+  // v3.9.2 — WHEN was this basket keyed? Stamped on the first real number that lands on
+  // the row and never rewritten, so it records when the basket was actually weighed at the
+  // scale rather than when the whole load was finally sent. A later correction to the same
+  // basket keeps the original stamp; the correction itself is a new attempt with its own.
+  if(!l.keyed_at&&(f==='gross'||f==='fruits')&&(+v>0))l.keyed_at=nowSec();
   if(f==='clone'&&!hasGrade(l.clone,l.grade))l.grade=gradesFor(l.clone)[0];
   // v3.8 — grade joins clone and basket: they are buttons now, so the active state has to
   // be repainted on every pick. The two number fields deliberately do NOT repaint, or the
@@ -4791,7 +4805,7 @@ function wSelRow(label,field,l,opts,cls){
   return '<div class="selwrap"><label class="sellbl">'+esc(label)+'</label>'+
     '<div class="selrow'+(cls?' '+cls:'')+'">'+
     opts.map(o=>'<div class="selbtn'+(String(o.v)===String(l[field])?' on':'')+'" '+
-      'onclick="wlSet(\''+esc(l.k)+'\',\''+esc(field)+'\',\''+esc(String(o.v))+'\')">'+
+      'onclick="wlTap(\''+esc(l.k)+'\',\''+esc(field)+'\',\''+esc(String(o.v))+'\')">'+
       esc(o.t)+(o.s?'<span class="sb">'+esc(o.s)+'</span>':'')+'</div>').join('')+
     '</div></div>';}
 
@@ -4817,7 +4831,7 @@ function renderWRetRow(){
   const row=$('w-retrow'); if(!row)return;
   const act=activeRetailers();
   row.innerHTML=act.map(r=>'<div class="selbtn'+(W_RET===r.id?' on':'')+'" '+
-    'onclick="setWRet(\''+esc(r.id)+'\')">'+esc(r.name)+'</div>').join('');}
+    'onclick="retTap(\''+esc(r.id)+'\')">'+esc(r.name)+'</div>').join('');}
 
 /** A worker may weigh; Owner and Marketing may too, so a one-person morning still works. */
 function canWeigh(){const r=myRole();return r==='WORKER'||FULL_ROLES.indexOf(r)>=0;}
@@ -4862,9 +4876,10 @@ function platePolish(){
 
 /** A chip tap is safe to write straight into the field — no keyboard is composing. */
 function pickPlate(v){
-  const i=$('w-plate');
-  if(i){i.value=String(v||'').toUpperCase();i.classList.remove('empty');}
-  setPlate(v);}
+  uiTap(()=>{
+    const i=$('w-plate');
+    if(i){i.value=String(v||'').toUpperCase();i.classList.remove('empty');}
+    setPlate(v);});}
 
 function renderPlateRow(){
   const row=$('w-plates'); if(!row)return;
@@ -4918,7 +4933,29 @@ function wGate(){
  * keyboard closes, and it looks exactly like the app refusing to accept the plate.
  * The text itself was never lost (it lives in W_PLATE / WLINES); the focus was.
  */
+/* v3.9.2 — TAPPING A BUTTON MUST CLOSE THE KEYBOARD, NOT REOPEN IT.
+   keepFocus() was written for one case: a background sync repainting the card while a
+   worker is mid-word. It was applied to every repaint, including the ones caused by
+   tapping a clone / grade / basket button — so the keyboard sprang straight back open
+   over the very buttons the worker was trying to reach next. On a 390 px phone the
+   keyboard covers half the screen, which is why this read as "the other keys cannot be
+   chosen". A deliberate tap is the one moment focus SHOULD move away. */
+let UI_TAPPING=false;
+function uiTap(fn){
+  UI_TAPPING=true;
+  try{
+    const a=document.activeElement;
+    // put the keyboard away so the buttons underneath it are reachable
+    if(a&&a.blur&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))a.blur();
+    fn();
+  } finally { UI_TAPPING=false; }}
+function wlTap(k,f,v){uiTap(()=>wlSet(k,f,v));}
+function retTap(v){uiTap(()=>setWRet(v));}
+function addWLineTap(){uiTap(addWLine);}
+function removeWLineTap(k){uiTap(()=>removeWLine(k));}
+
 function keepFocus(rootId,paint){
+  if(UI_TAPPING){paint();return;}          // a tap moved the focus on purpose
   const root=$(rootId);
   const a=document.activeElement;
   const inside=!!(root&&a&&a!==document.body&&root.contains(a)&&a.id);
@@ -4982,7 +5019,7 @@ function renderScaleCard(){
       '<div class="plchips" id="w-plates"></div></div>'+
 
     '<div id="w-rows"></div>'+
-    '<button class="addnext" onclick="addWLine()">'+esc(tr('sc_addnext'))+'</button>'+
+    '<button class="addnext" onclick="addWLineTap()">'+esc(tr('sc_addnext'))+'</button>'+
     '<div class="wtot" id="w-tot">—</div>'+
 
     '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_note'))+'</label>'+
@@ -5074,7 +5111,7 @@ function renderWLines(){
     const gs=gradesFor(l.clone);
     return '<div class="dline tight">'+
       '<div class="dlhead"><span class="dltag">'+esc(tr('sc_basket'))+' '+(i+1)+'</span>'+
-      (wLines().length>1?'<span class="dlx" onclick="removeWLine(\''+esc(l.k)+'\')">'+
+      (wLines().length>1?'<span class="dlx" onclick="removeWLineTap(\''+esc(l.k)+'\')">'+
         esc(tr('b_remove'))+'</span>':'')+'</div>'+
       // clone codes and names are NEVER translated — they are the trade's own words
       wSelRow(tr('sc_clone'),'clone',l,
@@ -5089,6 +5126,9 @@ function renderWLines(){
         wNumCell(l,'fruits',tr('sc_fruitcount'),'','numeric','0',true)+
       '</div>'+
       '<div class="dlnet" id="wln-'+esc(l.k)+'">—</div>'+
+      // v3.9.2 — the worker can see the moment this basket was recorded
+      (l.keyed_at?('<div class="keyedat">🕒 '+esc(tr('ts_keyed'))+' '+esc(hm(l.keyed_at))+
+        (l.photo_at?(' · 📷 '+esc(hm(l.photo_at))):'')+'</div>'):'')+
       // v3.9 — one camera per basket. Green when done, red-dashed while missing, so a row
       // that is not yet proven is visible from across the shed.
       (l.photo
@@ -5139,6 +5179,8 @@ async function onBasketPhoto(k,input){
   toast(tr('t_shrinking'));
   try{
     l.photo=await compressPhoto(f);
+    l.photo_at=nowSec();                       // v3.9.2 — when the scale was photographed
+    if(!l.keyed_at)l.keyed_at=l.photo_at;
     // basket 1's picture is ALSO the load-level photo, because every screen written before
     // v3.9 — the marketer's card, the DISPATCH_REQ tab, the daily audit — reads that field.
     if(wLines()[0]&&wLines()[0].k===k)W_PHOTO=l.photo;
@@ -5178,7 +5220,11 @@ async function submitScaleDispatch(){
   // rows, so the lines are matched against the rows that actually produced them.
   const kept=wLines().filter(l=>lineCalc(l,NO_PRICE).net>0);
   const lines=tot.lines.map((x,i)=>({...x, basket_no:i+1,
-    photo_b64:(kept[i]&&kept[i].photo)||'', has_photo:(kept[i]&&kept[i].photo)?1:0}));
+    photo_b64:(kept[i]&&kept[i].photo)||'', has_photo:(kept[i]&&kept[i].photo)?1:0,
+    // v3.9.2 — the per-basket clock. These ride inside lines_json, which already travels,
+    // so recording them needed no new spreadsheet column and no backend deploy.
+    keyed_at:(kept[i]&&kept[i].keyed_at)||'', photo_at:(kept[i]&&kept[i].photo_at)||''}));
+  const stamps=lines.map(x=>x.keyed_at).filter(Boolean).sort();
   const first=lines.length?(lines[0].photo_b64||''):'';
   try{
     await persistEvent({uuid:u,type:'DISPATCH_REQ',dt:stamp,
@@ -5189,6 +5235,9 @@ async function submitScaleDispatch(){
       // the load-level photo is basket 1's, so every pre-v3.9 screen keeps working
       photo_b64:first, photo_kb:photoKB(first),
       vehicle_plate:W_PLATE.trim().toUpperCase(),
+      // derived, not a new column: earliest and latest basket on this load
+      first_keyed_at:stamps[0]||stamp, last_keyed_at:stamps[stamps.length-1]||stamp,
+      submitted_at:nowSec(),
       // v3.9 — the correction chain. A fix is a NEW record that QUOTES the returned one;
       // the returned record itself is never touched.
       redo_of:(W_REDO?W_REDO.uuid:''), attempt:(W_REDO?W_REDO.attempt:1),
@@ -5396,12 +5445,19 @@ function gatepassSummary(src){
   const photos=[];
   lines.forEach((x,i)=>{ const b=x.photo_b64||'';
     if(b)photos.push({basket_no:+x.basket_no||(i+1),net_kg:+x.net_kg||0,
-      photo_kb:+x.photo_kb||photoKB(b),photo_b64:b}); });
+      photo_kb:+x.photo_kb||photoKB(b),photo_b64:b,
+      keyed_at:x.keyed_at||'',photo_at:x.photo_at||''}); });
   photos.sort((a,b)=>a.basket_no-b.basket_no);
   return Object.freeze({
     uuid:e.uuid,
     ref:String(e.uuid||'').replace(/-/g,'').slice(-6).toUpperCase(),
     vehicle_plate:String(e.vehicle_plate||'').toUpperCase(),
+    // v3.9.2 — when the fruit was actually weighed, not just when the load was sent
+    first_keyed_at:String(e.first_keyed_at||''),
+    last_keyed_at:String(e.last_keyed_at||''),
+    submitted_at:String(e.submitted_at||e.dt||''),
+    keyed:lines.map((x,i)=>({basket_no:+x.basket_no||(i+1),
+      keyed_at:x.keyed_at||'',photo_at:x.photo_at||'',net_kg:+x.net_kg||0})),
     attempt:Math.max(1,Math.floor(+e.attempt||1)),
     redo_of:String(e.redo_of||''),
     photos:photos,
@@ -5449,6 +5505,8 @@ function gatepassHTML(u){
     '</div>'+
     '<div class="gpmeta" style="padding-top:0">'+
       '<div><span class="gml">'+esc(tr('gp_time'))+'</span>'+esc(s.dt)+
+        (s.first_keyed_at?('<br><span class="gwin">'+esc(tr('ts_window'))+' '+
+          esc(hm(s.first_keyed_at))+' – '+esc(hm(s.last_keyed_at))+'</span>'):'')+
         (s.synced?'':' · '+esc(tr('sc_queued')))+'</div>'+
     '</div>'+
 
@@ -5476,6 +5534,18 @@ function gatepassHTML(u){
     '<div class="gpsub"><span>'+esc(tr('gp_gross'))+' '+nf(s.total_gross_kg)+' kg</span>'+
       '<span>'+esc(tr('gp_tare'))+' −'+nf(s.total_tare_kg)+' kg</span></div>'+
 
+    // v3.9.2 — the gate log needs to say WHEN, basket by basket. A driver disputing a
+    // load, or an Owner reading it back a week later, needs the weighing time and not
+    // only the moment somebody pressed send.
+    (s.keyed.some(x=>x.keyed_at)
+      ? '<div class="gpsec">'+esc(tr('ts_head'))+'</div><div class="tblock">'+
+        s.keyed.filter(x=>x.keyed_at).map(x=>'<div class="trow2">'+
+          '<span>'+esc(tr('gp_basket'))+' '+x.basket_no+' · '+nf(x.net_kg)+' kg</span>'+
+          '<b>'+esc(hm(x.keyed_at))+'</b></div>').join('')+
+        '<div class="trow2 tsum"><span>'+esc(tr('ts_sent'))+'</span>'+
+          '<b>'+esc(hm(s.submitted_at)||esc(s.dt))+'</b></div>'+
+        '</div>'
+      : '')+
     (s.note?'<div class="gpnote">'+esc(tr('gp_note'))+': '+esc(s.note)+'</div>':'')+
     (s.attempt>1&&s.redo_of
       ? '<div class="chain">'+esc(tr('gp_chain').replace('%A',s.attempt)
@@ -5487,7 +5557,8 @@ function gatepassHTML(u){
           '<img src="'+pp.photo_b64+'" onclick="showPhoto(\''+esc(pp.photo_b64)+'\',\''+
             esc(tr('gp_basket'))+' '+pp.basket_no+'\')">'+
           '<div class="pscap">'+esc(tr('gp_basket'))+' '+pp.basket_no+'<br>'+
-            nf(pp.net_kg)+' kg</div></div>').join('')+'</div>'
+            nf(pp.net_kg)+' kg'+(pp.keyed_at?('<br>'+esc(hm(pp.keyed_at).slice(0,5))):'')+
+            '</div></div>').join('')+'</div>'
       : (s.photo_b64?'<img class="gpthumb" style="margin-top:11px" src="'+s.photo_b64+
         '" onclick="showPhoto(\''+esc(s.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">':''))+
 
@@ -5580,6 +5651,9 @@ function startResend(u){
     clone:x.clone||'MK', grade:x.grade||'A', basket:x.basket||'RED', baskets:1,
     gross:String(x.gross_kg!=null?x.gross_kg:''),
     fruits:String(x.fruits!=null?x.fruits:''),
+    // v3.9.2 — a correction is a NEW weighing, so it gets a new clock. Carrying the old
+    // stamp forward would date attempt 2 to when attempt 1 was weighed.
+    keyed_at:'', photo_at:'',
     photo:''}));                                 // new pictures required, every basket
   if(!WLINES.length)WLINES=[newWLine()];
   renderScaleCard(); renderHub();
@@ -5751,6 +5825,7 @@ function verifyCardHtml(e){
       (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'">'):'<div class="reqthumb none">no photo</div>')+
       '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
         '<div class="pa">'+esc(e.dt)+' · weighed by '+esc(e.worker||'')+
+        (e.first_keyed_at?(' · 🕒 '+esc(hm(e.first_keyed_at))+'–'+esc(hm(e.last_keyed_at))):'')+
         (e.vehicle_plate?(' · 🚚 '+esc(e.vehicle_plate)):'')+(e.synced?'':' · queued')+'</div></div>'+
       (att>1?'<span class="attchip'+(att>=4?' hot':(att>=3?' warn':''))+'">'+
         esc(tr('vf_attempt'))+' '+att+'</span>':'')+
