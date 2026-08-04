@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.15.0';   // v3.15.0 - EVERY PROGRAMME NOW CARRIES A DATE IT MUST BE FINISHED BY, suggested from the programme sheet. The crew see one coloured strip - days left, due today, or days late - and the most overdue job sorts to the top of their list. From that one date comes a monthly and yearly record: issued, finished on time, finished late, still open, and the on-time percentage
+const APP_VERSION = 'v3.16.0';   // v3.16.0 - FOUR ISOLATED WORKSPACES. The worker's tree visit commits ONCE instead of twice, the Purchaser's four supply forms share one page, the Marketer lands on the dispatch review queue, and the Owner gets a Command tile: executive summary with the flashing tree-variance alert, the rain moisture line, retailer revenue, material drawdown, a drop-wave forecast and a recommended prepaid-credit ceiling per merchant
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -466,6 +466,19 @@ function applyStaticLang(){
 const SCREENS=['home','menu','harvest','stock','sync','dash'];
 const FULL_ROLES=['OWNER','MARKETING'];
 const MODULES={
+  // ====================================================================================
+  // v3.16 — TILE F · THE OWNER'S COMMAND WORKSPACE
+  // Three tabs and no more: what happened (Executive Summary), what to spray next
+  // (Program Builder), and the master overrides. It does NOT replace the eight working
+  // tiles — those stay reachable underneath, so nothing the Owner uses today loses its
+  // route. This is the daily driver, not a cage: burying stock-take, labour, the yield
+  // audit and the delivery ledger behind three tabs would cost more than it saved.
+  // Every tab is OWNER-only at the tile gate AND again in roleAllows().
+  // ====================================================================================
+  cmd:{ic:'👑',name:'Command',sub:'summary, programme, master control',tn:'m_cmd',
+    tabs:[{k:'exec',  t:'EXECUTIVE SUMMARY',scr:'dash',panels:['cmdexec'],   roles:['OWNER'],ic:'📈',tn:'s_exec',  d:'Variance alerts, rain, retailer revenue, drawdown and the drop forecast'},
+          {k:'build', t:'PROGRAM BUILDER',  scr:'dash',panels:['agromatrix'],roles:['OWNER'],ic:'🧬',tn:'s_builder',d:'Build a five-part combo by active ingredient, per 1,000 L tank'},
+          {k:'master',t:'MASTER CONTROL',   scr:'dash',panels:['masterdb'],  roles:['OWNER'],ic:'🔐',tn:'s_master', d:'Edit any row, backdate, add trees, manage keys, show the QR'}]},
   // v3.0 — tying has LEFT this module. The collection screen is now two cards only:
   // Card A good fruit by grade, Card B rotten loss. Nothing else competes for the
   // worker's thumb while fruit is being counted.
@@ -506,11 +519,22 @@ const MODULES={
   // v3.7 — reordered: the four hands-on sections first, the two planning ones last.
   // The landing section is still STOCK IN, so no muscle memory breaks.
   inv:{ic:'📦',name:'Inventory',sub:'stock in/out, levels, alerts',tn:'m_inv',
-    tabs:[{k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'📥',tn:'s_stockin',d:'Receive goods against a supplier invoice'},
+    // v3.16 — TILE D · the Purchaser's SUPPLY HUB. Receiving an invoice, matching a brand
+    // to the ingredient the Owner asked for, and onboarding a product the store has never
+    // carried are one continuous job done at one desk, and splitting them across three
+    // sections made the Purchaser re-key the same product twice. alloccard and onboardcard
+    // were physically moved into the stock screen in index.html so all four forms and the
+    // live on-hand list can share one page. The three original sections are kept below,
+    // unchanged, so every existing deep link and habit still lands.
+    tabs:[{k:'hub', t:'SUPPLY HUB',   scr:'stock',panels:['alertcenter','pnl-in','alloccard','onboardcard','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Invoice in, brand matched, new product, live stock — one page'},
+          {k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'📥',tn:'s_stockin',d:'Receive goods against a supplier invoice'},
           // v3.12 — the two sections that close the gap between the office and Sandakan.
           // Both sit immediately under STOCK IN because they are the Purchaser's morning.
-          {k:'alloc',t:'AI ➔ BRAND',  scr:'dash', panels:['alloccard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🔗',tn:'s_alloc',d:'Match a brand in the store to each ingredient the Owner asked for'},
-          {k:'onboard',t:'NEW PRODUCT',scr:'dash',panels:['onboardcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🆕',tn:'s_onboard',d:'Add a commercial item to the store catalogue'},
+          // v3.16 — scr is 'stock' now, not 'dash': both cards were moved into the stock
+          // screen so the Supply Hub above can render them beside Stock In. Naming the
+          // wrong screen here would show the section header with an empty body.
+          {k:'alloc',t:'AI ➔ BRAND',  scr:'stock',panels:['alloccard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🔗',tn:'s_alloc',d:'Match a brand in the store to each ingredient the Owner asked for'},
+          {k:'onboard',t:'NEW PRODUCT',scr:'stock',panels:['onboardcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🆕',tn:'s_onboard',d:'Add a commercial item to the store catalogue'},
           {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES,ic:'📤',d:'Draw material for a job, against a lot'},
           {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES,ic:'📦',d:'Live valuation, reorder alerts, active ingredients'},
           {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES,ic:'🧾',d:'Physical count vs system, posted as an adjustment'},
@@ -518,17 +542,23 @@ const MODULES={
           {k:'next',t:'NEXT PHASE',   scr:'dash', panels:['progready'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'📅',tn:'s_nextphase',d:'What to order now for the phase after this one'}]},
   // v3.0 — Marketing is the morning dispatch desk: weigh the baskets, invoice the
   // retailer, watch the credit come down. Owner and Marketing only.
-  mkt:{ic:'🚚',name:'Marketing',sub:'dispatch, merchant credit',
-    tabs:[{k:'disp',  t:'RETAILERS',          scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES,ic:'🚚',d:'Open a merchant card and invoice a load'},
-          // v3.6 — photo proof waiting to be audited. First after the merchant list,
-          // because it is the first thing the marketer does every morning.
-          {k:'verify',t:'VERIFY PHOTOS',      scr:'dash',panels:['verifycard'], roles:FULL_ROLES,ic:'📷',d:'Audit a worker photo before the credit moves'},
+  // v3.16 — TILE E · REVIEW & CREDIT. The Marketer's morning is auditing what the field
+  // weighed, not opening a merchant card, so LIVE DISPATCH REVIEW is the landing section
+  // and the tile is named for it. RETAILERS drops to second. Marketing keeps the ledger,
+  // the contract books and the price/tare matrix: nobody else sets basket tare, and
+  // pulling MARKETING out of FULL_ROLES would have moved ~40 gates to fix one label.
+  mkt:{ic:'📊',name:'Review & Credit',sub:'dispatch review, merchant credit',tn:'m_mkt',
+    tabs:[{k:'verify',t:'LIVE DISPATCH REVIEW',scr:'dash',panels:['verifycard'], roles:FULL_ROLES,ic:'📷',tn:'s_review',d:'Check the scale photo against the keyed figures, then approve and dispatch'},
+          {k:'disp',  t:'RETAILERS',          scr:'dash',panels:['dispatchcard'],roles:FULL_ROLES,ic:'🚚',d:'Open a merchant card and invoice a load'},
           {k:'ledger',t:'DELIVERY LEDGER',    scr:'dash',panels:['mktledger'],  roles:FULL_ROLES,ic:'🧾',d:'Every dispatch and top-up, newest first'},
           {k:'price', t:'PRICES & MERCHANTS', scr:'dash',panels:['pricecard'],  roles:FULL_ROLES,ic:'💲',d:'Contract books, daily spot matrix, basket tare'},
           {k:'sell',  t:'OTHER SALES',        scr:'dash',panels:['mktpanel'],   roles:FULL_ROLES,ic:'🏷️',d:'Cash sales outside the merchant accounts'}]},
   // v3.7 — what you READ, split from what you ADMINISTER. Month Ledger is weekly;
   // Master DB is twice a season. They should not be neighbours on one list.
-  reports:{ic:'📊',name:'Reports',sub:'audit, ledger, costing, labour',
+  // v3.16 — was 📊, which now collides with the Review & Credit tile on the Owner's home
+  // screen. Two identical icons in one 2-column grid is a tile you have to read rather
+  // than recognise, which is the whole point of the Big Tile layout.
+  reports:{ic:'🗂️',name:'Reports',sub:'audit, ledger, costing, labour',
     tabs:[{k:'daily', t:'DAILY AUDIT', scr:'dash',panels:['dailyaudit'],  roles:FULL_ROLES,ic:'📅',d:'Day by day: tied, good, loss, kg out'},
           {k:'matrix',t:'MONTH LEDGER',scr:'dash',panels:['matrixledger'],roles:FULL_ROLES,ic:'📊',d:'Yield, revenue, spend and drawdown by month'},
           // v3.12 — what the directives actually cost, rolled up three ways. Separate
@@ -536,7 +566,9 @@ const MODULES={
           // done against an issued programme, which is the number the Owner budgets on.
           {k:'runs',  t:'PROGRAM RUNS',scr:'dash',panels:['runcostcard'],roles:FULL_ROLES,ic:'🧪',tn:'s_runs',d:'Daily, monthly and yearly cost of the work actually done'},
           // v3.15 — what was promised against what landed, by month and by year
-          {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:FULL_ROLES,ic:'📅',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
+          // v3.16 — was 📅, the same icon as DAILY AUDIT two rows above it in the same
+          // section list. 🏁 says what this screen is: finished on time, or not.
+          {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:FULL_ROLES,ic:'🏁',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
           {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:FULL_ROLES,ic:'📒',d:'The raw stock ledger, month by month'},
           {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:FULL_ROLES,ic:'💵',d:'Man-hours and the rate they are priced at'}]},
   admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',
@@ -554,9 +586,15 @@ const MODULES={
 // Owner/Marketing: 8 tiles — which renders in the same four rows of a 2-column grid as
 // seven did, so splitting Costing/Admin costs no screen height at all.
 // Worker: 4 tiles, three of which have ONE section and therefore open at a single tap.
+// v3.16 — four isolated workspaces. Each role's FIRST tile is the job it actually opens
+// the phone to do, so the landing screen is the work and not a menu of everything.
+//   OWNER     — Command first, then the eight working tiles it summarises.
+//   MARKETING — Review & Credit first; the dispatch queue is the marketer's morning.
+//   WORKER    — field actions only, and Morning Scale is one of the four.
+//   PURCHASER — Inventory only, landing on the merged Supply Hub. No harvest, no money.
 const HUB_ORDER={
-  OWNER:    ['harvest','tying','inv','agro','ops','mkt','reports','admin'],
-  MARKETING:['harvest','tying','inv','agro','ops','mkt','reports','admin'],
+  OWNER:    ['cmd','harvest','tying','inv','agro','ops','mkt','reports','admin'],
+  MARKETING:['mkt','harvest','tying','inv','agro','ops','reports','admin'],
   WORKER:   ['harvest','tying','scale','ops'],   // + Morning Scale as its own tile
   PURCHASER:['inv']                              // Inventory ONLY — no harvest, no money
 };
@@ -581,7 +619,10 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   // v3.12 — four new panels. Leaving one out of this list does not hide it: it leaks
   // onto every other screen, which is exactly what happened once already in v3.6.
   'agromatrix','alloccard','onboardcard','runcostcard',
-  'progrecord'];
+  'progrecord',
+  // v3.16 — the Owner's Executive Summary. Same rule as every entry above it: a panel
+  // missing from this array is never hidden and leaks onto every other screen.
+  'cmdexec'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -615,6 +656,10 @@ function roleAllows(id){
     // v3.2 — the yield audit names who counted and who weighed. Owner only.
     case 'yieldaudit': case 'yieldstrip': return myRole()==='OWNER';
     case 'masterdb': return myRole()==='OWNER';
+    // v3.16 — the Executive Summary carries retailer revenue, material drawdown and a
+    // recommended credit ceiling. Owner alone, and renderCmdExec() writes an empty string
+    // for anyone else so none of its markup ever reaches the DOM.
+    case 'cmdexec': return myRole()==='OWNER';
     // v3.12 — the recipe is the Agronomist's. Only Owner/Marketing may write one.
     case 'agromatrix': return full;
     // The allocation matrix and the onboarding form are the Purchaser's daily job, with
@@ -633,6 +678,16 @@ function roleAllows(id){
   }
 }
 function tileBadge(k){
+  // v3.16 — the Command tile carries whatever the Owner has to ACT on today, in the order
+  // it costs them money: a tree bleeding unsecured fruit, then a programme past its date,
+  // then a merchant about to run out of prepaid credit mid-wave.
+  if(k==='cmd'){
+    const v=(typeof varianceAlerts==='function')?varianceAlerts().length:0;
+    if(v)return {t:v+' '+tr('bg_variance')};
+    const od=(typeof overdueDirectives==='function')?overdueDirectives().length:0;
+    if(od)return {t:od+' '+tr('bg_late')};
+    const cr=(typeof creditAdvice==='function')?creditAdvice().filter(c=>c.raise).length:0;
+    return cr?{t:cr+' '+tr('bg_credit'),amber:1}:null;}
   if(k==='inv'){
     // v3.12 — an ingredient with no brand behind it outranks a reorder alert: a low
     // product still lets the crew work, an unallocated slot stops them dead.
@@ -810,7 +865,8 @@ function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();
   renderYieldAudit();renderMasterDB();
   renderScaleCard();renderVerify();renderDailyAudit();renderMatrix();
-  renderAgroMatrix();renderAllocCard();renderOnboard();renderRunCost();renderProgRecord();}
+  renderAgroMatrix();renderAllocCard();renderOnboard();renderRunCost();renderProgRecord();
+  renderCmdExec();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
     renderGradeRows();refreshTreeBoard();}
@@ -851,7 +907,14 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='alloc')renderAllocCard();
   if(k==='inv'&&t==='onboard')renderOnboard();
   if(k==='reports'&&t==='runs')renderRunCost();
-  if(k==='reports'&&t==='record')renderProgRecord();}
+  if(k==='reports'&&t==='record')renderProgRecord();
+  // v3.16 — Tile F. The builder and the master suite reuse the panels the agro/admin
+  // tiles already render, so only the Executive Summary needs its own painter.
+  if(k==='cmd'&&t==='exec')renderCmdExec();
+  if(k==='cmd'&&t==='build')renderAgroMatrix();
+  if(k==='cmd'&&t==='master')renderMasterDB();
+  // v3.16 — the merged Purchaser page paints every form it carries in one pass.
+  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();renderOnboard();}}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -880,6 +943,12 @@ function resetMarketingView(){
   if(typeof closePhoto==='function')closePhoto();}
 function applyRole(){
   resetMarketingView();
+  // v3.16 — the same class of bug resetMarketingView() was written for in v3.2. The
+  // Owner's Executive Summary carries retailer revenue and a credit ceiling; hiding the
+  // panel leaves that markup sitting in the DOM of whoever logs in next on the same
+  // phone. Repainting it under the new role empties it, because renderCmdExec() writes
+  // an empty string for anyone who is not the Owner.
+  if(typeof renderCmdExec==='function')renderCmdExec();
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
   SHOW_VALUES=full;                                   // gates every RM figure in the app
@@ -1344,13 +1413,16 @@ function paintGrade(g){
   const row=$('grow-'+g); if(row)row.classList.toggle('hot',(GCOUNT[g]||0)>0);
   DROP_ORDER.forEach(k=>{const el=$('gs-'+g+'-'+k);if(el)el.classList.toggle('on',GKIND[g]===k);});}
 function gTotalPaint(){
+  if(typeof visitSumPaint==='function')visitSumPaint();   // v3.16 — one visit, one summary
   const box=$('g-tot'); if(!box)return;
   const tot=gTotal();
-  if(!tot){box.className='gtot zero';box.textContent='Nothing counted yet.';return;}
+  // v3.16 — this line was hard-coded English on a screen the crew read in Malay, and it
+  // sat directly above the translated visit summary, which is what made it obvious.
+  if(!tot){box.className='gtot zero';box.textContent=tr('ca_none','Nothing counted yet.');return;}
   box.className='gtot';
   const parts=GRADE_ORDER.filter(g=>GCOUNT[g]>0)
-    .map(g=>GCOUNT[g]+' × '+g+' ('+(GKIND[g]==='SECURED'?'secured':'unsecured')+')');
-  box.innerHTML=tot+' fruit — '+parts.join(' · ');}
+    .map(g=>GCOUNT[g]+' × '+g+' ('+(GKIND[g]==='SECURED'?tr('ca_sec','secured'):tr('ca_unsec','unsecured'))+')');
+  box.innerHTML=tot+' '+esc(tr('ca_fruit','fruit'))+' — '+parts.join(' · ');}
 function renderGradeRows(){
   const box=$('graderows'); if(!box)return;
   box.innerHTML=GRADE_ORDER.map(g=>{
@@ -1490,7 +1562,11 @@ function fillProdSelect(selId,searchId){
   sel.innerHTML='';
   INVENTORY_RECON.filter(p=>matchProd(p,q)).forEach(p=>{
     const o=document.createElement('option');o.value=p.id;
-    o.textContent=p.name+' · '+(aiText(p)||'—');sel.appendChild(o);});
+    // v3.16 — the option read "Brand · Chemical 5.5%". A worker picks the drum by the word
+    // painted on it; the chemistry behind that word is not theirs to carry. Where the field
+    // holds a residue warning it survives, because that IS the worker's business.
+    const sub=aiTextRole(p);
+    o.textContent=p.name+(sub?(' · '+sub):'');sel.appendChild(o);});
   if(!sel.options.length){const o=document.createElement('option');o.value='';o.textContent=tr('so_nomatch');sel.appendChild(o);}
   if(keep&&[...sel.options].some(o=>o.value===keep))sel.value=keep; else sel.selectedIndex=0;
 }
@@ -1535,7 +1611,12 @@ async function submitStockIn(){
 
 // ---- Farm Worker: Material Stock Out ----
 let outLot='';
-function renderOutOpts(){fillProdSelect('out-prod','out-search');onOutProd();}
+function renderOutOpts(){
+  // v3.16 — the placeholder named the chemistry as something to search on. A worker
+  // searches by the word printed on the drum, and nothing else.
+  {const b=$('out-search');
+   if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
+                                               :tr('so_search','Search brand or active ingredient…'));}fillProdSelect('out-prod','out-search');onOutProd();}
 /** The active ingredient as shown to a worker. A real AI is printed verbatim; the
  *  "(confirm - see label)" placeholder is app copy and is translated. */
 function aiText(p){
@@ -1545,10 +1626,31 @@ function aiText(p){
   a=a.replace('fruit-contact, 14-day PHI',tr('so_phi'));
   a=a.replace('(confirm — see label)',tr('so_confirm'));
   return a;}
+/** v3.16 — what a given ROLE may read out of the active-ingredient field.
+ *  The crew see the drum, not the chemistry — but the residue cut-off is the one part of
+ *  this field a worker must be able to read, and it survives the purge. The ingredient
+ *  name and its concentration do not. Owner, Marketing and the Purchaser are unaffected.
+ *  Returns '' when a worker's product carries no warning at all, which is the signal to
+ *  hide the box rather than print a bare dash under a chemistry heading. */
+function aiTextRole(p){
+  if(!p)return '';
+  if(!hideChem())return aiText(p);
+  const raw=String(p.active_ingredient||''), safe=[];
+  if(/fruit-contact|14-day PHI/i.test(raw))safe.push(tr('so_phi'));
+  if(/\(confirm — see label\)/i.test(raw))safe.push(tr('so_confirm'));
+  return safe.join(' · ');}
+
 function onOutProd(){const p=prodById($('out-prod').value);
   // the product name and the real active ingredient are NEVER translated - the drum
   // label is the safety record. Only the "not yet confirmed" placeholder is UI copy.
-  $('out-ai').textContent=p?(aiText(p)||'—'):'—';
+  // v3.16 — routed through aiTextRole() so a Farm Worker gets the warning without the
+  // chemistry. The heading changes with it: "Active ingredient" over a safety note is a
+  // chemistry label the crew were told they would never have to read.
+  const shown=aiTextRole(p);
+  const wrap=$('out-aiwrap'), lbl=$('out-ailbl');
+  if(lbl)lbl.textContent=hideChem()?tr('so_safety','Safety note'):tr('so_ai','Active ingredient');
+  if(wrap)wrap.style.display=(hideChem()&&!shown)?'none':'';
+  $('out-ai').textContent=shown||'—';
   $('out-unitlbl').textContent=p?p.unit:'ml/gm';
   $('out-onhand').innerHTML=p?(esc(tr('so_onhand'))+'<br><b>'+nf(onHand(p))+' '+esc(p.unit)+'</b>'):'—';
   onOutCalc();}
@@ -1584,11 +1686,18 @@ async function submitStockOut(){
 function renderStock(){
   const q=($('stocksearch').value||'');
   $('oh-valnote').style.display=SHOW_VALUES?'':'none';
+  // v3.16 — this list sits under the worker's Stock Out form, and every row carried the
+  // active ingredient in blue under the brand. Same purge as the picker above it.
+  {const b=$('stocksearch');
+   if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
+                                              :tr('so_search','Search brand or active ingredient…'));}
   const list=INVENTORY_RECON.filter(p=>matchProd(p,q));
   $('stocklist').innerHTML=list.length?list.map(p=>{
     const oh=onHand(p),low=isLow(p);
     const right=nf(oh)+' '+esc(p.unit)+(low?' ⚠':'')+(SHOW_VALUES?('<br><span class="small">'+rm(valueOf(p))+'</span>'):'');
-    return '<div class="lrow"><span><b>'+esc(p.name)+'</b><br><span class="small" style="color:#26418f">'+esc(aiText(p)||'—')+'</span></span>'+
+    const sub=aiTextRole(p);
+    return '<div class="lrow"><span><b>'+esc(p.name)+'</b>'+
+      (sub?('<br><span class="small" style="color:#26418f">'+esc(sub)+'</span>'):'')+'</span>'+
       '<span style="text-align:right;font-weight:700;color:'+(low?'#b3261e':'#1b5e20')+'">'+right+'</span></div>';}).join('')
     :'<div class="small">No product matches that search.</div>';}
 
@@ -1601,7 +1710,9 @@ function renderAlerts(){
   // the rest one tap away so the Stock In form is never buried under the alerts
   const CAP=5, shown=alertsAll?low:low.slice(0,CAP);
   const card=p=>'<div class="alertrow"><div class="an">'+esc(p.name)+'</div>'+
-    '<div class="ai">'+esc(aiText(p)||'—')+'</div>'+
+    // v3.16 — one rule for the chemistry everywhere, so a screen later opened up to the
+    // crew cannot reintroduce it by accident.
+    ((x=>x?'<div class="ai">'+esc(x)+'</div>':'')(aiTextRole(p)))+
     '<div class="aq">'+nf(onHand(p))+' '+esc(p.unit)+' left · minimum '+nf(p.min_stock_threshold)+' '+esc(p.unit)+
     ' ('+nf(toCont(p,p.min_stock_threshold))+' '+esc(p.container)+')</div></div>';
   box.innerHTML='<div class="alertbig">⚠ '+low.length+' PRODUCT'+(low.length>1?'S':'')+' BELOW MINIMUM — REORDER NOW</div>'+
@@ -3473,7 +3584,8 @@ function rotReset(){rotQty=0;rotCause='';rotTied=null;
   if($('rot-err'))$('rot-err').textContent='';
   rotExtras();}
 function rotExtras(){
-  const x=$('rot-extra'); if(x)x.classList.toggle('hidden',!(rotQty>0));}
+  const x=$('rot-extra'); if(x)x.classList.toggle('hidden',!(rotQty>0));
+  if(typeof visitSumPaint==='function')visitSumPaint();}   // v3.16
 function rotPick(c){rotCause=c;
   const sel=$('rot-cause'); if(sel&&sel.value!==c)sel.value=c;
   if($('rot-err'))$('rot-err').textContent='';}
@@ -9783,6 +9895,332 @@ function dirCostOf(u){
   const mac=movingAvgCost();
   return EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dirRun&&e.progId===u)
     .reduce((s,e)=>s+outCostOf(e,mac),0);}
+
+
+/* ======================================================================================
+   v3.16 · WORKSPACE ISOLATION PASS
+   ======================================================================================
+   Three things live here:
+     1. logTreeVisit()  — ONE commit for a whole tree visit (was two save buttons).
+     2. The Owner's Executive Summary maths: variance, rain, drawdown, drop forecast and
+        the prepaid-credit recommendation.
+     3. renderCmdExec() — the only new painter Tile F needs; its other two tabs reuse
+        panels the agro and admin tiles already render.
+   Nothing in here re-implements an existing calculation. Every figure is read from the
+   same ledgers the rest of the app reads, so a number shown here cannot disagree with the
+   screen it came from.
+   ====================================================================================== */
+
+/* ---------- 1 · ONE UNIFIED COMMIT FOR THE WHOLE TREE VISIT --------------------------
+   Card A had "SAVE GOOD FRUIT" and Card B had "LOG FRUIT LOST". At a tree with both good
+   and rotten fruit the worker pressed save twice, and a visit where only the first press
+   happened was indistinguishable from a finished one. Both cards now commit together
+   under a single visitId, so a visit is atomic in the ledger as well as on the screen.
+
+   The two originals are kept below, unreferenced by any button, because saveDrop() and
+   saveRotten() are called by name in the existing test suite. They are not a second write
+   path — logTreeVisit() does its own persisting and never calls them. */
+let savingVisit=false;
+
+/** The one-line summary under the unified button. Mirrors what will actually be saved. */
+function visitSumPaint(){
+  const box=$('visit-sum'); if(!box)return;
+  const g=gTotal(), r=(typeof rotQty==='number'?rotQty:0);
+  if(!g&&!r){box.className='gtot zero';box.textContent=tr('cv_none','Nothing counted yet.');return;}
+  box.className='gtot';
+  const bits=[];
+  if(g)bits.push(g+' '+tr('cv_good','good'));
+  if(r)bits.push(r+' '+tr('cv_lost','lost'));
+  box.textContent=bits.join('  ·  ');}
+
+/** Everything the visit is about to write, validated before a single event is persisted. */
+function visitBlockers(){
+  const out=[];
+  const g=gTotal(), r=(typeof rotQty==='number'?rotQty:0);
+  if(!curTree)out.push(tr('cv_notree','Pick a tree first.'));
+  if(!g&&!r)out.push(tr('cv_nothing','Count some good fruit, or some lost fruit, before saving.'));
+  if(r>0&&!rotCause)out.push(tr('cv_nocause','Tag the damage cause — a loss count without a cause cannot be acted on.'));
+  if(r>0&&rotTied===null)out.push(tr('cv_notied','Say whether the lost fruit was tied or untied.'));
+  return out;}
+
+async function logTreeVisit(){
+  const err=$('visit-err'); if(err)err.textContent='';
+  if(savingVisit)return;
+  const blockers=visitBlockers();
+  if(blockers.length){if(err)err.textContent=blockers[0];return;}
+
+  const t=curTree;
+  const good=gTotal(), lost=rotQty;
+  const L=treeLedger(t.id);
+
+  // ---- guards. Secured drops and tied rotten BOTH come off the string, so they are
+  // checked against the balance TOGETHER. Asking twice about the same balance is exactly
+  // the double-prompt the two-button design produced.
+  const sec=GRADE_ORDER.filter(g=>GKIND[g]==='SECURED').reduce((a,g)=>a+(GCOUNT[g]||0),0);
+  const uns=good-sec;
+  const offString=sec+((lost>0&&rotTied)?lost:0);
+  if(offString>0&&L.current_tied_balance>0&&offString>L.current_tied_balance&&
+     !confirm('⚠ '+t.id+' has only '+L.current_tied_balance+' fruit still on the string.\n'+
+              'This visit takes '+offString+' off it.\n\nSave anyway?'))return;
+  const offUntied=uns+((lost>0&&!rotTied)?lost:0);
+  if(offUntied>0&&L.untied_hanging_estimate!==null&&L.untied_hanging_estimate>0&&
+     offUntied>L.untied_hanging_estimate&&
+     !confirm('⚠ '+t.id+' has about '+L.untied_hanging_estimate+' untied fruit left by the July census.\n'+
+              'This visit logs '+offUntied+' untied.\n\nSave anyway?'))return;
+  if(lastDrop.tree===t.id && (Date.now()-lastDrop.time)<120000 &&
+     !confirm('⚠ '+t.id+' was already logged less than 2 minutes ago.\nSave AGAIN as a NEW visit?'))return;
+
+  savingVisit=true;
+  try{
+    // One stamp, one visitId. pickId keeps its v3.0 meaning so every existing reader of a
+    // DROP row — the audit, the trace, the yield check — carries on working unchanged.
+    const stamp=now(), visitId=uuid();
+    for(const g of GRADE_ORDER){
+      const n=GCOUNT[g]||0; if(!(n>0))continue;
+      await persistEvent({uuid:uuid(),type:'DROP',dt:stamp,tree:t.id,lot:t.lot,clone:t.clone||'',
+        qty:n,grade:g,secured:(GKIND[g]==='SECURED'),dropKind:GKIND[g],
+        pickId:visitId,visitId:visitId,
+        estkg:+(n*(AVG_KG[t.clone]||1.6)).toFixed(1),
+        worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});}
+    if(lost>0){
+      await persistEvent({uuid:uuid(),type:'ROTTEN',dt:stamp,tree:t.id,lot:t.lot,clone:t.clone||'',
+        qty:lost,cause:rotCause,causeLabel:ROT_CAUSE[rotCause].label,tied:rotTied,
+        pickId:visitId,visitId:visitId,
+        estkg:+(lost*(AVG_KG[t.clone]||1.6)).toFixed(1),
+        worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});}
+    lastDrop={tree:t.id,time:Date.now()};
+
+    const after=treeLedger(t.id);
+    const parts=[];
+    if(good)parts.push(GRADE_ORDER.filter(g=>GCOUNT[g]>0).map(g=>GCOUNT[g]+g).join(' + '));
+    if(lost)parts.push('🍂 '+lost+' '+ROT_CAUSE[rotCause].label);
+    gClearAll(); rotReset(); visitSumPaint();
+    badge();
+    toast('✅ '+parts.join('  ·  ')+' @ '+t.id+' · '+
+      nf(Math.max(0,after.current_tied_balance))+' still on the string'+
+      (navigator.onLine?'':' (queued)'));
+    refreshTreeBoard();renderTying();renderWave();renderMyLogs();renderHub();
+  } finally { savingVisit=false; }}
+
+/* ---------- 2 · EXECUTIVE SUMMARY MATHS --------------------------------------------- */
+
+/** Unsecured drops on ONE tree in ONE day that mean the string work is not holding. */
+const VARIANCE_UNSEC_MIN=3;
+
+/** Per-tree unsecured drops for a day, biggest first. Reads DROP rows only. */
+function varianceRows(dstr){
+  const day=dstr||todayStr(), by={};
+  EVENTS.forEach(e=>{
+    if(e.type!=='DROP')return;
+    if(String(e.dt||'').slice(0,10)!==day)return;
+    if(isSecuredDrop(e))return;            // secured fruit was tied; it is not a variance
+    const k=e.tree; if(!k)return;
+    if(!by[k])by[k]={tree:k,lot:e.lot||'',clone:e.clone||'',unsecured:0};
+    by[k].unsecured+=(+e.qty||0);});
+  return Object.values(by).sort((a,b)=>b.unsecured-a.unsecured);}
+
+/** Only the trees at or past the threshold — this is what flashes and what badges. */
+function varianceAlerts(dstr){
+  return varianceRows(dstr).filter(r=>r.unsecured>=VARIANCE_UNSEC_MIN);}
+
+/** Fruit dropped per day over the last N days. The forecast's only empirical input. */
+function recentDropRate(days){
+  const d=days||7;
+  const from=ymd(addDays(dayStart(new Date()),-(d-1)));
+  let n=0;
+  EVENTS.forEach(e=>{
+    if(e.type!=='DROP')return;
+    if(String(e.dt||'').slice(0,10)>=from)n+=(+e.qty||0);});
+  return {days:d,fruit:n,perDay:+(n/d).toFixed(1)};}
+
+/** Average RM actually realised per kg, from dispatches that have already been priced.
+ *  Returns null when nothing has been dispatched yet — the forecast then says so rather
+ *  than inventing a price, exactly as the agronomy code refuses to invent a conversion. */
+function avgRealisedRM(){
+  let kg=0,rm=0;
+  EVENTS.forEach(e=>{
+    if(e.type!=='DISPATCH')return;
+    kg+=(+e.total_kg||0); rm+=(+e.total_value_rm||0);});
+  return kg>0?+(rm/kg).toFixed(2):null;}
+
+/** The next wave: how much is still hanging, how fast it is coming, and when it peaks. */
+function dropForecast(){
+  let onString=0,untied=0,noCensus=0;
+  LOT_KEYS.forEach(L=>{
+    const l=lotLedger(L);
+    onString+=Math.max(0,l.current_tied_balance);
+    untied  +=Math.max(0,l.untied_hanging_estimate);
+    noCensus+=l.noCensus;});
+  const r7=recentDropRate(7);
+  const toPeak=Math.ceil((PEAK_DATE-dayStart(new Date()))/86400000);
+  const hanging=onString+untied;
+  // next7 can never exceed what is actually still on the trees — a run rate extrapolated
+  // past the crop is how a forecast ends up promising fruit that does not exist.
+  const next7=Math.min(hanging,Math.round(r7.perDay*7));
+  let kgSum=0,n=0;
+  TREE_MASTER.forEach(t=>{kgSum+=(AVG_KG[t.clone]||1.6);n++;});
+  const kgPerFruit=n?+(kgSum/n).toFixed(2):1.6;
+  return {onString:onString,untied:untied,hanging:hanging,noCensus:noCensus,
+    perDay:r7.perDay,window:r7.days,next7:next7,
+    kgPerFruit:kgPerFruit,next7Kg:+(next7*kgPerFruit).toFixed(1),
+    toPeak:toPeak,
+    inWave:(toPeak<=14&&toPeak>=-14),
+    known:(r7.fruit>0),                     // no drops logged yet = no rate to project from
+    derived:true};}
+
+/** What each contract merchant's prepaid pool should be carrying into the coming wave.
+ *  Share of the wave is each merchant's share of what they have ACTUALLY bought, not an
+ *  even split — Roll and Seng Kee do not take the same volume. */
+function creditAdvice(){
+  const f=dropForecast(), rate=avgRealisedRM();
+  const live=RETAILERS.filter(r=>String(r.status||'Active').toLowerCase()==='active'&&
+                                 String(r.pricing||'').toUpperCase()==='CONTRACT');
+  if(!live.length)return [];
+  const spend={}; let tot=0;
+  live.forEach(r=>{const s=retailerSpend(r.id); spend[r.id]=s; tot+=s;});
+  return live.map(r=>{
+    const share=tot>0?spend[r.id]/tot:1/live.length;
+    const kg=+(f.next7Kg*share).toFixed(1);
+    const known=(rate!==null&&f.known);
+    const need=known?Math.round(kg*rate):null;
+    const bal=retailerCredit(r.id);
+    // 25% headroom, rounded up to the nearest RM1,000, never below the opening pool.
+    const target=known?Math.max(+r.opening_credit_rm||0,Math.ceil((need*1.25)/1000)*1000):null;
+    // v3.16 — a pool that is ALREADY negative has not "run out mid-wave", it ran out
+    // some time ago and the merchant is taking fruit on arrears. Screenshot review caught
+    // the single message covering both; they need different words and different urgency.
+    return {id:r.id,name:r.name,known:known,
+      share:+(share*100).toFixed(1),kg:kg,need:need,balance:bal,target:target,
+      arrears:bal<0?Math.round(-bal):0,
+      overdrawn:bal<0,
+      topup:(known&&target>bal)?Math.round(target-bal):0,
+      raise:(known&&bal<need)};});}
+
+/* The brief writes material drawdown as ((Opening + Receipts - Closing) / Peak) * 100.
+   Receipts are never negative, so the highest value the store holds in a month IS
+   Opening + Receipts — the brief's Peak and buildMonthMatrix()'s existing denominator are
+   the same number. drawdown_pct is therefore already the briefed figure; this function
+   exists so that equivalence is stated in code and asserted by a test, rather than being
+   a claim in a comment. It is deliberately NOT a second, differently-rounded metric. */
+function peakDrawdownPct(m){
+  const open=+m.open_val||0, rec=+m.in_val||0, close=+m.close_val||0;
+  const peak=Math.max(open,open+rec);
+  return peak>0?+(((open+rec-close)/peak)*100).toFixed(1):0;}
+
+/* ---------- 3 · THE PAINTER ---------------------------------------------------------- */
+function renderCmdExec(){
+  const box=$('cmdexecbox'); if(!box)return;
+  if(!roleAllows('cmdexec')){box.innerHTML='';return;}   // no markup at all for anyone else
+  const H=[];
+
+  // ---- daily tree variance ----------------------------------------------------------
+  const va=varianceAlerts();
+  if(va.length){
+    H.push('<div class="varalert"><div class="vh">⚠ '+va.length+' '+
+      esc(tr('ex_varhead','tree(s) dropping unsecured fruit today'))+'</div>'+
+      '<div class="vb">'+va.slice(0,8).map(r=>esc(r.tree)+' · <b>'+nf(r.unsecured)+'</b> '+
+        esc(tr('ex_unsec','unsecured'))+(r.clone?' · '+esc(r.clone):'')).join('<br>')+
+      (va.length>8?'<br>… +'+(va.length-8)+' more':'')+
+      '<br><br>'+VARIANCE_UNSEC_MIN+' '+esc(tr('ex_varwhy',
+        'or more unsecured drops on one tree in one day means the string work is not holding. Check the tying on these trees before the wave.'))+
+      '</div></div>');
+  } else {
+    H.push('<div class="varalert calm"><div class="vh">✓ '+
+      esc(tr('ex_varok','No tree is over the unsecured-drop limit today'))+'</div>'+
+      '<div class="vb">'+esc(tr('ex_varoka','Fewer than'))+' '+VARIANCE_UNSEC_MIN+' '+
+      esc(tr('ex_varokb','unsecured drops on every tree logged so far.'))+'</div></div>');}
+
+  // ---- rain ------------------------------------------------------------------------
+  const w=wetFlag();
+  H.push('<div class="exsub">'+esc(tr('ex_rain','Rain'))+'</div>');
+  H.push('<div class="'+(w.wet?'varalert':'varalert calm')+'">'+
+    '<div class="vh">'+(w.wet?'🌧️ ':'✓ ')+nf(w.mm)+' mm / '+RAIN_WET_DAYS+' '+
+      esc(tr('ex_days','days'))+'</div>'+
+    '<div class="vb">'+(w.wet
+      ? esc(tr('ex_wet_a','Above the'))+' '+RAIN_WET_MM+' '+esc(tr('ex_wet','mm moisture line — wet canopy, wash-off and root-rot pressure. Hold contact sprays.'))
+      : esc(tr('ex_dry_a','Under the'))+' '+RAIN_WET_MM+' '+esc(tr('ex_dry','mm moisture line. Spray windows are open.')))+
+    '</div></div>');
+
+  // ---- the drop forecast -------------------------------------------------------------
+  const f=dropForecast();
+  H.push('<div class="exsub">'+esc(tr('ex_fcast','Drop forecast'))+'</div>');
+  if(!f.known){
+    H.push('<div class="fcast"><div class="fh">'+esc(tr('ex_norate','No drop rate yet'))+'</div>'+
+      '<div class="fb">'+esc(tr('ex_norateb','Nothing has been collected in the last 7 days, so there is no run rate to project from. '+
+      'The forecast appears as soon as the crew log a day of drops.'))+'</div></div>');
+  } else {
+    H.push('<div class="fcast"><div class="fh">'+
+      (f.inWave?'🌊 ':'📈 ')+
+      esc(tr('ex_next7','Next 7 days'))+': ≈ '+nf(f.next7)+' '+esc(tr('ex_fruit','fruit'))+
+      ' · ≈ '+nf(f.next7Kg)+' kg</div>'+
+      '<div class="fb">'+
+      esc(tr('ex_rate','Running at'))+' ≈ '+nf(f.perDay)+' '+esc(tr('ex_perday','fruit a day'))+
+      ' · '+nf(f.hanging)+' '+esc(tr('ex_stillon','still on the trees'))+
+      ' ('+nf(f.onString)+' '+esc(tr('ex_tied','tied'))+', '+nf(f.untied)+' '+esc(tr('ex_untied','untied'))+')'+
+      '<br>'+(f.toPeak>0
+        ? esc(tr('ex_topeak','Projected peak in'))+' <b>'+f.toPeak+' '+esc(tr('ex_days','days'))+'</b>'
+        : esc(tr('ex_pastpeak','Past the projected peak date')))+
+      (f.inWave?(' — <b>'+esc(tr('ex_inwave','wave window open'))+'</b>'):'')+
+      (f.noCensus?('<br>'+esc(tr('ex_nocensus','Leaves out'))+' '+f.noCensus+' '+
+        esc(tr('ex_nocensusb','trees that were never censused'))):'')+
+      '<br><span class="minitag">'+esc(tr('w_derived','DERIVED'))+'</span> '+
+      esc(tr('ex_derived','every ≈ figure is computed from the run rate and the census, not keyed by anyone'))+
+      '</div></div>');}
+
+  // ---- prepaid credit recommendation --------------------------------------------------
+  const ca=creditAdvice();
+  if(ca.length){
+    H.push('<div class="exsub">'+esc(tr('ex_credit','Prepaid credit for the coming wave'))+'</div>');
+    ca.forEach(c=>{
+      if(!c.known){
+        H.push('<div class="credrec"><div class="fh">'+esc(c.name)+'</div>'+
+          '<div class="fb">'+esc(tr('ex_credunknown','No dispatch history priced yet, so no ceiling can be recommended without guessing a price per kg.'))+
+          '<br>'+esc(tr('ex_balance','Balance now'))+': <b>RM '+nf(c.balance)+'</b></div></div>');
+        return;}
+      H.push('<div class="credrec'+(c.overdrawn?' hot':'')+'"><div class="fh">'+
+        (c.overdrawn?'🛑 ':(c.raise?'⚠ ':'✓ '))+esc(c.name)+
+        (c.topup>0
+          ? ' — '+esc(tr('ex_topup','top up by'))+' <b>RM '+nf(c.topup)+'</b>'
+          : ' — '+esc(tr('ex_credok','covers the wave')))+
+        '</div>'+
+        '<div class="fb">'+
+        esc(tr('ex_share','Takes'))+' '+nf(c.share)+'% '+esc(tr('ex_ofvolume','of dispatched value'))+
+        ' → ≈ '+nf(c.kg)+' kg '+esc(tr('ex_next7low','over the next 7 days'))+
+        ' ≈ <b>RM '+nf(c.need)+'</b><br>'+
+        esc(tr('ex_balance','Balance now'))+': <b>RM '+nf(c.balance)+'</b> · '+
+        esc(tr('ex_target','recommended ceiling'))+' <b>RM '+nf(c.target)+'</b>'+
+        (c.overdrawn
+          ? ('<br><b>'+esc(tr('ex_credarrears','Already overdrawn'))+' — RM '+nf(c.arrears)+' '+
+             esc(tr('ex_credarrears2','of fruit has gone out against a pool that is empty. The top-up above clears that first, then funds the wave.'))+'</b>')
+          : (c.raise?('<br><b>'+esc(tr('ex_credshort','The pool runs out mid-wave at the current rate.'))+'</b>'):''))+
+        '</div></div>');});}
+
+  // ---- the month matrix: retailer revenue + material drawdown -------------------------
+  const mm=buildMonthMatrix();
+  const m=mm.months[0];
+  H.push('<div class="exsub">'+esc(tr('ex_month','This month'))+
+    (m?' · '+esc(m.label):'')+'</div>');
+  if(!m){
+    H.push('<div class="vb">'+esc(tr('ex_nomonth','No dispatches or stock movements recorded yet.'))+'</div>');
+  } else {
+    const names=Object.keys(m.revenue).sort((a,b)=>m.revenue[b]-m.revenue[a]);
+    H.push(names.length
+      ? names.map(nm=>'<div class="exrow"><span class="k">'+esc(nm)+'</span>'+
+          '<span class="v">RM '+nf(m.revenue[nm])+'</span></div>').join('')
+      : '<div class="exrow"><span class="k">'+esc(tr('ex_norev','No retailer revenue yet'))+'</span><span class="v">—</span></div>');
+    H.push('<div class="exrow"><span class="k">'+esc(tr('ex_revtot','Revenue total'))+'</span>'+
+      '<span class="v">RM '+nf(m.revenue_total)+'</span></div>');
+    H.push('<div class="exrow"><span class="k">'+esc(tr('ex_spend','Material + labour'))+'</span>'+
+      '<span class="v">RM '+nf(m.spend_total)+'</span></div>');
+    H.push('<div class="exrow"><span class="k">'+esc(tr('ex_margin','Margin'))+'</span>'+
+      '<span class="v">RM '+nf(m.margin_rm)+'</span></div>');
+    H.push('<div class="exrow"><span class="k">'+esc(tr('ex_draw','Material drawdown'))+
+      '<br><span class="minitag">(OPEN + IN − CLOSE) / PEAK</span></span>'+
+      '<span class="v">'+nf(peakDrawdownPct(m))+'%</span></div>');
+    H.push('<div class="exrow"><span class="k">'+esc(tr('ex_kg','Dispatched'))+'</span>'+
+      '<span class="v">'+nf(m.kg_total)+' kg · '+nf(m.invoices)+' '+esc(tr('ex_inv','invoices'))+'</span></div>');}
+
+  box.innerHTML=H.join('');}
 
 // ================= boot =================
 (async function(){

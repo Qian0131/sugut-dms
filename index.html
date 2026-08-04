@@ -392,6 +392,29 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .gtot{background:#e8f3e9;border-radius:11px;padding:10px;font-weight:900;font-size:13px;
   color:var(--green);text-align:center;margin:4px 0 8px}
 .gtot.zero{background:var(--lite);color:var(--muted);font-weight:700}
+/* v3.16 — the unified tree-visit commit */
+.visitcard{border:2px solid var(--green);}
+.cardtag.visit{background:var(--green);color:#fff;}
+/* v3.16 — the Owner's variance alert. flashred already carries the amber->red pulse the
+   brief asks for, so it is reused rather than duplicated with a second keyframe. */
+.varalert{border:2px solid #e57373;border-radius:12px;padding:11px 13px;margin:8px 0;
+  animation:flashred 1.15s ease-in-out infinite;}
+.varalert .vh{font-weight:900;font-size:13px;color:#8a1c12;}
+.varalert .vb{font-size:11.5px;color:#7a2018;margin-top:4px;line-height:1.5;}
+.varalert.calm{animation:none;border-color:#c8dcc9;background:#f3f8f3;}
+.varalert.calm .vh{color:var(--green);} .varalert.calm .vb{color:var(--muted);}
+.exrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px;}
+.exrow:last-child{border-bottom:none;}
+.exrow .k{color:var(--muted);} .exrow .v{font-weight:900;color:var(--ink);text-align:right;}
+.exsub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:900;margin:12px 0 4px;}
+.fcast{background:#eef4ff;border:1.5px solid #b9cdf5;border-radius:12px;padding:11px 13px;margin:8px 0;}
+.fcast .fh{font-weight:900;font-size:12.5px;color:#1b3a7a;}
+.fcast .fb{font-size:11.5px;color:#2c4a86;margin-top:4px;line-height:1.55;}
+.credrec{background:#fff8e6;border:1.5px solid var(--gold);border-radius:12px;padding:11px 13px;margin:8px 0;}
+.credrec .fh{font-weight:900;font-size:12.5px;color:#6b4e00;}
+.credrec .fb{font-size:11.5px;color:#7a5c05;margin-top:4px;line-height:1.55;}
+.credrec.hot{background:#fdecea;border-color:#e57373;}
+.credrec.hot .fh{color:#8a1c12;} .credrec.hot .fb{color:#7a2018;}
 .tapbtn{width:100%;padding:34px 12px;margin-top:10px;border:none;border-radius:20px;background:#7c5cd6;color:#fff;
   font-size:19px;font-weight:900;letter-spacing:.3px;line-height:1.35;cursor:pointer;
   box-shadow:0 5px 0 #5b3fb0;user-select:none;-webkit-tap-highlight-color:transparent;}
@@ -1328,7 +1351,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       <div id="graderows"></div>
       <div class="gtot zero" id="g-tot" data-t="ca_none">Nothing counted yet.</div>
       <div class="pinerr" id="g-err"></div>
-      <button class="bigbtn" onclick="saveDrop()" data-t="ca_save">✓ SAVE GOOD FRUIT</button>
     </div>
 
     <!-- ============ CARD B · ROTTEN LOSS COUNTER (v3.0) ============ -->
@@ -1354,7 +1376,23 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
         </div>
       </div>
       <div class="pinerr" id="rot-err"></div>
-      <button class="bigbtn rot" onclick="saveRotten()" data-t="cb_save">🍂 LOG FRUIT LOST</button>
+    </div>
+
+
+    <!-- ====== v3.16 · ONE UNIFIED COMMIT FOR THE WHOLE TREE VISIT ======
+         Card A and Card B each had their own save button, so a worker standing at one
+         tree pressed save twice and a half-finished visit (good fruit saved, loss not)
+         looked identical to a finished one. Both cards now commit together, under one
+         visitId, from this single button. -->
+    <div class="card visitcard">
+      <span class="cardtag visit" data-t="cv_tag">One visit · one save</span>
+      <div class="sec" data-t="cv_head">✅ Finish this tree</div>
+      <p class="small" style="margin-top:0" data-t="cv_note">Count the good fruit above, then any fruit that was lost.
+        Both are saved together by this one button — you never save twice at the same tree.
+        Leave either card on zero if it does not apply.</p>
+      <div class="gtot zero" id="visit-sum" data-t="cv_none">Nothing counted yet.</div>
+      <div class="pinerr" id="visit-err"></div>
+      <button class="bigbtn" onclick="logTreeVisit()" data-t="cv_save">✅ LOG COMPLETE TREE VISIT</button>
     </div>
 
     <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
@@ -1417,7 +1455,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <input id="out-search" placeholder="Search brand or active ingredient…" data-tph="so_search" oninput="renderOutOpts()">
     <select id="out-prod" size="5" style="margin-top:6px" onchange="onOutProd()"></select>
     <div class="aibox">
-      <div><div class="cl"><span data-t="so_ai">Active ingredient</span> <span class="ro" data-t="w_readonly">READ-ONLY</span></div><div class="av" id="out-ai">—</div></div>
+      <div id="out-aiwrap"><div class="cl"><span id="out-ailbl" data-t="so_ai">Active ingredient</span> <span class="ro" data-t="w_readonly">READ-ONLY</span></div><div class="av" id="out-ai">—</div></div>
       <div class="cr" id="out-onhand">—</div>
     </div>
     <label><span data-t="so_qty">Quantity used</span> (<span id="out-unitlbl">ml/gm</span>)</label>
@@ -1434,6 +1472,47 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="pinerr" id="out-err"></div>
     <button class="bigbtn" onclick="submitStockOut()" data-t="so_save">✓ SAVE STOCK OUT</button>
     <p class="small" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
+  </div>
+
+  <!-- ===== v3.12 · PURCHASER · AI ➔ BRAND ALLOCATION MATRIX ===== -->
+  <div class="card" id="alloccard" style="display:none">
+    <div class="sec">🔗 <span data-t="s_alloc">AI ➔ BRAND</span></div>
+    <div id="alloclist"></div>
+  </div>
+
+  <!-- ===== v3.12 · PURCHASER · NEW PRODUCT ONBOARDING ===== -->
+  <div class="card" id="onboardcard" style="display:none">
+    <div class="sec">🆕 Onboard a new commercial item</div>
+    <p class="small">Anything added here joins the live catalogue immediately on this phone
+      and reaches every other phone on the next sync. It opens at <b>zero stock</b> —
+      receive the quantity on the Stock In screen against its invoice, exactly like every
+      other product.</p>
+    <label>Brand name <span class="minitag">AS PRINTED ON THE LABEL</span></label>
+    <input id="ob-name" placeholder="e.g. Fetto 480 SL" autocomplete="off">
+    <label>Active ingredient it carries</label>
+    <select id="ob-ai"></select>
+    <input id="ob-ainew" placeholder="…or type a new ingredient here" autocomplete="off"
+           style="margin-top:6px">
+    <label>Category</label>
+    <select id="ob-cat"></select>
+    <div class="onbrow">
+      <div><label>Unit type</label>
+        <select id="ob-unit" onchange="obUnitChange()"></select></div>
+      <div><label>Container</label>
+        <select id="ob-container" onchange="obContainerChange()"></select></div>
+    </div>
+    <label>One container holds <span class="minitag">UNIT MULTIPLIER</span></label>
+    <input type="number" id="ob-mult" min="0" step="any" inputmode="decimal" oninput="obCalc()">
+    <div class="convnote" id="ob-conv">—</div>
+    <div class="onbrow">
+      <div><label>Price per container (RM)</label>
+        <input type="number" id="ob-price" min="0" step="0.01" inputmode="decimal" oninput="obCalc()"></div>
+      <div><label>Minimum stock level</label>
+        <input type="number" id="ob-min" min="0" step="any" inputmode="decimal"></div>
+    </div>
+    <div class="pinerr" id="ob-err"></div>
+    <button class="bigbtn" onclick="obSave()">＋ ONBOARD NEW MATERIAL</button>
+    <div id="oblist"></div>
   </div>
 
   <!-- LIVE STOCK ON HAND -->
@@ -1467,6 +1546,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        other than OWNER, so for a Farm Worker or Sandakan Purchaser none of the CRUD tables,
        the backdate forms, the tree form, the purge button or the QR element ever exists in
        the DOM at all - there is nothing to find with a devtools inspector. -->
+  <!-- ===== v3.16 · TILE F · OWNER EXECUTIVE SUMMARY LEDGER (Owner only) ===== -->
+  <div class="card" id="cmdexec" style="display:none">
+    <div class="sec">📈 <span data-t="s_exec">Executive Summary</span></div>
+    <div id="cmdexecbox"></div>
+  </div>
+
   <div class="card" id="masterdb" style="display:none">
     <div class="sec">🔐 Master Database Control</div>
     <div id="masterdbbox"></div>
@@ -1582,46 +1667,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="am-list"></div>
   </div>
 
-  <!-- ===== v3.12 · PURCHASER · AI ➔ BRAND ALLOCATION MATRIX ===== -->
-  <div class="card" id="alloccard" style="display:none">
-    <div class="sec">🔗 <span data-t="s_alloc">AI ➔ BRAND</span></div>
-    <div id="alloclist"></div>
-  </div>
-
-  <!-- ===== v3.12 · PURCHASER · NEW PRODUCT ONBOARDING ===== -->
-  <div class="card" id="onboardcard" style="display:none">
-    <div class="sec">🆕 Onboard a new commercial item</div>
-    <p class="small">Anything added here joins the live catalogue immediately on this phone
-      and reaches every other phone on the next sync. It opens at <b>zero stock</b> —
-      receive the quantity on the Stock In screen against its invoice, exactly like every
-      other product.</p>
-    <label>Brand name <span class="minitag">AS PRINTED ON THE LABEL</span></label>
-    <input id="ob-name" placeholder="e.g. Fetto 480 SL" autocomplete="off">
-    <label>Active ingredient it carries</label>
-    <select id="ob-ai"></select>
-    <input id="ob-ainew" placeholder="…or type a new ingredient here" autocomplete="off"
-           style="margin-top:6px">
-    <label>Category</label>
-    <select id="ob-cat"></select>
-    <div class="onbrow">
-      <div><label>Unit type</label>
-        <select id="ob-unit" onchange="obUnitChange()"></select></div>
-      <div><label>Container</label>
-        <select id="ob-container" onchange="obContainerChange()"></select></div>
-    </div>
-    <label>One container holds <span class="minitag">UNIT MULTIPLIER</span></label>
-    <input type="number" id="ob-mult" min="0" step="any" inputmode="decimal" oninput="obCalc()">
-    <div class="convnote" id="ob-conv">—</div>
-    <div class="onbrow">
-      <div><label>Price per container (RM)</label>
-        <input type="number" id="ob-price" min="0" step="0.01" inputmode="decimal" oninput="obCalc()"></div>
-      <div><label>Minimum stock level</label>
-        <input type="number" id="ob-min" min="0" step="any" inputmode="decimal"></div>
-    </div>
-    <div class="pinerr" id="ob-err"></div>
-    <button class="bigbtn" onclick="obSave()">＋ ONBOARD NEW MATERIAL</button>
-    <div id="oblist"></div>
-  </div>
 
   <!-- ===== v3.15 · OWNER / MARKETER · PROGRAM RECORD ===== -->
   <div class="card" id="progrecord" style="display:none">
@@ -2278,7 +2323,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.15.0"></script>
-<script src="app.js?v=3.15.0"></script>
+<script src="database.js?v=3.16.0"></script>
+<script src="app.js?v=3.16.0"></script>
 </body>
 </html>
