@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.10.0';   // v3.10.0 — sync asks for only what that phone needs, photos are fetched when opened, and every failed upload is named with a RETRY button
+const APP_VERSION = 'v3.11.0';   // v3.11.0 — SHARED SETTINGS. The price matrix, the basket tare and any added tree now travel to every phone instead of living on the one that typed them. A setting is not an event: it is overwritten, newest wins, and an older phone can never undo a newer correction
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -56,6 +56,13 @@ let CORRECTIONS=[], TREE_FIX={};
 // Both are kv registries: TREE_MASTER itself ships inside database.js and is replaced on
 // every upgrade, so an added tree that lived only there would vanish at the next release.
 let ADDED_TREES=[], APP_URL='';
+/* v3.11 - THE SHARED SETTINGS.
+   Three dials the whole farm has to agree on used to live only in the browser of whichever
+   phone edited them. SET_META records who last set each one and when; SET_DIRTY marks the
+   ones this phone has changed and not yet pushed. Newest stamp wins, so an offline phone
+   syncing at noon can never overwrite the Owner's 11am correction with its 6am value. */
+const SETTINGS_KEYS=['cloneprice','pricemeta','baskets','tareok','addtrees'];
+let SET_META={}, SET_DIRTY={};
 /**
  * v3.5 — THE FIX FOR "TWO PHONES, TWO DIFFERENT TOTALS".
  *
@@ -138,6 +145,8 @@ async function initStore(){
     // v3.8.1 — decisions Marketing made on THEIR phone, pulled down to this one.
     const rq=kv.find(x=>x.k==='reqdecided'); if(rq&&rq.v&&typeof rq.v==='object') REQ_DECIDED=rq.v;
     const ms=kv.find(x=>x.k==='mastersig'); if(ms&&ms.v) MASTER_SIG=String(ms.v);
+    const sm=kv.find(x=>x.k==='setmeta');  if(sm&&sm.v&&typeof sm.v==='object') SET_META=sm.v;
+    const sd=kv.find(x=>x.k==='setdirty'); if(sd&&sd.v&&typeof sd.v==='object') SET_DIRTY=sd.v;
     const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
     const at=kv.find(x=>x.k==='addtrees'); if(at&&Array.isArray(at.v)) ADDED_TREES=at.v;
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
@@ -259,9 +268,9 @@ function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
   (typeof q7==='function'?q7():0)+
   (typeof q8==='function'?q8():0)+
   (typeof q9==='function'?q9():0);}
-function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4();}
+function badge(){$('qbadge').textContent=pending()+corrUnsynced()+q4()+setUnsynced();}
 function netUpdate(){const on=navigator.onLine;const p=$('netpill');p.textContent=on?'● ONLINE':'● OFFLINE';p.className='pill'+(on?' on':'');
-  const q=pending()+corrUnsynced()+q4();
+  const q=pending()+corrUnsynced()+q4()+setUnsynced();
   if(on&&(q>0||REG_DIRTY)&&CFG&&CFG.url)doSync(true);}
 window.addEventListener('online',netUpdate);window.addEventListener('offline',netUpdate);
 // v2.6.1 — a phone that stays open all day would otherwise never see a new assignment.
@@ -1000,6 +1009,19 @@ async function refreshMasters(){
     // v3.8.1 — and the DECISIONS come down too. Approving and returning both happen on the
     // marketer's device, so without this leg the worker who weighed the load is never told
     // what became of it and his screen says PENDING for ever.
+    // v3.11 — the farm's shared dials. Merged BEFORE anything that depends on them is
+    // repainted, so a load recalculating with a new tare does so with the new tare.
+    const inSet=(j&&j.ok&&j.settings&&typeof j.settings==='object')?j.settings:null;
+    if(inSet){
+      const moved=await mergeSettings(inSet);
+      if(moved.length){
+        got.settings=moved.length;
+        if(typeof renderPrices==='function')renderPrices();
+        if(typeof renderScaleCard==='function')renderScaleCard();
+        if(typeof renderDispatch==='function')renderDispatch();
+        if(typeof refreshTreeBoard==='function')refreshTreeBoard();
+        if(typeof renderHub==='function')renderHub();
+        toast('⚙ '+moved.map(k=>tr('st_'+k,k)).join(', ')+' '+tr('st_updated'),0);}}
     const inDec=(j&&j.ok&&Array.isArray(j.dispatchdecisions))?j.dispatchdecisions:null;
     if(inDec){
       const mineN=myNewDecisions(inDec.filter(x=>x&&!REQ_DECIDED[String(x.req_uuid||'').trim()]));
@@ -1756,7 +1778,10 @@ function renderSync(){
   :'<div class="small">No events yet.</div>';
   // v2.6.1 — a phone with an empty queue still needs to PULL the Owner's new work.
   // The button used to disable itself here, which left a worker with no way to ask.
-  const b=$('syncbtn');const n=pending()+corrUnsynced()+q4();
+  // v3.11 — this line used to omit setUnsynced(), so a phone with an unshared price matrix
+  // read "CHECK FOR NEW WORK" as though it had nothing to send. Same misleading-signal
+  // shape as the toast that printed the word "false".
+  const b=$('syncbtn');const n=pending()+corrUnsynced()+q4()+setUnsynced();
   b.disabled=false;
   b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'⇩ CHECK FOR NEW WORK';}
 /**
@@ -1847,6 +1872,7 @@ async function doSync(auto){
   await pushTieAdj();                         // then approved tying corrections (own payload key)
   await pushSales();                          // then marketing sales (own payload key)
   await pushRetailers();                      // then the retailer master (own payload key)
+  await pushSettings();                       // v3.11 — prices, basket tare, added trees
   await pushDispatchReqs();                   // v3.6 — scale photo requests (own payload key)
   await pushDispatch();                       // then retailer dispatches + credit top-ups
   await pushAudit();                          // then the anti-manipulation audit trail
@@ -1862,7 +1888,7 @@ async function doSync(auto){
     // v3.8.1 — every own-key push above has already run. Anything still unsynced at this
     // point was REFUSED by the backend, and saying "up to date" over the top of that is how
     // a stuck load stayed invisible: the worker was told everything was fine.
-    const stuck=pending();
+    const stuck=pending()+setUnsynced();
     if(!auto){
       const nn=got?(got.tasks+got.programs):0;
       if(stuck)toast('⚠ '+stuck+' '+tr(stuck>1?'sy_stuck_n':'sy_stuck_1'),1);
@@ -1878,7 +1904,7 @@ async function doSync(auto){
       headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
     const j=await r.json();
     if(j&&j.ok){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}rebuildLedgers();badge();renderSync();
-      const left=pending();      // v3.8.1 — refused own-key records are still sitting here
+      const left=pending()+setUnsynced();   // refused own-key records still sitting here
       toast(left?('⚠ '+batch.length+' sent, but '+left+' '+tr(left>1?'sy_stuck_n':'sy_stuck_1'))
                 :('✓ '+batch.length+' events synced to Google Sheets'),!!left);
       refreshMasters(); // hidden hotspot token validation runs after every sync
@@ -3477,12 +3503,16 @@ async function fetchT(url,opts,ms){
   try{ return await fetch(url,Object.assign({},opts||{},ac?{signal:ac.signal}:{})); }
   finally{ clearTimeout(t); }}
 
-async function pushOwnKey(batch,key,flag,warnSetter,warnMsg,label){
+async function pushOwnKey(batch,key,flag,warnSetter,warnMsg,label,shape){
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
+  // v3.10.1 — `shape` slims what goes ON THE WIRE without touching what is stored. This is
+  // what rescues a record that was already queued in the fat format: the event on the phone
+  // keeps its photos, the upload does not carry them.
+  const wire=shape?batch.map(shape):batch;
   let lastWhy='';
   for(let attempt=1;attempt<=SYNC_TRIES;attempt++){
     try{
-      const body={}; body[key]=batch;
+      const body={}; body[key]=wire;
       const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify(body),
         headers:{'Content-Type':'text/plain;charset=utf-8'}});
       const j=await r.json();
@@ -3507,7 +3537,11 @@ async function retryOne(key){
     sales:pushSales,retailers:pushRetailers,dispatchreqs:pushDispatchReqs,
     dispatch:pushDispatch,audit:pushAudit,adjustments:pushAdjustments,
     programs:pushPrograms,tasks:pushTasks,tasklogs:pushTaskLogs,rain:pushRain,
-    corrections:pushCorrections,registry:pushRegistry};
+    corrections:pushCorrections,registry:pushRegistry,
+    // v3.11 — without this line the RETRY button on the stuck "Shared settings" row said
+    // "Nothing to retry". A dead retry is worse than no retry: it teaches people the
+    // button lies. Same dead-end shape as RETURNED before v3.9 closed the loop.
+    settings:pushSettings};
   const fn=m[key]; if(!fn){toast('Nothing to retry',1);return;}
   toast(tr('sy_retrying'));
   const okd=await fn();
@@ -4108,7 +4142,14 @@ async function pushSales(){
 // credit + top-ups − dispatches, so it can never drift from the deliveries behind it, and
 // a mistake is corrected with a signed credit adjustment, never by editing history.
 
-function canSetPrice(){return myRole()==='OWNER';}          // prices are the Owner's alone
+function canSetPrice(){return myRole()==='OWNER';}          // retailers, credit, labour rate
+/* v3.11 — the three SHARED settings (price matrix, basket tare, added trees) are written by
+   the Owner OR Marketing, because Marketing is the one on the phone when the morning market
+   moves and the Owner is out in the lot. Retailer credit and the labour rate stay Owner-only:
+   widening those would hand out the money controls, which is not what was asked for.
+   Added trees are Owner-write in practice — the MASTER DB screen is Owner-only — but every
+   role READS all three, which is the whole point of the shared-settings channel. */
+function canSetShared(){return FULL_ROLES.indexOf(myRole())>=0;}
 function canDispatch(){return FULL_ROLES.indexOf(myRole())>=0;}   // Owner + Marketing only
 async function persistRetailers(){
   if(db){await put('kv',{k:'retailers',v:RETAILERS});await put('kv',{k:'retdirty',v:RET_DIRTY});}}
@@ -5123,6 +5164,10 @@ function renderScaleCard(){
     // The tare honesty note survives, but as a grey footnote at the BOTTOM — it is a
     // caveat on a number already recorded, not an instruction to read before starting.
     (TARE_VERIFIED?'':'<div class="scfoot">'+esc(tr('sc_tarefoot'))+'</div>')+
+    // v3.11 — the worker's net weight is the office's tare subtracted from their gross. If
+    // the office changes the tare they are entitled to know whose figure they are standing on.
+    (settingStamp('baskets')?('<div class="scfoot">⚖️ '+esc(tr('st_baskets'))+' · '+
+      esc(settingStamp('baskets'))+'</div>'):'')+
 
     waitingListHTML()+myRecentDecisions();
   keepFocus('scalebox',()=>{box.innerHTML=HTML;});
@@ -5823,7 +5868,17 @@ function repriceLines(lines,retId){
     const value=+((nk*price).toFixed(2));
     gross+=(+x.gross_kg||nk); tare+=(+x.tare_kg||0); net+=nk; val+=value; fruits+=(+x.fruits||0);
     byGrade[x.grade]=+((byGrade[x.grade]||0)+nk).toFixed(2);
-    out.push({...x, price_rm:price, value_rm:value,
+    // v3.10.1 — THE PHOTOS MUST NOT TRAVEL ON A PRICED LINE.
+    // Since v3.9 each line carries its own ~28 KB picture. This function feeds the DISPATCH
+    // event written at approval, whose `lines_json` goes into ONE spreadsheet cell — and
+    // Google caps a cell at 50,000 characters. An eight-basket load produced 226,000. The
+    // upload died with a bare "Failed to fetch" and the Owner could not approve anything.
+    // The picture already lives on the DISPATCH_PHOTO tab keyed by req_uuid, and the
+    // MKT_DISPATCH row records that req_uuid — which is exactly the v3.6 design: the
+    // approved row POINTS AT the photo instead of carrying a second copy of it.
+    const {photo_b64,photo_kb,...bare}=x;
+    out.push({...bare, price_rm:price, value_rm:value,
+      has_photo:(photo_b64?1:(x.has_photo||0)),
       clone_name:x.clone_name||CLONE_NAME[x.clone]||x.clone||'Mixed'});});
   return {lines:out, fruit_count:fruits,
     total_gross_kg:+gross.toFixed(2), total_tare_kg:+tare.toFixed(2),
@@ -5837,6 +5892,168 @@ function reqLines(e){
   if(typeof e.lines_json==='string'&&e.lines_json){
     try{const p=JSON.parse(e.lines_json); if(Array.isArray(p))return p;}catch(x){}}
   return [];}
+
+/* ======================================================================================
+   v3.11 · SHARED SETTINGS — THE DIALS THE WHOLE FARM AGREES ON
+   ======================================================================================
+   WHAT WAS WRONG. `cloneprice`, `baskets` and `addtrees` were written to the editing phone's
+   own storage and nothing ever sent them anywhere. So:
+     · the Owner re-set the spot matrix each morning and Marketing invoiced Default Cash at
+       whatever figure it happened to be holding;
+     · the day the real basket tare is finally keyed, that phone becomes right and every
+       other phone starts subtracting the wrong number from every load it weighs;
+     · a tree added to the orchard could not be selected by the worker standing at it.
+
+   WHO MAY WRITE. Whoever can already edit the screen: Owner and Marketing for the price
+   matrix and the tare, Owner alone for the tree list. Not "Owner only" — Marketing has
+   legitimately been able to set prices since v3.1 and taking that away would be a different
+   change, made quietly.
+
+   HOW A CLASH IS SETTLED. Newest `updated_at` wins, per setting, and the backend REFUSES an
+   older write outright. Every screen that shows one of these values also shows who set it
+   and when, so a worker whose arithmetic changes underneath them can see why.
+
+   A SETTING IS NOT AN EVENT. This is the one thing in the system that is overwritten rather
+   than appended. The append-only rule still governs the LOG; these are the farm's current
+   dial positions, and history for them lives in the SETTINGS tab's own timestamps.
+   ====================================================================================== */
+
+/** Read the current value of a shared setting straight out of live state. */
+function settingValue(k){
+  if(k==='cloneprice')return CLONE_PRICE;
+  if(k==='pricemeta') return PRICE_META;
+  if(k==='baskets')   return BASKETS.map(b=>({id:b.id,name:b.name,tare_kg:+b.tare_kg||0,ic:b.ic}));
+  if(k==='tareok')    return !!TARE_VERIFIED;
+  if(k==='addtrees')  return ADDED_TREES;
+  return null;}
+
+/** Mark a setting as changed here and remember who did it. Called by every saver. */
+async function markSetting(k){
+  if(SETTINGS_KEYS.indexOf(k)<0)return;
+  SET_META[k]={updated_at:nowSec(),updated_by:(CFG&&CFG.worker)||'',role:myRole()};
+  SET_DIRTY[k]=true;
+  if(db){await put('kv',{k:'setmeta',v:SET_META});await put('kv',{k:'setdirty',v:SET_DIRTY});}
+  badge();}
+
+function setUnsynced(){return Object.keys(SET_DIRTY).filter(k=>SET_DIRTY[k]).length;}
+
+/** Everything this phone has changed and not yet shared. */
+function settingsQueue(){
+  const out={};
+  Object.keys(SET_DIRTY).forEach(k=>{
+    if(!SET_DIRTY[k]||SETTINGS_KEYS.indexOf(k)<0)return;
+    const m=SET_META[k]||{};
+    out[k]={value:settingValue(k),updated_at:m.updated_at||nowSec(),
+      updated_by:m.updated_by||'',role:m.role||myRole(),device:(CFG&&CFG.device)||''};});
+  return out;}
+
+async function pushSettings(){
+  const q=settingsQueue(); const n=Object.keys(q).length;
+  if(!n||!CFG||!CFG.url||!navigator.onLine)return false;
+  for(let attempt=1;attempt<=SYNC_TRIES;attempt++){
+    try{
+      const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({settings:q}),
+        headers:{'Content-Type':'text/plain;charset=utf-8'}});
+      const j=await r.json();
+      if(j&&j.ok&&j.settings){
+        Object.keys(q).forEach(k=>{delete SET_DIRTY[k];});
+        if(db)await put('kv',{k:'setdirty',v:SET_DIRTY});
+        clearSyncFail('settings'); badge(); renderSync();
+        // the backend refuses an edit older than what it already holds — say so rather
+        // than letting the phone believe its figure is now the farm's figure
+        if(Array.isArray(j.refused)&&j.refused.length)
+          toast('⚠ '+tr('st_refused')+': '+j.refused.join(', '),1);
+        return true;}
+      noteSyncFail('settings',tr('sy_l_settings'),n,tr('sy_oldbackend'));
+      return false;
+    }catch(err){
+      if(attempt<SYNC_TRIES)await new Promise(r=>setTimeout(r,SYNC_BACKOFF_MS));
+      else noteSyncFail('settings',tr('sy_l_settings'),n,
+        (err&&err.name==='AbortError')?tr('sy_timeout'):((err&&err.message)||'network'));}}
+  return false;}
+
+/**
+ * Adopt the farm's settings. Per key: a newer stamp than ours replaces our value; ours
+ * being newer, or dirty, keeps it. Returns the keys that actually changed, so the caller
+ * can tell the person on this phone what moved under them.
+ */
+async function mergeSettings(map){
+  if(!map||typeof map!=='object')return [];
+  const changed=[];
+  for(const k of SETTINGS_KEYS){
+    const inc=map[k]; if(!inc||inc.value==null)continue;
+    if(SET_DIRTY[k])continue;                       // our unpushed edit wins until it goes up
+    const mine=(SET_META[k]||{}).updated_at||'';
+    const theirs=String(inc.updated_at||'');
+    if(!theirs)continue;
+    if(mine&&theirs<=mine)continue;                 // ours is the same or newer
+    if(await applySetting(k,inc.value)){
+      SET_META[k]={updated_at:theirs,updated_by:String(inc.updated_by||''),
+        role:String(inc.role||'')};
+      changed.push(k);}}
+  if(changed.length&&db)await put('kv',{k:'setmeta',v:SET_META});
+  return changed;}
+
+/** Write one incoming setting into live state and to disk. */
+async function applySetting(k,v){
+  try{
+    if(k==='cloneprice'){
+      if(!v||typeof v!=='object')return false;
+      // OVERLAY the seed, never replace it — a clone or grade added in a later release must
+      // appear immediately instead of arriving as RM 0 from an older phone's table.
+      const merged=priceMatrixCopy(CLONE_PRICE_SEED);
+      Object.keys(v).forEach(c=>{ if(!merged[c])return;
+        Object.keys(v[c]||{}).forEach(g=>{ if(hasGrade(c,g))merged[c][g]=+v[c][g]||0; });});
+      CLONE_PRICE=merged; if(db)await put('kv',{k:'cloneprice',v:CLONE_PRICE});
+      return true;}
+    if(k==='pricemeta'){
+      if(!v||typeof v!=='object')return false;
+      PRICE_META=v; if(db)await put('kv',{k:'pricemeta',v:PRICE_META}); return true;}
+    if(k==='baskets'){
+      if(!Array.isArray(v)||!v.length)return false;
+      BASKETS=BASKET_SEED.map(seed=>{
+        const got=v.find(x=>String(x.id)===String(seed.id));
+        return got?{...seed,tare_kg:+got.tare_kg||0,name:got.name||seed.name}:{...seed};});
+      if(db)await put('kv',{k:'baskets',v:BASKETS});
+      return true;}
+    if(k==='tareok'){
+      TARE_VERIFIED=!!v; if(db)await put('kv',{k:'tareok',v:TARE_VERIFIED}); return true;}
+    if(k==='addtrees'){
+      if(!Array.isArray(v))return false;
+      ADDED_TREES=v.filter(t=>t&&t.id);
+      if(db)await put('kv',{k:'addtrees',v:ADDED_TREES});
+      // the tree list is built at boot from TREE_MASTER + ADDED_TREES, so it has to be
+      // rebuilt here or the new tree still cannot be picked on this phone
+      if(typeof applyAddedTrees==='function')applyAddedTrees();
+      return true;}
+  }catch(e){return false;}
+  return false;}
+
+/** "set by Amin · 06:12 today" — shown wherever one of these values is used. */
+function settingStamp(k){
+  const m=SET_META[k]; if(!m||!m.updated_at)return '';
+  const d=String(m.updated_at).slice(0,10), t=hm(m.updated_at).slice(0,5);
+  const when=(d===todayStr())?(tr('st_today')+' '+t):(d+' '+t);
+  return tr('st_setby')+' '+(m.updated_by||'—')+' · '+when;}
+
+/** The provenance strip shown under any value that came out of the shared channel.
+ *  Three states, and the screen must never be ambiguous about which one it is in:
+ *    · dirty  — edited here, still only on this phone  → loud amber, tells them to Send Data
+ *    · stamped— arrived from the office / went up      → who set it and when
+ *    · silent — never changed since setup              → the seed value
+ *  This exists because the audit found the opposite: a price edited on one phone looked
+ *  identical to a price the whole farm agreed on. */
+function shareBox(keys){
+  const ks=[].concat(keys);
+  const dirty=ks.filter(k=>SET_DIRTY[k]);
+  if(dirty.length)
+    return '<div class="notup" style="margin:6px 0"><b>⚠ '+esc(tr('st_notshared'))+'</b> · '+
+      esc(dirty.map(k=>tr('st_'+k,k)).join(', '))+
+      '<div class="small" style="margin-top:4px">'+esc(tr('st_notsharednote'))+'</div></div>';
+  const st=ks.map(k=>settingStamp(k)).filter(Boolean);
+  if(!st.length)
+    return '<div class="exphint" style="margin:6px 0">'+esc(tr('st_neverset'))+'</div>';
+  return '<div class="exphint" style="margin:6px 0">✓ '+esc(st[0])+' · '+esc(tr('st_updated'))+'</div>';}
 
 /* ======================================================================================
    v3.10 · OPTION B — A PHOTO IS FETCHED WHEN SOMEBODY OPENS IT
@@ -6147,6 +6364,9 @@ async function rejectReq(u){
 // ---- sync: requests get their own payload key, per the v3.2 rule ---------------------
 let dreqWarned=false;
 function dreqQueue(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ'&&!e.synced);}
+/** NOTE the asymmetry with slimDispatch(): a worker's DISPATCH_REQ photos MUST travel —
+ *  they are the proof being uploaded. saveDispatchReqs_ splits them into DISPATCH_PHOTO on
+ *  arrival, one row per basket, so no single cell is ever overloaded. */
 async function pushDispatchReqs(){
   return pushOwnKey(dreqQueue(),'dispatchreqs','dispatchreqs',
     m=>{if(!dreqWarned){dreqWarned=true;toast(m,1);}},
@@ -6599,13 +6819,14 @@ function priceSelId(){return PRICE_SEL==='SPOT'?'':PRICE_SEL;}
 
 function renderPrices(){
   const box=$('pricebox'); if(!box)return;
-  const own=canSetPrice();
+  const own=canSetPrice();                 // retailer master + credit — Owner alone
+  const shr=canSetShared();                // v3.11 · prices + tare — Owner or Marketing
   const rid=priceSelId(), contract=!!rid&&isContractRetailer(rid);
   const r=rid?retailerById(rid):null;
   if(rid&&!r){PRICE_SEL='SPOT';return renderPrices();}
   const cell=(c,g)=>{
     if(!hasGrade(c,g))return '<td class="num nogrd">—</td>';
-    return '<td class="num">'+(own
+    return '<td class="num">'+(shr
       ?('<input type="number" id="pr-'+esc(c)+'-'+g+'" min="0" step="0.01" inputmode="decimal" value="'+
         priceOf(c,g,rid)+'">')
       :('<b>'+rm(priceOf(c,g,rid))+'</b>'))+
@@ -6628,14 +6849,17 @@ function renderPrices(){
       : '<div class="cnote">The <b>daily spot market</b> matrix. Every merchant with no contract on file '+
         'invoices from this table, and the trend buttons below move it. Prices are per KG of <b>net</b> '+
         'weight. Black Thorn, B24, 101 and Udang Merah are two-grade clones — no Grade C anywhere.</div>')+
-    (!contract&&PRICE_META.at?('<div class="exphint" style="margin:6px 0">Last changed '+esc(PRICE_META.at)+
-      (PRICE_META.by?(' by '+esc(PRICE_META.by)):'')+'</div>'):'')+
-    '<div class="tblwrap"><table class="tbl pmx">'+
+    // v3.11 — a contract lives on this phone only (it is not in the shared channel yet),
+    // so only the SPOT matrix gets a share stamp. Saying otherwise would be a lie.
+    (contract?'':shareBox(['cloneprice','pricemeta']))+
+    // `full` — the 340px cap sliced the last clone's row in half, which reads as a broken
+    // screen. Six clones is a short table; it does not need an inner scroller.
+    '<div class="tblwrap full"><table class="tbl pmx">'+
     '<tr><th>Clone</th><th class="num">Grade A</th><th class="num">Grade B</th><th class="num">Grade C</th></tr>'+
     CLONE_SELL_ORDER.map(c=>'<tr><td><b>'+esc(CLONE_NAME[c]||c)+'</b><div class="exphint">'+esc(c)+
       ' · '+gradesFor(c).length+'-grade</div></td>'+cell(c,'A')+cell(c,'B')+cell(c,'C')+'</tr>').join('')+
     '</table></div>'+
-    (own?(
+    (shr?(
       // the trend modifier belongs to the SPOT book only — see the note above
       (contract?'':(
       '<div class="sec" style="margin-top:12px">📈 Daily market trend modifier</div>'+
@@ -6654,7 +6878,8 @@ function renderPrices(){
       '<div class="trendrow"><div class="trendbtn" onclick="trendReset()">RESET TO AGREED BASE</div></div>'+
       '<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE '+
         (contract?('CONTRACT — '+esc(r.name).toUpperCase()):'SPOT PRICE MATRIX')+'</button>')
-      :'<div class="cnote">Only the Owner can change a price. These are the figures every invoice is built from.</div>')+
+      :'<div class="cnote">Only the Owner or Marketing can change a price. These are the figures '+
+       'every invoice is built from, and whichever of them changes one, it reaches every phone.</div>')+
 
     // ---- the whole book at a glance, so two contracts can be compared side by side ----
     '<div class="sec" style="margin-top:16px">📊 All merchants — Grade A comparison</div>'+
@@ -6674,13 +6899,14 @@ function renderPrices(){
     (TARE_VERIFIED?'':'<div class="critbox" style="margin-bottom:8px">These tare weights have NOT been '+
       'verified yet. Put an EMPTY basket on the scale, key the reading here, then tick the box — until '+
       'then every net weight may be wrong.</div>')+
-    '<div class="tblwrap"><table class="tbl"><tr><th>Basket</th><th class="num">Empty weight (kg)</th></tr>'+
+    shareBox(['baskets','tareok'])+
+    '<div class="tblwrap full"><table class="tbl"><tr><th>Basket</th><th class="num">Empty weight (kg)</th></tr>'+
     BASKETS.map(b=>'<tr><td><b>'+(b.ic?b.ic+' ':'')+esc(b.name)+'</b><div class="exphint">'+esc(b.id)+'</div></td>'+
-      '<td class="num">'+(own&&b.id!=='NONE'
+      '<td class="num">'+(shr&&b.id!=='NONE'
         ?('<input type="number" id="bt-'+esc(b.id)+'" min="0" step="0.01" inputmode="decimal" value="'+
           (+b.tare_kg||0)+'" style="width:90px;text-align:right">')
         :('<b>'+nf(b.tare_kg)+' kg</b>'))+'</td></tr>').join('')+'</table></div>'+
-    (own?('<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">'+
+    (shr?('<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">'+
       '<input type="checkbox" id="bt-ok" '+(TARE_VERIFIED?'checked':'')+' style="width:auto">'+
       'I have weighed the empty baskets — these figures are real</label>'+
       '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
@@ -6705,7 +6931,7 @@ function renderPrices(){
 /** Move every editable cell by a percentage — the daily market trend, applied in one tap.
  *  It only touches the INPUTS; nothing is committed until SAVE PRICE MATRIX. */
 function trendNudge(pct){
-  if(!canSetPrice())return;
+  if(!canSetShared())return;
   pct=+pct||0; if(!pct){toast('Key a percentage first',1);return;}
   CLONE_SELL_ORDER.forEach(c=>gradesFor(c).forEach(g=>{
     const el=$('pr-'+c+'-'+g); if(!el)return;
@@ -6713,13 +6939,13 @@ function trendNudge(pct){
     el.value=(Math.round(v*(1+pct/100)*100)/100).toFixed(2);}));
   toast((pct>0?'+':'')+pct+'% applied — tap SAVE to commit');}
 function trendReset(){
-  if(!canSetPrice())return;
+  if(!canSetShared())return;
   const rid=priceSelId();
   CLONE_SELL_ORDER.forEach(c=>gradesFor(c).forEach(g=>{
     const el=$('pr-'+c+'-'+g); if(el)el.value=basePriceOf(c,g,rid).toFixed(2);}));
   toast('Back to the agreed base '+(rid?'contract':'matrix')+' — tap SAVE to commit');}
 async function savePrices(){
-  if(!canSetPrice()){toast('Only the Owner can set prices',1);return;}
+  if(!canSetShared()){toast('Only the Owner or Marketing can set prices',1);return;}
   const rid=priceSelId();
   const next={};
   for(const c of CLONE_SELL_ORDER){
@@ -6738,10 +6964,12 @@ async function savePrices(){
     CLONE_PRICE=next;
     PRICE_META={at:now(),by:(CFG&&CFG.worker)||''};
     await persistPrices();
-    toast('✓ Daily spot matrix saved');}
+    // v3.11 — this used to stop here, on this phone, for ever.
+    await markSetting('cloneprice'); await markSetting('pricemeta');
+    toast('✓ '+tr('st_pricesaved'));}
   renderPrices(); renderDispatch(); renderVerify();}
 async function saveBaskets(){
-  if(!canSetPrice()){toast('Only the Owner can set the basket tare',1);return;}
+  if(!canSetShared()){toast('Only the Owner or Marketing can set the basket tare',1);return;}
   for(const b of BASKETS){
     if(b.id==='NONE'){b.tare_kg=0;continue;}
     const el=$('bt-'+b.id); if(!el)continue;
@@ -6750,8 +6978,10 @@ async function saveBaskets(){
     b.tare_kg=+(+v).toFixed(2);}
   TARE_VERIFIED=!!($('bt-ok')&&$('bt-ok').checked);
   await persistBaskets();
+  // v3.11 — tare comes off EVERY load on EVERY phone, so it has to travel.
+  await markSetting('baskets'); await markSetting('tareok');
   renderPrices(); renderDispatch();
-  toast('✓ Basket tare saved'+(TARE_VERIFIED?'':' — still marked unverified'));}
+  toast('✓ '+tr('st_taresaved')+(TARE_VERIFIED?'':' — '+tr('st_stillunver')));}
 
 // ======================= THE RETAILER RECORD FORM ====================================
 // Replaces the chain of grey browser prompts. Same modal shell as the staff key form,
@@ -7005,11 +7235,36 @@ function auditQueue(){return EVENTS.filter(e=>
    // Riding the same key is why closing the loop needed no new backend plumbing.
    ||e.type==='DISPATCH_CANCEL')&&!e.synced);}
 function q9(){return auditQueue().length;}
+/**
+ * v3.10.1 — strip the basket photos out of a dispatch on its way up.
+ *
+ * A DISPATCH approved by v3.9 or v3.10.0 has ~28 KB of base64 on every line, so an
+ * eight-basket load is a 442 KB upload whose lines_json is 226,000 characters against a
+ * 50,000-character cell cap. It failed with a bare "Failed to fetch" and stayed queued for
+ * ever. Records already sitting in that state are rescued here, on the wire, without
+ * rewriting the append-only log.
+ *
+ * Nothing is lost: the pictures live on DISPATCH_PHOTO keyed by req_uuid, and this row
+ * records that req_uuid. That was the v3.6 design all along — the approved row POINTS AT
+ * the photo instead of carrying a second copy.
+ */
+function slimDispatch(e){
+  const out={...e};
+  const lines=Array.isArray(e.lines)?e.lines
+    :(typeof e.lines_json==='string'?(()=>{try{return JSON.parse(e.lines_json);}catch(x){return null;}})():null);
+  if(Array.isArray(lines)){
+    const clean=lines.map(x=>{const {photo_b64,photo_kb,...bare}=x||{};
+      return photo_b64?{...bare,has_photo:1}:bare;});
+    out.lines=clean; out.lines_json=JSON.stringify(clean);}
+  // the load-level copy is not needed either — DISPATCH_REQ already holds basket 1's
+  if(out.photo_b64)out.photo_b64='';
+  return out;}
+
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',
     m=>{if(!dispWarned){dispWarned=true;toast(m,1);}},
     'Dispatches kept on this phone — update the Apps Script to add the MKT_DISPATCH tab',
-    tr('sy_l_dispatch'));}
+    tr('sy_l_dispatch'), slimDispatch);}
 async function pushAudit(){
   return pushOwnKey(auditQueue(),'audit','audit',
     m=>{if(!audWarned){audWarned=true;toast(m,1);}},
@@ -7582,7 +7837,11 @@ function droppedAsOf(tree,dt){
 // here is instantly pickable on the worker's collection and tying screens. It is stored
 // separately in kv and re-applied on every boot, because TREE_MASTER itself ships inside
 // database.js and is replaced whenever the app is upgraded.
-async function persistAddedTrees(){ if(db)await put('kv',{k:'addtrees',v:ADDED_TREES}); }
+async function persistAddedTrees(){
+  if(db)await put('kv',{k:'addtrees',v:ADDED_TREES});
+  // v3.11 — a tree only this phone knows about cannot be logged against by the worker
+  // standing at it. Every add and every removal is shared.
+  await markSetting('addtrees'); }
 function applyAddedTrees(){
   let n=0;
   ADDED_TREES.forEach(t=>{
@@ -8082,6 +8341,10 @@ function mdbTreesHtml(){
     '</div>'+
     '<div class="exphint" style="margin:8px 0 0">Census total: <b>'+TREE_MASTER.length+' trees</b>'+
       (ADDED_TREES.length?(' · '+ADDED_TREES.length+' added by you'):'')+'</div>'+
+    // v3.11 — the census used to grow on this phone alone. A worker standing at C-072 could
+    // not log it because their dropdown had never heard of it. The share stamp is how the
+    // Owner knows the tree actually reached the shed.
+    shareBox(['addtrees'])+
 
     '<div class="sec" style="margin-top:14px">➕ Add a tree</div>'+
     '<div class="dl3">'+
@@ -8100,7 +8363,7 @@ function mdbTreesHtml(){
       'planting spots is twenty taps, not twenty forms.</p>'+
 
     (ADDED_TREES.length?('<div class="sec" style="margin-top:16px">Trees you have added</div>'+
-      '<div class="tblwrap"><table class="tbl">'+
+      '<div class="tblwrap full"><table class="tbl">'+
       '<tr><th>Tree</th><th>Clone</th><th class="num"></th></tr>'+
       ADDED_TREES.slice().sort((a,b)=>a.id<b.id?-1:1).map(t=>{
         const used=treeHasHistory(t.id);
