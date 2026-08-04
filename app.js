@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.9.2';   // v3.9.2 — a button tap now closes the keyboard instead of reopening it over the buttons, and every basket records the second it was keyed and photographed
+const APP_VERSION = 'v3.10.0';   // v3.10.0 — sync asks for only what that phone needs, photos are fetched when opened, and every failed upload is named with a RETRY button
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -137,6 +137,7 @@ async function initStore(){
     const tk=kv.find(x=>x.k==='tareok'); TARE_VERIFIED=!!(tk&&tk.v);
     // v3.8.1 — decisions Marketing made on THEIR phone, pulled down to this one.
     const rq=kv.find(x=>x.k==='reqdecided'); if(rq&&rq.v&&typeof rq.v==='object') REQ_DECIDED=rq.v;
+    const ms=kv.find(x=>x.k==='mastersig'); if(ms&&ms.v) MASTER_SIG=String(ms.v);
     const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
     const at=kv.find(x=>x.k==='addtrees'); if(at&&Array.isArray(at.v)) ADDED_TREES=at.v;
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
@@ -927,16 +928,30 @@ async function mergeCorrections(rows){
     if(approvedNow)toast('✓ '+approvedNow+' approved tree correction'+(approvedNow>1?'s':'')+' applied');}}
 
 // ================= master data refresh + revocation check =================
+/** v3.10 — the signature of the slow-moving tables this phone already holds. */
+let MASTER_SIG='';
+
 async function refreshMasters(){
   if(!CFG||!CFG.url||!navigator.onLine)return null;
   let got={tasks:0,programs:0};
   try{
-    const r=await fetch(CFG.url);const j=await r.json();
+    // v3.10 — tell the Sheet who is asking and what we already have. A worker gets no
+    // other worker's loads and no photographs; anyone whose signature still matches gets
+    // no trees, products or retailers either. Measured: 2.9 MB -> ~20 KB at peak.
+    const q='?role='+encodeURIComponent(myRole())+
+            '&uid='+encodeURIComponent((CFG&&CFG.uid)||'')+
+            '&sig='+encodeURIComponent(MASTER_SIG||'');
+    const r=await fetchT(CFG.url+q,{},SYNC_TIMEOUT_MS);const j=await r.json();
+    if(j&&j.sig&&j.sig!==MASTER_SIG){MASTER_SIG=j.sig;if(db)await put('kv',{k:'mastersig',v:MASTER_SIG});}
     // corrections are merged only AFTER the kill switch has cleared this device
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
     const inProg=(j&&j.ok&&Array.isArray(j.programs))?j.programs:null;
     const inTask=(j&&j.ok&&Array.isArray(j.tasks))?j.tasks:null;
-    const inRet =(j&&j.ok&&Array.isArray(j.retailers))?j.retailers:null;
+    // v3.10 — LANDMINE. mergeRetailers() REPLACES the local list, and doGet now returns an
+    // empty array when this phone's masters are already current. `if(inRet)` was true for
+    // `[]`, so an unchanged-masters reply would have wiped every merchant off the phone.
+    // Only a non-empty list is ever merged.
+    const inRet =(j&&j.ok&&Array.isArray(j.retailers)&&j.retailers.length)?j.retailers:null;
     // v3.5 — the per-tree totals across EVERY phone. Stamped with the moment of the fetch
     // so a row pushed after this point is still added on top instead of being lost.
     const inStats=(j&&j.ok&&j.treestats&&typeof j.treestats==='object')?j.treestats:null;
@@ -1690,9 +1705,23 @@ function syncHealthHtml(){
   return '<div class="synchealth">'+head+'<div class="shbody">'+body+
     '<br>On this phone and not yet uploaded: <b>'+mine+'</b> row'+(mine===1?'':'s')+'.</div></div>';}
 
+/** v3.10 — everything the office has NOT received, named, with a way to try again.
+ *  Before this the only signal was a toast that appeared once and then never again. */
+function stuckHtml(){
+  const keys=Object.keys(SYNC_FAILS);
+  if(!keys.length)return '';
+  return '<div class="stuckbox"><div class="sh">⚠ '+keys.length+' '+
+      esc(tr(keys.length>1?'sy_stuckn':'sy_stuck1'))+'</div>'+
+    keys.map(k=>{const f=SYNC_FAILS[k];
+      return '<div class="srow"><div class="sm"><b>'+esc(f.label||k)+'</b>'+
+        '<span class="ss">'+f.n+' '+esc(tr('sy_records'))+' · '+esc(f.why)+'</span></div>'+
+        '<button class="sretry" onclick="retryOne(\''+esc(k)+'\')">'+esc(tr('sy_retry'))+'</button>'+
+      '</div>';}).join('')+
+    '<div class="sfoot">'+esc(tr('sy_stucknote'))+'</div></div>';}
+
 function renderSync(){
   $('cfginfo').innerHTML=(CFG?('Worker: <b>'+(CFG.worker||'—')+'</b> <span class="small">('+(CFG.role||'')+')</span> · Device: <b>'+(CFG.device||'—')+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>'+APP_VERSION+'</b> · <span class="linkish" onclick="logout()">log out</span>';
-  const sh=$('synchealth'); if(sh)sh.innerHTML=syncHealthHtml();
+  const sh=$('synchealth'); if(sh)sh.innerHTML=stuckHtml()+syncHealthHtml();
   const ap=$('appendnote');
   if(ap)ap.innerHTML='<b>🔒 This log is append-only.</b> '+(canVoidEntry()
     ? 'As Owner you may void an entry that has not yet reached the Google Sheet — voiding writes a '+
@@ -3416,25 +3445,84 @@ let rotWarned=false, ladjWarned=false;
 function rottenQueue(){return EVENTS.filter(e=>e.type==='ROTTEN'&&!e.synced);}
 function logAdjQueue(){return EVENTS.filter(e=>(e.type==='DROP_ADJUST'||e.type==='ROTTEN_ADJUST')&&!e.synced);}
 function q5(){return rottenQueue().length+logAdjQueue().length;}
-async function pushOwnKey(batch,key,flag,warnSetter,warnMsg){
+/* ======================================================================================
+   v3.10 · A SYNC THAT CAN TIME OUT, RETRY, AND SAY WHAT IS STUCK
+   ======================================================================================
+   Three things were wrong with every upload in this app:
+
+     · no timeout    a hotspot that accepts the connection and then dies left the request
+                     hanging until the browser gave up, minutes later, with the button
+                     still saying "Uploading…".
+     · no retry      one dropped packet and that batch waited for somebody to press Sync
+                     again. At the office that is a walk back across the yard.
+     · no memory     `catch(e){return false;}` swallowed the reason. Nobody could tell a
+                     rejected payload from a lost signal, and nothing on any screen said
+                     which of the sixteen uploads had failed.
+
+   Records were never at risk - a failed push leaves them queued. But a worker cannot act
+   on a failure nobody tells them about, which is the "inconsistent" half of the report.
+   ====================================================================================== */
+const SYNC_TIMEOUT_MS=25000, SYNC_TRIES=2, SYNC_BACKOFF_MS=1200;
+/** key -> {label, n, why, at} for everything that would not go up. Rendered on the sync
+ *  screen with a RETRY button, and cleared the moment that key succeeds. */
+let SYNC_FAILS={};
+function syncFailCount(){return Object.keys(SYNC_FAILS).length;}
+function clearSyncFail(k){delete SYNC_FAILS[k];}
+function noteSyncFail(k,label,n,why){SYNC_FAILS[k]={label:label,n:n,why:String(why||''),at:now()};}
+
+/** fetch with a hard deadline. Without this a half-open hotspot hangs the whole sync. */
+async function fetchT(url,opts,ms){
+  const ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  const t=setTimeout(()=>{try{ac&&ac.abort();}catch(e){}},ms||SYNC_TIMEOUT_MS);
+  try{ return await fetch(url,Object.assign({},opts||{},ac?{signal:ac.signal}:{})); }
+  finally{ clearTimeout(t); }}
+
+async function pushOwnKey(batch,key,flag,warnSetter,warnMsg,label){
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
-  try{
-    const body={}; body[key]=batch;
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify(body),
-      headers:{'Content-Type':'text/plain;charset=utf-8'}});
-    const j=await r.json();
-    if(j&&j.ok&&j[flag]){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}badge();return true;}
-    warnSetter(warnMsg);
-    return false;
-  }catch(e){return false;}}
+  let lastWhy='';
+  for(let attempt=1;attempt<=SYNC_TRIES;attempt++){
+    try{
+      const body={}; body[key]=batch;
+      const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify(body),
+        headers:{'Content-Type':'text/plain;charset=utf-8'}});
+      const j=await r.json();
+      if(j&&j.ok&&j[flag]){
+        for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}
+        clearSyncFail(key); badge(); return true;}
+      // A well-formed reply that simply does not carry the flag means the BACKEND does not
+      // understand this payload — retrying cannot help, so stop and say so plainly.
+      warnSetter(warnMsg);
+      noteSyncFail(key,label||key,batch.length,tr('sy_oldbackend'));
+      return false;
+    }catch(err){
+      lastWhy=(err&&err.name==='AbortError')?tr('sy_timeout'):(err&&err.message)||'network';
+      if(attempt<SYNC_TRIES)await new Promise(r=>setTimeout(r,SYNC_BACKOFF_MS));
+    }}
+  noteSyncFail(key,label||key,batch.length,lastWhy);
+  return false;}
+
+/** Push one key again, on demand, from the sync screen. */
+async function retryOne(key){
+  const m={rotten:pushRotten,logadj:pushLogAdj,tying:pushTying,tieadj:pushTieAdj,
+    sales:pushSales,retailers:pushRetailers,dispatchreqs:pushDispatchReqs,
+    dispatch:pushDispatch,audit:pushAudit,adjustments:pushAdjustments,
+    programs:pushPrograms,tasks:pushTasks,tasklogs:pushTaskLogs,rain:pushRain,
+    corrections:pushCorrections,registry:pushRegistry};
+  const fn=m[key]; if(!fn){toast('Nothing to retry',1);return;}
+  toast(tr('sy_retrying'));
+  const okd=await fn();
+  renderSync(); badge();
+  toast(okd?('✓ '+tr('sy_retryok')):('⚠ '+tr('sy_retryfail')),!okd);}
 async function pushRotten(){
   return pushOwnKey(rottenQueue(),'rotten','rotten',
     m=>{if(!rotWarned){rotWarned=true;toast(m,1);}},
-    'Rotten fruit logs kept on this phone — update the Apps Script to add the ROTTEN_LOGS tab');}
+    'Rotten fruit logs kept on this phone — update the Apps Script to add the ROTTEN_LOGS tab',
+    tr('sy_l_rotten'));}
 async function pushLogAdj(){
   return pushOwnKey(logAdjQueue(),'logadj','logadj',
     m=>{if(!ladjWarned){ladjWarned=true;toast(m,1);}},
-    'Approved log corrections kept on this phone — update the Apps Script to add the LOG_ADJUST tab');}
+    'Approved log corrections kept on this phone — update the Apps Script to add the LOG_ADJUST tab',
+    tr('sy_l_logadj'));}
 
 // ---- tree card: the tied balance, deducted live as drops and rotten are logged -------
 function treeTieHTML(t){
@@ -5750,6 +5838,52 @@ function reqLines(e){
     try{const p=JSON.parse(e.lines_json); if(Array.isArray(p))return p;}catch(x){}}
   return [];}
 
+/* ======================================================================================
+   v3.10 · OPTION B — A PHOTO IS FETCHED WHEN SOMEBODY OPENS IT
+   ======================================================================================
+   Photos were 88% of every sync and 100% of them travelled to phones that never opened
+   one. They no longer come down with the bulk pull at all. The load list arrives carrying
+   `has_photo` and `photo_kb`, so the marketer's screen can still say a photograph exists;
+   the picture itself is pulled the moment they tap it.
+
+   Marketing confirmed they always have coverage, which is what makes this safe. A worker
+   is unaffected either way: their own photos never left their phone.
+   ====================================================================================== */
+const PHOTO_CACHE={};                       // req_uuid -> [{basket_no, photo_b64}], this session
+
+/** Pull one load's pictures. Returns [] if the phone is offline or the Sheet has none. */
+async function fetchPhotosFor(u){
+  const key=String(u||''); if(!key)return [];
+  if(PHOTO_CACHE[key])return PHOTO_CACHE[key];
+  if(!CFG||!CFG.url||!navigator.onLine)return [];
+  try{
+    const r=await fetchT(CFG.url+'?photo='+encodeURIComponent(key),{},SYNC_TIMEOUT_MS);
+    const j=await r.json();
+    const list=(j&&j.ok&&Array.isArray(j.photos))?j.photos:[];
+    PHOTO_CACHE[key]=list;
+    // hang them back on the event in memory so the rest of the app is unchanged
+    const e=reqById(key);
+    if(e&&list.length){
+      const byNo={}; list.forEach(pp=>{byNo[String(pp.basket_no)]=pp;});
+      const lines=reqLines(e);
+      e.lines=lines.map((L,i)=>{
+        const hit=byNo[String(L.basket_no!=null?L.basket_no:(i+1))];
+        return hit?{...L,photo_b64:hit.photo_b64,photo_kb:hit.photo_kb}:L;});
+      if(!e.photo_b64&&e.lines[0])e.photo_b64=e.lines[0].photo_b64||'';}
+    return list;
+  }catch(err){return [];}}
+
+/** The marketer tapped a load's photo. Get it, then open the lightbox. */
+async function openReqPhoto(u,title){
+  const e=reqById(u);
+  if(e&&e.photo_b64){showPhoto(u,title,1);return;}
+  if(!navigator.onLine){toast(tr('sy_photooffline'),1);return;}
+  toast(tr('sy_photoget'));
+  const list=await fetchPhotosFor(u);
+  if(!list.length){toast(tr('sy_photonone'),1);return;}
+  renderVerify();
+  showPhoto(u,title,1);}
+
 // ---- the photo lightbox --------------------------------------------------------------
 // PHOTO_SEEN is what makes the audit real rather than a checkbox: Approve stays disabled
 // until the Marketer has actually opened the picture at full size on this device.
@@ -5802,11 +5936,17 @@ function attemptDiff(cur){
   push(tr('vf_net'),n0,n1,' kg');
   push(tr('sc_fruitcount'),f0,f1,'');
   const p0=(a[0]||{}).photo_b64||prev.photo_b64||'', p1=(b[0]||{}).photo_b64||cur.photo_b64||'';
-  rows.push({lbl:tr('vf_photo'),o:'',n:tr(p0&&p1&&p0===p1?'vf_same':'vf_replaced'),
-    unit:'',same:!!(p0&&p1&&p0===p1),photo:true});
+  // v3.10 — with photos fetched on demand, "both blank" means NOT LOADED, not "identical".
+  // Reporting that as unchanged would tell a marketer the worker resent the same picture
+  // when nobody has looked at either of them yet.
+  const known=!!(p0&&p1);
+  rows.push({lbl:tr('vf_photo'),o:'',
+    n:known?tr(p0===p1?'vf_same':'vf_replaced'):tr('vf_photounknown'),
+    unit:'',same:known&&p0===p1,photo:true,unknown:!known});
   const gr0=a.map(x=>x.clone+x.grade).join(','), gr1=b.map(x=>x.clone+x.grade).join(',');
   push(tr('sc_grade'),gr0,gr1,'');
-  return {prev:prev, rows:rows, nothing:rows.every(r=>r.same),
+  // a resend can only be called "nothing changed" if every row is KNOWN to be unchanged
+  return {prev:prev, rows:rows, nothing:rows.every(r=>r.same&&!r.unknown),
     photoOld:p0, photoNew:p1, attempt:Math.max(2,Math.floor(+cur.attempt||2))};}
 
 function verifyCardHtml(e){
@@ -5822,7 +5962,9 @@ function verifyCardHtml(e){
   const r=retailerById(e.retailer_id);
   return '<div class="vcard'+(open?' open':'')+'">'+
     '<div class="vhead" onclick="openVerify(\''+esc(e.uuid)+'\')">'+
-      (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'">'):'<div class="reqthumb none">no photo</div>')+
+      (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'">')
+        :(e.has_photo?'<div class="reqthumb tapload">📷<br>TAP</div>'
+                     :'<div class="reqthumb none">no photo</div>'))+
       '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
         '<div class="pa">'+esc(e.dt)+' · weighed by '+esc(e.worker||'')+
         (e.first_keyed_at?(' · 🕒 '+esc(hm(e.first_keyed_at))+'–'+esc(hm(e.last_keyed_at))):'')+
@@ -5863,8 +6005,13 @@ function verifyCardHtml(e){
             ? '<img class="photothumb big" src="'+e.photo_b64+'" onclick="showPhoto(\''+esc(e.uuid)+
               '\',\'Scale photo — '+esc(e.worker||'')+'\',1)">'+
               '<div class="photometa">Tap to enlarge · '+(+e.photo_kb||photoKB(e.photo_b64))+' KB</div>'
-            : '<div class="photonone">This load carries no photo. It was submitted by an older build — '+
-              'check it against the worker directly before approving.</div>')+
+            // v3.10 — the picture is on the Sheet, not on this phone until you ask for it.
+            : (e.has_photo
+              ? '<div class="getphoto" onclick="openReqPhoto(\''+esc(e.uuid)+'\',\'Scale photo — '+
+                  esc(e.worker||'')+'\')">📷 '+esc(tr('sy_photoopen'))+
+                  '<span class="s">'+(+e.photo_kb||28)+' KB · '+esc(tr('sy_photowhy'))+'</span></div>'
+              : '<div class="photonone">This load carries no photo. It was submitted by an older build — '+
+                'check it against the worker directly before approving.</div>'))+
         '</div>'+
         '<div class="vfields">'+
           reqLines(e).map(x=>'<div class="vf"><span class="lbl">'+esc(x.clone_name||x.clone)+' · Grade '+
@@ -6003,7 +6150,8 @@ function dreqQueue(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ'&&!e.synced)
 async function pushDispatchReqs(){
   return pushOwnKey(dreqQueue(),'dispatchreqs','dispatchreqs',
     m=>{if(!dreqWarned){dreqWarned=true;toast(m,1);}},
-    'Scale photos kept on this phone — update the Apps Script to add the DISPATCH_REQ tab');}
+    'Scale photos kept on this phone — update the Apps Script to add the DISPATCH_REQ tab',
+    tr('sy_l_scale'));}
 /** Requests come back DOWN as well as up: the worker weighs on one phone and the
  *  Marketer audits on another, so without this the hub would only ever show loads
  *  weighed on the Marketer's own device — the v3.5 divergence bug, repeated. */
@@ -6860,11 +7008,13 @@ function q9(){return auditQueue().length;}
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',
     m=>{if(!dispWarned){dispWarned=true;toast(m,1);}},
-    'Dispatches kept on this phone — update the Apps Script to add the MKT_DISPATCH tab');}
+    'Dispatches kept on this phone — update the Apps Script to add the MKT_DISPATCH tab',
+    tr('sy_l_dispatch'));}
 async function pushAudit(){
   return pushOwnKey(auditQueue(),'audit','audit',
     m=>{if(!audWarned){audWarned=true;toast(m,1);}},
-    'Audit trail kept on this phone — update the Apps Script to add the AUDIT_LOG tab');}
+    'Audit trail kept on this phone — update the Apps Script to add the AUDIT_LOG tab',
+    tr('sy_l_audit'));}
 async function pushRetailers(){
   if(!RET_DIRTY||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
