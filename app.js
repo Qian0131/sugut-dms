@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.8.1';   // v3.8.1 — the worker is told the truth about their load: Marketing's decision travels back DOWN, and a load still sitting on the phone says so
+const APP_VERSION = 'v3.9.0';   // v3.9.0 — photo per basket, compulsory vehicle plate + fruit count, the returned-load loop (FIX & RESEND / CANCEL), and the Fruit Backlog & Trace reconciliation
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -424,6 +424,10 @@ const MODULES={
   // worker's thumb while fruit is being counted.
   harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
     tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],ic:'🥭',tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
+          // v3.9 — the backlog answers a harvest question, so it lives on the harvest tile
+          // and every role that can reach harvest can reach it. The worker sees the plain
+          // count; the flags and the trace are gated inside renderBacklog by SHOW_VALUES.
+          {k:'backlog',t:'BACKLOG',  scr:'dash',panels:['backlogcard'],ic:'📦',tn:'s_backlog',d:'Fruit collected, fruit dispatched, what is still in the shed'},
           {k:'wave',t:'THE WAVE',  scr:'dash',panels:['wavecard'],roles:FULL_ROLES,ic:'🌊',d:'How much of the crop is still on the string'},
           {k:'today',t:'FARM TODAY',scr:'dash',panels:['yieldstrip','kpis','phibox','lotcard','mktcard','dashnote'],roles:FULL_ROLES,ic:'📈',d:'Today across all three lots'}]},
   // v3.0 — the tying tracker is its own tile. Hidden from the Sandakan Purchaser.
@@ -554,9 +558,11 @@ function tileBadge(k){
   // v3.7 — the returned-load badge sits on the Morning Scale tile, which is the tile the
   // worker has to open to fix it. On Daily Ops it pointed at the wrong place.
   if(k==='scale'){
-    const back=EVENTS.filter(e=>e.type==='DISPATCH_REJECT'&&
-      String(e.dt||'').slice(0,10)===todayStr()).length;
-    if(back)return {t:back+' '+tr('sc_returned')};
+    // v3.9 — the badge counts loads that still NEED THE WORKER TO DO SOMETHING, not
+    // rejections that happened today. A load returned yesterday and never fixed is exactly
+    // the case that used to disappear, and it is the one holding fruit in limbo.
+    const back=(typeof myReturnedLoads==='function')?myReturnedLoads().length:0;
+    if(back)return {t:back+' '+tr('rl_tofix')};
     const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')).length;
     return mine?{t:mine+' '+tr('sc_pending'),amber:1}:null;}
   if(k==='ops'){
@@ -739,7 +745,8 @@ function renderForTab(k,t){
   if(k==='reports'&&t==='labour')renderLabour();
   if(k==='admin'&&t==='corr')renderCorrections();
   if(k==='admin'&&t==='reg')renderKeys();
-  if(k==='scale'&&t==='scale')renderScaleCard();}
+  if(k==='scale'&&t==='scale')renderScaleCard();
+  if(k==='harvest'&&t==='backlog')renderBacklog();}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -762,6 +769,9 @@ function resetMarketingView(){
   // v3.8 — an open gatepass is one worker's load. A different person logging in on this
   // phone must not land on the previous worker's gate tally.
   if(typeof W_GATEPASS!=='undefined')W_GATEPASS='';
+  // v3.9 — a half-finished correction belongs to one worker on one shift.
+  if(typeof W_PLATE!=='undefined')W_PLATE='';
+  if(typeof W_REDO!=='undefined')W_REDO=null;
   if(typeof closePhoto==='function')closePhoto();}
 function applyRole(){
   resetMarketingView();
@@ -959,8 +969,9 @@ async function refreshMasters(){
     // marketer audits on another; without this the hub would only ever show loads
     // weighed on the marketer's own device, which is the v3.5 divergence bug again.
     const inReq=(j&&j.ok&&Array.isArray(j.dispatchreqs))?j.dispatchreqs:null;
+    const inPh=(j&&j.ok&&j.dispatchphotos&&typeof j.dispatchphotos==='object')?j.dispatchphotos:null;
     if(inReq){
-      const n=await mergeDispatchReqs(inReq);
+      const n=await mergeDispatchReqs(inReq,inPh);
       if(n){got.dispatchreqs=n; if(typeof renderVerify==='function')renderVerify();}}
     // v3.8.1 — and the DECISIONS come down too. Approving and returning both happen on the
     // marketer's device, so without this leg the worker who weighed the load is never told
@@ -1807,7 +1818,7 @@ async function doSync(auto){
     &&e.type!=='TIE'&&e.type!=='TIE_ADJUST'&&e.type!=='SALE'
     &&e.type!=='DISPATCH'&&e.type!=='CREDIT_TOPUP'&&e.type!=='DISPATCH_REQ'
     &&e.type!=='LOG_VOID'&&e.type!=='YIELD_ACK'&&e.type!=='ADMIN_PURGE'&&e.type!=='ADMIN_CLEANUP'
-    &&e.type!=='DISPATCH_REJECT');
+    &&e.type!=='DISPATCH_REJECT'&&e.type!=='DISPATCH_CANCEL');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
     // v3.8.1 — every own-key push above has already run. Anything still unsynced at this
@@ -4734,12 +4745,21 @@ function photoKB(s){return s?Math.round(String(s).length/1024):0;}
 
 // ---- the worker's Morning Scale Dispatch form ---------------------------------------
 let WLINES=[], WLSEQ=0, W_RET='', W_PHOTO='', W_NOTE='', wSaving=false;
+/* v3.9 - the lorry, and the correction chain.
+   W_PLATE  the vehicle plate, compulsory. Uppercased on entry: a gate log that cannot be
+            matched to a lorry is not a gate log.
+   W_REDO   set only while FIXING a returned load: {uuid, attempt, ref}. Its presence is
+            what locks the merchant and the clone, and what makes a new photo compulsory. */
+let W_PLATE='', W_REDO=null;
 /** v3.8 — the uuid of the load whose Scale Tally Gatepass is showing. '' = the entry form.
  *  This is module-level VIEW state, so it obeys the resetMarketingView() rule. */
 let W_GATEPASS='';
 function newWLine(){
   // baskets is fixed at 1 — see the block comment above.
-  return {k:'W'+(++WLSEQ),clone:'MK',grade:'A',basket:'RED',baskets:1,gross:'',fruits:''};}
+  // v3.9 — `photo` is this basket's own picture. Compulsory: the load cannot be submitted
+  // until every row has one, because a single photo of a lorry proves nothing about which
+  // basket held which clone.
+  return {k:'W'+(++WLSEQ),clone:'MK',grade:'A',basket:'RED',baskets:1,gross:'',fruits:'',photo:''};}
 function wLines(){ if(!WLINES.length)WLINES=[newWLine()]; return WLINES; }
 function wlFind(k){return WLINES.find(l=>l.k===k)||null;}
 function wlSet(k,f,v){
@@ -4751,19 +4771,19 @@ function wlSet(k,f,v){
   // be repainted on every pick. The two number fields deliberately do NOT repaint, or the
   // keypad would close on each digit.
   if(f==='clone'||f==='basket'||f==='grade')renderWLines();
-  wCalc();}
+  wCalc(); wGate();}
 function addWLine(){
-  WLINES.push(newWLine()); renderWLines(); wCalc();
+  WLINES.push(newWLine()); renderWLines(); wCalc(); wGate();
   const rows=$('w-rows'); if(rows&&rows.lastElementChild)
     rows.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});}
 function removeWLine(k){
   WLINES=WLINES.filter(l=>l.k!==k);
   if(!WLINES.length)WLINES=[newWLine()];
-  renderWLines(); wCalc();}
+  renderWLines(); wCalc(); wGate();}
 function setWRet(v){
   W_RET=v||'';
   const sel=$('w-ret'); if(sel&&sel.value!==W_RET)sel.value=W_RET;   // keep the shadow select honest
-  renderWRetRow(); wCalc();}
+  renderWRetRow(); wCalc(); wGate();}
 
 /** One horizontal selector row. `opts` is [{v,t,s}] — value, big label, small sub-label.
  *  Rendering is identical for clone, grade and basket so the three can never drift apart. */
@@ -4777,8 +4797,10 @@ function wSelRow(label,field,l,opts,cls){
 
 /** One big-digit numeric cell. inputmode drives the on-screen keypad on both Android and
  *  iOS; `step` keeps the browser from rejecting a decimal gross reading. */
-function wNumCell(l,field,label,unit,mode,ph){
-  return '<div class="numcell"><label class="sellbl">'+esc(label)+'</label>'+
+function wNumCell(l,field,label,unit,mode,ph,must){
+  const empty=!(+l[field]>0);
+  return '<div class="numcell'+(must&&empty?' req':'')+'"><label class="sellbl">'+esc(label)+
+    (must?'<span class="reqchip">'+esc(tr('sc_required'))+'</span>':'')+'</label>'+
     '<input class="bignum" type="number" min="0" step="'+(mode==='decimal'?'any':'1')+'" '+
       'inputmode="'+mode+'" placeholder="'+esc(ph)+'" value="'+esc(l[field])+'" '+
       'onfocus="this.select()" '+
@@ -4796,6 +4818,62 @@ function renderWRetRow(){
 /** A worker may weigh; Owner and Marketing may too, so a one-person morning still works. */
 function canWeigh(){const r=myRole();return r==='WORKER'||FULL_ROLES.indexOf(r)>=0;}
 
+/** v3.9 — plates this farm has actually seen, newest first. Typing a plate with wet hands
+ *  at 6 am is where the typos come from, so the app offers what it already knows. */
+function recentPlates(n){
+  const seen=[], out=[];
+  EVENTS.filter(e=>e.type==='DISPATCH_REQ'&&e.vehicle_plate)
+    .sort((a,b)=>String(b.dt).localeCompare(String(a.dt)))
+    .forEach(e=>{const v=String(e.vehicle_plate).toUpperCase().trim();
+      if(v&&seen.indexOf(v)<0){seen.push(v);out.push(v);}});
+  return out.slice(0,n||4);}
+function setPlate(v){
+  W_PLATE=String(v||'').toUpperCase();
+  const i=$('w-plate'); if(i&&i.value!==W_PLATE)i.value=W_PLATE;
+  renderPlateRow(); wGate();}
+function renderPlateRow(){
+  const row=$('w-plates'); if(!row)return;
+  const list=recentPlates(4);
+  row.innerHTML=list.length?list.map(v=>'<div class="plchip'+(W_PLATE===v?' on':'')+'" '+
+    'onclick="setPlate(\''+esc(v)+'\')">'+esc(v)+'</div>').join(''):'';}
+
+/**
+ * v3.9 — EVERY reason this load cannot be sent, in the worker's own language.
+ *
+ * One list, computed in one place, used by both the lock panel and the submit handler, so
+ * the button and the explanation can never disagree with each other. Returning the reasons
+ * rather than a boolean is the point: "SUBMIT IS LOCKED" on its own would be worse than the
+ * old silent failure.
+ */
+function scaleBlockers(){
+  const out=[], L=wLines();
+  if(!W_PLATE.trim())out.push(tr('e_needplate'));
+  const noW=[],noC=[],noP=[];
+  L.forEach((l,i)=>{
+    if(!(lineCalc(l,NO_PRICE).net>0))noW.push(i+1);
+    if(!(Math.floor(+l.fruits||0)>0))noC.push(i+1);
+    if(!l.photo)noP.push(i+1);});
+  if(noW.length)out.push(tr('e_needbweight')+' '+noW.join(', '));
+  if(noC.length)out.push(tr('e_needcount')+' '+noC.join(', '));
+  if(noP.length)out.push(tr('e_needbphoto')+' '+noP.join(', '));
+  if(!retailerById(W_RET))out.push(tr('e_pickmerchant'));
+  return out;}
+
+/** Paint the lock panel and the submit button from that one list. */
+function wGate(){
+  const box=$('w-gate'), go=$('w-go');
+  if(!box||!go)return;
+  const b=scaleBlockers();
+  if(b.length){
+    box.innerHTML='<div class="blockbox"><b>'+esc(tr('sc_locked'))+'</b><ul>'+
+      b.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';
+    go.disabled=true;
+  }else{
+    const t=dispTotals(NO_PRICE,wLines());
+    box.innerHTML='<div class="okbox">✓ '+t.lines.length+' '+esc(tr('sc_basket')).toLowerCase()+
+      ' · '+t.fruit_count+' '+esc(tr('w_fruits'))+' · '+nf(t.total_kg)+' kg · '+esc(W_PLATE)+'</div>';
+    go.disabled=false;}}
+
 function renderScaleCard(){
   const box=$('scalebox'); if(!box)return;
   if(!canWeigh()){box.innerHTML='';return;}
@@ -4808,49 +4886,54 @@ function renderScaleCard(){
     const c=$('gp-card'); if(c)c.scrollIntoView({behavior:'smooth',block:'start'});
     return;}
 
-  const act=activeRetailers();
+  const act=activeRetailers(), fixing=!!W_REDO;
   box.innerHTML=
+    // v3.9 — a returned load is the FIRST thing on the screen, not buried in a history list.
+    returnedActionHTML()+
     // NO intro paragraph, NO amber tare banner. The worker lands on the buyer picker,
     // which is the first thing they must actually touch.
     (act.length?'':'<div class="critbox">'+esc(tr('sc_nomerchant'))+'</div>')+
+    (fixing?'<div class="fixbar">'+
+        esc(tr('rl_fixing').replace('%A',W_REDO.attempt).replace('%R',W_REDO.ref))+
+        '<span class="s">'+esc(tr('rl_locked'))+'</span></div>':'')+
+
     '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_towhich'))+'</label>'+
-      '<div class="selrow" id="w-retrow"></div></div>'+
+      '<div class="selrow'+(fixing?' locked':'')+'" id="w-retrow"></div></div>'+
     // shadow control — kept so anything that read w-ret before v3.8 still reads it
     '<select id="w-ret" style="display:none" onchange="setWRet(this.value)">'+
       '<option value="">'+esc(tr('sc_choose'))+'</option>'+
       act.map(r=>'<option value="'+esc(r.id)+'"'+(W_RET===r.id?' selected':'')+'>'+
         esc(r.name)+'</option>').join('')+'</select>'+
 
+    // ---- v3.9 · the lorry, compulsory ----
+    '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_plate'))+
+      '<span class="reqchip">'+esc(tr('sc_required'))+'</span></label>'+
+      '<input id="w-plate" class="plate'+(W_PLATE.trim()?'':' empty')+'" '+
+        'placeholder="'+esc(tr('sc_plateph'))+'" value="'+esc(W_PLATE)+'" '+
+        'autocomplete="off" oninput="setPlate(this.value)">'+
+      '<div class="platehint">'+esc(tr('sc_platerecent'))+'</div>'+
+      '<div class="plchips" id="w-plates"></div></div>'+
+
     '<div id="w-rows"></div>'+
     '<button class="addnext" onclick="addWLine()">'+esc(tr('sc_addnext'))+'</button>'+
     '<div class="wtot" id="w-tot">—</div>'+
-
-    // ---- the mandatory photo: one massive block that turns green when it is done ----
-    (W_PHOTO
-      ? '<label class="camblock done" for="w-cam">'+
-          '<img src="'+W_PHOTO+'" onclick="event.preventDefault();event.stopPropagation();'+
-            'showPhoto(\''+esc(W_PHOTO)+'\',\''+esc(tr('sc_photook'))+'\')">'+
-          '<div class="cdt">✓ '+esc(tr('sc_photodone'))+
-            '<span class="camsub">'+photoKB(W_PHOTO)+' KB · '+esc(tr('sc_phototap'))+'</span></div>'+
-        '</label>'
-      : '<label class="camblock" for="w-cam">'+esc(tr('sc_takephoto2'))+
-          '<span class="camsub">'+esc(tr('w_required'))+'</span></label>')+
-    '<input type="file" id="w-cam" accept="image/*" capture="environment" '+
-      'style="display:none" onchange="onWPhoto(this)">'+
 
     '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_note'))+'</label>'+
       '<input id="w-note" placeholder="'+esc(tr('sc_noteph'))+'" value="'+esc(W_NOTE)+
       '" oninput="W_NOTE=this.value"></div>'+
     '<div class="pinerr" id="w-err"></div>'+
+    '<div id="w-gate"></div>'+
     '<button class="submitwide" id="w-go" onclick="submitScaleDispatch()">'+
-      esc(tr('sc_submit'))+'</button>'+
+      esc(fixing?(tr('rl_resend')+' '+W_REDO.attempt):tr('sc_submit'))+'</button>'+
+    (fixing?'<button class="bigbtn ghost" style="margin-top:8px;padding:12px;font-size:13px" '+
+      'onclick="abortResend()">← '+esc(tr('b_cancel'))+'</button>':'')+
 
     // The tare honesty note survives, but as a grey footnote at the BOTTOM — it is a
     // caveat on a number already recorded, not an instruction to read before starting.
     (TARE_VERIFIED?'':'<div class="scfoot">'+esc(tr('sc_tarefoot'))+'</div>')+
 
     waitingListHTML()+myRecentDecisions();
-  renderWRetRow(); renderWLines(); wCalc();}
+  renderWRetRow(); renderPlateRow(); renderWLines(); wCalc(); wGate();}
 
 /** The retained gatepasses. Every row re-opens its own read-only card — which is the
  *  whole point: the driver can ask for the tally again after the form has been reset. */
@@ -4865,7 +4948,8 @@ function waitingListHTML(){
               'showPhoto(\''+esc(e.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">'
             : '<div class="reqthumb none">—</div>')+
           '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
-          '<div class="pa">'+esc(e.dt)+'</div></div>'+
+          (+e.attempt>1?(' <span class="attchip">'+esc(tr('rl_attempt'))+' '+(+e.attempt)+'</span>'):'')+
+          '<div class="pa">'+esc(e.dt)+(e.vehicle_plate?(' · '+esc(e.vehicle_plate)):'')+'</div></div>'+
           '<span class="cstat '+(e.synced?'s':'r')+'">'+
             esc(tr(e.synced?'sc_pending':'sc_notsent'))+'</span>'+
           '<span class="gpgo">›</span></div>').join('')
@@ -4883,6 +4967,11 @@ function myRecentDecisions(){
       seen[e.req_uuid]=1;
       out.push({req:e.req_uuid,dt:e.dt,ok:true,kg:+e.total_kg||0,who:e.verified_by||e.worker||'',
         name:e.retailer_name||'',why:''});}
+    if(e.type==='DISPATCH_CANCEL'&&mineIds[e.targetUuid]){
+      seen[e.targetUuid]=1;
+      out.push({req:e.targetUuid,dt:e.dt,ok:false,cancelled:true,
+        kg:+(mineIds[e.targetUuid].total_kg)||0,who:e.worker||'',
+        name:mineIds[e.targetUuid].retailer_name||'',why:e.reason||''});}
     if(e.type==='DISPATCH_REJECT'&&mineIds[e.targetUuid]){
       seen[e.targetUuid]=1;
       out.push({req:e.targetUuid,dt:e.dt,ok:false,kg:+(mineIds[e.targetUuid].total_kg)||0,who:e.worker||'',
@@ -4892,9 +4981,12 @@ function myRecentDecisions(){
   Object.keys(mineIds).forEach(u=>{
     if(seen[u])return;
     const d=REQ_DECIDED[u]; if(!d)return;
+    const sup=supersededBy(u);
     out.push({req:u,dt:d.dt||mineIds[u].dt,ok:d.state==='APPROVED',
+      cancelled:d.state==='CANCELLED',
       kg:d.total_kg||+(mineIds[u].total_kg)||0,who:d.by||'',
-      name:d.retailer_name||mineIds[u].retailer_name||'',why:d.reason||''});});
+      name:d.retailer_name||mineIds[u].retailer_name||'',
+      why:sup?(tr('rl_replaced')+' '+Math.max(2,Math.floor(+sup.attempt||2))):(d.reason||'')});});
   if(!out.length)return '';
   out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
   return '<div class="sec" style="margin-top:14px">'+esc(tr('sc_decided'))+'</div>'+
@@ -4902,7 +4994,8 @@ function myRecentDecisions(){
       '<div class="reqmid">'+
       '<b>'+nf(x.kg)+' kg</b> → '+esc(x.name)+'<div class="pa">'+esc(x.dt)+' · '+esc(x.who)+
       (x.why?(' · '+esc(x.why)):'')+'</div></div>'+
-      '<span class="cstat '+(x.ok?'a':'r')+'">'+esc(tr(x.ok?'sc_approved':'sc_returned'))+
+      '<span class="cstat '+(x.ok?'a':(x.cancelled?'c':'r'))+'">'+
+        esc(tr(x.ok?'sc_approved':(x.cancelled?'rl_cancelled':'sc_returned')))+
       '</span><span class="gpgo">›</span></div>').join('');}
 
 function renderWLines(){
@@ -4925,9 +5018,23 @@ function renderWLines(){
         BASKETS.map(b=>({v:b.id,t:(b.ic?b.ic+' ':'')+basketName(b),s:'−'+nf(b.tare_kg)+' kg'})),'baskets')+
       '<div class="numgrid">'+
         wNumCell(l,'gross',tr('sc_gross'),'kg','decimal','0.00')+
-        wNumCell(l,'fruits',tr('sc_fruitcount'),'','numeric','0')+
+        wNumCell(l,'fruits',tr('sc_fruitcount'),'','numeric','0',true)+
       '</div>'+
       '<div class="dlnet" id="wln-'+esc(l.k)+'">—</div>'+
+      // v3.9 — one camera per basket. Green when done, red-dashed while missing, so a row
+      // that is not yet proven is visible from across the shed.
+      (l.photo
+        ? '<label class="bcam done" for="wcam-'+esc(l.k)+'">'+
+            '<img class="bth" src="'+l.photo+'" onclick="event.preventDefault();'+
+              'event.stopPropagation();showPhoto(\''+esc(l.photo)+'\',\''+
+              esc(tr('sc_basket'))+' '+(i+1)+'\')">'+
+            '<div class="bct">✓ '+esc(tr('sc_basket'))+' '+(i+1)+' '+esc(tr('sc_basketdone'))+
+              '<span class="s">'+photoKB(l.photo)+' KB · '+esc(tr('sc_phototap'))+'</span></div>'+
+          '</label>'
+        : '<label class="bcam miss" for="wcam-'+esc(l.k)+'">'+esc(tr('sc_basketphoto'))+' '+(i+1)+
+            '<span class="s">'+esc(tr('sc_basketphotosub'))+'</span></label>')+
+      '<input type="file" id="wcam-'+esc(l.k)+'" accept="image/*" capture="environment" '+
+        'style="display:none" onchange="onBasketPhoto(\''+esc(l.k)+'\',this)">'+
     '</div>';}).join('');}
 /** Basket names are farm objects, not chemistry — safe to translate, and they are the
  *  one thing on the scale form a worker picks by sight rather than by reading. */
@@ -4950,6 +5057,24 @@ function wCalc(){
       esc(tr('sc_basket')).toLowerCase()+(tot.fruit_count?(' · '+tot.fruit_count+' '+esc(tr('w_fruits'))):'')
     : esc(tr('sc_keyfirst'));}
 
+/** v3.9 — the camera for ONE basket. Same compressor, same size ceiling; the picture is
+ *  stored on the line rather than on the load. */
+async function onBasketPhoto(k,input){
+  const err=$('w-err'); if(err)err.textContent='';
+  const f=input&&input.files&&input.files[0];
+  input.value='';
+  if(!f)return;
+  const l=wlFind(k); if(!l)return;
+  toast(tr('t_shrinking'));
+  try{
+    l.photo=await compressPhoto(f);
+    // basket 1's picture is ALSO the load-level photo, because every screen written before
+    // v3.9 — the marketer's card, the DISPATCH_REQ tab, the daily audit — reads that field.
+    if(wLines()[0]&&wLines()[0].k===k)W_PHOTO=l.photo;
+    renderWLines(); wCalc(); wGate();
+    toast(tr('t_photoon')+' · '+photoKB(l.photo)+' KB');
+  }catch(e){const m=tr(e.tkey||'',e.message); if(err)err.textContent=m; toast(m,1);}}
+
 async function onWPhoto(input){
   const err=$('w-err'); if(err)err.textContent='';
   const f=input&&input.files&&input.files[0];
@@ -4970,27 +5095,183 @@ async function submitScaleDispatch(){
   const r=retailerById(W_RET);
   if(!r){if(err)err.textContent=tr('e_pickmerchant');return;}
   if(String(r.status||'Active')!=='Active'){if(err)err.textContent=tr('e_suspended');return;}
+  // v3.9 — ONE gate, the same list the lock panel shows. The button being enabled is not
+  // trusted here: a stale render, or a call from anywhere else, must still be refused.
+  const block=scaleBlockers();
+  if(block.length){if(err)err.textContent=block[0];toast(block[0],1);return;}
   const tot=dispTotals(NO_PRICE,wLines());
   if(!(tot.total_kg>0)){if(err)err.textContent=tr('e_needweight');return;}
-  if(!W_PHOTO){if(err)err.textContent=tr('e_needphoto');return;}
   wSaving=true;
   const u=uuid(), stamp=now();
+  // hang each basket's own photo back onto its line, in order. dispTotals drops zero-weight
+  // rows, so the lines are matched against the rows that actually produced them.
+  const kept=wLines().filter(l=>lineCalc(l,NO_PRICE).net>0);
+  const lines=tot.lines.map((x,i)=>({...x, basket_no:i+1,
+    photo_b64:(kept[i]&&kept[i].photo)||'', has_photo:(kept[i]&&kept[i].photo)?1:0}));
+  const first=lines.length?(lines[0].photo_b64||''):'';
   try{
     await persistEvent({uuid:u,type:'DISPATCH_REQ',dt:stamp,
       retailer_id:r.id, retailer_name:r.name, contact:r.contact||'',
-      lines:tot.lines, lines_json:JSON.stringify(tot.lines), line_count:tot.lines.length,
+      lines:lines, lines_json:JSON.stringify(lines), line_count:lines.length,
       kg_A:tot.kg_A, kg_B:tot.kg_B, kg_C:tot.kg_C, fruit_count:tot.fruit_count,
       total_gross_kg:tot.total_gross_kg, total_tare_kg:tot.total_tare_kg, total_kg:tot.total_kg,
-      photo_b64:W_PHOTO, photo_kb:photoKB(W_PHOTO),
+      // the load-level photo is basket 1's, so every pre-v3.9 screen keeps working
+      photo_b64:first, photo_kb:photoKB(first),
+      vehicle_plate:W_PLATE.trim().toUpperCase(),
+      // v3.9 — the correction chain. A fix is a NEW record that QUOTES the returned one;
+      // the returned record itself is never touched.
+      redo_of:(W_REDO?W_REDO.uuid:''), attempt:(W_REDO?W_REDO.attempt:1),
       note:W_NOTE.trim(),
       worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
   } finally { wSaving=false; }
-  WLINES=[newWLine()]; W_PHOTO=''; W_NOTE=''; W_RET='';
+  WLINES=[newWLine()]; W_PHOTO=''; W_NOTE=''; W_RET=''; W_PLATE=''; W_REDO=null;
   // v3.8 — LOCK. The panel becomes this load's gatepass immediately, before the worker
   // can touch anything else, because the driver is standing there waiting for the tally.
   W_GATEPASS=u;
   badge(); renderScaleCard(); renderVerify(); renderHub();
   toast('📋 '+nf(tot.total_kg)+' kg · '+tr('gp_head'));}
+
+/* ======================================================================================
+   v3.9 · FRUIT BACKLOG & TRACE
+   ======================================================================================
+   The link between the two halves of the morning. Daily fruit collection counts fruit IN;
+   the Morning Scale counts fruit OUT. The difference is what is physically still sitting in
+   the shed, and any clone x grade where MORE left the gate than was ever collected is a
+   discrepancy the app names out loud instead of burying.
+
+   IN   = DROP events            clone, grade, qty            (good fruit, counted per tree)
+   OUT  = approved DISPATCH lines clone, grade, fruits        (only APPROVED — see below)
+   BACKLOG = cumulative IN - OUT, carried day to day
+
+   WHY ONLY APPROVED LOADS COUNT AS OUT. A returned or cancelled load never became a
+   DISPATCH, so its fruit is still on the farm and still in this backlog. If pending
+   requests were counted, a load bouncing between the worker and Marketing would remove
+   fruit from the shed that is standing in the shed.
+
+   WHY ROTTEN AND UNRIPE ARE EXCLUDED. They never became sellable stock. Counting them here
+   would inflate the backlog above what is actually in the shed, which is the opposite of
+   what this screen is for. They stay on the loss report.
+
+   Nothing is stored. Recomputed from the append-only log every time the screen opens, so a
+   late-syncing phone corrects the history instead of corrupting it.
+   ====================================================================================== */
+
+/** Every approved dispatch line, with the load it came from, for the OUT column. */
+function dispatchedFruit(){
+  const out=[];
+  EVENTS.filter(e=>e.type==='DISPATCH').forEach(e=>{
+    const req=e.req_uuid?reqById(e.req_uuid):null;
+    (reqLines({lines:e.lines,lines_json:e.lines_json})||[]).forEach(x=>{
+      const f=Math.max(0,Math.floor(+x.fruits||0)); if(!f)return;
+      out.push({clone:x.clone||'?',grade:x.grade||'?',fruits:f,net_kg:+x.net_kg||0,
+        dt:e.dt||'',ref:refOf(e.req_uuid||e.uuid),
+        plate:(req&&req.vehicle_plate)||e.vehicle_plate||'',
+        retailer:e.retailer_name||''});});});
+  return out;}
+
+/**
+ * The whole reconciliation, per clone x grade. `upto` optionally cuts it off at a date.
+ * Returns rows sorted by the farm's own selling order, plus a total.
+ */
+function fruitBacklog(upto){
+  const cut=upto||'9999-12-31';
+  const map={}, key=(c,g)=>c+'|'+g;
+  const row=(c,g)=>{const k=key(c,g);
+    if(!map[k])map[k]={clone:c,grade:g,clone_name:CLONE_NAME[c]||c,
+      in:0,out:0,out_kg:0,trace:[]};
+    return map[k];};
+
+  EVENTS.filter(e=>e.type==='DROP'&&String(e.dt||'').slice(0,10)<=cut).forEach(e=>{
+    const q=Math.max(0,Math.floor(+e.qty||0)); if(!q)return;
+    const r=row(e.clone||'?',e.grade||'?');
+    r.in+=q;
+    r.trace.push({dt:e.dt,kind:'IN',n:q,what:e.tree||'',lot:e.lot||''});});
+
+  dispatchedFruit().filter(x=>String(x.dt||'').slice(0,10)<=cut).forEach(x=>{
+    const r=row(x.clone,x.grade);
+    r.out+=x.fruits; r.out_kg+=x.net_kg;
+    r.trace.push({dt:x.dt,kind:'OUT',n:x.fruits,kg:x.net_kg,
+      what:x.ref,plate:x.plate,retailer:x.retailer});});
+
+  const rows=Object.keys(map).map(k=>{
+    const r=map[k];
+    r.backlog=r.in-r.out;
+    r.short=r.backlog<0;
+    r.avg_kg=(r.out>0&&r.out_kg>0)?+(r.out_kg/r.out).toFixed(2):0;
+    // a second, quieter flag: the average fruit dispatched sits outside the band its grade
+    // claims. Not an error, but grading drifting is worth naming before it becomes a price.
+    const band=bandOf(r.clone,r.grade);
+    r.drift=!!(band&&r.avg_kg>0&&(r.avg_kg<band.min||(band.max!=null&&r.avg_kg>=band.max)));
+    r.trace.sort((a,b)=>String(a.dt).localeCompare(String(b.dt)));
+    return r;});
+  rows.sort((a,b)=>{
+    const ia=CLONE_SELL_ORDER.indexOf(a.clone), ib=CLONE_SELL_ORDER.indexOf(b.clone);
+    if(ia!==ib)return (ia<0?99:ia)-(ib<0?99:ib);
+    return String(a.grade).localeCompare(String(b.grade));});
+  const tot=rows.reduce((t,r)=>({in:t.in+r.in,out:t.out+r.out,backlog:t.backlog+r.backlog}),
+    {in:0,out:0,backlog:0});
+  return {rows:rows,total:tot,short:rows.filter(r=>r.short)};}
+
+let BL_OPEN='';
+function blToggle(k){BL_OPEN=(BL_OPEN===k)?'':k;renderBacklog();}
+
+function renderBacklog(){
+  const box=$('backlogbox'); if(!box)return;
+  const b=fruitBacklog(), full=SHOW_VALUES, today=todayStr();
+  const inToday=EVENTS.filter(e=>e.type==='DROP'&&String(e.dt||'').slice(0,10)===today)
+    .reduce((s,e)=>s+Math.max(0,Math.floor(+e.qty||0)),0);
+  const outToday=dispatchedFruit().filter(x=>String(x.dt||'').slice(0,10)===today)
+    .reduce((s,x)=>s+x.fruits,0);
+  if(!b.rows.length){box.innerHTML='<div class="alertnone">'+esc(tr('bl_none'))+'</div>';return;}
+
+  box.innerHTML=
+    '<div class="kpis" style="margin-bottom:9px">'+
+      '<div class="kpi"><div class="v">'+inToday+'</div><div class="l">'+esc(tr('bl_collected'))+'</div></div>'+
+      '<div class="kpi"><div class="v">'+outToday+'</div><div class="l">'+esc(tr('bl_dispatched'))+'</div></div>'+
+      '<div class="kpi'+(b.total.backlog<0?' bad':'')+'"><div class="v">'+b.total.backlog+
+        '</div><div class="l">'+esc(tr('bl_inshed'))+'</div></div>'+
+    '</div>'+
+    (full?'<div class="scfoot" style="margin:0 0 7px">'+esc(tr('bl_tap'))+'</div>':'')+
+    // `.full` removes the 340px inner scroll box. The backlog is a short list and expanding
+    // a trace inside a nested scroller on a phone hides the totals underneath it.
+    '<div class="tblwrap full"><table class="tbl bltbl">'+
+    '<tr><th>'+esc(tr('bl_clonegrade'))+'</th><th>'+esc(tr('bl_in'))+'</th><th>'+
+      esc(tr('bl_out'))+'</th><th>'+esc(tr('bl_backlog'))+'</th>'+(full?'<th></th>':'')+'</tr>'+
+    b.rows.map(r=>{
+      const k=r.clone+'|'+r.grade, open=BL_OPEN===k;
+      return '<tr class="'+(full?'clickrow ':'')+(r.short?'alarm':'')+'"'+
+        (full?(' onclick="blToggle(\''+esc(k)+'\')"'):'')+'>'+
+        '<td><b>'+esc(r.clone)+' · '+esc(r.grade)+'</b><span class="cn">'+esc(r.clone_name)+'</span></td>'+
+        '<td>'+r.in+'</td><td>'+r.out+'</td><td><b>'+r.backlog+'</b></td>'+
+        (full?('<td>'+(r.short?'<span class="pill bad">'+esc(tr('bl_short'))+' '+Math.abs(r.backlog)+'</span>'
+              :(r.drift?'<span class="pill warn">'+esc(tr('bl_check'))+'</span>'
+                       :'<span class="pill ok">'+esc(tr('bl_ok'))+'</span>'))+'</td>'):'')+
+      '</tr>'+
+      ((full&&open)?('<tr><td colspan="5" class="expcell">'+blTrace(r)+'</td></tr>'):'');}).join('')+
+    '<tr class="tot"><td>'+esc(tr('bl_total'))+'</td><td>'+b.total.in+'</td><td>'+b.total.out+
+      '</td><td>'+b.total.backlog+'</td>'+(full?'<td></td>':'')+'</tr>'+
+    '</table></div>'+
+    '<div class="scfoot" style="margin-top:9px">'+esc(tr('bl_norot'))+'</div>';}
+
+/** The audit trail for one clone x grade: every fruit in, every fruit out, named. */
+function blTrace(r){
+  const band=bandOf(r.clone,r.grade);
+  return '<div class="trace">'+
+    r.trace.slice(-14).map(t=>'<div class="trow'+(t.kind==='OUT'?' o':'')+'">'+
+      '<span>'+esc(t.dt)+' · '+(t.kind==='IN'
+        ? (esc(tr('bl_collected'))+' '+esc(t.what||t.lot||''))
+        : (esc(tr('gp_ref'))+' '+esc(t.what)+' → '+esc(t.retailer||'')+
+           (t.plate?(' · 🚚 '+esc(t.plate)):'')))+'</span>'+
+      '<b>'+(t.kind==='IN'?'+':'−')+t.n+'</b></div>').join('')+
+    '<div class="trow tt"><span><b>'+esc(tr('bl_inshed'))+'</b></span>'+
+      '<b>'+r.backlog+' '+esc(tr('bl_fruits'))+'</b></div>'+
+    (r.avg_kg>0?('<div class="trow"><span>'+esc(tr('bl_avg'))+'</span><b>'+nf(r.avg_kg)+' kg</b></div>'):'')+
+    '</div>'+
+    (r.short?('<div class="small" style="padding:2px 4px 0;color:#8c1d18;font-weight:800">'+
+      Math.abs(r.backlog)+' × '+esc(r.clone)+' '+esc(r.grade)+' '+esc(tr('bl_shortnote'))+'</div>'):'')+
+    (r.drift&&band?('<div class="small" style="padding:4px 4px 0">'+
+      esc(tr('bl_drift').replace('%G',r.grade).replace('%C',CLONE_NAME[r.clone]||r.clone)
+        .replace('%B',bandText(r.clone,r.grade)).replace('%V',nf(r.avg_kg)))+'</div>'):'');}
 
 /* ======================================================================================
    v3.8 · THE SCALE TALLY GATEPASS
@@ -5039,9 +5320,20 @@ function gatepassSummary(src){
   const groups=order.map(k=>{
     const g=byKey[k]; g.net_kg=+g.net_kg.toFixed(2); return g;});
   const d=reqDecision(e.uuid);
+  // v3.9 — one entry per photographed basket, for the strip on the pass. Still weight and
+  // count only: a photo is proof of a weighing, not a price.
+  const photos=[];
+  lines.forEach((x,i)=>{ const b=x.photo_b64||'';
+    if(b)photos.push({basket_no:+x.basket_no||(i+1),net_kg:+x.net_kg||0,
+      photo_kb:+x.photo_kb||photoKB(b),photo_b64:b}); });
+  photos.sort((a,b)=>a.basket_no-b.basket_no);
   return Object.freeze({
     uuid:e.uuid,
     ref:String(e.uuid||'').replace(/-/g,'').slice(-6).toUpperCase(),
+    vehicle_plate:String(e.vehicle_plate||'').toUpperCase(),
+    attempt:Math.max(1,Math.floor(+e.attempt||1)),
+    redo_of:String(e.redo_of||''),
+    photos:photos,
     retailer_name:e.retailer_name||'',
     dt:e.dt||'',
     weighed_by:e.worker||'',
@@ -5059,16 +5351,30 @@ function gatepassSummary(src){
 /** The gatepass card. `gp-card` is the scroll anchor renderScaleCard() jumps to. */
 function gatepassHTML(u){
   const s=gatepassSummary(u); if(!s)return '';
-  const cls=s.status==='APPROVED'?'':(s.status==='RETURNED'?' ret':' pend');
-  const stat=tr(s.status==='APPROVED'?'sc_approved':(s.status==='RETURNED'?'sc_returned':'sc_pending'));
+  const dead=supersededBy(s.uuid);
+  const cls=s.status==='APPROVED'?'':(s.status==='CANCELLED'?' can':(s.status==='RETURNED'?' ret':' pend'));
+  const stat=tr(s.status==='APPROVED'?'sc_approved'
+    :(s.status==='CANCELLED'?'rl_cancelled':(s.status==='RETURNED'?'sc_returned':'sc_pending')));
   const fresh=s.status==='PENDING';
-  return '<div class="gpcard" id="gp-card">'+
+  const void_= !!dead || s.status==='CANCELLED';
+  return '<div class="gpcard'+(void_?' dead':'')+'" id="gp-card">'+
     '<div class="gphead"><div class="gpt">'+esc(tr('gp_head'))+'</div>'+
-      '<span class="gplock'+cls+'">'+esc(tr('gp_locked'))+' · '+esc(stat)+'</span></div>'+
+      '<span class="gplock'+(void_?' void':cls)+'">'+
+        esc(void_?tr(dead?'gp_superseded':'gp_cancelled'):(tr('gp_locked')+' · '+stat))+
+        (s.attempt>1?(' · '+esc(tr('rl_attempt'))+' '+s.attempt):'')+'</span></div>'+
+
+    // v3.9 — the lorry, big enough to read at arm's length. This IS the gate log.
+    '<div class="gpplate">'+
+      '<div><span class="gml">🚚 '+esc(tr('sc_plate'))+'</span>'+
+        '<span class="plv">'+esc(s.vehicle_plate||'—')+'</span></div>'+
+      '<div style="text-align:right"><span class="gml">'+esc(tr('gp_ref'))+'</span>'+
+        '<b style="font-size:15px">'+esc(s.ref)+'</b></div>'+
+    '</div>'+
+    (dead?'<div class="deadbar">'+
+      esc(tr('gp_supersededby').replace('%R',refOf(dead.uuid)))+'</div>':'')+
 
     '<div class="gpmeta">'+
       '<div><span class="gml">'+esc(tr('gp_merchant'))+'</span><b>'+esc(s.retailer_name||'—')+'</b></div>'+
-      '<div style="text-align:right"><span class="gml">'+esc(tr('gp_ref'))+'</span><b>'+esc(s.ref)+'</b></div>'+
     '</div>'+
     '<div class="gpmeta" style="padding-top:0">'+
       '<div><span class="gml">'+esc(tr('gp_time'))+'</span>'+esc(s.dt)+
@@ -5100,8 +5406,19 @@ function gatepassHTML(u){
       '<span>'+esc(tr('gp_tare'))+' −'+nf(s.total_tare_kg)+' kg</span></div>'+
 
     (s.note?'<div class="gpnote">'+esc(tr('gp_note'))+': '+esc(s.note)+'</div>':'')+
-    (s.photo_b64?'<img class="gpthumb" style="margin-top:11px" src="'+s.photo_b64+
-      '" onclick="showPhoto(\''+esc(s.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">':'')+
+    (s.attempt>1&&s.redo_of
+      ? '<div class="chain">'+esc(tr('gp_chain').replace('%A',s.attempt)
+          .replace('%R',refOf(s.redo_of)))+'</div>' : '')+
+    // v3.9 — one thumbnail per basket, so the driver can see every basket was photographed
+    (s.photos.length
+      ? '<div class="gpsec">'+esc(tr('gp_photos'))+'</div><div class="pstrip">'+
+        s.photos.map(pp=>'<div class="pstile">'+
+          '<img src="'+pp.photo_b64+'" onclick="showPhoto(\''+esc(pp.photo_b64)+'\',\''+
+            esc(tr('gp_basket'))+' '+pp.basket_no+'\')">'+
+          '<div class="pscap">'+esc(tr('gp_basket'))+' '+pp.basket_no+'<br>'+
+            nf(pp.net_kg)+' kg</div></div>').join('')+'</div>'
+      : (s.photo_b64?'<img class="gpthumb" style="margin-top:11px" src="'+s.photo_b64+
+        '" onclick="showPhoto(\''+esc(s.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">':''))+
 
     // v3.8.1 — a load still sitting on this phone must SAY so. Before this it read
     // "PENDING" exactly like a load the office already had, and a failed upload was
@@ -5113,6 +5430,110 @@ function gatepassHTML(u){
         esc(tr(fresh?'gp_newload':'gp_close'))+'</button>'+
     '</div>'+
   '</div>';}
+
+/* ======================================================================================
+   v3.9 · FINISHING THE RETURNED-LOAD LOOP
+   ======================================================================================
+   Before this, RETURNED was a dead end. The word reached the worker's phone and stopped
+   there, while the durian was still physically sitting at the shed or on the lorry. Two
+   exits, and deliberately only two:
+
+     FIX & RESEND  a NEW request that quotes the returned one through `redo_of`. The
+                   returned record is never edited — the failed attempt stays visible for
+                   ever, which is the whole point of an append-only log.
+     CANCEL        the load is not going. No invoice, no credit movement; the fruit simply
+                   stays counted as sitting in the shed.
+
+   A worker may CANCEL but never APPROVE. Cancelling moves no money; approving does, and
+   that stays with Marketing.
+
+   MERCHANT AND CLONE ARE LOCKED on a correction. Both were agreed with the buyer before the
+   lorry arrived, and letting a "fix" quietly become a different sale is exactly what an
+   audit trail exists to prevent. If the buyer is wrong the worker cancels and starts clean.
+   ====================================================================================== */
+
+/** Loads this worker weighed that Marketing sent back and nobody has acted on yet. */
+function myReturnedLoads(){
+  return dispatchRequests()
+    .filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''))
+    .filter(e=>reqDecision(e.uuid).state==='RETURNED')
+    .filter(e=>!supersededBy(e.uuid))          // already fixed — no longer needs action
+    .sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));}
+
+/** The later attempt that replaced this load, if there is one. */
+function supersededBy(u){
+  return dispatchRequests().find(e=>String(e.redo_of||'')===String(u))||null;}
+/** The reason Marketing gave, from a local event or from the pulled-down decision. */
+function returnReason(u){
+  const ev=EVENTS.find(e=>e.type==='DISPATCH_REJECT'&&String(e.targetUuid||'')===String(u));
+  if(ev)return {why:ev.reason||'',by:ev.worker||'',dt:ev.dt||''};
+  const d=REQ_DECIDED[String(u)];
+  return d?{why:d.reason||'',by:d.by||'',dt:d.dt||''}:{why:'',by:'',dt:''};}
+
+/** The red panel at the top of the scale screen. A returned load must nag. */
+function returnedActionHTML(){
+  if(W_REDO)return '';                          // already working on one
+  const q=myReturnedLoads(); if(!q.length)return '';
+  return q.map(e=>{
+    const r=returnReason(e.uuid);
+    return '<div class="actbox"><div class="ah">↩ '+q.length+' '+
+      esc(tr(q.length>1?'rl_headn':'rl_head'))+'</div>'+
+      '<div class="rsn">'+(r.why?('“'+esc(r.why)+'”'):'—')+
+        '<span class="s">'+esc(r.by)+' · '+esc(r.dt)+' · '+nf(e.total_kg)+' kg → '+
+        esc(e.retailer_name||'')+' · '+esc(tr('gp_ref'))+' '+esc(refOf(e.uuid))+'</span></div>'+
+      '<button class="submitwide" style="padding:17px 12px;font-size:14.5px" '+
+        'onclick="startResend(\''+esc(e.uuid)+'\')">'+tr('rl_fix')+'</button>'+
+      '<button class="bigbtn ghost" style="margin-top:8px;padding:14px;font-size:13.5px" '+
+        'onclick="cancelLoad(\''+esc(e.uuid)+'\')">'+esc(tr('rl_cancel'))+'</button>'+
+    '</div>';}).join('');}
+
+/** The short human reference printed on a gatepass. */
+function refOf(u){return String(u||'').replace(/-/g,'').slice(-6).toUpperCase();}
+
+/**
+ * Load a returned request back into the form for correction.
+ * Weight, grade and the photos are editable. Merchant and clone are NOT — see the block
+ * comment above. The photos are deliberately left BLANK: a resend that reuses the old
+ * picture is just the same load again, and Marketing has already rejected that picture.
+ */
+function startResend(u){
+  const e=reqById(u); if(!e){toast('That load is not on this phone',1);return;}
+  const prev=Math.max(1,Math.floor(+e.attempt||1));
+  W_REDO={uuid:u, attempt:prev+1, ref:refOf(u)};
+  W_RET=e.retailer_id||'';
+  W_PLATE=String(e.vehicle_plate||'').toUpperCase();
+  W_NOTE=e.note||'';
+  W_PHOTO=''; W_GATEPASS='';
+  WLSEQ=0;
+  WLINES=reqLines(e).map(x=>({k:'W'+(++WLSEQ),
+    clone:x.clone||'MK', grade:x.grade||'A', basket:x.basket||'RED', baskets:1,
+    gross:String(x.gross_kg!=null?x.gross_kg:''),
+    fruits:String(x.fruits!=null?x.fruits:''),
+    photo:''}));                                 // new pictures required, every basket
+  if(!WLINES.length)WLINES=[newWLine()];
+  renderScaleCard(); renderHub();
+  toast(tr('rl_newphoto'),1);}
+
+/** Walk away from a correction without sending it. Nothing is written. */
+function abortResend(){
+  W_REDO=null; WLINES=[newWLine()]; W_PHOTO=''; W_PLATE=''; W_NOTE=''; W_RET='';
+  renderScaleCard(); renderHub();}
+
+/**
+ * Close a returned load for good. Rides the existing `audit` payload key exactly as
+ * DISPATCH_REJECT does, so this needed no new backend plumbing at all.
+ * No invoice, no credit movement — the fruit stays counted as shed backlog.
+ */
+async function cancelLoad(u){
+  const e=reqById(u); if(!e)return;
+  if(!confirm(tr('rl_cancelq')))return;
+  const why=(prompt(tr('rl_cancelwhy'),'')||'').trim();
+  if(!why){toast(tr('rl_cancelwhy'),1);return;}
+  await persistEvent({uuid:uuid(),type:'DISPATCH_CANCEL',dt:now(),
+    targetUuid:u, targetType:'DISPATCH_REQ', targetDt:e.dt||'',
+    reason:why, worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
+  badge(); renderScaleCard(); renderVerify(); renderHub();
+  toast(tr('rl_cancelok'));}
 
 /** Re-open a retained gatepass — the truck driver wants to check the load again. */
 function openGatepass(u){
@@ -5131,10 +5552,14 @@ function reqDecision(u){
   if(ok)return {state:'APPROVED',ev:ok,remote:null};
   const no=EVENTS.find(e=>e.type==='DISPATCH_REJECT'&&String(e.targetUuid||'')===String(u));
   if(no)return {state:'RETURNED',ev:no,remote:null};
+  // v3.9 — a worker's own cancellation closes the load just as firmly.
+  const cx=EVENTS.find(e=>e.type==='DISPATCH_CANCEL'&&String(e.targetUuid||'')===String(u));
+  if(cx)return {state:'CANCELLED',ev:cx,remote:null};
   // v3.8.1 - decided on the marketer's phone and pulled down at the hotspot. A local
   // event always wins, so this can only ever ADD news, never contradict this phone's own.
   const d=REQ_DECIDED[String(u)];
-  if(d&&(d.state==='APPROVED'||d.state==='RETURNED'))return {state:d.state,ev:null,remote:d};
+  if(d&&(d.state==='APPROVED'||d.state==='RETURNED'||d.state==='CANCELLED'))
+    return {state:d.state,ev:null,remote:d};
   return {state:'PENDING',ev:null,remote:null};}
 function dispatchRequests(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ');}
 function pendingDispatches(){
@@ -5211,9 +5636,40 @@ function renderVerify(){
       :'<div class="alertnone">Nothing waiting. Workers submit loads from Daily Ops → MORNING SCALE.</div>')+
     verifyHistory();}
 
+/**
+ * v3.9 — WHAT THE WORKER ACTUALLY CHANGED between the returned attempt and this one.
+ *
+ * The case this exists to catch is a worker who resends without changing anything. Without
+ * a diff, attempt 2 looks like a brand new load and the same error walks straight through.
+ * Weight and count only — a marketer's screen may show money, but this comparison is about
+ * the physical load, not its value.
+ */
+function attemptDiff(cur){
+  const prev=cur&&cur.redo_of?reqById(cur.redo_of):null;
+  if(!prev)return null;
+  const a=reqLines(prev), b=reqLines(cur);
+  const rows=[], sum=l=>l.reduce((s,x)=>s+(+x.gross_kg||0),0);
+  const g0=+sum(a).toFixed(2), g1=+sum(b).toFixed(2);
+  const n0=+prev.total_kg||0, n1=+cur.total_kg||0;
+  const f0=+prev.fruit_count||0, f1=+cur.fruit_count||0;
+  const push=(lbl,o,n,unit)=>rows.push({lbl,o,n,unit:unit||'',same:String(o)===String(n)});
+  push(tr('vf_gross'),g0,g1,' kg');
+  push(tr('vf_net'),n0,n1,' kg');
+  push(tr('sc_fruitcount'),f0,f1,'');
+  const p0=(a[0]||{}).photo_b64||prev.photo_b64||'', p1=(b[0]||{}).photo_b64||cur.photo_b64||'';
+  rows.push({lbl:tr('vf_photo'),o:'',n:tr(p0&&p1&&p0===p1?'vf_same':'vf_replaced'),
+    unit:'',same:!!(p0&&p1&&p0===p1),photo:true});
+  const gr0=a.map(x=>x.clone+x.grade).join(','), gr1=b.map(x=>x.clone+x.grade).join(',');
+  push(tr('sc_grade'),gr0,gr1,'');
+  return {prev:prev, rows:rows, nothing:rows.every(r=>r.same),
+    photoOld:p0, photoNew:p1, attempt:Math.max(2,Math.floor(+cur.attempt||2))};}
+
 function verifyCardHtml(e){
   const open=VERIFY_SEL===e.uuid;
   const seen=!!PHOTO_SEEN[e.uuid];
+  const att=Math.max(1,Math.floor(+e.attempt||1));
+  const dif=att>1?attemptDiff(e):null;
+  const rr=dif?returnReason(dif.prev.uuid):null;
   const t=repriceLines(reqLines(e),e.retailer_id);
   const before=retailerCredit(e.retailer_id), after=+((before-t.total_value_rm).toFixed(2));
   const short=after<CREDIT_FLOOR_RM;
@@ -5223,12 +5679,38 @@ function verifyCardHtml(e){
     '<div class="vhead" onclick="openVerify(\''+esc(e.uuid)+'\')">'+
       (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'">'):'<div class="reqthumb none">no photo</div>')+
       '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
-        '<div class="pa">'+esc(e.dt)+' · weighed by '+esc(e.worker||'')+(e.synced?'':' · queued')+'</div></div>'+
+        '<div class="pa">'+esc(e.dt)+' · weighed by '+esc(e.worker||'')+
+        (e.vehicle_plate?(' · 🚚 '+esc(e.vehicle_plate)):'')+(e.synced?'':' · queued')+'</div></div>'+
+      (att>1?'<span class="attchip'+(att>=4?' hot':(att>=3?' warn':''))+'">'+
+        esc(tr('vf_attempt'))+' '+att+'</span>':'')+
       '<span class="cstat '+(seen?'a':'s')+'">'+(seen?'PHOTO SEEN':'CHECK')+'</span>'+
     '</div>'+
     (!open?'':(
       // ---- the audit itself: photo on one side, what was typed on the other ----
       '<div class="vbody">'+
+      // v3.9 — a correction is never audited as if it were a fresh load.
+      (dif?('<div class="hist">'+esc(tr('vf_prevreturn').replace('%A',(dif.attempt-1)))+
+          ' “'+esc((rr&&rr.why)||'')+'”</div>'+
+        (dif.nothing?'<div class="nochg">'+esc(tr('vf_nochange'))+'</div>':'')+
+        '<div class="chgbox"><div class="chgh">'+esc(tr('vf_changed'))+'</div>'+
+        dif.rows.map(r=>'<div class="chg'+(r.same?' same':'')+'"><span>'+esc(r.lbl)+'</span>'+
+          '<span>'+(r.same
+            ? (r.photo?esc(String(r.n)):esc(String(r.n)+r.unit)+' — '+esc(tr('vf_same')))
+            : (r.photo?('<b>'+esc(String(r.n))+'</b>')
+               :('<s>'+esc(String(r.o)+r.unit)+'</s> → <b>'+esc(String(r.n)+r.unit)+'</b>')))+
+          '</span></div>').join('')+'</div>'+
+        // both pictures, side by side. This is how a genuine re-weigh is told from the
+        // same photograph sent twice.
+        (dif.photoOld||dif.photoNew
+          ? '<div class="pair">'+
+            '<div class="pp"><img class="ppim old" src="'+(dif.photoOld||'')+'" '+
+              'onclick="showPhoto(\''+esc(dif.photoOld||'')+'\',\''+
+              esc(tr('vf_before').replace('%A',(dif.attempt-1)))+'\')">'+
+              '<div class="ppc">'+esc(tr('vf_before').replace('%A',(dif.attempt-1)))+'</div></div>'+
+            '<div class="pp"><img class="ppim" src="'+(dif.photoNew||'')+'" '+
+              'onclick="showPhoto(\''+esc(dif.photoNew||'')+'\',\''+esc(tr('vf_after'))+'\')">'+
+              '<div class="ppc">'+esc(tr('vf_after'))+'</div></div></div>'
+          : '')):'')+
       '<div class="vsplit">'+
         '<div class="vphoto">'+
           (e.photo_b64
@@ -5285,10 +5767,21 @@ function verifyHistory(){
       (x.e.photo_b64?('<img class="reqthumb" src="'+x.e.photo_b64+'" onclick="showPhoto(\''+
         esc(x.e.uuid)+'\',\'Scale photo\',1)">'):'<div class="reqthumb none">no photo</div>')+
       '<div class="reqmid"><b>'+nf(x.e.total_kg)+' kg</b> → '+esc(x.e.retailer_name||'')+
+      // v3.9 — `ev` is null when the decision was taken on ANOTHER phone and pulled down
+      // into REQ_DECIDED (v3.8.1). Reading .reason off it crashed this whole panel the
+      // first time a marketer opened it after a colleague decided a load. Caught by the
+      // screenshot pass, not by a test — hence test 20.x below.
       '<div class="pa">'+esc(x.e.dt)+' · '+esc(x.e.worker||'')+
-      (x.d.state==='APPROVED'&&x.d.ev.invoice_no?(' · '+esc(x.d.ev.invoice_no)):'')+
-      (x.d.state==='RETURNED'&&x.d.ev.reason?(' · '+esc(x.d.ev.reason)):'')+'</div></div>'+
-      '<span class="cstat '+(x.d.state==='APPROVED'?'a':'r')+'">'+x.d.state+'</span></div>').join('');}
+      (x.d.state==='APPROVED'&&x.d.ev&&x.d.ev.invoice_no?(' · '+esc(x.d.ev.invoice_no)):'')+
+      (x.d.state!=='APPROVED'&&(decReason(x.d)?(' · '+esc(decReason(x.d))):''))+'</div></div>'+
+      '<span class="cstat '+(x.d.state==='APPROVED'?'a':(x.d.state==='CANCELLED'?'c':'r'))+'">'+
+      esc(x.d.state)+'</span></div>').join('');}
+/** The reason on a decision, whichever phone it was taken on. */
+function decReason(d){
+  if(!d)return '';
+  if(d.ev&&d.ev.reason)return d.ev.reason;
+  if(d.remote&&d.remote.reason)return d.remote.reason;
+  return '';}
 
 /** THE handshake completing. Writes the ordinary DISPATCH event, so the invoice serial,
  *  the credit deduction, the delivery ledger, the yield audit and the WhatsApp receipt
@@ -5368,7 +5861,7 @@ async function pushDispatchReqs(){
 /** Requests come back DOWN as well as up: the worker weighs on one phone and the
  *  Marketer audits on another, so without this the hub would only ever show loads
  *  weighed on the Marketer's own device — the v3.5 divergence bug, repeated. */
-async function mergeDispatchReqs(list){
+async function mergeDispatchReqs(list,photos){
   if(!Array.isArray(list)||!list.length)return 0;
   let n=0;
   for(const x of list){
@@ -5376,6 +5869,18 @@ async function mergeDispatchReqs(list){
     if(EVENTS.some(e=>e.uuid===x.uuid))continue;
     const e={...x,type:'DISPATCH_REQ',synced:true,syncedAt:now()};
     if(typeof e.lines==='string'){try{e.lines=JSON.parse(e.lines);}catch(err){e.lines=[];}}
+    if(typeof e.lines_json==='string'&&(!Array.isArray(e.lines)||!e.lines.length)){
+      try{const p=JSON.parse(e.lines_json); if(Array.isArray(p))e.lines=p;}catch(err){}}
+    // v3.9 — the basket photos travelled in their own tab, so hang them back on the lines
+    // they belong to. Matched by basket_no, never by position: a line dropped in transit
+    // would otherwise silently attach every photo to the wrong basket.
+    const pl=(photos&&photos[e.uuid])||null;
+    if(pl&&Array.isArray(e.lines)){
+      const byNo={}; pl.forEach(pp=>{byNo[String(pp.basket_no)]=pp;});
+      e.lines=e.lines.map((L,i)=>{
+        const hit=byNo[String(L.basket_no!=null?L.basket_no:(i+1))];
+        return hit?{...L,photo_b64:hit.photo_b64,photo_kb:hit.photo_kb}:L;});
+      if(!e.photo_b64&&e.lines[0]&&e.lines[0].photo_b64)e.photo_b64=e.lines[0].photo_b64;}
     EVENTS.push(e); if(db)await put('events',e); n++;}
   if(n)rebuildLedgers();
   return n;}
@@ -5395,7 +5900,12 @@ async function mergeDispatchDecisions(list){
   for(const x of list){
     if(!x)continue;
     const u=String(x.req_uuid||'').trim(); if(!u)continue;
-    const st=(String(x.state||'').toUpperCase()==='RETURNED')?'RETURNED':'APPROVED';
+    // v3.9 — CANCELLED joined the vocabulary. The old two-way test folded it into
+    // APPROVED, which would have told a worker that a load they cancelled had been sold.
+    // Anything unrecognised still falls back to APPROVED, because the only way a row
+    // reaches MKT_DISPATCH at all is by being approved.
+    const raw=String(x.state||'').toUpperCase();
+    const st=(raw==='RETURNED'||raw==='CANCELLED')?raw:'APPROVED';
     const cur=REQ_DECIDED[u];
     if(cur&&cur.state===st)continue;                 // already known, nothing new to say
     REQ_DECIDED[u]={state:st,
@@ -6196,7 +6706,10 @@ function auditQueue(){return EVENTS.filter(e=>
   (e.type==='LOG_VOID'||e.type==='YIELD_ACK'||e.type==='ADMIN_PURGE'||e.type==='ADMIN_CLEANUP'
    // v3.6 — a returned load is an audit row, not a deletion. It rides the existing audit
    // key so no backend change is needed for the reject path.
-   ||e.type==='DISPATCH_REJECT')&&!e.synced);}
+   ||e.type==='DISPATCH_REJECT'
+   // v3.9 — a worker's cancellation is the same shape as a return: targetUuid + reason.
+   // Riding the same key is why closing the loop needed no new backend plumbing.
+   ||e.type==='DISPATCH_CANCEL')&&!e.synced);}
 function q9(){return auditQueue().length;}
 async function pushDispatch(){
   return pushOwnKey(dispQueue(),'dispatch','dispatch',

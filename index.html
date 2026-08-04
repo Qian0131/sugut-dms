@@ -819,6 +819,120 @@ input.bignum:focus{outline:none;}
   line-height:1.55;}
 .cstat.r{background:var(--warn);color:#fff;}
 
+/* ============================================================================
+   v3.9 — compulsory plate, per-basket photos, the returned-load loop, the backlog
+   ============================================================================ */
+
+/* ---- the lorry plate ---- */
+input.plate{width:100%;border:2.5px solid var(--green2);border-radius:13px;padding:11px;
+  font-size:23px;font-weight:900;letter-spacing:2.5px;text-align:center;color:var(--green);
+  background:#fff;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;height:auto;}
+input.plate.empty{border-color:#e8b4af;}
+input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
+.platehint{font-size:10px;color:var(--muted);margin:6px 0 5px;}
+.plchips{display:flex;gap:6px;flex-wrap:wrap;}
+.plchip{background:#fff;border:1.6px solid #cfdccd;border-radius:20px;padding:8px 13px;
+  font-size:12.5px;font-weight:900;cursor:pointer;letter-spacing:1px;
+  font-family:ui-monospace,Menlo,monospace;}
+.plchip.on{background:var(--green2);border-color:var(--green2);color:#fff;}
+
+/* ---- one camera per basket ---- */
+.bcam{display:block;width:100%;box-sizing:border-box;margin-top:10px;padding:16px 12px;
+  border-radius:14px;background:#20301f;color:#fff;text-align:center;font-weight:900;
+  font-size:13.5px;cursor:pointer;border:none;line-height:1.35;box-shadow:0 3px 0 rgba(0,0,0,.18);}
+.bcam .s{display:block;font-size:9.5px;font-weight:800;opacity:.72;margin-top:4px;}
+.bcam.miss{background:#fff;color:var(--warn);border:2.5px dashed var(--warn);box-shadow:none;}
+.bcam.done{background:#13a531;padding:10px;display:flex;align-items:center;gap:11px;
+  text-align:left;box-shadow:0 3px 0 #0c7a24;}
+.bcam.done .bth{width:46px;height:46px;object-fit:cover;border-radius:10px;flex:none;
+  border:2px solid rgba(255,255,255,.75);}
+.bcam.done .bct{flex:1;min-width:0;font-size:13px;}
+.bcam.done .s{opacity:.9;margin-top:3px;}
+.numcell.req{border-color:#e8b4af;}
+.reqchip{float:right;font-size:8px;font-weight:900;background:var(--warn);color:#fff;
+  border-radius:9px;padding:2px 6px;letter-spacing:.4px;}
+
+/* ---- the submit gate ---- */
+.blockbox{background:#fdecea;border:2px solid var(--warn);border-radius:12px;padding:10px 12px;
+  margin-top:10px;font-size:11.5px;font-weight:800;color:#8c1d18;line-height:1.6;}
+.blockbox b{display:block;margin-bottom:3px;font-size:12.5px;}
+.blockbox ul{margin:5px 0 0;padding-left:17px;}
+.okbox{background:#eaf7ec;border:2px solid #13a531;border-radius:12px;padding:10px 12px;
+  margin-top:10px;font-size:11.5px;font-weight:800;color:#0c6b23;}
+.submitwide:disabled{background:#c2ccc2;box-shadow:0 4px 0 #a8b3a8;cursor:not-allowed;}
+
+/* ---- the returned-load action panel ---- */
+.actbox{border:2.5px solid var(--warn);border-radius:16px;background:#fffafa;padding:12px;
+  margin-bottom:12px;}
+.actbox .ah{font-weight:900;font-size:14px;color:#8c1d18;}
+.actbox .rsn{background:#fff;border-radius:10px;padding:9px 11px;margin:9px 0;font-size:12px;
+  font-weight:700;line-height:1.55;border-left:4px solid var(--warn);}
+.actbox .rsn .s{display:block;font-size:10px;color:var(--muted);font-weight:600;margin-top:3px;}
+.fixbar{background:var(--amberbg);border-left:5px solid var(--amber);border-radius:0 12px 12px 0;
+  padding:10px 12px;margin-bottom:10px;font-size:12.5px;font-weight:900;color:#6b4e00;}
+.fixbar .s{display:block;font-size:10.5px;font-weight:600;margin-top:4px;line-height:1.5;}
+.selrow.locked{opacity:.55;pointer-events:none;}
+.attchip{display:inline-block;background:var(--lite);color:var(--green);border-radius:9px;
+  padding:2px 7px;font-size:9px;font-weight:900;letter-spacing:.3px;}
+.attchip.warn{background:var(--amberbg);color:#7a5b00;}
+.attchip.hot{background:var(--warn);color:#fff;}
+.cstat.c{background:#e8ebe8;color:#5d6b5b;}
+
+/* ---- gatepass additions ---- */
+.gpplate{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:#f7f9f6;border-bottom:1px solid #e2e9e0;padding:11px 14px;}
+.gpplate .plv{font-family:ui-monospace,Menlo,monospace;font-size:22px;font-weight:900;
+  letter-spacing:2.5px;color:var(--green);}
+.gpcard.dead{border-color:#9aa79a;}
+.gpcard.dead .gphead{background:#5d6b5b;}
+.gplock.void{background:#38423a;}
+.gplock.can{background:#5d6b5b;}
+.deadbar{background:#eceff0;border:2px solid #8a929a;border-radius:12px;margin:11px 14px;
+  padding:10px 12px;font-size:11.5px;font-weight:800;color:#3f484f;line-height:1.55;}
+.chain{background:#f4f7f3;border-radius:11px;margin:11px 14px 0;padding:9px 11px;
+  font-size:11px;font-weight:700;color:#3d4a3c;line-height:1.6;}
+.pstrip{display:flex;gap:8px;overflow-x:auto;padding:2px 14px 4px;scrollbar-width:none;}
+.pstrip::-webkit-scrollbar{display:none;}
+.pstile{flex:none;width:80px;}
+.pstile img{width:80px;height:80px;object-fit:cover;border-radius:11px;
+  border:2px solid #dfe6df;cursor:pointer;display:block;}
+.pscap{font-size:9px;font-weight:900;color:#5d6b5b;text-align:center;margin-top:4px;line-height:1.3;}
+
+/* ---- Marketing: what changed between attempts ---- */
+.nochg{background:var(--warn);color:#fff;border-radius:10px;padding:9px 11px;margin-top:8px;
+  font-size:12px;font-weight:900;text-align:center;}
+.chgbox{background:var(--lite);border-radius:12px;padding:9px 11px;margin-top:9px;}
+.chgh{font-size:9.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;
+  color:#5d6b5b;margin-bottom:4px;}
+.chg{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;font-weight:800;
+  padding:4px 0;border-bottom:1px dotted #cfe0cc;color:#20301f;}
+.chg:last-child{border-bottom:none;}
+.chg.same{color:#8a9a88;font-weight:600;}
+.chg s{color:#9aa79a;}
+.chg b{color:var(--green2);}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px;}
+.pair .pp{text-align:center;}
+.pair .ppim{width:100%;height:96px;object-fit:cover;border-radius:11px;border:2px solid #dfe6df;
+  cursor:pointer;background:#111;}
+.pair .ppim.old{filter:grayscale(1);opacity:.7;}
+.pair .ppc{font-size:9.5px;font-weight:900;color:#5d6b5b;margin-top:4px;}
+
+/* ---- the backlog table ---- */
+.bltbl td{font-weight:800;}
+.bltbl tr.alarm td{background:#fdecea;color:#8c1d18;}
+.bltbl tr.tot td{background:var(--lite);font-weight:900;font-size:12.5px;}
+.bltbl .cn{display:block;font-size:9px;font-weight:700;color:var(--muted);}
+.pill{display:inline-block;font-size:8.5px;font-weight:900;border-radius:9px;padding:2px 6px;}
+.pill.ok{background:var(--lite);color:var(--green2);}
+.pill.bad{background:var(--warn);color:#fff;}
+.pill.warn{background:var(--amberbg);color:#7a5b00;}
+.trace{background:#f7faf6;border-radius:11px;padding:9px 11px;font-size:11px;line-height:1.7;}
+.trow{display:flex;justify-content:space-between;gap:9px;padding:3px 0;
+  border-bottom:1px dotted #dbe4d9;}
+.trow:last-child{border-bottom:none;}
+.trow.o{color:#8c1d18;}
+.trow.tt{font-weight:900;color:var(--green);}
+
 /* the retained "waiting on Marketing" rows are now tappable gatepasses */
 .reqrow.tapp{cursor:pointer;}
 .reqrow.tapp:active{background:var(--lite);transform:scale(.995);}
@@ -1278,6 +1392,14 @@ input.bignum:focus{outline:none;}
   <div class="card" id="scalecard" style="display:none">
     <div class="sec" data-t="sc_head">⚖️ Morning scale dispatch</div>
     <div id="scalebox"></div>
+  </div>
+
+  <!-- ===== HARVEST · FRUIT BACKLOG & TRACE (v3.9) =====
+       Daily collection counts fruit IN, the Morning Scale counts fruit OUT, and the
+       difference is what is still standing in the shed. Weight and count only. -->
+  <div class="card" id="backlogcard" style="display:none">
+    <div class="sec" data-t="bl_head">📦 Fruit backlog &amp; trace</div>
+    <div id="backlogbox"></div>
   </div>
 
   <!-- ===== MARKETING · PHOTO VERIFICATION HUB (v3.6) =====
@@ -1750,7 +1872,7 @@ input.bignum:focus{outline:none;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.8.1"></script>
-<script src="app.js?v=3.8.1"></script>
+<script src="database.js?v=3.9.0"></script>
+<script src="app.js?v=3.9.0"></script>
 </body>
 </html>
