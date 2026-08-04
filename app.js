@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.9.0';   // v3.9.0 — photo per basket, compulsory vehicle plate + fruit count, the returned-load loop (FIX & RESEND / CANCEL), and the Fruit Backlog & Trace reconciliation
+const APP_VERSION = 'v3.9.1';   // v3.9.1 — v3.9.0 plus the phone-keyboard fixes on the vehicle plate: no write-back mid-keystroke, caps keyboard, autocorrect off, and focus held across a repaint
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -4801,7 +4801,11 @@ function wNumCell(l,field,label,unit,mode,ph,must){
   const empty=!(+l[field]>0);
   return '<div class="numcell'+(must&&empty?' req':'')+'"><label class="sellbl">'+esc(label)+
     (must?'<span class="reqchip">'+esc(tr('sc_required'))+'</span>':'')+'</label>'+
-    '<input class="bignum" type="number" min="0" step="'+(mode==='decimal'?'any':'1')+'" '+
+    // v3.9.1 — a stable id per field, so keepFocus() can put the thumb back where it was
+    // after a repaint. Without an id the number fields were unrecoverable and tapping a
+    // clone button closed the keyboard on a half-keyed weight.
+    '<input class="bignum" id="wn-'+esc(l.k)+'-'+esc(field)+'" '+
+      'type="number" min="0" step="'+(mode==='decimal'?'any':'1')+'" '+
       'inputmode="'+mode+'" placeholder="'+esc(ph)+'" value="'+esc(l[field])+'" '+
       'onfocus="this.select()" '+
       'oninput="wlSet(\''+esc(l.k)+'\',\''+esc(field)+'\',this.value)">'+
@@ -4827,15 +4831,46 @@ function recentPlates(n){
     .forEach(e=>{const v=String(e.vehicle_plate).toUpperCase().trim();
       if(v&&seen.indexOf(v)<0){seen.push(v);out.push(v);}});
   return out.slice(0,n||4);}
+/**
+ * v3.9.1 — WHY THIS NO LONGER WRITES BACK INTO THE FIELD.
+ *
+ * It used to do `input.value = W_PLATE.toUpperCase()` on every keystroke. On a desktop that
+ * is invisible. On an Android keyboard it is not: rewriting the value mid-word tears up
+ * Gboard's composing buffer, so letters double, vanish, or the field empties itself. On iOS
+ * it throws the caret to the end, so a worker correcting the middle of a plate cannot.
+ *
+ * The value is now left exactly as typed. `text-transform:uppercase` in the CSS shows it in
+ * caps, W_PLATE holds the upper-case form for storage, and platePolish() tidies the visible
+ * text ONCE on blur, when no keyboard is composing.
+ */
 function setPlate(v){
   W_PLATE=String(v||'').toUpperCase();
-  const i=$('w-plate'); if(i&&i.value!==W_PLATE)i.value=W_PLATE;
+  // the red "not filled yet" outline has to clear on the FIRST character. It used to wait
+  // for a full re-render that never came, so the box stayed red while the worker typed and
+  // it looked as though nothing was going in.
+  const i=$('w-plate'); if(i)i.classList.toggle('empty',!W_PLATE.trim());
   renderPlateRow(); wGate();}
+
+/** Tidy the typed text once the keyboard has gone: caps, single spaces, trimmed. */
+function platePolish(){
+  const i=$('w-plate'); if(!i)return;
+  const clean=String(i.value||'').toUpperCase().replace(/\s+/g,' ').trim();
+  if(i.value!==clean)i.value=clean;
+  W_PLATE=clean;
+  i.classList.toggle('empty',!clean);
+  renderPlateRow(); wGate();}
+
+/** A chip tap is safe to write straight into the field — no keyboard is composing. */
+function pickPlate(v){
+  const i=$('w-plate');
+  if(i){i.value=String(v||'').toUpperCase();i.classList.remove('empty');}
+  setPlate(v);}
+
 function renderPlateRow(){
   const row=$('w-plates'); if(!row)return;
   const list=recentPlates(4);
   row.innerHTML=list.length?list.map(v=>'<div class="plchip'+(W_PLATE===v?' on':'')+'" '+
-    'onclick="setPlate(\''+esc(v)+'\')">'+esc(v)+'</div>').join(''):'';}
+    'onclick="pickPlate(\''+esc(v)+'\')">'+esc(v)+'</div>').join(''):'';}
 
 /**
  * v3.9 — EVERY reason this load cannot be sent, in the worker's own language.
@@ -4874,6 +4909,30 @@ function wGate(){
       ' · '+t.fruit_count+' '+esc(tr('w_fruits'))+' · '+nf(t.total_kg)+' kg · '+esc(W_PLATE)+'</div>';
     go.disabled=false;}}
 
+/**
+ * v3.9.1 — repaint a panel WITHOUT throwing away the field somebody is typing in.
+ *
+ * The scale card is repainted by the sync path, by the queue badge and by any decision
+ * arriving from another phone. At the office hotspot that can happen while a worker is
+ * halfway through keying the lorry plate — the input is destroyed and recreated, the
+ * keyboard closes, and it looks exactly like the app refusing to accept the plate.
+ * The text itself was never lost (it lives in W_PLATE / WLINES); the focus was.
+ */
+function keepFocus(rootId,paint){
+  const root=$(rootId);
+  const a=document.activeElement;
+  const inside=!!(root&&a&&a!==document.body&&root.contains(a)&&a.id);
+  const id=inside?a.id:'';
+  let st=null,en=null;
+  if(inside){try{st=a.selectionStart;en=a.selectionEnd;}catch(e){}}
+  paint();
+  if(!id)return;
+  const b=$(id); if(!b)return;
+  try{
+    b.focus({preventScroll:true});
+    if(st!=null&&b.setSelectionRange)b.setSelectionRange(st,en==null?st:en);
+  }catch(e){}}
+
 function renderScaleCard(){
   const box=$('scalebox'); if(!box)return;
   if(!canWeigh()){box.innerHTML='';return;}
@@ -4887,7 +4946,8 @@ function renderScaleCard(){
     return;}
 
   const act=activeRetailers(), fixing=!!W_REDO;
-  box.innerHTML=
+  // v3.9.1 — hold the caret across the repaint; see keepFocus() above.
+  const HTML=
     // v3.9 — a returned load is the FIRST thing on the screen, not buried in a history list.
     returnedActionHTML()+
     // NO intro paragraph, NO amber tare banner. The worker lands on the buyer picker,
@@ -4908,9 +4968,16 @@ function renderScaleCard(){
     // ---- v3.9 · the lorry, compulsory ----
     '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_plate'))+
       '<span class="reqchip">'+esc(tr('sc_required'))+'</span></label>'+
-      '<input id="w-plate" class="plate'+(W_PLATE.trim()?'':' empty')+'" '+
-        'placeholder="'+esc(tr('sc_plateph'))+'" value="'+esc(W_PLATE)+'" '+
-        'autocomplete="off" oninput="setPlate(this.value)">'+
+      // v3.9.1 — a plate field on a real phone, not a desktop text box:
+      //   autocapitalize=characters  the keyboard opens in CAPS, so no shift-hunting
+      //   autocorrect / spellcheck off  iOS was "correcting" SS 4412 K into words
+      //   autocomplete=off + name  stops the browser offering old form entries over it
+      //   enterkeyhint=done  the return key closes the keyboard instead of doing nothing
+      '<input id="w-plate" class="plate'+(W_PLATE.trim()?'':' empty')+'" type="text" '+
+        'name="vehicleplate" placeholder="'+esc(tr('sc_plateph'))+'" value="'+esc(W_PLATE)+'" '+
+        'autocomplete="off" autocapitalize="characters" autocorrect="off" '+
+        'spellcheck="false" enterkeyhint="done" maxlength="14" '+
+        'oninput="setPlate(this.value)" onblur="platePolish()">'+
       '<div class="platehint">'+esc(tr('sc_platerecent'))+'</div>'+
       '<div class="plchips" id="w-plates"></div></div>'+
 
@@ -4933,6 +5000,7 @@ function renderScaleCard(){
     (TARE_VERIFIED?'':'<div class="scfoot">'+esc(tr('sc_tarefoot'))+'</div>')+
 
     waitingListHTML()+myRecentDecisions();
+  keepFocus('scalebox',()=>{box.innerHTML=HTML;});
   renderWRetRow(); renderPlateRow(); renderWLines(); wCalc(); wGate();}
 
 /** The retained gatepasses. Every row re-opens its own read-only card — which is the
@@ -5000,7 +5068,7 @@ function myRecentDecisions(){
 
 function renderWLines(){
   const box=$('w-rows'); if(!box)return;
-  box.innerHTML=wLines().map((l,i)=>{
+  const HTML=wLines().map((l,i)=>{
     // The grade row is rebuilt from CLONE_GRADES every paint, so MK offers A/B/C and
     // BT / B24 / 101 / UM offer A/B. A clone can never present a grade it does not sell.
     const gs=gradesFor(l.clone);
@@ -5035,7 +5103,10 @@ function renderWLines(){
             '<span class="s">'+esc(tr('sc_basketphotosub'))+'</span></label>')+
       '<input type="file" id="wcam-'+esc(l.k)+'" accept="image/*" capture="environment" '+
         'style="display:none" onchange="onBasketPhoto(\''+esc(l.k)+'\',this)">'+
-    '</div>';}).join('');}
+    '</div>';}).join('');
+  // same rule as the plate: tapping a clone button must not close the keyboard on a
+  // half-keyed weight two fields below it.
+  keepFocus('w-rows',()=>{box.innerHTML=HTML;});}
 /** Basket names are farm objects, not chemistry — safe to translate, and they are the
  *  one thing on the scale form a worker picks by sight rather than by reading. */
 function basketName(b){
