@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.8.0';   // v3.8.0 — direct-touch Morning Scale (button selectors, big-digit keypads, one basket per row) + the read-only Scale Tally Gatepass
+const APP_VERSION = 'v3.8.1';   // v3.8.1 — the worker is told the truth about their load: Marketing's decision travels back DOWN, and a load still sitting on the phone says so
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -36,6 +36,14 @@ function del(store,key){return new Promise(res=>{if(!db){res();return;}const tx=
 function all(store){return new Promise(res=>{if(!db){res(null);return;}const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(null);});}
 
 let EVENTS=[], CFG=null, KEYS=DEFAULT_KEYS.map(k=>({...k})), LOCKED=false, REG_DIRTY=false;
+/* v3.8.1 - DECISIONS MADE ON SOMEBODY ELSE'S PHONE.
+   Marketing's approval is a DISPATCH event and their return is a DISPATCH_REJECT, and
+   BOTH are created on the marketer's device. Until v3.8.1 neither ever came back down,
+   so a worker's load sat at PENDING for ever - the v3.5 divergence bug in a new place.
+   This map is the decision only: uuid -> {state, dt, by, reason, total_kg, retailer_name}.
+   It is deliberately NOT an event. Writing a stripped, zero-value DISPATCH into a
+   worker's append-only log would corrupt every derived figure built on top of it. */
+let REQ_DECIDED={};
 // v2.2 — offline queue of worker-submitted corrections + the approved overrides
 // that have been burned into TREE_MASTER.
 let CORRECTIONS=[], TREE_FIX={};
@@ -127,6 +135,8 @@ async function initStore(){
         const saved=bk.v.find(x=>String(x.id)===String(seed.id));
         return saved?{...seed,tare_kg:+saved.tare_kg||0,name:saved.name||seed.name}:{...seed};});}
     const tk=kv.find(x=>x.k==='tareok'); TARE_VERIFIED=!!(tk&&tk.v);
+    // v3.8.1 — decisions Marketing made on THEIR phone, pulled down to this one.
+    const rq=kv.find(x=>x.k==='reqdecided'); if(rq&&rq.v&&typeof rq.v==='object') REQ_DECIDED=rq.v;
     const rdt=kv.find(x=>x.k==='retdirty'); RET_DIRTY=!!(rdt&&rdt.v);
     const at=kv.find(x=>x.k==='addtrees'); if(at&&Array.isArray(at.v)) ADDED_TREES=at.v;
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
@@ -837,7 +847,7 @@ async function realWipe(){
     tx.objectStore('events').clear();tx.objectStore('kv').clear();
     tx.objectStore('corrections').clear();                 // v2.5.1: field notes must go too
     tx.oncomplete=res;tx.onerror=res;});
-  EVENTS=[];CORRECTIONS=[];TREE_FIX={};CFG=null;
+  EVENTS=[];CORRECTIONS=[];TREE_FIX={};REQ_DECIDED={};CFG=null;
   // 2. persist the lock so reopening the app stays locked
   if(db)await put('kv',{k:'locked',v:true});
   try{localStorage.clear();sessionStorage.clear();}catch(e){}
@@ -952,6 +962,18 @@ async function refreshMasters(){
     if(inReq){
       const n=await mergeDispatchReqs(inReq);
       if(n){got.dispatchreqs=n; if(typeof renderVerify==='function')renderVerify();}}
+    // v3.8.1 — and the DECISIONS come down too. Approving and returning both happen on the
+    // marketer's device, so without this leg the worker who weighed the load is never told
+    // what became of it and his screen says PENDING for ever.
+    const inDec=(j&&j.ok&&Array.isArray(j.dispatchdecisions))?j.dispatchdecisions:null;
+    if(inDec){
+      const mineN=myNewDecisions(inDec.filter(x=>x&&!REQ_DECIDED[String(x.req_uuid||'').trim()]));
+      const n=await mergeDispatchDecisions(inDec);
+      if(n){
+        got.dispatchdecisions=n;
+        if(typeof renderScaleCard==='function')renderScaleCard();
+        if(typeof renderVerify==='function')renderVerify();
+        if(mineN)toast('📬 '+mineN+' '+tr(mineN>1?'sc_decided_n':'sc_decided_1'));}}
     // v3.5 — adopt the farm-wide per-tree totals. This is what makes the Owner's phone and
     // the workers' phones show the same tied balance.
     const inMeta=(j&&j.treestatsmeta&&typeof j.treestatsmeta==='object')?j.treestatsmeta:null;
@@ -1788,10 +1810,18 @@ async function doSync(auto){
     &&e.type!=='DISPATCH_REJECT');
   if(!batch.length){
     const got=await refreshMasters();renderSync();
-    if(!auto){                       // the person pressed the button — always answer them
+    // v3.8.1 — every own-key push above has already run. Anything still unsynced at this
+    // point was REFUSED by the backend, and saying "up to date" over the top of that is how
+    // a stuck load stayed invisible: the worker was told everything was fine.
+    const stuck=pending();
+    if(!auto){
       const nn=got?(got.tasks+got.programs):0;
-      toast(nn?('✓ '+nn+' new job'+(nn>1?'s':'')+' received from the Owner')
-              :(got?'✓ Up to date — nothing new from the Owner':'Could not reach the Google Sheet',!got));}
+      if(stuck)toast('⚠ '+stuck+' '+tr(stuck>1?'sy_stuck_n':'sy_stuck_1'),1);
+      // v3.8.1 — the `,!got` used to sit INSIDE these brackets, so the comma operator threw
+      // the message away and the worker was shown the literal word "false" every time they
+      // pressed Sync with an empty queue. Pre-existing since v2.5.1; caught by test 6.4.
+      else toast(nn?('✓ '+nn+' new job'+(nn>1?'s':'')+' received from the Owner')
+              :(got?'✓ Up to date — nothing new from the Owner':'Could not reach the Google Sheet'),!got);}
     return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
@@ -1799,7 +1829,9 @@ async function doSync(auto){
       headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
     const j=await r.json();
     if(j&&j.ok){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}rebuildLedgers();badge();renderSync();
-      toast('✓ '+batch.length+' events synced to Google Sheets');
+      const left=pending();      // v3.8.1 — refused own-key records are still sitting here
+      toast(left?('⚠ '+batch.length+' sent, but '+left+' '+tr(left>1?'sy_stuck_n':'sy_stuck_1'))
+                :('✓ '+batch.length+' events synced to Google Sheets'),!!left);
       refreshMasters(); // hidden hotspot token validation runs after every sync
     }
     // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
@@ -4833,8 +4865,9 @@ function waitingListHTML(){
               'showPhoto(\''+esc(e.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">'
             : '<div class="reqthumb none">—</div>')+
           '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
-          '<div class="pa">'+esc(e.dt)+(e.synced?'':' · '+esc(tr('sc_queued')))+'</div></div>'+
-          '<span class="cstat s">'+esc(tr('sc_pending'))+'</span>'+
+          '<div class="pa">'+esc(e.dt)+'</div></div>'+
+          '<span class="cstat '+(e.synced?'s':'r')+'">'+
+            esc(tr(e.synced?'sc_pending':'sc_notsent'))+'</span>'+
           '<span class="gpgo">›</span></div>').join('')
       :'<div class="alertnone">'+esc(tr('sc_nothingwaiting'))+'</div>');}
 
@@ -4844,14 +4877,24 @@ function waitingListHTML(){
 function myRecentDecisions(){
   const mineIds={};
   EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&(!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')))mineIds[e.uuid]=e;});
-  const out=[];
+  const out=[], seen={};
   EVENTS.forEach(e=>{
-    if(e.type==='DISPATCH'&&e.req_uuid&&mineIds[e.req_uuid])
+    if(e.type==='DISPATCH'&&e.req_uuid&&mineIds[e.req_uuid]){
+      seen[e.req_uuid]=1;
       out.push({req:e.req_uuid,dt:e.dt,ok:true,kg:+e.total_kg||0,who:e.verified_by||e.worker||'',
-        name:e.retailer_name||'',why:''});
-    if(e.type==='DISPATCH_REJECT'&&mineIds[e.targetUuid])
+        name:e.retailer_name||'',why:''});}
+    if(e.type==='DISPATCH_REJECT'&&mineIds[e.targetUuid]){
+      seen[e.targetUuid]=1;
       out.push({req:e.targetUuid,dt:e.dt,ok:false,kg:+(mineIds[e.targetUuid].total_kg)||0,who:e.worker||'',
-        name:mineIds[e.targetUuid].retailer_name||'',why:e.reason||''});});
+        name:mineIds[e.targetUuid].retailer_name||'',why:e.reason||''});}});
+  // v3.8.1 — decisions taken on the marketer's phone. A local event above always wins, so
+  // this only fills the gap that used to leave the worker staring at PENDING for ever.
+  Object.keys(mineIds).forEach(u=>{
+    if(seen[u])return;
+    const d=REQ_DECIDED[u]; if(!d)return;
+    out.push({req:u,dt:d.dt||mineIds[u].dt,ok:d.state==='APPROVED',
+      kg:d.total_kg||+(mineIds[u].total_kg)||0,who:d.by||'',
+      name:d.retailer_name||mineIds[u].retailer_name||'',why:d.reason||''});});
   if(!out.length)return '';
   out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
   return '<div class="sec" style="margin-top:14px">'+esc(tr('sc_decided'))+'</div>'+
@@ -5060,6 +5103,10 @@ function gatepassHTML(u){
     (s.photo_b64?'<img class="gpthumb" style="margin-top:11px" src="'+s.photo_b64+
       '" onclick="showPhoto(\''+esc(s.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">':'')+
 
+    // v3.8.1 — a load still sitting on this phone must SAY so. Before this it read
+    // "PENDING" exactly like a load the office already had, and a failed upload was
+    // invisible: the worker walked away believing Marketing had it.
+    (s.synced?'':'<div class="notup">'+esc(tr('gp_notsent'))+'</div>')+
     '<div class="gpredact">'+esc(tr('gp_noprice'))+'</div>'+
     '<div class="gpacts">'+
       '<button class="submitwide" style="padding:18px 12px;font-size:15.5px" onclick="closeGatepass()">'+
@@ -5081,10 +5128,14 @@ function closeGatepass(){W_GATEPASS=''; renderScaleCard();
  *  request on the worker's phone with no extra message type. */
 function reqDecision(u){
   const ok=EVENTS.find(e=>e.type==='DISPATCH'&&String(e.req_uuid||'')===String(u));
-  if(ok)return {state:'APPROVED',ev:ok};
+  if(ok)return {state:'APPROVED',ev:ok,remote:null};
   const no=EVENTS.find(e=>e.type==='DISPATCH_REJECT'&&String(e.targetUuid||'')===String(u));
-  if(no)return {state:'RETURNED',ev:no};
-  return {state:'PENDING',ev:null};}
+  if(no)return {state:'RETURNED',ev:no,remote:null};
+  // v3.8.1 - decided on the marketer's phone and pulled down at the hotspot. A local
+  // event always wins, so this can only ever ADD news, never contradict this phone's own.
+  const d=REQ_DECIDED[String(u)];
+  if(d&&(d.state==='APPROVED'||d.state==='RETURNED'))return {state:d.state,ev:null,remote:d};
+  return {state:'PENDING',ev:null,remote:null};}
 function dispatchRequests(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ');}
 function pendingDispatches(){
   return dispatchRequests().filter(e=>reqDecision(e.uuid).state==='PENDING')
@@ -5328,6 +5379,40 @@ async function mergeDispatchReqs(list){
     EVENTS.push(e); if(db)await put('events',e); n++;}
   if(n)rebuildLedgers();
   return n;}
+
+/**
+ * v3.8.1 - PULL THE DECISION DOWN.
+ *
+ * THE MONEY GUARD IS THE POINT OF THIS FUNCTION. An approved load's row on the Sheet
+ * carries `invoice_no`, `total_value_rm`, `credit_before_rm` and `credit_after_rm`. Copying
+ * the row wholesale would put live prices and a merchant's credit balance onto a farm
+ * worker's phone, which is the one thing this whole design exists to prevent. Six fields
+ * are copied by name and nothing else is even looked at.
+ */
+async function mergeDispatchDecisions(list){
+  if(!Array.isArray(list)||!list.length)return 0;
+  let n=0;
+  for(const x of list){
+    if(!x)continue;
+    const u=String(x.req_uuid||'').trim(); if(!u)continue;
+    const st=(String(x.state||'').toUpperCase()==='RETURNED')?'RETURNED':'APPROVED';
+    const cur=REQ_DECIDED[u];
+    if(cur&&cur.state===st)continue;                 // already known, nothing new to say
+    REQ_DECIDED[u]={state:st,
+      dt:String(x.dt||''), by:String(x.by||''), reason:String(x.reason||''),
+      total_kg:+x.total_kg||0, retailer_name:String(x.retailer_name||'')};
+    n++;}
+  if(n&&db)await put('kv',{k:'reqdecided',v:REQ_DECIDED});
+  return n;}
+
+/** How many of the decisions just pulled down belong to loads THIS phone weighed — which
+ *  is the only number worth interrupting the worker about. */
+function myNewDecisions(list){
+  if(!Array.isArray(list))return 0;
+  const mine={};
+  EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&
+    (!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')))mine[e.uuid]=1;});
+  return list.filter(x=>x&&mine[String(x.req_uuid||'').trim()]).length;}
 
 /* ======================================================================================
    v3.6 · THE MULTI-MERCHANT SUMMARY LEDGER            Owner + Marketer only

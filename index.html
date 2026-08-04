@@ -813,6 +813,12 @@ input.bignum:focus{outline:none;}
 .gpacts{padding:0 12px 13px;}
 .gpacts .bigbtn{margin-top:8px;}
 
+/* v3.8.1 — a load the office has not received says so, loudly, in both places it shows */
+.notup{background:#fdecea;border:2px solid var(--warn);border-radius:12px;
+  margin:11px 14px 0;padding:10px 12px;font-size:11.5px;font-weight:800;color:#8c1d18;
+  line-height:1.55;}
+.cstat.r{background:var(--warn);color:#fff;}
+
 /* the retained "waiting on Marketing" rows are now tappable gatepasses */
 .reqrow.tapp{cursor:pointer;}
 .reqrow.tapp:active{background:var(--lite);transform:scale(.995);}
@@ -1744,7 +1750,7 @@ input.bignum:focus{outline:none;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.8.0"></script>
-<script src="app.js?v=3.8.0"></script>
+<script src="database.js?v=3.8.1"></script>
+<script src="app.js?v=3.8.1"></script>
 </body>
 </html>

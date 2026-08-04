@@ -576,6 +576,13 @@ const EN={
   gp_close:'✕ CLOSE GATEPASS',
   gp_taphint:'Tap any load below to show its gatepass again.',
   gp_note:'Note',
+  /* --- v3.8.1 · telling the worker the truth about their load --- */
+  gp_notsent:'⚠ NOT YET RECEIVED BY THE OFFICE. This load is still on this phone. Bring it to the office hotspot and press Sync.',
+  sc_notsent:'NOT SENT',
+  sc_decided_1:'of your loads has been decided by Marketing',
+  sc_decided_n:'of your loads have been decided by Marketing',
+  sy_stuck_1:'record is still on this phone — the office has NOT received it',
+  sy_stuck_n:'records are still on this phone — the office has NOT received them',
   /* --- scale errors and toasts --- */
   e_pickmerchant:'Choose which merchant this load is going to.',
   e_suspended:'That merchant is suspended.',
@@ -706,6 +713,13 @@ const MS={
   gp_close:'✕ TUTUP PAS',
   gp_taphint:'Tekan mana-mana muatan di bawah untuk buka pas semula.',
   gp_note:'Catatan',
+  /* --- v3.8.1 · beritahu pekerja keadaan sebenar muatan mereka --- */
+  gp_notsent:'⚠ BELUM SAMPAI KE PEJABAT. Muatan ini masih dalam telefon ini. Bawa ke hotspot pejabat dan tekan Sync.',
+  sc_notsent:'BELUM DIHANTAR',
+  sc_decided_1:'muatan anda sudah diputuskan oleh Marketing',
+  sc_decided_n:'muatan anda sudah diputuskan oleh Marketing',
+  sy_stuck_1:'rekod masih dalam telefon ini — pejabat BELUM menerimanya',
+  sy_stuck_n:'rekod masih dalam telefon ini — pejabat BELUM menerimanya',
   e_pickmerchant:'Pilih pembeli untuk muatan ini.',
   e_suspended:'Pembeli ini digantung.',
   e_needweight:'Masukkan bacaan berat kasar untuk sekurang-kurangnya satu bakul.',
