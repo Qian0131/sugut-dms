@@ -921,6 +921,153 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
 .kpis.k3{grid-template-columns:1fr 1fr 1fr;}
 .kpis.k3 .v{font-size:16px;line-height:1.25;}
 
+/* ================= v3.13 · the brand-only worker card =================
+   Big type, high contrast, generous spacing. Nothing on this card is smaller than
+   13px and nothing on it is optional reading. */
+.wcard{background:#fff;border:2px solid var(--green);border-radius:16px;
+  padding:0 0 14px;margin-bottom:14px;overflow:hidden;}
+.wcard.waiting{border-color:#e0a800;}
+.whdr{background:var(--green);padding:2px 0 6px;}
+.wcard.waiting .whdr{background:#8a6d00;}
+.wrow{display:flex;align-items:baseline;gap:10px;padding:7px 15px;}
+.wrow .wl{flex:0 0 92px;font-size:10px;font-weight:800;letter-spacing:.6px;
+  color:rgba(255,255,255,.72);text-transform:uppercase;line-height:1.3;}
+.wrow .wv{flex:1;font-size:17px;font-weight:800;color:#fff;line-height:1.3;}
+.wrow.tall{padding-top:2px;padding-bottom:12px;}
+.wrow .wv.big{font-size:20px;line-height:1.3;}
+/* safety sits between the header and the recipe, where it cannot be scrolled past */
+.wsafe{margin:12px 14px 0;background:#fdecea;border:2px solid var(--warn);border-radius:11px;
+  padding:11px 13px;font-size:15px;font-weight:900;color:var(--warn);line-height:1.35;}
+.wsafe.amber{background:var(--amberbg);border-color:#e0a800;color:#7a5b00;}
+.wsec{margin:15px 15px 2px;font-size:10.5px;font-weight:800;letter-spacing:.8px;
+  color:var(--muted);text-transform:uppercase;}
+/* one drum, one row. Brand left, dose right, nothing in between. */
+.witem{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin:9px 14px 0;padding:14px 15px;background:#f7faf7;border:1.5px solid #dfe8df;
+  border-radius:13px;}
+.witem.short{border-color:var(--warn);background:#fdf4f3;}
+.witem .wname{font-size:18px;font-weight:900;line-height:1.25;min-width:0;}
+.witem .wai{display:block;font-size:11px;font-weight:600;color:#26418f;margin-top:2px;}
+.witem .wshort{display:block;font-size:11.5px;font-weight:800;color:var(--warn);margin-top:3px;}
+.witem .wdose{text-align:right;flex-shrink:0;font-size:15px;font-weight:700;color:#26418f;}
+.witem .wdose b{font-size:23px;font-weight:900;display:block;line-height:1.1;}
+.witem .wper{display:block;font-size:10.5px;font-weight:600;color:var(--muted);margin-top:2px;}
+.wlots{margin:14px 15px 0;font-size:12px;color:var(--muted);font-weight:600;line-height:2;}
+.lotchip.done{background:#e8ebe8;color:#5d6b5b;}
+.lotchip.big{font-size:15px;padding:6px 14px;}
+.wbtn{display:block;width:calc(100% - 28px);margin:13px 14px 0;padding:19px 10px;
+  border:none;border-radius:14px;background:var(--green);color:#fff;
+  font-size:17px;font-weight:900;letter-spacing:.3px;cursor:pointer;}
+.wbtn:active{background:#17551f;}
+.wwait{margin:13px 14px 0;background:var(--amberbg);border-radius:12px;padding:14px;
+  font-size:14px;font-weight:800;color:#7a5b00;line-height:1.4;}
+
+/* ---- the confirm-the-work sheet ---- */
+.rhdr{background:#f4f7fb;border-radius:12px;padding:6px 0;margin:12px 0 4px;}
+.rrow{display:flex;align-items:baseline;gap:10px;padding:5px 13px;}
+.rrow .rl{flex:0 0 68px;font-size:9.5px;font-weight:800;letter-spacing:.7px;
+  color:var(--muted);text-transform:uppercase;}
+.rrow .rv{flex:1;font-size:15px;font-weight:800;color:#26418f;line-height:1.3;}
+input.numbig{font-size:26px;font-weight:900;padding:14px 13px;text-align:center;
+  letter-spacing:1px;}
+.ritem{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:10px 12px;margin-top:7px;background:#f7faf7;border:1.5px solid #dfe8df;
+  border-radius:11px;}
+.ritem.short{border-color:var(--warn);background:#fdf4f3;}
+.ritem .rn{font-size:15px;font-weight:800;min-width:0;}
+.ritem .rq{font-size:15px;font-weight:700;color:#26418f;flex-shrink:0;white-space:nowrap;}
+.ritem .rq b{font-size:19px;font-weight:900;}
+.crewline{margin-top:9px;font-size:13px;color:var(--muted);font-weight:700;}
+.crewline .chg{color:var(--green);font-weight:900;text-decoration:underline;
+  margin-left:8px;cursor:pointer;}
+
+/* ================= v3.14 · count trees, per lot, across days ================= */
+/* the rate strip — the single number the whole calculation hangs on */
+.rate{background:var(--navy,#16295c);color:#fff;border-radius:13px;padding:12px 14px;margin-top:12px;}
+.rate .rl{font-size:10px;font-weight:800;letter-spacing:.7px;color:#a9b8dd;text-transform:uppercase;}
+.rate .rv{font-size:22px;font-weight:900;line-height:1.25;margin-top:2px;}
+.rate .rs{font-size:11.5px;color:#c9d4ee;margin-top:4px;line-height:1.5;}
+/* one lot, with how far into it the crew already are */
+.lotrow{border:2px solid #e2e6ea;border-radius:14px;padding:12px 13px;margin-bottom:10px;
+  background:#fcfdfe;}
+.lotrow.active{border-color:var(--green);background:var(--lite);}
+.lotrow.part{border-color:#e0a800;background:#fffdf3;}
+.lrhead{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.lrname{font-size:19px;font-weight:900;}
+.lrsub{font-size:11.5px;font-weight:700;color:var(--muted);display:block;margin-top:1px;line-height:1.4;}
+.lrtag{font-size:10px;font-weight:900;padding:4px 9px;border-radius:8px;white-space:nowrap;}
+.lrtag.todo{background:#eef1ee;color:var(--muted);}
+.lrtag.doing{background:var(--green);color:#fff;}
+.lrtag.part{background:var(--amberbg);color:#7a5b00;}
+.bar2{height:9px;border-radius:5px;background:#e2e8e2;margin-top:8px;overflow:hidden;}
+.bar2 i{display:block;height:100%;background:var(--green);}
+.bar2 i.amber{background:#e0a800;}
+.lrbody{margin-top:11px;}
+.lrlbl{font-size:10.5px;font-weight:800;letter-spacing:.6px;color:var(--muted);
+  text-transform:uppercase;margin-bottom:5px;}
+input.tree{width:100%;font-size:27px;font-weight:900;padding:12px;text-align:center;
+  border:2px solid #cfd6dd;border-radius:12px;background:#fff;letter-spacing:1px;}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.quick div{border:2px solid #cfd6dd;border-radius:11px;padding:11px 5px;text-align:center;
+  font-size:12.5px;font-weight:900;cursor:pointer;background:#fff;}
+.quick div:active{background:var(--lite);}
+/* the arithmetic chain, shown rather than hidden */
+.chain{margin-top:9px;background:#eef4ff;border-radius:10px;padding:10px 11px;
+  font-size:12px;font-weight:700;color:#16295c;line-height:1.65;}
+.chain .arrow{color:#8fa0c8;font-weight:900;}
+.chain .fin{display:block;margin-top:5px;font-size:12.5px;font-weight:900;}
+.lrskip{margin-top:9px;font-size:12px;color:var(--muted);font-weight:600;}
+.tot{background:var(--lite);border-radius:12px;padding:12px 13px;font-size:13.5px;
+  font-weight:800;color:var(--green);line-height:1.6;}
+.tot .sub{display:block;font-size:11.5px;font-weight:600;color:var(--muted);}
+.mh{margin-top:9px;background:#eef4ff;border-radius:9px;padding:9px 11px;
+  font-size:12.5px;font-weight:800;color:#16295c;line-height:1.55;}
+/* per-lot progress on the worker's card */
+.wprog{margin:13px 14px 0;}
+.pg{display:flex;align-items:center;gap:9px;margin-top:7px;}
+.pg .pgl{flex:0 0 52px;font-size:12px;font-weight:900;color:var(--muted);}
+.pg .pgbar{flex:1;height:11px;border-radius:6px;background:#e2e8e2;overflow:hidden;}
+.pg .pgbar i{display:block;height:100%;background:#e0a800;}
+.pg.fin .pgbar i{background:var(--green);}
+.pg .pgn{flex:0 0 58px;text-align:right;font-size:12.5px;font-weight:900;color:var(--muted);}
+.pg.fin .pgn{color:var(--green);}
+
+/* ---- v3.13 · template toggle grid. Solid dark navy when active. ---- */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px;}
+.tbtn{background:#f4f7fb;border:2px solid #c3d3f0;border-radius:13px;padding:13px 11px;
+  cursor:pointer;min-height:64px;display:flex;flex-direction:column;justify-content:center;}
+.tbtn .tm{font-size:10px;font-weight:800;letter-spacing:.7px;color:#5d6b5b;text-transform:uppercase;}
+.tbtn .ts2{font-size:15px;font-weight:900;color:#26418f;line-height:1.25;margin-top:2px;}
+.tbtn.on{background:#16295c;border-color:#16295c;}
+.tbtn.on .tm{color:rgba(255,255,255,.7);}
+.tbtn.on .ts2{color:#fff;}
+
+/* ---- v3.13 · purchaser horizontal split-cards ---- */
+.acard{border:1.5px solid #e2e6ea;border-radius:14px;padding:0 0 12px;margin-top:12px;
+  overflow:hidden;background:#fff;}
+.ahdr{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:12px 14px;background:#f4f7fb;border-bottom:1.5px solid #e2e6ea;}
+.ahdr .atitle{font-size:15px;font-weight:900;line-height:1.3;min-width:0;}
+.ahdr .ameth{display:block;font-size:11.5px;font-weight:700;color:#26418f;margin-top:2px;}
+.splitcard{display:grid;grid-template-columns:0.85fr 1fr;gap:11px;align-items:center;
+  margin:10px 12px 0;padding:11px 12px;border:1.5px solid #e2e6ea;border-radius:13px;
+  background:#fcfdfe;}
+.splitcard.done{border-color:var(--green);background:var(--lite);}
+.splitcard.short{border-color:var(--warn);background:#fdf4f3;}
+.splitcard .sc-l{min-width:0;}
+.aibadge{display:inline-block;background:var(--green);color:#fff;border-radius:9px;
+  padding:5px 10px;font-size:12.5px;font-weight:900;line-height:1.3;word-break:break-word;}
+.scdose{display:block;font-size:17px;font-weight:900;color:#26418f;margin-top:6px;}
+.scdose b{font-size:20px;}
+.scper{display:block;font-size:10px;font-weight:600;color:var(--muted);}
+.splitcard .sc-r{min-width:0;}
+select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
+  border-radius:11px;border:2px solid #cfd6dd;background:#fff;}
+.sclock{margin-top:6px;font-size:12px;font-weight:800;color:var(--green);line-height:1.35;}
+.sclock .scrm{display:block;font-size:11px;font-weight:700;color:var(--muted);}
+.scshort{margin-top:5px;font-size:11.5px;font-weight:800;color:var(--warn);line-height:1.3;}
+.scnone{font-size:12px;font-weight:700;color:var(--warn);line-height:1.4;}
+
 /* ---- gatepass additions ---- */
 .gpplate{display:flex;justify-content:space-between;align-items:center;gap:10px;
   background:#f7f9f6;border-bottom:1px solid #e2e9e0;padding:11px 14px;}
@@ -1347,69 +1494,61 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
        against the fixed 1,000 L power spray pump tank. No brand is chosen here — that
        is the Sandakan Purchaser's job, and keeping it out of this screen is the whole
        point of the split. -->
+  <!-- ===== v3.13 · AGRONOMIST · PROGRAM BUILDER (Owner / Marketing) =====
+       Every instructional paragraph, blue banner and sub-caption was deleted in v3.13.
+       The 1,000 L anchor survives where it is actually needed: on each slot's dose
+       label. A control that needs a paragraph to explain it is the wrong control. -->
   <div class="card" id="agromatrix" style="display:none">
-    <div class="sec">🧬 Seasonal agronomy matrix — build a five-part combo</div>
-    <div class="anchornote" id="am-anchor">Every dose below is per ONE 1,000 L power spray pump tank.</div>
+    <div class="sec">🧬 Program Builder</div>
 
-    <label>Core program</label>
     <div class="segs" id="am-progs">
       <div class="on" id="amp-SPRAY"  onclick="amSetProgram('SPRAY')">💦 SPRAYING</div>
       <div id="amp-MANURE" onclick="amSetProgram('MANURE')">🪣 MANURING</div>
     </div>
 
     <div class="selrow">
-      <div><label>Season stage</label>
+      <div><label data-t="ag_stage">Season stage</label>
         <select id="am-stage" onchange="amSetField('stage',this.value)"></select></div>
-      <div><label>Current weather</label>
+      <div><label data-t="ag_wx">Current weather</label>
         <select id="am-wx" onchange="setWx3(this.value)"></select></div>
     </div>
-    <div class="cnote" id="am-advice">—</div>
 
-    <label>Application method target <span class="minitag">REQUIRED</span></label>
+    <label data-t="ag_method">Application method</label>
     <select id="am-method" onchange="amSetField('method',this.value)"></select>
-    <div class="small" id="am-methodhint">—</div>
 
-    <label>Recommended templates for this combination</label>
+    <label data-t="s_builder_t">Templates</label>
     <div id="am-tmpl"></div>
 
-    <label style="margin-top:11px">Combo name <span class="minitag">THE CREW SEES THIS</span></label>
-    <input id="am-name" placeholder="e.g. Fruit-hold cover · Aug week 2" autocomplete="off"
+    <label data-t="ag_comboname">Combo name</label>
+    <input id="am-name" placeholder="Fruit-hold cover · Aug wk2" autocomplete="off"
            oninput="AM.name=this.value">
 
-    <label>Where it applies</label>
+    <label data-t="ag_where">Where it applies</label>
     <div class="lotbtns" id="am-lots">
-      <div class="on" id="amL-ALL" onclick="amScope('ALL')">WHOLE FARM</div>
+      <div class="on" id="amL-ALL" onclick="amScope('ALL')">ALL</div>
       <div id="amL-A" onclick="amScope('A')">LOT A</div>
       <div id="amL-B" onclick="amScope('B')">LOT B</div>
       <div id="amL-C" onclick="amScope('C')">LOT C</div>
     </div>
 
-    <div class="sec" style="margin-top:14px">The five component slots —
-      <span id="am-count">0</span> filled</div>
-    <p class="small">Choose the <b>active ingredient</b>, not the brand. Leave a slot on
-      “not used” if the combo does not need it. Sandakan matches a commercial brand to
-      each ingredient after you issue this.</p>
+    <div class="sec" style="margin-top:15px"><span data-t="ag_slots">Components</span>
+      · <span id="am-count">0</span>/5</div>
     <div id="am-slots"></div>
 
     <div class="pinerr" id="am-err"></div>
-    <button class="bigbtn ghost" style="margin-top:10px" onclick="amSave(false)"><span id="am-savelbl">✓ SAVE COMBO TO THE MATRIX</span></button>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="amSave(false)"><span id="am-savelbl">SAVE</span></button>
     <div style="height:8px"></div>
-    <button class="bigbtn" onclick="amIssue()">📣 SAVE &amp; ISSUE TO THE FARM</button>
+    <button class="bigbtn" onclick="amIssue()" data-t="ag_saveissue">📣 SAVE &amp; ISSUE</button>
     <div style="height:8px"></div>
-    <button class="bigbtn ghost" onclick="amReset()">CLEAR THE FORM</button>
+    <button class="bigbtn ghost" onclick="amReset()" data-t="ag_clear">CLEAR</button>
 
-    <div class="sec" style="margin-top:16px">The matrix</div>
+    <div class="sec" style="margin-top:16px" data-t="ag_thematrix">The matrix</div>
     <div id="am-list"></div>
   </div>
 
   <!-- ===== v3.12 · PURCHASER · AI ➔ BRAND ALLOCATION MATRIX ===== -->
   <div class="card" id="alloccard" style="display:none">
-    <div class="sec">🔗 Match a brand to every ingredient the Owner asked for</div>
-    <p class="small">Each row is one active ingredient the Owner prescribed, with the dose
-      against a <b>1,000 litre tank</b>. Choose the brand in the store that carries it —
-      the app locks that brand's <b>moving average cost</b> onto the task card, so the job
-      is costed at what the farm actually paid. Only brands sold in the prescribed unit are
-      offered; this app never converts ml to gm on its own.</p>
+    <div class="sec">🔗 <span data-t="s_alloc">AI ➔ BRAND</span></div>
     <div id="alloclist"></div>
   </div>
 
@@ -1500,7 +1639,6 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
   <div class="card" id="opsgeneral" style="display:none">
     <div class="sec" data-t="op_gen">🛠️ General field tasks</div>
     <div id="genlist"></div>
-    <p class="small" style="margin-top:9px" data-t="op_gennote">Pruning, weeding, fruit tying, branch tying and fruit trimming. Each task asks for the counts that matter for that job — the app will not accept a reply without them.</p>
   </div>
   <div class="card" id="opsassign" style="display:none">
     <div class="sec">📌 Assign a general task</div>
@@ -1945,54 +2083,42 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
   </div>
 </div>
 
-<!-- v3.12 · LOG ACTIVE TASK RUN (Worker) — the one action that closes the loop:
-     it deducts the stock, prices it at the cost the Purchaser locked, and posts the
-     RM to the lot the worker names. -->
+<!-- v3.14 · CONFIRM THE WORK (Worker) — the crew count TREES, one sheet covers every
+     lot they touched today, and crew/hours are keyed once and split by tree count. -->
 <div id="runmodal" class="modal hidden">
   <div class="sheet">
-    <h3 id="run-head">Log active task run</h3>
-    <div class="aibox" style="margin-top:12px">
-      <div><div class="cl"><span data-t="ag_dirlbl">Directive</span>
-        <span class="ro">SET BY OWNER · <span data-t="w_readonly">READ-ONLY</span></span></div>
-        <div class="av" id="run-dir">—</div></div>
-    </div>
-    <div class="methodbox"><span class="ml" data-t="ag_methodlbl">Application method</span>
-      <span class="mv" id="run-method">—</span></div>
+    <h3 id="run-head">Confirm the work</h3>
 
-    <div id="run-waterwrap">
-      <label><span data-t="ag_water">Total water volume utilised (litres)</span>
-        <span class="minitag" data-t="w_required">REQUIRED</span></label>
-      <input type="number" id="run-water" min="0" step="any" inputmode="decimal" oninput="runCalc()">
+    <div class="rhdr">
+      <div class="rrow"><span class="rl" data-t="w13_task">TASK</span>
+        <span class="rv" id="run-task">—</span></div>
+      <div class="rrow"><span class="rl" data-t="w13_method">METHOD</span>
+        <span class="rv" id="run-method">—</span></div>
     </div>
 
-    <label id="run-tanklbl">Number of 1,000 L tanks mixed</label>
-    <input type="number" id="run-tanks" min="0" step="any" inputmode="decimal" oninput="runCalc()">
-    <div class="small" id="run-tankhint">Decimals are allowed — key 3.5 for three full tanks and a half tank.</div>
+    <div id="run-rate"></div>
 
-    <label><span data-t="ag_lot">Target lot applied</span>
-      <span class="minitag" data-t="w_required">REQUIRED</span></label>
-    <div class="lotbtns" id="run-lots">
-      <div id="rn-A" onclick="runLot('A')">LOT A</div>
-      <div id="rn-B" onclick="runLot('B')">LOT B</div>
-      <div id="rn-C" onclick="runLot('C')">LOT C</div>
+    <div class="sec" style="margin-top:12px" data-t="t14_head">How many trees did you do today</div>
+    <div id="run-lots"></div>
+
+    <div class="sec" style="margin-top:14px" data-t="t14_today">Today</div>
+    <div class="tot" id="run-tot">—</div>
+    <div id="run-items"></div>
+
+    <div id="run-crewwrap">
+      <div class="rainrow">
+        <div><label data-t="w13_crew">Crew</label>
+          <input type="number" id="run-crew" min="1" step="1" inputmode="numeric" oninput="runCalc(true)"></div>
+        <div><label data-t="w13_hrs">Hours each</label>
+          <input type="number" id="run-hours" min="0" step="any" inputmode="decimal" oninput="runCalc(true)"></div>
+      </div>
     </div>
-
-    <div class="rainrow">
-      <div><label data-t="ag_crew">Workers on the job</label>
-        <input type="number" id="run-crew" min="1" step="1" inputmode="numeric" oninput="runCalc()"></div>
-      <div><label data-t="ag_hours">Hours each</label>
-        <input type="number" id="run-hours" min="0" step="any" inputmode="decimal" oninput="runCalc()"></div>
-    </div>
-    <div class="convnote" id="run-labour">—</div>
-
-    <div class="sec" style="margin-top:12px" data-t="ag_deducthead">This run will deduct</div>
-    <div class="tblwrap" style="max-height:230px"><table class="tbl" id="run-tbl"></table></div>
-    <div class="convnote" id="run-sum">—</div>
+    <div class="crewline" id="run-crewline"></div>
+    <div class="mh" id="run-mh"></div>
 
     <div class="pinerr" id="run-err"></div>
-    <button class="bigbtn" onclick="submitRun()" data-t="ag_submit">💾 SUBMIT &amp; SECURE WORK LOG</button>
-    <p class="small" data-t="ag_locked">Once secured this log cannot be edited. Stock leaves the store and the
-      cost is posted to that lot's ledger.</p>
+    <button class="bigbtn" id="run-save" onclick="submitRun()" data-t="w13_savetally">💾 Save &amp; Tally Store</button>
+    <div style="height:8px"></div>
     <button class="bigbtn ghost" onclick="closeRun()" data-t="ag_cancel">CANCEL</button>
   </div>
 </div>
@@ -2062,37 +2188,37 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
   </div>
 </div>
 
-<!-- GENERAL TASK COMPLETION (v2.6, Worker) -->
+<!-- v3.14 · GENERAL TASK COMPLETION (Worker) — one filing covers every lot, and crew
+     and hours are keyed once and split by the count, not repeated per lot. -->
 <div id="genmodal" class="modal hidden">
   <div class="sheet">
-    <h3>Report work done</h3>
-    <p class="small" id="gr-sub">—</p>
-    <div class="aibox" style="margin-top:12px">
-      <div><div class="cl">Task <span class="ro">SET BY OWNER · READ-ONLY</span></div><div class="av" id="gr-task">—</div></div>
-      <div class="cr" id="gr-mode">—</div>
+    <h3 data-t="w13_confirmhead">Confirm the work</h3>
+    <div class="rhdr">
+      <div class="rrow"><span class="rl" data-t="w13_task">TASK</span>
+        <span class="rv" id="gr-task">—</span></div>
+      <div class="rrow"><span class="rl" data-t="ag_lot">LOT</span>
+        <span class="rv" id="gr-mode">—</span></div>
     </div>
-    <label>Target lot <span class="minitag">REQUIRED</span></label>
-    <div class="lotbtns" id="gr-lots">
-      <div id="gl-A" onclick="grLot('A')">LOT A</div>
-      <div id="gl-B" onclick="grLot('B')">LOT B</div>
-      <div id="gl-C" onclick="grLot('C')">LOT C</div>
+
+    <div class="sec" style="margin-top:12px" data-t="t14_perlot">Per lot</div>
+    <div class="small" id="gr-hint"></div>
+    <div id="gr-rows"></div>
+
+    <div class="sec" style="margin-top:14px" data-t="t14_today">Today</div>
+    <div class="tot" id="gr-total">—</div>
+
+    <div class="rainrow" style="margin-top:11px">
+      <div><label data-t="w13_crew">Crew</label>
+        <input type="number" id="gr-crew" min="1" step="1" inputmode="numeric" oninput="grCalc()"></div>
+      <div><label data-t="w13_hrs">Hours each</label>
+        <input type="number" id="gr-hours" min="0" step="any" inputmode="decimal" oninput="grCalc()"></div>
     </div>
-    <div id="gr-countwrap">
-      <div class="sec" style="margin-top:12px" id="gr-countlbl">Count per tree</div>
-      <p class="small" id="gr-counthint">Add one line per tree you worked on. The tree number is the number on the QR tag.</p>
-      <div id="gr-rows"></div>
-      <button class="bigbtn ghost" style="margin-top:8px" onclick="grAddRow()">＋ ADD A TREE</button>
-      <div class="convnote" id="gr-total">—</div>
-    </div>
-    <label>Workers on the job <span class="minitag">REQUIRED</span></label>
-    <input type="number" id="gr-crew" min="1" step="1" inputmode="numeric" placeholder="e.g. 3">
-    <label>Hours worked, per worker <span class="minitag">REQUIRED</span></label>
-    <input type="number" id="gr-hours" min="0" step="any" inputmode="decimal" placeholder="e.g. 4.5" oninput="grCalc()">
-    <div class="convnote" id="gr-labour">—</div>
+    <div class="mh" id="gr-labour">—</div>
+
     <div class="pinerr" id="gr-err"></div>
-    <button class="bigbtn" onclick="submitGeneral()">✓ SUBMIT WORK REPORT</button>
+    <button class="bigbtn" onclick="submitGeneral()" data-t="w13_savetally">💾 Save &amp; Tally Store</button>
     <div style="height:8px"></div>
-    <button class="bigbtn ghost" onclick="closeGeneral()">CANCEL</button>
+    <button class="bigbtn ghost" onclick="closeGeneral()" data-t="ag_cancel">CANCEL</button>
   </div>
 </div>
 
@@ -2110,7 +2236,7 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.12.0"></script>
-<script src="app.js?v=3.12.0"></script>
+<script src="database.js?v=3.14.0"></script>
+<script src="app.js?v=3.14.0"></script>
 </body>
 </html>

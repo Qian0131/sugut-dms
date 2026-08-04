@@ -155,16 +155,25 @@ const AGRO_PROGRAMS = [
    the fruit and branches, and nothing on paper said which. `mode` maps each target onto
    the EXISTING v2.6 mode vocabulary so rain-fastness, PHI and the wet-leaf guard keep
    working unchanged. */
+/* v3.14 — `lpt` is LITRES OF SPRAY MIX PER TREE for that method, confirmed by the Owner
+   on 4 Aug 2026. It is the number that turns a tree count into a tank count:
+
+       litres = trees x lpt        tanks = litres / TANK_L
+
+   The crew count TREES, which is what they actually know; the app does the rest. Change
+   one of these and every stock deduction on that method moves with it, so the figure in
+   use is STAMPED ONTO EACH DIRECTIVE when it is issued — editing the number here can
+   never retroactively rewrite a job that has already been done. */
 const SPRAY_METHODS = [
-  {k:'WHOLE',  t:'Whole Tree (Inside/Outside)',   mode:'SPRAY',  d:'Full cover — canopy outside and inside branches'},
-  {k:'LEAFOUT',t:'Leaf Only (Outside)',           mode:'LEAF',   d:'Outer canopy leaf only — NO fruit contact'},
-  {k:'INSIDE', t:'Inside Only (Fruit/Branches)',  mode:'SPRAY',  d:'Inside the canopy — fruit and branch surfaces'},
-  {k:'DRENCH', t:'Soil Drenching',                mode:'DRENCH', d:'Poured at the root zone, not sprayed on the tree'}
+  {k:'WHOLE',  t:'Whole Tree (Inside/Outside)',   mode:'SPRAY',  lpt:15, d:'Full cover — canopy outside and inside branches'},
+  {k:'LEAFOUT',t:'Leaf Only (Outside)',           mode:'LEAF',   lpt:12, d:'Outer canopy leaf only — NO fruit contact'},
+  {k:'INSIDE', t:'Inside Only (Fruit/Branches)',  mode:'SPRAY',  lpt:8,  d:'Inside the canopy — fruit and branch surfaces'},
+  {k:'DRENCH', t:'Soil Drenching',                mode:'DRENCH', lpt:10, d:'Poured at the root zone, not sprayed on the tree'}
 ];
 const MANURE_METHODS = [
-  {k:'DRIP',   t:'Broadcast Dripping Zone',        mode:'SOIL', d:'The ring under the canopy edge where rain drips off'},
-  {k:'OUTCAN', t:'Broadcast Outside the Canopy',   mode:'SOIL', d:'Beyond the canopy edge — feeding the outward roots'},
-  {k:'INCAN',  t:'Broadcast Whole Inside Canopy',  mode:'SOIL', d:'The whole area inside the canopy, trunk outward'}
+  {k:'DRIP',   t:'Broadcast Dripping Zone',        mode:'SOIL', lpt:0, d:'The ring under the canopy edge where rain drips off'},
+  {k:'OUTCAN', t:'Broadcast Outside the Canopy',   mode:'SOIL', lpt:0, d:'Beyond the canopy edge — feeding the outward roots'},
+  {k:'INCAN',  t:'Broadcast Whole Inside Canopy',  mode:'SOIL', lpt:0, d:'The whole area inside the canopy, trunk outward'}
 ];
 
 /* Season stage — the Owner's top-level filter. These are the durian phenology stages the
@@ -900,8 +909,81 @@ const EN={
   ag_keytrees:'Key how many trees were treated.',
   ag_phinote:'⚠ fruit-contact product — check the residue cut-off with the Owner first',
   ag_secured:'🔒 Work log secured', ag_costedto:'item(s) costed to Lot',
-  ag_tmplnote:'Filtered by application method — tap one to pre-fill the slots, then change anything before you issue it.'
+  ag_tmplnote:'Filtered by application method — tap one to pre-fill the slots, then change anything before you issue it.',
+
+  /* --- v3.13 · the brand-only worker card and its two-field completion ---------------
+     The crew's screen carries NO chemistry: no active ingredient, no product class, no
+     PHI product name. Only the physical brand on the drum and how much of it goes in a
+     1,000 L tank. The safety line below is deliberately kept, in plain Malay with no
+     chemical named — a residue cut-off is a food-safety fact, not a technicality. */
+  w13_date:'DATE', w13_task:'TASK', w13_method:'METHOD',
+  w13_perTank:'per 1,000 L tank', w13_perTree:'per tree',
+  w13_markdone:'📦 MARK WORK COMPLETED',
+  w13_savetally:'💾 Save & Tally Store',
+  w13_tanks:'How many 1,000 L tanks mixed',
+  w13_confirm:'Confirm total taken from the store (ml/gm)',
+  w13_expects:'The system expects',
+  w13_mismatch:'What you took out does not match what the recipe needs.',
+  w13_nospray:'⚠ DO NOT SPRAY THE FRUIT — ask the Owner first',
+  w13_norain:'⚠ HEAVY RAIN — do not spray today',
+  w13_wetleaf:'💧 The leaf is still wet — check with the Owner',
+  w13_crew:'Crew', w13_hrs:'Hours each', w13_change:'change',
+  w13_whichlot:'Which lot did you do?',
+  w13_todo:'TO DO', w13_waiting:'WAITING', w13_donelot:'Done',
+  w13_stilltodo:'Still to do',
+  w13_confirmhead:'Confirm the work',
+  w13_recipeTank:'What goes in one 1,000 L tank', w13_recipeTree:'What goes on each tree',
+  w13_keytanks:'Key how many tanks were mixed.',
+  w13_keytotal:'Key the total you took from the store.',
+  w13_keycrew:'Key the crew size and hours — once only, it is remembered after this.',
+  w13_saved:'✓ Work saved · store updated',
+
+  /* physical, worker-facing method wording — what to point the lance at, nothing else */
+  pm_WHOLE:'Spray Whole Tree / Inside & Outside',
+  pm_LEAFOUT:'Spray Outer Leaf Only / No Fruit Contact',
+  pm_INSIDE:'Spray Inside Only / Fruit & Branches',
+  pm_DRENCH:'Soil Drench / Root Zone',
+  pm_DRIP:'Broadcast Canopy Drip Ring',
+  pm_OUTCAN:'Broadcast Outside The Canopy',
+  pm_INCAN:'Broadcast Whole Inside Canopy',
+  s_builder_t:'Templates', ag_comboname:'Combo name', ag_where:'Where it applies',
+  ag_slots:'Components', ag_saveissue:'📣 SAVE & ISSUE', ag_clear:'CLEAR',
+  ag_thematrix:'The matrix', ag_savecombo:'SAVE', ag_savechanges:'SAVE CHANGES',
+  ag_doselbl:'Dose', ag_unitlbl:'Unit',
+
+  /* --- v3.14 · count trees, the app works out the tanks ------------------------------
+     One completion covers every lot touched that day. Crew and hours are keyed ONCE and
+     split by tree count, so two lots in a day can no longer be recorded as double the
+     man-hours. A lot that is not finished stays on the list with its progress. */
+  t14_head:'How many trees did you do today',
+  t14_treestoday:'Trees done today',
+  t14_all:'ALL', t14_none:'NONE',
+  t14_of:'of', t14_trees:'trees', t14_left:'left',
+  t14_donebefore:'done on another day',
+  t14_finished:'FINISHED', t14_carry:'CONTINUE', t14_nottouched:'NOT STARTED',
+  t14_empty:'Leave empty if this lot was not touched today.',
+  t14_rate:'Rate set by the Owner',
+  t14_lpt:'LITRES per tree', t14_pertree:'Per tree — no water',
+  t14_covers:'One 1,000 L tank covers about {n} trees.',
+  t14_nowater:'Fertiliser is broadcast dry. The dose is per tree, not per tank.',
+  t14_today:'Today',
+  t14_mhonce:'man-hours — entered ONCE and split by trees',
+  t14_keytrees:'Key how many trees were done.',
+  t14_toomany:'That is more trees than the lot has left.',
+  t14_stillleft:'Still on the list tomorrow',
+  t14_allfinished:'Every tree is done. This job leaves the list.',
+  t14_saved:'✓ Saved · store updated',
+  t14_lotall:'ALL LOTS',
+  t14_perlot:'Per lot',
+  t14_genall:'Enter what was done in each lot. Leave a lot empty if it was not touched.'
 };
+
+/* Long month names, both languages, for the worker card's date row. Kept as data so the
+   date reads the way each person's phone is set, not the way the server wrote it. */
+const MONTH_LONG_EN=['January','February','March','April','May','June',
+  'July','August','September','October','November','December'];
+const MONTH_LONG_MS=['Januari','Februari','Mac','April','Mei','Jun',
+  'Julai','Ogos','September','Oktober','November','Disember'];
 
 /* Bahasa Malaysia — the terms the Owner approved. Anything missing here simply
    shows the English above, which is why a partial table is safe to ship. */
@@ -1179,5 +1261,63 @@ const MS={
   ag_keytrees:'Masukkan berapa pokok dibuat.',
   ag_phinote:'⚠ barang sentuh buah — tanya Tuan Ladang tentang tempoh menunggu sebelum guna',
   ag_secured:'🔒 Rekod kerja disimpan', ag_costedto:'barang dikira kos untuk Lot',
-  ag_tmplnote:'Ditapis ikut cara semburan — tekan satu untuk isi slot, kemudian ubah apa-apa sebelum keluarkan arahan.'
+  ag_tmplnote:'Ditapis ikut cara semburan — tekan satu untuk isi slot, kemudian ubah apa-apa sebelum keluarkan arahan.',
+
+  /* --- v3.13 · kad kerja jenama sahaja --- */
+  w13_date:'TARIKH', w13_task:'KERJA', w13_method:'CARA KERJA',
+  w13_perTank:'setiap tangki 1,000 L', w13_perTree:'setiap pokok',
+  w13_markdone:'📦 TANDA KERJA SIAP',
+  w13_savetally:'💾 Simpan & Kira Stor',
+  w13_tanks:'Berapa Tangki 1,000L Dicampur',
+  w13_confirm:'Sahkan Jumlah Isi Padu (ml/gm)',
+  w13_expects:'Sistem kira sepatutnya',
+  w13_mismatch:'Jumlah yang anda ambil tidak sama dengan yang resipi perlukan.',
+  w13_nospray:'⚠ JANGAN SEMBUR BUAH — tanya Tuan Ladang dahulu',
+  w13_norain:'⚠ HUJAN LEBAT — jangan sembur hari ini',
+  w13_wetleaf:'💧 Daun masih basah — tanya Tuan Ladang dahulu',
+  w13_crew:'Pekerja', w13_hrs:'Jam seorang', w13_change:'tukar',
+  w13_whichlot:'Lot mana yang dibuat?',
+  w13_todo:'BELUM SIAP', w13_waiting:'MENUNGGU', w13_donelot:'Sudah siap',
+  w13_stilltodo:'Belum siap',
+  w13_confirmhead:'Sahkan kerja',
+  w13_recipeTank:'Apa yang masuk dalam satu tangki 1,000 L', w13_recipeTree:'Apa yang masuk untuk setiap pokok',
+  w13_keytanks:'Masukkan berapa tangki dicampur.',
+  w13_keytotal:'Masukkan jumlah yang anda ambil dari stor.',
+  w13_keycrew:'Masukkan bilangan pekerja dan jam — sekali sahaja, lepas ini sistem ingat.',
+  w13_saved:'✓ Kerja disimpan · stok stor dikemas kini',
+
+  pm_WHOLE:'Sembur Seluruh Pokok / Dalam & Luar',
+  pm_LEAFOUT:'Sembur Daun Luar Sahaja / Jangan Kena Buah',
+  pm_INSIDE:'Sembur Dalam Sahaja / Buah & Dahan',
+  pm_DRENCH:'Siram Tanah / Kawasan Akar',
+  pm_DRIP:'Tabur Kawasan Titisan Tajuk',
+  pm_OUTCAN:'Tabur Luar Tajuk',
+  pm_INCAN:'Tabur Seluruh Dalam Tajuk',
+  s_builder_t:'Templat', ag_comboname:'Nama kombinasi', ag_where:'Untuk lot mana',
+  ag_slots:'Bahagian', ag_saveissue:'📣 SIMPAN & KELUARKAN', ag_clear:'KOSONGKAN',
+  ag_thematrix:'Senarai program', ag_savecombo:'SIMPAN', ag_savechanges:'SIMPAN PERUBAHAN',
+  ag_doselbl:'Sukatan', ag_unitlbl:'Unit',
+
+  /* --- v3.14 · kira pokok, sistem kira tangki --- */
+  t14_head:'Berapa pokok sudah dibuat hari ini',
+  t14_treestoday:'Pokok dibuat hari ini',
+  t14_all:'SEMUA', t14_none:'TIADA',
+  t14_of:'daripada', t14_trees:'pokok', t14_left:'tinggal',
+  t14_donebefore:'dibuat hari lain',
+  t14_finished:'SIAP', t14_carry:'SAMBUNG', t14_nottouched:'BELUM',
+  t14_empty:'Kosongkan jika lot ini tidak disentuh hari ini.',
+  t14_rate:'Kadar yang Tuan Ladang tetapkan',
+  t14_lpt:'LITER setiap pokok', t14_pertree:'Ikut pokok — tiada air',
+  t14_covers:'Satu tangki 1,000 L cukup untuk kira-kira {n} pokok.',
+  t14_nowater:'Baja ditabur terus. Sukatan ikut pokok, bukan ikut tangki.',
+  t14_today:'Hari ini',
+  t14_mhonce:'jam-orang — dimasukkan SEKALI dan dibahagi ikut pokok',
+  t14_keytrees:'Masukkan berapa pokok sudah dibuat.',
+  t14_toomany:'Itu lebih banyak daripada baki pokok dalam lot ini.',
+  t14_stillleft:'Masih dalam senarai esok',
+  t14_allfinished:'Semua pokok sudah siap. Kerja ini keluar dari senarai.',
+  t14_saved:'✓ Disimpan · stok stor dikemas kini',
+  t14_lotall:'SEMUA LOT',
+  t14_perlot:'Setiap lot',
+  t14_genall:'Masukkan apa yang dibuat di setiap lot. Kosongkan lot yang tidak disentuh.'
 };

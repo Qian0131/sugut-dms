@@ -10,7 +10,9 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.12.0';   // v3.12.0 — SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING. The Owner prescribes an ACTIVE INGREDIENT against a fixed 1,000 L tank; the Sandakan Purchaser allocates the commercial brand and locks its moving average cost; the worker logs the tanks actually mixed and that one action deducts the stock, prices it and posts the RM to the lot. Three roles, one loop, no paper in between
+const APP_VERSION = 'v3.14.0';   // v3.14.0 - COUNT TREES, NOT TANKS. One completion now covers every lot touched that day and carries partial work across days: the crew key how many trees they did, the app turns that into litres, tanks and chemical using the litres-per-tree rate for the method. Crew and hours are entered ONCE and split by tree count, so two lots in a day stop being recorded as double the man-hours - the same fix applied to the general field tasks
+// PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
+// PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
 // PREVIOUS: v3.11.0 — SHARED SETTINGS. The price matrix, the basket tare and any added tree now travel to every phone instead of living on the one that typed them. A setting is not an event: it is overwritten, newest wins, and an older phone can never undo a newer correction
 
 // ================= storage (IndexedDB, memory fallback) =================
@@ -2275,11 +2277,13 @@ function renderOpsHistory(){
   const rows=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId).slice(-40).reverse();
   const seen={},groups=[];
   rows.forEach(e=>{const k=e.progId+'|'+e.lot+'|'+e.dt;
-    if(!seen[k]){seen[k]={k:k,dt:e.dt,lot:e.lot,prog:e.progSet||'',worker:e.worker,tanks:e.tanks,water:e.water,n:0,cost:0};groups.push(seen[k]);}
+    if(!seen[k]){seen[k]={k:k,dt:e.dt,lot:e.lot,prog:e.progSet||'',worker:e.worker,tanks:e.tanks,
+      water:e.water,waterKeyed:e.waterKeyed,n:0,cost:0};groups.push(seen[k]);}
     seen[k].n++;seen[k].cost+=(+e.cost||0);});
   box.innerHTML=groups.length?groups.slice(0,12).map(g=>
     '<div class="lrow"><span><b>'+esc(g.prog||'programme')+'</b> · Lot '+esc(g.lot)+
-    '<br><span class="small">'+esc(g.dt)+' · '+esc(g.worker)+' · '+nf(g.tanks)+' tank(s) · '+nf(g.water)+' L water</span></span>'+
+    '<br><span class="small">'+esc(g.dt)+' · '+esc(g.worker)+' · '+nf(g.tanks)+' tank(s) · '+
+    (g.waterKeyed===false?'≈':'')+nf(g.water)+' L water</span></span>'+
     '<span style="text-align:right;font-weight:800">'+g.n+' item'+(g.n>1?'s':'')+
     (SHOW_VALUES?('<br><span class="small">'+rm(g.cost)+'</span>'):'')+'</span></div>').join('')
     :'<div class="small">'+esc(tr('op_noreply'))+'</div>';}
@@ -2705,97 +2709,124 @@ function renderGeneralTasks(){
 
 // ---- 5. worker reply for a general task: structure enforced per job type ------------
 let grTask=null, grLotVal='', grRows=[];
+function grAllowAll(){return grTask&&grTask.scope==='ALL';}
+/** Lots this general task still needs a report for. */
+function grLotsLeft(){
+  if(!grTask)return [];
+  const scope=grTask.scope==='ALL'?LOT_KEYS.slice():[grTask.scope];
+  const done=tasksDoneLots(grTask.uuid);
+  return scope.filter(L=>done.indexOf(L)<0);}
+
 function openGeneral(u){
   const t=taskById(u); if(!t){toast('Task not found',1);return;}
   grTask=t; grLotVal=''; grRows=[];
-  $('gr-sub').textContent='Set by the Owner and cannot be changed here. Report what was actually done.';
   $('gr-task').textContent=t.kindLabel;
-  $('gr-mode').innerHTML=(t.scope==='ALL'?'whole farm':'Lot '+esc(t.scope))+'<br>'+phaseClock(t).text;
-  LOT_KEYS.forEach(L=>$('gl-'+L).classList.toggle('on',false));
-  const perTree=(t.need==='TREE_COUNT');
-  $('gr-countwrap').style.display='';
-  $('gr-countlbl').textContent=perTree?('Count per tree — '+t.countLabel):('Trees covered');
-  $('gr-counthint').textContent=perTree
-    ?'Add one line per tree you worked on. The tree number is the number printed on the QR tag.'
-    :'Enter how many trees were covered in this lot.';
-  $('gr-crew').value='';$('gr-hours').value='';$('gr-err').textContent='';
-  grRows=[perTree?{tree:'',n:''}:{tree:'—',n:''}];
+  $('gr-mode').innerHTML=(t.scope==='ALL'?tr('t14_lotall'):'Lot '+esc(t.scope))+'<br>'+phaseClock(t).text;
+  $('gr-crew').value=(LAST_CREW&&LAST_CREW.crew)||'';
+  $('gr-hours').value=(LAST_CREW&&LAST_CREW.hours)||'';
+  $('gr-err').textContent='';
+  // v3.14 — ONE filing covers every lot. A whole-farm job used to be reported three
+  // times, each asking for crew and hours again, so 3 men x 6 h became 54 man-hours.
+  grRows=grLotsLeft().map(L=>({lot:L,n:'',trees:[]}));
   renderGrRows();
   $('genmodal').classList.remove('hidden');}
 function closeGeneral(){$('genmodal').classList.add('hidden');grTask=null;grRows=[];}
-function grLot(L){grLotVal=L;LOT_KEYS.forEach(k=>$('gl-'+k).classList.toggle('on',k===L));renderGrRows();}
-function grAddRow(){grRows.push({tree:'',n:''});renderGrRows();}
-function grDropRow(i){grRows.splice(i,1);if(!grRows.length)grRows.push({tree:'',n:''});renderGrRows();}
-function grSet(i,f,v){grRows[i][f]=v;grCalc();}
-function renderGrRows(){
-  const perTree=grTask&&grTask.need==='TREE_COUNT';
-  const lot=grLotVal||(grTask&&grTask.scope!=='ALL'?grTask.scope:'');
-  const trees=lot?treesInLot(lot):[];
-  $('gr-rows').innerHTML=grRows.map((r,i)=>{
-    const sel=perTree
-      ?('<select onchange="grSet('+i+',\'tree\',this.value)"><option value="">'+
-        (lot?'pick tree…':'pick the lot first')+'</option>'+
-        trees.map(t=>'<option value="'+t.id+'"'+(r.tree===t.id?' selected':'')+'>'+esc(t.id)+' · '+esc(cloneLabel(t.clone))+'</option>').join('')+'</select>')
-      :'<span class="small" style="flex:1">Trees covered in Lot '+esc(lot||'—')+'</span>';
-    return '<div class="trcount">'+sel+
-      '<input type="number" min="0" step="1" inputmode="numeric" placeholder="'+esc(perTree?grTask.countLabel:'trees')+
-      '" value="'+esc(r.n)+'" oninput="grSet('+i+',\'n\',this.value)">'+
-      (perTree?'<span class="x" onclick="grDropRow('+i+')">✕</span>':'')+'</div>';}).join('');
-  $('gr-rows').nextElementSibling.style.display=perTree?'':'none';
-  grCalc();}
+function grSetN(i,v){grRows[i].n=v;grCalc();}
+function grFill(i){
+  const r=grRows[i]; r.n=treesInLot(r.lot).length; renderGrRows();}
+function grClear(i){grRows[i].n='';renderGrRows();}
+function grActive(){return grRows.filter(r=>+r.n>0);}
 function grTotal(){return grRows.reduce((s,r)=>s+(+r.n||0),0);}
+
+function renderGrRows(){
+  if(!grTask)return;
+  const perTree=grTask.need==='TREE_COUNT';
+  $('gr-hint').textContent=tr('t14_genall');
+  $('gr-rows').innerHTML=grRows.map((r,i)=>{
+    const total=treesInLot(r.lot).length;
+    const n=+r.n||0;
+    return '<div class="lotrow'+(n>0?' active':'')+'">'+
+      '<div class="lrhead"><span class="lrname">LOT '+esc(r.lot)+
+        '<span class="lrsub">'+total+' '+esc(tr('t14_trees'))+'</span></span>'+
+        (n>0?'<span class="lrtag doing">'+esc(tr('t14_finished'))+'</span>'
+            :'<span class="lrtag todo">'+esc(tr('t14_nottouched'))+'</span>')+'</div>'+
+      '<div class="lrbody">'+
+        '<div class="lrlbl">'+esc(grTask.countLabel)+'</div>'+
+        '<input class="tree" type="number" min="0" step="1" inputmode="numeric" placeholder="0" '+
+          'value="'+esc(r.n)+'" oninput="grSetN('+i+',this.value)">'+
+        '<div class="quick">'+
+          '<div onclick="grFill('+i+')">'+esc(tr('t14_all'))+' '+total+'</div>'+
+          '<div onclick="grClear('+i+')">'+esc(tr('t14_none'))+'</div>'+
+        '</div>'+
+        (n>0?'':'<div class="lrskip">'+esc(tr('t14_empty'))+'</div>')+
+      '</div></div>';}).join('')
+    ||'<div class="alertnone">—</div>';
+  grCalc();}
+
 function grCalc(){
   if(!grTask)return;
-  const tot=grTotal(), crew=+$('gr-crew').value||0, hrs=+$('gr-hours').value||0;
-  $('gr-total').innerHTML='<b>'+nf(tot)+'</b> '+esc(grTask.countLabel)+' across <b>'+
-    grRows.filter(r=>+r.n>0).length+'</b> entry(ies)';
-  $('gr-labour').innerHTML=crew&&hrs
-    ?('<b>'+nf(crew*hrs)+'</b> man-hours ('+crew+' worker'+(crew>1?'s':'')+' × '+nf(hrs)+' h)')
-    :'Enter the crew size and hours so the month’s labour total is real.';}
+  const act=grActive(), tot=grTotal();
+  const crew=+$('gr-crew').value||0, hrs=+$('gr-hours').value||0;
+  const shares=splitExact(crew*hrs,act.map(r=>+r.n||0));
+  $('gr-total').innerHTML=tot
+    ?('<b>'+nf(tot)+'</b> '+esc(grTask.countLabel)+' · '+act.length+' lot'+
+      '<span class="sub">'+act.map(r=>'Lot '+r.lot+' '+nf(+r.n||0)).join(' · ')+'</span>')
+    :esc(tr('t14_keytrees'));
+  $('gr-labour').innerHTML=(crew&&hrs&&act.length)
+    ?('<b>'+nf(crew*hrs)+'</b> '+esc(tr('t14_mhonce'))+'<br>'+
+      act.map((r,i)=>'Lot '+r.lot+' '+nf(shares[i])).join(' · '))
+    :esc(tr('w13_keycrew'));}
+
 let genSaving=false;
 async function submitGeneral(){
   const err=$('gr-err');err.textContent='';
   if(!grTask||genSaving)return;
-  const perTree=grTask.need==='TREE_COUNT';
-  if(!grLotVal){err.textContent='Select the lot this work was done in.';return;}
-  const rows=grRows.filter(r=>+r.n>0);
-  if(!rows.length){err.textContent=perTree?('Add at least one tree with a '+grTask.countLabel+' count.')
-                                          :'Enter how many trees were covered.';return;}
-  if(perTree){
-    if(rows.some(r=>!r.tree)){err.textContent='Every line needs a tree number.';return;}
-    const ids=rows.map(r=>r.tree);
-    if(new Set(ids).size!==ids.length){err.textContent='The same tree is entered twice.';return;}
-    const wrong=rows.find(r=>{const t=treeById(r.tree);return !t||t.lot!==grLotVal;});
-    if(wrong){err.textContent=wrong.tree+' is not in Lot '+grLotVal+'.';return;}}
-  const crew=Math.round(+$('gr-crew').value||0), hours=+$('gr-hours').value;
+  const act=grActive();
+  if(!act.length){err.textContent=tr('t14_keytrees');return;}
+  const crew=Math.round(+$('gr-crew').value||0), hours=+$('gr-hours').value||0;
   if(!(crew>0)){err.textContent='Enter how many workers were on the job.';return;}
   if(!(hours>0)){err.textContent='Enter the hours worked per worker.';return;}
-  if(tasksDoneLots(grTask.uuid).indexOf(grLotVal)>=0&&
-     !confirm('Lot '+grLotVal+' was already reported for this task.\nSend another report anyway?'))return;
+  const dup=act.find(r=>tasksDoneLots(grTask.uuid).indexOf(r.lot)>=0);
+  if(dup&&!confirm('Lot '+dup.lot+' was already reported for this task.\nSend another report anyway?'))return;
   genSaving=true;
-  const stamp=now(), tot=rows.reduce((s,r)=>s+(+r.n||0),0), lot=grLotVal, kl=grTask.kindLabel;
+  const stamp=now(), rid=uuid(), kl=grTask.kindLabel;
+  // ONE row per lot — never a single row carrying lot 'ALL'. tasksDoneLots(), the
+  // Owner's lot chips, the month labour matrix and the per-lot costing all filter on
+  // e.lot===L, so a fourth value in that column would break five readers at once.
+  const shares=splitExact(crew*hours,act.map(r=>+r.n||0));
   try{
-    await persistEvent({uuid:uuid(),type:'TASK_DONE',dt:stamp,taskId:grTask.uuid,
-      kind:grTask.kind,kindLabel:grTask.kindLabel,need:grTask.need,
-      lot:lot,count:tot,countLabel:grTask.countLabel,unit:grTask.unit,
-      trees:rows.length,detail:rows.map(r=>({tree:r.tree,n:+r.n||0})),
-      crew:crew,hours:hours,manHours:+(crew*hours).toFixed(2),
-      worker:CFG.worker,device:CFG.device,synced:false});
+    for(let i=0;i<act.length;i++){
+      const r=act[i];
+      await persistEvent({uuid:uuid(),type:'TASK_DONE',dt:stamp,taskId:grTask.uuid,
+        kind:grTask.kind,kindLabel:grTask.kindLabel,need:grTask.need,
+        lot:r.lot,count:+r.n||0,countLabel:grTask.countLabel,unit:grTask.unit,
+        trees:+r.n||0,
+        reportId:rid, allLots:act.length>1, lotsInReport:act.length,
+        // true crew and hours on every row; only the man-hour SHARE differs
+        crew:crew,hours:hours,manHours:shares[i],
+        worker:CFG.worker,device:CFG.device,synced:false});}
   } finally { genSaving=false; }
+  LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
+  const tot=grTotal(), lots=act.map(r=>r.lot).join(', ');
   closeGeneral();
-  toast('✓ '+kl+' reported · '+nf(tot)+' logged in Lot '+lot);
-  renderGeneralTasks();renderAssign();renderLabour();renderHub();}
+  toast('✓ '+kl+' · '+nf(tot)+' · Lot '+lots);
+  renderGeneralTasks();renderAssign();renderLabour();renderHub();badge();}
 
 // ---- 6. labour roll-up ---------------------------------------------------------------
 function labourRows(){
   const out=[];
+  // v3.14 — mhOf() reads the SHARE stored on the row when one completion covered several
+  // lots, and falls back to crew x hours for every row written before v3.14. Both labour
+  // readers go through here, so this one change fixes the month matrix too.
   EVENTS.filter(e=>e.type==='TASK_DONE').forEach(e=>out.push({dt:e.dt,what:e.kindLabel,lot:e.lot,
-    crew:+e.crew||0,hours:+e.hours||0,mh:(+e.crew||0)*(+e.hours||0),worker:e.worker}));
+    crew:+e.crew||0,hours:+e.hours||0,mh:mhOf(e),worker:e.worker}));
   const seen={};
   EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId&&e.hours).forEach(e=>{
-    const k=e.replyId||(e.progId+'|'+e.lot+'|'+e.dt); if(seen[k])return; seen[k]=1;   // one reply = many rows
+    // one filing can now cover several lots, so the key must include the lot or the
+    // second lot's man-hours are dropped on the floor
+    const k=(e.replyId||(e.progId+'|'+e.dt))+'|'+e.lot; if(seen[k])return; seen[k]=1;
     out.push({dt:e.dt,what:e.progSet||'programme',lot:e.lot,crew:+e.crew||0,hours:+e.hours||0,
-      mh:(+e.crew||0)*(+e.hours||0),worker:e.worker});});
+      mh:mhOf(e),worker:e.worker});});
   return out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));}
 function labourByMonth(){
   const m={};
@@ -3683,7 +3714,10 @@ function renderOpsTasks(){
   // v3.12 — the seasonal directives sit ABOVE the programme-sheet phases, because a
   // directive is what the Owner issued this morning and a phase is the standing plan.
   const dir=directiveCardsHTML();
-  box.innerHTML=(dir?(dir+'<div class="cnote">'+esc(tr('ag_dirnote'))+'</div>'):'')+box.innerHTML+
+  // v3.13 — the directive note is DELETED. It was six lines of prose, and worse, it told
+  // the crew to press "REKOD KERJA YANG DIBUAT" — a button this release renamed. A note
+  // that describes a control by a name it no longer has is worse than no note at all.
+  box.innerHTML=dir+box.innerHTML+
     ((dir||t.length)?'':'<div class="alertnone">'+esc(tr('op_notask'))+'</div>');
   // v3.12 FIX (screenshot, not test) — the standing note under this list explains
   // CONFIRM COMPLETION and MIXED A DIFFERENT AMOUNT. A directive card has neither
@@ -8688,11 +8722,11 @@ function brandsFor(slotK,ai,unit){
           other:all.filter(p=>p.unit!==unit)};}
 
 /* ======================= OWNER · the five-slot seasonal builder ======================= */
-let AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:'DRY',scope:'ALL',name:'',slots:{}};
+let AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:'DRY',scope:'ALL',name:'',slots:{},tmpl:''};
 function amBasis(){return AM.program==='MANURE'?'PER_TREE':'PER_1000L';}
 function amUnitLabel(){return amBasis()==='PER_1000L'?('per '+nf(TANK_L)+' L tank'):'per tree';}
 function amReset(){
-  AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:WX3,scope:'ALL',name:'',slots:{}};
+  AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:WX3,scope:'ALL',name:'',slots:{},tmpl:''};
   if($('am-name'))$('am-name').value='';
   renderAgroMatrix();}
 function amSetProgram(k){
@@ -8724,34 +8758,36 @@ function amSlotsHTML(){
     const info=ais.find(a=>a.ai===cur.ai);
     const units=info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):[];
     const cls=cur.ai?rainClass(cur.ai):null;
+    // v3.13 — the per-slot description was sub-text on a control that is already
+    // labelled. Deleted, along with every other caption on this screen.
     return '<div class="slotbox'+(cur.ai&&+cur.dose>0?' filled':'')+'">'+
-      '<div class="slothead"><span>'+s.ic+' <b>'+esc(slotLabelT(s.k))+'</b></span>'+
-        '<span class="exphint">'+esc(s.d)+'</span></div>'+
+      '<div class="slothead"><span>'+s.ic+' <b>'+esc(slotLabelT(s.k))+'</b></span></div>'+
       '<select id="ams-ai-'+s.k+'" onchange="amSlotAI(\''+s.k+'\')">'+
         '<option value="">— not used in this combo —</option>'+
         ais.map(a=>'<option value="'+esc(a.ai)+'"'+(a.ai===cur.ai?' selected':'')+'>'+
           esc(a.ai)+' ('+a.n+' brand'+(a.n>1?'s':'')+' in store)</option>').join('')+
       '</select>'+
       (cur.ai
-        ?('<div class="small" style="margin-top:5px">'+aiTagHTML(cls)+esc(cls.why)+
-            (WX3!=='DRY'&&cls.k==='CONTACT'?' <b style="color:#b3261e">— rain is forecast</b>':'')+'</div>'+
+        // the tag stays (one word, it earns its place); the sentence explaining it does not
+        ?('<div class="small" style="margin-top:5px">'+aiTagHTML(cls)+
+            (WX3!=='DRY'&&cls.k==='CONTACT'?'<b style="color:#b3261e">RAIN FORECAST</b>':'')+'</div>'+
           '<div class="slotrow">'+
-            '<div><label>Concentration <span class="minitag">'+esc(amUnitLabel())+'</span></label>'+
+            // "Concentration" wrapped the 1,000 L minitag onto a second line. "Dose" is the
+            // word the programme sheet itself uses and it keeps the anchor on one line.
+            '<div><label>'+esc(tr('ag_doselbl'))+' <span class="minitag">'+esc(amUnitLabel())+'</span></label>'+
               '<input type="number" id="ams-dose-'+s.k+'" min="0" step="any" inputmode="decimal" '+
                 'value="'+(cur.dose||'')+'" oninput="amSlotDose(\''+s.k+'\')"></div>'+
-            '<div><label>Unit</label><select id="ams-unit-'+s.k+'" onchange="amSlotUnit(\''+s.k+'\')">'+
+            '<div><label>'+esc(tr('ag_unitlbl'))+'</label><select id="ams-unit-'+s.k+'" onchange="amSlotUnit(\''+s.k+'\')">'+
               units.map(u=>'<option'+(u===cur.unit?' selected':'')+'>'+esc(u)+'</option>').join('')+
             '</select></div>'+
           '</div>')
         :'')+
       '</div>';}).join('');}
 function amTemplatesHTML(){
-  // Recommendation, never substitution. These are the farm's OWN programme sets, filtered
-  // to the ones whose application mode fits the stage and the weather the Owner has
-  // chosen. Tapping one pre-fills the slots; it does not activate anything.
+  // v3.13 — the chip strip became a grid of large toggle buttons. The one the Owner
+  // loaded stays lit in solid navy, so the screen answers "which template is this?"
+  // without a caption underneath it saying so.
   const meth=methodRec(AM.program,AM.method);
-  // rank by how close the set's own plan date is to today, so the Owner is offered this
-  // month's work first rather than whatever happens to sit at the top of the sheet
   const today=todayStr();
   const dist=ph=>{const d=String(ph.plan||''); if(!d)return 9e9;
     return Math.abs(new Date(d)-new Date(today))/86400000;};
@@ -8760,10 +8796,11 @@ function amTemplatesHTML(){
     if(WX3==='HEAVY')return ph.mode==='DRENCH'||ph.mode==='SOIL';
     return ph.mode===meth.mode||ph.mode==='SPRAY'||ph.mode==='LEAF';})
     .sort((a,b)=>dist(a)-dist(b)).slice(0,6);
-  if(!hits.length)return '<div class="small">No template on the programme sheet matches this combination yet.</div>';
-  return '<div class="tmplrow">'+hits.map(ph=>
-    '<span class="tmpl" onclick="amLoadTemplate(\''+esc(ph.id)+'\')">'+esc(monthLabel(ph.month))+' · '+esc(ph.set)+'</span>').join('')+'</div>'+
-    '<div class="exphint" style="margin-top:5px">'+esc(tr('ag_tmplnote'))+'</div>';}
+  if(!hits.length)return '';
+  return '<div class="tgrid">'+hits.map(ph=>
+    '<div class="tbtn'+(AM.tmpl===ph.id?' on':'')+'" onclick="amLoadTemplate(\''+esc(ph.id)+'\')">'+
+      '<span class="tm">'+esc(monthLabel(ph.month))+'</span>'+
+      '<span class="ts2">'+esc(ph.set)+'</span></div>').join('')+'</div>';}
 function amLoadTemplate(id){
   const ph=allPhases().find(p=>p.id===id); if(!ph)return;
   AM.slots={};
@@ -8774,9 +8811,9 @@ function amLoadTemplate(id){
     const s=COMBO_SLOTS.find(x=>x.cats.indexOf(p.cat)>=0&&!AM.slots[x.k]);
     if(!s)return;
     AM.slots[s.k]={slot:s.k,ai:ai,unit:l.unit||p.unit,dose:+l.qty||0};});
+  AM.tmpl=id;
   if(!AM.name)AM.name=monthLabel(ph.month)+' · '+ph.set;
   if($('am-name'))$('am-name').value=AM.name;
-  toast('Loaded '+ph.set+' into the slots — change anything before you issue it');
   renderAgroMatrix();}
 function renderAgroMatrix(){
   const box=$('am-slots'); if(!box)return;
@@ -8787,19 +8824,15 @@ function renderAgroMatrix(){
   const ms=draftMethodList(AM.program);
   if(!ms.some(m=>m.k===AM.method))AM.method=ms[0].k;
   $('am-method').innerHTML=ms.map(m=>'<option value="'+m.k+'"'+(m.k===AM.method?' selected':'')+'>'+esc(m.t)+'</option>').join('');
-  $('am-methodhint').textContent=methodRec(AM.program,AM.method).d;
   $('am-stage').innerHTML=SEASON_STAGES.map(s=>'<option value="'+s.k+'"'+(s.k===AM.stage?' selected':'')+'>'+s.ic+' '+esc(s.t)+'</option>').join('');
   $('am-wx').innerHTML=WX3_MODES.map(w=>'<option value="'+w.k+'"'+(w.k===WX3?' selected':'')+'>'+w.ic+' '+esc(w.t)+'</option>').join('');
   LOT_KEYS.concat(['ALL']).forEach(L=>{const el=$('amL-'+L);if(el)el.classList.toggle('on',AM.scope===L);});
-  // stage x weather advice
-  const adv=STAGE_ADVICE[AM.stage]||{};
-  $('am-advice').innerHTML='<b>'+esc(stageRec(AM.stage).ic+' '+stageRec(AM.stage).t)+'</b> — '+esc(adv.base||'')+
-    (adv[WX3]?('<br><b>'+esc(wx3Rec().ic+' '+wx3Rec().t)+'</b> — '+esc(adv[WX3])):'');
-  $('am-anchor').innerHTML=amBasis()==='PER_1000L'?esc(tr('ag_tank')):esc(tr('ag_tankman'));
+  // v3.13 — the stage-advice paragraph and the blue 1,000 L banner are gone. STAGE_ADVICE
+  // is still in database.js, unrendered, so it costs nothing to put back if it is wanted.
   $('am-tmpl').innerHTML=amTemplatesHTML();
   box.innerHTML=amSlotsHTML();
   $('am-count').textContent=String(draftLines({slots:AM.slots}).length);
-  $('am-savelbl').textContent=AM.uuid?'✓ SAVE CHANGES':'✓ SAVE COMBO TO THE MATRIX';
+  $('am-savelbl').textContent=AM.uuid?tr('ag_savechanges'):tr('ag_savecombo');
   renderDraftList();}
 function amValidate(){
   const err=$('am-err'); err.textContent='';
@@ -8841,6 +8874,9 @@ async function amSave(issue){
     stage:AM.stage, stageLabel:stageRec(AM.stage).t,
     wx:WX3, wxLabel:wx3Rec().t,
     basis:amBasis(), tankL:TANK_L, scope:AM.scope,
+    // v3.14 — the litres-per-tree rate IN FORCE when this was issued. Stamped, so
+    // editing the constant later cannot rewrite a job already done against it.
+    lpt:(methodRec(AM.program,AM.method)||{}).lpt||0,
     slots:{}, status:issue?'ISSUED':(old?old.status:'DRAFT'),
     by:(CFG&&CFG.worker)||'', at:nowSec(),
     issuedAt:issue?nowSec():(old?old.issuedAt:''),
@@ -8848,7 +8884,7 @@ async function amSave(issue){
   lines.forEach(l=>{rec.slots[l.slot]={slot:l.slot,ai:l.ai,unit:l.unit,dose:+l.dose};});
   if(old)AGRO_DRAFTS[AGRO_DRAFTS.indexOf(old)]=rec; else AGRO_DRAFTS.unshift(rec);
   await persistDrafts();
-  AM.uuid=''; if($('am-name'))$('am-name').value=''; AM.slots={}; AM.name='';
+  AM.uuid=''; if($('am-name'))$('am-name').value=''; AM.slots={}; AM.name=''; AM.tmpl='';
   toast(issue?('📣 '+rec.name+' issued — Sandakan now sees it under AI ➔ BRAND')
              :('✓ '+rec.name+' saved to the matrix'));
   renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();badge();}
@@ -8856,7 +8892,7 @@ async function amIssue(){await amSave(true);}
 function amEdit(u){
   const d=draftById(u); if(!d)return;
   AM={uuid:d.uuid,program:d.program,method:d.method,stage:d.stage,wx:d.wx,scope:d.scope,
-      name:d.name,slots:JSON.parse(JSON.stringify(d.slots||{}))};
+      name:d.name,slots:JSON.parse(JSON.stringify(d.slots||{})),tmpl:''};
   if($('am-name'))$('am-name').value=d.name;
   renderAgroMatrix();
   const el=$('agromatrix'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
@@ -8914,58 +8950,74 @@ function renderDraftList(){
   const box=$('am-list'); if(!box)return;
   const live=AGRO_DRAFTS.filter(d=>!d.deleted);
   box.innerHTML=live.length?live.map(d=>draftRowHTML(d,false)).join('')
-    :'<div class="small">Nothing in the matrix yet. Choose the stage, the weather and the method above, fill the slots that apply, then save.</div>';}
+    // v3.13 — the empty state was the last paragraph left on this screen. An empty list
+    // does not need three sentences of instruction; the form is directly above it.
+    :'<div class="alertnone">—</div>';}
 
 /* ================= PURCHASER · brand allocation + product onboarding ================= */
+/* ======================================================================================
+   v3.13 · HORIZONTAL SPLIT-CARDS FOR THE PURCHASER
+   ======================================================================================
+   Left: the active ingredient the Owner asked for, in a green badge, with its dose.
+   Right: one large touch dropdown holding the brands in the store that carry it.
+   That is the whole screen. The explanatory paragraph is gone — the two halves of the
+   card say what the job is better than a paragraph above them ever did.
+
+   No currency reaches this view for the Purchaser. Owner and Marketing get a single
+   compact cost chip, because they are the roles entitled to see it and they use this
+   screen to check what a job will cost before the crew go out.
+   ====================================================================================== */
 function renderAllocCard(){
   const box=$('alloclist'); if(!box)return;
   if(!roleAllows('alloccard')){box.innerHTML='';return;}
   const live=issuedDrafts().filter(d=>!d.deleted);
-  if(!live.length){box.innerHTML='<div class="alertnone">No directive has been issued yet. When the Owner issues one it appears here for you to match brands to.</div>';return;}
+  if(!live.length){box.innerHTML='<div class="alertnone">'+esc(tr('ag_nodir'))+'</div>';return;}
   box.innerHTML=live.map(d=>{
     const rows=draftLines(d).map(l=>{
       const a=allocOf(d.uuid,l.slot), s=slotRec(l.slot);
       const b=brandsFor(l.slot,l.ai,l.unit);
-      const opts='<option value="">— choose a brand in the store —</option>'+
-        b.match.map(p=>'<option value="'+p.id+'"'+(a&&a.pid===p.id?' selected':'')+'>'+
-          esc(p.name)+' — '+nf(onHand(p))+' '+esc(p.unit)+' on hand'+
-          (SHOW_VALUES?(' · '+rm(currentMAC(p.id))+'/'+esc(p.unit)):'')+'</option>').join('');
       const short=allocShort(d.uuid,l.slot);
-      return '<div class="allocrow'+(a&&a.pid?' done':'')+'">'+
-        '<div class="allochead">'+s.ic+' <b>'+esc(slotLabelT(l.slot))+'</b> · <span class="aival">'+esc(l.ai)+'</span>'+
-          '<span class="dosepill">'+nf(l.dose)+' '+esc(l.unit)+' '+esc(d.basis==='PER_1000L'?('/ '+nf(TANK_L)+' L tank'):'/ tree')+'</span></div>'+
-        (b.match.length
-          ?('<select onchange="allocPick(\''+d.uuid+'\',\''+l.slot+'\',this.value)">'+opts+'</select>')
-          :('<div class="notup"><b>'+esc(tr('pu_nostock'))+' in '+esc(l.unit)+'.</b>'+
-             (b.other.length?('<div class="small" style="margin-top:4px">Carried in a different unit: '+
-               b.other.map(p=>esc(p.name)+' ('+esc(p.unit)+')').join(', ')+
-               '. The app will not convert between units — onboard the right pack size or ask the Owner to re-prescribe.</div>'):'')+
-             '</div>'))+
-        (a&&a.pid
-          ?('<div class="lockline">🔒 '+esc(a.pname)+' · '+
-              // printing "RM ——" at a role that may not see money reads like a broken
-              // figure. Say plainly that it is locked and hidden instead.
-              (SHOW_VALUES?(esc(tr('pu_maclock'))+' <b>'+rm(a.mac)+'</b> / '+esc(a.unit))
-                          :esc(tr('ag_costhidden')))+
-              '<br><span class="exphint">'+esc(tr('ag_dose'))+': '+nf(l.dose)+' '+esc(l.unit)+
-              (SHOW_VALUES?(' · one full tank costs '+rm(l.dose*a.mac)):'')+
-              ' · locked by '+esc(a.by)+' · '+esc(String(a.at).slice(0,16).replace('T',' '))+'</span>'+
-              (short?'<div style="color:#b3261e;font-weight:800;margin-top:4px">'+esc(tr('ag_short'))+
-                     ' — '+nf(onHand(prodById(a.pid)))+' '+esc(a.unit)+' on hand, one tank needs '+nf(l.dose)+
-                     '. Order it before the crew is sent out.</div>':'')+
-            '</div>')
-          :'')+
-        '</div>';}).join('');
+      // v3.13 fix (screenshot): "Abamectin (Envoy) · 6,000 ml" was clipped to
+      // "Abamectin (I" in the collapsed select, which is the state people actually read.
+      // Options carry the BRAND only; the quantity moves under the select, where it has
+      // the full width of the column.
+      const opts='<option value="">—</option>'+
+        b.match.map(p=>'<option value="'+p.id+'"'+(a&&a.pid===p.id?' selected':'')+'>'+
+          esc(p.name)+'</option>').join('');
+      return '<div class="splitcard'+(a&&a.pid?' done':'')+(short?' short':'')+'">'+
+
+        // ---- left half: what was asked for ----
+        '<div class="sc-l">'+
+          // the catalogue appends notes to some ingredients ("Boscalid + Dimoxystrobin ·
+          // fruit-contact, 14-day PHI"). The badge carries the INGREDIENT; the note is a
+          // note, and putting it in the badge made it four lines tall.
+          '<span class="aibadge" title="'+esc(l.ai)+'">'+esc(s.ic)+' '+
+            esc(String(l.ai).split(' · ')[0])+'</span>'+
+          '<span class="scdose"><b>'+nf(l.dose)+'</b> '+esc(l.unit)+'</span>'+
+        '</div>'+
+
+        // ---- right half: what the store will supply ----
+        '<div class="sc-r">'+
+          (b.match.length
+            ?('<select class="scsel" onchange="allocPick(\''+d.uuid+'\',\''+l.slot+'\',this.value)">'+opts+'</select>'+
+              (a&&a.pid
+                // the select already names the brand — repeating it under itself was noise
+                ?('<div class="sclock">🔒 '+nf(onHand(prodById(a.pid))||0)+' '+esc(a.unit)+
+                    (SHOW_VALUES?('<span class="scrm">'+rm(a.mac)+'/'+esc(a.unit)+'</span>'):'')+'</div>')
+                :'')+
+              (short?'<div class="scshort">'+esc(tr('ag_short'))+'</div>':''))
+            :('<div class="scnone">'+esc(tr('pu_nostock'))+' · '+esc(l.unit)+
+               (b.other.length?('<br>'+esc(b.other.map(p=>p.name+' ('+p.unit+')').join(', '))):'')+'</div>'))+
+        '</div>'+
+      '</div>';}).join('');
     const c=draftAllocCount(d);
-    return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(d.code)+' · '+esc(d.name)+'</div>'+
-      '<div class="cwho">'+esc(methodLabelT(d.program,d.method))+' · '+esc(stageLabelT(d.stage))+' · '+esc(wxLabelT(d.wx))+
-      '<br>'+(d.scope==='ALL'?'whole farm':'Lot '+esc(d.scope))+' · issued by '+esc(d.issuedBy||d.by)+'</div></div>'+
+    return '<div class="acard"><div class="ahdr">'+
+      '<div class="atitle">'+esc(d.code)+' · '+esc(d.name)+
+        '<span class="ameth">'+esc(physMethodT(d.program,d.method))+
+        ' · '+esc(d.basis==='PER_1000L'?tr('w13_perTank'):tr('w13_perTree'))+'</span></div>'+
       '<span class="cstat '+(c.n===c.of?'g':'p')+'">'+c.n+'/'+c.of+'</span></div>'+
-      '<div class="anchornote">'+esc(d.basis==='PER_1000L'?tr('ag_tank'):tr('ag_tankman'))+'</div>'+
-      rows+
-      (c.n===c.of?'<div class="okline">'+esc(tr('ag_ready'))+' — the crew can see it now.</div>'
-                 :'<div class="warnline">The crew cannot start until every slot has a brand.</div>')+
-      '</div>';}).join('');}
+      rows+'</div>';}).join('');}
+
 async function allocPick(u,slotK,pidStr){
   const d=draftById(u); if(!d)return;
   const line=draftLines(d).find(l=>l.slot===slotK); if(!line)return;
@@ -9048,146 +9100,413 @@ async function obSave(){
  *  it is still SHOWN — with the reason — because a blank task list is what made the crew
  *  ring the office. They can see it is coming and see who they are waiting for. */
 function myDirectives(){
-  return issuedDrafts().filter(d=>{
-    if(d.deleted)return false;
-    const need=d.scope==='ALL'?LOT_KEYS:[d.scope];
-    return need.some(L=>lotsDone(d.uuid).indexOf(L)<0);});}
+  // v3.14 — a lot leaves the list when every TREE in it is done, not when the first
+  // gram of chemical is logged against it. That single change is what makes "I did
+  // half of Lot C, I will finish tomorrow" expressible at all.
+  return issuedDrafts().filter(d=>!d.deleted&&dirLotsLeft(d).length>0);}
+/* ======================================================================================
+   v3.13.0 · THE BRAND-ONLY WORKER CARD
+   ======================================================================================
+   The crew do not need chemistry and asking them to read it was a wall of text between
+   them and the job. This card carries THREE facts at the top — the date, the task name,
+   and where to point the lance — then one spacious row per drum: the brand on the label
+   and how much of it goes into a 1,000 L tank. Nothing else.
+
+   REMOVED from this screen, deliberately and completely: the active ingredient, the
+   product class (Pesticide / Fungicide / …), the slot name, the rain-fastness tag, and
+   the PHI product name.
+
+   KEPT, equally deliberately: ONE plain-language safety line. A residue cut-off is not a
+   technicality — fruit sprayed inside it cannot be sold. It names no chemical, so it adds
+   no complexity, and it is the difference between a clean load and a rejected one.
+   ====================================================================================== */
+
+/** True when the person reading is a field worker, who sees no chemistry at all. */
+function hideChem(){return myRole()==='WORKER';}
+
+/* ======================================================================================
+   v3.14.0 · COUNT TREES, NOT TANKS
+   ======================================================================================
+   The crew work tree by tree, so the number they actually know is how many trees they
+   got through. Everything else follows from it:
+
+       litres = trees x litres_per_tree(method)      tanks = litres / 1,000
+       deduct = dose x tanks        (a spray)
+       deduct = dose x trees        (a broadcast - no water is mixed at all)
+
+   Two consequences fall out for free, and both were real problems:
+
+     · ONE completion covers every lot touched that day. Before this, a crew who did two
+       lots filed the form twice and keyed crew-and-hours twice, so 3 men x 6 hours was
+       recorded as 36 man-hours instead of 18. Man-hours are now entered ONCE and split
+       across the lots by tree count.
+
+     · PARTIAL work is the normal case, not an edge case. 30 of 65 trees is just a number
+       lower than the lot total; the lot stays on the list showing what is left, and it
+       marks itself finished when the count reaches the total. There is no "finished /
+       not finished" button to remember, because the tree count already answers it.
+   ====================================================================================== */
+
+/** Man-hours for one row. Rows written before v3.14 have no `manHours` and carry the
+ *  whole crew x hours, which for them is correct - so nothing historical moves. */
+function mhOf(e){
+  if(e&&e.manHours!=null)return +e.manHours||0;
+  return (+((e||{}).crew)||0)*(+((e||{}).hours)||0);}
+
+/** Split a total across weights so the parts ALWAYS re-add to the total. The last
+ *  weighted part carries the rounding remainder - otherwise three 2-decimal shares of
+ *  18 come to 17.99 and the labour report is quietly short every single time. */
+function splitExact(total,weights){
+  const sum=weights.reduce((a,b)=>a+(+b||0),0);
+  if(!(sum>0))return weights.map(()=>0);
+  const out=weights.map(w=>Math.round(total*(+w||0)/sum*100)/100);
+  const drift=+(total-out.reduce((a,b)=>a+b,0)).toFixed(2);
+  for(let i=out.length-1;i>=0;i--){ if(+weights[i]>0){out[i]=+(out[i]+drift).toFixed(2);break;} }
+  return out;}
+
+/** Litres of spray mix one tree takes under this directive's method. Read from the
+ *  directive itself when it carries one, so changing the constant later can never
+ *  rewrite a job that has already been done. */
+function lptOf(d){
+  if(!d)return 0;
+  if(d.lpt!=null)return +d.lpt||0;
+  const m=methodRec(d.program,d.method);
+  return (m&&m.lpt!=null)?+m.lpt:0;}
+/** A broadcast mixes no water; its dose is per tree and there is no tank at all. */
+function usesWater(d){return d&&d.basis==='PER_1000L'&&lptOf(d)>0;}
+
+/* ---- how much of a directive is already done ---------------------------------------
+   A completion writes one STOCK_OUT row PER PRODUCT per lot, all sharing one replyId.
+   Counting `treesDone` off every row would multiply the progress by the number of
+   products in the recipe, so progress is counted once per (replyId, lot) pair. */
+function dirProgress(u,lot){
+  const seen={}; let trees=0;
+  EVENTS.forEach(e=>{
+    if(e.type!=='STOCK_OUT'||!e.dirRun||e.progId!==u||e.lot!==lot)return;
+    const k=(e.replyId||e.uuid)+'|'+e.lot;
+    if(seen[k])return; seen[k]=1;
+    // a row written before v3.14 has no tree count; it was a whole-lot completion, so
+    // it counts as the whole lot rather than as zero progress
+    trees+=(e.treesDone!=null)?(+e.treesDone||0):treesInLot(lot).length;});
+  return trees;}
+function lotTreeTotal(lot){return treesInLot(lot).length;}
+function lotFinished(u,lot){return dirProgress(u,lot)>=lotTreeTotal(lot);}
+function lotsOfDirective(d){return d.scope==='ALL'?LOT_KEYS.slice():[d.scope];}
+function dirLotsLeft(d){return lotsOfDirective(d).filter(L=>!lotFinished(d.uuid,L));}
+
+
+/** "4 August 2026" / "4 Ogos 2026" — the date row on the worker's card. */
+function dateLong(d){
+  d=d||new Date();
+  const M=(LANG==='ms')?MONTH_LONG_MS:MONTH_LONG_EN;
+  return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
+
+/** The physical instruction: what to point the lance at. No agronomy vocabulary. */
+function physMethodT(prog,k){return tr('pm_'+k,methodLabelT(prog,k));}
+
 function directiveCardsHTML(){
   const ds=myDirectives(); if(!ds.length)return '';
   const wf=(typeof wetFlag==='function')?wetFlag():{wet:false,text:''};
+  const today=dateLong(new Date());
   return ds.map(d=>{
     const ready=draftReady(d), c=draftAllocCount(d);
-    const done=lotsDone(d.uuid);
-    const need=(d.scope==='ALL'?LOT_KEYS:[d.scope]).filter(L=>done.indexOf(L)<0);
     const spray=(d.mode==='SPRAY'||d.mode==='LEAF');
+    // the PHI check still runs on the real product; only its WORDING is de-chemicalised
     const phi=draftLines(d).some(l=>{const a=allocOf(d.uuid,l.slot);
       return a&&PHI_PRODUCTS[(prodById(a.pid)||{}).name];});
-    return '<div class="crow dircard'+(ready?'':' waiting')+'">'+
-      '<div class="ch"><div><div class="ctree">🧬 '+esc(d.code)+' · '+esc(d.name)+'</div>'+
-        '<div class="cwho">'+esc(tr('ag_dir'))+' · '+esc(stageLabelT(d.stage))+' · '+esc(wxLabelT(d.wx))+
-        '<br>issued by '+esc(d.issuedBy||d.by)+'</div></div>'+
-        '<span class="cstat '+(ready?'g':'p')+'">'+(ready?'TO DO':c.n+'/'+c.of)+'</span></div>'+
-      '<div class="methodbox"><span class="ml">'+esc(tr('ag_method'))+'</span>'+
-        '<span class="mv">'+esc(d.program==='MANURE'?'🪣 ':'💦 ')+esc(methodLabelT(d.program,d.method))+'</span>'+
-        '<div class="exphint">'+esc(methodDescT(d.program,d.method))+'</div></div>'+
-      '<div class="anchornote">'+esc(d.basis==='PER_1000L'?tr('ag_tank'):tr('ag_tankman'))+'</div>'+
-      '<table class="tbl dirtbl"><tr><th>'+esc(tr('ag_brand'))+'</th><th class="num">'+
-        esc(d.basis==='PER_1000L'?tr('ag_dose'):tr('ag_dosetree'))+'</th></tr>'+
-        draftLines(d).map(l=>{const a=allocOf(d.uuid,l.slot), s=slotRec(l.slot);
-          const short=allocShort(d.uuid,l.slot);
-          return '<tr><td><div class="pn">'+(a?esc(a.pname):'<i style="color:#b3261e">'+esc(tr('ag_nobrand'))+'</i>')+'</div>'+
-            '<div class="pa">'+esc(s.ic)+' '+esc(slotLabelT(l.slot))+' · '+esc(l.ai)+'</div>'+
-            (short?'<div class="pa" style="color:#b3261e;font-weight:800">'+esc(tr('ag_short'))+'</div>':'')+'</td>'+
-            '<td class="num"><b>'+nf(l.dose)+'</b> '+esc(l.unit)+'</td></tr>';}).join('')+
-      '</table>'+
-      (phi?'<div class="cnote" style="color:#b3261e;font-weight:700">'+esc(tr('ag_phinote'))+'</div>':'')+
-      (WX3==='HEAVY'&&spray?'<div class="wetnote">🌧️ Heavy rain is set. Do not spray — tell the Owner.</div>':'')+
-      (wf.wet&&spray?('<div class="wetnote">💧 '+esc(wf.text)+'.</div>'):'')+
-      '<div class="cwho">Still to do: '+need.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')+
-        (done.length?(' · done: '+done.map(L=>'<span class="lotchip">LOT '+L+'</span>').join('')):'')+'</div>'+
+    const per=(d.basis==='PER_1000L')?tr('w13_perTank'):tr('w13_perTree');
+
+    return '<div class="wcard'+(ready?'':' waiting')+'">'+
+
+      // ---- 1. the three-row header, high contrast, nothing else competing ----
+      '<div class="whdr">'+
+        '<div class="wrow"><span class="wl">'+esc(tr('w13_date'))+'</span>'+
+          '<span class="wv">'+esc(today)+'</span></div>'+
+        '<div class="wrow"><span class="wl">'+esc(tr('w13_task'))+'</span>'+
+          '<span class="wv">'+esc(d.name)+'</span></div>'+
+        '<div class="wrow tall"><span class="wl">'+esc(tr('w13_method'))+'</span>'+
+          '<span class="wv big">'+esc(d.program==='MANURE'?'🪣 ':'💦 ')+
+            esc(physMethodT(d.program,d.method))+'</span></div>'+
+      '</div>'+
+
+      // ---- 2. safety, in words a person can act on, naming no chemical ----
+      (phi?'<div class="wsafe">'+esc(tr('w13_nospray'))+'</div>':'')+
+      (WX3==='HEAVY'&&spray?'<div class="wsafe amber">'+esc(tr('w13_norain'))+'</div>':'')+
+      (wf.wet&&spray?'<div class="wsafe amber">'+esc(tr('w13_wetleaf'))+'</div>':'')+
+
+      // ---- 3. the recipe: one spacious row per drum, brand and dose only ----
       (ready
-        ?('<div class="cacts"><button class="ok" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('ag_runbtn'))+'</button></div>')
-        :('<div class="notup">'+esc(tr('ag_await'))+'</div>'))+
+        // v3.13 fix (screenshot): "per 1,000 L tank" was printed on every one of five
+        // rows. Five copies of the same sentence is the text wall this release exists to
+        // remove. It is stated ONCE, in the heading the rows sit under.
+        ?('<div class="wsec">'+esc(d.basis==='PER_1000L'?tr('w13_recipeTank'):tr('w13_recipeTree'))+'</div>'+
+          draftLines(d).map(l=>{
+            const a=allocOf(d.uuid,l.slot);
+            const short=allocShort(d.uuid,l.slot);
+            return '<div class="witem'+(short?' short':'')+'">'+
+              '<div class="wname">'+esc(a.pname)+
+                // Owner and Marketing stand in for the crew occasionally and DO need the
+                // chemistry; the worker never sees this line.
+                (hideChem()?'':'<span class="wai">'+esc(l.ai)+'</span>')+
+                (short?'<span class="wshort">'+esc(tr('ag_short'))+'</span>':'')+
+              '</div>'+
+              '<div class="wdose"><b>'+nf(l.dose)+'</b> '+esc(l.unit)+'</div>'+
+            '</div>';}).join(''))
+        :'')+
+
+      // ---- 4. one full-width action, or the reason there isn't one ----
+      (ready
+        // v3.14 — a chip that says "LOT A" cannot say "30 of 65". The crew need to see
+        // how far in they are, per lot, before they decide what to do next.
+        ?('<div class="wprog">'+lotsOfDirective(d).map(L=>{
+              const t=lotTreeTotal(L), n=Math.min(dirProgress(d.uuid,L),t);
+              const pct=t?Math.round(n/t*100):0, fin=n>=t;
+              return '<div class="pg'+(fin?' fin':'')+'">'+
+                '<span class="pgl">LOT '+L+'</span>'+
+                '<span class="pgbar"><i style="width:'+pct+'%"></i></span>'+
+                '<span class="pgn">'+n+'/'+t+'</span></div>';}).join('')+'</div>'+
+          '<button class="wbtn" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
+        :('<div class="wwait">'+esc(tr('ag_await'))+'</div>'))+
       '</div>';}).join('');}
 
-let RUN=null, RUN_LOT='', runSaving=false;
+/* ======================================================================================
+   v3.13.0 · TWO NUMBER PADS, THEN THE STORE TALLIES ITSELF
+   ======================================================================================
+   The old form asked for five things. This one asks for two numbers:
+
+       1. how many 1,000 L tanks were mixed        (decimals allowed - 3.5 is legal)
+       2. confirm the total taken out of the store (ml/gm)
+
+   The second is not busywork. The app already knows what the recipe needs; making the
+   crew state what they actually carried out of the store is a second pair of eyes on the
+   count, and a gap between the two is the earliest signal the farm gets that something
+   is being over-drawn. A gap does not block the save - it asks once, out loud.
+
+   The lot chips appear ONLY when the app genuinely cannot know the answer (a whole-farm
+   directive with more than one lot left). Crew and hours carry over from last time and
+   are asked for once, on a person's first ever run, because man-hours are the whole
+   labour report and defaulting them to a made-up number would quietly falsify it.
+
+   THE TALLY, unchanged from v3.12 and still the only thing that touches stock:
+       deduct = dose x tanks        cost = deduct x the cost the Purchaser locked
+   ====================================================================================== */
+let RUN=null, RUN_TREES={}, runSaving=false, RUN_CREWOPEN=false;
+
+/** The arithmetic chain for ONE lot, from the tree count the crew keyed. */
+function runLot1(d,L){
+  const total=lotTreeTotal(L), already=Math.min(dirProgress(d.uuid,L),total);
+  const left=Math.max(0,total-already);
+  const keyed=Math.max(0,Math.min(+RUN_TREES[L]||0,left));
+  const lpt=lptOf(d), water=usesWater(d);
+  const litres=water?+(keyed*lpt).toFixed(1):0;
+  const tanks =water?+(litres/TANK_L).toFixed(4):0;
+  return {lot:L,total:total,already:already,left:left,trees:keyed,
+    lpt:lpt,water:water,litres:litres,tanks:tanks,
+    mult:water?tanks:keyed,                       // what the dose is multiplied by
+    finished:(already+keyed)>=total};}
+
+/** Every lot of this directive, plus the day's totals. */
+function runPlan(){
+  if(!RUN)return {lots:[],active:[],trees:0,tanks:0,items:[],total:0,byUnit:{}};
+  const lots=lotsOfDirective(RUN).map(L=>runLot1(RUN,L));
+  const active=lots.filter(x=>x.trees>0);
+  const items=[], byUnit={}; let total=0;
+  draftLines(RUN).forEach(l=>{
+    const a=allocOf(RUN.uuid,l.slot); if(!a)return;
+    const q=+(l.dose*active.reduce((s,x)=>s+x.mult,0)).toFixed(2);
+    total+=q; byUnit[a.unit]=+((byUnit[a.unit]||0)+q).toFixed(2);
+    const p=prodById(a.pid);
+    items.push({line:l,alloc:a,prod:p,qty:q,onHand:p?onHand(p):0});});
+  return {lots:lots,active:active,
+    trees:active.reduce((s,x)=>s+x.trees,0),
+    tanks:+active.reduce((s,x)=>s+x.tanks,0).toFixed(4),
+    items:items,total:+total.toFixed(2),byUnit:byUnit};}
+
 function openRun(u){
   const d=draftById(u); if(!d){toast('Directive not found',1);return;}
   if(!draftReady(d)){toast(tr('ag_await'),1);return;}
-  RUN=d; RUN_LOT='';
-  const foliar=(d.basis==='PER_1000L');
-  $('run-head').textContent=tr('ag_runhead');
-  $('run-dir').textContent=d.code+' · '+d.name;
-  $('run-method').innerHTML=esc(methodLabelT(d.program,d.method))+
-    '<br><span class="exphint">'+esc(stageLabelT(d.stage))+' · '+esc(wxLabelT(d.wx))+'</span>';
-  $('run-tanklbl').textContent=foliar?tr('ag_tanks'):tr('ag_trees');
-  $('run-tankhint').textContent=foliar?tr('ag_tankhint'):'How many trees the crew actually got through.';
-  $('run-waterwrap').style.display=foliar?'':'none';
-  $('run-water').value=''; $('run-tanks').value='';
-  $('run-crew').value=(LAST_CREW&&LAST_CREW.crew)||''; $('run-hours').value=(LAST_CREW&&LAST_CREW.hours)||'';
-  LOT_KEYS.forEach(L=>$('rn-'+L).classList.remove('on'));
+  RUN=d; RUN_TREES={};
+  $('run-head').textContent=tr('w13_confirmhead');
+  $('run-task').textContent=d.name;
+  $('run-method').textContent=(d.program==='MANURE'?'🪣 ':'💦 ')+physMethodT(d.program,d.method);
+  RUN_CREWOPEN=!(LAST_CREW&&+LAST_CREW.crew>0&&+LAST_CREW.hours>0);
+  $('run-crew').value=(LAST_CREW&&LAST_CREW.crew)||'';
+  $('run-hours').value=(LAST_CREW&&LAST_CREW.hours)||'';
   $('run-err').textContent='';
   $('runmodal').classList.remove('hidden');
   runCalc();}
-function closeRun(){$('runmodal').classList.add('hidden');RUN=null;RUN_LOT='';}
-function runLot(L){RUN_LOT=L;LOT_KEYS.forEach(k=>$('rn-'+k).classList.toggle('on',k===L));runCalc();}
-function runMult(){return +$('run-tanks').value||0;}
-/** The whole arithmetic of this release, on one screen, before anything is committed. */
-function runCalc(){
+function closeRun(){$('runmodal').classList.add('hidden');RUN=null;RUN_TREES={};RUN_CREWOPEN=false;}
+function runSetTrees(L,v){
+  // recalc only — a full re-render here would destroy the input the person is typing in,
+  // which is exactly the bug that shipped in v3.9.1 and was caught by a focus test
+  RUN_TREES[L]=v; runCalc(true);}
+/** "ALL" fills in whatever is left of that lot — the commonest case, in one tap. */
+function runFillLot(L){
   if(!RUN)return;
-  const m=runMult(), foliar=(RUN.basis==='PER_1000L');
-  let total=0;
-  $('run-tbl').innerHTML='<tr><th>'+esc(tr('ag_col_brand'))+'</th><th class="num">'+esc(tr('ag_col_dose'))+
-    '</th><th class="num">'+esc(tr('ag_deduct'))+'</th><th class="num">'+esc(tr('ag_col_onhand'))+'</th></tr>'+
-    draftLines(RUN).map(l=>{
-      const a=allocOf(RUN.uuid,l.slot); if(!a)return '';
-      const p=prodById(a.pid), oh=p?onHand(p):0;
-      const q=+(l.dose*m).toFixed(2);
-      total+=q*(+a.mac||0);
-      return '<tr><td><div class="pn">'+esc(a.pname)+'</div><div class="pa">'+esc(l.ai)+'</div></td>'+
-        '<td class="num">'+nf(l.dose)+'</td>'+
-        '<td class="num"><b>'+nf(q)+'</b> '+esc(l.unit)+'</td>'+
-        '<td class="num '+(oh<q?'lowq':'')+'">'+nf(oh)+'</td></tr>';}).join('');
-  const water=+$('run-water').value||0;
-  $('run-sum').innerHTML=m>0
-    ?('<b>'+nf(m)+'</b> '+esc(foliar?(tr('ag_tanksof')+' '+nf(TANK_L)+' L'):tr('ag_treesdone'))+
-      (foliar&&water?(' · '+nf(water)+' '+esc(tr('ag_waterkeyed'))):'')+
-      (SHOW_VALUES?('<br>'+esc(tr('ag_matcost'))+' <b>'+rm(total)+'</b>'):''))
-    :esc(foliar?tr('ag_keytanks'):tr('ag_keytrees'));
-  const crew=+$('run-crew').value||0, hrs=+$('run-hours').value||0;
-  $('run-labour').innerHTML=crew&&hrs
-    ?('<b>'+nf(crew*hrs)+'</b> '+esc(tr('ag_manhours'))+' ('+crew+' × '+nf(hrs)+' h)')
-    :esc(tr('ag_crewhint'));}
+  const x=runLot1(RUN,L); RUN_TREES[L]=x.left; runRender();}
+function runClearLot(L){delete RUN_TREES[L];runRender();}
+function runCrewOpen(){RUN_CREWOPEN=true;runRender();}
+
+/** The rate strip — the one number the whole calculation hangs on, said out loud. */
+function runRateHTML(){
+  const d=RUN; if(!d)return '';
+  const lpt=lptOf(d);
+  return '<div class="rate"><div class="rl">'+esc(tr('t14_rate'))+'</div>'+
+    '<div class="rv">'+(usesWater(d)?(nf(lpt)+' '+esc(tr('t14_lpt'))):esc(tr('t14_pertree')))+'</div>'+
+    '<div class="rs">'+esc(usesWater(d)
+      ? tr('t14_covers').replace('{n}',String(Math.floor(TANK_L/(lpt||1))))
+      : tr('t14_nowater'))+'</div></div>';}
+
+function runRender(){
+  if(!RUN)return;
+  const d=RUN, pl=runPlan();
+  $('run-rate').innerHTML=runRateHTML();
+  $('run-lots').innerHTML=pl.lots.map(x=>{
+    const cum=x.already+x.trees, pct=x.total?Math.round(cum/x.total*100):0;
+    const tag = (!x.trees&&!x.already) ? '<span class="lrtag todo">'+esc(tr('t14_nottouched'))+'</span>'
+              : (cum>=x.total ? '<span class="lrtag doing">'+esc(tr('t14_finished'))+'</span>'
+                              : '<span class="lrtag part">'+esc(tr('t14_carry'))+'</span>');
+    const cls = (!x.trees&&!x.already) ? '' : (cum>=x.total?'active':'part');
+    return '<div class="lotrow '+cls+'" data-l="'+x.lot+'">'+
+      '<div class="lrhead"><span class="lrname">LOT '+x.lot+
+        '<span class="lrsub">'+cum+' / '+x.total+' '+esc(tr('t14_trees'))+
+          (x.already?(' · '+x.already+' '+esc(tr('t14_donebefore'))):'')+
+          (x.left-x.trees>0?(' · '+esc(tr('t14_left'))+' '+(x.left-x.trees)):'')+
+        '</span></span>'+tag+'</div>'+
+      '<div class="bar2"><i class="'+(cum>=x.total?'':'amber')+'" style="width:'+pct+'%"></i></div>'+
+      (x.left>0
+        ?('<div class="lrbody">'+
+            '<div class="lrlbl">'+esc(tr('t14_treestoday'))+'</div>'+
+            '<input class="tree" type="number" min="0" step="1" inputmode="numeric" placeholder="0" '+
+              'value="'+esc(RUN_TREES[x.lot]==null?'':RUN_TREES[x.lot])+'" '+
+              'oninput="runSetTrees(\''+x.lot+'\',this.value)">'+
+            '<div class="quick">'+
+              '<div onclick="runFillLot(\''+x.lot+'\')">'+esc(tr('t14_all'))+' '+x.left+'</div>'+
+              '<div onclick="runClearLot(\''+x.lot+'\')">'+esc(tr('t14_none'))+'</div>'+
+            '</div>'+
+            // BOTH are rendered and toggled by runCalc(). Swapping one for the other on
+            // every keystroke would mean re-rendering the row, which destroys the input
+            // the person is typing in — the v3.9.1 bug, in a new place.
+            '<div class="chain" style="display:'+(x.trees>0?'':'none')+'">'+runChainHTML(x)+'</div>'+
+            '<div class="lrskip" style="display:'+(x.trees>0?'none':'')+'">'+esc(tr('t14_empty'))+'</div>'+
+          '</div>')
+        :'')+
+      '</div>';}).join('');
+  runCalc(true);}
+
+/** trees × litres = litres → tanks → what leaves the store. Shown, not hidden. */
+function runChainHTML(x){
+  const d=RUN, lines=draftLines(d).map(l=>{
+    const a=allocOf(d.uuid,l.slot); if(!a)return '';
+    return esc(a.pname)+' <b>'+nf(l.dose*x.mult)+'</b> '+esc(a.unit);}).filter(Boolean).join(' · ');
+  if(!x.water)
+    return x.trees+' '+esc(tr('t14_trees'))+' <span class="arrow">➜</span> '+
+      esc(tr('t14_pertree'))+'<span class="fin">'+lines+'</span>';
+  return x.trees+' '+esc(tr('t14_trees'))+' <span class="arrow">×</span> '+nf(x.lpt)+' L '+
+    '<span class="arrow">=</span> '+nf(x.litres)+' L <span class="arrow">➜</span> <b>'+
+    nf(x.tanks)+' '+esc(LANG==='ms'?'tangki':'tanks')+'</b><span class="fin">'+lines+'</span>';}
+
+function runCalc(skipRender){
+  if(!RUN)return;
+  if(!skipRender&&$('run-lots')&&!$('run-lots').innerHTML){runRender();return;}
+  const d=RUN, pl=runPlan();
+  // refresh only the live chain lines, so typing never tears up the focused input
+  pl.lots.forEach(x=>{
+    const row=document.querySelector('#run-lots .lotrow[data-l="'+x.lot+'"]');
+    if(!row)return;
+    const box=row.querySelector('.chain'), skip=row.querySelector('.lrskip');
+    if(box){box.innerHTML=runChainHTML(x);box.style.display=x.trees>0?'':'none';}
+    if(skip)skip.style.display=x.trees>0?'none':'';
+    // the header counters move as they type, without touching the input itself
+    const sub=row.querySelector('.lrsub'), bar=row.querySelector('.bar2 i'),
+          tag=row.querySelector('.lrtag');
+    const cum=x.already+x.trees, fin=cum>=x.total;
+    if(sub)sub.innerHTML=cum+' / '+x.total+' '+esc(tr('t14_trees'))+
+      (x.already?(' · '+x.already+' '+esc(tr('t14_donebefore'))):'')+
+      (x.left-x.trees>0?(' · '+esc(tr('t14_left'))+' '+(x.left-x.trees)):'');
+    if(bar){bar.style.width=(x.total?Math.round(cum/x.total*100):0)+'%';
+            bar.className=fin?'':'amber';}
+    if(tag&&(x.trees||x.already)){
+      tag.className='lrtag '+(fin?'doing':'part');
+      tag.textContent=fin?tr('t14_finished'):tr('t14_carry');}
+    row.className='lotrow'+((x.trees||x.already)?(fin?' active':' part'):'')+'';
+    row.setAttribute('data-l',x.lot);});
+  const parts=Object.keys(pl.byUnit).map(u=>nf(pl.byUnit[u])+' '+u);
+  $('run-tot').innerHTML=pl.trees>0
+    ?('<b>'+pl.trees+' '+esc(tr('t14_trees'))+'</b>'+
+      (usesWater(d)?(' · <b>'+nf(pl.tanks)+' '+esc(LANG==='ms'?'tangki':'tanks')+'</b>'):'')+
+      ' · '+pl.active.length+' lot'+
+      '<span class="sub">'+pl.active.map(x=>'Lot '+x.lot+' '+x.trees).join(' · ')+'</span>'+
+      '<span class="sub">'+esc(tr('ag_deduct'))+': '+esc(parts.join(' + '))+'</span>')
+    :esc(tr('t14_keytrees'));
+  $('run-items').innerHTML=pl.items.map(it=>
+    '<div class="ritem'+(it.onHand<it.qty?' short':'')+'">'+
+      '<span class="rn">'+esc(it.alloc.pname)+'</span>'+
+      '<span class="rq"><b>'+nf(it.qty)+'</b> '+esc(it.alloc.unit)+'</span></div>').join('');
+  // labour: keyed once, split by trees, and the parts always re-add to the whole
+  $('run-crewwrap').style.display=RUN_CREWOPEN?'':'none';
+  $('run-crewline').style.display=RUN_CREWOPEN?'none':'';
+  const c=+$('run-crew').value||0, h=+$('run-hours').value||0;
+  const shares=splitExact(c*h,pl.active.map(x=>x.trees));
+  $('run-crewline').innerHTML=(c&&h)
+    ?(esc(tr('w13_crew'))+' <b>'+c+'</b> · '+esc(tr('w13_hrs'))+' <b>'+nf(h)+'</b>'+
+      ' <span class="chg" onclick="runCrewOpen()">'+esc(tr('w13_change'))+'</span>')
+    :'';
+  $('run-mh').innerHTML=(c&&h&&pl.active.length)
+    ?('<b>'+nf(c*h)+'</b> '+esc(tr('t14_mhonce'))+'<br>'+
+      pl.active.map((x,i)=>'Lot '+x.lot+' '+nf(shares[i])).join(' · '))
+    :'';
+  $('run-save').disabled=!(pl.trees>0);}
+
 async function submitRun(){
   const err=$('run-err'); err.textContent='';
   if(!RUN||runSaving)return;
-  const d=RUN, foliar=(d.basis==='PER_1000L'), m=runMult();
-  if(!(m>0))return err.textContent=foliar?'Key how many 1,000 L tanks were mixed.':'Key how many trees were treated.';
-  const water=foliar?+$('run-water').value:0;
-  if(foliar&&(!($('run-water').value!=='')||!(water>0)))
-    return err.textContent='Key the total water volume used, in litres.';
-  if(foliar&&water>0){
-    // an honest cross-check, not a block: the crew may top a tank up part way
-    const implied=m*TANK_L;
-    if(water>implied*1.5||water<implied*0.5){
-      if(!confirm('You keyed '+nf(water)+' L of water but '+nf(m)+' tank(s) of '+nf(TANK_L)+' L is '+nf(implied)+' L.\n\nIs that right?'))return;}}
-  if(!RUN_LOT)return err.textContent='Choose the lot this was applied to.';
+  const d=RUN, pl=runPlan();
+  if(!(pl.trees>0))return err.textContent=tr('t14_keytrees');
+  // a count above what the lot has left is a typo, and it would over-draw the store
+  const over=pl.lots.find(x=>(+RUN_TREES[x.lot]||0)>x.left);
+  if(over)return err.textContent='Lot '+over.lot+' — '+tr('t14_toomany')+' ('+over.left+')';
   if(!draftReady(d))return err.textContent='A brand has been removed from this directive. Ask Sandakan to re-allocate.';
-  const crew=Math.round(+$('run-crew').value||0), hours=+$('run-hours').value;
-  if(!(crew>0))return err.textContent='Key how many workers were on the job.';
-  if(!(hours>0))return err.textContent='Key the hours worked, per worker.';
-  if(lotsDone(d.uuid).indexOf(RUN_LOT)>=0&&
-     !confirm('Lot '+RUN_LOT+' was already logged for this directive.\nLog it again anyway?'))return;
-  // the PHI guard applies to a directive exactly as it does to a programme phase
-  for(const l of draftLines(d)){
-    const a=allocOf(d.uuid,l.slot); const p=a?prodById(a.pid):null; if(!p)continue;
-    const phi=PHI_PRODUCTS[p.name]; if(!phi)continue;
+  const crew=Math.round(+$('run-crew').value||0), hours=+$('run-hours').value||0;
+  if(!(crew>0&&hours>0)){RUN_CREWOPEN=true;runRender();return err.textContent=tr('w13_keycrew');}
+
+  for(const it of pl.items){
+    const phi=PHI_PRODUCTS[(it.prod||{}).name]; if(!phi)continue;
     const days=Math.ceil((PEAK_DATE-new Date())/86400000);
-    if(days>=0&&days<phi&&!confirm('⚠ PHI WARNING\n'+p.name+' has a '+phi+'-day residue cut-off.\nProjected peak drop 21–22 Aug is in '+days+' day(s).\n\nSecure this work log anyway?'))return;}
+    if(days>=0&&days<phi&&!confirm('⚠ '+tr('w13_nospray')+'\n\n'+it.alloc.pname+' · '+phi+' days\n'+
+      'Peak drop 21-22 Aug is in '+days+' day(s).\n\nSave anyway?'))return;}
+
   runSaving=true;
   const stamp=now(), rid=uuid();
+  // ONE filing, one man-hour figure, split across the lots it covered
+  const shares=splitExact(crew*hours,pl.active.map(x=>x.trees));
   try{
-    for(const l of draftLines(d)){
-      const a=allocOf(d.uuid,l.slot); if(!a)continue;
-      const p=prodById(a.pid);
-      const q=+(l.dose*m).toFixed(2); if(!(q>0))continue;
-      // THE CLOSED LOOP, in one write: the quantity leaves the store, priced at the cost
-      // the Purchaser locked, charged to the lot the worker named.
-      await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,
-        pid:a.pid,pname:a.pname,ai:l.ai,qty:q,unit:a.unit,lot:RUN_LOT,
-        set:d.code+' - '+d.name,
-        cost:+(q*(+a.mac||0)).toFixed(2), mac:+a.mac||0,
-        progId:d.uuid, progSet:d.code+' · '+d.name, replyId:rid,
-        dirRun:true, dirCode:d.code, dirMethod:d.methodLabel, dirStage:d.stageLabel,
-        dirProgram:d.program, slot:l.slot, dose:+l.dose, basis:d.basis,
-        tanks:foliar?m:0, trees:foliar?0:m, water:water, tankL:TANK_L,
-        crew:crew, hours:hours,
-        worker:CFG.worker, device:CFG.device, synced:false});}
+    for(let i=0;i<pl.active.length;i++){
+      const x=pl.active[i];
+      for(const l of draftLines(d)){
+        const a=allocOf(d.uuid,l.slot); if(!a)continue;
+        const q=+(l.dose*x.mult).toFixed(2); if(!(q>0))continue;
+        await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,
+          pid:a.pid,pname:a.pname,ai:l.ai,qty:q,unit:a.unit,lot:x.lot,
+          set:d.code+' - '+d.name,
+          cost:+(q*(+a.mac||0)).toFixed(2), mac:+a.mac||0,
+          progId:d.uuid, progSet:d.code+' · '+d.name, replyId:rid,
+          dirRun:true, dirCode:d.code, dirMethod:d.methodLabel, dirStage:d.stageLabel,
+          dirProgram:d.program, slot:l.slot, dose:+l.dose, basis:d.basis,
+          // the tree count is the source figure; litres and tanks are derived FROM it
+          treesDone:x.trees, treesInLot:x.total, lptUsed:x.lpt,
+          litres:x.litres, tanks:x.water?+x.tanks.toFixed(3):0,
+          trees:x.water?0:x.trees, water:x.litres, waterKeyed:false, tankL:TANK_L,
+          lotFinished:x.finished, lotsInReport:pl.active.length,
+          // crew and hours stay TRUE on every row; only the man-hour SHARE differs, so
+          // the record never lies about how many people were actually on the job
+          crew:crew, hours:hours, manHours:shares[i],
+          worker:CFG.worker, device:CFG.device, synced:false});}}
   } finally { runSaving=false; }
   LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
-  const n=draftLines(d).length, lot=RUN_LOT, nm=d.name;
+  const n=pl.trees, lots=pl.active.map(x=>x.lot).join(', ');
   closeRun();
-  toast(tr('ag_secured')+' · '+n+' '+tr('ag_costedto')+' '+lot);
+  toast(tr('t14_saved')+' · '+n+' '+tr('t14_trees')+' · Lot '+lots);
   refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderRunCost();
   renderAllocCard();renderLabour();renderHub();badge();}
 
