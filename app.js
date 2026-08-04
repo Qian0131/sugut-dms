@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.7.0';   // v3.7.0 — strict Big Tile navigation, Morning Scale worker tile, UNRIPE loss cause, Bahasa Malaysia for worker screens
+const APP_VERSION = 'v3.8.0';   // v3.8.0 — direct-touch Morning Scale (button selectors, big-digit keypads, one basket per row) + the read-only Scale Tally Gatepass
 
 // ================= storage (IndexedDB, memory fallback) =================
 let db=null, mem={events:[],config:null,corrections:[]};
@@ -749,6 +749,9 @@ function resetMarketingView(){
   if(typeof W_PHOTO!=='undefined')W_PHOTO='';
   if(typeof W_NOTE!=='undefined')W_NOTE='';
   if(typeof W_RET!=='undefined')W_RET='';
+  // v3.8 — an open gatepass is one worker's load. A different person logging in on this
+  // phone must not land on the previous worker's gate tally.
+  if(typeof W_GATEPASS!=='undefined')W_GATEPASS='';
   if(typeof closePhoto==='function')closePhoto();}
 function applyRole(){
   resetMarketingView();
@@ -4673,24 +4676,90 @@ function tErr(key,en){const e=new Error(en);e.tkey=key;return e;}
 /** Roughly how big the stored string is, for the screens that say so. */
 function photoKB(s){return s?Math.round(String(s).length/1024):0;}
 
+/* ======================================================================================
+   v3.8 · THE DIRECT-TOUCH MORNING SCALE
+   ======================================================================================
+   What changed and, more importantly, WHY.
+
+   The v3.6/3.7 form was correct but it was a FORM: an instruction paragraph, an amber
+   tare warning, then five dropdowns per basket. In the shed at 6am that is five modal
+   drop menus opened with a wet thumb before a single kilogram is recorded. v3.8 keeps
+   every rule underneath and changes only the surface:
+
+     · no prose at the top — the worker lands on the first thing they must touch
+     · clone / grade / basket are HORIZONTAL BUTTON ROWS; one tap, no menu, and the
+       grade row is rebuilt from CLONE_GRADES so Musang King offers A/B/C while
+       Black Thorn, B24, 101 and Udang Merah offer A/B and nothing else
+     · the two numbers that matter are 30 px, bold, green, and open a numeric keypad
+     · ONE BASKET PER ROW, always. "How many baskets" is gone — a row is a basket, and
+       more baskets means more rows via [ ➕ ADD NEXT BASKET ]. This removes the single
+       most expensive keying error on the old form: a gross reading for one basket with
+       a basket count of three, which silently deducted triple tare.
+
+   `baskets` stays on the line object at a hard 1 because lineCalc() multiplies the tare
+   by it. It is no longer editable anywhere on this screen.
+   ====================================================================================== */
+
 // ---- the worker's Morning Scale Dispatch form ---------------------------------------
 let WLINES=[], WLSEQ=0, W_RET='', W_PHOTO='', W_NOTE='', wSaving=false;
+/** v3.8 — the uuid of the load whose Scale Tally Gatepass is showing. '' = the entry form.
+ *  This is module-level VIEW state, so it obeys the resetMarketingView() rule. */
+let W_GATEPASS='';
 function newWLine(){
+  // baskets is fixed at 1 — see the block comment above.
   return {k:'W'+(++WLSEQ),clone:'MK',grade:'A',basket:'RED',baskets:1,gross:'',fruits:''};}
 function wLines(){ if(!WLINES.length)WLINES=[newWLine()]; return WLINES; }
 function wlFind(k){return WLINES.find(l=>l.k===k)||null;}
 function wlSet(k,f,v){
   const l=wlFind(k); if(!l)return;
+  if(f==='baskets')return;                 // v3.8 — one basket per row, not negotiable
   l[f]=v;
   if(f==='clone'&&!hasGrade(l.clone,l.grade))l.grade=gradesFor(l.clone)[0];
-  if(f==='clone'||f==='basket')renderWLines();
+  // v3.8 — grade joins clone and basket: they are buttons now, so the active state has to
+  // be repainted on every pick. The two number fields deliberately do NOT repaint, or the
+  // keypad would close on each digit.
+  if(f==='clone'||f==='basket'||f==='grade')renderWLines();
   wCalc();}
-function addWLine(){WLINES.push(newWLine());renderWLines();wCalc();}
+function addWLine(){
+  WLINES.push(newWLine()); renderWLines(); wCalc();
+  const rows=$('w-rows'); if(rows&&rows.lastElementChild)
+    rows.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});}
 function removeWLine(k){
   WLINES=WLINES.filter(l=>l.k!==k);
   if(!WLINES.length)WLINES=[newWLine()];
   renderWLines(); wCalc();}
-function setWRet(v){W_RET=v||'';wCalc();}
+function setWRet(v){
+  W_RET=v||'';
+  const sel=$('w-ret'); if(sel&&sel.value!==W_RET)sel.value=W_RET;   // keep the shadow select honest
+  renderWRetRow(); wCalc();}
+
+/** One horizontal selector row. `opts` is [{v,t,s}] — value, big label, small sub-label.
+ *  Rendering is identical for clone, grade and basket so the three can never drift apart. */
+function wSelRow(label,field,l,opts,cls){
+  return '<div class="selwrap"><label class="sellbl">'+esc(label)+'</label>'+
+    '<div class="selrow'+(cls?' '+cls:'')+'">'+
+    opts.map(o=>'<div class="selbtn'+(String(o.v)===String(l[field])?' on':'')+'" '+
+      'onclick="wlSet(\''+esc(l.k)+'\',\''+esc(field)+'\',\''+esc(String(o.v))+'\')">'+
+      esc(o.t)+(o.s?'<span class="sb">'+esc(o.s)+'</span>':'')+'</div>').join('')+
+    '</div></div>';}
+
+/** One big-digit numeric cell. inputmode drives the on-screen keypad on both Android and
+ *  iOS; `step` keeps the browser from rejecting a decimal gross reading. */
+function wNumCell(l,field,label,unit,mode,ph){
+  return '<div class="numcell"><label class="sellbl">'+esc(label)+'</label>'+
+    '<input class="bignum" type="number" min="0" step="'+(mode==='decimal'?'any':'1')+'" '+
+      'inputmode="'+mode+'" placeholder="'+esc(ph)+'" value="'+esc(l[field])+'" '+
+      'onfocus="this.select()" '+
+      'oninput="wlSet(\''+esc(l.k)+'\',\''+esc(field)+'\',this.value)">'+
+    (unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div>';}
+
+/** The merchant picker, also a button row. A hidden <select id="w-ret"> is kept in step
+ *  so every pre-v3.8 call site and deploy check that reads `w-ret`.value still works. */
+function renderWRetRow(){
+  const row=$('w-retrow'); if(!row)return;
+  const act=activeRetailers();
+  row.innerHTML=act.map(r=>'<div class="selbtn'+(W_RET===r.id?' on':'')+'" '+
+    'onclick="setWRet(\''+esc(r.id)+'\')">'+esc(r.name)+'</div>').join('');}
 
 /** A worker may weigh; Owner and Marketing may too, so a one-person morning still works. */
 function canWeigh(){const r=myRole();return r==='WORKER'||FULL_ROLES.indexOf(r)>=0;}
@@ -4698,105 +4767,122 @@ function canWeigh(){const r=myRole();return r==='WORKER'||FULL_ROLES.indexOf(r)>
 function renderScaleCard(){
   const box=$('scalebox'); if(!box)return;
   if(!canWeigh()){box.innerHTML='';return;}
+
+  // v3.8 · GATEPASS MODE. The instant a load is submitted the editable form, the basket
+  // adder and the camera are gone and this panel becomes a read-only gatepass. It is also
+  // how an older load is re-opened for a driver who wants to re-check the tally.
+  if(W_GATEPASS&&reqById(W_GATEPASS)){
+    box.innerHTML=gatepassHTML(W_GATEPASS)+waitingListHTML()+myRecentDecisions();
+    const c=$('gp-card'); if(c)c.scrollIntoView({behavior:'smooth',block:'start'});
+    return;}
+
   const act=activeRetailers();
-  const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''));
   box.innerHTML=
-    '<div class="cnote">'+tr('sc_intro')+'</div>'+
+    // NO intro paragraph, NO amber tare banner. The worker lands on the buyer picker,
+    // which is the first thing they must actually touch.
     (act.length?'':'<div class="critbox">'+esc(tr('sc_nomerchant'))+'</div>')+
-    '<label>'+esc(tr('sc_towhich'))+'</label>'+
-    '<select id="w-ret" onchange="setWRet(this.value)">'+
+    '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_towhich'))+'</label>'+
+      '<div class="selrow" id="w-retrow"></div></div>'+
+    // shadow control — kept so anything that read w-ret before v3.8 still reads it
+    '<select id="w-ret" style="display:none" onchange="setWRet(this.value)">'+
       '<option value="">'+esc(tr('sc_choose'))+'</option>'+
-      act.map(r=>'<option value="'+esc(r.id)+'"'+(W_RET===r.id?' selected':'')+'>'+esc(r.name)+'</option>').join('')+
-    '</select>'+
-    (TARE_VERIFIED?'':'<div class="tarewarn">'+esc(tr('sc_tarewarn'))+'</div>')+
+      act.map(r=>'<option value="'+esc(r.id)+'"'+(W_RET===r.id?' selected':'')+'>'+
+        esc(r.name)+'</option>').join('')+'</select>'+
+
     '<div id="w-rows"></div>'+
-    '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="addWLine()">'+
-      esc(tr('sc_addbasket'))+'</button>'+
+    '<button class="addnext" onclick="addWLine()">'+esc(tr('sc_addnext'))+'</button>'+
     '<div class="wtot" id="w-tot">—</div>'+
 
-    // ---- the mandatory photo ----
-    '<div class="sec" style="margin-top:14px">'+esc(tr('sc_photohead'))+'</div>'+
-    '<div class="photobox" id="w-photobox">'+
-      (W_PHOTO
-        ? '<img class="photothumb" src="'+W_PHOTO+'" onclick="showPhoto(\''+esc(W_PHOTO)+'\',\''+esc(tr('sc_photook'))+'\')">'+
-          '<div class="photometa">'+esc(tr('sc_photook'))+' · '+photoKB(W_PHOTO)+' KB<br>'+
-            '<span class="linkish" onclick="clearWPhoto()">'+esc(tr('sc_retake'))+'</span></div>'
-        : '<div class="photonone">'+esc(tr('sc_nophoto'))+'</div>')+
-    '</div>'+
-    '<label class="camlbl" for="w-cam">'+esc(tr('sc_takephoto'))+'</label>'+
+    // ---- the mandatory photo: one massive block that turns green when it is done ----
+    (W_PHOTO
+      ? '<label class="camblock done" for="w-cam">'+
+          '<img src="'+W_PHOTO+'" onclick="event.preventDefault();event.stopPropagation();'+
+            'showPhoto(\''+esc(W_PHOTO)+'\',\''+esc(tr('sc_photook'))+'\')">'+
+          '<div class="cdt">✓ '+esc(tr('sc_photodone'))+
+            '<span class="camsub">'+photoKB(W_PHOTO)+' KB · '+esc(tr('sc_phototap'))+'</span></div>'+
+        '</label>'
+      : '<label class="camblock" for="w-cam">'+esc(tr('sc_takephoto2'))+
+          '<span class="camsub">'+esc(tr('w_required'))+'</span></label>')+
     '<input type="file" id="w-cam" accept="image/*" capture="environment" '+
       'style="display:none" onchange="onWPhoto(this)">'+
-    '<div class="exphint">'+esc(tr('sc_photohint'))+'</div>'+
 
-    '<label>'+esc(tr('sc_note'))+'</label>'+
-    '<input id="w-note" placeholder="'+esc(tr('sc_noteph'))+'" value="'+esc(W_NOTE)+
-      '" oninput="W_NOTE=this.value">'+
+    '<div class="selwrap"><label class="sellbl">'+esc(tr('sc_note'))+'</label>'+
+      '<input id="w-note" placeholder="'+esc(tr('sc_noteph'))+'" value="'+esc(W_NOTE)+
+      '" oninput="W_NOTE=this.value"></div>'+
     '<div class="pinerr" id="w-err"></div>'+
-    '<button class="bigbtn" id="w-go" onclick="submitScaleDispatch()">'+esc(tr('sc_submit'))+'</button>'+
+    '<button class="submitwide" id="w-go" onclick="submitScaleDispatch()">'+
+      esc(tr('sc_submit'))+'</button>'+
 
-    // ---- what this worker has already sent, and where it got to ----
-    '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
-    (mine.length?mine.map(e=>'<div class="reqrow">'+
-        (e.photo_b64?('<img class="reqthumb" src="'+e.photo_b64+'" onclick="showPhoto(\''+esc(e.uuid)+
-          '\',\''+esc(tr('sc_photook'))+'\',1)">'):'<div class="reqthumb none">—</div>')+
-        '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
-        '<div class="pa">'+esc(e.dt)+(e.synced?'':' · '+esc(tr('sc_queued')))+'</div></div>'+
-        '<span class="cstat s">'+esc(tr('sc_pending'))+'</span></div>').join('')
-      :'<div class="alertnone">'+esc(tr('sc_nothingwaiting'))+'</div>')+
-    myRecentDecisions();
-  renderWLines(); wCalc();}
+    // The tare honesty note survives, but as a grey footnote at the BOTTOM — it is a
+    // caveat on a number already recorded, not an instruction to read before starting.
+    (TARE_VERIFIED?'':'<div class="scfoot">'+esc(tr('sc_tarefoot'))+'</div>')+
 
-/** Approved and returned loads, so a worker sees the outcome instead of a silence. */
+    waitingListHTML()+myRecentDecisions();
+  renderWRetRow(); renderWLines(); wCalc();}
+
+/** The retained gatepasses. Every row re-opens its own read-only card — which is the
+ *  whole point: the driver can ask for the tally again after the form has been reset. */
+function waitingListHTML(){
+  const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''));
+  return '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
+    (mine.length
+      ? '<div class="scfoot" style="margin:-2px 0 8px">'+esc(tr('gp_taphint'))+'</div>'+
+        mine.map(e=>'<div class="reqrow tapp" onclick="openGatepass(\''+esc(e.uuid)+'\')">'+
+          (e.photo_b64
+            ? '<img class="reqthumb" src="'+e.photo_b64+'" onclick="event.stopPropagation();'+
+              'showPhoto(\''+esc(e.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">'
+            : '<div class="reqthumb none">—</div>')+
+          '<div class="reqmid"><b>'+nf(e.total_kg)+' kg</b> → '+esc(e.retailer_name||'')+
+          '<div class="pa">'+esc(e.dt)+(e.synced?'':' · '+esc(tr('sc_queued')))+'</div></div>'+
+          '<span class="cstat s">'+esc(tr('sc_pending'))+'</span>'+
+          '<span class="gpgo">›</span></div>').join('')
+      :'<div class="alertnone">'+esc(tr('sc_nothingwaiting'))+'</div>');}
+
+/** Approved and returned loads, so a worker sees the outcome instead of a silence.
+ *  v3.8 — these re-open their gatepass too; a returned load still has to be reconciled
+ *  against whatever physically left the gate. */
 function myRecentDecisions(){
   const mineIds={};
   EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&(!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')))mineIds[e.uuid]=e;});
   const out=[];
   EVENTS.forEach(e=>{
     if(e.type==='DISPATCH'&&e.req_uuid&&mineIds[e.req_uuid])
-      out.push({dt:e.dt,ok:true,kg:+e.total_kg||0,who:e.verified_by||e.worker||'',
+      out.push({req:e.req_uuid,dt:e.dt,ok:true,kg:+e.total_kg||0,who:e.verified_by||e.worker||'',
         name:e.retailer_name||'',why:''});
     if(e.type==='DISPATCH_REJECT'&&mineIds[e.targetUuid])
-      out.push({dt:e.dt,ok:false,kg:+(mineIds[e.targetUuid].total_kg)||0,who:e.worker||'',
+      out.push({req:e.targetUuid,dt:e.dt,ok:false,kg:+(mineIds[e.targetUuid].total_kg)||0,who:e.worker||'',
         name:mineIds[e.targetUuid].retailer_name||'',why:e.reason||''});});
   if(!out.length)return '';
   out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
   return '<div class="sec" style="margin-top:14px">'+esc(tr('sc_decided'))+'</div>'+
-    out.slice(0,6).map(x=>'<div class="reqrow"><div class="reqmid">'+
+    out.slice(0,6).map(x=>'<div class="reqrow tapp" onclick="openGatepass(\''+esc(x.req)+'\')">'+
+      '<div class="reqmid">'+
       '<b>'+nf(x.kg)+' kg</b> → '+esc(x.name)+'<div class="pa">'+esc(x.dt)+' · '+esc(x.who)+
       (x.why?(' · '+esc(x.why)):'')+'</div></div>'+
       '<span class="cstat '+(x.ok?'a':'r')+'">'+esc(tr(x.ok?'sc_approved':'sc_returned'))+
-      '</span></div>').join('');}
+      '</span><span class="gpgo">›</span></div>').join('');}
 
 function renderWLines(){
   const box=$('w-rows'); if(!box)return;
   box.innerHTML=wLines().map((l,i)=>{
+    // The grade row is rebuilt from CLONE_GRADES every paint, so MK offers A/B/C and
+    // BT / B24 / 101 / UM offer A/B. A clone can never present a grade it does not sell.
     const gs=gradesFor(l.clone);
-    return '<div class="dline">'+
+    return '<div class="dline tight">'+
       '<div class="dlhead"><span class="dltag">'+esc(tr('sc_basket'))+' '+(i+1)+'</span>'+
       (wLines().length>1?'<span class="dlx" onclick="removeWLine(\''+esc(l.k)+'\')">'+
         esc(tr('b_remove'))+'</span>':'')+'</div>'+
-      '<div class="dl3">'+
-        // clone codes and names are NEVER translated — they are the trade's own words
-        '<div><label>'+esc(tr('sc_clone'))+'</label><select onchange="wlSet(\''+esc(l.k)+'\',\'clone\',this.value)">'+
-          CLONE_SELL_ORDER.map(c=>'<option value="'+esc(c)+'"'+(c===l.clone?' selected':'')+'>'+
-            esc(CLONE_NAME[c]||c)+' ('+esc(c)+')</option>').join('')+'</select></div>'+
-        // grade letters are NEVER translated — they reach the buyer's invoice
-        '<div><label>'+esc(tr('sc_grade'))+'</label><select onchange="wlSet(\''+esc(l.k)+'\',\'grade\',this.value)">'+
-          gs.map(g=>'<option value="'+g+'"'+(g===l.grade?' selected':'')+'>'+g+' · '+
-            esc(bandShort(l.clone,g))+'</option>').join('')+'</select></div>'+
-      '</div>'+
-      '<div class="dl3">'+
-        '<div><label>'+esc(tr('sc_baskettype'))+'</label><select onchange="wlSet(\''+esc(l.k)+'\',\'basket\',this.value)">'+
-          BASKETS.map(b=>'<option value="'+esc(b.id)+'"'+(b.id===l.basket?' selected':'')+'>'+
-            (b.ic?b.ic+' ':'')+esc(basketName(b))+' −'+nf(b.tare_kg)+' kg</option>').join('')+'</select></div>'+
-        '<div><label>'+esc(tr('sc_howmany'))+'</label><input type="number" min="0" step="1" inputmode="numeric" '+
-          'value="'+esc(l.baskets)+'" oninput="wlSet(\''+esc(l.k)+'\',\'baskets\',this.value)"></div>'+
-      '</div>'+
-      '<div class="dl3">'+
-        '<div><label>'+esc(tr('sc_gross'))+'</label><input type="number" min="0" step="any" inputmode="decimal" '+
-          'placeholder="0.00" value="'+esc(l.gross)+'" oninput="wlSet(\''+esc(l.k)+'\',\'gross\',this.value)"></div>'+
-        '<div><label>'+esc(tr('sc_fruitcount'))+'</label><input type="number" min="0" step="1" inputmode="numeric" '+
-          'placeholder="0" value="'+esc(l.fruits)+'" oninput="wlSet(\''+esc(l.k)+'\',\'fruits\',this.value)"></div>'+
+      // clone codes and names are NEVER translated — they are the trade's own words
+      wSelRow(tr('sc_clone'),'clone',l,
+        CLONE_SELL_ORDER.map(c=>({v:c,t:c,s:CLONE_NAME[c]||c})),'clones')+
+      // grade letters are NEVER translated — they reach the buyer's invoice
+      wSelRow(tr('sc_grade'),'grade',l,
+        gs.map(g=>({v:g,t:g,s:bandShort(l.clone,g)})),'grades')+
+      wSelRow(tr('sc_baskettype'),'basket',l,
+        BASKETS.map(b=>({v:b.id,t:(b.ic?b.ic+' ':'')+basketName(b),s:'−'+nf(b.tare_kg)+' kg'})),'baskets')+
+      '<div class="numgrid">'+
+        wNumCell(l,'gross',tr('sc_gross'),'kg','decimal','0.00')+
+        wNumCell(l,'fruits',tr('sc_fruitcount'),'','numeric','0')+
       '</div>'+
       '<div class="dlnet" id="wln-'+esc(l.k)+'">—</div>'+
     '</div>';}).join('');}
@@ -4857,8 +4943,137 @@ async function submitScaleDispatch(){
       worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
   } finally { wSaving=false; }
   WLINES=[newWLine()]; W_PHOTO=''; W_NOTE=''; W_RET='';
+  // v3.8 — LOCK. The panel becomes this load's gatepass immediately, before the worker
+  // can touch anything else, because the driver is standing there waiting for the tally.
+  W_GATEPASS=u;
   badge(); renderScaleCard(); renderVerify(); renderHub();
-  toast('📤 '+nf(tot.total_kg)+' kg '+tr('t_sent')+(navigator.onLine?'':' '+tr('t_queuedsuffix')));}
+  toast('📋 '+nf(tot.total_kg)+' kg · '+tr('gp_head'));}
+
+/* ======================================================================================
+   v3.8 · THE SCALE TALLY GATEPASS
+   ======================================================================================
+   The physical handshake at the farm gate. A lorry driver signs for WHAT LEFT — baskets,
+   fruit, kilograms per clone and grade — and for nothing else.
+
+   GOVERNANCE, and this is the load-bearing rule of the whole feature:
+   this card is built ONLY from weight and count fields. It never reads `price_rm`,
+   `value_rm`, `total_value_rm`, a credit balance or an invoice serial, and a DISPATCH_REQ
+   does not carry them in the first place (see the v3.6 note — value is computed at
+   approval, from the contract in force then). The returned summary is a whitelist, and it
+   is frozen, so a later edit cannot casually widen it into a price list on a worker's phone.
+   ====================================================================================== */
+
+/** Aggregate one submitted load into a driver-readable tally.
+ *  Accepts a request uuid or the event itself. Returns null if the load is not on this
+ *  phone yet. WEIGHT AND COUNT ONLY — see the block comment above. */
+function gatepassSummary(src){
+  const e=(typeof src==='string')?reqById(src):src;
+  if(!e)return null;
+  const lines=reqLines(e);
+  let baskets=0,fruits=0,gross=0,tare=0,net=0;
+  const byKey={}, order=[];
+  lines.forEach(x=>{
+    const nk=+x.net_kg||0;
+    // a v3.8 row is one basket; a row migrated from an older phone may legitimately hold more
+    const nb=Math.max(1,Math.floor(+x.baskets||1));
+    const nf_=Math.max(0,Math.floor(+x.fruits||0));
+    baskets+=nb; fruits+=nf_;
+    gross+=(+x.gross_kg||nk); tare+=(+x.tare_kg||0); net+=nk;
+    const clone=x.clone||'—', grade=x.grade||'—', k=clone+'|'+grade;
+    if(!byKey[k]){
+      byKey[k]={clone:clone,grade:grade,
+        clone_name:x.clone_name||CLONE_NAME[clone]||clone,
+        label:(CLONE_NAME[clone]||clone)+' '+tr('gp_grade')+' '+grade,
+        baskets:0,fruits:0,net_kg:0};
+      order.push(k);}
+    const g=byKey[k]; g.baskets+=nb; g.fruits+=nf_; g.net_kg+=nk;});
+  // heaviest clone first inside the farm's own selling order, then A before B before C
+  order.sort((a,b)=>{
+    const A=byKey[a],B=byKey[b];
+    const ia=CLONE_SELL_ORDER.indexOf(A.clone), ib=CLONE_SELL_ORDER.indexOf(B.clone);
+    if(ia!==ib)return (ia<0?99:ia)-(ib<0?99:ib);
+    return String(A.grade).localeCompare(String(B.grade));});
+  const groups=order.map(k=>{
+    const g=byKey[k]; g.net_kg=+g.net_kg.toFixed(2); return g;});
+  const d=reqDecision(e.uuid);
+  return Object.freeze({
+    uuid:e.uuid,
+    ref:String(e.uuid||'').replace(/-/g,'').slice(-6).toUpperCase(),
+    retailer_name:e.retailer_name||'',
+    dt:e.dt||'',
+    weighed_by:e.worker||'',
+    status:d.state,
+    basket_count:baskets,
+    fruit_count:fruits,
+    total_gross_kg:+gross.toFixed(2),
+    total_tare_kg:+tare.toFixed(2),
+    total_net_kg:+net.toFixed(2),
+    groups:groups,
+    note:e.note||'',
+    photo_b64:e.photo_b64||'',
+    synced:!!e.synced});}
+
+/** The gatepass card. `gp-card` is the scroll anchor renderScaleCard() jumps to. */
+function gatepassHTML(u){
+  const s=gatepassSummary(u); if(!s)return '';
+  const cls=s.status==='APPROVED'?'':(s.status==='RETURNED'?' ret':' pend');
+  const stat=tr(s.status==='APPROVED'?'sc_approved':(s.status==='RETURNED'?'sc_returned':'sc_pending'));
+  const fresh=s.status==='PENDING';
+  return '<div class="gpcard" id="gp-card">'+
+    '<div class="gphead"><div class="gpt">'+esc(tr('gp_head'))+'</div>'+
+      '<span class="gplock'+cls+'">'+esc(tr('gp_locked'))+' · '+esc(stat)+'</span></div>'+
+
+    '<div class="gpmeta">'+
+      '<div><span class="gml">'+esc(tr('gp_merchant'))+'</span><b>'+esc(s.retailer_name||'—')+'</b></div>'+
+      '<div style="text-align:right"><span class="gml">'+esc(tr('gp_ref'))+'</span><b>'+esc(s.ref)+'</b></div>'+
+    '</div>'+
+    '<div class="gpmeta" style="padding-top:0">'+
+      '<div><span class="gml">'+esc(tr('gp_time'))+'</span>'+esc(s.dt)+
+        (s.synced?'':' · '+esc(tr('sc_queued')))+'</div>'+
+    '</div>'+
+
+    '<div class="gpbig">'+
+      '<div><span class="gbl">'+esc(tr('gp_baskets'))+'</span><b>'+s.basket_count+'</b></div>'+
+      '<div><span class="gbl">'+esc(tr('gp_fruits'))+'</span><b>'+s.fruit_count+'</b></div>'+
+      '<div><span class="gbl">'+esc(tr('gp_net'))+'</span><b>'+nf(s.total_net_kg)+
+        '</b><span class="u">kg</span></div>'+
+    '</div>'+
+
+    '<div class="gpsec">'+tr('gp_tally')+'</div>'+
+    '<div class="gptally">'+
+      (s.groups.length
+        ? s.groups.map(g=>'<div class="gprow">'+
+            '<div class="gpg">'+esc(g.grade)+'</div>'+
+            '<div class="gpn">'+esc(g.label)+
+              '<span class="gps">'+g.baskets+' '+esc(tr('sc_basket')).toLowerCase()+
+              (g.fruits?(' · '+g.fruits+' '+esc(tr('w_fruits'))):'')+'</span></div>'+
+            '<div class="gpkg">'+nf(g.net_kg)+'<span>kg</span></div></div>').join('')
+        : '<div class="alertnone">'+esc(tr('gp_nolines'))+'</div>')+
+    '</div>'+
+
+    '<div class="gptot"><span class="gtl">'+esc(tr('gp_net'))+'</span>'+
+      '<span class="gtv">'+nf(s.total_net_kg)+' kg</span></div>'+
+    '<div class="gpsub"><span>'+esc(tr('gp_gross'))+' '+nf(s.total_gross_kg)+' kg</span>'+
+      '<span>'+esc(tr('gp_tare'))+' −'+nf(s.total_tare_kg)+' kg</span></div>'+
+
+    (s.note?'<div class="gpnote">'+esc(tr('gp_note'))+': '+esc(s.note)+'</div>':'')+
+    (s.photo_b64?'<img class="gpthumb" style="margin-top:11px" src="'+s.photo_b64+
+      '" onclick="showPhoto(\''+esc(s.uuid)+'\',\''+esc(tr('sc_photook'))+'\',1)">':'')+
+
+    '<div class="gpredact">'+esc(tr('gp_noprice'))+'</div>'+
+    '<div class="gpacts">'+
+      '<button class="submitwide" style="padding:18px 12px;font-size:15.5px" onclick="closeGatepass()">'+
+        esc(tr(fresh?'gp_newload':'gp_close'))+'</button>'+
+    '</div>'+
+  '</div>';}
+
+/** Re-open a retained gatepass — the truck driver wants to check the load again. */
+function openGatepass(u){
+  if(!reqById(u)){toast('That load has not reached this phone yet',1);return;}
+  W_GATEPASS=u; renderScaleCard();}
+/** Leave gatepass mode and hand back a clean, empty entry form. */
+function closeGatepass(){W_GATEPASS=''; renderScaleCard();
+  const b=$('scalebox'); if(b)b.scrollIntoView({behavior:'smooth',block:'start'});}
 
 // ---- the pending queue, derived from the ledger like everything else -----------------
 /** A request is OPEN until a DISPATCH quotes its uuid or a DISPATCH_REJECT returns it.

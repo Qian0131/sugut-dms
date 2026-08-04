@@ -681,6 +681,142 @@ input[type=datetime-local]{font-family:inherit;}
 .langchip span{padding:5px 9px;font-size:9.5px;font-weight:900;color:#cfe0cc;cursor:pointer;
   letter-spacing:.4px;}
 .langchip span.on{background:#fff;color:var(--green);}
+
+/* ============================================================================
+   v3.8 — THE DIRECT-TOUCH MORNING SCALE + THE SCALE TALLY GATEPASS
+   ----------------------------------------------------------------------------
+   Everything below is sized for one thumb, in sunlight, on a wet hand. The rule
+   applied throughout: nothing a worker must tap is under 48 px tall, and the two
+   numbers they actually key are the biggest text on the screen.
+   ============================================================================ */
+
+/* ---- horizontal button selector rows (replace the Clone / Grade / Basket dropdowns) ---- */
+.selwrap{margin-top:9px;}
+.sellbl{font-size:9.5px;font-weight:900;letter-spacing:.55px;text-transform:uppercase;
+  color:#6b7a68;margin-bottom:5px;display:block;}
+.selrow{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;}
+.selrow::-webkit-scrollbar{display:none;}
+.selbtn{flex:1 0 auto;min-width:62px;min-height:50px;border:2px solid #cfdccd;background:#fff;
+  border-radius:12px;padding:7px 10px;font-weight:900;font-size:14px;color:#334431;
+  cursor:pointer;user-select:none;text-align:center;line-height:1.15;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:background .06s linear,border-color .06s linear;}
+.selbtn .sb{display:block;font-size:9px;font-weight:800;letter-spacing:.2px;opacity:.62;margin-top:2px;}
+.selbtn:active{transform:scale(.97);}
+.selbtn.on{background:var(--green2);border-color:var(--green2);color:#fff;
+  box-shadow:0 2px 0 rgba(0,0,0,.14);}
+.selbtn.on .sb{opacity:.9;}
+/* Grade and basket are SHORT, closed lists — 2 or 3 options — so they are laid out as
+   equal columns that always fit the phone. Nothing important may sit off the right edge.
+   The clone row is the one genuinely long list, so that one alone scrolls. */
+.selrow.grades,.selrow.baskets{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  overflow:visible;}
+.selrow.grades .selbtn,.selrow.baskets .selbtn{min-width:0;}
+.selrow.baskets .selbtn{font-size:11.5px;padding:7px 4px;}
+.selrow.baskets .selbtn .sb{font-size:9.5px;}
+/* the clone row is the one genuinely long list: it scrolls, and the soft right edge is
+   the affordance that says there is more to the right */
+.selrow.clones{-webkit-mask-image:linear-gradient(90deg,#000 89%,rgba(0,0,0,.3) 100%);
+  mask-image:linear-gradient(90deg,#000 89%,rgba(0,0,0,.3) 100%);}
+.selrow.clones .selbtn{min-width:72px;}
+
+/* ---- the two big numeric fields ---- */
+.numgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px;}
+.numcell{background:#fff;border:2px solid #cfdccd;border-radius:13px;padding:7px 9px 9px;}
+.numcell .sellbl{margin-bottom:2px;}
+input.bignum{width:100%;border:none;background:transparent;padding:2px 0 0;margin:0;
+  font-size:30px;line-height:1.1;font-weight:900;color:var(--green2);
+  letter-spacing:.5px;text-align:left;height:auto;border-radius:0;}
+input.bignum::placeholder{color:#c3d2c1;font-weight:900;}
+input.bignum:focus{outline:none;}
+.numcell:focus-within{border-color:var(--green2);box-shadow:0 0 0 3px rgba(45,122,58,.12);}
+.numcell .unit{font-size:10px;font-weight:800;color:#8a9a88;letter-spacing:.3px;}
+
+/* ---- the add-next-basket trigger ---- */
+.addnext{width:100%;margin-top:2px;padding:18px 12px;border-radius:16px;border:2.5px dashed var(--green2);
+  background:#f3f9f2;color:var(--green);font-weight:900;font-size:15.5px;letter-spacing:.3px;
+  cursor:pointer;}
+.addnext:active{transform:scale(.99);background:#e7f2e6;}
+
+/* ---- the massive camera block ---- */
+.camblock{display:block;width:100%;box-sizing:border-box;margin-top:12px;padding:26px 14px;
+  border-radius:18px;background:#20301f;color:#fff;text-align:center;font-weight:900;
+  font-size:16px;letter-spacing:.3px;cursor:pointer;border:none;line-height:1.35;
+  box-shadow:0 3px 0 rgba(0,0,0,.18);}
+.camblock:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.18);}
+.camblock .camsub{display:block;font-size:11px;font-weight:700;opacity:.72;margin-top:6px;}
+.camblock.done{background:#13a531;padding:13px 14px;display:flex;align-items:center;gap:12px;
+  text-align:left;box-shadow:0 3px 0 #0c7a24;}
+.camblock.done img{width:56px;height:56px;object-fit:cover;border-radius:11px;flex:none;
+  border:2px solid rgba(255,255,255,.75);}
+.camblock.done .cdt{flex:1;min-width:0;font-size:15px;}
+.camblock.done .camsub{opacity:.9;margin-top:3px;}
+
+/* ---- the full-bleed submit ---- */
+.submitwide{width:100%;box-sizing:border-box;margin-top:12px;padding:24px 12px;border:none;
+  border-radius:18px;background:var(--green2);color:#fff;font-weight:900;font-size:17px;
+  letter-spacing:.4px;cursor:pointer;box-shadow:0 4px 0 #1d5a28;line-height:1.3;}
+.submitwide:active{transform:translateY(3px);box-shadow:0 1px 0 #1d5a28;}
+.submitwide:disabled{background:#a8bfa9;box-shadow:0 4px 0 #8ea58f;}
+
+/* the basket card, trimmed — no instruction text, just the load */
+.dline.tight{padding:11px 11px 10px;}
+.dline.tight .dlnet{margin-top:10px;font-size:12px;}
+.scfoot{font-size:9.5px;color:#8a9a88;line-height:1.5;margin-top:14px;text-align:center;}
+
+/* ============================================================================
+   THE GATEPASS CARD
+   High contrast on purpose: it is read at arm's length, by a driver, outdoors.
+   It shows WEIGHT and COUNT only — see gatepassSummary() in app.js.
+   ============================================================================ */
+.gpcard{border:2.5px solid #20301f;border-radius:18px;background:#fff;overflow:hidden;
+  margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.10);}
+.gphead{background:#20301f;color:#fff;padding:13px 14px;}
+.gphead .gpt{font-size:17px;font-weight:900;letter-spacing:.3px;}
+.gphead .gplock{display:inline-block;margin-top:6px;background:#13a531;color:#fff;
+  border-radius:20px;padding:3px 11px;font-size:9.5px;font-weight:900;letter-spacing:.7px;}
+.gphead .gplock.pend{background:#c98a00;}
+.gphead .gplock.ret{background:var(--warn);}
+.gpmeta{display:flex;justify-content:space-between;gap:10px;padding:11px 14px 4px;
+  font-size:12.5px;color:#20301f;line-height:1.55;}
+.gpmeta .gml{font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;
+  color:#8a9a88;display:block;}
+.gpmeta b{font-size:14px;font-weight:900;}
+.gpbig{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px 14px 4px;}
+.gpbig>div{background:var(--lite);border-radius:12px;padding:10px 6px;text-align:center;}
+.gpbig .gbl{display:block;font-size:8.5px;font-weight:900;letter-spacing:.35px;
+  text-transform:uppercase;color:#5d6b5b;margin-bottom:3px;line-height:1.25;}
+.gpbig b{font-size:21px;font-weight:900;color:var(--green);letter-spacing:-.4px;}
+.gpbig .u{font-size:10px;font-weight:800;color:#5d6b5b;margin-left:1px;}
+.gpsec{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+  color:#5d6b5b;padding:14px 14px 6px;}
+.gptally{padding:0 14px;}
+.gprow{display:flex;align-items:center;gap:9px;border-bottom:1px dashed #dfe6df;padding:9px 0;}
+.gprow:last-child{border-bottom:none;}
+.gprow .gpg{flex:none;min-width:34px;height:34px;border-radius:9px;background:#20301f;color:#fff;
+  font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;}
+.gprow .gpn{flex:1;min-width:0;font-size:13.5px;font-weight:900;color:#20301f;line-height:1.3;}
+.gprow .gpn .gps{display:block;font-size:10px;font-weight:700;color:#7a8a78;margin-top:2px;}
+.gprow .gpkg{flex:none;font-size:17px;font-weight:900;color:var(--green);white-space:nowrap;}
+.gprow .gpkg span{font-size:11px;font-weight:800;color:#7a8a78;margin-left:2px;}
+.gptot{display:flex;justify-content:space-between;align-items:center;margin:10px 14px 0;
+  background:#20301f;color:#fff;border-radius:13px;padding:12px 14px;}
+.gptot .gtl{font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;opacity:.82;}
+.gptot .gtv{font-size:22px;font-weight:900;letter-spacing:-.4px;}
+.gpsub{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#6b7a68;
+  padding:8px 15px 0;font-weight:700;white-space:nowrap;}
+.gpnote{font-size:11.5px;color:#20301f;background:var(--lite);border-radius:10px;
+  margin:10px 14px 0;padding:9px 11px;line-height:1.5;font-weight:700;}
+.gpredact{font-size:10px;color:#7a8a78;line-height:1.5;padding:11px 15px 14px;font-style:italic;}
+.gpthumb{display:block;width:100%;max-height:150px;object-fit:contain;background:#111;cursor:pointer;}
+.gpacts{padding:0 12px 13px;}
+.gpacts .bigbtn{margin-top:8px;}
+
+/* the retained "waiting on Marketing" rows are now tappable gatepasses */
+.reqrow.tapp{cursor:pointer;}
+.reqrow.tapp:active{background:var(--lite);transform:scale(.995);}
+.reqrow .gpgo{flex:none;color:var(--green2);font-weight:900;font-size:17px;}
 </style>
 </head>
 <body>
@@ -1608,7 +1744,7 @@ input[type=datetime-local]{font-family:inherit;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.7.0"></script>
-<script src="app.js?v=3.7.0"></script>
+<script src="database.js?v=3.8.0"></script>
+<script src="app.js?v=3.8.0"></script>
 </body>
 </html>
