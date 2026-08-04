@@ -120,6 +120,117 @@ const BP_CATS={PND:['Pesticide','Fungicide','Herbicide'],FOLIAR:['Foliar'],
 
 const BP_LABEL={PND:'PnD spray',FOLIAR:'Foliar feed',BIO:'Biostimulant',TE:'Trace element',MANURE:'Manuring'};
 
+/* ======================================================================================
+   v3.12.0 · SEASONAL AGRONOMY MATRIX — the closed loop between Owner, Purchaser and field
+   ======================================================================================
+   THE WATER VOLUME CALIBRATION ANCHOR
+   -----------------------------------
+   TANK_L is the single number every spray recipe on this farm is written against. The
+   Owner keys a concentration PER ONE 1,000 L POWER SPRAY PUMP TANK and nothing else.
+   Every figure downstream — the Purchaser's brand quantity, the worker's dilution
+   checklist, the inventory deduction and the RM posted to a lot — is that per-tank
+   concentration MULTIPLIED BY THE NUMBER OF TANKS ACTUALLY MIXED IN THE FIELD.
+
+       deduction = dose_per_1000L x tanks_mixed
+       cost      = deduction x moving_average_cost_of_the_allocated_brand
+
+   Do not add a second tank size. If the farm ever buys a 2,000 L pump, the correct
+   change is that the worker keys 2.0 tanks, not that this constant moves. Every stored
+   recipe in `global_agronomy_drafts` is calibrated against 1,000 and would silently
+   double or halve if this number were edited.
+
+   MANURING is per tree, not per tank — it is broadcast, no water is mixed. That is the
+   ONLY basis exception, and it is carried explicitly on the draft as basis:'PER_TREE'.
+   ====================================================================================== */
+const TANK_L = 1000;
+
+/* The two core programs. Everything the Agronomist builds is one or the other. */
+const AGRO_PROGRAMS = [
+  {k:'SPRAY',  t:'Spraying',  ic:'💦', basis:'PER_1000L', unitlbl:'per 1,000 L tank'},
+  {k:'MANURE', t:'Manuring',  ic:'🪣', basis:'PER_TREE',  unitlbl:'per tree'}
+];
+
+/* Mandatory application-method targets. A directive without one is not issuable — the
+   commonest field failure on this farm was a crew spraying the leaf when the Owner meant
+   the fruit and branches, and nothing on paper said which. `mode` maps each target onto
+   the EXISTING v2.6 mode vocabulary so rain-fastness, PHI and the wet-leaf guard keep
+   working unchanged. */
+const SPRAY_METHODS = [
+  {k:'WHOLE',  t:'Whole Tree (Inside/Outside)',   mode:'SPRAY',  d:'Full cover — canopy outside and inside branches'},
+  {k:'LEAFOUT',t:'Leaf Only (Outside)',           mode:'LEAF',   d:'Outer canopy leaf only — NO fruit contact'},
+  {k:'INSIDE', t:'Inside Only (Fruit/Branches)',  mode:'SPRAY',  d:'Inside the canopy — fruit and branch surfaces'},
+  {k:'DRENCH', t:'Soil Drenching',                mode:'DRENCH', d:'Poured at the root zone, not sprayed on the tree'}
+];
+const MANURE_METHODS = [
+  {k:'DRIP',   t:'Broadcast Dripping Zone',        mode:'SOIL', d:'The ring under the canopy edge where rain drips off'},
+  {k:'OUTCAN', t:'Broadcast Outside the Canopy',   mode:'SOIL', d:'Beyond the canopy edge — feeding the outward roots'},
+  {k:'INCAN',  t:'Broadcast Whole Inside Canopy',  mode:'SOIL', d:'The whole area inside the canopy, trunk outward'}
+];
+
+/* Season stage — the Owner's top-level filter. These are the durian phenology stages the
+   programme sheet is organised around, in the order a season runs through them. */
+const SEASON_STAGES = [
+  {k:'VEG',    t:'Vegetative',    ic:'🌿', d:'Flushing leaf, building the canopy'},
+  {k:'PREFLW', t:'Pre-Flowering', ic:'🌾', d:'Stress and bud-eye induction'},
+  {k:'FLW',    t:'Flowering',     ic:'🌸', d:'Flower open — spray choice is at its most delicate'},
+  {k:'FSET',   t:'Fruit Setting', ic:'🥭', d:'Fruit holding and sizing'},
+  {k:'POSTH',  t:'Post-Harvest',  ic:'♻️', d:'Recovery feeding after the drop'}
+];
+
+/* Three-state weather. `wx` maps each state down onto the EXISTING two-state WEATHER
+   flag (SUNNY / RAINY) that the whole v2.6 rain-fastness engine reads, so nothing that
+   already works has to be rewritten to understand a third state. */
+const WX3_MODES = [
+  {k:'DRY',   t:'Dry / Hot',      ic:'☀️',  wx:'SUNNY', d:'No wash-off risk. Watch leaf burn in the midday sun.'},
+  {k:'MOD',   t:'Moderate Rain',  ic:'🌦️', wx:'RAINY', d:'Contact products may wash off. Prefer systemic.'},
+  {k:'HEAVY', t:'Heavy Rain',     ic:'🌧️', wx:'RAINY', d:'Do not spray. Soil work and drenching only.'}
+];
+
+/* THE FIVE COMPONENT SLOTS. This is the shape of every recipe the Owner builds — five
+   dropdown slots, each filled with an ACTIVE INGREDIENT (never a brand) and a
+   concentration per 1,000 L. The Purchaser puts the brand in later. `cats` is which
+   product categories the slot's active-ingredient dropdown is built from. */
+const COMBO_SLOTS = [
+  {k:'PEST', t:'Pesticide',           ic:'🐛', cats:['Pesticide'],                    d:'Insect control'},
+  {k:'FUNG', t:'Fungicide',           ic:'🍄', cats:['Fungicide'],                    d:'Disease control'},
+  {k:'FOL',  t:'Foliar',              ic:'🌿', cats:['Foliar','Powder','Fertiliser'], d:'NPK and leaf feed'},
+  {k:'BIO',  t:'Biostimulant',        ic:'⚡', cats:['Growth Reg','Foliar'],          d:'Hormone, amino, seaweed'},
+  {k:'TE',   t:'Trace Elements (TE)', ic:'🧪', cats:['Foliar','Powder'],              d:'Zn, B, Ca, Mg and mixes'}
+];
+
+/* Unit types the Purchaser may onboard a new commercial item under, each with the
+   default hidden multiplier that converts ONE CONTAINER into the operational unit the
+   recipes are written in. 1 Drum = 20,000 ml is the farm's own example. The Purchaser
+   may override the multiplier on the form — this is only the sensible starting number. */
+const ONBOARD_UNITS = [
+  {k:'ml',      t:'ml — liquid',              containers:[['bottle',1000],['jerrycan',5000],['drum',20000],['pail',18000]]},
+  {k:'gm',      t:'gm — powder / granule',    containers:[['packet',1000],['bag',25000],['sack',50000],['tub',5000]]},
+  {k:'bags',    t:'bags — counted whole',     containers:[['bag',1]]},
+  {k:'tablets', t:'tablets — counted whole',  containers:[['box',100],['strip',10]]},
+  {k:'m',       t:'m — measured length',      containers:[['roll',1000]]}
+];
+
+/* Stage x weather guidance. Purely advisory text shown above the builder — the app
+   never silently changes a recipe, it only tells the Owner what the farm's own agronomy
+   notes say about that combination. A missing pair falls back to the stage line. */
+const STAGE_ADVICE = {
+  VEG:    {base:'Push leaf. NPK high in N, plus TE for a clean flush.',
+           MOD:'Moderate rain suits vegetative feeding — the leaf is soft and takes it.',
+           HEAVY:'Hold the spray. Broadcast fertiliser instead; the rain will carry it in.'},
+  PREFLW: {base:'Stress the tree. High P and K, low N. PBZ / MKP work here.',
+           MOD:'Rain undoes stress. Delay the inducer until three dry days.',
+           HEAVY:'Do not induce in heavy rain — the flush will come back instead of flower.'},
+  FLW:    {base:'Flower is fragile. Light rates, no strong surfactant, avoid midday.',
+           MOD:'Fungicide cover matters most now — flower blight follows wet flowering.',
+           HEAVY:'No spraying on open flower in heavy rain. Protect, do not feed.'},
+  FSET:   {base:'Hold the fruit. Ca and B against fruit drop, plus fruit-borer cover.',
+           MOD:'Watch the PHI clock — fruit-contact products need their cut-off honoured.',
+           HEAVY:'Drench rather than spray. Nothing sprayed onto wet fruit stays there.'},
+  POSTH:  {base:'Rebuild the tree. Amino, seaweed, calcium nitrate, full TE.',
+           MOD:'Good window — recovery feeding wants moisture in the soil.',
+           HEAVY:'Broadcast only. Save the foliar until the canopy can dry.'}
+};
+
 const GEN_TASKS={
   PRUNE:  {label:'Pruning',       need:'TREE_COUNT', countLabel:'branches pruned', unit:'branches'},
   WEED:   {label:'Weeding',       need:'AREA',       countLabel:'trees cleared',   unit:'trees'},
@@ -716,7 +827,80 @@ const EN={
   ty_onstring:'On the string now:', ty_untied:'Untied still hanging:', ty_nocensus:'no census',
   role_OWNER:'Owner / Admin', role_MARKETING:'Marketing',
   role_PURCHASER:'Sandakan Purchaser', role_WORKER:'Farm Worker',
-  bg_onstring:'ON STRING', bg_tiedtoday:'TIED TODAY', bg_tasks:'TASKS', bg_ropeshort:'ROPE SHORT'
+  bg_onstring:'ON STRING', bg_tiedtoday:'TIED TODAY', bg_tasks:'TASKS', bg_ropeshort:'ROPE SHORT',
+
+  /* --- v3.12 seasonal matrix / brand allocation / task run --- */
+  s_builder:'PROGRAM BUILDER',   s_builder_d:'Build a five-part combo by active ingredient',
+  s_alloc:'AI ➔ BRAND',          s_alloc_d:'Match a brand in the store to each ingredient the Owner asked for',
+  s_onboard:'NEW PRODUCT',       s_onboard_d:'Add a commercial item to the store catalogue',
+  s_runs:'PROGRAM RUNS',         s_runs_d:'Daily, monthly and yearly cost of the work actually done',
+  ag_tank:'Every dose below is per ONE 1,000 L power spray pump tank.',
+  ag_tankman:'Every dose below is per ONE TREE. Manuring is broadcast — no water is mixed.',
+  ag_dir:'Operational directive',
+  ag_method:'Application method',
+  ag_stage:'Season stage',
+  ag_wx:'Current weather',
+  ag_await:'⏳ Waiting for the Sandakan Purchaser to allocate a brand. Do not start this job yet.',
+  ag_ready:'✓ Brands allocated — this job may be run',
+  ag_brand:'Brand allocated',
+  ag_dose:'Dose per 1,000 L tank',
+  ag_dosetree:'Dose per tree',
+  ag_runbtn:'🧪 LOG ACTIVE TASK RUN',
+  ag_runhead:'Log active task run',
+  ag_water:'Total water volume utilised (litres)',
+  ag_tanks:'Number of 1,000 L tanks mixed',
+  ag_tankhint:'Decimals are allowed — key 3.5 for three full tanks and a half tank.',
+  ag_trees:'Trees manured',
+  ag_lot:'Target lot applied',
+  ag_submit:'💾 SUBMIT & SECURE WORK LOG',
+  ag_locked:'Once secured this log cannot be edited. Stock leaves the store and the cost is posted to the lot.',
+  ag_nodir:'No directive is active for you. The Owner issues them from the Program Builder.',
+  ag_deduct:'This run will deduct',
+  ag_nobrand:'no brand allocated yet',
+  ag_pubbtn:'📣 ISSUE TO THE FARM',
+  ag_pub:'ISSUED',
+  ag_draft:'DRAFT',
+  ag_closed:'CLOSED',
+  pu_allochead:'Match a brand to every ingredient the Owner asked for',
+  pu_maclock:'Cost locked at',
+  pu_nostock:'nothing in the store carries this ingredient',
+  pu_onboardhead:'Onboard a new commercial item',
+  pu_brandname:'Brand name',
+  pu_ailink:'Active ingredient it carries',
+  pu_unit:'Unit type',
+  pu_mult:'One container holds',
+  pu_onboardbtn:'＋ ONBOARD NEW MATERIAL',
+  rn_today:'Today', rn_month:'This month', rn_year:'This year',
+  /* season stages, weather and method targets are translated AT RENDER TIME from the
+     record's KEY, never read back as the English label that was stored when it was
+     issued -- otherwise a worker's phone shows a half-Malay card. */
+  sg_VEG:'Vegetative', sg_PREFLW:'Pre-Flowering', sg_FLW:'Flowering',
+  sg_FSET:'Fruit Setting', sg_POSTH:'Post-Harvest',
+  wx3_DRY:'Dry / Hot', wx3_MOD:'Moderate Rain', wx3_HEAVY:'Heavy Rain',
+  mt_WHOLE:'Whole Tree (Inside/Outside)',  mt_WHOLE_d:'Full cover — canopy outside and inside branches',
+  mt_LEAFOUT:'Leaf Only (Outside)',        mt_LEAFOUT_d:'Outer canopy leaf only — NO fruit contact',
+  mt_INSIDE:'Inside Only (Fruit/Branches)',mt_INSIDE_d:'Inside the canopy — fruit and branch surfaces',
+  mt_DRENCH:'Soil Drenching',              mt_DRENCH_d:'Poured at the root zone, not sprayed on the tree',
+  mt_DRIP:'Broadcast Dripping Zone',       mt_DRIP_d:'The ring under the canopy edge where rain drips off',
+  mt_OUTCAN:'Broadcast Outside the Canopy',mt_OUTCAN_d:'Beyond the canopy edge — feeding the outward roots',
+  mt_INCAN:'Broadcast Whole Inside Canopy',mt_INCAN_d:'The whole area inside the canopy, trunk outward',
+  sl_PEST:'Pesticide', sl_FUNG:'Fungicide', sl_FOL:'Foliar',
+  sl_BIO:'Biostimulant', sl_TE:'Trace Elements (TE)',
+  ag_dirnote:'This job was set by the Owner and cannot be changed here. Tap LOG ACTIVE TASK RUN and key what was really mixed — the material leaves farm stock and is costed to that lot automatically.',
+  ag_short:'⚠ NOT ENOUGH IN THE STORE for one full tank',
+  ag_costhidden:'cost locked ✓ (RM figures are hidden for your role)',
+  ag_crew:'Workers on the job', ag_hours:'Hours each',
+  ag_deducthead:'This run will deduct',
+  ag_col_brand:'Brand', ag_col_dose:'Dose', ag_col_onhand:'On hand',
+  ag_cancel:'CANCEL', ag_dirlbl:'Directive', ag_methodlbl:'Application method',
+  ag_manhours:'man-hours', ag_crewhint:'Crew size and hours build the month\u2019s labour total.',
+  ag_tanksof:'tanks of', ag_treesdone:'trees', ag_waterkeyed:'L water keyed',
+  ag_matcost:'Material cost of this run:',
+  ag_keytanks:'Key how many 1,000 L tanks were mixed.',
+  ag_keytrees:'Key how many trees were treated.',
+  ag_phinote:'⚠ fruit-contact product — check the residue cut-off with the Owner first',
+  ag_secured:'🔒 Work log secured', ag_costedto:'item(s) costed to Lot',
+  ag_tmplnote:'Filtered by application method — tap one to pre-fill the slots, then change anything before you issue it.'
 };
 
 /* Bahasa Malaysia — the terms the Owner approved. Anything missing here simply
@@ -925,5 +1109,75 @@ const MS={
   ty_onstring:'Masih di tali sekarang:', ty_untied:'Belum diikat, masih tergantung:', ty_nocensus:'tiada banci',
   role_OWNER:'Tuan Ladang / Admin', role_MARKETING:'Marketing',
   role_PURCHASER:'Pembeli Sandakan', role_WORKER:'Pekerja Ladang',
-  bg_onstring:'DI TALI', bg_tiedtoday:'DIIKAT HARI INI', bg_tasks:'KERJA', bg_ropeshort:'TALI TIDAK CUKUP'
+  bg_onstring:'DI TALI', bg_tiedtoday:'DIIKAT HARI INI', bg_tasks:'KERJA', bg_ropeshort:'TALI TIDAK CUKUP',
+
+  /* --- v3.12 matriks bermusim / padanan jenama / rekod kerja --- */
+  s_builder:'BINA PROGRAM',      s_builder_d:'Bina kombinasi lima bahagian ikut bahan aktif',
+  s_alloc:'BAHAN ➔ JENAMA',      s_alloc_d:'Padankan jenama dalam stor dengan bahan aktif yang Tuan Ladang minta',
+  s_onboard:'BARANG BARU',       s_onboard_d:'Tambah barang komersial ke dalam katalog stor',
+  s_runs:'KERJA PROGRAM',        s_runs_d:'Kos harian, bulanan dan tahunan kerja yang betul-betul dibuat',
+  ag_tank:'Setiap sukatan di bawah adalah untuk SATU tangki pam 1,000 L.',
+  ag_tankman:'Setiap sukatan di bawah adalah untuk SATU POKOK. Baja ditabur — tiada air dicampur.',
+  ag_dir:'Arahan kerja',
+  ag_method:'Cara pembajaan / semburan',
+  ag_stage:'Peringkat musim',
+  ag_wx:'Cuaca sekarang',
+  ag_await:'⏳ Menunggu Pembeli Sandakan pilih jenama. Jangan mula kerja ini dahulu.',
+  ag_ready:'✓ Jenama sudah dipilih — kerja ini boleh dijalankan',
+  ag_brand:'Jenama diberi',
+  ag_dose:'Sukatan setiap tangki 1,000 L',
+  ag_dosetree:'Sukatan setiap pokok',
+  ag_runbtn:'🧪 REKOD KERJA YANG DIBUAT',
+  ag_runhead:'Rekod kerja yang dibuat',
+  ag_water:'Jumlah air digunakan (liter)',
+  ag_tanks:'Berapa tangki 1,000 L dicampur',
+  ag_tankhint:'Boleh guna titik perpuluhan — tulis 3.5 untuk tiga tangki penuh dan setengah tangki.',
+  ag_trees:'Berapa pokok dibaja',
+  ag_lot:'Lot yang dibuat',
+  ag_submit:'💾 SIMPAN & KUNCI REKOD KERJA',
+  ag_locked:'Selepas disimpan rekod ini tidak boleh diubah. Stok keluar dari stor dan kos masuk ke lot tersebut.',
+  ag_nodir:'Tiada arahan kerja untuk anda. Tuan Ladang keluarkan arahan dari Bina Program.',
+  ag_deduct:'Kerja ini akan menolak',
+  ag_nobrand:'jenama belum dipilih',
+  ag_pubbtn:'📣 KELUARKAN KEPADA LADANG',
+  ag_pub:'DIKELUARKAN',
+  ag_draft:'DRAF',
+  ag_closed:'DITUTUP',
+  pu_allochead:'Padankan jenama untuk setiap bahan aktif yang Tuan Ladang minta',
+  pu_maclock:'Kos dikunci pada',
+  pu_nostock:'tiada barang dalam stor membawa bahan aktif ini',
+  pu_onboardhead:'Daftar barang komersial baru',
+  pu_brandname:'Nama jenama',
+  pu_ailink:'Bahan aktif yang dibawa',
+  pu_unit:'Jenis unit',
+  pu_mult:'Satu bekas mengandungi',
+  pu_onboardbtn:'＋ DAFTAR BAHAN BARU',
+  rn_today:'Hari ini', rn_month:'Bulan ini', rn_year:'Tahun ini',
+  sg_VEG:'Peringkat Daun', sg_PREFLW:'Sebelum Berbunga', sg_FLW:'Berbunga',
+  sg_FSET:'Buah Mula Jadi', sg_POSTH:'Selepas Musim Buah',
+  wx3_DRY:'Panas / Kering', wx3_MOD:'Hujan Sederhana', wx3_HEAVY:'Hujan Lebat',
+  mt_WHOLE:'Seluruh Pokok (Dalam/Luar)',   mt_WHOLE_d:'Sembur penuh — luar tajuk dan dahan dalam',
+  mt_LEAFOUT:'Daun Luar Sahaja',           mt_LEAFOUT_d:'Daun tajuk luar sahaja — JANGAN kena buah',
+  mt_INSIDE:'Dalam Sahaja (Buah/Dahan)',   mt_INSIDE_d:'Dalam tajuk — permukaan buah dan dahan',
+  mt_DRENCH:'Siram Tanah',                 mt_DRENCH_d:'Dicurah di kawasan akar, bukan disembur pada pokok',
+  mt_DRIP:'Tabur Kawasan Titisan',         mt_DRIP_d:'Bulatan di bawah hujung tajuk tempat air hujan menitis',
+  mt_OUTCAN:'Tabur Luar Tajuk',            mt_OUTCAN_d:'Di luar hujung tajuk — memberi makan akar yang menjalar keluar',
+  mt_INCAN:'Tabur Seluruh Dalam Tajuk',    mt_INCAN_d:'Seluruh kawasan dalam tajuk, dari batang ke luar',
+  sl_PEST:'Racun Serangga', sl_FUNG:'Racun Kulat', sl_FOL:'Baja Daun',
+  sl_BIO:'Perangsang', sl_TE:'Bahan Surih (TE)',
+  ag_dirnote:'Kerja ini ditetapkan oleh Tuan Ladang dan tidak boleh diubah di sini. Tekan REKOD KERJA YANG DIBUAT dan masukkan apa yang betul-betul dicampur — bahan akan keluar dari stok ladang dan dikira kos untuk lot itu secara automatik.',
+  ag_short:'⚠ STOK TIDAK CUKUP untuk satu tangki penuh',
+  ag_costhidden:'kos dikunci ✓ (angka RM disembunyikan untuk peranan anda)',
+  ag_crew:'Berapa pekerja buat kerja ini', ag_hours:'Berapa jam seorang',
+  ag_deducthead:'Kerja ini akan menolak',
+  ag_col_brand:'Jenama', ag_col_dose:'Sukatan', ag_col_onhand:'Stok ada',
+  ag_cancel:'BATAL', ag_dirlbl:'Arahan kerja', ag_methodlbl:'Cara pembajaan / semburan',
+  ag_manhours:'jam-orang', ag_crewhint:'Bilangan pekerja dan jam membina jumlah upah bulan ini.',
+  ag_tanksof:'tangki', ag_treesdone:'pokok', ag_waterkeyed:'L air dimasukkan',
+  ag_matcost:'Kos bahan kerja ini:',
+  ag_keytanks:'Masukkan berapa tangki 1,000 L dicampur.',
+  ag_keytrees:'Masukkan berapa pokok dibuat.',
+  ag_phinote:'⚠ barang sentuh buah — tanya Tuan Ladang tentang tempoh menunggu sebelum guna',
+  ag_secured:'🔒 Rekod kerja disimpan', ag_costedto:'barang dikira kos untuk Lot',
+  ag_tmplnote:'Ditapis ikut cara semburan — tekan satu untuk isi slot, kemudian ubah apa-apa sebelum keluarkan arahan.'
 };

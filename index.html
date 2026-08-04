@@ -878,6 +878,49 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
 .attchip.hot{background:var(--warn);color:#fff;}
 .cstat.c{background:#e8ebe8;color:#5d6b5b;}
 
+/* ================= v3.12 · seasonal matrix, brand allocation, task run =================
+   .cstat.a is GREEN in this stylesheet and .cstat.p is AMBER. A new .g is added rather
+   than reusing .a, so the meaning of an existing badge is not quietly changed. */
+.cstat.g{background:var(--green);color:#fff;}
+.anchornote{background:#eef4ff;border-left:4px solid #26418f;border-radius:0 9px 9px 0;
+  padding:7px 10px;margin:8px 0;font-size:11.5px;font-weight:700;color:#26418f;line-height:1.4;}
+/* one component slot in the five-part combo builder */
+.slotbox{border:1.5px solid #e2e6ea;border-radius:12px;padding:10px 11px;margin-top:9px;background:#fcfdfe;}
+.slotbox.filled{border-color:var(--green);background:var(--lite);}
+.slothead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  margin-bottom:6px;font-size:13px;flex-wrap:wrap;}
+.slothead .exphint{font-size:10px;}
+.slotrow{display:grid;grid-template-columns:1.6fr 1fr;gap:8px;}
+.slotrow label{margin-top:8px;}
+.tmplrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.tmpl{display:inline-block;background:#eef4ff;color:#26418f;border:1.5px solid #c3d3f0;
+  border-radius:9px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer;}
+.tmpl:active{background:#dbe6fb;}
+/* the purchaser's allocation row */
+.allocrow{border:1.5px dashed #cfd6dd;border-radius:11px;padding:9px 10px;margin-top:8px;background:#fff;}
+.allocrow.done{border-style:solid;border-color:var(--green);background:var(--lite);}
+.allochead{font-size:12.5px;margin-bottom:6px;line-height:1.5;}
+.allochead .aival{font-weight:900;color:#26418f;}
+.dosepill{display:inline-block;background:#26418f;color:#fff;border-radius:8px;
+  padding:2px 8px;font-size:10px;font-weight:900;margin-left:6px;white-space:nowrap;}
+.lockline{margin-top:7px;font-size:12px;font-weight:700;color:var(--green);line-height:1.5;}
+.okline{margin-top:9px;background:var(--lite);color:var(--green);border-radius:9px;
+  padding:8px 10px;font-size:12px;font-weight:800;}
+.warnline{margin-top:9px;background:var(--amberbg);color:#7a5b00;border-radius:9px;
+  padding:8px 10px;font-size:12px;font-weight:800;}
+/* the worker's operational directive card */
+.dircard{border-left:5px solid var(--green);}
+.dircard.waiting{border-left-color:#e0a800;}
+.methodbox{margin-top:8px;background:#f4f7fb;border:1.5px dashed #90a4c8;border-radius:11px;padding:8px 11px;}
+.methodbox .ml{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+.methodbox .mv{display:block;font-size:15px;font-weight:900;color:#26418f;line-height:1.3;margin-top:1px;}
+.dirtbl{margin-top:8px;}
+.onbrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* three periods across, so Today / This month / This year read as one row rather than
+   leaving a hole in the 2-column default */
+.kpis.k3{grid-template-columns:1fr 1fr 1fr;}
+.kpis.k3 .v{font-size:16px;line-height:1.25;}
+
 /* ---- gatepass additions ---- */
 .gpplate{display:flex;justify-content:space-between;align-items:center;gap:10px;
   background:#f7f9f6;border-bottom:1px solid #e2e9e0;padding:11px 14px;}
@@ -1297,6 +1340,118 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
   <div class="card" id="opshistory" style="display:none">
     <div class="sec" data-t="op_sent">✓ Completion replies sent from this phone</div>
     <div id="opshistlist"></div>
+  </div>
+
+  <!-- ===== v3.12 · AGRONOMIST · SEASONAL PROGRAM BUILDER (Owner / Marketing) =====
+       Five component slots, each holding an ACTIVE INGREDIENT and a concentration
+       against the fixed 1,000 L power spray pump tank. No brand is chosen here — that
+       is the Sandakan Purchaser's job, and keeping it out of this screen is the whole
+       point of the split. -->
+  <div class="card" id="agromatrix" style="display:none">
+    <div class="sec">🧬 Seasonal agronomy matrix — build a five-part combo</div>
+    <div class="anchornote" id="am-anchor">Every dose below is per ONE 1,000 L power spray pump tank.</div>
+
+    <label>Core program</label>
+    <div class="segs" id="am-progs">
+      <div class="on" id="amp-SPRAY"  onclick="amSetProgram('SPRAY')">💦 SPRAYING</div>
+      <div id="amp-MANURE" onclick="amSetProgram('MANURE')">🪣 MANURING</div>
+    </div>
+
+    <div class="selrow">
+      <div><label>Season stage</label>
+        <select id="am-stage" onchange="amSetField('stage',this.value)"></select></div>
+      <div><label>Current weather</label>
+        <select id="am-wx" onchange="setWx3(this.value)"></select></div>
+    </div>
+    <div class="cnote" id="am-advice">—</div>
+
+    <label>Application method target <span class="minitag">REQUIRED</span></label>
+    <select id="am-method" onchange="amSetField('method',this.value)"></select>
+    <div class="small" id="am-methodhint">—</div>
+
+    <label>Recommended templates for this combination</label>
+    <div id="am-tmpl"></div>
+
+    <label style="margin-top:11px">Combo name <span class="minitag">THE CREW SEES THIS</span></label>
+    <input id="am-name" placeholder="e.g. Fruit-hold cover · Aug week 2" autocomplete="off"
+           oninput="AM.name=this.value">
+
+    <label>Where it applies</label>
+    <div class="lotbtns" id="am-lots">
+      <div class="on" id="amL-ALL" onclick="amScope('ALL')">WHOLE FARM</div>
+      <div id="amL-A" onclick="amScope('A')">LOT A</div>
+      <div id="amL-B" onclick="amScope('B')">LOT B</div>
+      <div id="amL-C" onclick="amScope('C')">LOT C</div>
+    </div>
+
+    <div class="sec" style="margin-top:14px">The five component slots —
+      <span id="am-count">0</span> filled</div>
+    <p class="small">Choose the <b>active ingredient</b>, not the brand. Leave a slot on
+      “not used” if the combo does not need it. Sandakan matches a commercial brand to
+      each ingredient after you issue this.</p>
+    <div id="am-slots"></div>
+
+    <div class="pinerr" id="am-err"></div>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="amSave(false)"><span id="am-savelbl">✓ SAVE COMBO TO THE MATRIX</span></button>
+    <div style="height:8px"></div>
+    <button class="bigbtn" onclick="amIssue()">📣 SAVE &amp; ISSUE TO THE FARM</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="amReset()">CLEAR THE FORM</button>
+
+    <div class="sec" style="margin-top:16px">The matrix</div>
+    <div id="am-list"></div>
+  </div>
+
+  <!-- ===== v3.12 · PURCHASER · AI ➔ BRAND ALLOCATION MATRIX ===== -->
+  <div class="card" id="alloccard" style="display:none">
+    <div class="sec">🔗 Match a brand to every ingredient the Owner asked for</div>
+    <p class="small">Each row is one active ingredient the Owner prescribed, with the dose
+      against a <b>1,000 litre tank</b>. Choose the brand in the store that carries it —
+      the app locks that brand's <b>moving average cost</b> onto the task card, so the job
+      is costed at what the farm actually paid. Only brands sold in the prescribed unit are
+      offered; this app never converts ml to gm on its own.</p>
+    <div id="alloclist"></div>
+  </div>
+
+  <!-- ===== v3.12 · PURCHASER · NEW PRODUCT ONBOARDING ===== -->
+  <div class="card" id="onboardcard" style="display:none">
+    <div class="sec">🆕 Onboard a new commercial item</div>
+    <p class="small">Anything added here joins the live catalogue immediately on this phone
+      and reaches every other phone on the next sync. It opens at <b>zero stock</b> —
+      receive the quantity on the Stock In screen against its invoice, exactly like every
+      other product.</p>
+    <label>Brand name <span class="minitag">AS PRINTED ON THE LABEL</span></label>
+    <input id="ob-name" placeholder="e.g. Fetto 480 SL" autocomplete="off">
+    <label>Active ingredient it carries</label>
+    <select id="ob-ai"></select>
+    <input id="ob-ainew" placeholder="…or type a new ingredient here" autocomplete="off"
+           style="margin-top:6px">
+    <label>Category</label>
+    <select id="ob-cat"></select>
+    <div class="onbrow">
+      <div><label>Unit type</label>
+        <select id="ob-unit" onchange="obUnitChange()"></select></div>
+      <div><label>Container</label>
+        <select id="ob-container" onchange="obContainerChange()"></select></div>
+    </div>
+    <label>One container holds <span class="minitag">UNIT MULTIPLIER</span></label>
+    <input type="number" id="ob-mult" min="0" step="any" inputmode="decimal" oninput="obCalc()">
+    <div class="convnote" id="ob-conv">—</div>
+    <div class="onbrow">
+      <div><label>Price per container (RM)</label>
+        <input type="number" id="ob-price" min="0" step="0.01" inputmode="decimal" oninput="obCalc()"></div>
+      <div><label>Minimum stock level</label>
+        <input type="number" id="ob-min" min="0" step="any" inputmode="decimal"></div>
+    </div>
+    <div class="pinerr" id="ob-err"></div>
+    <button class="bigbtn" onclick="obSave()">＋ ONBOARD NEW MATERIAL</button>
+    <div id="oblist"></div>
+  </div>
+
+  <!-- ===== v3.12 · OWNER / MARKETER · PROGRAM RUN COSTING ===== -->
+  <div class="card" id="runcostcard" style="display:none">
+    <div class="sec">🧪 Program runs — what the work actually cost</div>
+    <div id="runcostbox"></div>
   </div>
 
   <!-- ===== AGRONOMIST · MONTH TIMELINE (v2.8, Option 3) ===== -->
@@ -1790,6 +1945,58 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
   </div>
 </div>
 
+<!-- v3.12 · LOG ACTIVE TASK RUN (Worker) — the one action that closes the loop:
+     it deducts the stock, prices it at the cost the Purchaser locked, and posts the
+     RM to the lot the worker names. -->
+<div id="runmodal" class="modal hidden">
+  <div class="sheet">
+    <h3 id="run-head">Log active task run</h3>
+    <div class="aibox" style="margin-top:12px">
+      <div><div class="cl"><span data-t="ag_dirlbl">Directive</span>
+        <span class="ro">SET BY OWNER · <span data-t="w_readonly">READ-ONLY</span></span></div>
+        <div class="av" id="run-dir">—</div></div>
+    </div>
+    <div class="methodbox"><span class="ml" data-t="ag_methodlbl">Application method</span>
+      <span class="mv" id="run-method">—</span></div>
+
+    <div id="run-waterwrap">
+      <label><span data-t="ag_water">Total water volume utilised (litres)</span>
+        <span class="minitag" data-t="w_required">REQUIRED</span></label>
+      <input type="number" id="run-water" min="0" step="any" inputmode="decimal" oninput="runCalc()">
+    </div>
+
+    <label id="run-tanklbl">Number of 1,000 L tanks mixed</label>
+    <input type="number" id="run-tanks" min="0" step="any" inputmode="decimal" oninput="runCalc()">
+    <div class="small" id="run-tankhint">Decimals are allowed — key 3.5 for three full tanks and a half tank.</div>
+
+    <label><span data-t="ag_lot">Target lot applied</span>
+      <span class="minitag" data-t="w_required">REQUIRED</span></label>
+    <div class="lotbtns" id="run-lots">
+      <div id="rn-A" onclick="runLot('A')">LOT A</div>
+      <div id="rn-B" onclick="runLot('B')">LOT B</div>
+      <div id="rn-C" onclick="runLot('C')">LOT C</div>
+    </div>
+
+    <div class="rainrow">
+      <div><label data-t="ag_crew">Workers on the job</label>
+        <input type="number" id="run-crew" min="1" step="1" inputmode="numeric" oninput="runCalc()"></div>
+      <div><label data-t="ag_hours">Hours each</label>
+        <input type="number" id="run-hours" min="0" step="any" inputmode="decimal" oninput="runCalc()"></div>
+    </div>
+    <div class="convnote" id="run-labour">—</div>
+
+    <div class="sec" style="margin-top:12px" data-t="ag_deducthead">This run will deduct</div>
+    <div class="tblwrap" style="max-height:230px"><table class="tbl" id="run-tbl"></table></div>
+    <div class="convnote" id="run-sum">—</div>
+
+    <div class="pinerr" id="run-err"></div>
+    <button class="bigbtn" onclick="submitRun()" data-t="ag_submit">💾 SUBMIT &amp; SECURE WORK LOG</button>
+    <p class="small" data-t="ag_locked">Once secured this log cannot be edited. Stock leaves the store and the
+      cost is posted to that lot's ledger.</p>
+    <button class="bigbtn ghost" onclick="closeRun()" data-t="ag_cancel">CANCEL</button>
+  </div>
+</div>
+
 <!-- BLUEPRINT: build a programme set by ACTIVE INGREDIENT (v2.6, Owner) -->
 <div id="bpmodal" class="modal hidden">
   <div class="sheet">
@@ -1903,7 +2110,7 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.11.0"></script>
-<script src="app.js?v=3.11.0"></script>
+<script src="database.js?v=3.12.0"></script>
+<script src="app.js?v=3.12.0"></script>
 </body>
 </html>
