@@ -1022,6 +1022,38 @@ input.tree{width:100%;font-size:27px;font-weight:900;padding:12px;text-align:cen
 .tot .sub{display:block;font-size:11.5px;font-weight:600;color:var(--muted);}
 .mh{margin-top:9px;background:#eef4ff;border-radius:9px;padding:9px 11px;
   font-size:12.5px;font-weight:800;color:#16295c;line-height:1.55;}
+/* ---- v3.15 · the deadline strip and the programme record ---- */
+.duebar{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 15px;font-size:15px;font-weight:900;}
+.duebar.ok{background:var(--lite);color:var(--green);}
+.duebar.soon{background:var(--amberbg);color:#7a5b00;}
+.duebar.late{background:#fdecea;color:var(--warn);}
+.duebar .dd{font-size:12px;font-weight:700;opacity:.85;}
+/* the card takes the colour of its deadline, so it reads at arm's length */
+.wcard.late{border-color:var(--warn);}
+.wcard.late .whdr{background:#8e1c14;}
+.wcard.soon{border-color:#e0a800;}
+.wcard.soon .whdr{background:#8a6d00;}
+.kpi.kg .v{color:var(--green);} .kpi.kr .v{color:var(--warn);} .kpi.ka .v{color:#7a5b00;}
+.kpi .l .sub2{display:block;color:var(--warn);margin-top:2px;}
+.mo{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:11px;}
+.mo div{flex:0 0 auto;border:2px solid #cfd6dd;border-radius:10px;padding:9px 13px;
+  font-size:12.5px;font-weight:900;cursor:pointer;background:#fff;white-space:nowrap;}
+.mo div.on{background:#16295c;border-color:#16295c;color:#fff;}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:12px 0;border-bottom:1px solid #eef0ee;}
+.mrow:last-child{border-bottom:none;}
+.mn{font-size:14px;font-weight:900;line-height:1.35;min-width:0;}
+.ms2{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-top:2px;}
+.chip{font-size:10px;font-weight:900;padding:4px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;}
+.chip.ok{background:var(--lite);color:var(--green);}
+.chip.late{background:#fdecea;color:var(--warn);}
+.chip.open{background:var(--amberbg);color:#7a5b00;}
+.chip.now{background:#eef4ff;color:#16295c;}
+.pctbar{height:9px;border-radius:5px;background:#e2e8e2;overflow:hidden;margin-top:5px;}
+.pctbar i{display:block;height:100%;background:var(--green);}
+.tbl tr.totrow td{border-top:2px solid #e2e6ea;}
+
 /* per-lot progress on the worker's card */
 .wprog{margin:13px 14px 0;}
 .pg{display:flex;align-items:center;gap:9px;margin-top:7px;}
@@ -1516,6 +1548,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <label data-t="ag_method">Application method</label>
     <select id="am-method" onchange="amSetField('method',this.value)"></select>
 
+    <label data-t="dt_due">Must finish by</label>
+    <input type="date" id="am-due" onchange="AM.due=this.value">
+    <div class="exphint" data-t="dt_suggest">Suggested from the programme sheet — change it if you like</div>
+
     <label data-t="s_builder_t">Templates</label>
     <div id="am-tmpl"></div>
 
@@ -1585,6 +1621,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="pinerr" id="ob-err"></div>
     <button class="bigbtn" onclick="obSave()">＋ ONBOARD NEW MATERIAL</button>
     <div id="oblist"></div>
+  </div>
+
+  <!-- ===== v3.15 · OWNER / MARKETER · PROGRAM RECORD ===== -->
+  <div class="card" id="progrecord" style="display:none">
+    <div class="sec">📅 <span data-t="s_record">PROGRAM RECORD</span></div>
+    <div id="progrecordbox"></div>
   </div>
 
   <!-- ===== v3.12 · OWNER / MARKETER · PROGRAM RUN COSTING ===== -->
@@ -2236,7 +2278,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.14.0"></script>
-<script src="app.js?v=3.14.0"></script>
+<script src="database.js?v=3.15.0"></script>
+<script src="app.js?v=3.15.0"></script>
 </body>
 </html>

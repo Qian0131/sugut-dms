@@ -10,7 +10,8 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.14.0';   // v3.14.0 - COUNT TREES, NOT TANKS. One completion now covers every lot touched that day and carries partial work across days: the crew key how many trees they did, the app turns that into litres, tanks and chemical using the litres-per-tree rate for the method. Crew and hours are entered ONCE and split by tree count, so two lots in a day stop being recorded as double the man-hours - the same fix applied to the general field tasks
+const APP_VERSION = 'v3.15.0';   // v3.15.0 - EVERY PROGRAMME NOW CARRIES A DATE IT MUST BE FINISHED BY, suggested from the programme sheet. The crew see one coloured strip - days left, due today, or days late - and the most overdue job sorts to the top of their list. From that one date comes a monthly and yearly record: issued, finished on time, finished late, still open, and the on-time percentage
+// PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
 // PREVIOUS: v3.11.0 — SHARED SETTINGS. The price matrix, the basket tare and any added tree now travel to every phone instead of living on the one that typed them. A setting is not an event: it is overwritten, newest wins, and an older phone can never undo a newer correction
@@ -534,6 +535,8 @@ const MODULES={
           // from COSTING because that reads the whole stock ledger; this reads only work
           // done against an issued programme, which is the number the Owner budgets on.
           {k:'runs',  t:'PROGRAM RUNS',scr:'dash',panels:['runcostcard'],roles:FULL_ROLES,ic:'🧪',tn:'s_runs',d:'Daily, monthly and yearly cost of the work actually done'},
+          // v3.15 — what was promised against what landed, by month and by year
+          {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:FULL_ROLES,ic:'📅',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
           {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:FULL_ROLES,ic:'📒',d:'The raw stock ledger, month by month'},
           {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:FULL_ROLES,ic:'💵',d:'Man-hours and the rate they are priced at'}]},
   admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',
@@ -577,7 +580,8 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   'backlogcard',
   // v3.12 — four new panels. Leaving one out of this list does not hide it: it leaks
   // onto every other screen, which is exactly what happened once already in v3.6.
-  'agromatrix','alloccard','onboardcard','runcostcard'];
+  'agromatrix','alloccard','onboardcard','runcostcard',
+  'progrecord'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -619,6 +623,8 @@ function roleAllows(id){
     case 'alloccard': case 'onboardcard': return full||myRole()==='PURCHASER';
     // Run costing carries RM per lot. Owner and Marketer only, like every other ledger.
     case 'runcostcard': return full;
+    // v3.15 — the programme record is a management view: what was promised, what landed.
+    case 'progrecord': return full;
     case 'onhandcard':                 return true;
     case 'invcc': case 'ledgercard': case 'stocktake': case 'corrpanel': case 'keyspanel':
     case 'kpis': case 'phibox': case 'lotcard':
@@ -651,6 +657,10 @@ function tileBadge(k){
       ((typeof myDirectives==='function')?myDirectives().length:0);
     return n?{t:n+' '+tr('bg_tasks')}:null;}
   if(k==='agro'){
+    // v3.15 — a programme past its date with work outstanding outranks everything else
+    // on this tile. It is the one thing the Owner has to act on rather than read about.
+    const od=(typeof overdueDirectives==='function')?overdueDirectives().length:0;
+    if(od)return {t:od+' '+tr('bg_late')};
     if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
       if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
     const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
@@ -789,6 +799,7 @@ function sectionBadge(k,tk){
     const n=(typeof yieldFlags==='function')?yieldFlags().length:0; return n?{t:String(n)}:null;}
   if(k==='inv'&&tk==='lvl'){const n=lowStock().length; return n?{t:String(n),amber:1}:null;}
   if(k==='inv'&&tk==='alloc'){const n=unallocatedSlots(); return n?{t:String(n)}:null;}
+  if(k==='reports'&&tk==='record'){const n=overdueDirectives().length; return n?{t:String(n)}:null;}
   if(k==='agro'&&tk==='build'){
     const n=AGRO_DRAFTS.filter(d=>!d.deleted&&d.status==='DRAFT').length;
     return n?{t:String(n)+' DRAFT',amber:1}:null;}
@@ -799,7 +810,7 @@ function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();
   renderYieldAudit();renderMasterDB();
   renderScaleCard();renderVerify();renderDailyAudit();renderMatrix();
-  renderAgroMatrix();renderAllocCard();renderOnboard();renderRunCost();}
+  renderAgroMatrix();renderAllocCard();renderOnboard();renderRunCost();renderProgRecord();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
     renderGradeRows();refreshTreeBoard();}
@@ -839,7 +850,8 @@ function renderForTab(k,t){
   if(k==='agro'&&t==='build')renderAgroMatrix();
   if(k==='inv'&&t==='alloc')renderAllocCard();
   if(k==='inv'&&t==='onboard')renderOnboard();
-  if(k==='reports'&&t==='runs')renderRunCost();}
+  if(k==='reports'&&t==='runs')renderRunCost();
+  if(k==='reports'&&t==='record')renderProgRecord();}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -8722,12 +8734,14 @@ function brandsFor(slotK,ai,unit){
           other:all.filter(p=>p.unit!==unit)};}
 
 /* ======================= OWNER · the five-slot seasonal builder ======================= */
-let AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:'DRY',scope:'ALL',name:'',slots:{},tmpl:''};
+let AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:'DRY',scope:'ALL',name:'',slots:{},tmpl:'',due:''};
 function amBasis(){return AM.program==='MANURE'?'PER_TREE':'PER_1000L';}
 function amUnitLabel(){return amBasis()==='PER_1000L'?('per '+nf(TANK_L)+' L tank'):'per tree';}
 function amReset(){
-  AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:WX3,scope:'ALL',name:'',slots:{},tmpl:''};
+  AM={uuid:'',program:'SPRAY',method:'WHOLE',stage:'FSET',wx:WX3,scope:'ALL',name:'',slots:{},
+      tmpl:'',due:suggestDue()};
   if($('am-name'))$('am-name').value='';
+  if($('am-due'))$('am-due').value=AM.due;
   renderAgroMatrix();}
 function amSetProgram(k){
   if(AM.program===k)return;
@@ -8812,6 +8826,8 @@ function amLoadTemplate(id){
     if(!s)return;
     AM.slots[s.k]={slot:s.k,ai:ai,unit:l.unit||p.unit,dose:+l.qty||0};});
   AM.tmpl=id;
+  // the sheet's own plan date for this set is the best suggestion there is
+  if(ph.plan){AM.due=String(ph.plan).slice(0,10); if($('am-due'))$('am-due').value=AM.due;}
   if(!AM.name)AM.name=monthLabel(ph.month)+' · '+ph.set;
   if($('am-name'))$('am-name').value=AM.name;
   renderAgroMatrix();}
@@ -8830,6 +8846,7 @@ function renderAgroMatrix(){
   // v3.13 — the stage-advice paragraph and the blue 1,000 L banner are gone. STAGE_ADVICE
   // is still in database.js, unrendered, so it costs nothing to put back if it is wanted.
   $('am-tmpl').innerHTML=amTemplatesHTML();
+  if($('am-due')&&!$('am-due').value){AM.due=AM.due||suggestDue();$('am-due').value=AM.due;}
   box.innerHTML=amSlotsHTML();
   $('am-count').textContent=String(draftLines({slots:AM.slots}).length);
   $('am-savelbl').textContent=AM.uuid?tr('ag_savechanges'):tr('ag_savecombo');
@@ -8858,7 +8875,9 @@ function amValidate(){
       return null;}
     seenAI[key]=l.slot;}
   if(!lines.length){err.textContent='Fill at least one of the five component slots.';return null;}
-  AM.name=name;
+  const due=($('am-due')?$('am-due').value:'')||AM.due;
+  if(!due){err.textContent=tr('dt_needdue');return null;}
+  AM.due=due; AM.name=name;
   return lines;}
 async function amSave(issue){
   const lines=amValidate(); if(!lines)return;
@@ -8874,6 +8893,7 @@ async function amSave(issue){
     stage:AM.stage, stageLabel:stageRec(AM.stage).t,
     wx:WX3, wxLabel:wx3Rec().t,
     basis:amBasis(), tankL:TANK_L, scope:AM.scope,
+    due:AM.due,                       // v3.15 — the date this must be finished by
     // v3.14 — the litres-per-tree rate IN FORCE when this was issued. Stamped, so
     // editing the constant later cannot rewrite a job already done against it.
     lpt:(methodRec(AM.program,AM.method)||{}).lpt||0,
@@ -8885,6 +8905,7 @@ async function amSave(issue){
   if(old)AGRO_DRAFTS[AGRO_DRAFTS.indexOf(old)]=rec; else AGRO_DRAFTS.unshift(rec);
   await persistDrafts();
   AM.uuid=''; if($('am-name'))$('am-name').value=''; AM.slots={}; AM.name=''; AM.tmpl='';
+  AM.due=suggestDue(); if($('am-due'))$('am-due').value=AM.due;
   toast(issue?('📣 '+rec.name+' issued — Sandakan now sees it under AI ➔ BRAND')
              :('✓ '+rec.name+' saved to the matrix'));
   renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();badge();}
@@ -8892,8 +8913,9 @@ async function amIssue(){await amSave(true);}
 function amEdit(u){
   const d=draftById(u); if(!d)return;
   AM={uuid:d.uuid,program:d.program,method:d.method,stage:d.stage,wx:d.wx,scope:d.scope,
-      name:d.name,slots:JSON.parse(JSON.stringify(d.slots||{})),tmpl:''};
+      name:d.name,slots:JSON.parse(JSON.stringify(d.slots||{})),tmpl:'',due:d.due||suggestDue()};
   if($('am-name'))$('am-name').value=d.name;
+  if($('am-due'))$('am-due').value=AM.due;
   renderAgroMatrix();
   const el=$('agromatrix'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 async function amIssueExisting(u){
@@ -8933,6 +8955,7 @@ function draftRowHTML(d,forAlloc){
     '<div class="cwho">'+esc(d.program==='MANURE'?'🪣 Manuring':'💦 Spraying')+
       ' · '+esc(methodLabelT(d.program,d.method))+'<br>'+esc(stageLabelT(d.stage))+' · '+esc(wxLabelT(d.wx))+
       ' · '+(d.scope==='ALL'?'whole farm':'Lot '+esc(d.scope))+
+      '<br>'+esc(tr('dt_due'))+' <b>'+esc(dateShort(d.due))+'</b>'+
       '<br>by '+esc(d.by)+' · '+esc(String(d.at).slice(0,16).replace('T',' '))+'</div></div>'+
     '<span class="cstat '+stc+'">'+esc(st)+'</span></div>'+
     '<div class="cchange">'+draftLines(d).map(l=>{
@@ -9192,6 +9215,74 @@ function dirProgress(u,lot){
 function lotTreeTotal(lot){return treesInLot(lot).length;}
 function lotFinished(u,lot){return dirProgress(u,lot)>=lotTreeTotal(lot);}
 function lotsOfDirective(d){return d.scope==='ALL'?LOT_KEYS.slice():[d.scope];}
+
+/* ======================================================================================
+   v3.15.0 · THE DATE A PROGRAMME MUST BE FINISHED BY
+   ======================================================================================
+   Until now a directive had no date at all, so "late" could not be said, and a monthly
+   record would have had nothing to count. One date per programme fixes both:
+
+     · the crew get ONE coloured strip — days left, due today, or days late — and the
+       most overdue job sorts to the top of their list, so nobody has to decide what
+       to do first;
+     · the Owner gets a month and year record built entirely from that date against the
+       date the last lot was actually finished.
+
+   The date is SUGGESTED from the programme sheet's own plan dates, so in the normal case
+   the Owner accepts it rather than keying one. ==================================== */
+
+/** The nearest plan date on the programme sheet that has not gone past, else a week out. */
+function suggestDue(){
+  const t=todayStr();
+  const future=allPhases().map(p=>String(p.plan||'')).filter(x=>x&&x>=t).sort();
+  if(future.length)return future[0];
+  return ymd(addDays(dayStart(new Date()),7));}
+
+/** Whole days from today to the due date. Negative means overdue. */
+function dueDays(d){
+  if(!d||!d.due)return null;
+  const due=parseDay(d.due); if(!due)return null;
+  return Math.round((due-dayStart(new Date()))/86400000);}
+
+/** How the date is presented, in one place, so the crew card, the sort order, the tile
+ *  badge and the record can never disagree with each other. */
+function dueState(d){
+  const n=dueDays(d);
+  if(n===null)return {k:'none',cls:'ok',txt:tr('dt_nodate'),days:null,rank:9e6};
+  if(n<0)      return {k:'late', cls:'late',txt:tr('dt_late').replace('{n}',String(-n)),days:n,rank:-1e6+n};
+  if(n===0)    return {k:'today',cls:'soon',txt:tr('dt_today'),days:0,rank:0};
+  if(n===1)    return {k:'soon', cls:'soon',txt:tr('dt_tomorrow'),days:1,rank:1};
+  return {k:'ok',cls:'ok',txt:tr('dt_left').replace('{n}',String(n)),days:n,rank:n};}
+
+/** Every lot done. */
+function dirAllDone(d){return d&&lotsOfDirective(d).every(L=>lotFinished(d.uuid,L));}
+/** The day the LAST lot was finished — derived from the events, never stored twice. */
+function dirDoneDate(d){
+  if(!dirAllDone(d))return '';
+  let last='';
+  EVENTS.forEach(e=>{ if(e.type==='STOCK_OUT'&&e.dirRun&&e.progId===d.uuid){
+    const day=String(e.dt||'').slice(0,10); if(day>last)last=day;}});
+  return last;}
+
+/** One programme's standing, for the record. Four states that never overlap. */
+function dirRecord(d){
+  const due=d.due||'', done=dirDoneDate(d);
+  if(done){
+    const late=due?Math.round((parseDay(done)-parseDay(due))/86400000):0;
+    if(!due)      return {k:'DONE', late:0, done:done,
+                          chip:tr('rp_ontimechip'), cls:'ok', scored:false};
+    if(late>0)    return {k:'LATE', late:late, done:done,
+                          chip:tr('rp_latechip').replace('{n}',String(late)), cls:'late', scored:true};
+    if(late<0)    return {k:'ONTIME', late:late, done:done,
+                          chip:tr('rp_earlychip').replace('{n}',String(-late)), cls:'ok', scored:true};
+    return {k:'ONTIME', late:0, done:done, chip:tr('rp_ontimechip'), cls:'ok', scored:true};}
+  const st=dueState(d);
+  return {k:(st.k==='late')?'OVERDUE':'OPEN', late:st.days!=null?-st.days:0, done:'',
+    chip:st.txt, cls:(st.k==='late')?'late':(st.k==='today'?'now':'open'), scored:false};}
+
+/** Issued programmes past their date with work still outstanding — the badge number. */
+function overdueDirectives(){
+  return issuedDrafts().filter(d=>!d.deleted&&!dirAllDone(d)&&dueState(d).k==='late');}
 function dirLotsLeft(d){return lotsOfDirective(d).filter(L=>!lotFinished(d.uuid,L));}
 
 
@@ -9201,11 +9292,20 @@ function dateLong(d){
   const M=(LANG==='ms')?MONTH_LONG_MS:MONTH_LONG_EN;
   return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
 
+/** "8 Ogos" — the compact form used on the deadline strip and in the record. */
+function dateShort(iso){
+  const d=parseDay(iso); if(!d)return '—';
+  const M=(LANG==='ms')?MONTH_LONG_MS:MONTH_LONG_EN;
+  return d.getDate()+' '+M[d.getMonth()].slice(0,3);}
+
 /** The physical instruction: what to point the lance at. No agronomy vocabulary. */
 function physMethodT(prog,k){return tr('pm_'+k,methodLabelT(prog,k));}
 
 function directiveCardsHTML(){
-  const ds=myDirectives(); if(!ds.length)return '';
+  // v3.15 — the most overdue job first, the furthest away last. The crew should never
+  // have to work out which of four cards to do today.
+  const ds=myDirectives().slice().sort((a,b)=>dueState(a).rank-dueState(b).rank);
+  if(!ds.length)return '';
   const wf=(typeof wetFlag==='function')?wetFlag():{wet:false,text:''};
   const today=dateLong(new Date());
   return ds.map(d=>{
@@ -9215,8 +9315,11 @@ function directiveCardsHTML(){
     const phi=draftLines(d).some(l=>{const a=allocOf(d.uuid,l.slot);
       return a&&PHI_PRODUCTS[(prodById(a.pid)||{}).name];});
     const per=(d.basis==='PER_1000L')?tr('w13_perTank'):tr('w13_perTree');
+    const ds2=dueState(d);
+    // the header takes the colour of the deadline, so the card reads at arm's length
+    const urg=(ds2.k==='late')?' late':((ds2.k==='today'||ds2.k==='soon')?' soon':'');
 
-    return '<div class="wcard'+(ready?'':' waiting')+'">'+
+    return '<div class="wcard'+(ready?'':' waiting')+urg+'">'+
 
       // ---- 1. the three-row header, high contrast, nothing else competing ----
       '<div class="whdr">'+
@@ -9228,6 +9331,12 @@ function directiveCardsHTML(){
           '<span class="wv big">'+esc(d.program==='MANURE'?'🪣 ':'💦 ')+
             esc(physMethodT(d.program,d.method))+'</span></div>'+
       '</div>'+
+
+      // ---- 1b. ONE coloured strip: days left, due today, or days late ----
+      (ds2.k!=='none'
+        ?('<div class="duebar '+ds2.cls+'"><span>'+esc(ds2.txt)+'</span>'+
+            '<span class="dd">'+esc(tr('dt_by'))+' '+esc(dateShort(d.due))+'</span></div>')
+        :'')+
 
       // ---- 2. safety, in words a person can act on, naming no chemical ----
       (phi?'<div class="wsafe">'+esc(tr('w13_nospray'))+'</div>':'')+
@@ -9508,7 +9617,7 @@ async function submitRun(){
   closeRun();
   toast(tr('t14_saved')+' · '+n+' '+tr('t14_trees')+' · Lot '+lots);
   refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderRunCost();
-  renderAllocCard();renderLabour();renderHub();badge();}
+  renderProgRecord();renderAllocCard();renderLabour();renderHub();badge();}
 
 /* ================= OWNER / MARKETER · daily, monthly, yearly run costing ==============
    Derived, never stored. Every figure below is re-read from the event log each time this
@@ -9555,6 +9664,125 @@ function renderRunCost(){
           '<td class="num">'+rm(m.total)+'</td></tr>').join('')+'</table></div>')
       :'<div class="small" style="margin-top:12px">No directive has been run yet. The moment a worker secures a work log, it lands here.</div>')+
     '<p class="small" style="margin-top:10px">Every figure is re-read from the stock ledger each time this screen opens — it is derived, never stored, so it cannot drift from the material that actually left the store. Cost is the moving average at the moment of issue.</p>';}
+
+/* ======================================================================================
+   v3.15 · THE PROGRAMME RECORD — monthly and yearly
+   ======================================================================================
+   Every figure here is DERIVED: the due date off the directive, the completion date off
+   the stock-out rows it produced. Nothing is stored twice, so the record can never drift
+   from the work that actually happened.
+
+   Four buckets that do not overlap, because they need different action:
+       finished on time · finished late · not finished · (of those, how many already late)
+   "Finished late" and "still not done and past its date" were deliberately NOT added into
+   one number — one is a lesson, the other is a job somebody has to go and do today.
+   ====================================================================================== */
+let RP_MONTH='';
+
+/** A programme belongs to the month of the date it had to be finished by. */
+function dirMonth(d){
+  const x=d.due||String(d.issuedAt||d.at||'').slice(0,10);
+  return String(x).slice(0,7);}
+function recordDirectives(){
+  return AGRO_DRAFTS.filter(d=>!d.deleted&&d.status!=='DRAFT'&&dirMonth(d));}
+function recordMonths(){
+  return [...new Set(recordDirectives().map(dirMonth))].sort().reverse();}
+function monthNameOf(mo){
+  const M=(LANG==='ms')?MONTH_LONG_MS:MONTH_LONG_EN;
+  const i=+String(mo).slice(5,7)-1;
+  return (M[i]||mo)+' '+String(mo).slice(0,4);}
+
+function recordRollup(mo){
+  const rows=recordDirectives().filter(d=>dirMonth(d)===mo)
+    .map(d=>({d:d,r:dirRecord(d)}))
+    .sort((a,b)=>String(a.d.due||'').localeCompare(String(b.d.due||'')));
+  return {rows:rows,
+    issued:rows.length,
+    ontime:rows.filter(x=>x.r.k==='ONTIME').length,
+    latedone:rows.filter(x=>x.r.k==='LATE').length,
+    open:rows.filter(x=>x.r.k==='OPEN'||x.r.k==='OVERDUE').length,
+    overdue:rows.filter(x=>x.r.k==='OVERDUE').length};}
+
+function renderProgRecord(){
+  const box=$('progrecordbox'); if(!box)return;
+  if(!roleAllows('progrecord')){box.innerHTML='';return;}
+  const months=recordMonths();
+  if(!months.length){box.innerHTML='<div class="alertnone">'+esc(tr('rp_none'))+'</div>';return;}
+  if(!RP_MONTH||months.indexOf(RP_MONTH)<0)RP_MONTH=months[0];
+  const m=recordRollup(RP_MONTH);
+
+  // month strip
+  let h='<div class="mo">'+months.map(k=>
+    '<div class="'+(k===RP_MONTH?'on':'')+'" onclick="rpMonth(\''+k+'\')">'+
+    esc(monthNameOf(k))+'</div>').join('')+'</div>';
+
+  // four non-overlapping counts
+  h+='<div class="kpis">'+
+    '<div class="kpi"><div class="v">'+m.issued+'</div><div class="l">'+esc(tr('rp_issued'))+'</div></div>'+
+    '<div class="kpi kg"><div class="v">'+m.ontime+'</div><div class="l">'+esc(tr('rp_ontime'))+'</div></div>'+
+    '<div class="kpi kr"><div class="v">'+m.latedone+'</div><div class="l">'+esc(tr('rp_latedone'))+'</div></div>'+
+    '<div class="kpi ka"><div class="v">'+m.open+'</div><div class="l">'+esc(tr('rp_open'))+
+      (m.overdue?('<span class="sub2">'+esc(tr('rp_overdue').replace('{n}',String(m.overdue)))+'</span>'):'')+
+    '</div></div></div>';
+
+  // the month's programmes
+  h+='<div class="sec" style="margin-top:14px">'+esc(tr('rp_thismonth'))+'</div>';
+  h+=m.rows.length?m.rows.map(x=>{
+      const cost=dirCostOf(x.d.uuid);
+      return '<div class="mrow"><span class="mn">'+esc(x.d.code)+' · '+esc(x.d.name)+
+        '<span class="ms2">'+esc(tr('dt_due'))+' '+esc(dateShort(x.d.due))+
+          ' · '+(x.r.done?(esc(tr('rp_done'))+' '+esc(dateShort(x.r.done))):esc(tr('rp_notdone')))+
+          (SHOW_VALUES&&cost>0?(' · '+rm(cost)):'')+'</span></span>'+
+        '<span class="chip '+x.r.cls+'">'+esc(x.r.chip)+'</span></div>';}).join('')
+    :'<div class="alertnone">'+esc(tr('rp_none'))+'</div>';
+
+  // the year, month by month
+  const yr=RP_MONTH.slice(0,4);
+  const byMo={};
+  recordDirectives().filter(d=>dirMonth(d).slice(0,4)===yr).forEach(d=>{
+    const k=dirMonth(d), r=dirRecord(d);
+    if(!byMo[k])byMo[k]={n:0,ok:0,late:0};
+    byMo[k].n++;
+    if(r.k==='ONTIME')byMo[k].ok++; else if(r.k==='LATE')byMo[k].late++;});
+  const keys=Object.keys(byMo).sort();
+  let tn=0,tok=0,tl=0;
+  h+='<div class="sec" style="margin-top:16px">'+esc(tr('rp_year'))+' '+esc(yr)+'</div>'+
+    '<div class="tblwrap full"><table class="tbl"><tr>'+
+      '<th>'+esc(tr('rp_mo'))+'</th><th class="num">'+esc(tr('rp_out'))+'</th>'+
+      '<th class="num">'+esc(tr('rp_ok'))+'</th><th class="num">'+esc(tr('rp_lt'))+'</th>'+
+      '<th class="num">%</th></tr>'+
+    keys.map(k=>{const b=byMo[k];tn+=b.n;tok+=b.ok;tl+=b.late;
+      const fin=b.ok+b.late, pct=fin?Math.round(b.ok/fin*100):null;
+      return '<tr><td>'+esc(monthNameOf(k).split(' ')[0])+'</td><td class="num">'+b.n+'</td>'+
+        '<td class="num" style="color:var(--green)">'+b.ok+'</td>'+
+        '<td class="num"'+(b.late?' style="color:#b3261e"':'')+'>'+b.late+'</td>'+
+        '<td class="num">'+(pct==null?'—':pct+'%')+'</td></tr>';}).join('')+
+    '<tr class="totrow"><td><b>'+esc(tr('rp_total'))+'</b></td><td class="num"><b>'+tn+'</b></td>'+
+      '<td class="num" style="color:var(--green)"><b>'+tok+'</b></td>'+
+      '<td class="num" style="color:#b3261e"><b>'+tl+'</b></td>'+
+      '<td class="num"><b>'+((tok+tl)?(Math.round(tok/(tok+tl)*100)+'%'):'—')+'</b></td></tr>'+
+    '</table></div>';
+  // v3.15 FIX (screenshot) — with nothing finished yet, "0%" reads as "we failed
+  // everything" when it actually means "nothing has been scored". Say that instead.
+  const fin=tok+tl;
+  h+='<div class="sec" style="margin-top:13px">'+esc(tr('rp_yearpct'))+'</div>';
+  if(fin){
+    const pct=Math.round(tok/fin*100);
+    h+='<div class="pctbar"><i style="width:'+pct+'%"></i></div>'+
+       '<div class="exphint" style="margin-top:5px"><b>'+pct+'%</b> '+esc(tr('rp_pct'))+
+       ' ('+fin+').</div>';
+  } else {
+    h+='<div class="exphint">'+esc(tr('rp_noscore'))+'</div>';
+  }
+  h+='<p class="small" style="margin-top:9px">'+esc(tr('rp_scored'))+'</p>';
+  box.innerHTML=h;}
+function rpMonth(k){RP_MONTH=k;renderProgRecord();}
+
+/** What one directive's runs cost, straight off the ledger. */
+function dirCostOf(u){
+  const mac=movingAvgCost();
+  return EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dirRun&&e.progId===u)
+    .reduce((s,e)=>s+outCostOf(e,mac),0);}
 
 // ================= boot =================
 (async function(){

@@ -975,7 +975,28 @@ const EN={
   t14_saved:'✓ Saved · store updated',
   t14_lotall:'ALL LOTS',
   t14_perlot:'Per lot',
-  t14_genall:'Enter what was done in each lot. Leave a lot empty if it was not touched.'
+  t14_genall:'Enter what was done in each lot. Leave a lot empty if it was not touched.',
+
+  /* --- v3.15 · the date a programme must be finished by, and the record it builds -----
+     One date per programme, suggested from the programme sheet. It is the only thing that
+     makes "on time" and "late" mean anything, and it is what the monthly and yearly
+     record is counted on. */
+  dt_due:'Must finish by', dt_suggest:'Suggested from the programme sheet — change it if you like',
+  dt_left:'{n} DAYS LEFT', dt_tomorrow:'TOMORROW', dt_today:'MUST FINISH TODAY',
+  dt_late:'{n} DAYS LATE', dt_by:'finish by', dt_nodate:'no date set',
+  dt_needdue:'Set the date this must be finished by.',
+  s_record:'PROGRAM RECORD', s_record_d:'Issued, finished, on time or late — by month and year',
+  rp_issued:'Programmes issued', rp_ontime:'Finished on time', rp_latedone:'Finished late',
+  rp_open:'Not finished', rp_overdue:'{n} already late',
+  rp_thismonth:'Programmes this month', rp_year:'Year record — by month',
+  rp_mo:'Month', rp_out:'Issued', rp_ok:'On time', rp_lt:'Late', rp_total:'TOTAL',
+  rp_scored:'Only programmes that are FINISHED count towards the percentage. An open one is not scored until it is done.',
+  rp_done:'finished', rp_notdone:'not finished',
+  rp_ontimechip:'ON TIME', rp_earlychip:'EARLY {n}d', rp_latechip:'LATE {n}d',
+  rp_none:'No programme carries a date in this month yet.',
+  rp_pct:'of the finished programmes were on time', rp_yearpct:'On time this year',
+  bg_late:'LATE',
+  rp_noscore:'No programme has been finished yet, so there is no percentage to show.'
 };
 
 /* Long month names, both languages, for the worker card's date row. Kept as data so the
@@ -1319,5 +1340,23 @@ const MS={
   t14_saved:'✓ Disimpan · stok stor dikemas kini',
   t14_lotall:'SEMUA LOT',
   t14_perlot:'Setiap lot',
-  t14_genall:'Masukkan apa yang dibuat di setiap lot. Kosongkan lot yang tidak disentuh.'
+  t14_genall:'Masukkan apa yang dibuat di setiap lot. Kosongkan lot yang tidak disentuh.',
+
+  /* --- v3.15 · tarikh mesti siap dan rekodnya --- */
+  dt_due:'Mesti siap', dt_suggest:'Dicadang dari jadual program — boleh tukar',
+  dt_left:'LAGI {n} HARI', dt_tomorrow:'ESOK', dt_today:'MESTI SIAP HARI INI',
+  dt_late:'LEWAT {n} HARI', dt_by:'mesti siap', dt_nodate:'tiada tarikh',
+  dt_needdue:'Letak tarikh kerja ini mesti siap.',
+  s_record:'REKOD PROGRAM', s_record_d:'Dikeluarkan, siap, ikut masa atau lewat — ikut bulan dan tahun',
+  rp_issued:'Program dikeluarkan', rp_ontime:'Siap ikut masa', rp_latedone:'Siap lewat',
+  rp_open:'Belum siap', rp_overdue:'{n} sudah lewat',
+  rp_thismonth:'Program bulan ini', rp_year:'Rekod tahun — ikut bulan',
+  rp_mo:'Bulan', rp_out:'Keluar', rp_ok:'Ikut masa', rp_lt:'Lewat', rp_total:'JUMLAH',
+  rp_scored:'Hanya program yang SUDAH SIAP dikira dalam peratus. Yang belum siap belum ada markah.',
+  rp_done:'siap', rp_notdone:'belum siap',
+  rp_ontimechip:'IKUT MASA', rp_earlychip:'AWAL {n} HARI', rp_latechip:'LEWAT {n} HARI',
+  rp_none:'Tiada program bertarikh dalam bulan ini lagi.',
+  rp_pct:'daripada program yang sudah siap, siap ikut masa', rp_yearpct:'Ikut masa tahun ini',
+  bg_late:'LEWAT',
+  rp_noscore:'Belum ada program yang siap, jadi belum ada peratus untuk ditunjuk.'
 };
