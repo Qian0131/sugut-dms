@@ -1012,6 +1012,14 @@ const EN={
   w13_savetally:'💾 Save & Tally Store',
   w13_tanks:'How many 1,000 L tanks mixed',
   /* v3.18 · Module 6 — the procurement queue and the reason a card is locked */
+  /* v3.19 — multi-line delivery + the order value on the buy queue */
+  si_add:'＋ ADD TO THIS DELIVERY', si_added:'added to this delivery',
+  si_thisdel:'On this delivery', si_total:'Delivery total',
+  si_receive:'RECEIVE ALL', si_clear:'CLEAR THIS DELIVERY',
+  si_clearask:'Throw away every line on this delivery?', si_lines:'line(s) received',
+  pr_ordertot:'Estimated order value',
+  pr_estnote:'at the moving-average cost',
+  pr_estguess:'some at list price — never bought before',
   pr_title:'BUY FOR PROGRAMME',
   pr_head:'ingredient(s) blocking an issued programme \u2014 the crew cannot start on these',
   pr_none:'\u2713 Every ingredient an issued programme needs is covered by current stock.',
@@ -1550,6 +1558,14 @@ const MS={
   w13_mismatch:'Jumlah yang anda ambil tidak sama dengan yang resipi perlukan.',
   w13_nospray:'⚠ JANGAN SEMBUR BUAH — tanya Tuan Ladang dahulu',
   /* v3.18 · Modul 6 */
+  /* v3.19 — penerimaan banyak baris + nilai pesanan */
+  si_add:'＋ TAMBAH KE PENGHANTARAN INI', si_added:'ditambah ke penghantaran ini',
+  si_thisdel:'Dalam penghantaran ini', si_total:'Jumlah penghantaran',
+  si_receive:'TERIMA SEMUA', si_clear:'KOSONGKAN PENGHANTARAN INI',
+  si_clearask:'Buang semua baris dalam penghantaran ini?', si_lines:'baris diterima',
+  pr_ordertot:'Anggaran nilai pesanan',
+  pr_estnote:'pada kos purata bergerak',
+  pr_estguess:'sebahagian pada harga senarai — belum pernah dibeli',
   pr_title:'BELI UNTUK PROGRAM',
   pr_head:'bahan menyekat program yang telah dikeluarkan \u2014 pekerja tidak boleh mula',
   pr_none:'\u2713 Semua bahan untuk program yang dikeluarkan mencukupi dalam stok.',

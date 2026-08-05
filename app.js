@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.18.5';   // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.19.0';   // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -175,6 +175,8 @@ async function initStore(){
     const ad=kv.find(x=>x.k==='agrodrafts'); if(ad&&Array.isArray(ad.v)) AGRO_DRAFTS=ad.v;
     const al=kv.find(x=>x.k==='aialloc');    if(al&&al.v&&typeof al.v==='object') AI_ALLOC=al.v;
     const np=kv.find(x=>x.k==='newprods');   if(np&&Array.isArray(np.v)) NEW_PRODS=np.v;
+    // v3.19 — a phone that slept mid-delivery must not lose eight keyed lines
+    const ib=kv.find(x=>x.k==='inbasket');   if(ib&&Array.isArray(ib.v)) IN_BASKET=ib.v;
     applyNewProducts();
     const w3=kv.find(x=>x.k==='wx3'); if(w3&&w3.v) WX3=String(w3.v);
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
@@ -955,7 +957,7 @@ function renderForTab(k,t){
   if(k==='agro'&&t==='month')renderTimeline();
   if(k==='agro'&&t==='wx'){renderWeather();renderRain();}
   if(k==='agro'&&t==='rec')renderRecord();
-  if(k==='inv'&&t==='in'){renderInOpts();renderAlerts();renderStock();}
+  if(k==='inv'&&t==='in'){renderInOpts();renderAlerts();renderStock();renderBasket();}
   if(k==='inv'&&t==='chk')renderProgCheck();
   if(k==='inv'&&t==='next')renderReady();
   if(k==='inv'&&t==='out'){renderOutOpts();renderStock();}
@@ -990,7 +992,7 @@ function renderForTab(k,t){
   if(k==='cmd'&&t==='build')renderAgroMatrix();
   if(k==='cmd'&&t==='master')renderMasterDB();
   // v3.16 — the merged Purchaser page paints every form it carries in one pass.
-  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();renderOnboard();renderProcure();}}
+  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();renderOnboard();renderProcure();renderBasket();}}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -1743,6 +1745,79 @@ function onInCalc(){const p=prodById($('in-prod').value);if(!p){$('in-conv').tex
   $('in-conv').innerHTML='Receiving <b>'+nf(ops)+' '+esc(p.unit)+'</b> = '+nf(cont)+' '+esc(p.container)+
     ' · invoice value <b>'+rm(total)+'</b>';}
 let savingStock=false;   // v2.5.1: rebuildLedgers() takes a moment on a cheap phone — one tap, one event
+/* ================= v3.19 PIECE 2 · ONE DELIVERY, MANY LINES =================
+   A supplier invoice has one number and many products on it. The form had it the other
+   way round: one product, and the invoice number re-typed for every line.
+   ADD collects lines against the invoice number and supplier typed ONCE; RECEIVE ALL
+   writes them. Each line still becomes its own STOCK_IN event with the same fields it
+   always had, so the ledger, the moving-average cost and the Apps Script never learn that
+   anything changed. The single-line SUBMIT button is untouched and still works alone.
+   The basket is persisted: a phone that sleeps mid-delivery must not lose eight lines. */
+let IN_BASKET=[];
+async function persistBasket(){ if(db)await put('kv',{k:'inbasket',v:IN_BASKET}); }
+function inBasketTotal(){return IN_BASKET.reduce((t,l)=>t+(+l.value||0),0);}
+/** Read the form exactly as submitStockIn would, but hold the line instead of writing it. */
+function inReadLine(){
+  const err=$('in-err'); err.textContent='';
+  const p=prodById($('in-prod').value); if(!p){err.textContent='Pick a product.';return null;}
+  const ops=inOpsQty(); if(!(ops>0)){err.textContent='Enter the quantity received.';return null;}
+  const price=+$('in-price').value; if(!(price>0)){err.textContent='Enter the unit price in RM.';return null;}
+  const cont=toCont(p,ops);
+  const value=+((inUnitMode==='C'?(+$('in-qty').value||0):cont)*price).toFixed(2);
+  return {pid:p.id,pname:p.name,ai:p.active_ingredient,qty:ops,unit:p.unit,
+          containers:+cont.toFixed(4),container:p.container,unitPrice:price,value:value,
+          shown:(inUnitMode==='C'?(+$('in-qty').value||0):ops),
+          shownUnit:(inUnitMode==='C'?p.container:p.unit)};}
+async function inAddLine(){
+  const l=inReadLine(); if(!l)return;
+  IN_BASKET.push(l); await persistBasket();
+  $('in-qty').value=1; $('in-price').value='';
+  const sr=$('in-search'); if(sr){sr.value='';renderInOpts();}
+  renderBasket();
+  toast('＋ '+l.pname+' '+tr('si_added','added to this delivery'));}
+async function inDropLine(i){IN_BASKET.splice(i,1);await persistBasket();renderBasket();}
+async function inClearBasket(){
+  if(IN_BASKET.length&&!confirm(tr('si_clearask','Throw away every line on this delivery?')))return;
+  IN_BASKET=[]; await persistBasket(); renderBasket();}
+function renderBasket(){
+  const box=$('inbasket'); if(!box)return;
+  if(!IN_BASKET.length){box.innerHTML='';return;}
+  box.innerHTML='<div class="bskt"><div class="bh">'+esc(tr('si_thisdel','On this delivery'))+
+    ' · '+IN_BASKET.length+'</div>'+
+    IN_BASKET.map((l,i)=>'<div class="bline"><div><div class="bn">'+esc(l.pname)+'</div>'+
+      '<div class="bs">'+nf(l.shown)+' '+esc(l.shownUnit)+(l.shown>1?'s':'')+
+      ' × '+rm(l.unitPrice)+'</div></div>'+
+      '<div><b>'+rm(l.value)+'</b> <span class="bx" onclick="inDropLine('+i+')">✕</span></div></div>').join('')+
+    '<div class="btot">'+esc(tr('si_total','Delivery total'))+' '+rm(inBasketTotal())+'</div>'+
+    '<div style="height:9px"></div>'+
+    '<button class="bigbtn" onclick="receiveBasket()">✓ '+esc(tr('si_receive','RECEIVE ALL'))+
+      ' ('+IN_BASKET.length+')</button>'+
+    '<div style="height:7px"></div>'+
+    '<button class="bigbtn ghost" style="padding:10px;font-size:12px" onclick="inClearBasket()">'+
+      esc(tr('si_clear','CLEAR THIS DELIVERY'))+'</button>'+
+  '</div>';}
+let savingBasket=false;
+async function receiveBasket(){
+  const err=$('in-err'); err.textContent='';
+  if(savingBasket||!IN_BASKET.length)return;
+  const ref=$('in-ref').value.trim();
+  if(!ref){err.textContent='Invoice / reference number is required.';return;}
+  const supplier=$('in-supplier').value.trim();
+  savingBasket=true;
+  const n=IN_BASKET.length, total=inBasketTotal();
+  try{
+    // one stamp for the whole delivery, so every line of one invoice shares a timestamp
+    const stamp=now();
+    for(const l of IN_BASKET){
+      await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:stamp,pid:l.pid,pname:l.pname,ai:l.ai,
+        qty:l.qty,unit:l.unit,containers:l.containers,unitPrice:l.unitPrice,cost:l.value,
+        ref:ref,supplier:supplier,lot:'',worker:CFG.worker,device:CFG.device,synced:false});}
+  } finally { savingBasket=false; }
+  IN_BASKET=[]; await persistBasket();
+  $('in-qty').value=1; $('in-price').value='';
+  renderBasket();
+  toast('✓ '+n+' '+tr('si_lines','line(s) received')+' · '+rm(total));
+  refreshInventoryViews();}
 async function submitStockIn(){
   const err=$('in-err');err.textContent='';
   if(savingStock)return;
@@ -1758,7 +1833,10 @@ async function submitStockIn(){
       qty:ops,unit:p.unit,containers:+cont.toFixed(4),unitPrice:price,cost:value,ref:ref,
       supplier:$('in-supplier').value.trim(),lot:'',worker:CFG.worker,device:CFG.device,synced:false});
   } finally { savingStock=false; }
-  $('in-qty').value=1;$('in-ref').value='';
+  /* v3.19 PIECE 1 — the invoice number used to be WIPED here. One delivery of eight
+     products therefore meant typing the same invoice number eight times. It stays now,
+     along with the supplier, because both belong to the delivery and not to the line. */
+  $('in-qty').value=1;
   toast('✓ Stock in: '+nf(ops)+' '+p.unit+' '+p.name);
   refreshInventoryViews();}
 
@@ -2515,6 +2593,18 @@ function procureNeeds(){
     const p=b.match[0];
     n.buyContainers=(p&&+p.unit_multiplier)?Math.ceil(n.gap/(+p.unit_multiplier)):0;
     n.container=p?p.container:'';
+    /* v3.19 PIECE 4 — what this row will cost.
+       CAUGHT BY A SCREENSHOT: the first version read "RM 0.18" for two bottles of Madell.
+       currentMAC() returns cost per OPERATIONAL UNIT (RM 0.088 per ml) while unit_price is
+       per CONTAINER (RM 88 per bottle) — multiplying a per-ml figure by a bottle count is
+       off by the unit multiplier, which is 1000 here. Everything is converted to a per
+       CONTAINER cost first, because a container is what the Purchaser actually buys. */
+    const perUnit=(p&&typeof currentMAC==='function')?currentMAC(p.id):0;   // RM per ml / gm
+    const mult=(p&&+p.unit_multiplier)||0;
+    const macPerContainer=(perUnit&&mult)?+(perUnit*mult).toFixed(4):0;     // RM per bottle / bag
+    n.costPerContainer=macPerContainer||((p&&+p.unit_price)||0);
+    n.estCost=+(n.buyContainers*n.costPerContainer).toFixed(2);
+    n.costGuess=!macPerContainer;
     n.orderBy=n.due?ymd(new Date(new Date(n.due).getTime()-SUPPLY_LEAD_DAYS*86400000)):'';
     n.daysToOrder=n.orderBy?Math.ceil((new Date(n.orderBy)-dayStart(new Date()))/86400000):9e9;
     return n;})
@@ -2530,7 +2620,16 @@ function renderProcure(){
   const rows=procureNeeds();
   if(!rows.length){
     box.innerHTML='<div class="alertnone">'+esc(tr('pr_none'))+'</div>';return;}
+  const orderTotal=rows.reduce((t,n)=>t+(+n.estCost||0),0);
+  const anyGuess=rows.some(n=>n.costGuess);
   box.innerHTML='<div class="alertbig">⚠ '+rows.length+' '+esc(tr('pr_head'))+'</div>'+
+    /* v3.19 — the Purchaser cannot place an order without knowing what it is worth, and
+       keys unit prices on the very next screen, so this figure is shown to them too.
+       It is an ESTIMATE and is labelled as one. */
+    '<div class="ordertot"><span class="ol">'+esc(tr('pr_ordertot'))+'</span>'+
+      '<span class="ov">'+rm(orderTotal)+'</span>'+
+      '<span class="os">'+esc(tr('pr_estnote'))+
+        (anyGuess?(' · '+esc(tr('pr_estguess'))):'')+'</span></div>'+
     rows.map(n=>{
       const late=n.daysToOrder<=0, soon=n.daysToOrder<=3;
       const cls=late?' late':(soon?' soon':'');
@@ -2544,7 +2643,8 @@ function renderProcure(){
         '</tr><tr>'+
           '<td>'+esc(tr('pr_gap'))+'</td><td class="num lowq"><b>'+nf(n.gap)+'</b> '+esc(n.unit)+'</td>'+
           '<td>'+esc(tr('pr_buy'))+'</td><td class="num">'+
-            (n.buyContainers?('<b>'+n.buyContainers+'</b> '+esc(n.container)):'—')+'</td>'+
+            (n.buyContainers?('<b>'+n.buyContainers+'</b> '+esc(n.container)+
+              (n.estCost?('<br><span class="rowrm">'+rm(n.estCost)+'</span>'):'')):'—')+'</td>'+
         '</tr></table>'+
         '<div class="pr-by'+cls+'">'+
           (n.orderBy
@@ -11341,6 +11441,7 @@ async function repairPhantomBakes(){
   // spray set options
   const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   renderInOpts();renderOutOpts();renderStOpts();renderAlerts();   // inventory master ready before first paint
+  if(typeof renderBasket==='function')renderBasket();
   renderTimeline();renderOpsTasks();renderProgCheck();          // v2.5 programme views
   renderV26();                                                    // v2.6 weather, blueprint, tasks, labour
   badge();netUpdate();

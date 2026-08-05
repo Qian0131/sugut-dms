@@ -223,6 +223,23 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .savedock{position:sticky;bottom:0;z-index:20;padding:12px 0 4px;margin-top:6px;
   background:linear-gradient(to top,var(--bg) 72%,transparent);}
 .savedock .gtot{margin-bottom:7px;}
+/* ===== v3.19 · the multi-line delivery basket ===== */
+.bskt{border:2px solid var(--green2);border-radius:13px;padding:11px;margin-top:12px;background:#f6fbf6;}
+.bskt .bh{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--green);margin-bottom:7px;}
+.bline{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 2px;
+  border-bottom:1px solid #dfeae0;font-size:12.5px;}
+.bline:last-of-type{border-bottom:none;}
+.bline .bn{font-weight:900;line-height:1.3;}
+.bline .bs{font-size:10px;color:var(--muted);font-weight:700;margin-top:2px;}
+.bline .bx{color:var(--warn);font-weight:900;cursor:pointer;padding:2px 8px;background:#fdecea;border-radius:8px;}
+.bskt .btot{background:var(--lite);border-radius:10px;padding:9px;font-weight:900;font-size:12.5px;
+  color:var(--green);margin-top:9px;text-align:center;}
+/* ===== v3.19 · the order value on the buy queue ===== */
+.ordertot{background:#0d3d12;color:#fff;border-radius:12px;padding:11px 13px;margin-bottom:10px;}
+.ordertot .ol{display:block;font-size:9px;font-weight:900;letter-spacing:.8px;opacity:.72;text-transform:uppercase;}
+.ordertot .ov{display:block;font-size:24px;font-weight:900;margin-top:2px;}
+.ordertot .os{display:block;font-size:9.5px;opacity:.7;margin-top:3px;font-weight:700;line-height:1.45;}
+.prow .rowrm{font-size:10px;font-weight:800;color:#6b7a6e;}
 /* v3.18.5 — CAUGHT BY A SCROLL TEST, not by the suite and not by eye.
    A sticky bar covers whatever is behind it; that is what sticky is for. The bug is not
    the covering, it is having nowhere to scroll the covered control TO. Without this
@@ -1693,7 +1710,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <label>Supplier (optional)</label>
     <input id="in-supplier" placeholder="e.g. Sandakan AgriSupply" autocomplete="off">
     <div class="pinerr" id="in-err"></div>
+    <!-- v3.19 — ADD builds a delivery; SUBMIT still receives a single line on its own, so
+         nobody who knows the old flow has to learn a new one. -->
+    <button class="bigbtn ghost" onclick="inAddLine()" data-t="si_add">＋ ADD TO THIS DELIVERY</button>
+    <div style="height:8px"></div>
     <button class="bigbtn" onclick="submitStockIn()">✓ SUBMIT STOCK IN</button>
+    <div id="inbasket"></div>
   </div>
 
   <!-- MATERIAL STOCK OUT — Farm Worker (Owner/Marketing may also use it) -->
@@ -2590,7 +2612,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.18.5"></script>
-<script src="app.js?v=3.18.5"></script>
+<script src="database.js?v=3.19.0"></script>
+<script src="app.js?v=3.19.0"></script>
 </body>
 </html>
