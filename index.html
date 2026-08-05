@@ -328,6 +328,24 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .mrow .mh{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
 .mrow .ml{font-weight:900;font-size:13px;color:var(--ink);}
 .mrow .mc{font-size:11.5px;font-weight:800;color:var(--green);}
+/* v3.19.2 — the month ledger and the programme projection used .mrow/.mh/.ml/.mc, and
+   THREE later blocks in this same stylesheet redefine those names for other screens
+   (a blue pill at .mh, a bottom-bordered flex row at .mrow). Last rule wins, so the month
+   cards rendered as blue pills with the label and the money crushed together. Nobody saw it
+   because the ledger had no rows to draw until the 2026 history was imported. Namespaced,
+   so no future screen can take these names back. */
+.lgrow{border:1.5px solid #e2e6e1;border-radius:11px;padding:9px 11px;margin-top:6px;background:#fff;}
+.lgrow .lgh{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  cursor:pointer;user-select:none;background:none;padding:0;margin:0;}
+.lgrow .lgl{font-weight:900;font-size:13px;color:var(--ink);line-height:1.35;}
+.lgrow .lgc{font-size:12px;font-weight:800;color:var(--green);text-align:right;
+  white-space:nowrap;flex-shrink:0;}
+.lgrow .lgc .lgcap{display:block;font-size:9.5px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;}
+.lgsub{margin-top:9px;border-top:1px solid #eef0ee;padding-top:8px;}
+.lgline{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:12px;padding:3px 0;}
+.lgline.pos b{color:var(--green);} .lgline.neg b{color:var(--warn);}
 .mline{display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px dotted #e8ece7;}
 .mline:last-child{border-bottom:none;}
 .mline b{font-weight:800;}
@@ -2612,7 +2630,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.19.0"></script>
-<script src="app.js?v=3.19.0"></script>
+<script src="database.js?v=3.19.2"></script>
+<script src="app.js?v=3.19.2"></script>
 </body>
 </html>
