@@ -214,6 +214,12 @@ const AGRO_PROGRAMS = [
    never retroactively rewrite a job that has already been done. */
 const SPRAY_METHODS = [
   {k:'WHOLE',  t:'Whole Tree (Inside/Outside)',   mode:'SPRAY',  lpt:15, d:'Full cover — canopy outside and inside branches'},
+  /* v3.18.4 — the pass the farm actually does most often between the two extremes: the
+     outer leaf AND the hanging fruit, without working the deep inside branches.
+     mode is 'SPRAY', not 'LEAF', and that is the whole safety point — SPRAY means the
+     chemical touches fruit, so the PHI residue warning and the fruit-contact guard both
+     fire on it. Filing this as 'LEAF' would have made it silently exempt from them. */
+  {k:'LEAFFRUIT',t:'Leaf and Fruit',              mode:'SPRAY',  lpt:13, d:'Outer canopy leaf and the hanging fruit — fruit IS contacted'},
   {k:'LEAFOUT',t:'Leaf Only (Outside)',           mode:'LEAF',   lpt:12, d:'Outer canopy leaf only — NO fruit contact'},
   {k:'INSIDE', t:'Inside Only (Fruit/Branches)',  mode:'SPRAY',  lpt:8,  d:'Inside the canopy — fruit and branch surfaces'},
   {k:'DRENCH', t:'Soil Drenching',                mode:'DRENCH', lpt:10, d:'Poured at the root zone, not sprayed on the tree'}
@@ -958,6 +964,7 @@ const EN={
   sg_FSET:'Fruit Setting', sg_POSTH:'Post-Harvest',
   wx3_DRY:'Dry / Hot', wx3_MOD:'Moderate Rain', wx3_HEAVY:'Heavy Rain',
   mt_WHOLE:'Whole Tree (Inside/Outside)',  mt_WHOLE_d:'Full cover — canopy outside and inside branches',
+  mt_LEAFFRUIT:'Leaf and Fruit',           mt_LEAFFRUIT_d:'Outer canopy leaf and the hanging fruit — fruit IS contacted',
   mt_LEAFOUT:'Leaf Only (Outside)',        mt_LEAFOUT_d:'Outer canopy leaf only — NO fruit contact',
   mt_INSIDE:'Inside Only (Fruit/Branches)',mt_INSIDE_d:'Inside the canopy — fruit and branch surfaces',
   mt_DRENCH:'Soil Drenching',              mt_DRENCH_d:'Poured at the root zone, not sprayed on the tree',
@@ -1483,6 +1490,7 @@ const MS={
   sg_FSET:'Buah Mula Jadi', sg_POSTH:'Selepas Musim Buah',
   wx3_DRY:'Panas / Kering', wx3_MOD:'Hujan Sederhana', wx3_HEAVY:'Hujan Lebat',
   mt_WHOLE:'Seluruh Pokok (Dalam/Luar)',   mt_WHOLE_d:'Sembur penuh — luar tajuk dan dahan dalam',
+  mt_LEAFFRUIT:'Daun dan Buah',            mt_LEAFFRUIT_d:'Daun tajuk luar dan buah bergantung — buah TERKENA sembur',
   mt_LEAFOUT:'Daun Luar Sahaja',           mt_LEAFOUT_d:'Daun tajuk luar sahaja — JANGAN kena buah',
   mt_INSIDE:'Dalam Sahaja (Buah/Dahan)',   mt_INSIDE_d:'Dalam tajuk — permukaan buah dan dahan',
   mt_DRENCH:'Siram Tanah',                 mt_DRENCH_d:'Dicurah di kawasan akar, bukan disembur pada pokok',
