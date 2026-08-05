@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.18.0';   // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.18.3';   // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -2436,15 +2436,16 @@ function procureNeeds(){
   issuedDrafts().filter(d=>!d.deleted).forEach(d=>{
     draftLines(d).forEach(l=>{
       const req=directiveNeed(d,l); if(req<=0)return;
-      const k=String(l.ai).toLowerCase()+'|'+l.unit;
-      if(!need[k])need[k]={ai:l.ai,unit:l.unit,req:0,slot:l.slot,dirs:[],due:''};
+      const k=String(l.ai).toLowerCase()+'|'+l.unit+'|'+(l.pid||0);
+      if(!need[k])need[k]={ai:l.ai,pid:+l.pid||0,brand:l.brand||'',
+        unit:l.unit,req:0,slot:l.slot,dirs:[],due:''};
       const n=need[k];
       n.req+=req;
       n.dirs.push({uuid:d.uuid,code:d.code,name:d.name,due:d.due,slot:l.slot});
       if(!n.due||(d.due&&d.due<n.due))n.due=d.due;});});
   return Object.keys(need).map(k=>{
     const n=need[k];
-    const b=brandsFor(n.slot,n.ai,n.unit);
+    const b=brandsFor(n.slot,n.ai,n.unit,n.pid);
     // what the store holds of THIS ingredient in THIS unit, across every brand carrying it
     n.onHand=b.match.reduce((t,p)=>t+onHand(p),0);
     n.brands=b.match.length;
@@ -2474,7 +2475,7 @@ function renderProcure(){
       const late=n.daysToOrder<=0, soon=n.daysToOrder<=3;
       const cls=late?' late':(soon?' soon':'');
       return '<div class="prow'+cls+'">'+
-        '<div class="pr-n">'+esc(n.ai)+
+        '<div class="pr-n">'+esc(n.pid?((prodById(n.pid)||{}).name||n.ai):n.ai)+
           (n.noBrand?(' <span class="minitag">'+esc(tr('pr_nobrand'))+'</span>'):'')+'</div>'+
         '<div class="pr-d">'+esc(n.dirs.map(x=>x.code+' · '+x.name).join(' / '))+'</div>'+
         '<table class="tbl"><tr>'+
@@ -2783,11 +2784,14 @@ function aiFor(pid,fallback){
 function rainClass(aiText){
   const t=String(aiText||'').toLowerCase();
   if(!t||t.indexOf('(confirm')===0)return {k:'UNKNOWN',why:'the store card has no confirmed active ingredient'};
+  for(const [kw,why] of ADJUVANT_AI) if(t.indexOf(kw)>=0)return {k:'ADJUVANT',why:why};
   for(const [kw,why] of SYSTEMIC_AI) if(t.indexOf(kw)>=0)return {k:'SYSTEMIC',why:why};
   for(const [kw,why] of CONTACT_AI)  if(t.indexOf(kw)>=0)return {k:'CONTACT',why:why};
+  for(const [kw,why] of SOIL_AI)     if(t.indexOf(kw)>=0)return {k:'SOIL',why:why};
   return {k:'UNKNOWN',why:'not in the rain-fastness table — confirm with the label'};}
 function aiTagHTML(cls){
-  const m={SYSTEMIC:['sys','SYSTEMIC'],CONTACT:['con','WASHES OFF'],UNKNOWN:['unk','UNCONFIRMED']};
+  const m={SYSTEMIC:['sys','SYSTEMIC'],CONTACT:['con','WASHES OFF'],
+           SOIL:['soil','GROUND FEED'],ADJUVANT:['adj','STICKER'],UNKNOWN:['unk','UNCONFIRMED']};
   const x=m[cls.k]||m.UNKNOWN; return '<span class="aitag '+x[0]+'">'+x[1]+'</span>';}
 // a phase where fruit is on the tree — the case the brief calls out
 function isFruitPhase(ph){
@@ -2806,7 +2810,9 @@ function weatherAdvice(ph,lines){
   const rows=[];
   (lines||[]).forEach(l=>{
     const ai=aiFor(l.pid,l.ai), cls=rainClass(ai), p=prodById(l.pid);
-    if(cls.k==='SYSTEMIC')return;
+    // v3.18.3 — SOIL never touches a leaf and an ADJUVANT has no action to lose. Listing
+    // either as "may wash off" is noise, and noise is what makes a real warning ignorable.
+    if(cls.k==='SYSTEMIC'||cls.k==='SOIL'||cls.k==='ADJUVANT')return;
     rows.push({pname:(p?p.name:l.raw)||l.pname||'—',ai:ai,cls:cls,
       alts:cls.k==='CONTACT'?systemicAlternatives(p?p.cat:''):[]});});
   return {ok:rows.length===0,
@@ -9094,8 +9100,32 @@ function slotAIs(slotK){
        can spell them out, and so a placeholder can be recognised as one on sight. */
     seen[ai].cats[p.cat]=1;
     if(seen[ai].brands.length<6)seen[ai].brands.push(p.name);});
+  /* v3.18.1 — THE REASON A DRUM COULD NOT BE FOUND.
+     This picker lists ACTIVE INGREDIENTS. The Owner thinks in the word painted on the
+     drum — Madell, Stunza, Fetto 480 — and 13 of the farm's 68 products have never had
+     their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row
+     called "(confirm — see label)". Searching "Madell" matched nothing, and the farm's
+     only herbicide sat inside that row invisibly. Nothing was missing from the catalogue;
+     it simply could not be reached by the name written on the container.
+     Those products now get ONE ROW EACH, named by brand and pinned to that exact product
+     with `pid`, so the Purchaser's allocation has a single obvious answer. */
+  const split=[];
+  out.forEach(a=>{
+    const vague=(a.ai.indexOf('(confirm')===0||a.ai==='(not recorded)'||!a.ai);
+    /* every unconfirmed-ingredient product gets its own brand row, even when it is the
+       only one under that exact string — "Fetto 480" carries the placeholder WITH a PHI
+       note appended, which made it a group of one and left it titled by a chemistry note
+       instead of the name on the drum. */
+    if(!vague){split.push(a);return;}
+    INVENTORY_RECON.forEach(p=>{
+      if(String(p.active_ingredient||'').trim()!==a.ai)return;
+      if(s&&s.cats.indexOf(p.cat)<0)return;
+      const u={}; u[p.unit]=1;
+      split.push({ai:a.ai,pid:p.id,brand:p.name,n:1,units:u,cat:p.cat,
+                  oh:onHand(p),cats:(function(o){o[p.cat]=1;return o;})({}),brands:[p.name]});});});
   const unk=x=>(x.ai.indexOf('(confirm')===0||x.ai==='(not recorded)')?1:0;
-  return out.sort((a,b)=>(unk(a)-unk(b))||a.ai.localeCompare(b.ai));}
+  const lbl=x=>x.brand||x.ai;
+  return split.sort((a,b)=>(unk(a)-unk(b))||lbl(a).localeCompare(lbl(b)));}
 /** Brands in the store carrying one ingredient, IN THE PRESCRIBED UNIT. The unit filter
  *  is deliberate: 500 ml of a product sold in grams is not a conversion this app is
  *  entitled to guess. Anything in a different unit is listed separately and refused. */
@@ -9103,7 +9133,12 @@ function slotAIs(slotK){
    identifies a chemical; the category is bookkeeping. Now that the Owner can prescribe an
    ingredient from the ALL view, filtering the Purchaser's brand list by the LABEL on the
    line would hide the very brand that carries it. The unit guard below is untouched. */
-function brandsFor(slotK,ai,unit){
+function brandsFor(slotK,ai,unit,pid){
+  /* v3.18.1 — a line pinned to one product (an unconfirmed ingredient picked by brand)
+     resolves to that product alone, so the Purchaser is not asked to choose between
+     eleven unrelated drums that happen to share a placeholder. */
+  if(pid){const p=prodById(pid);
+    if(p)return {match:(p.unit===unit?[p]:[]),other:(p.unit===unit?[]:[p])};}
   const all=INVENTORY_RECON.filter(p=>
     String(p.active_ingredient||'').trim()===String(ai||'').trim());
   return {match:all.filter(p=>p.unit===unit).sort((a,b)=>onHand(b)-onHand(a)),
@@ -9140,19 +9175,20 @@ function amScope(s){AM.scope=s;renderAgroMatrix();}
    deciding what the agronomist is permitted to prescribe.
    Line keys stay unique (FUNG, FUNG_2, FERT_3) so allocKey and every consumer downstream
    are byte-for-byte the code they were in v3.17. ============================== */
-let AM_PICK={open:false,role:'ALL',q:''};
+let AM_PICK={open:false,role:'ALL',q:'',rows:[]};
 function amOpenPick(){AM_PICK.open=true;AM_PICK.q='';renderAgroMatrix();}
 function amClosePick(){AM_PICK.open=false;renderAgroMatrix();}
 function amPickRole(r){AM_PICK.role=r;amDrawPick();}
 function amPickQ(v){AM_PICK.q=v;amDrawPickList();}
 /** Add one component. The unit is the one most of its brands are sold in — the Owner may
  *  change it, and the v3.12 unit guard still refuses a mismatched brand at allocation. */
-function amAddLine(ai){
-  const info=slotAIs('ALL').find(a=>a.ai===ai);
-  const role=(info&&CAT_ROLE[info.cat])||'FOL';
-  const units=info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):['ml'];
+function amAddLine(i){
+  const a=(AM_PICK.rows||[])[i]; if(!a)return;
+  const role=CAT_ROLE[a.cat]||'FOL';
+  const units=Object.keys(a.units).sort((x,y)=>a.units[y]-a.units[x]);
   const k=nextSlotKey(role);
-  AM.slots[k]={slot:k,role:role,ai:ai,unit:units[0],dose:0,ord:nextOrd()};
+  AM.slots[k]={slot:k,role:role,ai:a.ai,pid:a.pid||0,brand:a.brand||'',
+               unit:units[0]||'ml',dose:0,ord:nextOrd()};
   AM_PICK.open=false;
   renderAgroMatrix();
   setTimeout(function(){const el=$('ams-dose-'+k);if(el)el.focus();},60);}
@@ -9184,27 +9220,35 @@ function amDrawPick(){
 function amDrawPickList(){
   const box=$('am-picklist'); if(!box)return;
   const q=String(AM_PICK.q||'').toLowerCase();
-  const rows=slotAIs(AM_PICK.role).filter(a=>!q||a.ai.toLowerCase().indexOf(q)>=0);
-  if(!rows.length){box.innerHTML='<div class="alertnone">'+esc(tr('so_nomatch'))+'</div>';return;}
-  box.innerHTML=rows.map(a=>{
-    /* v3.18 + Module 6 — the dot IS the signal. An ingredient with nothing behind it is
-       never hidden; it is shown in red so the Owner prescribes it with both eyes open. */
+  /* v3.18.1 — the search now matches the BRAND as well as the ingredient. Typing
+     "Madell", "Envoy" or "Racun rumput" finds the drum; before this only the chemical
+     name matched, which is not the name on the container the Owner is holding. */
+  AM_PICK.rows=slotAIs(AM_PICK.role).filter(a=>{
+    if(!q)return true;
+    if(a.ai.toLowerCase().indexOf(q)>=0)return true;
+    if(a.brand&&a.brand.toLowerCase().indexOf(q)>=0)return true;
+    return (a.brands||[]).some(b=>String(b).toLowerCase().indexOf(q)>=0);});
+  if(!AM_PICK.rows.length){box.innerHTML='<div class="alertnone">'+esc(tr('so_nomatch'))+'</div>';return;}
+  box.innerHTML=AM_PICK.rows.map((a,i)=>{
+    /* the dot IS the signal — an ingredient with nothing behind it is never hidden,
+       it is shown in red so the Owner prescribes it with both eyes open. */
     const zero=!(a.oh>0);
     const vague=(a.ai.indexOf('(confirm')===0||a.ai==='(not recorded)');
     const cls=rainClass(a.ai);
-    return '<div class="pickrow'+(zero?' zero':'')+'" onclick="amAddLine(\''+esc(a.ai).replace(/'/g,"\\'")+'\')">'+
-      '<div class="pk-l"><div class="pk-n">'+esc(a.ai)+
-          (vague?(' <span class="minitag">'+esc(tr('ag_confirmai','CONFIRM THE LABEL'))+'</span>'):'')+'</div>'+
-        '<div class="pk-s">'+esc(Object.keys(a.cats||{}).join(', ')||a.cat)+' · '+
-          a.n+' brand'+(a.n>1?'s':'')+
-          // spelling the brands out is the difference between "I can't find the herbicide"
-          // and seeing it sitting there under an ingredient nobody has confirmed yet
-          (vague?('<br>'+esc((a.brands||[]).join(' · '))+(a.n>(a.brands||[]).length?' …':'')):'')+
-        '</div></div>'+
+    // a pinned row is titled by the BRAND, because that is what the Owner was looking for
+    const title=a.brand||a.ai;
+    const sub=a.brand
+      ?(a.cat+' · '+tr('ag_unconfirmed','ingredient not confirmed on the label'))
+      :(Object.keys(a.cats||{}).join(', ')||a.cat)+' · '+a.n+' brand'+(a.n>1?'s':'')+
+        (vague?('<br>'+esc((a.brands||[]).join(' · '))):'');
+    return '<div class="pickrow'+(zero?' zero':'')+'" onclick="amAddLine('+i+')">'+
+      '<div class="pk-l"><div class="pk-n">'+esc(title)+
+          (a.brand?(' <span class="minitag">'+esc(tr('ag_bybrand','BY BRAND'))+'</span>'):'')+'</div>'+
+        '<div class="pk-s">'+(a.brand?esc(sub):sub)+'</div></div>'+
       '<div class="pk-r">'+(zero
         ?('<span class="pk-zero">'+esc(tr('ag_zerostock','ZERO STOCK'))+'</span>')
         :('<span class="pk-oh">'+nf(a.oh)+'</span>'))+
-        (cls&&cls.k?('<span class="pk-cls '+(cls.k==='CONTACT'?'c':'s')+'">'+esc(cls.k)+'</span>'):'')+
+        (cls&&cls.k&&cls.k!=='UNKNOWN'?('<span class="pk-cls '+({CONTACT:'c',SYSTEMIC:'s',SOIL:'o',ADJUVANT:'a'}[cls.k]||'s')+'">'+esc(cls.k)+'</span>'):'')+
       '</div></div>';}).join('');}
 /* ---- the tank note: says what it knows about the mix, then gets out of the way ---- */
 function amDrawTankNote(){
@@ -9237,13 +9281,17 @@ function amSlotsHTML(){
     .sort((a,b)=>(+a.ord||0)-(+b.ord||0));
   const rows=lines.map(l=>{
     const s=slotRec(l.slot)||{ic:'•',t:l.role||''};
-    const info=slotAIs('ALL').find(a=>a.ai===l.ai);
-    const units=info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):[l.unit];
+    const pinned=l.pid?prodById(l.pid):null;
+    const info=pinned?null:slotAIs('ALL').find(a=>a.ai===l.ai&&!a.pid);
+    const units=pinned?[pinned.unit]
+      :(info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):[l.unit]);
     if(units.indexOf(l.unit)<0)units.unshift(l.unit);
     const cls=rainClass(l.ai);
-    const oh=info?info.oh:0;
+    const oh=pinned?onHand(pinned):(info?info.oh:0);
+    // v3.18.1 — a pinned line shows the BRAND, the name the Owner chose it by
+    const title=pinned?pinned.name:l.ai;
     return '<div class="slotbox'+(+l.dose>0?' filled':'')+'">'+
-      '<div class="slothead"><span>'+s.ic+' <b>'+esc(l.ai)+'</b></span>'+
+      '<div class="slothead"><span>'+s.ic+' <b>'+esc(title)+'</b></span>'+
         '<span class="linekill" onclick="amDelLine(\''+l.slot+'\')">✕</span></div>'+
       '<div class="linemeta">'+esc(slotLabelT(l.slot))+
         (oh>0?(' · '+nf(oh)+' '+esc(l.unit)+' '+esc(tr('ag_instore','in store')))
@@ -9366,10 +9414,11 @@ function amBuyPreview(lines){
   const lpt=(methodRec(AM.program,AM.method)||{}).lpt||0;
   const mult=(amBasis()==='PER_1000L')?(trees*lpt/TANK_L):trees;
   return lines.map(l=>{
-    const b=brandsFor(l.slot,l.ai,l.unit);
+    const b=brandsFor(l.slot,l.ai,l.unit,l.pid);
     const oh=b.match.reduce((t,p)=>t+onHand(p),0);
     const req=+((+l.dose||0)*mult).toFixed(2);
-    return {ai:l.ai,unit:l.unit,req:req,onHand:oh,gap:+(req-oh).toFixed(2),
+    return {ai:(l.pid?((prodById(l.pid)||{}).name||l.ai):l.ai),
+            unit:l.unit,req:req,onHand:oh,gap:+(req-oh).toFixed(2),
             noBrand:!b.match.length};})
     .filter(x=>x.gap>0);}
 async function amSave(issue){
@@ -9409,7 +9458,7 @@ async function amSave(issue){
   // v3.18 — role and order travel with the line so the crew's card reads in the order
   // the tank is mixed, and costing keeps the label the Owner chose.
   lines.forEach((l,i)=>{rec.slots[l.slot]={slot:l.slot,role:l.role||roleOf(l.slot),
-    ai:l.ai,unit:l.unit,dose:+l.dose,ord:(+l.ord||i+1)};});
+    ai:l.ai,pid:+l.pid||0,brand:l.brand||'',unit:l.unit,dose:+l.dose,ord:(+l.ord||i+1)};});
   if(old)AGRO_DRAFTS[AGRO_DRAFTS.indexOf(old)]=rec; else AGRO_DRAFTS.unshift(rec);
   await persistDrafts();
   AM.uuid=''; if($('am-name'))$('am-name').value=''; AM.slots={}; AM.name=''; AM.tmpl='';
@@ -9506,7 +9555,7 @@ function renderAllocCard(){
   box.innerHTML=live.map(d=>{
     const rows=draftLines(d).map(l=>{
       const a=allocOf(d.uuid,l.slot), s=slotRec(l.slot);
-      const b=brandsFor(l.slot,l.ai,l.unit);
+      const b=brandsFor(l.slot,l.ai,l.unit,l.pid);
       const short=allocShort(d.uuid,l.slot,l);
       // v3.13 fix (screenshot): "Abamectin (Envoy) · 6,000 ml" was clipped to
       // "Abamectin (I" in the collapsed select, which is the state people actually read.
