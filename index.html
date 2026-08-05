@@ -589,6 +589,22 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .credtile .v{font-size:22px;font-weight:900;line-height:1.2;margin-top:2px;}
 .credtile.big .v{font-size:28px;}
 .credtile .w{font-size:10.5px;opacity:.85;margin-top:4px;font-weight:600;}
+/* v3.19.2 — the Marketer-set prepaid ceiling, on the merchant's own profile. Deliberately
+   NOT styled like .credtile: a live balance is money that exists, a ceiling is an
+   intention, and the two must not read as the same kind of number at a glance. */
+.capbox{background:#fff;border:1.5px dashed #c9d3c6;border-radius:12px;padding:11px 13px;margin-top:10px;}
+.capl{font-size:9.5px;font-weight:900;letter-spacing:.7px;color:var(--muted);}
+.capv{font-size:20px;font-weight:900;color:var(--green);line-height:1.25;margin-top:3px;}
+.capwho{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0;}
+.capnone{font-size:13px;font-weight:800;color:var(--muted);}
+.caprec{font-size:11.5px;color:#5b6b58;line-height:1.55;margin-top:5px;}
+.caprow{display:flex;gap:8px;margin-top:9px;}
+.caprow input{flex:1;min-width:0;margin:0;font-size:16px;font-weight:800;padding:11px 12px;}
+.capbtn{flex:0 0 auto;background:var(--green);color:#fff;border:0;border-radius:11px;
+        padding:0 15px;font-size:11.5px;font-weight:900;letter-spacing:.4px;cursor:pointer;}
+.caphint{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:6px;}
+.capdirty{font-size:11px;font-weight:800;color:#8a5a00;background:#fff8e6;
+          border:1.5px solid var(--gold);border-radius:9px;padding:7px 9px;margin-top:7px;line-height:1.5;}
 .derived{background:#f4f7f4;border-radius:11px;padding:10px 11px;margin-top:11px;font-size:11.5px;
          color:#5b6b58;line-height:1.55;}
 .derived b{color:var(--green);font-size:13.5px;}
@@ -2630,7 +2646,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.19.2"></script>
-<script src="app.js?v=3.19.2"></script>
+<script src="database.js?v=3.19.3"></script>
+<script src="app.js?v=3.19.3"></script>
 </body>
 </html>
