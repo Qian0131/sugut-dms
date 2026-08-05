@@ -189,6 +189,58 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .aitag.adj{background:#ece7f5;color:#5b4b7a}
 .pickrow .pk-cls.o{background:#efe7d8;color:#5c4a24}
 .pickrow .pk-cls.a{background:#ece7f5;color:#5b4b7a}
+/* ===== v3.18.5 · THE 3-BUTTON HARVEST MATRIX =====
+   Sized for a thumb in a wet glove: the tap target is the whole card, the number is
+   readable at arm's length, and the save bar never scrolls away. */
+.bigcounter{width:100%;border:none;border-radius:18px;padding:15px 13px;cursor:pointer;user-select:none;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;text-align:left;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);font-family:inherit;}
+.bigcounter:active{transform:scale(.985);}
+.bigcounter .bc-t{font-size:15.5px;font-weight:900;display:block;}
+.bigcounter .bc-s{font-size:10px;font-weight:600;margin-top:2px;opacity:.8;display:block;line-height:1.35;}
+.bigcounter .bc-n{font-size:42px;font-weight:900;min-width:72px;text-align:center;border-radius:14px;padding:2px 6px;}
+.bc-good{background:#f6fbf6;border:3px solid var(--green2);color:var(--green);}
+.bc-good .bc-n{background:var(--lite);}
+.bc-rot{background:#fffdf7;border:3px solid #8a5a1e;color:#6b4715;}
+.bc-rot .bc-n{background:#f7edd8;}
+.bc-rot.gray{opacity:.45;filter:grayscale(.6);}
+.reveal{overflow:hidden;max-height:0;transition:max-height .25s ease;}
+.reveal.open{max-height:520px;margin-bottom:9px;}
+.rlbl{font-size:9.5px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:10px 0 6px;}
+.rlbl:first-child{margin-top:0;}
+.chiprow{display:flex;gap:6px;}
+.chiprow>div{flex:1;text-align:center;border:2px solid #c8dcc9;border-radius:12px;padding:12px 2px;
+  font-weight:800;font-size:14px;color:#33691e;cursor:pointer;user-select:none;background:#fff;line-height:1.2;}
+.chiprow>div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.chiprow>div .csub{display:block;font-size:8.5px;font-weight:600;opacity:.75;margin-top:2px;text-transform:none;}
+.chiprow.rot>div{color:#6b4715;border-color:#dcc9a8;}
+.chiprow.rot>div.on{background:#8a5a1e;color:#fff;border-color:#8a5a1e;}
+.tallychips{margin-top:8px;min-height:4px;}
+.tallychips .tc{display:inline-block;font-size:10.5px;font-weight:800;background:var(--lite);color:var(--green);
+  border-radius:8px;padding:3px 8px;margin:3px 3px 0 0;}
+.tallychips .tc.rot{background:#f7edd8;color:#6b4715;}
+.undoline{padding:9px;font-size:12px;margin-top:9px;color:var(--warn);border-color:#f3c8c3;}
+.savedock{position:sticky;bottom:0;z-index:20;padding:12px 0 4px;margin-top:6px;
+  background:linear-gradient(to top,var(--bg) 72%,transparent);}
+.savedock .gtot{margin-bottom:7px;}
+/* v3.18.5 — CAUGHT BY A SCROLL TEST, not by the suite and not by eye.
+   A sticky bar covers whatever is behind it; that is what sticky is for. The bug is not
+   the covering, it is having nowhere to scroll the covered control TO. Without this
+   clearance the rotten counter and its cause chips sat permanently underneath the save
+   bar and could not be reached at any scroll position. The value is the bar's own height
+   plus a thumb, so the last control can always be brought clear of it. */
+#treezone{padding-bottom:132px;}
+.savedock{background:linear-gradient(to top,var(--bg) 78%,rgba(245,247,244,.85));}
+/* ===== v3.18.5 · ACTIVE TASK NOTICE BAR ===== */
+.tasknote{background:#0d3d12;color:#fff;border-radius:14px;padding:11px 13px;margin-bottom:11px;
+  border-left:6px solid var(--gold);cursor:pointer;user-select:none;box-shadow:0 2px 8px rgba(0,0,0,.18);}
+.tasknote:active{transform:scale(.99);}
+.tasknote .tn-tag{font-size:9px;font-weight:900;letter-spacing:.8px;background:var(--gold);color:#5d4300;
+  border-radius:7px;padding:2px 8px;}
+.tasknote .tn-tag.late{background:#b3261e;color:#fff;}
+.tasknote .tn-brand{font-size:16px;font-weight:900;margin-top:6px;line-height:1.3;}
+.tasknote .tn-dose{font-size:12.5px;font-weight:700;margin-top:3px;color:#d7f0d9;line-height:1.4;}
+.tasknote .tn-hint{font-size:9.5px;opacity:.72;margin-top:5px;}
 .bline{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #eef0f2}
 .bline .x{color:#b3261e;font-weight:900;padding:2px 9px;border:1.5px solid #f1c3bf;border-radius:9px;cursor:pointer}
 .trcount{display:flex;gap:7px;align-items:center;margin:6px 0}
@@ -1464,6 +1516,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div><div class="hw" id="hub-name">—</div><div class="hr" id="hub-role">—</div></div>
     <div class="hd" id="hub-dev">—</div>
   </div>
+  <!-- v3.18.5 — the Active Task Notice Bar. Renders ONLY when a directive is due today.
+       Brand name and dose per tank, nothing else: no chemistry, no prices (v3.13 rule). -->
+  <div id="tasknotice"></div>
   <div class="tiles" id="hubtiles"></div>
   <p class="hubnote" data-t="hubnote">Only the sections you are allowed to use are shown.<br>Tap a tile to open it · tap ← or 🏠 to come back.</p>
 </div>
@@ -1518,61 +1573,68 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <button class="corrbtn" id="corrbtn" onclick="openCorrection()">⚠ REQUEST TREE / CLONE CORRECTION</button>
     <div id="assetboard"></div>
 
-    <!-- ============ CARD A · GOOD FRUIT · GRADE COUNTERS (v3.0) ============ -->
-    <div class="card gradecard">
-      <span class="cardtag good" data-t="ca_tag">Card A · good fruit</span>
-      <div class="sec" data-t="ca_head">🥭 Good fruit collected — count each grade</div>
-      <p class="small" style="margin-top:0" data-t="ca_note">Count Grade A, B and C separately. For every grade say whether the
-        fruit came off <b>Secured (Tied)</b> — a string was on it — or <b>Unsecured (Untied)</b>, meaning it was
-        never tied. Leave a grade on 0 if none was picked.</p>
-      <div id="graderows"></div>
-      <div class="gtot zero" id="g-tot" data-t="ca_none">Nothing counted yet.</div>
-      <div class="pinerr" id="g-err"></div>
+    <!-- ================= v3.18.5 · THE 3-BUTTON MATRIX =================
+         Card A, Card B and the visit card were three bordered boxes, six steppers, six
+         quick-add rows and three paragraphs of prose — about two and a half screens of
+         scrolling at every tree. They are now two buttons you TAP TO COUNT and one save
+         bar that never leaves the bottom of the screen.
+         The data model underneath is untouched: GCOUNT/GKIND per grade, rotQty/rotCause/
+         rotTied for the loss, and the single atomic logTreeVisit() from v3.16. ======= -->
+
+    <!-- ---- BUTTON A · GOOD FRUIT ---- -->
+    <button class="bigcounter bc-good" onclick="gTap()">
+      <span class="bc-l"><span class="bc-t" data-t="ca_btn">🧺 GOOD FRUIT</span>
+        <span class="bc-s" id="good-sub" data-t="ca_btnsub">Tap to count — first tap opens grade &amp; string</span></span>
+      <span class="bc-n" id="good-n">0</span>
+    </button>
+    <div class="reveal" id="good-reveal">
+      <div class="card" style="margin-bottom:0">
+        <div class="rlbl" data-t="ca_intograde">Counting into grade</div>
+        <div class="chiprow" id="graderow"></div>
+        <div class="rlbl" data-t="ca_string">String status</div>
+        <div class="chiprow" id="tierow">
+          <div id="gs-SECURED" onclick="gKindSel('SECURED')" data-t="ca_secbtn">🪢 SECURED<span class="csub">a string was on it</span></div>
+          <div id="gs-UNSECURED" onclick="gKindSel('UNSECURED')" data-t="ca_unsecbtn">🍃 UNSECURED<span class="csub">never tied</span></div>
+        </div>
+        <div id="goodchips" class="tallychips"></div>
+        <button class="bigbtn ghost undoline" onclick="gUndo()" data-t="ca_undo">⌫ UNDO LAST TAP</button>
+        <div class="pinerr" id="g-err"></div>
+      </div>
     </div>
 
-    <!-- ============ CARD B · ROTTEN LOSS COUNTER (v3.0) ============ -->
-    <div class="card rotcard">
-      <span class="cardtag bad" data-t="cb_tag">Card B · loss</span>
-      <!-- v3.7 — was "Rotten fruit lost". An unripe durian is not rotten, and now that
-           UNRIPE is one of the four causes the heading has to cover all of them. -->
-      <div class="sec" data-t="cb_head">🍂 Fruit lost — not sellable</div>
-      <p class="small" style="margin-top:0" data-t="cb_note">Fruit that cannot be sold — rotten, damaged, or dropped before it was ripe. Leave it on 0 if nothing was lost.</p>
-      <div class="stepper">
-        <button onclick="rotBump(-1)">−</button><div class="n" id="rot-n">0</div><button onclick="rotBump(1)">+</button>
-      </div>
-      <div class="quickadd">
-        <div onclick="rotBump(5)">+5</div><div onclick="rotBump(10)">+10</div><div onclick="rotReset()">CLEAR</div>
-      </div>
-      <div id="rot-extra" class="hidden">
-        <label><span data-t="cb_cause">Loss cause</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
-        <select id="rot-cause" onchange="rotPickSel()"></select>
-        <label><span data-t="cb_tied">Was it tied?</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
-        <div class="lotbtns" id="rottied">
+    <!-- ---- BUTTON B · LOSS. Grey at zero, so it asks for nothing on a clean tree. ---- -->
+    <button class="bigcounter bc-rot gray" id="rotbtn" onclick="rotTap()">
+      <span class="bc-l"><span class="bc-t" data-t="cb_btn">🍂 ROTTEN / LOST</span>
+        <span class="bc-s" id="rot-sub" data-t="cb_btnsub">Grey at zero — tap only if fruit was lost</span></span>
+      <span class="bc-n" id="rot-n">0</span>
+    </button>
+    <div class="reveal" id="rot-reveal">
+      <div class="card" style="margin-bottom:0">
+        <div class="rlbl"><span data-t="cb_cause">Loss cause</span> <span class="minitag" data-t="w_required">REQUIRED</span></div>
+        <div class="chiprow rot" id="causerow"></div>
+        <div class="rlbl"><span data-t="cb_tied">Was it tied?</span> <span class="minitag" data-t="w_required">REQUIRED</span></div>
+        <div class="chiprow rot" id="rottied">
           <div id="rt-T" onclick="rotTie(true)" data-t="cb_tiedyes">🩢 TIED<span class="csub">frees a string</span></div>
           <div id="rt-U" onclick="rotTie(false)" data-t="cb_tiedno">🍃 UNTIED<span class="csub">never tied</span></div>
         </div>
+        <button class="bigbtn ghost undoline" onclick="rotUndo()" data-t="ca_undo">⌫ UNDO LAST TAP</button>
+        <div class="pinerr" id="rot-err"></div>
       </div>
-      <div class="pinerr" id="rot-err"></div>
-    </div>
-
-
-    <!-- ====== v3.16 · ONE UNIFIED COMMIT FOR THE WHOLE TREE VISIT ======
-         Card A and Card B each had their own save button, so a worker standing at one
-         tree pressed save twice and a half-finished visit (good fruit saved, loss not)
-         looked identical to a finished one. Both cards now commit together, under one
-         visitId, from this single button. -->
-    <div class="card visitcard">
-      <span class="cardtag visit" data-t="cv_tag">One visit · one save</span>
-      <div class="sec" data-t="cv_head">✅ Finish this tree</div>
-      <p class="small" style="margin-top:0" data-t="cv_note">Count the good fruit above, then any fruit that was lost.
-        Both are saved together by this one button — you never save twice at the same tree.
-        Leave either card on zero if it does not apply.</p>
-      <div class="gtot zero" id="visit-sum" data-t="cv_none">Nothing counted yet.</div>
-      <div class="pinerr" id="visit-err"></div>
-      <button class="bigbtn" onclick="logTreeVisit()" data-t="cv_save">✅ LOG COMPLETE TREE VISIT</button>
     </div>
 
     <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
+
+    <!-- ---- BUTTON C · ONE ATOMIC SAVE, pinned to the bottom of the screen ----
+         v3.18.5 fix, found on a SCREENSHOT and not by the suite: this block must be the
+         LAST child. A sticky element that has siblings after it stops sticking when they
+         scroll past — and while it was in the middle it sat ON TOP of the rotten counter,
+         hiding a button the worker has to reach. The padding under #treezone below is what
+         lets the last real control clear the bar instead of living under it. -->
+    <div class="savedock">
+      <div class="gtot zero" id="visit-sum" data-t="cv_none">Nothing counted yet.</div>
+      <div class="pinerr" id="visit-err"></div>
+      <button class="bigbtn" onclick="logTreeVisit()" data-t="cv_save">🚀 LOG COMPLETE TREE VISIT</button>
+    </div>
   </div>
   <div class="card" id="mylogs" style="display:none">
     <div class="sec">My drop &amp; rotten logs</div>
@@ -2528,7 +2590,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.18.4"></script>
-<script src="app.js?v=3.18.4"></script>
+<script src="database.js?v=3.18.5"></script>
+<script src="app.js?v=3.18.5"></script>
 </body>
 </html>

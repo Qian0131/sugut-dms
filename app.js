@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.18.4';   // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.18.5';   // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -788,7 +788,47 @@ function renderHub(){
     const b=tileBadge(k);
     return '<div class="tile" onclick="openModule(\''+k+'\')"><span class="ti">'+m.ic+'</span>'+
       '<div class="tn">'+esc(moduleLabel(m))+'</div><div class="ts">'+esc(tileSub(k,m))+'</div>'+
-      (b?'<div class="tbadge'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>':'')+'</div>';}).join('');}
+      (b?'<div class="tbadge'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>':'')+'</div>';}).join('');
+  renderTaskNotice();}
+/* ===== v3.18.5 · ACTIVE TASK NOTICE BAR =====
+   What the crew are meant to be spraying TODAY, on the screen they open the phone to.
+   Until now that lived two taps inside Daily Ops, so a worker had to remember to go and
+   look. It renders ONLY when a directive is actually due, because a bar that is always
+   there is furniture and stops being read.
+   It carries the BRAND and the DOSE PER TANK and nothing else — no active ingredient, no
+   money. That is the v3.13 rule, and it is applied here through the same allocOf() the
+   crew's task card uses, so a line with no brand behind it simply does not appear. */
+function renderTaskNotice(){
+  const box=$('tasknotice'); if(!box)return;
+  box.innerHTML='';
+  if(typeof issuedDrafts!=='function'||typeof dueState!=='function')return;
+  const today=ymd(dayStart(new Date()));
+  // due today or already late, and still unfinished
+  const live=issuedDrafts().filter(function(d){
+    if(d.deleted)return false;
+    if(typeof dirAllDone==='function'&&dirAllDone(d))return false;
+    return d.due&&String(d.due).slice(0,10)<=today;});
+  if(!live.length)return;
+  live.sort(function(a,b){return String(a.due).localeCompare(String(b.due));});
+  const d=live[0], late=String(d.due).slice(0,10)<today;
+  // brand + dose only; a line the Purchaser has not matched yet is left out entirely
+  const lines=draftLines(d).map(function(l){
+    const a=allocOf(d.uuid,l.slot);
+    return a&&a.pname?{name:a.pname,dose:l.dose,unit:l.unit}:null;}).filter(Boolean);
+  const per=(d.basis==='PER_1000L')
+    ? (tr('tn_pertank','Per tank: 1,000 L water')) : (tr('tn_pertree','Per tree'));
+  box.innerHTML='<div class="tasknote" onclick="openModule(\'ops\',\'tasks\')">'+
+    '<span class="tn-tag'+(late?' late':'')+'">'+
+      (late?('\u26a0 '+esc(tr('tn_late','OVERDUE'))):('\u26a0 '+esc(tr('tn_today','PROGRAMME TODAY'))))+
+      ' \u00b7 '+esc(dateShort(d.due))+'</span>'+
+    '<div class="tn-brand">'+esc(d.name)+'</div>'+
+    (lines.length
+      ?('<div class="tn-dose">'+esc(per)+' \u2014 '+
+        lines.map(function(l){return esc(l.name)+' <b>'+nf(l.dose)+'</b> '+esc(l.unit);}).join(' \u00b7 ')+
+        '</div>')
+      :('<div class="tn-dose">'+esc(tr('tn_waiting','Waiting for the store \u2014 no brand matched yet'))+'</div>'))+
+    '<div class="tn-hint">'+esc(tr('tn_hint','Tap to open the task'))+'</div>'+
+  '</div>';}
 function showScreen(x){
   SCREENS.forEach(k=>$('scr-'+k).classList.toggle('hidden',k!==x));
   $('scr-setup').classList.add('hidden');$('scr-login').classList.add('hidden');
@@ -1495,47 +1535,67 @@ function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
 // GCOUNT/GKIND are the whole state of the card; SAVE turns them into one DROP
 // event per grade that has a count, then clears them.
 let GCOUNT={A:0,B:0,C:0}, GKIND={A:'SECURED',B:'SECURED',C:'SECURED'};
+/* v3.18.5 — the state above is UNCHANGED. What follows is only the way a thumb reaches it.
+   GSEL is the grade the next tap lands in; GLOG remembers the ORDER taps happened, so UNDO
+   removes the tap that was actually made rather than one off whichever grade is selected
+   now. Nothing here reaches logTreeVisit(), which still reads GCOUNT/GKIND as before. */
+let GSEL='A', GLOG=[];
 function gTotal(){return GRADE_ORDER.reduce((s,g)=>s+(GCOUNT[g]||0),0);}
 function gBump(g,d){GCOUNT[g]=Math.max(0,(GCOUNT[g]||0)+d);paintGrade(g);gTotalPaint();}
-function gZero(g){GCOUNT[g]=0;paintGrade(g);gTotalPaint();}
+function gZero(g){GCOUNT[g]=0;GLOG=GLOG.filter(x=>x!==g);paintGrade(g);gTotalPaint();}
 function gKind(g,k){GKIND[g]=k;paintGrade(g);gTotalPaint();}
+/** One tap on the big green button = one more fruit of the selected grade. */
+function gTap(){
+  const r=$('good-reveal'); if(r)r.classList.add('open');
+  GCOUNT[GSEL]=(GCOUNT[GSEL]||0)+1; GLOG.push(GSEL);
+  paintGrade(GSEL); gTotalPaint();}
+function gSel(g){GSEL=g; gTotalPaint();}
+function gKindSel(k){GKIND[GSEL]=k; gTotalPaint();}
+function gUndo(){
+  const g=GLOG.pop(); if(!g)return;
+  GCOUNT[g]=Math.max(0,(GCOUNT[g]||0)-1);
+  paintGrade(g); gTotalPaint();}
 function gClearAll(){GRADE_ORDER.forEach(g=>{GCOUNT[g]=0;GKIND[g]='SECURED';});
+  GSEL='A'; GLOG=[];
+  const r=$('good-reveal'); if(r)r.classList.remove('open');
   GRADE_ORDER.forEach(paintGrade);gTotalPaint();const e=$('g-err');if(e)e.textContent='';}
 function paintGrade(g){
-  const n=$('g-n-'+g); if(n)n.textContent=GCOUNT[g]||0;
+  const n=$('g-n-'+g); if(n)n.textContent=GCOUNT[g]||0;            // legacy id, harmless
   const row=$('grow-'+g); if(row)row.classList.toggle('hot',(GCOUNT[g]||0)>0);
   DROP_ORDER.forEach(k=>{const el=$('gs-'+g+'-'+k);if(el)el.classList.toggle('on',GKIND[g]===k);});}
+/** v3.18.5 — the grade chips. Rendered here, not written into the markup, so GRADE_ORDER
+ *  stays the single place a grade is defined — exactly as the old stepper rows were. */
+function renderGradeRows(){
+  const box=$('graderow'); if(!box)return;
+  box.innerHTML=GRADE_ORDER.map(g=>
+    '<div id="gsel-'+g+'" onclick="gSel(\''+g+'\')">'+esc(g)+
+      '<span class="csub" id="gsub-'+g+'">0</span></div>').join('');
+  gTotalPaint();}
 function gTotalPaint(){
+  const n=$('good-n'); if(n)n.textContent=gTotal();
+  GRADE_ORDER.forEach(g=>{
+    const c=$('gsel-'+g); if(c)c.classList.toggle('on',g===GSEL);
+    const sub=$('gsub-'+g); if(sub)sub.textContent=GCOUNT[g]||0;});
+  ['SECURED','UNSECURED'].forEach(k=>{
+    const el=$('gs-'+k); if(el)el.classList.toggle('on',GKIND[GSEL]===k);});
+  const bsub=$('good-sub');
+  if(bsub)bsub.textContent=gTotal()
+    ? (tr('ca_counting','Counting into')+' '+GSEL+' \u00b7 '+
+       (GKIND[GSEL]==='SECURED'?tr('ca_sec','secured'):tr('ca_unsec','unsecured')))
+    : tr('ca_btnsub','Tap to count');
+  // the running tally, so a worker can check their own count before saving
+  const chips=$('goodchips');
+  if(chips)chips.innerHTML=GRADE_ORDER.filter(g=>GCOUNT[g]>0).map(g=>
+    '<span class="tc">'+g+' \u00b7 '+(GKIND[g]==='SECURED'?tr('ca_sec','secured'):tr('ca_unsec','unsecured'))+
+    ' \u00d7 '+GCOUNT[g]+'</span>').join('');
   if(typeof visitSumPaint==='function')visitSumPaint();   // v3.16 — one visit, one summary
-  const box=$('g-tot'); if(!box)return;
+  const box=$('g-tot'); if(!box)return;                   // legacy panel, absent from the markup now
   const tot=gTotal();
-  // v3.16 — this line was hard-coded English on a screen the crew read in Malay, and it
-  // sat directly above the translated visit summary, which is what made it obvious.
   if(!tot){box.className='gtot zero';box.textContent=tr('ca_none','Nothing counted yet.');return;}
   box.className='gtot';
   const parts=GRADE_ORDER.filter(g=>GCOUNT[g]>0)
-    .map(g=>GCOUNT[g]+' × '+g+' ('+(GKIND[g]==='SECURED'?tr('ca_sec','secured'):tr('ca_unsec','unsecured'))+')');
-  box.innerHTML=tot+' '+esc(tr('ca_fruit','fruit'))+' — '+parts.join(' · ');}
-function renderGradeRows(){
-  const box=$('graderows'); if(!box)return;
-  box.innerHTML=GRADE_ORDER.map(g=>{
-    const m=GRADE_META[g];
-    return '<div class="grow" id="grow-'+g+'">'+
-      '<div class="ghead"><span class="gname">'+esc(m.label)+'</span>'+
-        '<span class="gnote">'+esc(m.note)+'</span></div>'+
-      '<div class="stepper">'+
-        '<button onclick="gBump(\''+g+'\',-1)">−</button>'+
-        '<div class="n" id="g-n-'+g+'">0</div>'+
-        '<button onclick="gBump(\''+g+'\',1)">+</button></div>'+
-      '<div class="quickadd">'+
-        '<div onclick="gBump(\''+g+'\',5)">+5</div>'+
-        '<div onclick="gBump(\''+g+'\',10)">+10</div>'+
-        '<div onclick="gZero(\''+g+'\')">CLEAR</div></div>'+
-      '<div class="lotbtns tiny">'+
-        '<div id="gs-'+g+'-SECURED" onclick="gKind(\''+g+'\',\'SECURED\')">🪢 Secured (Tied)</div>'+
-        '<div id="gs-'+g+'-UNSECURED" onclick="gKind(\''+g+'\',\'UNSECURED\')">🍃 Unsecured (Untied)</div>'+
-      '</div></div>';}).join('');
-  GRADE_ORDER.forEach(paintGrade); gTotalPaint();}
+    .map(g=>GCOUNT[g]+' \u00d7 '+g+' ('+(GKIND[g]==='SECURED'?tr('ca_sec','secured'):tr('ca_unsec','unsecured'))+')');
+  box.innerHTML=tot+' '+esc(tr('ca_fruit','fruit'))+' \u2014 '+parts.join(' \u00b7 ');}
 // legacy shims — older call sites (and the QR deep links) still reference these
 function bump(d){gBump('A',d);}
 function resetQty(){gClearAll();}
@@ -3773,26 +3833,53 @@ function renderTying(){
 // tied/untied toggle only appear once the count is above zero — and once they appear
 // they are both mandatory.
 let rotQty=0, rotCause='';
-function rotBump(d){rotQty=Math.max(0,rotQty+d);$('rot-n').textContent=rotQty;rotExtras();}
+/* v3.18.5 — same story as the good counter: rotQty / rotCause / rotTied are untouched,
+   only the way a thumb reaches them changed. */
+function rotBump(d){rotQty=Math.max(0,rotQty+d);if($('rot-n'))$('rot-n').textContent=rotQty;rotExtras();}
+/** One tap on the brown button = one more lost fruit. It wakes from grey on the first tap,
+ *  so a tree that lost nothing never asks the worker a single question. */
+function rotTap(){
+  const b=$('rotbtn'); if(b)b.classList.remove('gray');
+  const r=$('rot-reveal'); if(r)r.classList.add('open');
+  rotQty++;
+  if($('rot-n'))$('rot-n').textContent=rotQty;
+  rotExtras();}
+function rotUndo(){
+  if(rotQty>0)rotQty--;
+  if($('rot-n'))$('rot-n').textContent=rotQty;
+  if(!rotQty){
+    const b=$('rotbtn'); if(b)b.classList.add('gray');
+    const r=$('rot-reveal'); if(r)r.classList.remove('open');}
+  rotExtras();}
 function rotReset(){rotQty=0;rotCause='';rotTied=null;
   if($('rot-n'))$('rot-n').textContent=0;
   if($('rot-cause'))$('rot-cause').value='';
   ['T','U'].forEach(k=>{const el=$('rt-'+k);if(el)el.classList.remove('on');});
+  const b=$('rotbtn'); if(b)b.classList.add('gray');
+  const r=$('rot-reveal'); if(r)r.classList.remove('open');
   if($('rot-err'))$('rot-err').textContent='';
   rotExtras();}
 function rotExtras(){
-  const x=$('rot-extra'); if(x)x.classList.toggle('hidden',!(rotQty>0));
+  const x=$('rot-extra'); if(x)x.classList.toggle('hidden',!(rotQty>0));   // legacy panel
+  const sub=$('rot-sub');
+  if(sub)sub.textContent=rotQty
+    ? tr('cb_btnmore','Tap again to add another')
+    : tr('cb_btnsub','Tap only if fruit was lost');
+  ROT_ORDER.forEach(k=>{const el=$('rc-'+k); if(el)el.classList.toggle('on',rotCause===k);});
   if(typeof visitSumPaint==='function')visitSumPaint();}   // v3.16
 function rotPick(c){rotCause=c;
-  const sel=$('rot-cause'); if(sel&&sel.value!==c)sel.value=c;
-  if($('rot-err'))$('rot-err').textContent='';}
-function rotPickSel(){rotPick($('rot-cause').value);}
+  const sel=$('rot-cause'); if(sel&&sel.value!==c)sel.value=c;   // legacy select, if present
+  if($('rot-err'))$('rot-err').textContent='';
+  rotExtras();}
+function rotPickSel(){const sel=$('rot-cause'); if(sel)rotPick(sel.value);}
+/** v3.18.5 — the four causes as chips. ROT_ORDER stays the only place they are defined,
+ *  so UNRIPE cannot be lost by someone editing a screen. */
 function renderRotCauses(){
-  const sel=$('rot-cause'); if(!sel)return;
-  sel.innerHTML='<option value="">'+esc(tr('cb_choose'))+'</option>'+
-    ROT_ORDER.map(k=>'<option value="'+k+'">'+ROT_CAUSE[k].ic+' '+esc(causeLabel(k))+
-      ' — '+esc(causeNote(k))+'</option>').join('');
-  sel.value=rotCause||''; rotExtras();}
+  const box=$('causerow'); if(!box)return;
+  box.innerHTML=ROT_ORDER.map(k=>
+    '<div id="rc-'+k+'" onclick="rotPick(\''+k+'\')" title="'+esc(causeNote(k))+'">'+
+      ROT_CAUSE[k].ic+'<span class="csub">'+esc(causeLabel(k))+'</span></div>').join('');
+  rotExtras();}
 let savingRot=false;
 // ---- my logs + request log correction -------------------------------------------------
 // A worker never edits a log. Anything wrong goes to the Owner as a request and is only
