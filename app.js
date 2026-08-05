@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.16.0';   // v3.16.0 - FOUR ISOLATED WORKSPACES. The worker's tree visit commits ONCE instead of twice, the Purchaser's four supply forms share one page, the Marketer lands on the dispatch review queue, and the Owner gets a Command tile: executive summary with the flashing tree-variance alert, the rain moisture line, retailer revenue, material drawdown, a drop-wave forecast and a recommended prepaid-credit ceiling per merchant
+const APP_VERSION = 'v3.17.0';   // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -475,8 +475,14 @@ const MODULES={
   // audit and the delivery ledger behind three tabs would cost more than it saved.
   // Every tab is OWNER-only at the tile gate AND again in roleAllows().
   // ====================================================================================
-  cmd:{ic:'👑',name:'Command',sub:'summary, programme, master control',tn:'m_cmd',
-    tabs:[{k:'exec',  t:'EXECUTIVE SUMMARY',scr:'dash',panels:['cmdexec'],   roles:['OWNER'],ic:'📈',tn:'s_exec',  d:'Variance alerts, rain, retailer revenue, drawdown and the drop forecast'},
+  // v3.17 — two more tabs, and TODAY goes first. The Executive Summary answers "what is
+  // the state of the farm"; it cannot answer "what do I have to do before lunch" or "is
+  // this better than last week". Those are different questions and they get their own
+  // screens rather than being stacked onto a summary that is already dense.
+  cmd:{ic:'👑',name:'Command',sub:'today, summary, compare, programme, master',tn:'m_cmd',
+    tabs:[{k:'today', t:'TODAY',           scr:'dash',panels:['cmdtoday'],  roles:['OWNER'],ic:'📌',tn:'s_today', d:'What needs you today, today’s figures, and which phones have gone quiet'},
+          {k:'exec',  t:'EXECUTIVE SUMMARY',scr:'dash',panels:['cmdexec'],   roles:['OWNER'],ic:'📈',tn:'s_exec',  d:'Variance alerts, rain, retailer revenue, drawdown and the drop forecast'},
+          {k:'cmp',   t:'COMPARE',         scr:'dash',panels:['cmdcompare'],roles:['OWNER'],ic:'📊',tn:'s_compare',d:'7 days, this month or the whole season — against the period before it'},
           {k:'build', t:'PROGRAM BUILDER',  scr:'dash',panels:['agromatrix'],roles:['OWNER'],ic:'🧬',tn:'s_builder',d:'Build a five-part combo by active ingredient, per 1,000 L tank'},
           {k:'master',t:'MASTER CONTROL',   scr:'dash',panels:['masterdb'],  roles:['OWNER'],ic:'🔐',tn:'s_master', d:'Edit any row, backdate, add trees, manage keys, show the QR'}]},
   // v3.0 — tying has LEFT this module. The collection screen is now two cards only:
@@ -536,7 +542,7 @@ const MODULES={
           {k:'alloc',t:'AI ➔ BRAND',  scr:'stock',panels:['alloccard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🔗',tn:'s_alloc',d:'Match a brand in the store to each ingredient the Owner asked for'},
           {k:'onboard',t:'NEW PRODUCT',scr:'stock',panels:['onboardcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🆕',tn:'s_onboard',d:'Add a commercial item to the store catalogue'},
           {k:'out', t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],             roles:FULL_ROLES,ic:'📤',d:'Draw material for a job, against a lot'},
-          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES,ic:'📦',d:'Live valuation, reorder alerts, active ingredients'},
+          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:FULL_ROLES,ic:'📦',tn:'s_stocklvl',d:'Live valuation, reorder alerts, active ingredients'},
           {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:FULL_ROLES,ic:'🧾',d:'Physical count vs system, posted as an adjustment'},
           {k:'chk', t:'PROGRAM CHECK',scr:'dash', panels:['progcheck'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'🔍',tn:'s_progcheck',d:'Will the active spray programme run out?'},
           {k:'next',t:'NEXT PHASE',   scr:'dash', panels:['progready'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'📅',tn:'s_nextphase',d:'What to order now for the phase after this one'}]},
@@ -571,15 +577,15 @@ const MODULES={
           {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:FULL_ROLES,ic:'🏁',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
           {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:FULL_ROLES,ic:'📒',d:'The raw stock ledger, month by month'},
           {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:FULL_ROLES,ic:'💵',d:'Man-hours and the rate they are priced at'}]},
-  admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',
-    tabs:[{k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES,ic:'✏️',d:'Approve or reject field correction requests'},
+  admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',tn:'m_admin',
+    tabs:[{k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES,ic:'✏️',tn:'s_adjust',d:'Approve or reject field correction requests'},
           // v3.2 — the dual-signature yield audit is the Owner's alone. Marketing weighs
           // the fruit, so Marketing does not get to mark its own homework.
           {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER'],ic:'🔎',d:'Fruit counted vs fruit weighed — the mismatch list'},
           // v3.3 — the Owner's master override suite. OWNER only, and the panel renders
           // an empty string for anyone else so none of its markup reaches the DOM.
           {k:'master',t:'MASTER DB',   scr:'dash',panels:['masterdb'], roles:['OWNER'],ic:'🔐',d:'Owner override suite, tree expansion, QR tags'},
-          {k:'reg',   t:'STAFF',       scr:'dash',panels:['keyspanel'],roles:FULL_ROLES,ic:'🔑',d:'Access keys and who may do what'}]}
+          {k:'reg',   t:'STAFF',       scr:'dash',panels:['keyspanel'],roles:FULL_ROLES,ic:'🔑',tn:'s_staff',d:'Access keys and who may do what'}]}
 };
 // v3.7 — tile order per role. The role gate is applied here AND again in roleAllows(),
 // so calling straight into a module still exposes nothing extra.
@@ -622,7 +628,12 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   'progrecord',
   // v3.16 — the Owner's Executive Summary. Same rule as every entry above it: a panel
   // missing from this array is never hidden and leaks onto every other screen.
-  'cmdexec'];
+  'cmdexec',
+  // v3.17 — the other two Command tabs. Left out of this list they would sit on top of
+  // every other screen for the rest of the session; that has happened twice already
+  // (v3.6 and again with backlogcard in v3.12), so the panel-coverage test now fails
+  // the build if any panel id in index.html is missing here.
+  'cmdtoday','cmdcompare'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -660,6 +671,10 @@ function roleAllows(id){
     // recommended credit ceiling. Owner alone, and renderCmdExec() writes an empty string
     // for anyone else so none of its markup ever reaches the DOM.
     case 'cmdexec': return myRole()==='OWNER';
+    // v3.17 — TODAY carries today's invoiced RM and the month's margin; COMPARE carries
+    // revenue, material and labour against the previous period. Owner alone, and both
+    // painters write an empty string for anyone else, exactly like cmdexec above.
+    case 'cmdtoday': case 'cmdcompare': return myRole()==='OWNER';
     // v3.12 — the recipe is the Agronomist's. Only Owner/Marketing may write one.
     case 'agromatrix': return full;
     // The allocation matrix and the onboarding form are the Purchaser's daily job, with
@@ -687,7 +702,12 @@ function tileBadge(k){
     const od=(typeof overdueDirectives==='function')?overdueDirectives().length:0;
     if(od)return {t:od+' '+tr('bg_late')};
     const cr=(typeof creditAdvice==='function')?creditAdvice().filter(c=>c.raise).length:0;
-    return cr?{t:cr+' '+tr('bg_credit'),amber:1}:null;}
+    if(cr)return {t:cr+' '+tr('bg_credit'),amber:1};
+    // v3.17 — everything else the TODAY tab is holding: a load waiting on the Owner's
+    // eye, an ingredient with no brand, stock under its minimum, a correction, a phone
+    // gone quiet. Without this the tile reads "nothing to do" while five things wait.
+    const rest=(typeof needsYou==='function')?needsYou().length:0;
+    return rest?{t:rest+' '+tr('bg_todo'),amber:1}:null;}
   if(k==='inv'){
     // v3.12 — an ingredient with no brand behind it outranks a reorder alert: a low
     // product still lets the crew work, an unallocated slot stops them dead.
@@ -910,6 +930,8 @@ function renderForTab(k,t){
   if(k==='reports'&&t==='record')renderProgRecord();
   // v3.16 — Tile F. The builder and the master suite reuse the panels the agro/admin
   // tiles already render, so only the Executive Summary needs its own painter.
+  if(k==='cmd'&&t==='today')renderCmdToday();
+  if(k==='cmd'&&t==='cmp')renderCmdCompare();
   if(k==='cmd'&&t==='exec')renderCmdExec();
   if(k==='cmd'&&t==='build')renderAgroMatrix();
   if(k==='cmd'&&t==='master')renderMasterDB();
@@ -10221,6 +10243,528 @@ function renderCmdExec(){
       '<span class="v">'+nf(m.kg_total)+' kg · '+nf(m.invoices)+' '+esc(tr('ex_inv','invoices'))+'</span></div>');}
 
   box.innerHTML=H.join('');}
+
+/* =====================================================================================
+   v3.17 · TILE F TAB 1 — WHAT NEEDS THE OWNER TODAY
+   =====================================================================================
+   The Executive Summary says what the farm IS. This says what the Owner has to DO, and
+   it is deliberately the first tab: opening the app should answer "is anything on fire"
+   before it answers anything else.
+
+   Two rules run through every row:
+     1. Status is COLOUR + ICON + WORD. Never colour alone. The amber in this palette
+        measures 2.09:1 against a white card - a phone in the sun, held by a man who may
+        be colour-blind, cannot read a bare amber pill. So every count carries a word.
+     2. Every row names the exact screen that fixes it, and tapping the row goes there.
+        A dashboard that tells you something is wrong but not where to fix it has moved
+        the problem, not solved it.
+   ===================================================================================== */
+
+/** Everything waiting on the Owner, worst first. Each entry knows where it is fixed. */
+function needsYou(){
+  const out=[];
+  const push=(k,ic,n,head,sub,word,mod,tab)=>{
+    if(!n)return;
+    out.push({k:k,ic:ic,n:n,head:head,sub:sub,word:word,mod:mod,tab:tab});};
+
+  // 1. a tree bleeding unsecured fruit - it costs money today, not next week
+  const va=(typeof varianceAlerts==='function')?varianceAlerts():[];
+  push('crit','⚠',va.length,tr('cd_a_trees'),tr('cd_s_trees'),tr('cd_w_trees'),'cmd','exec');
+
+  // 2. a programme past its date with work still outstanding
+  const od=(typeof overdueDirectives==='function')?overdueDirectives():[];
+  push('crit','⏰',od.length,tr('cd_a_late'),
+    od.slice(0,3).map(d=>String(d.set||d.name||'')).filter(Boolean).join(' · ')||tr('cd_s_late'),
+    tr('cd_w_late'),'reports','record');
+
+  // 3. a weighed load whose credit cannot move until the Owner has looked at the photo
+  const pd=(typeof pendingDispatches==='function')?pendingDispatches():[];
+  push('crit','📷',pd.length,tr('cd_a_hold'),tr('cd_s_hold'),tr('cd_w_hold'),'mkt','verify');
+
+  // 4. an active ingredient with no brand behind it - this stops the crew dead
+  const ua=(typeof unallocatedSlots==='function')?unallocatedSlots():0;
+  push('warnr','🔗',ua,tr('cd_a_wait'),tr('cd_s_wait'),tr('cd_w_wait'),'inv','alloc');
+
+  // 5. short for a programme already issued, then merely low
+  const ps=(typeof programShortages==='function')?programShortages():[];
+  push('warnr','🧪',ps.length,tr('cd_a_short'),tr('cd_s_short'),tr('cd_w_short'),'inv','lvl');
+  const ls=(typeof lowStock==='function')?lowStock():[];
+  push('warnr','📉',Math.max(0,ls.length-ps.length),tr('cd_a_low'),tr('cd_s_low'),
+    tr('cd_w_low'),'inv','lvl');
+
+  // 6. a merchant whose prepaid pool runs dry mid-wave
+  const cr=(typeof creditAdvice==='function')?creditAdvice().filter(c=>c.raise||c.overdrawn):[];
+  push('warnr','💳',cr.length,tr('cd_a_credit'),
+    cr.map(c=>String(c.name||'')).filter(Boolean).join(' · ')||tr('cd_s_credit'),
+    tr('cd_w_credit'),'cmd','exec');
+
+  // 7. a tree record frozen until the Owner decides
+  const pc=(typeof CORRECTIONS!=='undefined')
+    ? CORRECTIONS.filter(c=>c.status==='PENDING') : [];
+  push('info','✏️',pc.length,tr('cd_a_corr'),tr('cd_s_corr'),tr('cd_w_new'),'admin','corr');
+
+  // 8. a phone that has gone quiet - every figure above it is incomplete while it is
+  const st=phoneFreshness().filter(p=>p.state==='r');
+  push('info','📵',st.length,tr('cd_a_stale'),
+    st.map(p=>p.who).join(' · ')||tr('cd_s_stale'),tr('cd_w_stale'),'admin','reg');
+
+  return out;}
+
+/** When each phone last put a row into the ledger. A quiet phone is not a quiet farm. */
+function phoneFreshness(){
+  const last={};
+  EVENTS.forEach(e=>{
+    const d=e.device||'—', t=String(e.dt||'');
+    if(t.length<10)return;
+    if(!last[d]||t>last[d].dt)last[d]={dt:t,who:e.worker||''};});
+  const nowMs=Date.parse(now())||Date.now();
+  return Object.keys(last).sort().map(d=>{
+    const t=Date.parse(last[d].dt);
+    const mins=isFinite(t)?Math.max(0,Math.round((nowMs-t)/60000)):null;
+    let state='g', txt=tr('cd_never');
+    if(mins!=null){
+      txt = mins<60 ? (mins+' '+tr('cd_minago'))
+          : mins<1440 ? (Math.round(mins/60)+' '+tr('cd_hourago'))
+          : (Math.round(mins/1440)+' '+tr('cd_dayago'));
+      state = mins>=2880 ? 'r' : (mins>=1440 ? 'a' : 'g');}
+    else state='r';
+    return {device:d,who:last[d].who||d,dt:last[d].dt,mins:mins,state:state,txt:txt};});}
+
+/** One calendar day of everything, keyed YYYY-MM-DD. Built once, read by both tabs. */
+function dayRoll(){
+  const mac=movingAvgCost();
+  const D={};
+  const touch=k=>{if(!D[k])D[k]={day:k,fruit:0,rotten:0,tied:0,kg:0,rm_in:0,rm_out:0,mh:0,
+    lot:{},grade:{}};return D[k];};
+  EVENTS.forEach(e=>{
+    const k=String(e.dt||'').slice(0,10); if(k.length!==10)return;
+    if(e.type==='DROP'){const r=touch(k);const q=+e.qty||0;
+      r.fruit+=q;
+      if(LOT_KEYS.indexOf(e.lot)>=0)r.lot[e.lot]=(r.lot[e.lot]||0)+q;
+      if(e.grade)r.grade[e.grade]=(r.grade[e.grade]||0)+q;}
+    else if(e.type==='DROP_ADJUST'){const r=touch(k);const d=+e.delta||0;
+      r.fruit+=d;
+      if(LOT_KEYS.indexOf(e.lot)>=0)r.lot[e.lot]=(r.lot[e.lot]||0)+d;}
+    else if(e.type==='ROTTEN')       touch(k).rotten+=(+e.qty||0);
+    else if(e.type==='ROTTEN_ADJUST')touch(k).rotten+=(+e.delta||0);
+    else if(e.type==='TIE')          touch(k).tied+=(+e.n||0);
+    else if(e.type==='TIE_ADJUST')   touch(k).tied+=(+e.delta||0);
+    else if(e.type==='DISPATCH'){const r=touch(k);
+      r.kg+=(+e.total_kg||0); r.rm_in+=(+e.total_value_rm||0);}
+    else if(e.type==='STOCK_OUT')    touch(k).rm_out+=outCostOf(e,mac);});
+  labourRows().forEach(r=>{
+    const k=String(r.dt||'').slice(0,10); if(k.length!==10)return;
+    touch(k).mh+=(+r.mh||0);});
+  return D;}
+
+/** dd of a Date, as the ledger writes it. */
+function dkey(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
+         String(d.getDate()).padStart(2,'0');}
+function dayShiftKey(baseKey,n){
+  const p=String(baseKey).split('-');
+  const d=new Date(+p[0],+p[1]-1,+p[2]);
+  d.setDate(d.getDate()+n);
+  return dkey(d);}
+function monthShort(i){
+  const L=(LANG==='ms'&&typeof MONTH_LONG_MS!=='undefined')?MONTH_LONG_MS:MONTH_LONG_EN;
+  return String(L[i]||'').slice(0,3);}
+
+function renderCmdToday(){
+  const box=$('cmdtodaybox'); if(!box)return;
+  if(!roleAllows('cmdtoday')){box.innerHTML='';return;}   // no markup at all for anyone else
+  const H=[];
+  const D=dayRoll(), tk=todayStr(), yk=dayShiftKey(tk,-1);
+  const t=D[tk]||{fruit:0,kg:0,rm_in:0,rm_out:0}, y=D[yk]||null;
+
+  // ---- band 1: what needs you ---------------------------------------------------------
+  const items=needsYou();
+  H.push('<div class="exsub">'+(items.length?'⚠ ':'✓ ')+esc(tr('cd_needs'))+
+    (items.length?(' · '+items.length):'')+'</div>');
+  H.push(items.length
+    ? '<div class="cdact">'+items.map(a=>
+        '<div class="cdrow '+a.k+'" onclick="openModule(\''+a.mod+'\',\''+a.tab+'\')">'+
+          '<span class="ic">'+a.ic+'</span>'+
+          '<span class="tx"><span class="h">'+esc(a.head)+'</span>'+
+            '<span class="s">'+esc(a.sub)+'</span>'+
+            '<span class="go">'+esc(goLabel(a.mod,a.tab))+' &rsaquo;</span></span>'+
+          // colour + ICON + WORD. Never colour on its own.
+          '<span class="cnt">'+nf(a.n)+' '+esc(a.word)+'</span>'+
+        '</div>').join('')+'</div>'
+    : '<div class="cdclear"><div class="b">✓</div><div class="t">'+esc(tr('cd_clear'))+'</div>'+
+      '<div class="s">'+esc(tr('cd_clearsub'))+'</div></div>');
+
+  // ---- band 2: today ------------------------------------------------------------------
+  const dl=(a,b,unit)=>{
+    if(!y)return '<div class="d fl">'+esc(tr('cd_noyest'))+'</div>';
+    const d=a-b;
+    if(Math.abs(d)<0.005)return '<div class="d fl">= '+esc(tr('cd_vsyest'))+'</div>';
+    return '<div class="d '+(d>0?'up':'dn')+'">'+(d>0?'▲ +':'▼ −')+nf(Math.abs(d))+
+      (unit||'')+' '+esc(tr('cd_vsyest'))+'</div>';};
+  H.push('<div class="exsub">'+esc(tr('cd_today'))+'</div>');
+  H.push('<div class="cdtiles">'+
+    '<div class="cdt"><div class="v">'+nf(t.fruit)+'</div><div class="l">'+esc(tr('cd_fruit'))+'</div>'+
+      dl(t.fruit,y?y.fruit:0,'')+'</div>'+
+    '<div class="cdt"><div class="v">'+nf(t.kg)+'<u> kg</u></div><div class="l">'+esc(tr('cd_kgout'))+'</div>'+
+      dl(t.kg,y?y.kg:0,' kg')+'</div>'+
+    '<div class="cdt"><div class="v">'+(SHOW_VALUES?rm(t.rm_in):'—')+'</div><div class="l">'+
+      esc(tr('cd_rmin'))+'</div>'+(SHOW_VALUES?dl(t.rm_in,y?y.rm_in:0,''):'')+'</div>'+
+    '<div class="cdt"><div class="v">'+(SHOW_VALUES?rm(t.rm_out):'—')+'</div><div class="l">'+
+      esc(tr('cd_rmout'))+'</div>'+(SHOW_VALUES?dl(t.rm_out,y?y.rm_out:0,''):'')+'</div>'+
+    '</div>');
+
+  // ---- band 3: the crop right now ------------------------------------------------------
+  const f=dropForecast();
+  H.push('<div class="exsub">'+esc(tr('cd_crop'))+'</div>');
+  if(!f.hanging&&!f.onString){
+    H.push('<div class="alertnone">'+esc(tr('cd_nocrop'))+'</div>');
+  } else {
+    const shed=Math.max(0,shedCount());
+    const top=Math.max(f.onString,f.untied,shed,1);
+    const bar=(lab,v,col,unit)=>'<div class="cdcrop"><span class="cl">'+esc(lab)+'</span>'+
+      '<span class="cb"><i style="width:'+Math.max(2,Math.round(v/top*100))+'%;background:'+col+'"></i></span>'+
+      '<span class="cv">'+nf(v)+'<u> '+esc(unit)+'</u></span></div>';
+    H.push(bar(tr('cd_onstring'),f.onString,'var(--green)',tr('cd_fruitu')));
+    H.push(bar(tr('cd_untied'),  f.untied,  'var(--amber)',tr('cd_est')));
+    H.push(bar(tr('cd_shed'),    shed,      'var(--navy)', tr('cd_fruitu')));
+    H.push('<div class="cdcrop" style="border-top:1px solid var(--line);margin-top:4px;padding-top:10px">'+
+      '<span class="cl">'+esc(tr('cd_peak'))+'</span>'+
+      '<span class="cb"><i style="width:'+Math.max(2,Math.min(100,Math.round((30-Math.min(30,Math.abs(f.toPeak)))/30*100)))+
+        '%;background:var(--warn)"></i></span>'+
+      '<span class="cv">'+(f.toPeak>0?nf(f.toPeak):'—')+'<u> '+
+        esc(f.toPeak>0?tr('cd_days'):tr('cd_past'))+'</u></span></div>');}
+
+  // ---- band 4: this month --------------------------------------------------------------
+  const mm=buildMonthMatrix(), m=mm.months[0];
+  H.push('<div class="exsub">'+esc(tr('cd_month'))+
+    (m?(' · '+esc(monthLabelLocal(m.key))):'')+'</div>');
+  if(!m){H.push('<div class="alertnone">'+esc(tr('cd_nomonth'))+'</div>');}
+  else{
+    H.push('<table class="cbtb">'+
+      '<tr><td>'+esc(tr('cd_sold'))+'<u>'+nf(m.kg_total)+' kg · '+nf(m.invoices)+' '+
+        esc(tr('ex_inv'))+'</u></td><td class="cbup">'+(SHOW_VALUES?rm(m.revenue_total):'—')+'</td></tr>'+
+      '<tr><td>'+esc(tr('cd_material'))+'<u>'+esc(tr('cd_matsub'))+'</u></td>'+
+        '<td>'+(SHOW_VALUES?('− '+rm(m.material_total)):'—')+'</td></tr>'+
+      '<tr><td>'+esc(tr('cd_labour'))+'<u>'+nf(m.manhours)+' '+esc(tr('cd_labsub'))+
+        (LABOUR_RATE_OK?'':' · '+esc(tr('cd_rateoff')))+'</u></td>'+
+        '<td>'+(SHOW_VALUES?('− '+rm(m.labour_total)):'—')+'</td></tr>'+
+      '<tr class="tot"><td>'+esc(tr('cd_left'))+'</td><td class="'+(m.margin_rm<0?'cbdn':'cbup')+'">'+
+        (SHOW_VALUES?rm(m.margin_rm):'—')+'</td></tr>'+
+      '</table>');
+    const pr=progCounts(m.key);
+    H.push('<div class="cdtiles t3" style="margin-top:8px">'+
+      '<div class="cdt"><div class="v">'+nf(pr.issued)+'</div><div class="l">'+esc(tr('cd_progout'))+'</div></div>'+
+      '<div class="cdt"><div class="v" style="color:var(--green)">'+nf(pr.ontime)+'</div><div class="l">'+
+        esc(tr('cd_ontime'))+'</div></div>'+
+      '<div class="cdt"><div class="v" style="color:'+(pr.late?'var(--warn)':'var(--muted)')+'">'+
+        nf(pr.late)+'</div><div class="l">'+esc(tr('cd_late'))+'</div></div>'+
+      '</div>');}
+
+  // ---- band 5: phones ------------------------------------------------------------------
+  const ph=phoneFreshness();
+  if(ph.length){
+    H.push('<div class="exsub">'+esc(tr('cd_phones'))+'</div>');
+    H.push(ph.map(p=>'<div class="cdph"><span class="cddot '+p.state+'"></span>'+
+      '<span class="n">'+esc(p.who)+'<u>'+esc(p.device)+'</u></span>'+
+      '<span class="st '+p.state+'">'+(p.state==='g'?'✓ ':'⚠ ')+esc(p.txt)+'</span></div>').join(''));}
+
+  box.innerHTML=H.join('');}
+
+/** "August 2026" / "Ogos 2026", in the reader's language rather than the ledger's. */
+function monthLabelLocal(key){
+  const L=(LANG==='ms'&&typeof MONTH_LONG_MS!=='undefined')?MONTH_LONG_MS:MONTH_LONG_EN;
+  return (L[+String(key).slice(5,7)-1]||'')+' '+String(key).slice(0,4);}
+
+/** The tile + section a "go and fix it" row points at, in the person's own language. */
+function goLabel(mod,tab){
+  const m=MODULES[mod]; if(!m)return '';
+  const t=(m.tabs||[]).find(x=>x.k===tab);
+  return (m.ic||'')+' '+moduleLabel(m)+(t?(' ▸ '+tabLabel(t)):'');}
+
+/** Fruit collected but not yet dispatched. Reuses the backlog maths, never re-derives it. */
+function shedCount(){
+  let good=0,out=0;
+  EVENTS.forEach(e=>{
+    if(e.type==='DROP')             good+=(+e.qty||0);
+    else if(e.type==='DROP_ADJUST') good+=(+e.delta||0);
+    else if(e.type==='DISPATCH')    out +=(+e.fruit_count||0);});
+  return Math.max(0,good-out);}
+
+/** Issued / on time / late / open for one YYYY-MM, straight off the programme record. */
+function progCounts(monthKey){
+  const out={issued:0,ontime:0,late:0,open:0};
+  if(typeof recordDirectives!=='function')return out;
+  recordDirectives().forEach(d=>{
+    if(typeof dirMonth==='function'&&dirMonth(d)!==monthKey)return;
+    out.issued++;
+    const done=(typeof dirAllDone==='function')&&dirAllDone(d);
+    if(!done){out.open++;return;}
+    const dd=(typeof dirDoneDate==='function')?dirDoneDate(d):null;
+    if(dd&&d.due&&String(dd)>String(d.due))out.late++; else out.ontime++;});
+  return out;}
+
+/* =====================================================================================
+   v3.17 · TILE F TAB 3 — COMPARE
+   =====================================================================================
+   One question the rest of the app cannot answer: is this better or worse than before?
+
+   The trap this code exists to avoid is the unfair comparison. On the 5th of the month,
+   month-to-date against the WHOLE of last month prints a red -57% that means nothing but
+   "the month is not finished". So the previous period is always cut to the SAME NUMBER
+   OF DAYS, and the screen says which days it used.
+
+   The second trap is the confident zero. With nothing to compare against, this prints
+   "no comparison yet - first period on record", never 0%.
+   ===================================================================================== */
+let CMP_PER='7', CMP_MET='fruit', CMP_NUM=false, CMP_PICK=null;
+const CMP_MEASURES={
+  fruit:{lab:'cb_l_fruit',chip:'cb_fruit',ic:'🥭',money:0,good:'up',unit:''},
+  kg   :{lab:'cb_l_kg',   chip:'cb_kg',   ic:'⚖️',money:0,good:'up',unit:' kg'},
+  rm_in:{lab:'cb_l_in',   chip:'cb_in',   ic:'💰',money:1,good:'up',unit:''},
+  rm_out:{lab:'cb_l_mat', chip:'cb_mat',  ic:'🧪',money:1,good:'dn',unit:''}
+};
+function cmpSetPeriod(p){CMP_PER=p;CMP_PICK=null;renderCmdCompare();}
+function cmpSetMeasure(m){CMP_MET=m;CMP_PICK=null;renderCmdCompare();}
+function cmpToggleNum(){CMP_NUM=!CMP_NUM;renderCmdCompare();}
+function cmpPick(i){CMP_PICK=(CMP_PICK===i?null:i);renderCmdCompare();}
+
+/** The day keys of this period and of a LIKE-FOR-LIKE previous one. */
+function cmpSlice(){
+  const tk=todayStr();
+  const y=+tk.slice(0,4), mo=+tk.slice(5,7), da=+tk.slice(8,10);
+  if(CMP_PER==='7'){
+    const now=[],prev=[];
+    for(let i=6;i>=0;i--)now.push(dayShiftKey(tk,-i));
+    for(let i=13;i>=7;i--)prev.push(dayShiftKey(tk,-i));
+    return {now:now,prev:prev,grain:'day',vs:tr('cb_vs7'),
+      span:now[0]+' → '+now[now.length-1]};}
+  if(CMP_PER==='M'){
+    const now=[],prev=[];
+    const pm=mo===1?12:mo-1, py=mo===1?y-1:y;
+    const pmDays=new Date(py,pm,0).getDate();
+    for(let d=1;d<=da;d++){
+      now.push(y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'));
+      // a 31st compared against a month that has 30 days simply has no partner day
+      if(d<=pmDays)prev.push(py+'-'+String(pm).padStart(2,'0')+'-'+String(d).padStart(2,'0'));}
+    return {now:now,prev:prev,grain:'day',vs:tr('cb_vsm'),
+      span:'1–'+da+' '+monthShort(mo-1)+' · '+
+        tr('cb_ofdays').replace('{d}',da).replace('{n}',new Date(y,mo,0).getDate())};}
+  // season = this calendar year to date, against the same span of last year
+  const now=[],prev=[];
+  const jan=new Date(y,0,1), todayD=new Date(y,mo-1,da);
+  for(let d=new Date(jan); d<=todayD; d.setDate(d.getDate()+1))now.push(dkey(d));
+  const janP=new Date(y-1,0,1), endP=new Date(y-1,mo-1,da);
+  for(let d=new Date(janP); d<=endP; d.setDate(d.getDate()+1))prev.push(dkey(d));
+  return {now:now,prev:prev,grain:'month',vs:tr('cb_vss'),
+    span:now[0]+' → '+now[now.length-1]+' · '+now.length+' '+tr('cd_days')};}
+
+function cmpSum(D,keys,field){
+  let t=0; keys.forEach(k=>{const r=D[k]; if(r)t+=(+r[field]||0);}); return t;}
+function cmpPct(a,b){ if(!b)return null; return Math.round((a-b)/b*1000)/10; }
+function cmpNiceTop(n){
+  if(!(n>0))return 1;
+  const p=Math.pow(10,Math.floor(Math.log10(n)));
+  return Math.ceil(n/p*2)/2*p;}
+
+function renderCmdCompare(){
+  const box=$('cmdcomparebox'); if(!box)return;
+  if(!roleAllows('cmdcompare')){box.innerHTML='';return;}
+  const M=CMP_MEASURES[CMP_MET]||CMP_MEASURES.fruit;
+  const D=dayRoll(), S=cmpSlice();
+  const H=[];
+  const fmt=v=>M.money?(SHOW_VALUES?rm(v):'—'):(nf(v)+M.unit);
+
+  // ---- the two filter rows, one above the other, above everything they change --------
+  const per=[['7','cb_7','cb_7s'],['M','cb_m','cb_ss'],['S','cb_s','cb_ss']];
+  H.push('<div class="cbchips">'+per.map(p=>
+    '<div class="'+(CMP_PER===p[0]?'on':'')+'" onclick="cmpSetPeriod(\''+p[0]+'\')">'+
+      esc(tr(p[1]))+'</div>').join('')+'</div>');
+  H.push('<div class="cbchips m">'+Object.keys(CMP_MEASURES).map(k=>{
+    const x=CMP_MEASURES[k];
+    if(x.money&&!SHOW_VALUES)return '';       // a role without money never sees the chip
+    return '<div class="'+(CMP_MET===k?'on':'')+'" onclick="cmpSetMeasure(\''+k+'\')">'+
+      x.ic+' '+esc(tr(x.chip))+'</div>';}).join('')+'</div>');
+
+  const nowV=cmpSum(D,S.now,CMP_MET), prevV=cmpSum(D,S.prev,CMP_MET);
+  const anything=S.now.some(k=>D[k]);
+
+  if(!anything){
+    H.push('<div class="alertnone" style="margin-top:10px">'+esc(tr('cb_nodata'))+'</div>');
+    box.innerHTML=H.join(''); return;}
+
+  // ---- the headline and its honest delta ---------------------------------------------
+  const p=cmpPct(nowV,prevV);
+  let dCls='fl', dTxt='— '+tr('cb_nocmp');
+  if(p!==null){
+    const better=(M.good==='up')?p>=0:p<=0;
+    dCls=Math.abs(p)<0.5?'fl':(better?'up':'dn');
+    dTxt=(p>0?'▲ +':p<0?'▼ −':'= ')+Math.abs(p)+'%';}
+  H.push('<div class="cbhero"><div class="lab">'+esc(tr(M.lab))+'</div>'+
+    '<div class="v">'+fmt(nowV)+'</div>'+
+    '<div class="cbdl"><span class="cbdel '+dCls+'">'+esc(dTxt)+'</span>'+
+      '<span class="vs">'+esc(p===null?tr('cb_first'):S.vs)+'</span></div>'+
+    '<div class="cbspan">📅 '+esc(S.span)+'</div></div>');
+
+  // ---- the bars ------------------------------------------------------------------------
+  let ser;
+  if(S.grain==='month'){
+    const by={};
+    S.now.forEach(k=>{const mk=k.slice(0,7); if(!by[mk])by[mk]={v:0,k:mk}; if(D[k])by[mk].v+=(+D[k][CMP_MET]||0);});
+    ser=Object.keys(by).sort().map(mk=>({v:by[mk].v,lab:monthShort(+mk.slice(5,7)-1),
+      full:monthShort(+mk.slice(5,7)-1)+' '+mk.slice(0,4),now:mk===todayStr().slice(0,7)}));
+  } else {
+    ser=S.now.map(k=>({v:D[k]?(+D[k][CMP_MET]||0):0,
+      lab:(S.now.length<=10?(+k.slice(8,10)+''):((+k.slice(8,10))%5===0||+k.slice(8,10)===1?k.slice(8,10):'')),
+      full:(+k.slice(8,10))+' '+monthShort(+k.slice(5,7)-1),
+      now:k===todayStr()}));}
+  const top=cmpNiceTop(Math.max.apply(null,ser.map(x=>x.v).concat([0])));
+  H.push('<div class="cbchart"><div class="cbplot" id="cbplot">'+
+    [0,0.5,1].map(fr=>'<div class="cbgl" style="bottom:'+(fr*100)+'%"><b>'+
+      (fr===0?'0':(top*fr>=1000?Math.round(top*fr/1000)+'k':nf(Math.round(top*fr))))+'</b></div>').join('')+
+    '<div class="cbbars" id="cbbars">'+ser.map((x,i)=>
+      '<div class="cbb'+(x.now?' now':'')+(CMP_PICK!==null&&CMP_PICK!==i?' dim':'')+
+        '" onclick="cmpPick('+i+')"><i style="height:'+
+        (x.v>0?Math.max(1.5,x.v/top*100):0)+'%"></i></div>').join('')+
+    '</div></div>'+
+    '<div class="cbx">'+ser.map(x=>'<span>'+esc(x.lab)+'</span>').join('')+'</div>'+
+    '<div class="cbfoot"><span class="k">'+
+      (CMP_PICK!==null&&ser[CMP_PICK]
+        ? ('<b>'+esc(ser[CMP_PICK].full)+'</b> · '+fmt(ser[CMP_PICK].v))
+        : esc(S.grain==='month'?tr('cb_tapm'):tr('cb_tap')))+'</span>'+
+      '<button class="cbtog" onclick="cmpToggleNum()">'+
+        esc(CMP_NUM?tr('cb_showchart'):tr('cb_shownum'))+'</button></div>'+
+    (CMP_NUM
+      ? ('<table class="cbtb" style="border:none;margin-top:9px"><tr><th>'+esc(tr('cb_when'))+
+         '</th><th>'+esc(tr(M.lab))+'</th></tr>'+
+         ser.map(x=>'<tr><td>'+esc(x.full)+'</td><td>'+fmt(x.v)+'</td></tr>').join('')+
+         '<tr class="tot"><td>'+esc(tr('cb_total'))+'</td><td>'+fmt(nowV)+'</td></tr></table>')
+      : '')+
+    '</div>');
+
+  // ---- money, this period against the one before ---------------------------------------
+  if(SHOW_VALUES){
+    // Three columns, not four. Four columns of RM on a 430px phone crushed the label
+    // into one word per line — caught on the screenshot, not by any assertion. The
+    // previous period rides under the current one, which is also how it reads aloud:
+    // "eight thousand nine hundred, against five thousand before."
+    const hadPrev=S.prev.some(k=>D[k]);
+    const row=(lab,sub,f,sign)=>{
+      const a=cmpSum(D,S.now,f), b=cmpSum(D,S.prev,f), d=cmpPct(a,b);
+      const better=sign>0?(d>=0):(d<=0);
+      return '<tr><td>'+esc(lab)+'<u>'+esc(sub)+'</u></td>'+
+        '<td>'+(sign<0?'− ':'')+rm(a)+
+          (hadPrev?('<u>'+esc(tr('cb_before'))+' '+(b?((sign<0?'− ':'')+rm(b)):'—')+'</u>'):'')+'</td>'+
+        (hadPrev?('<td class="'+(d===null?'cbfl':(better?'cbup':'cbdn'))+'">'+
+          (d===null?'—':(d>0?'+':'')+d+'%')+'</td>'):'')+'</tr>';};
+    const labNow=cmpSum(D,S.now,'mh')*LABOUR_RATE, labPrev=cmpSum(D,S.prev,'mh')*LABOUR_RATE;
+    const netNow=cmpSum(D,S.now,'rm_in')-cmpSum(D,S.now,'rm_out')-labNow;
+    const netPrev=cmpSum(D,S.prev,'rm_in')-cmpSum(D,S.prev,'rm_out')-labPrev;
+    const nd=cmpPct(netNow,netPrev);
+    H.push('<div class="exsub">'+esc(tr('cb_money'))+'</div>');
+    const ld=cmpPct(labNow,labPrev);
+    H.push((LABOUR_RATE_OK?'':'<div class="critbox" style="font-size:11.5px;line-height:1.5">'+
+        esc(tr('cd_labour'))+' '+rm(LABOUR_RATE)+'/h — '+esc(tr('cd_ratewarn'))+'</div>')+
+      '<table class="cbtb"><tr><th>&nbsp;</th><th>'+esc(tr('cb_thisper'))+'</th>'+
+        (hadPrev?('<th>'+esc(tr('cb_change'))+'</th>'):'')+'</tr>'+
+      row(tr('cd_sold'),tr('cd_soldsub'),'rm_in',1)+
+      row(tr('cd_material'),tr('cd_matsub'),'rm_out',-1)+
+      '<tr><td>'+esc(tr('cd_labour'))+'<u>'+nf(cmpSum(D,S.now,'mh'))+' '+esc(tr('cd_labsub'))+'</u></td>'+
+        '<td>− '+rm(labNow)+(hadPrev?('<u>'+esc(tr('cb_before'))+' '+(labPrev?'− '+rm(labPrev):'—')+'</u>'):'')+'</td>'+
+        (hadPrev?('<td class="cbfl">'+(ld===null?'—':(ld>0?'+':'')+ld+'%')+'</td>'):'')+'</tr>'+
+      '<tr class="tot"><td>'+esc(tr('cd_left'))+'</td>'+
+        '<td class="'+(netNow<0?'cbdn':'cbup')+'">'+rm(netNow)+
+          (hadPrev?('<u>'+esc(tr('cb_before'))+' '+(netPrev?rm(netPrev):'—')+'</u>'):'')+'</td>'+
+        (hadPrev?('<td class="'+(nd===null?'cbfl':nd>=0?'cbup':'cbdn')+'">'+
+          (nd===null?'—':(nd>0?'+':'')+nd+'%')+'</td>'):'')+'</tr></table>');}
+
+  // ---- grade mix and rotten -------------------------------------------------------------
+  const gTot={}, gAll=(GRADE_ORDER||['A','B','C']);
+  let gSum=0;
+  S.now.forEach(k=>{const r=D[k]; if(!r)return;
+    gAll.forEach(g=>{const v=+(r.grade[g]||0); gTot[g]=(gTot[g]||0)+v; gSum+=v;});});
+  const rotNow=cmpSum(D,S.now,'rotten'), goodNow=cmpSum(D,S.now,'fruit');
+  const rotPrev=cmpSum(D,S.prev,'rotten'), goodPrev=cmpSum(D,S.prev,'fruit');
+  const offNow=goodNow+rotNow, offPrev=goodPrev+rotPrev;
+  if(offNow>0){
+    const pctRotNow=+(rotNow/offNow*100).toFixed(1);
+    const pctRotPrev=offPrev>0?+(rotPrev/offPrev*100).toFixed(1):null;
+    const cols={A:'var(--green)',B:'var(--navy)',C:'var(--amber)'};
+    const segs=gAll.filter(g=>gTot[g]>0).map(g=>({g:g,v:gTot[g]}));
+    const segTot=segs.reduce((s,x)=>s+x.v,0)+rotNow;
+    H.push('<div class="exsub">'+esc(tr('cb_grade'))+'</div>');
+    if(segTot>0){
+      H.push('<div class="cbmix">'+
+        segs.map(s=>'<i class="'+(s.g==='C'?'am':'')+'" style="width:'+(s.v/segTot*100)+
+          '%;background:'+(cols[s.g]||'var(--muted)')+'"><b>'+Math.round(s.v/segTot*100)+'%</b></i>').join('')+
+        (rotNow>0?('<i style="width:'+(rotNow/segTot*100)+'%;background:var(--warn)"><b>'+
+          Math.round(rotNow/segTot*100)+'%</b></i>'):'')+
+        '</div>'+
+        '<div class="cbleg">'+
+          gAll.filter(g=>gTot[g]>0).map(g=>'<span><i style="background:'+(cols[g]||'var(--muted)')+
+            '"></i>'+esc(tr('cb_g'+g.toLowerCase(),'Grade '+g))+'</span>').join('')+
+          (rotNow>0?('<span><i style="background:var(--warn)"></i>'+esc(tr('cb_rot'))+'</span>'):'')+
+        '</div>');}
+    const chg=pctRotPrev===null?null:+(pctRotNow-pctRotPrev).toFixed(1);
+    H.push('<table class="cbtb" style="margin-top:9px">'+
+      '<tr><td>'+esc(tr('cb_rotnow'))+'</td><td>'+pctRotNow+'%</td></tr>'+
+      '<tr><td>'+esc(tr('cb_rotprev'))+'</td><td class="cbfl">'+
+        (pctRotPrev===null?esc(tr('cb_norec')):pctRotPrev+'%')+'</td></tr>'+
+      '<tr class="tot"><td>'+esc(tr('cb_rotchg'))+'</td>'+
+        '<td class="'+(chg===null?'cbfl':chg<=0?'cbup':'cbdn')+'">'+
+          (chg===null?'—':((chg>0?'▲ +':chg<0?'▼ −':'= ')+Math.abs(chg)+' '+esc(tr('cb_points'))))+
+        '</td></tr></table>');}
+
+  // ---- by lot ---------------------------------------------------------------------------
+  const lotNow={}, lotPrev={};
+  LOT_KEYS.forEach(L=>{lotNow[L]=0;lotPrev[L]=0;});
+  S.now.forEach(k=>{const r=D[k]; if(r)LOT_KEYS.forEach(L=>{lotNow[L]+=(+r.lot[L]||0);});});
+  S.prev.forEach(k=>{const r=D[k]; if(r)LOT_KEYS.forEach(L=>{lotPrev[L]+=(+r.lot[L]||0);});});
+  const lotSum=LOT_KEYS.reduce((s,L)=>s+lotNow[L],0);
+  if(lotSum>0){
+    H.push('<div class="exsub">'+esc(tr('cb_bylot'))+'</div>');
+    H.push('<table class="cbtb"><tr><th>'+esc(tr('cb_lot'))+'</th><th>'+esc(tr('cb_fruit'))+
+      '</th><th>'+esc(tr('cb_share'))+'</th><th>'+esc(tr('cb_change'))+'</th></tr>'+
+      LOT_KEYS.map(L=>{const d=cmpPct(lotNow[L],lotPrev[L]);
+        return '<tr><td>'+esc(tr('cb_lot'))+' '+esc(L)+'</td><td>'+nf(lotNow[L])+'</td>'+
+          '<td class="cbfl">'+Math.round(lotNow[L]/lotSum*100)+'%</td>'+
+          '<td class="'+(d===null?'cbfl':d>=0?'cbup':'cbdn')+'">'+
+            (d===null?'—':(d>0?'+':'')+d+'%')+'</td></tr>';}).join('')+
+      '<tr class="tot"><td>'+esc(tr('cb_total'))+'</td><td>'+nf(lotSum)+'</td><td>100%</td><td>&nbsp;</td></tr>'+
+      '</table>');}
+
+  // ---- programmes ------------------------------------------------------------------------
+  const months={}; S.now.forEach(k=>{months[k.slice(0,7)]=1;});
+  const pc={issued:0,ontime:0,late:0,open:0};
+  Object.keys(months).forEach(mk=>{const c=progCounts(mk);
+    pc.issued+=c.issued;pc.ontime+=c.ontime;pc.late+=c.late;pc.open+=c.open;});
+  if(pc.issued){
+    const done=pc.ontime+pc.late;
+    const otp=done?Math.round(pc.ontime/done*100):null;
+    H.push('<div class="exsub">'+esc(tr('cb_prog'))+'</div>');
+    H.push('<table class="cbtb">'+
+      '<tr><td>'+esc(tr('cb_issued'))+'</td><td>'+nf(pc.issued)+'</td></tr>'+
+      '<tr><td>'+esc(tr('cb_pon'))+'</td><td class="cbup">'+nf(pc.ontime)+'</td></tr>'+
+      '<tr><td>'+esc(tr('cb_plate'))+'</td><td class="'+(pc.late?'cbdn':'cbfl')+'">'+nf(pc.late)+'</td></tr>'+
+      '<tr><td>'+esc(tr('cb_popen'))+'</td><td class="cbfl">'+nf(pc.open)+'</td></tr>'+
+      // a percentage with nothing behind it is a lie told in numbers - say so in words
+      '<tr class="tot"><td>'+esc(tr('cb_ppct'))+'</td><td class="'+
+        (otp===null?'cbfl':otp>=80?'cbup':'cbdn')+'">'+
+        (otp===null?esc(tr('cb_noscore')):otp+'%')+'</td></tr></table>');}
+
+  H.push('<p class="small" style="margin-top:10px">'+esc(tr('cb_derived'))+'</p>');
+  box.innerHTML=H.join('');
+
+  // the tooltip is positioned after paint, because it needs the bar's real geometry
+  if(CMP_PICK!==null&&ser[CMP_PICK]){
+    const plot=$('cbplot'), bars=$('cbbars');
+    if(plot&&bars&&bars.children[CMP_PICK]){
+      const tip=document.createElement('div'); tip.className='cbtip';
+      tip.innerHTML=fmt(ser[CMP_PICK].v)+'<u>'+esc(ser[CMP_PICK].full)+'</u>';
+      plot.appendChild(tip);
+      const b=bars.children[CMP_PICK].getBoundingClientRect(), pr=plot.getBoundingClientRect();
+      let L=b.left-pr.left+b.width/2-tip.offsetWidth/2;
+      tip.style.left=Math.max(0,Math.min(L,pr.width-tip.offsetWidth))+'px';
+      tip.style.bottom=Math.min(ser[CMP_PICK].v/top*100+4,74)+'%';}}}
 
 // ================= boot =================
 (async function(){
