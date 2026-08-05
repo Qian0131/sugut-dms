@@ -1381,6 +1381,15 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="pinrow" id="pinrow"></div>
     <div class="keypad" id="keypad"></div>
     <div class="pinerr" id="pinerr"></div>
+    <!-- v3.17.1 — a phone sitting here used to be deaf. It matched the key against
+         whatever staff list it happened to be holding, and the only code that could
+         refresh that list ran after login. A staff member added afterwards could
+         therefore never get in on this phone. This button, and the automatic attempt
+         made whenever this screen opens, are the way in. -->
+    <div style="margin-top:18px">
+      <button class="bigbtn ghost" id="loginrefresh" onclick="refreshKeysOnly(1)">⟳</button>
+      <div class="small" id="loginsync" style="margin-top:8px;min-height:20px;text-align:center;font-size:12.5px;font-weight:700;line-height:1.35;max-width:300px"></div>
+    </div>
   </div>
 </div>
 
@@ -2466,7 +2475,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.17.0"></script>
-<script src="app.js?v=3.17.0"></script>
+<script src="database.js?v=3.17.2"></script>
+<script src="app.js?v=3.17.2"></script>
 </body>
 </html>

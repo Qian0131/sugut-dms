@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.17.0';   // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.17.2';   // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -1030,7 +1030,64 @@ async function tryLogin(){
 function showLogin(){SCREENS.forEach(x=>$('scr-'+x).classList.add('hidden'));
   $('nav-home').style.display='none';$('nav-sync').style.display='none';
   $('backbtn').classList.add('hidden');$('ttl').textContent='Sugut DMS';
-  $('scr-setup').classList.add('hidden');$('scr-login').classList.remove('hidden');$('ttl').textContent='Login';buildKeypad();}
+  $('scr-setup').classList.add('hidden');$('scr-login').classList.remove('hidden');$('ttl').textContent='Login';buildKeypad();
+  // v3.17.1 — try to fetch the staff list the moment this screen opens, so the common
+  // case (phone pushed out because the Owner changed a key, new key waiting in the
+  // Sheet) needs no button press at all. Fire and forget: it must never delay the pad.
+  const b=$('loginrefresh'); if(b)b.textContent='⟳ '+tr('login_refresh');
+  const s=$('loginsync'); if(s){s.textContent='';s.style.color='';}
+  refreshKeysOnly(0);}
+
+/* ================= v3.17.1 · the login screen learns new staff =====================
+   A phone only ever learned a new access key inside refreshMasters(), and EVERY caller
+   of that function requires a session: boot takes the showLogin() branch and returns
+   before it, netPull() bails on `!CFG.key`, and the Sync screen is behind the pad. So a
+   phone that was logged out — or pushed out because the Owner changed a key — could
+   never be told about a staff member added afterwards. It matched PINs against the list
+   it was holding when it last synced, for ever. Same one-way-information fault as v3.5,
+   v3.8.1 and v3.11; this time on the way IN.
+
+   Deliberately narrow. It reads the WORKERS list and NOTHING else:
+   - no kill switch. There is no session to judge, and a logged-out phone must never be
+     able to wipe itself. The revocation path stays exactly where it was, in
+     refreshMasters(), where CFG.key proves who this device claims to be.
+   - no corrections, programmes, tasks, retailers, settings or tree totals. None of them
+     is needed to decide whether six digits are real, and merging farm data with nobody
+     logged in is how a previous user's rows end up on the next user's screen.
+   - MASTER_SIG is SENT (so an unchanged tree/product master is not re-sent for a job
+     that only wants the staff list) but never written back — the trees and products in
+     this reply are dropped on the floor, so claiming to hold them would be a lie. */
+async function refreshKeysOnly(manual){
+  const say=(m,bad)=>{const el=$('loginsync');if(el){el.textContent=m;el.style.color=bad?'#b3261e':'#1b5e20';}};
+  if(!CFG||!CFG.url){if(manual)say(tr('login_nourl'),1);return false;}
+  if(!navigator.onLine){if(manual)say(tr('login_offline'),1);return false;}
+  // A registry edited on THIS phone and not yet pushed still outranks the Sheet — the
+  // same rule refreshMasters() applies at its own tail, so the two can never disagree.
+  if(REG_DIRTY){if(manual)say(tr('login_dirty'),1);return false;}
+  const btn=$('loginrefresh');
+  if(btn){btn.disabled=true;btn.textContent=tr('login_refreshing');}
+  try{
+    const r=await fetchT(CFG.url+'?role=WORKER&uid=&sig='+encodeURIComponent(MASTER_SIG||''),{},SYNC_TIMEOUT_MS);
+    const j=await r.json();
+    if(!(j&&j.ok&&Array.isArray(j.workers)&&j.workers.length))throw new Error('no staff list');
+    const ks=j.workers.filter(w=>w.AccessKey).map(w=>({
+      id:String(w.WorkerID||w.Name||'').trim()||newUid(),
+      name:w.Name||w.WorkerID,
+      role:String(w.Role||'').toUpperCase().includes('OWNER')?'OWNER':
+        String(w.Role||'').toUpperCase().includes('MARKET')?'MARKETING':
+        String(w.Role||'').toUpperCase().includes('PURCH')?'PURCHASER':'WORKER',
+      key:String(w.AccessKey).trim(),
+      status:String(w.Status||'Active').trim()}));
+    // An empty list is a fault, not an instruction. Adopting it would leave this phone
+    // with no way in at all — the v3.10 "{} is truthy" landmine, in a worse place.
+    if(!ks.length)throw new Error('no staff list');
+    KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');
+    if(db)await put('kv',{k:'keys',v:KEYS});
+    const n=KEYS.filter(x=>String(x.status).toLowerCase()==='active').length;
+    say(tr('login_got').replace('{n}',n),0);
+    return true;
+  }catch(e){ if(manual)say(tr('login_syncfail'),1); return false; }
+  finally{ if(btn){btn.disabled=false;btn.textContent='⟳ '+tr('login_refresh');} }}
 async function logout(){if(!confirm('Log out of this device? (Queued events stay saved)'))return;
   CFG=Object.assign({},CFG,{worker:null,role:null,key:null,uid:null});await persistCfg();showLogin();}
 async function forceLogout(msg){
@@ -4286,15 +4343,37 @@ function openLogCorrection(u){
 // An approved correction never rewrites the original row. It files a signed delta of the
 // SAME shape as the row it fixes, carrying the secured / tied flag so the ledger keeps
 // splitting it correctly.
+/* v3.17.2 — TWO GUARDS, both learned from live data on 5 Aug 2026.
+
+   The farm's LOG_ADJUST tab held ELEVEN rows for SEVEN approved corrections: B-030's
+   "one fruit less" had been applied three times and B-011's three times, so those two
+   trees were short by 3 fruit each instead of 1. Nobody did anything wrong.
+
+   Cause 1 — any phone that merely SAW an approved correction manufactured a compensating
+   row for it, even a phone that had never held the original entry. A second-hand device
+   was inventing adjustments for work it never did.
+   Cause 2 — each re-make minted a fresh random uuid, and the Sheet dedupes on uuid. So
+   the same correction arriving from a second phone looked like a brand-new adjustment
+   and was appended instead of recognised.
+
+   The old `EVENTS.some(e=>e.corrId===c.uuid)` guard is real but only protects ONE phone,
+   and it is defeated the moment a selective clean-up removes the baked row — which is
+   exactly what the ADMIN_CLEANUP row in this farm's audit trail shows happened.
+
+   Guard 1: only the device that still holds the original entry may write its correction.
+   Guard 2: the compensating row's id is DERIVED from the correction id, so if two
+   devices ever do both write it, the Sheet upserts one row instead of appending two.
+   Neither guard changes what a correction DOES — only how many times it can land. */
 async function applyLogCorrection(c){
   if(c.ctype!=='LOGQTY'||!c.evUuid)return;
   if(EVENTS.some(e=>e.corrId===c.uuid))return;                 // idempotent across sync replays
   const base=EVENTS.find(e=>e.uuid===c.evUuid);
+  if(!base)return;                                             // v3.17.2 guard 1
   const delta=+(Math.round(+c.newVal||0)-Math.round(+c.oldVal||0));
   if(!delta)return;
   const t=treeById(c.tree);
   const type=c.evType==='ROTTEN'?'ROTTEN_ADJUST':(c.evType==='TIE'?'TIE_ADJUST':'DROP_ADJUST');
-  const rec={uuid:uuid(),type:type,dt:now(),
+  const rec={uuid:'ADJ-'+c.uuid,type:type,dt:now(),         // v3.17.2 guard 2
     evUuid:c.evUuid,corrId:c.uuid,tree:c.tree,lot:c.lot,clone:(base&&base.clone)||(t&&t.clone)||'',
     was:Math.round(+c.oldVal||0),now:Math.round(+c.newVal||0),delta:delta,
     estkg:+(delta*(AVG_KG[(t&&t.clone)]||1.6)).toFixed(1),
@@ -4306,7 +4385,7 @@ async function applyLogCorrection(c){
   // a corrected tying round must correct the rope drawn with it
   if(type==='TIE_ADJUST'&&rec.ropeM){
     const rp=prodById(ROPE_PID);
-    if(rp) await persistEvent({uuid:uuid(),type:'STOCK_ADJUST',dt:now(),pid:ROPE_PID,pname:rp.name,
+    if(rp) await persistEvent({uuid:'ROPE-'+c.uuid,type:'STOCK_ADJUST',dt:now(),pid:ROPE_PID,pname:rp.name,
       ai:'',unit:rp.unit,delta:-rec.ropeM,systemQty:onHand(rp),counted:onHand(rp)-rec.ropeM,
       note:'Rope re-stated with an approved tying correction on '+c.tree,
       corrId:c.uuid,worker:CFG?CFG.worker:'',device:CFG?CFG.device:'',synced:false});}}
@@ -10766,9 +10845,42 @@ function renderCmdCompare(){
       tip.style.left=Math.max(0,Math.min(L,pr.width-tip.offsetWidth))+'px';
       tip.style.bottom=Math.min(ser[CMP_PICK].v/top*100+4,74)+'%';}}}
 
+/* v3.17.2 — the one-time clear-out of rows this phone should never have made.
+
+   Narrow on purpose. A row is removed only if ALL of these are true:
+     · it has NOT been uploaded (anything in the Google Sheet is untouchable, always)
+     · it carries a corrId, so it was machine-made from an approved correction
+     · this phone does NOT hold the original entry it claims to be correcting
+   A row keyed by a person, and every row on the phone that actually did the work,
+   fails at least one of those tests and is left exactly where it is.
+
+   The removal itself is written to the audit trail, like every other removal in this
+   app. A repair that hides itself is how a ledger stops being one. */
+async function repairPhantomBakes(){
+  const kv=(await all('kv'))||[];
+  if(kv.some(x=>x.k==='bakefix'&&x.v))return 0;                  // runs once, ever
+  const ADJ={DROP_ADJUST:1,ROTTEN_ADJUST:1,TIE_ADJUST:1};
+  const phantom=EVENTS.filter(e=>!e.synced&&e.corrId&&ADJ[e.type]&&
+    !EVENTS.some(b=>b.uuid===e.evUuid));
+  const cid={}; phantom.forEach(e=>{cid[e.corrId]=1;});
+  // the rope re-statement that rides with a tying correction goes with its parent
+  const rope=EVENTS.filter(e=>!e.synced&&e.type==='STOCK_ADJUST'&&e.corrId&&cid[e.corrId]);
+  const kill=phantom.concat(rope);
+  if(!kill.length){await put('kv',{k:'bakefix',v:true});return 0;}
+  await persistEvent({uuid:uuid(),type:'ADMIN_CLEANUP',dt:now(),removed:kill.length,
+    detail:'v3.17.2 repair - '+kill.length+' adjustment rows this phone re-made for corrections '+
+           'whose original entry it does not hold. None had been uploaded.',
+    worker:(CFG&&CFG.worker)||'',workerId:(CFG&&CFG.uid)||'',device:(CFG&&CFG.device)||'',synced:false});
+  for(const e of kill){EVENTS=EVENTS.filter(x=>x.uuid!==e.uuid); if(db)await del('events',e.uuid);}
+  await put('kv',{k:'bakefix',v:true});
+  rebuildLedgers();
+  return kill.length;}
+
 // ================= boot =================
 (async function(){
   await initStore();
+  const repaired=await repairPhantomBakes();
+  if(repaired)setTimeout(()=>toast('🧹 '+repaired+' duplicate correction rows cleared from this phone',0),1200);
   // spray set options
   const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   renderInOpts();renderOutOpts();renderStOpts();renderAlerts();   // inventory master ready before first paint
