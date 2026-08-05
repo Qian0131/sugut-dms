@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.17.2';   // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.18.0';   // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -532,7 +532,10 @@ const MODULES={
     // were physically moved into the stock screen in index.html so all four forms and the
     // live on-hand list can share one page. The three original sections are kept below,
     // unchanged, so every existing deep link and habit still lands.
-    tabs:[{k:'hub', t:'SUPPLY HUB',   scr:'stock',panels:['alertcenter','pnl-in','alloccard','onboardcard','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Invoice in, brand matched, new product, live stock — one page'},
+    // v3.18 — 'procurecard' leads the hub. What an issued directive still needs bought
+    // outranks a reorder alert: a low product still lets the crew work, an ingredient at
+    // zero stops them dead.
+    tabs:[{k:'hub', t:'SUPPLY HUB',   scr:'stock',panels:['procurecard','alertcenter','pnl-in','alloccard','onboardcard','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy for programme, invoice in, brand matched, new product, live stock — one page'},
           {k:'in',  t:'STOCK IN',     scr:'stock',panels:['alertcenter','pnl-in','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'📥',tn:'s_stockin',d:'Receive goods against a supplier invoice'},
           // v3.12 — the two sections that close the gap between the office and Sandakan.
           // Both sit immediately under STOCK IN because they are the Purchaser's morning.
@@ -625,6 +628,11 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   // v3.12 — four new panels. Leaving one out of this list does not hide it: it leaks
   // onto every other screen, which is exactly what happened once already in v3.6.
   'agromatrix','alloccard','onboardcard','runcostcard',
+  // v3.18 — the Module 6 procurement queue. Same rule as every entry above it: a panel
+  // missing from this array is never hidden by hideAllPanels() and leaks onto every other
+  // screen. That has happened twice in this codebase already (v3.6, and backlogcard in
+  // v3.12), and the panel-coverage test fails the build if any id in index.html is absent.
+  'procurecard',
   'progrecord',
   // v3.16 — the Owner's Executive Summary. Same rule as every entry above it: a panel
   // missing from this array is never hidden and leaks onto every other screen.
@@ -648,6 +656,7 @@ function roleAllows(id){
   const r=myRole(), full=FULL_ROLES.indexOf(r)>=0;
   switch(id){
     case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
+    case 'procurecard': return full||r==='PURCHASER';   // v3.18 — Module 6 buy queue
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
     case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
@@ -711,6 +720,10 @@ function tileBadge(k){
   if(k==='inv'){
     // v3.12 — an ingredient with no brand behind it outranks a reorder alert: a low
     // product still lets the crew work, an unallocated slot stops them dead.
+    // v3.18 — an ingredient with nothing on the shelf outranks one merely waiting for a
+    // brand to be picked: the second is a decision, the first is a purchase order.
+    const buy=(typeof procureCount==='function')?procureCount():0;
+    if(buy)return {t:buy+' TO BUY'};
     const u=(typeof unallocatedSlots==='function')?unallocatedSlots():0;
     if(u)return {t:u+' TO MATCH'};
     const n=programShortages().length||lowStock().length;
@@ -886,6 +899,7 @@ function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderYieldAudit();renderMasterDB();
   renderScaleCard();renderVerify();renderDailyAudit();renderMatrix();
   renderAgroMatrix();renderAllocCard();renderOnboard();renderRunCost();renderProgRecord();
+  if(typeof renderProcure==='function')renderProcure();   // v3.18
   renderCmdExec();}
 function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
@@ -936,7 +950,7 @@ function renderForTab(k,t){
   if(k==='cmd'&&t==='build')renderAgroMatrix();
   if(k==='cmd'&&t==='master')renderMasterDB();
   // v3.16 — the merged Purchaser page paints every form it carries in one pass.
-  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();renderOnboard();}}
+  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();renderOnboard();renderProcure();}}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -1931,6 +1945,7 @@ function refreshInventoryViews(){
   rebuildLedgers();
   if(typeof renderHub==='function')renderHub();   // tile badges follow live stock
   if(typeof renderProgCheck==='function')renderProgCheck();
+  if(typeof renderProcure==='function')renderProcure();   // v3.18 — Module 6 buy queue
   if($('stocklist')&&$('scr-stock'))renderStock();
   renderAlerts();
   if(SHOW_VALUES){renderInvCC();renderLedgerSummary();renderStRecent();}
@@ -2395,6 +2410,103 @@ function programNeeds(){                       // product -> outstanding require
     n.buyContainers=p&&p.unit_multiplier?Math.ceil(n.gap/p.unit_multiplier):0;
     n.container=p?p.container:'';return n;}).sort((a,b)=>b.gap-a.gap);}
 function programShortages(){return programNeeds().filter(n=>n.short);}
+/* ================= v3.18 · MODULE 6 — WHAT AN ISSUED DIRECTIVE STILL HAS TO BE BOUGHT
+   Until v3.18 every shortage screen in this app read activePrograms() — the LEGACY
+   programme list. Directives from the v3.12 Program Builder reached none of them, so the
+   Owner could issue a combo needing 6,000 ml of something the store held none of and the
+   Purchaser's screen answered "every product in the active phase is covered". The request
+   simply evaporated between the two people it existed to connect.
+   These functions read the directives themselves, by ACTIVE INGREDIENT, because that is
+   what the Owner prescribes and what one order can cover across several brands.
+   ==================================================================================== */
+const SUPPLY_LEAD_DAYS = 7;          // Sandakan turnaround; the order-by date works off it
+/** How much of one ingredient a directive still needs, over the trees not yet done. */
+function directiveNeed(d,l){
+  const lots=lotsOfDirective(d);
+  let left=0; lots.forEach(L=>{left+=Math.max(0,lotTreeTotal(L)-dirProgress(d.uuid,L));});
+  if(left<=0)return 0;
+  if(d.basis==='PER_1000L'){
+    const lpt=lptOf(d)||0;
+    return +( (+l.dose||0) * (left*lpt/TANK_L) ).toFixed(2);}
+  return +((+l.dose||0)*left).toFixed(2);}
+/** Every ingredient an ISSUED directive still needs, with what the store can cover.
+ *  One row per ingredient — several directives asking for the same one are added up. */
+function procureNeeds(){
+  const need={};
+  issuedDrafts().filter(d=>!d.deleted).forEach(d=>{
+    draftLines(d).forEach(l=>{
+      const req=directiveNeed(d,l); if(req<=0)return;
+      const k=String(l.ai).toLowerCase()+'|'+l.unit;
+      if(!need[k])need[k]={ai:l.ai,unit:l.unit,req:0,slot:l.slot,dirs:[],due:''};
+      const n=need[k];
+      n.req+=req;
+      n.dirs.push({uuid:d.uuid,code:d.code,name:d.name,due:d.due,slot:l.slot});
+      if(!n.due||(d.due&&d.due<n.due))n.due=d.due;});});
+  return Object.keys(need).map(k=>{
+    const n=need[k];
+    const b=brandsFor(n.slot,n.ai,n.unit);
+    // what the store holds of THIS ingredient in THIS unit, across every brand carrying it
+    n.onHand=b.match.reduce((t,p)=>t+onHand(p),0);
+    n.brands=b.match.length;
+    n.gap=+(n.req-n.onHand).toFixed(2);
+    n.short=n.gap>0;
+    n.noBrand=!b.match.length;
+    const p=b.match[0];
+    n.buyContainers=(p&&+p.unit_multiplier)?Math.ceil(n.gap/(+p.unit_multiplier)):0;
+    n.container=p?p.container:'';
+    n.orderBy=n.due?ymd(new Date(new Date(n.due).getTime()-SUPPLY_LEAD_DAYS*86400000)):'';
+    n.daysToOrder=n.orderBy?Math.ceil((new Date(n.orderBy)-dayStart(new Date()))/86400000):9e9;
+    return n;})
+    .filter(n=>n.short)
+    .sort((a,b)=>(a.daysToOrder-b.daysToOrder)||(b.gap-a.gap));}
+/** The number that goes on the Inventory tile and in the Owner's TODAY list. */
+function procureCount(){return procureNeeds().length;}
+/** v3.18 — the Purchaser's queue. Ranked ABOVE the reorder alerts on purpose: a product
+ *  under its minimum still lets the crew work, an ingredient at zero stops them dead. */
+function renderProcure(){
+  const box=$('procurebox'); if(!box)return;
+  if(!roleAllows('procurecard')){box.innerHTML='';return;}
+  const rows=procureNeeds();
+  if(!rows.length){
+    box.innerHTML='<div class="alertnone">'+esc(tr('pr_none'))+'</div>';return;}
+  box.innerHTML='<div class="alertbig">⚠ '+rows.length+' '+esc(tr('pr_head'))+'</div>'+
+    rows.map(n=>{
+      const late=n.daysToOrder<=0, soon=n.daysToOrder<=3;
+      const cls=late?' late':(soon?' soon':'');
+      return '<div class="prow'+cls+'">'+
+        '<div class="pr-n">'+esc(n.ai)+
+          (n.noBrand?(' <span class="minitag">'+esc(tr('pr_nobrand'))+'</span>'):'')+'</div>'+
+        '<div class="pr-d">'+esc(n.dirs.map(x=>x.code+' · '+x.name).join(' / '))+'</div>'+
+        '<table class="tbl"><tr>'+
+          '<td>'+esc(tr('pr_need'))+'</td><td class="num"><b>'+nf(n.req)+'</b> '+esc(n.unit)+'</td>'+
+          '<td>'+esc(tr('pr_have'))+'</td><td class="num '+(n.onHand?'':'lowq')+'">'+nf(n.onHand)+'</td>'+
+        '</tr><tr>'+
+          '<td>'+esc(tr('pr_gap'))+'</td><td class="num lowq"><b>'+nf(n.gap)+'</b> '+esc(n.unit)+'</td>'+
+          '<td>'+esc(tr('pr_buy'))+'</td><td class="num">'+
+            (n.buyContainers?('<b>'+n.buyContainers+'</b> '+esc(n.container)):'—')+'</td>'+
+        '</tr></table>'+
+        '<div class="pr-by'+cls+'">'+
+          (n.orderBy
+            ?(esc(tr('pr_orderby'))+' <b>'+esc(dateShort(n.orderBy))+'</b> · '+
+              (late?esc(tr('pr_overdue')):(n.daysToOrder+' '+esc(tr('pr_daysleft')))))
+            :esc(tr('pr_nodate')))+'</div>'+
+        '<div class="cacts">'+
+          (n.brands
+            ?('<button class="ok" onclick="procureGo(\''+n.dirs[0].uuid+'\')">'+esc(tr('pr_match'))+'</button>')
+            :('<button class="ok" onclick="procureOnboard(\''+esc(n.ai).replace(/'/g,"\\'")+'\')">'+
+                esc(tr('pr_onboard'))+'</button>'))+
+          '<button class="no" style="background:#e8f0fe;color:#123a71" onclick="openModule(\'inv\',\'in\')">'+
+            esc(tr('pr_stockin'))+'</button>'+
+        '</div></div>';}).join('');}
+function procureGo(u){openModule('inv','hub');
+  setTimeout(function(){const el=$('alloccard'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},140);}
+function procureOnboard(ai){
+  openModule('inv','onboard');
+  setTimeout(function(){
+    const sel=$('ob-ai'), nu=$('ob-ainew');
+    if(sel&&[...sel.options].some(o=>o.value===ai))sel.value=ai; else if(nu)nu.value=ai;
+    if($('ob-name'))$('ob-name').focus();},140);}
+
 function renderProgCheck(){
   const box=$('chkbox');if(!box)return;
   const live=activePrograms();
@@ -8861,9 +8973,24 @@ function currentMAC(pid){
   return +(p.cpu||0);}
 
 /* ---- persistence: all three ride the shared-settings channel ----------------------- */
+/* v3.18 — every directive travels to the other phones inside ONE Google Sheets cell, and
+   the Apps Script REFUSES a settings blob over 49,000 characters (saveSettings_ pushes the
+   key into `refused` and the app toasts it). Free combos roughly doubled what a directive
+   costs — a 5-slot one was ~950 characters, a 10-component one is ~1,480 — so the ceiling
+   fell from about 51 directives to about 33. That is reachable inside one season, and the
+   failure would arrive as a toast at the end of a sync rather than as an answer. So say it
+   early, while closing a few finished directives is still an easy fix. */
+const DRAFTS_CELL_MAX=49000, DRAFTS_WARN_AT=0.8;
+let draftsSizeWarned=false;
+function draftsPayloadSize(){try{return JSON.stringify(AGRO_DRAFTS).length;}catch(e){return 0;}}
 async function persistDrafts(){
   if(db)await put('kv',{k:'agrodrafts',v:AGRO_DRAFTS});
-  await markSetting('agrodrafts');}
+  await markSetting('agrodrafts');
+  const sz=draftsPayloadSize();
+  if(sz>DRAFTS_CELL_MAX*DRAFTS_WARN_AT){
+    if(!draftsSizeWarned){draftsSizeWarned=true;
+      toast('⚠ '+Math.round(sz/DRAFTS_CELL_MAX*100)+'% '+tr('ag_blobfull'),1);}
+  }else draftsSizeWarned=false;}
 async function persistAlloc(){
   if(db)await put('kv',{k:'aialloc',v:AI_ALLOC});
   await markSetting('aialloc');}
@@ -8896,18 +9023,39 @@ function methodDescT(prog,k){return tr('mt_'+k+'_d',(methodRec(prog,k)||{}).d||'
 function slotLabelT(k){return tr('sl_'+k,(slotRec(k)||{}).t||k);}
 function methodRec(prog,k){return draftMethodList(prog).find(m=>m.k===k)||draftMethodList(prog)[0];}
 function stageRec(k){return SEASON_STAGES.find(s=>s.k===k)||SEASON_STAGES[0];}
-function slotRec(k){return COMBO_SLOTS.find(s=>s.k===k)||null;}
-/** Only the slots the Owner actually filled. An empty slot is not a line. */
+/* v3.18 — a line key is now ROLE or ROLE_n ('FUNG', 'FUNG_2', 'FERT_5'). Everything that
+   consumes a line still keys on l.slot exactly as before — allocKey, allocOf, allocShort,
+   draftReady, draftAllocCount, allocPick and the worker's deduction path never knew there
+   were only five, so none of them change. This one function is what makes that true. */
+function roleOf(k){return String(k||'').split('_')[0];}
+function slotRec(k){return COMBO_SLOTS.find(s=>s.k===roleOf(k))||null;}
+/** Only the components the Owner actually filled. An ingredient with no dose is not a line.
+ *  v3.18 — reads every line in the object, not five fixed keys, and honours the order the
+ *  Owner built them in so the card reads the way the tank is mixed. */
 function draftLines(d){
   if(!d||!d.slots)return [];
-  return COMBO_SLOTS.map(s=>d.slots[s.k]).filter(x=>x&&x.ai&&+x.dose>0);}
+  return Object.keys(d.slots).map(k=>d.slots[k]).filter(x=>x&&x.ai&&+x.dose>0)
+    .sort((a,b)=>(+a.ord||0)-(+b.ord||0));}
+/** v3.18 — the next free key for a role, so two fungicides become FUNG and FUNG_2. */
+function nextSlotKey(role){
+  if(!AM.slots[role])return role;
+  let n=2; while(AM.slots[role+'_'+n])n++;
+  return role+'_'+n;}
+function nextOrd(){
+  let m=0; Object.keys(AM.slots).forEach(k=>{m=Math.max(m,+AM.slots[k].ord||0);});
+  return m+1;}
 function allocKey(u,slotK){return u+'|'+slotK;}
 /* v3.12 FIX — a brand can be allocated while the store holds none of it (the Purchaser
    may be about to order it). That is allowed, but it must never be silent: the crew
    would otherwise be sent out for a product that is not on the shelf. */
-function allocShort(u,slotK){
-  const a=AI_ALLOC[allocKey(u,slotK)]; if(!a)return false;
-  const p=prodById(a.pid); if(!p)return false;
+/* v3.18 FIX — this used to answer "not short" when NO brand had been chosen, so the very
+   lines that need buying were the silent ones. An unallocated line is the WORST kind of
+   short: the store has not even been asked. It now says so. Callers pass the line when
+   they have it; without one the old shape still works. */
+function allocShort(u,slotK,line){
+  const a=AI_ALLOC[allocKey(u,slotK)];
+  if(!a)return !!line;                       // nothing allocated at all — short by definition
+  const p=prodById(a.pid); if(!p)return true;
   return onHand(p) < (+a.dose||0);}
 function allocOf(u,slotK){return AI_ALLOC[allocKey(u,slotK)]||null;}
 /** A directive is runnable only when EVERY filled slot has a brand behind it. Half an
@@ -8926,22 +9074,37 @@ function unallocatedSlots(){
   return n;}
 /** The active ingredients a slot may offer, ranked so unconfirmed chemistry sorts last.
  *  The app never invents an active ingredient it does not hold. */
+/* v3.18 — pass 'ALL' (or nothing) and every ingredient in the catalogue comes back. A role
+   key still narrows the list, but that is now a CONVENIENCE FILTER on a picker the Owner
+   can switch off, never a rule about what may be prescribed. Each entry also carries the
+   stock it has behind it, because Module 6 paints the picker by that number. */
 function slotAIs(slotK){
-  const s=slotRec(slotK); if(!s)return [];
+  const s=(slotK&&slotK!=='ALL')?slotRec(slotK):null;
   const seen={},out=[];
   INVENTORY_RECON.forEach(p=>{
-    if(s.cats.indexOf(p.cat)<0)return;
+    if(s&&s.cats.indexOf(p.cat)<0)return;
     const ai=String(p.active_ingredient||'').trim()||'(not recorded)';
-    if(!seen[ai]){seen[ai]={ai:ai,n:0,units:{}};out.push(seen[ai]);}
-    seen[ai].n++; seen[ai].units[p.unit]=(seen[ai].units[p.unit]||0)+1;});
+    if(!seen[ai]){seen[ai]={ai:ai,n:0,units:{},cat:p.cat,oh:0,cats:{},brands:[]};out.push(seen[ai]);}
+    seen[ai].n++; seen[ai].units[p.unit]=(seen[ai].units[p.unit]||0)+1;
+    seen[ai].oh+=onHand(p);
+    /* v3.18 — eleven products in this catalogue still carry the placeholder ingredient
+       "(confirm — see label)", including the farm's only herbicide. Grouped by ingredient
+       they collapse into ONE unreadable row, so the Owner cannot tell which drum they are
+       prescribing. Carry the brand names and the categories behind an entry so the picker
+       can spell them out, and so a placeholder can be recognised as one on sight. */
+    seen[ai].cats[p.cat]=1;
+    if(seen[ai].brands.length<6)seen[ai].brands.push(p.name);});
   const unk=x=>(x.ai.indexOf('(confirm')===0||x.ai==='(not recorded)')?1:0;
   return out.sort((a,b)=>(unk(a)-unk(b))||a.ai.localeCompare(b.ai));}
 /** Brands in the store carrying one ingredient, IN THE PRESCRIBED UNIT. The unit filter
  *  is deliberate: 500 ml of a product sold in grams is not a conversion this app is
  *  entitled to guess. Anything in a different unit is listed separately and refused. */
+/* v3.18 — the category filter is GONE from this lookup. The active ingredient is what
+   identifies a chemical; the category is bookkeeping. Now that the Owner can prescribe an
+   ingredient from the ALL view, filtering the Purchaser's brand list by the LABEL on the
+   line would hide the very brand that carries it. The unit guard below is untouched. */
 function brandsFor(slotK,ai,unit){
-  const s=slotRec(slotK); if(!s)return {match:[],other:[]};
-  const all=INVENTORY_RECON.filter(p=>s.cats.indexOf(p.cat)>=0&&
+  const all=INVENTORY_RECON.filter(p=>
     String(p.active_ingredient||'').trim()===String(ai||'').trim());
   return {match:all.filter(p=>p.unit===unit).sort((a,b)=>onHand(b)-onHand(a)),
           other:all.filter(p=>p.unit!==unit)};}
@@ -8962,54 +9125,146 @@ function amSetProgram(k){
   AM.method=draftMethodList(k)[0].k;
   // Manuring is broadcast: a pesticide or fungicide slot has no meaning in a dry
   // broadcast, so those two are dropped rather than silently carried over.
-  if(k==='MANURE'){delete AM.slots.PEST;delete AM.slots.FUNG;}
+  /* v3.18 — the deletion is GONE. Dropping the Owner's pesticide the moment they switched
+     to manuring was the same cage as the fixed slots: a soil drench alongside a broadcast
+     is the farm's call, not the app's. The role filter still defaults sensibly; nothing is
+     thrown away behind the Owner's back. */
   renderAgroMatrix();}
 function amSetField(f,v){AM[f]=v;renderAgroMatrix();}
 function amScope(s){AM.scope=s;renderAgroMatrix();}
-function amSlotAI(k){
-  const v=$('ams-ai-'+k).value;
-  if(!v){delete AM.slots[k];renderAgroMatrix();return;}
-  const cur=AM.slots[k]||{};
-  const info=slotAIs(k).find(a=>a.ai===v);
+/* ================= v3.18 · FREE COMBO — components, not slots =================
+   The five fixed slots are gone. A combo is a list the Owner builds, one component at a
+   time, in the order they mix the tank. Two fungicides — a contact and a systemic during
+   an outbreak — are now an ordinary thing to type, as are four fertiliser varieties. The
+   role on each line is a LABEL that drives costing and reads on the crew's card; it stops
+   deciding what the agronomist is permitted to prescribe.
+   Line keys stay unique (FUNG, FUNG_2, FERT_3) so allocKey and every consumer downstream
+   are byte-for-byte the code they were in v3.17. ============================== */
+let AM_PICK={open:false,role:'ALL',q:''};
+function amOpenPick(){AM_PICK.open=true;AM_PICK.q='';renderAgroMatrix();}
+function amClosePick(){AM_PICK.open=false;renderAgroMatrix();}
+function amPickRole(r){AM_PICK.role=r;amDrawPick();}
+function amPickQ(v){AM_PICK.q=v;amDrawPickList();}
+/** Add one component. The unit is the one most of its brands are sold in — the Owner may
+ *  change it, and the v3.12 unit guard still refuses a mismatched brand at allocation. */
+function amAddLine(ai){
+  const info=slotAIs('ALL').find(a=>a.ai===ai);
+  const role=(info&&CAT_ROLE[info.cat])||'FOL';
   const units=info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):['ml'];
-  AM.slots[k]={slot:k,ai:v,unit:(cur.ai===v&&cur.unit)?cur.unit:units[0],dose:+cur.dose||0};
-  renderAgroMatrix();}
-function amSlotUnit(k){const s=AM.slots[k];if(!s)return;s.unit=$('ams-unit-'+k).value;renderAgroMatrix();}
-function amSlotDose(k){const s=AM.slots[k];if(!s)return;s.dose=+$('ams-dose-'+k).value||0;
-  $('am-count').textContent=String(COMBO_SLOTS.map(x=>AM.slots[x.k]).filter(x=>x&&x.ai&&+x.dose>0).length);}
+  const k=nextSlotKey(role);
+  AM.slots[k]={slot:k,role:role,ai:ai,unit:units[0],dose:0,ord:nextOrd()};
+  AM_PICK.open=false;
+  renderAgroMatrix();
+  setTimeout(function(){const el=$('ams-dose-'+k);if(el)el.focus();},60);}
+function amDelLine(k){delete AM.slots[k];renderAgroMatrix();}
+function amLineUnit(k){const s=AM.slots[k];if(!s)return;s.unit=$('ams-unit-'+k).value;renderAgroMatrix();}
+function amLineDose(k){const s=AM.slots[k];if(!s)return;s.dose=+$('ams-dose-'+k).value||0;
+  $('am-count').textContent=String(draftLines({slots:AM.slots}).length);
+  amDrawTankNote();}
+/* ---- the picker: role chips, a search box, and every ingredient behind them ---- */
+function amDrawPick(){
+  const w=$('am-pickwrap'); if(!w)return;
+  if(!AM_PICK.open){w.innerHTML='';return;}
+  w.innerHTML='<div class="pickbox">'+
+    '<div class="picklbl">'+esc(tr('ag_rolefilter','Filter by role — a hint, not a rule'))+'</div>'+
+    '<div class="rolebar" id="am-rolebar">'+
+      '<div class="'+(AM_PICK.role==='ALL'?'on':'')+'" onclick="amPickRole(\'ALL\')">'+
+        esc(tr('ag_alling','ALL'))+'</div>'+
+      COMBO_SLOTS.map(s=>'<div class="'+(AM_PICK.role===s.k?'on':'')+'" onclick="amPickRole(\''+s.k+'\')">'+
+        s.ic+' '+esc(slotLabelT(s.k))+'</div>').join('')+
+    '</div>'+
+    '<input id="am-pq" placeholder="'+esc(tr('ag_searchai','Search any ingredient…'))+'" '+
+      'value="'+esc(AM_PICK.q)+'" oninput="amPickQ(this.value)">'+
+    '<div id="am-picklist"></div>'+
+    '<button class="bigbtn ghost" style="margin-top:9px;padding:10px;font-size:12.5px" '+
+      'onclick="amClosePick()">'+esc(tr('ag_cancel'))+'</button>'+
+  '</div>';
+  amDrawPickList();
+  const q=$('am-pq'); if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length);}}
+function amDrawPickList(){
+  const box=$('am-picklist'); if(!box)return;
+  const q=String(AM_PICK.q||'').toLowerCase();
+  const rows=slotAIs(AM_PICK.role).filter(a=>!q||a.ai.toLowerCase().indexOf(q)>=0);
+  if(!rows.length){box.innerHTML='<div class="alertnone">'+esc(tr('so_nomatch'))+'</div>';return;}
+  box.innerHTML=rows.map(a=>{
+    /* v3.18 + Module 6 — the dot IS the signal. An ingredient with nothing behind it is
+       never hidden; it is shown in red so the Owner prescribes it with both eyes open. */
+    const zero=!(a.oh>0);
+    const vague=(a.ai.indexOf('(confirm')===0||a.ai==='(not recorded)');
+    const cls=rainClass(a.ai);
+    return '<div class="pickrow'+(zero?' zero':'')+'" onclick="amAddLine(\''+esc(a.ai).replace(/'/g,"\\'")+'\')">'+
+      '<div class="pk-l"><div class="pk-n">'+esc(a.ai)+
+          (vague?(' <span class="minitag">'+esc(tr('ag_confirmai','CONFIRM THE LABEL'))+'</span>'):'')+'</div>'+
+        '<div class="pk-s">'+esc(Object.keys(a.cats||{}).join(', ')||a.cat)+' · '+
+          a.n+' brand'+(a.n>1?'s':'')+
+          // spelling the brands out is the difference between "I can't find the herbicide"
+          // and seeing it sitting there under an ingredient nobody has confirmed yet
+          (vague?('<br>'+esc((a.brands||[]).join(' · '))+(a.n>(a.brands||[]).length?' …':'')):'')+
+        '</div></div>'+
+      '<div class="pk-r">'+(zero
+        ?('<span class="pk-zero">'+esc(tr('ag_zerostock','ZERO STOCK'))+'</span>')
+        :('<span class="pk-oh">'+nf(a.oh)+'</span>'))+
+        (cls&&cls.k?('<span class="pk-cls '+(cls.k==='CONTACT'?'c':'s')+'">'+esc(cls.k)+'</span>'):'')+
+      '</div></div>';}).join('');}
+/* ---- the tank note: says what it knows about the mix, then gets out of the way ---- */
+function amDrawTankNote(){
+  const box=$('am-tanknote'); if(!box)return;
+  const lines=draftLines({slots:AM.slots});
+  const all=Object.keys(AM.slots).map(k=>AM.slots[k]).filter(x=>x&&x.ai);
+  if(!all.length){box.innerHTML='';return;}
+  let h='';
+  const contact=lines.filter(l=>{const c=rainClass(l.ai);return c&&c.k==='CONTACT';}).length;
+  const systemic=lines.filter(l=>{const c=rainClass(l.ai);return c&&c.k==='SYSTEMIC';}).length;
+  if(contact&&systemic)
+    h+='<div class="tanknote">'+esc(tr('ag_mixnote','Contact and systemic in one tank'))+
+       ' · '+contact+' + '+systemic+'<div class="tnsub">'+
+       esc(tr('ag_mixsub','Spray only when the leaf can dry. Saved either way — this is advice, not a rule.'))+
+       '</div></div>';
+  const seen={},dup=[];
+  all.forEach(l=>{const k=String(l.ai).toLowerCase();
+    seen[k]=(seen[k]||0)+1; if(seen[k]===2)dup.push(l.ai);});
+  if(dup.length)
+    h+='<div class="wetnote">⚠ '+esc(dup.join(', '))+' '+
+       esc(tr('ag_dupnote','appears more than once. Allowed — each line deducts separately, so check it is deliberate.'))+
+       '</div>';
+  if(all.length>8)
+    h+='<div class="wetnote">⚠ '+all.length+' '+
+       esc(tr('ag_manynote','components in one tank. Check they physically mix — not blocked.'))+'</div>';
+  box.innerHTML=h;}
+/* ---- the component list itself ---- */
 function amSlotsHTML(){
-  const slots=COMBO_SLOTS.filter(s=>!(AM.program==='MANURE'&&(s.k==='PEST'||s.k==='FUNG')));
-  return slots.map(s=>{
-    const cur=AM.slots[s.k]||{};
-    const ais=slotAIs(s.k);
-    const info=ais.find(a=>a.ai===cur.ai);
-    const units=info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):[];
-    const cls=cur.ai?rainClass(cur.ai):null;
-    // v3.13 — the per-slot description was sub-text on a control that is already
-    // labelled. Deleted, along with every other caption on this screen.
-    return '<div class="slotbox'+(cur.ai&&+cur.dose>0?' filled':'')+'">'+
-      '<div class="slothead"><span>'+s.ic+' <b>'+esc(slotLabelT(s.k))+'</b></span></div>'+
-      '<select id="ams-ai-'+s.k+'" onchange="amSlotAI(\''+s.k+'\')">'+
-        '<option value="">— not used in this combo —</option>'+
-        ais.map(a=>'<option value="'+esc(a.ai)+'"'+(a.ai===cur.ai?' selected':'')+'>'+
-          esc(a.ai)+' ('+a.n+' brand'+(a.n>1?'s':'')+' in store)</option>').join('')+
-      '</select>'+
-      (cur.ai
-        // the tag stays (one word, it earns its place); the sentence explaining it does not
-        ?('<div class="small" style="margin-top:5px">'+aiTagHTML(cls)+
-            (WX3!=='DRY'&&cls.k==='CONTACT'?'<b style="color:#b3261e">RAIN FORECAST</b>':'')+'</div>'+
-          '<div class="slotrow">'+
-            // "Concentration" wrapped the 1,000 L minitag onto a second line. "Dose" is the
-            // word the programme sheet itself uses and it keeps the anchor on one line.
-            '<div><label>'+esc(tr('ag_doselbl'))+' <span class="minitag">'+esc(amUnitLabel())+'</span></label>'+
-              '<input type="number" id="ams-dose-'+s.k+'" min="0" step="any" inputmode="decimal" '+
-                'value="'+(cur.dose||'')+'" oninput="amSlotDose(\''+s.k+'\')"></div>'+
-            '<div><label>'+esc(tr('ag_unitlbl'))+'</label><select id="ams-unit-'+s.k+'" onchange="amSlotUnit(\''+s.k+'\')">'+
-              units.map(u=>'<option'+(u===cur.unit?' selected':'')+'>'+esc(u)+'</option>').join('')+
-            '</select></div>'+
-          '</div>')
-        :'')+
-      '</div>';}).join('');}
+  const lines=Object.keys(AM.slots).map(k=>AM.slots[k]).filter(x=>x&&x.ai)
+    .sort((a,b)=>(+a.ord||0)-(+b.ord||0));
+  const rows=lines.map(l=>{
+    const s=slotRec(l.slot)||{ic:'•',t:l.role||''};
+    const info=slotAIs('ALL').find(a=>a.ai===l.ai);
+    const units=info?Object.keys(info.units).sort((a,b)=>info.units[b]-info.units[a]):[l.unit];
+    if(units.indexOf(l.unit)<0)units.unshift(l.unit);
+    const cls=rainClass(l.ai);
+    const oh=info?info.oh:0;
+    return '<div class="slotbox'+(+l.dose>0?' filled':'')+'">'+
+      '<div class="slothead"><span>'+s.ic+' <b>'+esc(l.ai)+'</b></span>'+
+        '<span class="linekill" onclick="amDelLine(\''+l.slot+'\')">✕</span></div>'+
+      '<div class="linemeta">'+esc(slotLabelT(l.slot))+
+        (oh>0?(' · '+nf(oh)+' '+esc(l.unit)+' '+esc(tr('ag_instore','in store')))
+             :(' · <b class="lowq">'+esc(tr('ag_zerostock','ZERO STOCK'))+'</b>'))+'</div>'+
+      '<div class="small" style="margin-top:5px">'+aiTagHTML(cls)+
+        (WX3!=='DRY'&&cls.k==='CONTACT'?'<b style="color:#b3261e">RAIN FORECAST</b>':'')+'</div>'+
+      '<div class="slotrow">'+
+        '<div><label>'+esc(tr('ag_doselbl'))+' <span class="minitag">'+esc(amUnitLabel())+'</span></label>'+
+          '<input type="number" id="ams-dose-'+l.slot+'" min="0" step="any" inputmode="decimal" '+
+            'value="'+(l.dose||'')+'" oninput="amLineDose(\''+l.slot+'\')"></div>'+
+        '<div><label>'+esc(tr('ag_unitlbl'))+'</label><select id="ams-unit-'+l.slot+'" '+
+          'onchange="amLineUnit(\''+l.slot+'\')">'+
+          units.map(u=>'<option'+(u===l.unit?' selected':'')+'>'+esc(u)+'</option>').join('')+
+        '</select></div>'+
+      '</div>'+
+    '</div>';}).join('');
+  return (rows||'<div class="alertnone">'+esc(tr('ag_nocomp','No components yet. Add the first one below.'))+'</div>')+
+    '<button class="bigbtn ghost" style="margin-top:10px" onclick="amOpenPick()">＋ '+
+      esc(tr('ag_addcomp','ADD A COMPONENT'))+'</button>'+
+    '<div id="am-pickwrap"></div>'+
+    '<div id="am-tanknote"></div>';}
 function amTemplatesHTML(){
   // v3.13 — the chip strip became a grid of large toggle buttons. The one the Owner
   // loaded stays lit in solid navy, so the screen answers "which template is this?"
@@ -9034,10 +9289,13 @@ function amLoadTemplate(id){
   (ph.lines||[]).forEach(l=>{
     const p=prodById(l.pid); if(!p)return;
     const ai=aiFor(l.pid,l.ai).replace(' (per programme sheet)','');
-    // place the line in the first slot whose categories accept this product
-    const s=COMBO_SLOTS.find(x=>x.cats.indexOf(p.cat)>=0&&!AM.slots[x.k]);
-    if(!s)return;
-    AM.slots[s.k]={slot:s.k,ai:ai,unit:l.unit||p.unit,dose:+l.qty||0};});
+    /* v3.18 — a template used to be silently TRUNCATED: it looked for the first free slot
+       whose categories accepted the product and dropped the line when there was none, so a
+       sheet with two fungicides loaded only one of them and said nothing. Every line now
+       gets its own key and they all arrive. */
+    const role=CAT_ROLE[p.cat]||'FOL';
+    const k=nextSlotKey(role);
+    AM.slots[k]={slot:k,role:role,ai:ai,unit:l.unit||p.unit,dose:+l.qty||0,ord:nextOrd()};});
   AM.tmpl=id;
   // the sheet's own plan date for this set is the best suggestion there is
   if(ph.plan){AM.due=String(ph.plan).slice(0,10); if($('am-due'))$('am-due').value=AM.due;}
@@ -9061,6 +9319,9 @@ function renderAgroMatrix(){
   $('am-tmpl').innerHTML=amTemplatesHTML();
   if($('am-due')&&!$('am-due').value){AM.due=AM.due||suggestDue();$('am-due').value=AM.due;}
   box.innerHTML=amSlotsHTML();
+  // v3.18 — the picker and the tank note render into containers amSlotsHTML just made,
+  // so they must be drawn AFTER the innerHTML above, never inside it.
+  amDrawPick(); amDrawTankNote();
   $('am-count').textContent=String(draftLines({slots:AM.slots}).length);
   $('am-savelbl').textContent=AM.uuid?tr('ag_savechanges'):tr('ag_savecombo');
   renderDraftList();}
@@ -9068,32 +9329,63 @@ function amValidate(){
   const err=$('am-err'); err.textContent='';
   const name=($('am-name')?$('am-name').value:'').trim();
   if(!name){err.textContent='Give the combo a name the crew will recognise.';return null;}
-  const lines=COMBO_SLOTS.map(s=>AM.slots[s.k]).filter(x=>x&&x.ai&&+x.dose>0);
-  // the HALF-FILLED slot is checked FIRST. An ingredient chosen with no dose keyed is a
-  // more specific mistake than an empty form, and telling that person "fill at least one
-  // slot" when they have just filled one is the kind of message that gets an app blamed.
-  const bad=COMBO_SLOTS.map(s=>AM.slots[s.k]).find(x=>x&&x.ai&&!(+x.dose>0));
-  if(bad){err.textContent='"'+bad.ai+'" has no concentration. Key it, or set that slot back to "not used".';return null;}
-  /* v3.12 FIX (screenshot) — several ingredients appear under more than one slot's
-     categories, so it is easy to pick the SAME one into Foliar, Biostimulant and TE
-     without noticing. Every slot deducts separately, so that combo would put three
-     doses of one product into a single tank. Refused, and named. */
+  const all=Object.keys(AM.slots).map(k=>AM.slots[k]).filter(x=>x&&x.ai)
+    .sort((a,b)=>(+a.ord||0)-(+b.ord||0));
+  const lines=all.filter(x=>+x.dose>0);
+  // the HALF-FILLED line is checked FIRST. An ingredient chosen with no dose keyed is a
+  // more specific mistake than an empty form, and telling that person "add a component"
+  // when they have just added one is the kind of message that gets an app blamed.
+  const bad=all.find(x=>!(+x.dose>0));
+  if(bad){err.textContent='"'+bad.ai+'" has no dose. Key it, or remove that component with ✕.';return null;}
+  /* v3.12 FIX (screenshot) — the same ingredient twice would put a double dose of one
+     product into a single tank, because every line deducts separately.
+     v3.18 — this is now a CONFIRM, not a refusal. With free components, two brands of one
+     ingredient at different doses is a real thing the farm does; refusing it outright was
+     the fixed-slot cage speaking. The warning stays loud and names both lines — what
+     changes is that the agronomist, not the app, has the last word. */
   const seenAI={};
   for(const l of lines){
     const key=String(l.ai).toLowerCase();
     if(seenAI[key]){
-      err.textContent='"'+l.ai+'" is in two slots ('+slotLabelT(seenAI[key])+' and '+
-        slotLabelT(l.slot)+'). That would put a double dose of the same product in one tank. '+
-        'Add the doses together into one slot, or choose a different ingredient.';
-      return null;}
+      if(!confirm('"'+l.ai+'" is on two lines ('+slotLabelT(seenAI[key])+' and '+
+        slotLabelT(l.slot)+').\nEach line deducts separately, so the tank gets BOTH doses.\n\n'+
+        'Is that deliberate?'))return null;
+      break;}
     seenAI[key]=l.slot;}
-  if(!lines.length){err.textContent='Fill at least one of the five component slots.';return null;}
+  if(!lines.length){err.textContent='Add at least one component and give it a dose.';return null;}
   const due=($('am-due')?$('am-due').value:'')||AM.due;
   if(!due){err.textContent=tr('dt_needdue');return null;}
   AM.due=due; AM.name=name;
   return lines;}
+/* v3.18 · MODULE 6 — what this combo will need bought, worked out BEFORE it is issued.
+   The Owner is the only person who can still change the recipe at this moment, so this is
+   the only moment the question is worth asking. It never blocks: the directive goes out,
+   the crew's card stays locked until the store is ready, and the Purchaser gets the list. */
+function amBuyPreview(lines){
+  const trees=(AM.scope==='ALL')?LOT_KEYS.reduce((t,L)=>t+lotTreeTotal(L),0):lotTreeTotal(AM.scope);
+  const lpt=(methodRec(AM.program,AM.method)||{}).lpt||0;
+  const mult=(amBasis()==='PER_1000L')?(trees*lpt/TANK_L):trees;
+  return lines.map(l=>{
+    const b=brandsFor(l.slot,l.ai,l.unit);
+    const oh=b.match.reduce((t,p)=>t+onHand(p),0);
+    const req=+((+l.dose||0)*mult).toFixed(2);
+    return {ai:l.ai,unit:l.unit,req:req,onHand:oh,gap:+(req-oh).toFixed(2),
+            noBrand:!b.match.length};})
+    .filter(x=>x.gap>0);}
 async function amSave(issue){
   const lines=amValidate(); if(!lines)return;
+  if(issue){
+    const buy=amBuyPreview(lines);
+    if(buy.length){
+      const days=AM.due?Math.ceil((new Date(AM.due)-dayStart(new Date()))/86400000):null;
+      const orderBy=AM.due?dateShort(ymd(new Date(new Date(AM.due).getTime()-SUPPLY_LEAD_DAYS*86400000))):'—';
+      const body=buy.map(x=>'  • '+x.ai+' — need '+nf(x.req)+' '+x.unit+
+        ', store has '+nf(x.onHand)+(x.noBrand?' (no brand carries it yet)':'')).join('\n');
+      if(!confirm(buy.length+' of '+lines.length+' ingredients must be bought first.\n\n'+body+
+        '\n\nMust finish by '+(AM.due?dateShort(AM.due):'—')+
+        (days!==null?(' ('+days+' days)'):'')+
+        '\nOrder by '+orderBy+' to make it.\n\n'+
+        'Issue anyway? The crew see it locked until the store is ready, and Sandakan gets this list.'))return;}}
   const old=AM.uuid?draftById(AM.uuid):null;
   if(old&&old.status==='ISSUED'&&!issue&&
      !confirm('This directive is already out with the crew.\nSaving will update what they see. Continue?'))return;
@@ -9114,14 +9406,17 @@ async function amSave(issue){
     by:(CFG&&CFG.worker)||'', at:nowSec(),
     issuedAt:issue?nowSec():(old?old.issuedAt:''),
     issuedBy:issue?((CFG&&CFG.worker)||''):(old?old.issuedBy:'')};
-  lines.forEach(l=>{rec.slots[l.slot]={slot:l.slot,ai:l.ai,unit:l.unit,dose:+l.dose};});
+  // v3.18 — role and order travel with the line so the crew's card reads in the order
+  // the tank is mixed, and costing keeps the label the Owner chose.
+  lines.forEach((l,i)=>{rec.slots[l.slot]={slot:l.slot,role:l.role||roleOf(l.slot),
+    ai:l.ai,unit:l.unit,dose:+l.dose,ord:(+l.ord||i+1)};});
   if(old)AGRO_DRAFTS[AGRO_DRAFTS.indexOf(old)]=rec; else AGRO_DRAFTS.unshift(rec);
   await persistDrafts();
   AM.uuid=''; if($('am-name'))$('am-name').value=''; AM.slots={}; AM.name=''; AM.tmpl='';
   AM.due=suggestDue(); if($('am-due'))$('am-due').value=AM.due;
   toast(issue?('📣 '+rec.name+' issued — Sandakan now sees it under AI ➔ BRAND')
              :('✓ '+rec.name+' saved to the matrix'));
-  renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();badge();}
+  renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();renderProcure();badge();}
 async function amIssue(){await amSave(true);}
 function amEdit(u){
   const d=draftById(u); if(!d)return;
@@ -9136,14 +9431,14 @@ async function amIssueExisting(u){
   d.status='ISSUED'; d.issuedAt=nowSec(); d.issuedBy=(CFG&&CFG.worker)||''; d.at=nowSec();
   await persistDrafts();
   toast('📣 '+d.name+' issued to the farm');
-  renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();badge();}
+  renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();renderProcure();badge();}
 async function amClose(u){
   const d=draftById(u); if(!d)return;
   if(!confirm('Close "'+d.name+'"?\nIt leaves the crew\'s task list. Everything already logged against it stays in the ledger.'))return;
   d.status='CLOSED'; d.at=nowSec();
   await persistDrafts();
   toast('Directive closed');
-  renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();badge();}
+  renderAgroMatrix();renderAllocCard();renderOpsTasks();renderHub();renderProcure();badge();}
 async function amDelete(u){
   const d=draftById(u); if(!d)return;
   if(EVENTS.some(e=>e.progId===u)){toast('Work has been logged against this — close it instead',1);return;}
@@ -9212,7 +9507,7 @@ function renderAllocCard(){
     const rows=draftLines(d).map(l=>{
       const a=allocOf(d.uuid,l.slot), s=slotRec(l.slot);
       const b=brandsFor(l.slot,l.ai,l.unit);
-      const short=allocShort(d.uuid,l.slot);
+      const short=allocShort(d.uuid,l.slot,l);
       // v3.13 fix (screenshot): "Abamectin (Envoy) · 6,000 ml" was clipped to
       // "Abamectin (I" in the collapsed select, which is the state people actually read.
       // Options carry the BRAND only; the quantity moves under the select, where it has
@@ -9234,16 +9529,26 @@ function renderAllocCard(){
 
         // ---- right half: what the store will supply ----
         '<div class="sc-r">'+
-          (b.match.length
-            ?('<select class="scsel" onchange="allocPick(\''+d.uuid+'\',\''+l.slot+'\',this.value)">'+opts+'</select>'+
+          /* v3.18 FIX — THE DROPDOWN NEVER DISAPPEARS. When no brand carried the
+             ingredient in the prescribed unit this rendered a dead grey message and the
+             Purchaser had nothing to choose — the exact "I can't find it in the drawdown
+             option" the farm reported. A select is now always rendered: same-unit brands
+             first (including ones at zero stock, which the Purchaser is about to order),
+             then wrong-unit brands clearly marked, then a route to onboard a new one.
+             The v3.12 unit guard in allocPick is untouched and still refuses a mismatch. */
+          ('<select class="scsel" onchange="allocPick(\''+d.uuid+'\',\''+l.slot+'\',this.value)">'+opts+
+              (b.other.length?('<optgroup label="'+esc(tr('pu_wrongunit'))+'">'+
+                b.other.map(p=>'<option value="'+p.id+'">⚠ '+esc(p.name)+' ('+esc(p.unit)+')</option>').join('')+
+              '</optgroup>'):'')+
+              '<option value="NEW">＋ '+esc(tr('pu_onboardthis'))+'</option>'+
+            '</select>'+
               (a&&a.pid
                 // the select already names the brand — repeating it under itself was noise
                 ?('<div class="sclock">🔒 '+nf(onHand(prodById(a.pid))||0)+' '+esc(a.unit)+
                     (SHOW_VALUES?('<span class="scrm">'+rm(a.mac)+'/'+esc(a.unit)+'</span>'):'')+'</div>')
                 :'')+
-              (short?'<div class="scshort">'+esc(tr('ag_short'))+'</div>':''))
-            :('<div class="scnone">'+esc(tr('pu_nostock'))+' · '+esc(l.unit)+
-               (b.other.length?('<br>'+esc(b.other.map(p=>p.name+' ('+p.unit+')').join(', '))):'')+'</div>'))+
+              (short?'<div class="scshort">'+esc(tr('ag_short'))+'</div>':'')+
+              (!b.match.length?('<div class="scnone">'+esc(tr('pu_nostock'))+' · '+esc(l.unit)+'</div>'):''))+
         '</div>'+
       '</div>';}).join('');
     const c=draftAllocCount(d);
@@ -9259,6 +9564,16 @@ async function allocPick(u,slotK,pidStr){
   const line=draftLines(d).find(l=>l.slot===slotK); if(!line)return;
   const key=allocKey(u,slotK);
   if(!pidStr){delete AI_ALLOC[key];await persistAlloc();renderAllocCard();renderOpsTasks();renderHub();return;}
+  /* v3.18 — the escape hatch from the always-present dropdown. No brand in the store
+     carries this ingredient yet, so send the Purchaser to the onboarding form with the
+     ingredient already filled in rather than making them remember it and navigate. */
+  if(pidStr==='NEW'){openModule('inv','onboard');
+    setTimeout(function(){
+      const sel=$('ob-ai'); const nu=$('ob-ainew');
+      if(sel&&[...sel.options].some(o=>o.value===line.ai))sel.value=line.ai;
+      else if(nu)nu.value=line.ai;
+      if($('ob-name'))$('ob-name').focus();},120);
+    toast(tr('pu_onboardgo','Onboard a brand that carries '+line.ai));return;}
   const p=prodById(+pidStr); if(!p){toast('Product not found',1);return;}
   if(p.unit!==line.unit){toast('That brand is sold in '+p.unit+', the recipe is in '+line.unit+' — refused',1);return;}
   const mac=currentMAC(p.id);
@@ -9564,7 +9879,7 @@ function directiveCardsHTML(){
         ?('<div class="wsec">'+esc(d.basis==='PER_1000L'?tr('w13_recipeTank'):tr('w13_recipeTree'))+'</div>'+
           draftLines(d).map(l=>{
             const a=allocOf(d.uuid,l.slot);
-            const short=allocShort(d.uuid,l.slot);
+            const short=allocShort(d.uuid,l.slot,l);
             return '<div class="witem'+(short?' short':'')+'">'+
               '<div class="wname">'+esc(a.pname)+
                 // Owner and Marketing stand in for the crew occasionally and DO need the
@@ -9588,7 +9903,13 @@ function directiveCardsHTML(){
                 '<span class="pgbar"><i style="width:'+pct+'%"></i></span>'+
                 '<span class="pgn">'+n+'/'+t+'</span></div>';}).join('')+'</div>'+
           '<button class="wbtn" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
-        :('<div class="wwait">'+esc(tr('ag_await'))+'</div>'))+
+        /* v3.18 — the card used to grey out and say only "waiting". It now says WHY and
+           HOW MANY, because a crew that can see the reason stops walking to the office to
+           ask the Owner. Still no chemistry and no prices — a count and a plain sentence. */
+        :('<div class="wwait">'+esc(tr('ag_await'))+
+            (function(){const miss=c.of-c.n;
+              return miss>0?('<div class="wwaitsub">'+miss+' '+esc(tr('ag_awaitn'))+'</div>'):'';})()+
+          '</div>'))+
       '</div>';}).join('');}
 
 /* ======================================================================================

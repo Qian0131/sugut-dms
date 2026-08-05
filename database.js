@@ -199,13 +199,28 @@ const WX3_MODES = [
    dropdown slots, each filled with an ACTIVE INGREDIENT (never a brand) and a
    concentration per 1,000 L. The Purchaser puts the brand in later. `cats` is which
    product categories the slot's active-ingredient dropdown is built from. */
+/* v3.18 — THESE ARE ROLES, NOT SLOTS. Until v3.17 this array was a hard cage: exactly
+   one component per entry, and `cats` decided what the Owner was ALLOWED to prescribe.
+   That made two fungicides in one tank — a contact and a systemic together, which is what
+   an outbreak actually calls for — structurally impossible, put 19 fertiliser products in
+   a queue for one seat, and left the catalogue's herbicide reachable from no entry at all.
+   Now a combo is a free LIST of components. Each line carries one of these as a LABEL,
+   `cats` only pre-filters the picker (there is always an ALL view), and a role may appear
+   as many times as the job needs. HERB and FERT are new; every older key is still here, so
+   directives written before v3.18 keep their slot keys and need no migration. */
 const COMBO_SLOTS = [
   {k:'PEST', t:'Pesticide',           ic:'🐛', cats:['Pesticide'],                    d:'Insect control'},
   {k:'FUNG', t:'Fungicide',           ic:'🍄', cats:['Fungicide'],                    d:'Disease control'},
+  {k:'HERB', t:'Herbicide',           ic:'🌾', cats:['Herbicide'],                    d:'Weed control'},
+  {k:'FERT', t:'Fertiliser',          ic:'🌱', cats:['Fertiliser','Powder'],          d:'Granular and soil feed'},
   {k:'FOL',  t:'Foliar',              ic:'🌿', cats:['Foliar','Powder','Fertiliser'], d:'NPK and leaf feed'},
   {k:'BIO',  t:'Biostimulant',        ic:'⚡', cats:['Growth Reg','Foliar'],          d:'Hormone, amino, seaweed'},
   {k:'TE',   t:'Trace Elements (TE)', ic:'🧪', cats:['Foliar','Powder'],              d:'Zn, B, Ca, Mg and mixes'}
 ];
+/* v3.18 — which role a catalogue category lands in when the Owner picks straight out of
+   the ALL view. Advisory: it sets the label on the line, nothing more. */
+const CAT_ROLE = {Pesticide:'PEST',Fungicide:'FUNG',Herbicide:'HERB',Fertiliser:'FERT',
+  Foliar:'FOL','Growth Reg':'BIO',Powder:'TE',Consumable:'FOL'};
 
 /* Unit types the Purchaser may onboard a new commercial item under, each with the
    default hidden multiplier that converts ONE CONTAINER into the operational unit the
@@ -929,6 +944,34 @@ const EN={
   w13_markdone:'📦 MARK WORK COMPLETED',
   w13_savetally:'💾 Save & Tally Store',
   w13_tanks:'How many 1,000 L tanks mixed',
+  /* v3.18 · Module 6 — the procurement queue and the reason a card is locked */
+  pr_title:'BUY FOR PROGRAMME',
+  pr_head:'ingredient(s) blocking an issued programme \u2014 the crew cannot start on these',
+  pr_none:'\u2713 Every ingredient an issued programme needs is covered by current stock.',
+  pr_nobrand:'NO BRAND YET',
+  pr_need:'Need', pr_have:'Have', pr_gap:'Short by', pr_buy:'Order',
+  pr_orderby:'Order by', pr_daysleft:'days left', pr_overdue:'ORDER NOW \u2014 PAST THE DATE',
+  pr_nodate:'No finish-by date on the directive',
+  pr_match:'MATCH A BRAND', pr_onboard:'ONBOARD A BRAND', pr_stockin:'STOCK IN',
+  pu_wrongunit:'Sold in a different unit \u2014 refused on pick',
+  pu_onboardthis:'Onboard a new brand for this ingredient\u2026',
+  pu_onboardgo:'Onboard a brand that carries this ingredient',
+  ag_awaitn:'ingredient(s) still have no brand in the store',
+  /* v3.18 — free combo: the component list, its picker and the tank advisories */
+  sl_HERB:'Herbicide', sl_FERT:'Fertiliser',
+  ag_confirmai:'CONFIRM THE LABEL',
+  ag_blobfull:'of the directive sync limit used \u2014 close some finished directives soon',
+  ag_addcomp:'ADD A COMPONENT',
+  ag_nocomp:'No components yet. Add the first one below.',
+  ag_rolefilter:'Filter by role \u2014 a hint, not a rule',
+  ag_alling:'ALL',
+  ag_searchai:'Search any ingredient\u2026',
+  ag_zerostock:'ZERO STOCK',
+  ag_instore:'in store',
+  ag_mixnote:'Contact and systemic in one tank',
+  ag_mixsub:'Spray only when the leaf can dry. Saved either way \u2014 this is advice, not a rule.',
+  ag_dupnote:'appears more than once. Allowed \u2014 each line deducts separately, so check it is deliberate.',
+  ag_manynote:'components in one tank. Check they physically mix \u2014 not blocked.',
   w13_confirm:'Confirm total taken from the store (ml/gm)',
   w13_expects:'The system expects',
   w13_mismatch:'What you took out does not match what the recipe needs.',
@@ -1424,6 +1467,34 @@ const MS={
   w13_expects:'Sistem kira sepatutnya',
   w13_mismatch:'Jumlah yang anda ambil tidak sama dengan yang resipi perlukan.',
   w13_nospray:'⚠ JANGAN SEMBUR BUAH — tanya Tuan Ladang dahulu',
+  /* v3.18 · Modul 6 */
+  pr_title:'BELI UNTUK PROGRAM',
+  pr_head:'bahan menyekat program yang telah dikeluarkan \u2014 pekerja tidak boleh mula',
+  pr_none:'\u2713 Semua bahan untuk program yang dikeluarkan mencukupi dalam stok.',
+  pr_nobrand:'BELUM ADA JENAMA',
+  pr_need:'Perlu', pr_have:'Ada', pr_gap:'Kurang', pr_buy:'Pesan',
+  pr_orderby:'Pesan sebelum', pr_daysleft:'hari lagi', pr_overdue:'PESAN SEKARANG \u2014 SUDAH LEWAT',
+  pr_nodate:'Tiada tarikh siap pada arahan ini',
+  pr_match:'PADAN JENAMA', pr_onboard:'DAFTAR JENAMA', pr_stockin:'TERIMA STOK',
+  pu_wrongunit:'Dijual dalam unit lain \u2014 ditolak bila dipilih',
+  pu_onboardthis:'Daftar jenama baharu untuk bahan ini\u2026',
+  pu_onboardgo:'Daftar jenama yang membawa bahan ini',
+  ag_awaitn:'bahan masih tiada jenama dalam stor',
+  /* v3.18 — kombo bebas */
+  sl_HERB:'Racun Rumpai', sl_FERT:'Baja',
+  ag_confirmai:'SAHKAN LABEL',
+  ag_blobfull:'had limit penyegerakan arahan digunakan \u2014 tutup arahan yang sudah siap',
+  ag_addcomp:'TAMBAH BAHAN',
+  ag_nocomp:'Belum ada bahan. Tambah yang pertama di bawah.',
+  ag_rolefilter:'Tapis ikut jenis \u2014 panduan, bukan syarat',
+  ag_alling:'SEMUA',
+  ag_searchai:'Cari mana-mana bahan\u2026',
+  ag_zerostock:'STOK KOSONG',
+  ag_instore:'dalam stor',
+  ag_mixnote:'Sentuh dan sistemik dalam satu tangki',
+  ag_mixsub:'Sembur bila daun boleh kering. Tetap disimpan \u2014 ini nasihat, bukan syarat.',
+  ag_dupnote:'muncul lebih daripada sekali. Dibenarkan \u2014 setiap baris tolak stok berasingan, pastikan ia disengajakan.',
+  ag_manynote:'bahan dalam satu tangki. Pastikan ia boleh bercampur \u2014 tidak disekat.',
   w13_norain:'⚠ HUJAN LEBAT — jangan sembur hari ini',
   w13_wetleaf:'💧 Daun masih basah — tanya Tuan Ladang dahulu',
   w13_crew:'Pekerja', w13_hrs:'Jam seorang', w13_change:'tukar',

@@ -915,6 +915,45 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
 .slothead .exphint{font-size:10px;}
 .slotrow{display:grid;grid-template-columns:1.6fr 1fr;gap:8px;}
 .slotrow label{margin-top:8px;}
+/* ===== v3.18 · FREE COMBO — the component list and its ingredient picker ===== */
+.slothead .linekill{color:#b3261e;background:#fdecea;border-radius:8px;padding:2px 9px;
+  font-size:13px;font-weight:900;cursor:pointer;user-select:none;flex-shrink:0;}
+.linemeta{font-size:10px;color:#6b7a6e;margin-top:2px;font-weight:700;}
+.linemeta .lowq{color:#b3261e;}
+.pickbox{border:2px solid #2e7d32;border-radius:13px;padding:11px;margin-top:10px;background:#fff;}
+.picklbl{font-size:9.5px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+  color:#6b7a6e;margin-bottom:6px;}
+.rolebar{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:7px;}
+.rolebar div{font-size:10.5px;font-weight:800;background:#eef2ee;color:#5b6b58;border-radius:9px;
+  padding:9px 11px;white-space:nowrap;cursor:pointer;user-select:none;}
+.rolebar div.on{background:#2e7d32;color:#fff;}
+#am-picklist{max-height:290px;overflow-y:auto;margin-top:7px;}
+.pickrow{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:10px 6px;border-bottom:1px solid #f0f2ef;cursor:pointer;user-select:none;}
+.pickrow:active{background:#e8f5e9;}
+.pickrow.zero{background:#fffaf9;}
+.pickrow .pk-n{font-size:13.5px;font-weight:800;line-height:1.3;}
+.pickrow .pk-s{font-size:9.5px;color:#6b7a6e;margin-top:1px;}
+.pickrow .pk-r{text-align:right;flex-shrink:0;}
+.pickrow .pk-oh{font-size:13px;font-weight:900;color:#1b5e20;}
+.pickrow .pk-zero{font-size:9.5px;font-weight:900;color:#b3261e;background:#fdecea;
+  border-radius:6px;padding:2px 7px;}
+.pickrow .pk-cls{display:block;font-size:8.5px;font-weight:900;border-radius:5px;
+  padding:1px 6px;margin-top:3px;}
+.pickrow .pk-cls.c{background:#f7edd8;color:#6b4715;}
+.pickrow .pk-cls.s{background:#e8f0fe;color:#123a71;}
+/* ===== v3.18 · MODULE 6 — the Purchaser's buy queue ===== */
+.prow{border:2px solid #c8dcc9;border-radius:13px;padding:11px;margin-bottom:9px;background:#fff;}
+.prow.soon{border-color:#ffd54f;background:#fffdf6;}
+.prow.late{border-color:#b3261e;background:#fffafa;}
+.prow .pr-n{font-size:14.5px;font-weight:900;line-height:1.3;}
+.prow .pr-d{font-size:10px;color:#6b7a6e;margin-top:2px;font-weight:700;}
+.prow .tbl{margin-top:7px;}
+.prow .pr-by{font-size:10.5px;font-weight:900;border-radius:8px;padding:5px 9px;margin-top:7px;
+  background:#e8f3e9;color:#1b5e20;display:inline-block;}
+.prow .pr-by.soon{background:#fff3cd;color:#7a5b00;}
+.prow .pr-by.late{background:#fdecea;color:#b3261e;}
+.wwait .wwaitsub{display:block;font-size:11px;font-weight:700;opacity:.85;margin-top:3px;}
 .tmplrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .tmpl{display:inline-block;background:#eef4ff;color:#26418f;border:1.5px solid #c3d3f0;
   border-radius:9px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer;}
@@ -1546,6 +1585,15 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
 <!-- STOCK (v2.3 — role-partitioned inventory master) -->
 <div class="scr hidden" id="scr-stock">
+
+  <!-- ===== v3.18 · MODULE 6 · BUY FOR PROGRAMME =====
+       What an ISSUED directive still needs bought. Deliberately ABOVE the reorder alert
+       centre: a product under its minimum still lets the crew work, an ingredient the
+       Owner prescribed with nothing behind it stops them dead. -->
+  <div class="card" id="procurecard" style="display:none">
+    <div class="sec">🛒 <span data-t="pr_title">BUY FOR PROGRAMME</span></div>
+    <div id="procurebox"></div>
+  </div>
 
   <!-- URGENT REORDER ALERT CENTER — Purchaser + Owner/Marketing -->
   <div class="card" id="alertcenter" style="display:none">
@@ -2475,7 +2523,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.17.2"></script>
-<script src="app.js?v=3.17.2"></script>
+<script src="database.js?v=3.18.0"></script>
+<script src="app.js?v=3.18.0"></script>
 </body>
 </html>
