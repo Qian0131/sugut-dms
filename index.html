@@ -1489,6 +1489,17 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 </style>
 </head>
 <body>
+<style id="m5css">
+/* MODULE 5 — PRUNE. Collapsible text-wall notes: collapsed by default, same words as
+   before, one ⓘ tap away. Every rule here is scoped to m5- prefixed classes so nothing
+   collides with the existing stylesheet above. */
+.m5-iq{display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:50%;background:#eef2ee;color:var(--muted);
+  font-size:12px;font-weight:900;cursor:pointer;user-select:none;vertical-align:middle;
+  margin:-11px -11px -11px 2px;box-sizing:border-box;}
+.m5-iqrow{display:flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer;user-select:none;}
+.m5-note{margin-top:8px;}
+</style>
 <div class="hdr">
   <div class="farm">S.H.A. HUP AIK PLANTATION · SUGUT DURIAN FARM</div>
   <div class="row">
@@ -1545,7 +1556,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 <!-- SETUP -->
 <div class="scr hidden" id="scr-setup">
   <div class="card setup">
-    <div class="sec">Device setup</div>
+    <div class="sec">Device setup <span class="m5-iq" onclick="m5Tog('m5-p1')">ⓘ</span></div>
     <label>Logged in as</label>
     <div style="font-weight:800;font-size:15px;padding:4px 2px" id="su-who">—</div>
     <label>Device name (e.g. phone-01)</label>
@@ -1554,7 +1565,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <input id="su-url" placeholder="https://script.google.com/macros/s/…/exec">
     <div style="height:14px"></div>
     <button class="bigbtn" onclick="saveSetup()">START</button>
-    <p class="small" style="margin-top:10px">You can change these later in the ⚙ Settings (top of Sync tab). The app works fully offline; the Sync URL is only needed when you reach the office hotspot.</p>
+    <p class="small hidden" id="m5-p1" style="margin-top:10px">You can change these later in the ⚙ Settings (top of Sync tab). The app works fully offline; the Sync URL is only needed when you reach the office hotspot.</p>
   </div>
 </div>
 
@@ -1690,9 +1701,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
   </div>
   <div class="card" id="mylogs" style="display:none">
-    <div class="sec">My drop &amp; rotten logs</div>
+    <div class="sec">My drop &amp; rotten logs <span class="m5-iq" onclick="m5Tog('m5-p2')">ⓘ</span></div>
     <div id="mylogslist"></div>
-    <p class="small" style="margin-top:9px">A saved entry cannot be edited on this phone. If a number is wrong,
+    <p class="small hidden" id="m5-p2" style="margin-top:9px">A saved entry cannot be edited on this phone. If a number is wrong,
       tap <b>📝 Request Log Correction</b> — it goes to the Owner’s <b>Pending Data Adjustments</b>
       dashboard for approval or rejection, and only an approved request files a signed adjustment against the
       original row. The original is never overwritten.</p>
@@ -1706,6 +1717,22 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 <!-- STOCK (v2.3 — role-partitioned inventory master) -->
 <div class="scr hidden" id="scr-stock">
 
+  <!-- ===== v3.19 · LANE B · MODULE 3 · 6 TABS -> 2 (see MODULES.inv in app.js) =====
+       New rules only, every class prefixed m3- so nothing here can collide with the main
+       stylesheet above. This tag is a plain global <style>; placing it here (inside the
+       stock screen, first in the LANE B zone) does not scope it to #scr-stock — the ORDER
+       PLANNER segment toggle it styles lives further down, inside the dash screen's
+       #progcheck / #progready cards. -->
+  <style id="m3css">
+    .m3-seg{display:flex;gap:8px;margin:9px 0 4px;}
+    .m3-seg-btn{flex:1;min-height:44px;box-sizing:border-box;display:flex;align-items:center;
+      justify-content:center;text-align:center;border:2px solid #c8dcc9;border-radius:12px;
+      padding:10px 6px;font-weight:800;font-size:12.5px;cursor:pointer;user-select:none;
+      background:#fff;color:var(--green2,#2e7d32);}
+    .m3-seg-btn.on{background:var(--green2,#2e7d32);color:#fff;border-color:var(--green2,#2e7d32);}
+    .m3-hide{display:none !important;}
+  </style>
+
   <!-- ===== v3.18 · MODULE 6 · BUY FOR PROGRAMME =====
        What an ISSUED directive still needs bought. Deliberately ABOVE the reorder alert
        centre: a product under its minimum still lets the crew work, an ingredient the
@@ -1717,9 +1744,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- URGENT REORDER ALERT CENTER — Purchaser + Owner/Marketing -->
   <div class="card" id="alertcenter" style="display:none">
-    <div class="sec">🚨 Urgent Reorder Alert Center</div>
+    <div class="sec">🚨 <span data-t="m3_alerthead">Urgent Reorder Alert Center</span> <span class="m5-iq" onclick="m5Tog('m5-p14')">ⓘ</span></div>
     <div id="alertlist"></div>
-    <p class="small" style="margin-top:8px">A product flashes red the moment its live quantity drops below its minimum stock level. Live quantity = opening stock − used + received (including entries still queued on this phone).</p>
+    <p class="small hidden" id="m5-p14" data-t="m3_alertnote" style="margin-top:8px">A product flashes red the moment its live quantity drops below its minimum stock level. Live quantity = opening stock − used + received (including entries still queued on this phone).</p>
   </div>
 
   <!-- STOCK IN LOG — Sandakan Purchaser (Owner/Marketing may also use it) -->
@@ -1756,7 +1783,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- MATERIAL STOCK OUT — Farm Worker (Owner/Marketing may also use it) -->
   <div class="card" id="pnl-out" style="display:none">
-    <div class="sec" data-t="so_head">📤 Material Stock Out — issued to the field</div>
+    <div class="sec"><span data-t="so_head">📤 Material Stock Out — issued to the field</span> <span class="m5-iq" onclick="m5Tog('m5-p15')">ⓘ</span></div>
     <label data-t="so_product">Product</label>
     <input id="out-search" placeholder="Search brand or active ingredient…" data-tph="so_search" oninput="renderOutOpts()">
     <select id="out-prod" size="5" style="margin-top:6px" onchange="onOutProd()"></select>
@@ -1777,7 +1804,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <select id="sset"></select>
     <div class="pinerr" id="out-err"></div>
     <button class="bigbtn" onclick="submitStockOut()" data-t="so_save">✓ SAVE STOCK OUT</button>
-    <p class="small" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
+    <p class="small hidden" id="m5-p15" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
   </div>
 
   <!-- ===== v3.12 · PURCHASER · AI ➔ BRAND ALLOCATION MATRIX ===== -->
@@ -1788,8 +1815,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- ===== v3.12 · PURCHASER · NEW PRODUCT ONBOARDING ===== -->
   <div class="card" id="onboardcard" style="display:none">
-    <div class="sec">🆕 Onboard a new commercial item</div>
-    <p class="small">Anything added here joins the live catalogue immediately on this phone
+    <div class="sec">🆕 <span data-t="m3_obhead">Onboard a new commercial item</span> <span class="m5-iq" onclick="m5Tog('m5-p16')">ⓘ</span></div>
+    <p class="small hidden" id="m5-p16" data-t="m3_obnote">Anything added here joins the live catalogue immediately on this phone
       and reaches every other phone on the next sync. It opens at <b>zero stock</b> —
       receive the quantity on the Stock In screen against its invoice, exactly like every
       other product.</p>
@@ -1838,7 +1865,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <div id="synchealth"></div>
   <div class="appendnote" id="appendnote"></div>
   <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
-  <p class="small" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
+  <div class="m5-iqrow" onclick="m5Tog('m5-p3')"><span class="m5-iq">ⓘ</span></div>
+  <p class="small hidden" id="m5-p3" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
   <div class="card">
     <div class="sec">Event ledger on this phone (append-only)</div>
     <div id="ledger"></div>
@@ -1889,9 +1917,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
 
   <div class="card" id="corrpanel">
-    <div class="sec">📋 Pending Data Adjustments <span class="cbadge hidden" id="corrcount">0</span></div>
+    <div class="sec">📋 Pending Data Adjustments <span class="cbadge hidden" id="corrcount">0</span> <span class="m5-iq" onclick="m5Tog('m5-p4')">ⓘ</span></div>
     <div id="corrlist"></div>
-    <p class="small" style="margin-top:9px">Approving a change rewrites that tree's permanent record in the Tree Master across every screen — harvest, dashboard and marketing view. Approved and rejected requests are kept as an audit trail and pushed to the Google Sheet at the next sync.</p>
+    <p class="small hidden" id="m5-p4" style="margin-top:9px">Approving a change rewrites that tree's permanent record in the Tree Master across every screen — harvest, dashboard and marketing view. Approved and rejected requests are kept as an audit trail and pushed to the Google Sheet at the next sync.</p>
     <div style="height:8px"></div>
     <div class="lotbtns" id="corrfilter">
       <div class="on" onclick="setCorrFilter('PENDING',this)">PENDING</div>
@@ -1900,14 +1928,14 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
   </div>
   <div class="card" id="keyspanel">
-    <div class="sec">🔑 Master Governance &amp; User Registry (Owner)</div>
+    <div class="sec">🔑 Master Governance &amp; User Registry (Owner) <span class="m5-iq" onclick="m5Tog('m5-p5')">ⓘ</span></div>
     <div id="regdirty" class="regdirty hidden"></div>
     <div id="keylist"></div>
     <div style="height:10px"></div>
     <button class="bigbtn" onclick="openUserForm()" style="padding:12px;font-size:14px">＋ ADD STAFF MEMBER</button>
     <div style="height:7px"></div>
     <button class="bigbtn ghost" id="pushregbtn" onclick="pushRegistry(true)" style="padding:11px;font-size:13px">⇧ PUSH REGISTRY TO GOOGLE SHEET</button>
-    <p class="small" style="margin-top:9px">Changes save on this phone straight away. They reach the other phones after you push to the Google Sheet and those phones sync. A staff member you <b>revoke</b> or <b>delete</b> gets wiped and locked the next time their phone finds internet.</p>
+    <p class="small hidden" id="m5-p5" style="margin-top:9px">Changes save on this phone straight away. They reach the other phones after you push to the Google Sheet and those phones sync. A staff member you <b>revoke</b> or <b>delete</b> gets wiped and locked the next time their phone finds internet.</p>
     <div style="height:8px"></div>
     <button class="bigbtn ghost" onclick="simulateKill()" style="padding:10px;font-size:13px">🧪 TEST KILL SWITCH ON THIS DEVICE (simulation)</button>
   </div>
@@ -2007,9 +2035,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- ===== AGRONOMIST · MONTH TIMELINE (v2.8, Option 3) ===== -->
   <div class="card" id="agromonth" style="display:none">
-    <div class="sec">🗓️ Month timeline — combo sets in date order</div>
+    <div class="sec">🗓️ Month timeline — combo sets in date order <span class="m5-iq" onclick="m5Tog('m5-p6')">ⓘ</span></div>
     <div id="tlbox"></div>
-    <p class="small" style="margin-top:9px">Every tank figure on this farm is a <b>1,000 litre power spray
+    <p class="small hidden" id="m5-p6" style="margin-top:9px">Every tank figure on this farm is a <b>1,000 litre power spray
       pump tank</b>. Tap a set to open its five combo blocks — Pesticide, Fungicide, Foliar, Biostimulator
       and Trace Elements — with the dose that goes into one tank and the total the whole job needs.</p>
   </div>
@@ -2020,8 +2048,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- ===== AGRONOMIST · WEATHER MODE + RAIN CAGE (v2.6 / v2.7) ===== -->
   <div class="card" id="agroweather" style="display:none">
-    <div class="sec">🌦️ Weather mode</div>
-    <p class="small">Set what the sky is actually doing. In <b>Rainy</b> mode the app checks every spray line against the product database and flags anything that washes off, offering a systemic stand-in that stays on the tree.</p>
+    <div class="sec">🌦️ Weather mode <span class="m5-iq" onclick="m5Tog('m5-p7')">ⓘ</span></div>
+    <p class="small hidden" id="m5-p7">Set what the sky is actually doing. In <b>Rainy</b> mode the app checks every spray line against the product database and flags anything that washes off, offering a systemic stand-in that stays on the tree.</p>
     <div class="wx" id="wxbtns">
       <div class="on" id="wx-SUNNY" onclick="setWeather('SUNNY')">☀️ SUNNY / DRY</div>
       <div class="rain" id="wx-RAINY" onclick="setWeather('RAINY')">🌧️ RAINY / WET</div>
@@ -2029,8 +2057,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="wxnote" class="small"></div>
   </div>
   <div class="card" id="agrorain" style="display:none">
-    <div class="sec">🌧️ Daily rainfall — from the farm cage</div>
-    <p class="small">Read the gauge in the cage each morning and key the millimetres here. One reading per date —
+    <div class="sec">🌧️ Daily rainfall — from the farm cage <span class="m5-iq" onclick="m5Tog('m5-p8')">ⓘ</span></div>
+    <p class="small hidden" id="m5-p8">Read the gauge in the cage each morning and key the millimetres here. One reading per date —
       saving the same date again corrects that day rather than adding a second row. More than
       <b>30 mm over 3 days</b> raises the high-moisture badge on the month timeline.</p>
     <div class="kpis" id="rain-kpis" style="margin-bottom:8px"></div>
@@ -2092,8 +2120,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- ===== 🎗️ FRUIT TYING TRACKER · WAY 4 TALLY CLICKER (v3.0) ===== -->
   <div class="card tiecard" id="tallycard" style="display:none">
-    <div class="sec" data-t="ty_head">🎗️ Fruit Tying Tracker</div>
-    <p class="small" style="margin-top:0" data-t="ty_note">Lock the tree in first, then tap once for every fruit you tie.
+    <div class="sec"><span data-t="ty_head">🎗️ Fruit Tying Tracker</span> <span class="m5-iq" onclick="m5Tog('m5-p9')">ⓘ</span></div>
+    <p class="small hidden" id="m5-p9" style="margin-top:0" data-t="ty_note">Lock the tree in first, then tap once for every fruit you tie.
       Nothing leaves this screen until you press <b>Complete Tree &amp; Save to Queue</b>.</p>
     <div class="selrow">
       <div><label data-t="w_lot">Lot</label><select id="ty-lot" onchange="tyLotChange()"></select></div>
@@ -2176,16 +2204,31 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="tyingbox"></div>
   </div>
 
-  <!-- ===== PURCHASER · UPCOMING PROGRAM STOCK CHECK (v2.5) ===== -->
+  <!-- ===== PURCHASER · UPCOMING PROGRAM STOCK CHECK (v2.5) =====
+       v3.19 · LANE B · MODULE 3 — PROGRAM CHECK and NEXT PHASE were two tabs opening the
+       same table shape twice; they are now one ORDER PLANNER tab (MODULES.inv k:'plan')
+       with the segment toggle below instead. Both #progcheck and #progready are otherwise
+       UNCHANGED — same ids, same HUB_PANELS registration, same roleAllows() gate — so the
+       toggle only decides which one is visible; neither panel's own show/hide lifecycle
+       changes. #progready starts with class m3-hide baked in below so the very first paint
+       matches the old PROGRAM CHECK default (THIS PHASE first); m3PlanPick() in app.js
+       swaps it. -->
   <div class="card" id="progcheck" style="display:none">
-    <div class="sec">🔍 Upcoming programme stock check</div>
-    <div id="chkbox"></div>
-    <p class="small" style="margin-top:9px">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+    <div class="sec">📅 <span data-t="m3_orderplanner">Order Planner</span></div>
+    <div class="m3-seg">
+      <div class="m3-seg-btn on" id="m3-pl-now" onclick="m3PlanPick('now')" data-t="m3_thisphase">THIS PHASE</div>
+      <div class="m3-seg-btn" id="m3-pl-next" onclick="m3PlanPick('next')" data-t="m3_nextphase">NEXT PHASE</div>
+    </div>
+    <div id="m3-pl-nowbox">
+      <div class="sec" style="margin-top:10px">🔍 <span data-t="m3_chkhead">Upcoming programme stock check</span> <span class="m5-iq" onclick="m5Tog('m5-p12')">ⓘ</span></div>
+      <div id="chkbox"></div>
+      <p class="small hidden" id="m5-p12" style="margin-top:9px" data-t="m3_chknote">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+    </div>
   </div>
-  <div class="card" id="progready" style="display:none">
-    <div class="sec">📅 Next phase material readiness</div>
+  <div class="card m3-hide" id="progready" style="display:none">
+    <div class="sec">📅 <span data-t="m3_readyhead">Next phase material readiness</span> <span class="m5-iq" onclick="m5Tog('m5-p13')">ⓘ</span></div>
     <div id="readybox"></div>
-    <p class="small" style="margin-top:9px">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
+    <p class="small hidden" id="m5-p13" style="margin-top:9px" data-t="m3_readynote">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
   </div>
 
   <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only -->
@@ -2211,14 +2254,14 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- MONTHLY & YEARLY SUMMARY LEDGER (v2.3) -->
   <div class="card" id="ledgercard" style="display:none">
-    <div class="sec">📒 Monthly &amp; Yearly Summary Ledger</div>
+    <div class="sec">📒 Monthly &amp; Yearly Summary Ledger <span class="m5-iq" onclick="m5Tog('m5-p10')">ⓘ</span></div>
     <div id="ledgersum"></div>
-    <p class="small" style="margin-top:9px">Generated live from the append-only transaction ledgers on this phone plus everything already synced. Tap a year to open its months; tap a month to open the lot-by-lot disbursement and the stock-take variance.</p>
+    <p class="small hidden" id="m5-p10" style="margin-top:9px">Generated live from the append-only transaction ledgers on this phone plus everything already synced. Tap a year to open its months; tap a month to open the lot-by-lot disbursement and the stock-take variance.</p>
   </div>
 
   <!-- INVENTORY AUDIT / STOCK-TAKE ADJUSTMENT (v2.3) -->
   <div class="card" id="stocktake" style="display:none">
-    <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment</div>
+    <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment <span class="m5-iq" onclick="m5Tog('m5-p11')">ⓘ</span></div>
     <label>Product counted</label>
     <input id="st-search" placeholder="Search brand or active ingredient…" oninput="renderStOpts()">
     <select id="st-prod" size="5" style="margin-top:6px" onchange="onStProd()"></select>
@@ -2235,7 +2278,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <button class="bigbtn" onclick="submitStockTake()">✓ POST STOCK-TAKE ADJUSTMENT</button>
     <div style="height:8px"></div>
     <div id="st-recent"></div>
-    <p class="small" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
+    <p class="small hidden" id="m5-p11" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
   </div>
   <div class="lock" id="phibox" style="display:none"></div>
   <div class="card" id="lotcard">
@@ -2648,7 +2691,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.21.0"></script>
-<script src="app.js?v=3.21.0"></script>
+<script src="database.js?v=3.22.0"></script>
+<script src="app.js?v=3.22.0"></script>
 </body>
 </html>
