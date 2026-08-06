@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.19.3';   // v3.19.3 - THE PHONE NOW SAVES ITS OWN WORK WITHOUT BEING ASKED, AND A CEILING IS A DECISION NOT A GUESS. Built on v3.19.2 (the season's spending import), not instead of it - both releases landed the same afternoon and this one is the rebase. THREE CHANGES. (1) THE UPLOAD GOES UP IN CHUNKS AND EACH CHUNK IS BANKED AS IT LANDS: it was one POST carrying the entire queue, with no timeout, so 400 events with a dropped packet at event 390 left all 400 queued and the next attempt started from zero - and a half-open hotspot hung the button on 'Uploading...' for minutes because this one call, alone among the sync paths, had no deadline. Now SYNC_CHUNK=40 per POST, marked synced the moment that chunk is acknowledged, so an interrupted upload RESUMES instead of restarting. Same {events:[...]} body, and the Apps Script already dedupes on the client uuid through SYNC_INDEX, so a chunk that landed but whose reply was lost is absorbed, not duplicated - no script redeploy for this part. This matters most on the 452 imported spending events v3.19.2 just added to the queue. (2) A SILENT LINK WATCH EVERY 30 SECONDS. A phone that filled its queue in the field and walked into the hotspot only synced if the browser happened to fire an 'online' event or somebody pressed the button; navigator.onLine reports true for a Wi-Fi association carrying no traffic, which is exactly what the yard looks like at the edge of range. THE 30-SECOND TICK IS LOCAL AND FREE - it reads the queue, not the network. A real handshake against the endpoint every 30s was specified and would have broken the farm: every doGet is an Apps Script execution against a daily runtime budget measured in minutes, and five phones probing on that interval is ~14,400 executions a day - the quota would be gone by mid-morning and sync would stop for everyone. So it touches the network only when there is something to send, and the call it makes is the sync itself. Consecutive failures back off 30s-1m-2m-4m-10m-20m and the watch parks itself after six fruitless rounds, visible on the sync screen, woken by opening the app, the link returning, or SYNC NOW. (3) THE PREPAID CEILING IS NOW SET BY MARKETING, on the Owner's instruction. creditAdvice() still derives its own recommendation from real dispatch history and still refuses to invent one without a priced history; the Marketer's figure sits BESIDE it, never on top of it, and the Executive Summary flags a gap between the two rather than quietly resolving it. Ninth shared-settings key 'creditcap', merged per record like aialloc so setting Roll's ceiling cannot wipe a concurrent edit to Seng Kee's. This one key NEEDS THE APPS SCRIPT PASTED AND RE-DEPLOYED. PLUS: 20 PROSPECTIVE PLANTING LOCATIONS, added as a run in one action - and deliberately NOT in the census. treesInScope() is a multiplier feeding litres to tanks to chemical, so twenty empty holes would have inflated every spray job by 12% and bought chemical for trees that do not exist. A location joins the census only when PLANT is pressed. AND A REFUSED SETTING NO LONGER GOES QUIET: pushSettings() cleared SET_DIRTY for every key in the batch including the ones the reply had just listed as REFUSED, so the value lived on as that phone's private figure with nothing on any screen saying it never reached the farm. Refused keys now stay queued and stay visible. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.21.0';   // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -60,11 +60,6 @@ let CORRECTIONS=[], TREE_FIX={};
 // Both are kv registries: TREE_MASTER itself ships inside database.js and is replaced on
 // every upgrade, so an added tree that lived only there would vanish at the next release.
 let ADDED_TREES=[], APP_URL='';
-/* v3.19.2 — the Marketer's ceiling on each merchant's prepaid pool, keyed by retailer id.
-   {RT-01:{cap_rm:30000, at:'2026-08-05 09:14:22', by:'Lee'}}. Empty by default: a ceiling
-   nobody has set is NOT zero and must never be treated as zero — the screens read it as
-   "not set yet" and fall back to showing only the derived recommendation. */
-let CREDIT_CAP={};
 /* v3.11 - THE SHARED SETTINGS.
    Three dials the whole farm has to agree on used to live only in the browser of whichever
    phone edited them. SET_META records who last set each one and when; SET_DIRTY marks the
@@ -77,19 +72,11 @@ let CREDIT_CAP={};
      newprods   — a product onboarded in Sandakan that the field must be able to draw.
    This is the fourth time the one-way-information bug has been designed out rather than
    fixed after the fact. Ask which direction it travels BEFORE writing it. */
-/* v3.19.2 — a ninth key, and it rides this channel for the same reason the other eight do:
-   the CEILING ON A MERCHANT'S PREPAID POOL is decided by the Marketer, who deals with Roll
-   and Seng Kee, and it has to be readable by the Owner, who approves the money. Information
-   that has to travel DOWN as well as up. Asked before writing it, per the standing rule.
-     creditcap — {retailerId:{cap_rm, at, by}}. Merged PER RECORD, newest-per-record, like
-                 aialloc: setting Roll's ceiling must never wipe a concurrent edit to Seng
-                 Kee's from another phone.
-   NOTE: this key needs `SETTINGS_ALLOWED` in AppsScript_code.gs to name it, and that means
-   one paste + New version deploy. Until that happens the ceiling still works on the phone
-   that set it — it simply does not travel, and pushSettings() now says so out loud instead
-   of marking it clean. */
 const SETTINGS_KEYS=['cloneprice','pricemeta','baskets','tareok','addtrees',
-  'agrodrafts','aialloc','newprods','creditcap'];
+  'agrodrafts','aialloc','newprods',
+  // v3.21 — the Owner's corrections to a programme set. A collection keyed by phase id,
+  // so it MERGES per record like agrodrafts, never whole-object newest-wins.
+  'progover'];
 let SET_META={}, SET_DIRTY={};
 /**
  * v3.5 — THE FIX FOR "TWO PHONES, TWO DIFFERENT TOTALS".
@@ -143,6 +130,12 @@ let RETAILERS=RETAILER_SEED.map(r=>({...r})),
    WX3          three-state weather; drives the existing two-state WEATHER flag
    These are declared here, above initStore(), because initStore() writes into them. */
 let AGRO_DRAFTS=[], AI_ALLOC={}, NEW_PRODS=[], WX3='DRY';
+/* v3.21 — PROG_OVER holds the Owner's changes to workbook sets, keyed by phase id:
+   {at, by, removed:true} or {at, by, plan:'YYYY-MM-DD', lines:[{pid,qty}]}.
+   PROG_SEED is the untouched programme as it left database.js, captured once. Every
+   apply rebuilds PHASE_PROGRAM from the seed, so applying twice cannot compound and a
+   change can always be undone. */
+let PROG_OVER={}, PROG_SEED=null;
 
 async function initStore(){
   db=await idb();
@@ -178,7 +171,6 @@ async function initStore(){
         const saved=bk.v.find(x=>String(x.id)===String(seed.id));
         return saved?{...seed,tare_kg:+saved.tare_kg||0,name:saved.name||seed.name}:{...seed};});}
     const tk=kv.find(x=>x.k==='tareok'); TARE_VERIFIED=!!(tk&&tk.v);
-    const cc=kv.find(x=>x.k==='creditcap'); if(cc&&cc.v&&typeof cc.v==='object') CREDIT_CAP=cc.v;
     // v3.8.1 — decisions Marketing made on THEIR phone, pulled down to this one.
     const rq=kv.find(x=>x.k==='reqdecided'); if(rq&&rq.v&&typeof rq.v==='object') REQ_DECIDED=rq.v;
     const ms=kv.find(x=>x.k==='mastersig'); if(ms&&ms.v) MASTER_SIG=String(ms.v);
@@ -192,6 +184,7 @@ async function initStore(){
     const ad=kv.find(x=>x.k==='agrodrafts'); if(ad&&Array.isArray(ad.v)) AGRO_DRAFTS=ad.v;
     const al=kv.find(x=>x.k==='aialloc');    if(al&&al.v&&typeof al.v==='object') AI_ALLOC=al.v;
     const np=kv.find(x=>x.k==='newprods');   if(np&&Array.isArray(np.v)) NEW_PRODS=np.v;
+    const pv=kv.find(x=>x.k==='progover'); if(pv&&pv.v&&typeof pv.v==='object') PROG_OVER=pv.v;
     // v3.19 — a phone that slept mid-delivery must not lose eight keyed lines
     const ib=kv.find(x=>x.k==='inbasket');   if(ib&&Array.isArray(ib.v)) IN_BASKET=ib.v;
     applyNewProducts();
@@ -295,6 +288,7 @@ async function initStore(){
   applyAddedTrees();                            // Owner-added trees BEFORE anything reads the census
   applyTreeFixes();                             // approved corrections are permanent
   applyInvOverrides();                          // Owner's min-stock / AI edits are permanent
+  applyProgOverrides();                         // and the Owner's programme corrections
   rebuildLedgers();                             // materialise stock_in / stock_out / adjust ledgers
 }
 async function persistEvent(ev){ EVENTS.push(ev); if(db) await put('events',ev); else mem.events=EVENTS;
@@ -347,82 +341,8 @@ async function netPull(){
   if(got&&(got.tasks+got.programs)>0){
     const nn=got.tasks+got.programs;
     toast('📋 '+nn+' new job'+(nn>1?'s':'')+' from the Owner');}}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){linkWake();netPull();}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)netPull();});
 setInterval(netPull,5*60*1000);
-
-/* ======================================================================================
-   v3.19.2 · THE SILENT LINK WATCH — every 30 seconds, and almost always free
-   ======================================================================================
-   What was here: nothing. A phone that filled its queue in the field and then walked into
-   the office hotspot only synced if (a) the browser happened to fire an `online` event, or
-   (b) somebody pressed the button. `navigator.onLine` is not trustworthy — it reports true
-   for a Wi-Fi association that carries no traffic, which is exactly what a hotspot at the
-   edge of range looks like. So work sat in a queue on a phone that was, in fact, connected.
-
-   WHY THIS IS NOT A NETWORK PING EVERY 30 SECONDS. It was specified as a handshake probe
-   against the endpoint, and that would break the farm. The Apps Script web app is the free
-   tier of the zero-cost architecture: every doGet is a script execution, it reads several
-   sheets, and the account's daily script runtime is measured in minutes per day, not hours.
-   Five phones probing every 30 seconds is ~14,400 executions a day. The quota would be gone
-   before mid-morning and the sync would stop for everyone — the one failure this release is
-   supposed to prevent. The Owner pays RM0 a month and that is a hard constraint.
-
-   So the 30-second tick is LOCAL and costs nothing: it looks at the queue and the browser's
-   own link state. It only touches the network when there is something to send, and when it
-   does, the call it makes is the sync itself — not a handshake that would then be followed
-   by the sync. Same outcome for the worker (a full queue drains by itself, within half a
-   minute of walking into range), at a fraction of the quota.
-
-   AND IT GIVES UP HONESTLY. A queue that will not move — an old backend refusing a payload
-   key, say — must not be retried every 30 seconds forever; that is how a quota is burned by
-   a bug rather than by work. Consecutive failures back off 30s → 1m → 2m → 4m → 10m → 20m,
-   and after PROBE_PARK_AFTER fruitless rounds the watch parks itself until something real
-   changes: the app is opened again, the browser reports the link returning, or somebody
-   presses Sync. Anything parked is still visible on the sync screen with its reason.
-   ====================================================================================== */
-const PROBE_MS=30000;                        // the tick. Local work only.
-const PROBE_BACKOFF=[0,0,2,4,8,20,40];       // ticks to skip after N consecutive no-progress rounds
-const PROBE_PARK_AFTER=6;                    // rounds with no progress before the watch sleeps
-let PROBE_FAILS=0, PROBE_SKIP=0, PROBE_PARKED=false, PROBE_LAST='', PROBE_LAST_AT='';
-
-/** Everything this phone is still holding, by the same reckoning the badge uses. */
-function probeQueue(){
-  return pending()+corrUnsynced()+q4()+setUnsynced()+(REG_DIRTY?1:0);}
-
-/** Anything that means "the world changed, try again properly" clears the backoff. */
-function linkWake(){
-  PROBE_FAILS=0; PROBE_SKIP=0;
-  if(PROBE_PARKED){PROBE_PARKED=false; PROBE_LAST='woken'; PROBE_LAST_AT=nowSec();
-    if(typeof renderSync==='function')renderSync();}}
-window.addEventListener('online',linkWake);
-
-async function linkWatch(){
-  if(PROBE_PARKED)return;
-  if(PROBE_SKIP>0){PROBE_SKIP--;return;}
-  // Not logged in, killed, mid-sync or no endpoint: nothing to do, and no network touched.
-  if(LOCKED||syncing||!CFG||!CFG.url||!CFG.key)return;
-  if(!navigator.onLine){PROBE_LAST='offline';PROBE_LAST_AT=nowSec();return;}
-  const before=probeQueue();
-  if(!before){                                  // nothing waiting — the common case, and free
-    PROBE_FAILS=0; PROBE_LAST='clear'; PROBE_LAST_AT=nowSec(); return;}
-  SYNC_QUIET=true;
-  try{ await doSync(true); }
-  catch(e){}
-  finally{ SYNC_QUIET=false; }
-  const after=probeQueue();
-  PROBE_LAST_AT=nowSec();
-  if(after<before){                             // real progress: reset and stay eager
-    PROBE_FAILS=0; PROBE_SKIP=0; PROBE_LAST='sent';
-    if(typeof renderSync==='function')renderSync();
-    return;}
-  PROBE_FAILS++;
-  PROBE_LAST='stuck';
-  if(PROBE_FAILS>=PROBE_PARK_AFTER){
-    PROBE_PARKED=true;
-    if(typeof renderSync==='function')renderSync();
-    return;}
-  PROBE_SKIP=PROBE_BACKOFF[Math.min(PROBE_FAILS,PROBE_BACKOFF.length-1)];}
-setInterval(linkWatch,PROBE_MS);
 
 // ================= TREE MASTER engine (v2.2) =================
 // TREE_FIX holds every Owner-APPROVED correction, keyed by TreeID. It is replayed
@@ -916,6 +836,16 @@ function renderTaskNotice(){
   if(typeof issuedDrafts!=='function'||typeof dueState!=='function')return;
   const today=ymd(dayStart(new Date()));
   // due today or already late, and still unfinished
+  // v3.21 — a programme the Owner changed comes FIRST, above today's job. A set already
+  // finished says nothing; one the crew has not done yet is work standing in front of them.
+  var pre='';
+  if(typeof progChangeNotices==='function')progChangeNotices().forEach(function(n){
+    pre+='<div class="tasknote" onclick="openModule(\'ops\',\'tasks\')">'+
+      '<span class="tn-tag late">\u26a0 '+esc(tr('pc_tag'))+'</span>'+
+      '<div class="tn-brand">'+esc(tr(n.k))+'</div>'+
+      '<div class="tn-dose">'+esc(n.s)+(n.d?(' \u00b7 '+esc(dateShort(n.d))):'')+'</div>'+
+      '<div class="tn-hint">'+esc(tr('pc_hint'))+'</div></div>';});
+  box.innerHTML=pre;
   const live=issuedDrafts().filter(function(d){
     if(d.deleted)return false;
     if(typeof dirAllDone==='function'&&dirAllDone(d))return false;
@@ -929,7 +859,7 @@ function renderTaskNotice(){
     return a&&a.pname?{name:a.pname,dose:l.dose,unit:l.unit}:null;}).filter(Boolean);
   const per=(d.basis==='PER_1000L')
     ? (tr('tn_pertank','Per tank: 1,000 L water')) : (tr('tn_pertree','Per tree'));
-  box.innerHTML='<div class="tasknote" onclick="openModule(\'ops\',\'tasks\')">'+
+  box.innerHTML=pre+'<div class="tasknote" onclick="openModule(\'ops\',\'tasks\')">'+
     '<span class="tn-tag'+(late?' late':'')+'">'+
       (late?('\u26a0 '+esc(tr('tn_late','OVERDUE'))):('\u26a0 '+esc(tr('tn_today','PROGRAMME TODAY'))))+
       ' \u00b7 '+esc(dateShort(d.due))+'</span>'+
@@ -1730,6 +1660,114 @@ function toOps(p,containers){return (+containers||0)*(p.unit_multiplier||1);}   
 function toCont(p,ops){return p.unit_multiplier?(+ops||0)/p.unit_multiplier:0;}    // ml -> drums
 function nf(n){n=+n||0;return (Math.round(n*100)/100).toLocaleString('en-US',{maximumFractionDigits:2});}
 function rm(n){n=+n||0;const s=n<0?'-':'';return s+'RM '+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+/* v3.21 — THE OWNER'S CORRECTIONS TO THE PROGRAMME =====================================
+   A set that came from the farm workbook could not be touched in the app at all: the
+   timeline offered ACTIVATE and COPY, and the copy left the wrong original in place, so
+   every mistake came back through a rebuild of database.js. These four functions make the
+   Owner self-sufficient without giving up a single guarantee.
+
+   It is an OVERLAY, never a rewrite — the same shape as applyInvOverrides() above. The
+   workbook set is never edited; a correction layers on top of it and can be lifted off
+   again. Removing a set is a tombstone that travels, because a phone that never learned of
+   the removal would go on sending the crew to a cancelled job.                          */
+function applyProgOverrides(){
+  if(typeof PHASE_PROGRAM==='undefined')return;
+  if(!PROG_SEED)PROG_SEED=JSON.parse(JSON.stringify(PHASE_PROGRAM));
+  const out=[];
+  for(const seed of PROG_SEED){
+    const o=PROG_OVER[seed.id];
+    if(o&&o.removed)continue;                       // gone from every reader, for free
+    if(!o){out.push(JSON.parse(JSON.stringify(seed)));continue;}
+    const p=JSON.parse(JSON.stringify(seed));
+    if(o.plan)p.plan=o.plan;
+    if(Array.isArray(o.lines)&&o.lines.length){
+      const q={}; o.lines.forEach(l=>{q[l.pid]=+l.qty;});
+      p.lines=p.lines.filter(l=>q[l.pid]!=null).map(l=>Object.assign({},l,{qty:q[l.pid]}));
+    }
+    p.edited=true;
+    out.push(p);}
+  PHASE_PROGRAM.length=0; out.forEach(p=>PHASE_PROGRAM.push(p));}
+async function persistProgOver(){
+  if(db)await put('kv',{k:'progover',v:PROG_OVER});
+  await markSetting('progover');}
+/** A set is only changeable while it is still the plan. Once material has left the store
+ *  against it, it is history: removing it would orphan that spend, which is the exact
+ *  defect v3.20 was built to close. */
+function progLock(id){
+  if(typeof phaseSpend==='function'){const sp=phaseSpend(id);
+    if(sp.n>0)return {n:sp.n,rm:sp.rm};}
+  return null;}
+async function progRemove(id){
+  const p=phaseById(id); if(!p)return;
+  const lock=progLock(id);
+  if(lock){alert(tr('pe_locked')
+      .replace('{n}',String(lock.n)).replace('{rm}',rm(lock.rm)));return;}
+  if(typeof progsFor==='function'&&progsFor(id).some(x=>x.status==='ACTIVE')){
+    toast(tr('pe_active'),1);return;}
+  if(!confirm(tr('pe_confirm').replace('{s}',monthLabel(p.month)+' · '+p.set)))return;
+  PROG_OVER[id]={at:now(),by:(CFG&&CFG.worker)||'',removed:true};
+  await persistProgOver(); applyProgOverrides();
+  tlEdit=null; renderTimeline(); renderTaskNotice(); toast(tr('pe_removed'));}
+async function progRestore(id){
+  delete PROG_OVER[id];
+  await persistProgOver(); applyProgOverrides();
+  renderTimeline(); renderTaskNotice(); toast(tr('pe_restored'));}
+async function progSaveEdit(id){
+  const seed=(PROG_SEED||[]).find(x=>x.id===id); if(!seed)return;
+  const d=$('pe-plan-'+cssId(id)); const plan=d?String(d.value||'').slice(0,10):'';
+  const lines=[];
+  seed.lines.forEach((l,i)=>{
+    if(peDropped[id]&&peDropped[id][l.pid])return;
+    const el=$('pe-q-'+cssId(id)+'-'+i);
+    const q=el?(+el.value||0):(+l.qty||0);
+    if(q>0)lines.push({pid:l.pid,qty:q});});
+  if(!lines.length){toast(tr('pe_noline'),1);return;}
+  PROG_OVER[id]={at:now(),by:(CFG&&CFG.worker)||'',plan:plan||seed.plan,lines:lines};
+  await persistProgOver(); applyProgOverrides();
+  peDropped[id]=null; tlEdit=null;
+  renderTimeline(); renderTaskNotice(); toast(tr('pe_saved'));}
+let tlEdit=null, peDropped={};
+function progOpenEdit(id){tlEdit=id;peDropped[id]={};tlOpen[id]=true;renderTimeline();}
+function progCancelEdit(id){tlEdit=null;peDropped[id]=null;renderTimeline();}
+function progDropLine(id,pid){peDropped[id]=peDropped[id]||{};peDropped[id][pid]=1;renderTimeline();}
+function cssId(s){return String(s).replace(/[^A-Za-z0-9]/g,'_');}
+/** The editor, drawn inside the set's own card. No modal, no new screen. */
+function progEditHTML(p){
+  const seed=(PROG_SEED||[]).find(x=>x.id===p.id)||p, c=cssId(p.id), dr=peDropped[p.id]||{};
+  const lock=progLock(p.id);
+  let h='<div class="peedit"><div class="pelbl">'+esc(tr('pe_planned'))+'</div>'+
+    '<input type="date" id="pe-plan-'+c+'" value="'+esc(p.plan||'')+'">'+
+    '<div class="pelbl">'+esc(tr('pe_dose'))+'</div>';
+  h+=seed.lines.map((l,i)=>{
+    if(dr[l.pid])return '';
+    const pr=prodById(l.pid);
+    return '<div class="peline"><div class="pen">'+esc(pr?pr.name:l.raw)+'</div>'+
+      '<input type="number" id="pe-q-'+c+'-'+i+'" value="'+(+l.qty||0)+'" inputmode="decimal">'+
+      '<span class="peu">'+esc(l.unit)+'</span>'+
+      '<div class="pex" onclick="event.stopPropagation();progDropLine(\''+esc(p.id)+'\','+l.pid+')">&#10005;</div></div>';}).join('');
+  if(lock)h+='<div class="pewarn">'+esc(tr('pe_editwarn').replace('{n}',String(lock.n)).replace('{rm}',rm(lock.rm)))+'</div>';
+  h+='<div class="cacts"><button class="ok" onclick="event.stopPropagation();progSaveEdit(\''+esc(p.id)+'\')">'+
+     esc(tr('pe_save'))+'</button>'+
+     '<button class="no" onclick="event.stopPropagation();progCancelEdit(\''+esc(p.id)+'\')">'+
+     esc(tr('pe_cancel'))+'</button></div></div>';
+  return h;}
+/** What the crew are told. The Owner's rule: a set already finished is history and changing
+ *  it says nothing; a set they have not done yet is work in front of them, so any change is
+ *  flagged. Capped at two so the home screen never becomes a wall of notices. */
+function progChangeNotices(){
+  const out=[];
+  Object.keys(PROG_OVER).forEach(id=>{
+    const o=PROG_OVER[id]; if(!o)return;
+    const seed=(PROG_SEED||[]).find(x=>x.id===id); if(!seed)return;
+    if(seed.done)return;                                  // finished — silent, on purpose
+    const name=monthLabel(seed.month)+' \u00b7 '+seed.set;
+    if(o.removed){out.push({k:'pc_cancel',s:name,at:o.at});return;}
+    if(Array.isArray(o.lines)&&o.lines.length!==seed.lines.length){
+      out.push({k:'pc_mix',s:name,at:o.at});return;}
+    if(o.plan&&o.plan!==seed.plan){out.push({k:'pc_date',s:name,at:o.at,d:o.plan});return;}
+    out.push({k:'pc_dose',s:name,at:o.at});});
+  return out.sort((a,b)=>String(b.at||'').localeCompare(String(a.at||''))).slice(0,2);}
+
 function applyInvOverrides(){
   for(const k in INV_OVERRIDE){const p=prodById(k);if(!p)continue;const o=INV_OVERRIDE[k]||{};
     if(o.min_stock_threshold!=null&&o.min_stock_threshold!=='')p.min_stock_threshold=+o.min_stock_threshold;
@@ -2284,26 +2322,9 @@ function stuckHtml(){
       '</div>';}).join('')+
     '<div class="sfoot">'+esc(tr('sy_stucknote'))+'</div></div>';}
 
-/* v3.19.2 — the silent watch, said out loud, but ONLY when it is not doing its job.
-   A watch that is working is meant to be invisible; a row saying "all good" every time
-   somebody opens the sync screen is furniture, and furniture is what people stop reading.
-   So: nothing at all in the normal case, one amber line when it has parked itself. */
-function watchHtml(){
-  if(!PROBE_PARKED)return '';
-  const q=probeQueue();
-  // 🕓 rather than ⏸: the pause glyph falls back to a blank box on fonts that lack it,
-  // and this clock face is already proven on the backdate buttons.
-  return '<div class="stuckbox"><div class="sh">🕓 '+esc(tr('sy_parked','Automatic sync has paused'))+'</div>'+
-    '<div class="srow"><div class="sm"><b>'+nf(q)+' '+esc(tr('sy_records'))+'</b>'+
-      '<span class="ss">'+esc(tr('sy_parkwhy',
-        'The phone tried on its own several times and nothing moved, so it has stopped '+
-        'trying to save the connection. Press SYNC NOW to try again.'))+'</span></div>'+
-      '<button class="sretry" onclick="doSync()">'+esc(tr('sy_retry'))+'</button>'+
-    '</div></div>';}
-
 function renderSync(){
   $('cfginfo').innerHTML=(CFG?('Worker: <b>'+(CFG.worker||'—')+'</b> <span class="small">('+(CFG.role||'')+')</span> · Device: <b>'+(CFG.device||'—')+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>'+APP_VERSION+'</b> · <span class="linkish" onclick="logout()">log out</span>';
-  const sh=$('synchealth'); if(sh)sh.innerHTML=watchHtml()+stuckHtml()+syncHealthHtml();
+  const sh=$('synchealth'); if(sh)sh.innerHTML=stuckHtml()+syncHealthHtml();
   const ap=$('appendnote');
   if(ap)ap.innerHTML='<b>🔒 This log is append-only.</b> '+(canVoidEntry()
     ? 'As Owner you may void an entry that has not yet reached the Google Sheet — voiding writes a '+
@@ -2415,23 +2436,8 @@ async function pushAdjustments(){
     return false;
   }catch(e){return false;}}
 let syncing=false;
-/* v3.19.2 — how many events ride in one POST. 40 is deliberately well under anything the
-   Apps Script struggles with: at peak a tree visit writes a handful of rows, so 40 is
-   roughly a morning's work per chunk and a whole day still fits in a few round trips.
-   Raising it buys nothing and costs resume granularity; lowering it multiplies round
-   trips against the script's daily execution budget. */
-const SYNC_CHUNK=40;
-/* The silent link watch below drives doSync() on its own. A sync nobody asked for must not
-   put a message on a worker's screen while they are counting fruit — the whole point is
-   that it is invisible until it has something worth saying. qtoast() is toast() everywhere
-   except inside an automatic pass. */
-let SYNC_QUIET=false;
-function qtoast(m,err){ if(!SYNC_QUIET)toast(m,err); }
 async function doSync(auto){
   if(syncing)return;
-  // v3.19.2 — a person pressing the button is the clearest possible signal that it is
-  // worth trying again, so it always un-parks the silent watch and clears its backoff.
-  if(!auto&&typeof linkWake==='function')linkWake();
   if(!CFG||!CFG.url){if(!auto)toast('Set the Sync URL in Settings first',1);return;}
   if(!navigator.onLine){if(!auto)toast('No internet connection',1);return;}
   if(REG_DIRTY)await pushRegistry();          // registry changes go up first
@@ -2473,62 +2479,20 @@ async function doSync(auto){
       else toast(nn?('✓ '+nn+' new job'+(nn>1?'s':'')+' received from the Owner')
               :(got?'✓ Up to date — nothing new from the Owner':'Could not reach the Google Sheet'),!got);}
     return;}
-  /* v3.19.2 — THE UPLOAD GOES UP IN CHUNKS, AND EACH CHUNK IS BANKED AS IT LANDS.
-     Until now this was ONE POST carrying every queued event. Three faults, all of which
-     only bite on the day they cost the most — a phone that has been in the field since
-     dawn during peak drop, with the largest queue it will ever hold:
-       · all-or-nothing   400 events, one dropped packet at event 390, and all 400 stayed
-                          queued. The next attempt started again from zero.
-       · no deadline      this call had no timeout, unlike every push*() above it. A
-                          half-open hotspot — the exact thing the yard's phone sees — hung
-                          the button on "Uploading…" until the browser gave up minutes later.
-       · one payload      a big enough queue risks the Apps Script POST size and the 6-minute
-                          execution ceiling, and the failure reads as a network fault.
-     Now: SYNC_CHUNK events per POST, marked synced the moment that chunk is acknowledged.
-     An interrupted upload therefore RESUMES — the banked chunks are gone from the queue and
-     the next sync carries only what is left. Re-sending a chunk is harmless either way: the
-     Apps Script dedupes on the client uuid through the hidden SYNC_INDEX sheet, so a chunk
-     that landed but whose reply was lost is absorbed, not duplicated.
-     No Apps Script change: every chunk is the same {events:[...]} body it always was. */
-  syncing=true;const b=$('syncbtn');
-  let sent=0, chunkErr=null;
+  syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
-    for(let i=0;i<batch.length;i+=SYNC_CHUNK){
-      const part=batch.slice(i,i+SYNC_CHUNK);
-      b.textContent='Uploading '+(sent+part.length)+'/'+batch.length+'…';
-      let landed=false, lastWhy='';
-      for(let attempt=1;attempt<=SYNC_TRIES;attempt++){
-        try{
-          // text/plain avoids CORS preflight for Apps Script
-          const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({events:part}),
-            headers:{'Content-Type':'text/plain;charset=utf-8'}},SYNC_TIMEOUT_MS);
-          const j=await r.json();
-          if(j&&j.ok){landed=true;break;}
-          // v2.5.1: the backend reports ok:false with a reason — show the reason, not
-          // "server error". A refusal is not a lost packet, so retrying cannot help.
-          throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
-        }catch(err){
-          lastWhy=(err&&err.name==='AbortError')?tr('sy_timeout'):((err&&err.message)||'network');
-          if(attempt<SYNC_TRIES)await new Promise(r=>setTimeout(r,SYNC_BACKOFF_MS));}}
-      if(!landed){chunkErr=lastWhy;break;}          // stop here; everything banked so far stays banked
-      for(const e of part){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}
-      sent+=part.length;}
-    if(sent){rebuildLedgers();badge();}
-    renderSync();
-    if(chunkErr){
-      noteSyncFail('events',tr('sy_l_events'),batch.length-sent,chunkErr);
-      badge(); renderSync();
-      qtoast(sent?('⚠ '+sent+' of '+batch.length+' sent — '+(batch.length-sent)+
-                   ' still queued, they will go on the next sync')
-                :('Sync failed: '+chunkErr),1);}
-    else{
-      clearSyncFail('events');
+    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
+    const j=await r.json();
+    if(j&&j.ok){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}rebuildLedgers();badge();renderSync();
       const left=pending()+setUnsynced();   // refused own-key records still sitting here
-      qtoast(left?('⚠ '+sent+' sent, but '+left+' '+tr(left>1?'sy_stuck_n':'sy_stuck_1'))
-                 :('✓ '+sent+' events synced to Google Sheets'),!!left);
+      toast(left?('⚠ '+batch.length+' sent, but '+left+' '+tr(left>1?'sy_stuck_n':'sy_stuck_1'))
+                :('✓ '+batch.length+' events synced to Google Sheets'),!!left);
       refreshMasters(); // hidden hotspot token validation runs after every sync
     }
-  }catch(err){qtoast('Sync failed: '+err.message,1);renderSync();}
+    // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
+    else throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
+  }catch(err){toast('Sync failed: '+err.message,1);renderSync();}
   syncing=false;}
 
 // ================= dashboard =================
@@ -3861,6 +3825,12 @@ function setStatus(p){
   const recs=progsFor(p.id);
   const fin=recs.find(setDone);
   if(fin)return {st:'DONE',on:lastOutFor(fin.uuid),rec:fin};
+  // v3.20 — the farm's own programme sheet carries an ACTUAL date beside every PLAN, and
+  // that is the only evidence for work finished before any of this existed. No directive
+  // was ever issued for those sets, so nothing here could ever have called them done, and
+  // the record showed a season of completed work as LATE. `fromFile` tells every caller
+  // the evidence is the sheet, not a filing on a phone — so nothing pretends otherwise.
+  if(!recs.length&&p.done)return {st:'DONE',on:p.done,rec:null,fromFile:true};
   const live=recs.find(x=>x.status==='ACTIVE');
   if(live&&lotsDone(live.uuid).length)return {st:'PART',on:lastOutFor(live.uuid),rec:live};
   const today=ymd(dayStart(new Date()));
@@ -3869,6 +3839,51 @@ function setStatus(p){
   if(p.plan<today)return {st:'LATE',on:null,rec:null};
   if(p.plan===today)return {st:'DUE',on:null,rec:null};
   return {st:'NEXT',on:null,rec:null};}
+/** v3.20 — what the store spent against ONE programme set. Every imported 2026 entry
+ *  carries the phaseId of the set it belongs to, so this is summed from the ledger and
+ *  can never drift from it. Work filed on a phone against an issued directive keeps its
+ *  own progId path and is not counted twice here. */
+function phaseSpend(id){
+  let rm=0,n=0; const lots={};
+  for(const e of EVENTS){
+    if(e.type!=='STOCK_OUT'||e.phaseId!==id)continue;
+    rm+=(+e.cost||0); n++; if(e.lot)lots[e.lot]=1;}
+  return {rm:+rm.toFixed(2),n:n,lots:Object.keys(lots).sort()};}
+
+/** The record of a set finished before the app existed: when it started, when it
+ *  finished, whether that beat the plan, and what left the store against it. Money is
+ *  gated on SHOW_VALUES like every other RM figure. */
+function phaseRecordHTML(p){
+  const sp=phaseSpend(p.id);
+  let h='<div class="varbox ok"><b>'+esc(tr('pr_fromsheet'))+'</b><br>';
+  if(p.donePerLot){
+    h+=LOT_KEYS.filter(L=>p.donePerLot[L])
+        .map(L=>'Lot '+L+' '+esc(dateShort(p.donePerLot[L]))).join(' · ');
+  } else if(p.started){
+    h+=esc(tr('pr_started'))+' '+esc(dateShort(p.started))+' → '+
+       esc(tr('pr_finished'))+' '+esc(dateShort(p.done));
+  } else {
+    h+=esc(tr('pr_finished'))+' '+esc(dateShort(p.done));
+  }
+  h+='<div class="exphint">'+(sp.n
+      ?(sp.n+' '+esc(tr('pr_rows'))+(SHOW_VALUES?(' · '+rm(sp.rm)):'')+
+        (sp.lots.length?(' · Lot '+sp.lots.join(', ')):''))
+      :esc(tr('pr_nomaterial')))+'</div>';
+  // The plan date now IS the finishing date, on the Owner's instruction: a round that
+  // takes three days on a hand pump was never a late round, it was a full-length job.
+  // The date first written in the workbook is kept and shown, so nothing is lost.
+  if(p.planOriginal)
+    h+='<div class="exphint">'+esc(tr('pr_replan'))+' '+esc(dateShort(p.planOriginal))+
+       ' → '+esc(dateShort(p.plan))+'</div>';
+  // where the workbook tick and the day material actually left the store disagree, the
+  // store wins and the workbook date is printed beside it rather than quietly dropped
+  if(p.sheetDone&&p.sheetDone!==p.done)
+    h+='<div class="exphint">'+esc(tr('pr_sheetsaid'))+' '+esc(dateShort(p.sheetDone))+'</div>';
+  if(p.unconfirmed&&p.unconfirmed.length)
+    h+='<div class="exphint" style="color:#7a5b00">'+esc(tr('pr_unconf'))+': '+
+       p.unconfirmed.map(esc).join(' · ')+'</div>';
+  return h+'</div>';}
+
 const TL_PILL={DONE:['done','✓ DONE'],PART:['due','◐ PART DONE'],LATE:['late','⚠ LATE'],
   DUE:['due','● DUE NOW'],NEXT:['next','UPCOMING']};
 
@@ -3939,6 +3954,9 @@ function tlStep(d){
   i=Math.max(0,Math.min(ms.length-1,i+d));
   tlSet(ms[i]);}
 function tlToggle(id){tlOpen[id]=!tlOpen[id];renderTimeline();}
+/** v3.21 — sets the Owner removed from THIS month, so there is always a way back. */
+function tlRemoved(){
+  return (PROG_SEED||[]).filter(p=>p.month===tlMonth&&PROG_OVER[p.id]&&PROG_OVER[p.id].removed);}
 function tlSets(){
   return allPhases().filter(p=>p.month===tlMonth)
     .sort((a,b)=>String(a.plan||'9999-99-99').localeCompare(String(b.plan||'9999-99-99')));}
@@ -3954,15 +3972,26 @@ function tlCard(p){
   const adv=weatherAdvice(p,p.lines);
   let inner='';
   if(isOpen){
-    inner=tankLineHTML(p,lpt,trees)+comboGridHTML(p,lpt,trees);
+    // v3.20 — a set known finished from the programme sheet is history. Asking the Owner
+    // to go and ACTIVATE it so a tank count can be worked out is noise on a job that
+    // ended five months ago, so the prompt is suppressed there and only there.
+    inner=((s.fromFile&&!(lpt>0))?'':tankLineHTML(p,lpt,trees))+comboGridHTML(p,lpt,trees);
     if(phi)inner+='<div class="cnote" style="color:#b3261e;font-weight:700">⚠ contains a fruit-contact product with a 14-day residue cut-off</div>';
     if(adv&&!adv.ok)inner+=advHTML(adv);
     if(wf.wet&&spray)inner+='<div class="wetnote">💧 '+esc(wf.text)+'. A contact spray put on now may not stay on the leaf.</div>';
-    if(s.st==='DONE'||s.st==='PART'){
+    if(s.fromFile){ inner+=phaseRecordHTML(p); }
+    else if((s.st==='DONE'||s.st==='PART')&&rec){
       const done=lotsDone(rec.uuid);
       inner+='<div class="varbox ok">Reported for '+done.map(L=>'Lot '+L).join(', ')+
         (s.on?(' · last on '+esc(s.on)):'')+'</div>';}
-    inner+='<div class="cacts">'+
+    // v3.21 — the Owner's own corrections. Gated on SHOW_VALUES, which is the Owner /
+    // Marketing gate everywhere else in the app, so no worker or purchaser sees these.
+    if(tlEdit===p.id){ inner+=progEditHTML(p); }
+    else if(SHOW_VALUES&&myRole()==='OWNER'){
+      inner+='<div class="cacts"><button class="no" onclick="event.stopPropagation();progOpenEdit(\''+esc(p.id)+'\')">'+
+        esc(tr('pe_edit'))+'</button><button class="no pedel" onclick="event.stopPropagation();progRemove(\''+esc(p.id)+'\')">'+
+        esc(tr('pe_remove'))+'</button></div>';}
+    if(tlEdit!==p.id)inner+='<div class="cacts">'+
       (s.st==='DONE'
         ?'<button class="no" style="background:#e8f0fe;color:#123a71" onclick="event.stopPropagation();openProgModal(\''+esc(p.id)+'\')">RE-ACTIVATE</button>'
         :'<button class="ok" onclick="event.stopPropagation();openProgModal(\''+esc(p.id)+'\')">✓ ACTIVATE &amp; SEND TO WORKERS</button>')+
@@ -3995,8 +4024,18 @@ function renderTimeline(){
       rows+='<div class="today"><span class="todaytag">TODAY · '+esc(today)+'</span></div>';}
     const st=setStatus(p).st;
     rows+='<div class="tlrow"><div class="tldate">'+(p.plan?esc(p.plan.slice(8)):'—')+
-      '<small>'+(p.plan?esc(monthLabel(tlMonth)).slice(0,3):'no date')+'</small></div>'+
+      // v3.20 — this used to slice the ROUND NAME, so the Boosting round printed "Boo".
+      // A round is not a calendar month; take the month from the plan date itself.
+      '<small>'+(p.plan?esc((LANG==='ms'?MONTH_LONG_MS:MONTH_LONG_EN)[+p.plan.slice(5,7)-1].slice(0,3)):'no date')+'</small></div>'+
       '<div class="tldot '+st.toLowerCase()+'"></div>'+tlCard(p)+'</div>';});
+  // removed sets sit under the month, greyed, with one button to put them back
+  if(SHOW_VALUES&&myRole()==='OWNER')tlRemoved().forEach(p=>{
+    rows+='<div class="tlrow"><div class="tldate">'+(p.plan?esc(p.plan.slice(8)):'—')+
+      '<small>'+(p.plan?esc((LANG==='ms'?MONTH_LONG_MS:MONTH_LONG_EN)[+p.plan.slice(5,7)-1].slice(0,3)):'')+'</small></div>'+
+      '<div class="tldot"></div><div class="cbox perem"><div class="cbt">'+esc(p.set)+'</div>'+
+      '<div class="cbs">'+esc(tr('pe_removedlbl'))+'</div>'+
+      '<div class="cacts"><button class="no" onclick="progRestore(\''+esc(p.id)+'\')">'+
+      esc(tr('pe_restore'))+'</button></div></div></div>';});
   if(!line&&sets.length)rows+='<div class="today"><span class="todaytag">TODAY · '+esc(today)+'</span></div>';
   box.innerHTML=
     '<div class="mrow"><div class="marrow'+(i<=0?' off':'')+'" onclick="tlStep(-1)">‹</div>'+
@@ -4986,54 +5025,6 @@ function canSetPrice(){return myRole()==='OWNER';}          // retailers, credit
    role READS all three, which is the whole point of the shared-settings channel. */
 function canSetShared(){return FULL_ROLES.indexOf(myRole())>=0;}
 function canDispatch(){return FULL_ROLES.indexOf(myRole())>=0;}   // Owner + Marketing only
-/* v3.19.2 — THE CEILING IS THE MARKETER'S CALL, ON THE OWNER'S INSTRUCTION (5 Aug 2026).
-   Note carefully what this does and does not widen. It grants the Marketer the ceiling —
-   the advisory limit each merchant's prepaid pool should be carried to going into a wave,
-   which is a judgement about Roll and Seng Kee that the Marketer makes and the Owner does
-   not want to make from the lot. It does NOT grant posting a top-up, editing the opening
-   pool, or changing a price: topUpRetailer() and openRetForm() still sit behind
-   canSetPrice(), Owner-only. Setting a ceiling moves no money and invoices nothing. */
-function canSetCreditCap(){return myRole()==='OWNER'||myRole()==='MARKETING';}
-/** The Marketer's ceiling for one merchant, or null when nobody has set one. NEVER 0 —
- *  an unset ceiling and a ceiling deliberately set to zero are different facts. */
-function capOf(id){
-  const c=CREDIT_CAP[String(id)];
-  return (c&&c.cap_rm!=null&&isFinite(+c.cap_rm))?+c.cap_rm:null;}
-function capStamp(id){
-  const c=CREDIT_CAP[String(id)]; if(!c||!c.at)return '';
-  const d=String(c.at).slice(0,10), t=hm(c.at).slice(0,5);
-  return tr('st_setby')+' '+(c.by||'—')+' · '+((d===todayStr())?(tr('st_today')+' '+t):(d+' '+t));}
-async function persistCreditCap(){
-  if(db)await put('kv',{k:'creditcap',v:CREDIT_CAP});
-  await markSetting('creditcap');}
-/** Set (or clear) one merchant's ceiling. Clearing is deliberate and distinct from zero. */
-async function saveCreditCap(id,val){
-  if(!canSetCreditCap()){toast(tr('cc_denied','Only the Owner or Marketing can set a credit ceiling'),1);return false;}
-  const r=retailerById(id); if(!r){toast('Unknown retailer',1);return false;}
-  const s=String(val==null?'':val).trim();
-  if(s===''){                                    // clear it — back to "nobody has decided"
-    delete CREDIT_CAP[String(id)];
-    await persistCreditCap();
-    toast(tr('cc_cleared','Ceiling cleared — the recommendation is showing again'));
-    return true;}
-  const n=Math.round(+s);
-  if(!isFinite(n)||n<0){toast(tr('cc_bad','Enter a ceiling in whole ringgit, or leave it empty to clear it'),1);return false;}
-  if(n>1000000){toast(tr('cc_big','That ceiling looks wrong — over RM 1,000,000'),1);return false;}
-  CREDIT_CAP[String(id)]={cap_rm:n,at:nowSec(),by:(CFG&&CFG.worker)||'',role:myRole()};
-  await persistCreditCap();
-  toast('✓ '+esc(r.name)+' '+tr('cc_saved','ceiling set')+' RM '+nf(n)+' — '+tr('cc_travels','it reaches the Owner on the next sync'));
-  return true;}
-/** The setter, from the merchant's own profile. */
-async function promptCreditCap(id){
-  const cur=capOf(id);
-  const box=$('cc-in-'+id);
-  const val=box?box.value:'';
-  if(await saveCreditCap(id,val)){
-    // the merchant card is painted by renderDispatch() from retailerCardHtml(MKT_SEL)
-    if(typeof renderDispatch==='function')renderDispatch();
-    if(typeof renderCmdExec==='function'&&myRole()==='OWNER')renderCmdExec();
-    badge();}
-  return cur;}
 async function persistRetailers(){
   if(db){await put('kv',{k:'retailers',v:RETAILERS});await put('kv',{k:'retdirty',v:RET_DIRTY});}}
 async function persistPrices(){
@@ -5483,45 +5474,6 @@ function contractBanner(id){
       ' — a basket of those cannot be invoiced until the Owner sets it.</div>'):'')+
     '</div>';}
 
-/* v3.19.2 — THE CEILING, ON THE MERCHANT'S OWN PROFILE.
-   Two numbers sit here and they must never be confused for one another, so they are drawn
-   differently and labelled in full:
-     · the RECOMMENDATION is derived — what the coming wave suggests this merchant's pool
-       should carry, computed from real dispatch history and the hanging crop. It is
-       prefixed ≈ like every other derived figure in this app, and it is simply absent when
-       there is no priced history to derive it from. It is never a target somebody typed.
-     · the CEILING is a decision — the Marketer's, and it overrides nothing; it is the
-       figure the Owner's Executive Summary quotes when approving a top-up.
-   An unset ceiling shows the recommendation alone. Neither number moves any money. */
-function creditCapHtml(id){
-  const cap=capOf(id), may=canSetCreditCap();
-  const adv=(typeof creditAdvice==='function')?creditAdvice().find(a=>String(a.id)===String(id)):null;
-  const rec=(adv&&adv.known&&adv.target!=null)?adv.target:null;
-  const dirty=!!SET_DIRTY['creditcap'];
-  return '<div class="capbox">'+
-    '<div class="capl">'+esc(tr('cc_title','PREPAID CEILING FOR THE COMING WAVE'))+'</div>'+
-    '<div class="capv">'+(cap!=null
-      ? ('RM '+nf(cap)+' <span class="capwho">'+esc(capStamp(id))+'</span>')
-      : ('<span class="capnone">'+esc(tr('cc_unset','Not set yet'))+'</span>'))+'</div>'+
-    '<div class="caprec">'+(rec!=null
-      ? (esc(tr('cc_rec','App recommends'))+' <b>≈ RM '+nf(rec)+'</b>'+
-         esc(tr('cc_recwhy',' — from this merchant’s own buying and the crop still hanging')))
-      : esc(tr('cc_norec','No priced dispatch history yet, so the app will not recommend a figure.')))+
-    '</div>'+
-    (may?('<div class="caprow">'+
-      '<input id="cc-in-'+esc(id)+'" type="number" inputmode="numeric" step="1000" min="0" '+
-        'placeholder="'+esc(tr('cc_ph','e.g. 30000'))+'" value="'+(cap!=null?cap:'')+'">'+
-      '<button class="capbtn" onclick="promptCreditCap(\''+esc(id)+'\')">'+
-        esc(tr('cc_save','SET CEILING'))+'</button>'+
-      '</div>'+
-      '<div class="caphint">'+esc(tr('cc_hint',
-        'Leave it empty and press SET CEILING to clear it. This sets a limit only — it '+
-        'posts no money and invoices nothing.'))+'</div>'+
-      (dirty?('<div class="capdirty">⚠ '+esc(tr('cc_dirty',
-        'Set on this phone and not yet shared — press SYNC NOW so the Owner sees it.'))+'</div>'):''))
-    :('<div class="caphint">'+esc(tr('cc_ro','Marketing sets this ceiling.'))+'</div>'))+
-  '</div>';}
-
 function retailerCardHtml(id){
   const r=retailerById(id), c=retailerLedger(id), own=canSetPrice();
   const low=c.current_credit_balance_rm<CREDIT_FLOOR_RM;
@@ -5544,7 +5496,6 @@ function retailerCardHtml(id){
         '<span class="linkish" onclick="openRetForm(\''+esc(id)+'\')">✏️ edit details</span>'+
         '<span class="linkish" onclick="topUpRetailer(\''+esc(id)+'\')">＋ post credit top-up</span>'+
         '</div>'):'')+
-      creditCapHtml(id)+
     '</div>'+
 
     // ---- the scale form ----
@@ -6851,7 +6802,7 @@ function settingValue(k){
   if(k==='agrodrafts')return AGRO_DRAFTS;
   if(k==='aialloc')   return AI_ALLOC;
   if(k==='newprods')  return NEW_PRODS;
-  if(k==='creditcap') return CREDIT_CAP;
+  if(k==='progover')  return PROG_OVER;
   return null;}
 
 /** Mark a setting as changed here and remember who did it. Called by every saver. */
@@ -6883,28 +6834,14 @@ async function pushSettings(){
         headers:{'Content-Type':'text/plain;charset=utf-8'}});
       const j=await r.json();
       if(j&&j.ok&&j.settings){
-        /* v3.19.2 — A REFUSED KEY MUST NOT BE MARKED CLEAN. This cleared SET_DIRTY for
-           every key in the batch, including the ones the reply had just listed as REFUSED.
-           The value then lived on as this phone's private figure, with nothing on any
-           screen saying it had never reached the farm — the silently-swallowed failure the
-           architecture rules exist to prevent, one layer up from where they were looking.
-           It bites hardest on a key an older backend does not know at all (`creditcap`
-           before the Apps Script is redeployed): refused every time, cleaned every time,
-           invisible every time. Refused keys now stay dirty and stay on the sync screen. */
-        const refused=Array.isArray(j.refused)?j.refused:[];
-        const refusedKeys=refused.map(s=>String(s).split(' ')[0].trim()).filter(Boolean);
-        Object.keys(q).forEach(k=>{ if(refusedKeys.indexOf(k)<0)delete SET_DIRTY[k]; });
+        Object.keys(q).forEach(k=>{delete SET_DIRTY[k];});
         if(db)await put('kv',{k:'setdirty',v:SET_DIRTY});
-        if(refusedKeys.length)
-          noteSyncFail('settings',tr('sy_l_settings'),refusedKeys.length,
-            tr('st_refused')+': '+refused.join(', '));
-        else clearSyncFail('settings');
-        badge(); renderSync();
+        clearSyncFail('settings'); badge(); renderSync();
         // the backend refuses an edit older than what it already holds — say so rather
         // than letting the phone believe its figure is now the farm's figure
-        if(refused.length)
-          qtoast('⚠ '+tr('st_refused')+': '+refused.join(', '),1);
-        return !refusedKeys.length;}
+        if(Array.isArray(j.refused)&&j.refused.length)
+          toast('⚠ '+tr('st_refused')+': '+j.refused.join(', '),1);
+        return true;}
       noteSyncFail('settings',tr('sy_l_settings'),n,tr('sy_oldbackend'));
       return false;
     }catch(err){
@@ -6995,6 +6932,20 @@ async function applySetting(k,v){
         if(!mine||String(inc.at||'')>String(mine.at||''))AI_ALLOC[key]=inc;});
       if(db)await put('kv',{k:'aialloc',v:AI_ALLOC});
       return true;}
+    if(k==='progover'){
+      // same merge rule as agrodrafts: per record, newest `at` wins. A REMOVED set is a
+      // tombstone, not an absence — it must travel, or a phone that never saw the removal
+      // would keep sending the crew to a job the Owner cancelled.
+      if(!v||typeof v!=='object')return false;
+      Object.keys(v).forEach(id=>{
+        const inc=v[id]; if(!inc)return;
+        const mine=PROG_OVER[id];
+        if(!mine||String(inc.at||'')>String(mine.at||''))PROG_OVER[id]=inc;});
+      if(db)await put('kv',{k:'progover',v:PROG_OVER});
+      applyProgOverrides();
+      if(typeof renderTimeline==='function')renderTimeline();
+      if(typeof renderTaskNotice==='function')renderTaskNotice();
+      return true;}
     if(k==='newprods'){
       if(!Array.isArray(v))return false;
       // union by nid. A catalogue item is never deleted, so union can never lose one —
@@ -7005,19 +6956,6 @@ async function applySetting(k,v){
       if(db)await put('kv',{k:'newprods',v:NEW_PRODS});
       applyNewProducts();
       if(typeof refreshInventoryViews==='function')refreshInventoryViews();
-      return true;}
-    /* v3.19.2 — same per-record rule as aialloc, for the same reason. The Marketer may be
-       raising Roll's ceiling on one phone while the Owner reads Seng Kee's on another;
-       whole-object newest-wins would throw one of those away. Each merchant's ceiling
-       carries its own stamp and only a NEWER stamp for THAT merchant replaces it. */
-    if(k==='creditcap'){
-      if(!v||typeof v!=='object')return false;
-      Object.keys(v).forEach(rid=>{
-        const inc=v[rid]; if(!inc||inc.cap_rm==null)return;
-        const mine=CREDIT_CAP[rid];
-        if(!mine||String(inc.at||'')>String(mine.at||''))CREDIT_CAP[rid]=inc;});
-      if(db)await put('kv',{k:'creditcap',v:CREDIT_CAP});
-      if(typeof renderCmdExec==='function'&&myRole()==='OWNER')renderCmdExec();
       return true;}
   }catch(e){return false;}
   return false;}
@@ -8835,31 +8773,9 @@ async function persistAddedTrees(){
   // v3.11 — a tree only this phone knows about cannot be logged against by the worker
   // standing at it. Every add and every removal is shared.
   await markSetting('addtrees'); }
-/* v3.19.2 — A PROSPECTIVE PLANTING LOCATION IS NOT A TREE, AND MUST NOT BE COUNTED AS ONE.
-   The brief asks the app to accommodate 20 prospective planting locations. The dangerous
-   way to do that is to add 20 rows to the census, which is what "add tree" already does —
-   and the census is a MULTIPLIER. treesInScope() feeds litres → tanks → chemical, so 20
-   empty holes in the ground would inflate every spray job by 12% and buy chemical for
-   trees that do not exist, at the worst possible moment of the year. It would also hand
-   the crew twenty pickable trees with nothing on them.
-
-   So a prospective location is held in ADDED_TREES with `prospect:true` and is SKIPPED
-   here: it never enters TREE_MASTER, so no picker, no dose, no cost, no census total
-   moves. It is a planning list the Owner keeps in Master Control. When something is
-   actually planted, MARK AS PLANTED clears the flag and only then does it become a tree.
-
-   This rides the EXISTING `addtrees` shared key, so it needs no Apps Script change: an
-   older backend stores the record verbatim and hands it back unchanged. A phone running
-   an older app version reads a prospect row as an ordinary added tree, which is the one
-   behaviour worth naming out loud — upgrade the phones together. */
-function isProspect(t){return !!(t&&t.prospect);}
-function prospectTrees(){return ADDED_TREES.filter(isProspect);}
-/** Added trees that ARE in the census — everything ADDED_TREES holds minus the planning list. */
-function plantedAdded(){return ADDED_TREES.filter(t=>!isProspect(t));}
 function applyAddedTrees(){
   let n=0;
   ADDED_TREES.forEach(t=>{
-    if(isProspect(t))return;                       // a hole in the ground is not in the census
     if(TREE_MASTER.some(x=>x.id===t.id))return;
     TREE_MASTER.push({id:t.id,lot:t.lot,no:+t.no,clone:t.clone||'',census:null,added:true});n++;});
   if(n){ TREE_MASTER.sort((a,b)=>a.lot<b.lot?-1:(a.lot>b.lot?1:(a.no-b.no)));
@@ -8867,56 +8783,6 @@ function applyAddedTrees(){
   return n;}
 function treeHasHistory(id){
   return EVENTS.some(e=>e.tree===id);}
-
-/* v3.19.2 — a RUN of prospective locations in one action. Twenty taps through the single
-   add form was the answer before; twenty taps is also twenty chances to key the wrong lot
-   halfway through, and every one of them would have gone straight into the census. */
-async function mdbAddProspects(){
-  if(!canMasterAdmin()){toast('Owner only',1);return;}
-  const err=$('pp-err'); if(err)err.textContent='';
-  const lot=$('pp-lot').value;
-  const from=Math.floor(+$('pp-from').value||0);
-  const count=Math.floor(+$('pp-count').value||0);
-  if(LOTS.indexOf(lot)<0)      return err.textContent='Choose Lot A, B or C.';
-  if(!(from>0&&from<1000))     return err.textContent='The first tree number must be between 1 and 999.';
-  if(!(count>0&&count<=50))    return err.textContent='How many locations? Between 1 and 50 at a time.';
-  if(from+count-1>999)         return err.textContent='That run goes past tree 999. Start lower or add fewer.';
-  const made=[], clash=[];
-  for(let i=0;i<count;i++){
-    const no=from+i, id=lot+'-'+String(no).padStart(3,'0');
-    // an id already in the census, or already on the planning list, is skipped rather than
-    // duplicated — a half-keyed run must be safe to repeat
-    if(TREE_MASTER.some(t=>t.id===id)||ADDED_TREES.some(t=>t.id===id)){clash.push(id);continue;}
-    made.push({id:id,lot:lot,no:no,clone:'',prospect:true,
-      addedBy:(CFG&&CFG.worker)||'',addedAt:now()});}
-  if(!made.length){
-    return err.textContent='Every number in that run already exists'+
-      (clash.length?(' ('+clash.slice(0,4).join(', ')+(clash.length>4?'…':'')+')'):'')+'.';}
-  made.forEach(t=>ADDED_TREES.push(t));
-  await persistAddedTrees();
-  applyAddedTrees();                                // no-op for prospects, kept for symmetry
-  MDB_NEXT_LOT=lot; MDB_NEXT_NO=String(from+count);
-  renderMasterDB(); badge();
-  toast('📍 '+made.length+' prospective location'+(made.length>1?'s':'')+' added in Lot '+lot+
-    (clash.length?(' · '+clash.length+' already existed and were skipped'):'')+
-    ' — not counted in the census until planted');}
-
-/** A location becomes a tree the day something is actually put in the ground. */
-async function mdbPlantProspect(id){
-  if(!canMasterAdmin()){toast('Owner only',1);return;}
-  const t=ADDED_TREES.find(x=>x.id===id&&isProspect(x));
-  if(!t){toast('That location is not on the planning list',1);return;}
-  const sel=$('pp-clone-'+id);
-  const clone=sel?sel.value:'';
-  if(!confirm('Plant '+id+'?\n\nIt joins the census now: the crew can log against it, and '+
-              'every spray job from here on will mix chemical for it.'))return;
-  t.prospect=false; t.clone=clone||''; t.plantedAt=now(); t.plantedBy=(CFG&&CFG.worker)||'';
-  await persistAddedTrees();
-  applyAddedTrees();
-  rebuildLedgers();
-  if(typeof rebuildAllTreePickers==='function')rebuildAllTreePickers();
-  renderMasterDB(); badge(); refreshEverything();
-  toast('🌳 '+id+' planted — census is now '+TREE_MASTER.length+' trees');}
 
 async function mdbAddTree(){
   if(!canMasterAdmin()){toast('Owner only',1);return;}
@@ -9404,11 +9270,8 @@ function mdbTreesHtml(){
     '<div class="ygrid" style="margin-top:10px">'+LOTS.map(l=>
       '<div><div class="l">LOT '+l+'</div><div class="v">'+byLot[l]+'</div><div class="u">trees</div></div>').join('')+
     '</div>'+
-    // v3.19.2 — planted-only. A prospective location is listed in ADDED_TREES but is NOT in
-    // the census, so counting it here would contradict the very total it sits beside.
     '<div class="exphint" style="margin:8px 0 0">Census total: <b>'+TREE_MASTER.length+' trees</b>'+
-      (plantedAdded().length?(' · '+plantedAdded().length+' added by you'):'')+
-      (prospectTrees().length?(' · '+prospectTrees().length+' planned, not yet planted'):'')+'</div>'+
+      (ADDED_TREES.length?(' · '+ADDED_TREES.length+' added by you'):'')+'</div>'+
     // v3.11 — the census used to grow on this phone alone. A worker standing at C-072 could
     // not log it because their dropdown had never heard of it. The share stamp is how the
     // Owner knows the tree actually reached the shed.
@@ -9430,47 +9293,10 @@ function mdbTreesHtml(){
     '<p class="small">The tree number box steps up by one after each save, so keying a run of 20 new '+
       'planting spots is twenty taps, not twenty forms.</p>'+
 
-    /* v3.19.2 — the planning list. Kept visually and physically apart from ADD A TREE
-       above it, because the difference between the two is the whole point: one changes
-       what the farm sprays tonight, the other does not change anything at all yet. */
-    '<div class="sec" style="margin-top:18px">📍 Prospective planting locations</div>'+
-    '<div class="cnote">A location here is <b>not a tree yet</b>. It is not in the census, the crew '+
-      'cannot log against it, and no spray job mixes chemical for it. Add the spots you intend to '+
-      'plant, then press <b>PLANT</b> on one the day something actually goes in the ground — that is '+
-      'the moment it joins the '+TREE_MASTER.length+'.</div>'+
-    '<div class="dl3" style="margin-top:10px">'+
-      '<div><label>Lot</label><select id="pp-lot">'+
-        LOTS.map(l=>'<option value="'+l+'"'+(l===MDB_NEXT_LOT?' selected':'')+'>Lot '+l+'</option>').join('')+
-        '</select></div>'+
-      '<div><label>First number</label><input type="number" min="1" max="999" step="1" '+
-        'inputmode="numeric" id="pp-from" placeholder="e.g. 67" value="'+esc(MDB_NEXT_NO)+'"></div>'+
-      '<div><label>How many</label><input type="number" min="1" max="50" step="1" '+
-        'inputmode="numeric" id="pp-count" value="20"></div>'+
-    '</div>'+
-    '<div class="pinerr" id="pp-err"></div>'+
-    '<button class="bigbtn ghost" onclick="mdbAddProspects()">📍 ADD THIS RUN OF LOCATIONS</button>'+
-
-    (prospectTrees().length?('<div class="tblwrap full" style="margin-top:12px"><table class="tbl">'+
-      '<tr><th>Location</th><th>Clone to plant</th><th class="num"></th></tr>'+
-      prospectTrees().slice().sort((a,b)=>a.id<b.id?-1:1).map(t=>
-        '<tr><td><div class="pn">'+esc(t.id)+' <span class="minitag">NOT PLANTED</span></div>'+
-          '<div class="pa">added '+esc(t.addedAt||'')+' by '+esc(t.addedBy||'')+'</div></td>'+
-        '<td><select id="pp-clone-'+esc(t.id)+'">'+
-          '<option value="">Not decided</option>'+
-          CLONE_SELL_ORDER.map(c=>'<option value="'+esc(c)+'"'+(c===t.clone?' selected':'')+'>'+
-            esc(CLONE_NAME[c]||c)+' ('+esc(c)+')</option>').join('')+
-          '</select></td>'+
-        '<td class="num"><span class="mdbbtn" onclick="mdbPlantProspect(\''+esc(t.id)+'\')">PLANT</span>'+
-          ' <span class="mdbbtn del" onclick="mdbRemoveTree(\''+esc(t.id)+'\')">remove</span></td></tr>').join('')+
-      '</table></div>'+
-      '<p class="small"><b>'+prospectTrees().length+'</b> location'+(prospectTrees().length>1?'s':'')+
-        ' planned · census stays at <b>'+TREE_MASTER.length+' trees</b> until they are planted.</p>')
-     :'<p class="small">No prospective locations on the list.</p>')+
-
-    (plantedAdded().length?('<div class="sec" style="margin-top:16px">Trees you have added</div>'+
+    (ADDED_TREES.length?('<div class="sec" style="margin-top:16px">Trees you have added</div>'+
       '<div class="tblwrap full"><table class="tbl">'+
       '<tr><th>Tree</th><th>Clone</th><th class="num"></th></tr>'+
-      plantedAdded().slice().sort((a,b)=>a.id<b.id?-1:1).map(t=>{
+      ADDED_TREES.slice().sort((a,b)=>a.id<b.id?-1:1).map(t=>{
         const used=treeHasHistory(t.id);
         return '<tr><td><div class="pn">'+esc(t.id)+'</div><div class="pa">added '+esc(t.addedAt||'')+
           ' by '+esc(t.addedBy||'')+'</div></td>'+
@@ -11163,24 +10989,12 @@ function creditAdvice(){
     // v3.16 — a pool that is ALREADY negative has not "run out mid-wave", it ran out
     // some time ago and the merchant is taking fruit on arrears. Screenshot review caught
     // the single message covering both; they need different words and different urgency.
-    /* v3.19.2 — the Marketer's SET ceiling, if there is one, and it is what the Owner acts
-       on. `target` stays exactly what it always was: the app's own derived recommendation,
-       reported separately and never overwritten, so the Owner can always see whether the
-       decision and the arithmetic agree. `ceiling` is what to top up TO; `derived` says
-       which of the two it came from. A ceiling set by a person is a fact about the farm's
-       intent, not a projection, so it does NOT carry the ≈ that `target` does. */
-    const cap=capOf(r.id);
-    const ceiling=(cap!=null)?cap:target;
     return {id:r.id,name:r.name,known:known,
       share:+(share*100).toFixed(1),kg:kg,need:need,balance:bal,target:target,
-      cap:cap, ceiling:ceiling, capBy:((CREDIT_CAP[String(r.id)]||{}).by||''),
-      ceilingDerived:(cap==null),
       arrears:bal<0?Math.round(-bal):0,
       overdrawn:bal<0,
-      topup:(ceiling!=null&&ceiling>bal)?Math.round(ceiling-bal):0,
-      // a merchant is short if the pool cannot cover the wave, OR cannot reach a ceiling
-      // somebody has deliberately set for them
-      raise:((known&&bal<need)||(cap!=null&&bal<cap))};});}
+      topup:(known&&target>bal)?Math.round(target-bal):0,
+      raise:(known&&bal<need)};});}
 
 /* The brief writes material drawdown as ((Opening + Receipts - Closing) / Peak) * 100.
    Receipts are never negative, so the highest value the store holds in a month IS
@@ -11259,23 +11073,9 @@ function renderCmdExec(){
     H.push('<div class="exsub">'+esc(tr('ex_credit','Prepaid credit for the coming wave'))+'</div>');
     ca.forEach(c=>{
       if(!c.known){
-        /* v3.19.2 — with no priced history the app still refuses to derive a ceiling, but
-           a ceiling the MARKETER has set is not a derivation and is shown here: it is the
-           only figure available, it was decided by a person, and the Owner needs it to
-           approve a top-up. Without this branch a Marketer-set ceiling was invisible on
-           exactly the merchants who most needed one. */
-        H.push('<div class="credrec"><div class="fh">'+esc(c.name)+
-          (c.cap!=null?(' — '+esc(tr('ex_capset','ceiling set'))+' <b>RM '+nf(c.cap)+'</b>'):'')+
-          '</div><div class="fb">'+
-          esc(tr('ex_credunknown','No dispatch history priced yet, so no ceiling can be recommended without guessing a price per kg.'))+
-          '<br>'+esc(tr('ex_balance','Balance now'))+': <b>RM '+nf(c.balance)+'</b>'+
-          (c.cap!=null
-            ? ('<br>'+esc(tr('ex_capby','Set by Marketing'))+
-               (c.capBy?(' · '+esc(c.capBy)):'')+
-               (c.topup>0?(' · '+esc(tr('ex_topup','top up by'))+' <b>RM '+nf(c.topup)+'</b>'):
-                          (' · '+esc(tr('ex_capmet','the pool is already at the ceiling')))))
-            : '')+
-          '</div></div>');
+        H.push('<div class="credrec"><div class="fh">'+esc(c.name)+'</div>'+
+          '<div class="fb">'+esc(tr('ex_credunknown','No dispatch history priced yet, so no ceiling can be recommended without guessing a price per kg.'))+
+          '<br>'+esc(tr('ex_balance','Balance now'))+': <b>RM '+nf(c.balance)+'</b></div></div>');
         return;}
       H.push('<div class="credrec'+(c.overdrawn?' hot':'')+'"><div class="fh">'+
         (c.overdrawn?'🛑 ':(c.raise?'⚠ ':'✓ '))+esc(c.name)+
@@ -11288,21 +11088,7 @@ function renderCmdExec(){
         ' → ≈ '+nf(c.kg)+' kg '+esc(tr('ex_next7low','over the next 7 days'))+
         ' ≈ <b>RM '+nf(c.need)+'</b><br>'+
         esc(tr('ex_balance','Balance now'))+': <b>RM '+nf(c.balance)+'</b> · '+
-        /* v3.19.2 — two figures, never merged into one. The ceiling the Owner acts on is
-           named for where it came from, and when Marketing has set one the app's own
-           recommendation stays on screen beside it so a large gap between the judgement
-           and the arithmetic is visible rather than quietly resolved. */
-        (c.cap!=null
-          ? (esc(tr('ex_capset','ceiling set'))+' <b>RM '+nf(c.cap)+'</b>'+
-             '<span class="minitag">'+esc(tr('ex_bymkt','MARKETING'))+'</span>'+
-             (c.target!=null?('<br>'+esc(tr('ex_target','recommended ceiling'))+
-               ' ≈ RM '+nf(c.target)+
-               ((c.target>c.cap)
-                 ? (' — <b>'+esc(tr('ex_capunder','the wave suggests more than the ceiling allows'))+'</b>')
-                 : '')):''))
-          : (esc(tr('ex_target','recommended ceiling'))+' ≈ <b>RM '+nf(c.target)+'</b>'+
-             '<span class="minitag">'+esc(tr('w_derived','DERIVED'))+'</span>'+
-             '<br><span class="capnone">'+esc(tr('ex_capnone','Marketing has not set a ceiling for this merchant yet.'))+'</span>'))+
+        esc(tr('ex_target','recommended ceiling'))+' <b>RM '+nf(c.target)+'</b>'+
         (c.overdrawn
           ? ('<br><b>'+esc(tr('ex_credarrears','Already overdrawn'))+' — RM '+nf(c.arrears)+' '+
              esc(tr('ex_credarrears2','of fruit has gone out against a pool that is empty. The top-up above clears that first, then funds the wave.'))+'</b>')
