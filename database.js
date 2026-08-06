@@ -1249,7 +1249,57 @@ const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"
   cb_thisper:'This period', bg_todo:'TO DO',
   m_admin:'Admin', s_adjust:'Adjustments', s_staff:'Staff', s_stocklvl:'Stock Level',
   cd_rateoff:'rate not confirmed',
-  cd_ratewarn:'is a placeholder. Labour and left-over figures are indicative until you set the real rate in Reports \u25b8 LABOUR.'
+  cd_ratewarn:'is a placeholder. Labour and left-over figures are indicative until you set the real rate in Reports \u25b8 LABOUR.',
+
+  /* ===== v3.23.0 · ROUND 2 · MODULE 4 · SHARED COMPONENTS — merged from the lane reports at integration.
+     Both lanes also carry an inline English fallback at every tr() call site, so a key
+     missing here degrades to English rather than printing a key name at a farm worker. */
+  m4_col_prod:"Product",
+  m4_col_prodai:"Product / active ingredient",
+  m4_col_onhand:"On hand",
+  m4_col_min:"Min",
+  m4_col_value:"Value",
+  m4_low:"LOW",
+  m4_nomatch:"No product matches that search.",
+  m4_showall:"SHOW ALL",
+  m4_showfirst:"SHOW ONLY THE FIRST",
+  m4_product:"PRODUCT",
+  m4_products:"PRODUCTS",
+  m4_product_l:"product",
+  m4_products_l:"products",
+  m4_belowmin:"BELOW MINIMUM STOCK",
+  m4_unitsword:"units",
+  m4_notrecorded:"(not recorded)",
+
+  /* ===== v3.23.0 · ROUND 2 · MODULE 8 · PIECES 3 + 5 — merged from the lane reports at integration.
+     Both lanes also carry an inline English fallback at every tr() call site, so a key
+     missing here degrades to English rather than printing a key name at a farm worker. */
+  m8_recvtitle:"RECEIVE AGAINST THE BUY LIST",
+  m8_recvnone:"Nothing on the buy list yet. When the Owner issues a programme, the lines to receive appear here already filled in.",
+  m8_recvwhy:"These are the lines the buy queue asked for. Tick what actually arrived, correct the quantity if the supplier came up short, key the price you were charged, then add them all to the delivery below.",
+  m8_recvinv:"The invoice number belongs to the delivery, not to the line — key it once in STOCK IN LOG below. RECEIVE ALL will refuse without it.",
+  m8_recvgoinv:"KEY INVOICE NO.",
+  m8_recvadd:"ADD TICKED TO THIS DELIVERY",
+  m8_recvqty:"Containers received",
+  m8_recvprice:"Price per container (RM)",
+  m8_recvsugg:"suggestion",
+  m8_recvasked:"Buy list asked for",
+  m8_recvsel:"Ticked",
+  m8_recvtot:"Value of ticked lines",
+  m8_recvnothing:"Tick at least one line that arrived.",
+  m8_recvbad:"Key a quantity and a price for:",
+  m8_recvdone:"line(s) added to this delivery",
+  m8_showplan:"SHOW ANTICIPATED",
+  m8_hideplan:"HIDE ANTICIPATED",
+  m8_planhead:"ANTICIPATED — NOT YET ISSUED",
+  m8_planwhy:"Programme sets the Owner has planned inside the ordering window. They may still be moved, re-dosed or dropped — nothing here is committed work, and none of it is in the estimated order value above.",
+  m8_planwin:"Ordering window",
+  m8_plandays:"days",
+  m8_plantot:"Anticipated order value",
+  m8_plantag:"ANTICIPATED",
+  m8_confirmtag:"CONFIRMED",
+  m8_planfor:"For",
+  m8_planby:"Order by"
 };
 
 /* Long month names, both languages, for the worker card's date row. Kept as data so the
@@ -1794,7 +1844,57 @@ const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Ta
   cb_thisper:'Tempoh ini', bg_todo:'PERLU BUAT',
   m_admin:'Pentadbiran', s_adjust:'Pembetulan', s_staff:'Pekerja', s_stocklvl:'Paras Stok',
   cd_rateoff:'kadar belum disahkan',
-  cd_ratewarn:'ialah kadar sementara. Angka upah dan baki hanya anggaran sehingga Tuan tetapkan kadar sebenar di Laporan \u25b8 UPAH.'
+  cd_ratewarn:'ialah kadar sementara. Angka upah dan baki hanya anggaran sehingga Tuan tetapkan kadar sebenar di Laporan \u25b8 UPAH.',
+
+  /* ===== v3.23.0 · ROUND 2 · MODULE 4 · SHARED COMPONENTS — merged from the lane reports at integration.
+     Both lanes also carry an inline English fallback at every tr() call site, so a key
+     missing here degrades to English rather than printing a key name at a farm worker. */
+  m4_col_prod:"Produk",
+  m4_col_prodai:"Produk / bahan aktif",
+  m4_col_onhand:"Baki stok",
+  m4_col_min:"Min",
+  m4_col_value:"Nilai",
+  m4_low:"RENDAH",
+  m4_nomatch:"Tiada produk yang sepadan dengan carian itu.",
+  m4_showall:"TUNJUK SEMUA",
+  m4_showfirst:"TUNJUK HANYA YANG PERTAMA",
+  m4_product:"PRODUK",
+  m4_products:"PRODUK",
+  m4_product_l:"produk",
+  m4_products_l:"produk",
+  m4_belowmin:"DI BAWAH STOK MINIMUM",
+  m4_unitsword:"unit",
+  m4_notrecorded:"(tidak direkodkan)",
+
+  /* ===== v3.23.0 · ROUND 2 · MODULE 8 · PIECES 3 + 5 — merged from the lane reports at integration.
+     Both lanes also carry an inline English fallback at every tr() call site, so a key
+     missing here degrades to English rather than printing a key name at a farm worker. */
+  m8_recvtitle:"TERIMA MENGIKUT SENARAI BELIAN",
+  m8_recvnone:"Belum ada apa-apa dalam senarai belian. Bila Tuan keluarkan program, baris untuk diterima akan muncul di sini, sudah pun terisi.",
+  m8_recvwhy:"Ini baris yang diminta oleh senarai belian. Tanda yang betul-betul sampai, betulkan kuantiti kalau pembekal hantar kurang, kunci harga yang dicaj, kemudian tambah semuanya ke penghantaran di bawah.",
+  m8_recvinv:"Nombor invois milik penghantaran, bukan milik baris — kunci sekali sahaja di LOG STOK MASUK di bawah. TERIMA SEMUA akan tolak tanpa nombor invois.",
+  m8_recvgoinv:"KUNCI NO. INVOIS",
+  m8_recvadd:"TAMBAH YANG DITANDA KE PENGHANTARAN INI",
+  m8_recvqty:"Bekas diterima",
+  m8_recvprice:"Harga sebekas (RM)",
+  m8_recvsugg:"cadangan",
+  m8_recvasked:"Senarai belian minta",
+  m8_recvsel:"Ditanda",
+  m8_recvtot:"Nilai baris yang ditanda",
+  m8_recvnothing:"Tanda sekurang-kurangnya satu baris yang sampai.",
+  m8_recvbad:"Kunci kuantiti dan harga untuk:",
+  m8_recvdone:"baris ditambah ke penghantaran ini",
+  m8_showplan:"TUNJUK JANGKAAN",
+  m8_hideplan:"SEMBUNYI JANGKAAN",
+  m8_planhead:"JANGKAAN — BELUM DIKELUARKAN",
+  m8_planwhy:"Set program yang Tuan rancang dalam tetingkap pesanan di hadapan. Ia mungkin masih dialih, diubah dos atau dibatalkan — tiada apa di sini yang sudah disahkan, dan tiada satu pun dikira dalam anggaran nilai pesanan di atas.",
+  m8_planwin:"Tetingkap pesanan",
+  m8_plandays:"hari",
+  m8_plantot:"Nilai pesanan jangkaan",
+  m8_plantag:"JANGKAAN",
+  m8_confirmtag:"DISAHKAN",
+  m8_planfor:"Untuk",
+  m8_planby:"Pesan sebelum"
 };
 
 

@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.22.0';   // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.23.1';   // v3.23.1 - A DIRECTIVE NOW REMEMBERS WHICH PROGRAMME SET IT CAME FROM. amLoadTemplate() has always known the phase it built a directive out of and amSave() has always thrown that away, so nothing downstream could ask whether a planned set was already covered without guessing from the directive's NAME or its DUE DATE - both of which the Owner may change at will. v3.23.0's anticipated-demand queue relied on that guess, and rename-plus-reschedule cut the last thread, which would have put a phase on the order twice. amSave() now stamps phaseId, and the anticipated queue matches on it exactly; the old name/date heuristic is kept but applies ONLY to directives written before this release, which carry no phaseId - so an unrelated directive that merely falls due on the same day no longer suppresses a planned set either. Additive, no migration, no Apps Script redeploy. // v3.23.0 - ROUND 2 OF THE PARALLEL SPRINT: ONE PICKER, ONE STOCK LIST, AND A BUY LIST YOU CAN RECEIVE AGAINST. MODULE 4: the same product search widget had been hand-written FIVE times - Stock In, Stock Out, Stock-take, Stock on hand and the Control Center - so a fix to one of them reached one of them. There is now ONE picker component, m4Picker(), mounted at three places, and ONE list renderer, m4StockList(), mounted at two. Nothing was renamed and no panel was deleted: in-search/in-prod, out-search/out-prod, st-search/st-prod, stocksearch, ccsearch, cctbl, invcc and onhandcard all still exist and still answer to every caller they always did, because HUB_PANELS, roleAllows() and the Purchaser's tab routes read those ids and a rename would have silently unhooked them. THE COLUMNS FOLLOW THE ROLE, using the gates that were already there and were reused verbatim rather than rewritten - SHOW_VALUES hides every RM figure and the whole valuation KPI row from a worker, aiTextRole() decides whether a row says the word painted on the drum or the chemistry behind it. MODULE 8 PIECE 3: the buy queue already worked out what to order and how many containers, and then the Purchaser re-keyed all of it by hand when the delivery arrived. RECEIVE AGAINST THE BUY LIST now pre-fills those lines - tick what actually came, correct anything short, key the price - and pushes them into the SAME v3.19 delivery basket, so each line still becomes an ordinary STOCK_IN event with exactly the fields it always had. The invoice number is still keyed once in the Stock In log below, because it belongs to the delivery and not to the line. The pre-filled price is RM PER CONTAINER and is labelled a suggestion: currentMAC() is per ml and unit_price is per bottle, and confusing the two is the RM 0.18-for-two-bottles error a screenshot caught in v3.19. MODULE 8 PIECE 5: a phase the Owner has PLANNED but not yet issued was invisible to the Purchaser, so material for a job three weeks out could only be ordered after the job was announced. Programme sets planned inside a 45-day ordering window - one month of sets plus the 7-day Sandakan turnaround plus slack for the rain delays that moved 22 plan dates in v3.20 - now appear as ANTICIPATED rows, dashed and labelled, BELOW the confirmed queue and with their own separate value total. They are never added into the estimated order value, and they do NOT move the Inventory tile badge: that badge counts what is waiting on a person right now, and a number that jumps because of a forecast stops being believed. Default off, one tap to open, and the count and value are printed even while closed. A set is dropped from the forecast if it is done, if it was removed from the plan, if material has already left the store against it, or if an issued directive already covers it. No Apps Script redeploy - nothing new reaches the Sheet. // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -587,7 +587,11 @@ const MODULES={
     // Any deep link to k:'in' / k:'alloc' / k:'onboard' now falls through tabsFor()'s
     // filter and openModule() lands on 'hub' instead of a menu row — same panels, one tap
     // fewer, nothing missing.
-    tabs:[{k:'hub', t:'SUPPLY HUB',   scr:'stock',panels:['procurecard','alertcenter','pnl-in','alloccard','onboardcard','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy for programme, invoice in, brand matched, new product, live stock — one page'},
+    // v3.23 — 'm8recv' sits directly under 'procurecard' because it is the OTHER HALF of
+    // the same job: the queue says what to buy, the receive card takes the same lines back
+    // in off the invoice. Putting it anywhere else would make the Purchaser re-find, by
+    // search box, the eight products the app had just listed for them.
+    tabs:[{k:'hub', t:'SUPPLY HUB',   scr:'stock',panels:['procurecard','m8recv','alertcenter','pnl-in','alloccard','onboardcard','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy for programme, invoice in, brand matched, new product, live stock — one page'},
           // v3.19 — ORDER PLANNER merges the old PROGRAM CHECK ('chk') and NEXT PHASE
           // ('next') tabs. Both panels ship exactly as before — progcheck and progready are
           // still separate cards in index.html, still both listed in HUB_PANELS, still both
@@ -680,6 +684,12 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   // screen. That has happened twice in this codebase already (v3.6, and backlogcard in
   // v3.12), and the panel-coverage test fails the build if any id in index.html is absent.
   'procurecard',
+  // v3.23 — 'm8recv', RECEIVE AGAINST THE BUY LIST. Read the four warnings above this line
+  // before removing it: a panel id that exists in index.html but not in this array is
+  // never hidden by hideAllPanels() and therefore sits on top of every other screen for
+  // the rest of the session. It has shipped that way twice (v3.6, v3.12) and the
+  // panel-coverage test fails the build on it.
+  'm8recv',
   'progrecord',
   // v3.16 — the Owner's Executive Summary. Same rule as every entry above it: a panel
   // missing from this array is never hidden and leaks onto every other screen.
@@ -704,6 +714,11 @@ function roleAllows(id){
   switch(id){
     case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
     case 'procurecard': return full||r==='PURCHASER';   // v3.18 — Module 6 buy queue
+    /* v3.23 — RECEIVE AGAINST THE BUY LIST shows the same rows as the buy queue and pushes
+       into the same delivery basket, so it carries exactly the same entitlement. Gating it
+       any wider would put unit prices in front of a role that is not allowed to see them;
+       gating it narrower would hide it from the Owner, who covers the desk on a Sunday. */
+    case 'm8recv': return full||r==='PURCHASER';
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
     case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
@@ -1884,8 +1899,53 @@ function buildLedgerSummary(){
 }
 
 // ================= stock screen — role partitioned =================
-function fillProdSelect(selId,searchId){
-  const q=($(searchId).value||'');const sel=$(selId);const keep=sel.value;
+/* ================= v3.23 · LANE C · MODULE 4 · ONE PRODUCT PICKER =================
+   Stock In, Stock Out and the Stock-Take audit each carried their own hand-written
+   copy of the SAME widget: a search box over the material list and a <select size=5>
+   underneath it. Three copies meant three places to fix a placeholder and three
+   places to forget a role gate — the v3.16 chemistry purge had to be written out
+   twice for exactly that reason, and the third copy was missed.
+   The markup now lives in ONE string, inside m4Picker(), and each card carries only
+   a mount <div>. The element ids do NOT change: in-search/in-prod, out-search/
+   out-prod and st-search/st-prod are read by inReadLine(), submitStockIn(),
+   submitStockOut(), submitStockTake(), onInProd(), onOutProd(), onStProd() and
+   refreshInventoryViews(). This is a refactor of where the markup is AUTHORED, not
+   a rename — every one of those readers still resolves to the same element.
+   ================================================================================= */
+/** The three mounts, and exactly the markup each one used to carry in index.html.
+ *  `ph` is deliberately the ENGLISH placeholder: applyStaticLang() caches the first
+ *  placeholder it sees on a data-tph node as "the English original", so writing a
+ *  pre-translated string here would poison that cache and a worker who switched back
+ *  to EN would be left staring at Malay. */
+const M4_PICKERS={
+  'm4-pick-in' :{searchId:'in-search', selId:'in-prod', ph:'Search brand or active ingredient…',
+                 oninput:'renderInOpts()',  onchange:'onInProd()'},
+  'm4-pick-out':{searchId:'out-search',selId:'out-prod',ph:'Search brand or active ingredient…',
+                 phKey:'so_search',      // the data-tph the v3.16 worker placeholder swap needs
+                 oninput:'renderOutOpts()', onchange:'onOutProd()'},
+  'm4-pick-st' :{searchId:'st-search', selId:'st-prod', ph:'Search brand or active ingredient…',
+                 oninput:'renderStOpts()',  onchange:'onStProd()'}};
+/** Write the one picker into a mount <div>. Idempotent on purpose: fillProdSelect()
+ *  calls it on every repaint, and rebuilding the <select> each time would throw away
+ *  the row the person had already highlighted — and the `keep` restore below with it. */
+function m4Picker(mountId,opts){
+  const host=$(mountId); if(!host||!opts)return null;
+  const sel=$(opts.selId);
+  if(sel&&host.contains&&host.contains(sel))return host;   // already mounted — leave it alone
+  host.innerHTML=
+    '<input id="'+opts.searchId+'" placeholder="'+opts.ph+'"'+
+      (opts.phKey?(' data-tph="'+opts.phKey+'"'):'')+' oninput="'+opts.oninput+'">'+
+    '<select id="'+opts.selId+'" size="'+(opts.size||5)+'" style="margin-top:6px" onchange="'+opts.onchange+'"></select>';
+  // the node is born after boot, so the language pass that ran at boot never saw it
+  if(typeof applyStaticLang==='function')applyStaticLang();
+  return host;}
+/** v3.23 — the third argument is OPTIONAL and names the mount the picker belongs in.
+ *  Two-argument callers behave exactly as they always did: no mount id, no markup
+ *  written, the existing <select> filled in place. */
+function fillProdSelect(selId,searchId,mountId){
+  if(mountId)m4Picker(mountId,M4_PICKERS[mountId]);
+  const sb=$(searchId), sel=$(selId); if(!sel)return;
+  const q=(sb?sb.value:'')||'';const keep=sel.value;
   sel.innerHTML='';
   INVENTORY_RECON.filter(p=>matchProd(p,q)).forEach(p=>{
     const o=document.createElement('option');o.value=p.id;
@@ -1900,7 +1960,9 @@ function fillProdSelect(selId,searchId){
 
 // ---- Sandakan Purchaser: Stock In ----
 let inUnitMode='C';
-function renderInOpts(){fillProdSelect('in-prod','in-search');onInProd();}
+// v3.23 MODULE 4 — third argument names the mount; the picker markup itself now lives
+// only in m4Picker(). The function name, the ids and onInProd() are unchanged.
+function renderInOpts(){fillProdSelect('in-prod','in-search','m4-pick-in');onInProd();}
 function onInProd(){const p=prodById($('in-prod').value);
   $('in-ai').textContent=p?(p.active_ingredient||'—'):'—';
   $('in-pack').innerHTML=p?(esc(packLabel(p))+'<br>baseline '+rm(p.unit_price)+' / '+esc(p.container)):'—';
@@ -2015,11 +2077,15 @@ async function submitStockIn(){
 // ---- Farm Worker: Material Stock Out ----
 let outLot='';
 function renderOutOpts(){
+  // v3.23 MODULE 4 — the picker is mounted FIRST now, because the search box it owns
+  // has to exist before the v3.16 placeholder swap below can reach it. The swap itself
+  // is untouched and still runs on every repaint, so a role change repaints it.
+  fillProdSelect('out-prod','out-search','m4-pick-out');
   // v3.16 — the placeholder named the chemistry as something to search on. A worker
   // searches by the word printed on the drum, and nothing else.
   {const b=$('out-search');
    if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
-                                               :tr('so_search','Search brand or active ingredient…'));}fillProdSelect('out-prod','out-search');onOutProd();}
+                                               :tr('so_search','Search brand or active ingredient…'));}onOutProd();}
 /** The active ingredient as shown to a worker. A real AI is printed verbatim; the
  *  "(confirm - see label)" placeholder is app copy and is translated. */
 function aiText(p){
@@ -2085,24 +2151,110 @@ async function submitStockOut(){
   onOutCalc();
   refreshInventoryViews();}
 
+/* ================= v3.23 · LANE C · MODULE 4 · ONE STOCK LIST =================
+   "Stock on hand" (#onhandcard, everyone) and the "Inventory Control Center"
+   (#invcc, Owner/Marketing) were two lists, two search boxes and two renderers over
+   the same 68 products. They are one renderer now. The difference between them was
+   never a different list — it is a ROLE: the valuation column, the RM figure under
+   the pack size and the four valuation KPI tiles simply DO NOT RENDER when
+   SHOW_VALUES is false, and the chemistry sub-line is whatever aiTextRole() decides
+   the reader may see, which is '' for a Farm Worker with nothing to warn them about.
+   Both existing gates are reused verbatim; there is no new role gate here.
+
+   BOTH CARDS STAY LIVE PANEL IDS. A panel id present in index.html but missing from
+   HUB_PANELS is never hidden by hideAllPanels() and leaks onto every other screen —
+   that has shipped twice already (v3.6, and backlogcard in v3.12) and the panel
+   coverage test fails the build on it. MODULES.inv.tabs also routes 'onhandcard' to
+   SUPPLY HUB and STOCK OUT and 'invcc' to STOCK LEVEL, and roleAllows() gates them
+   separately. So the two cards remain, as thin mount shells, and the list logic
+   exists exactly once, here.
+   ============================================================================== */
+/** opts: {values, mode, query, edit, cap, kpis, alert, tableId}
+ *  values  — SHOW_VALUES. Every RM figure and the KPI tiles hang off this and only this.
+ *  mode    — ccMode: ALL | BRAND | AI | GROUP. GROUP is never truncated, by design.
+ *  cap     — 0 disables the collapse entirely (the on-hand list never had one). */
+function m4StockList(mountId,o){
+  const box=$(mountId); if(!box)return;
+  o=o||{};
+  const values=!!o.values, mode=o.mode||'ALL', edit=!!o.edit, cap=+o.cap||0;
+  const q=String(o.query||'').toLowerCase();
+  const low=lowStock();
+  // ---- the four valuation KPI tiles. They are money, so SHOW_VALUES and nothing else
+  //      decides whether they exist on screen at all. ----
+  if(o.kpis){
+    const k=$(o.kpis); if(k&&k.classList)k.classList.toggle('m4-hide',!values);
+    if(values){
+      if($('i-val'))  $('i-val').textContent=rm(totalStockValue()).replace('.00','');
+      if($('i-low'))  $('i-low').textContent=low.length;
+      if($('i-items'))$('i-items').textContent=INVENTORY_RECON.length;
+      if($('i-zero')) $('i-zero').textContent=INVENTORY_RECON.filter(p=>onHand(p)<=0).length;}}
+  if(o.alert){const a=$(o.alert);
+    if(a)a.innerHTML=low.length?('<div class="alertbig">⚠ '+low.length+' '+
+      tr(low.length>1?'m4_products':'m4_product',low.length>1?'PRODUCTS':'PRODUCT')+' '+
+      tr('m4_belowmin','BELOW MINIMUM STOCK')+'</div>'):'';}
+  // ---- one filter. BRAND / AI narrow which field the box searches; ALL and GROUP
+  //      search both, which is exactly what matchProd() always did for the on-hand list.
+  let list=INVENTORY_RECON.filter(p=>{
+    if(!q)return true;
+    const n=p.name.toLowerCase(), a=String(p.active_ingredient||'').toLowerCase();
+    if(mode==='BRAND')return n.includes(q);
+    if(mode==='AI')return a.includes(q);
+    return n.includes(q)||a.includes(q);});
+  const cols=values?4:3;
+  const head='<tr><th>'+esc(hideChem()?tr('m4_col_prod','Product'):tr('m4_col_prodai','Product / active ingredient'))+'</th>'+
+    '<th class="num">'+esc(tr('m4_col_onhand','On hand'))+'</th>'+
+    '<th class="num">'+esc(tr('m4_col_min','Min'))+'</th>'+
+    (values?('<th class="num">'+esc(tr('m4_col_value','Value'))+'</th>'):'')+'</tr>';
+  const row=p=>{
+    const oh=onHand(p), lw=isLow(p);
+    // v3.16 gate, reused verbatim: the crew read the word painted on the drum, not the
+    // chemistry behind it — but a residue cut-off IS their business and survives.
+    const sub=aiTextRole(p), subTxt=sub||(values?'—':'');
+    return '<tr'+(edit?(' onclick="openInvEdit('+p.id+')" style="cursor:pointer"'):'')+'>'+
+      '<td><div class="pn">'+esc(p.name)+(lw?(' <span class="cstat r">'+esc(tr('m4_low','LOW'))+'</span>'):'')+'</div>'+
+      (subTxt?('<div class="pa">'+esc(subTxt)+'</div>'):'')+
+      '<div class="exphint">'+esc(packLabel(p))+(values?(' · '+rm(p.unit_price)+'/'+esc(p.container)):'')+'</div></td>'+
+      '<td class="num '+(lw?'lowq':'')+'">'+nf(oh)+'<br><span class="exphint">'+esc(p.unit)+'</span></td>'+
+      '<td class="num">'+nf(p.min_stock_threshold)+'</td>'+
+      (values?('<td class="num">'+rm(valueOf(p))+'</td>'):'')+'</tr>';};
+  // GROUP BY AI exists to cross-compare the WHOLE catalogue — never truncate it.
+  const more=(cap&&!ccShowAll&&mode!=='GROUP'&&list.length>cap)?list.length-cap:0;
+  if(more)list=list.slice(0,cap);
+  const tail=more
+    ?('<tr><td colspan="'+cols+'"><div class="collapsebtn" onclick="ccShowAll=true;renderInvCC()">▾ '+
+      tr('m4_showall','SHOW ALL')+' '+(more+cap)+' '+tr('m4_products','PRODUCTS')+'</div></td></tr>')
+    :((cap&&ccShowAll)
+      ?('<tr><td colspan="'+cols+'"><div class="collapsebtn" onclick="ccShowAll=false;renderInvCC()">▴ '+
+        tr('m4_showfirst','SHOW ONLY THE FIRST')+' '+cap+'</div></td></tr>'):'');
+  let body;
+  if(mode==='GROUP'){
+    const g={};list.forEach(p=>{const k=p.active_ingredient||tr('m4_notrecorded','(not recorded)');(g[k]=g[k]||[]).push(p);});
+    body=Object.keys(g).sort().map(k=>
+      '<tr><td colspan="'+cols+'"><div class="aigrp">'+esc(k)+' · '+g[k].length+' '+
+      tr(g[k].length>1?'m4_products_l':'m4_product_l',g[k].length>1?'products':'product')+
+      ' · '+nf(g[k].reduce((s,p)=>s+onHand(p),0))+' '+tr('m4_unitsword','units')+
+      (values?(' · '+rm(g[k].reduce((s,p)=>s+valueOf(p),0))):'')+'</div></td></tr>'+
+      g[k].map(row).join('')).join('');
+  } else {
+    body=(list.length?list.map(row).join('')
+      :('<tr><td colspan="'+cols+'" class="small">'+esc(tr('m4_nomatch','No product matches that search.'))+'</td></tr>'))+tail;}
+  box.innerHTML='<table class="tbl" id="'+(o.tableId||'m4-sltbl')+'">'+head+body+'</table>';}
+
 // ---- live stock on hand list (values only for Owner / Marketing) ----
+// v3.23 MODULE 4 — a thin wrapper over the one list component. It stays a named
+// function because refreshInventoryViews(), renderForTab(), refreshEverything() and
+// the boot pass all call it by name, and index.html wires it to the search box.
 function renderStock(){
-  const q=($('stocksearch').value||'');
-  $('oh-valnote').style.display=SHOW_VALUES?'':'none';
+  const b=$('stocksearch');
+  if($('oh-valnote'))$('oh-valnote').style.display=SHOW_VALUES?'':'none';
   // v3.16 — this list sits under the worker's Stock Out form, and every row carried the
   // active ingredient in blue under the brand. Same purge as the picker above it.
-  {const b=$('stocksearch');
-   if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
-                                              :tr('so_search','Search brand or active ingredient…'));}
-  const list=INVENTORY_RECON.filter(p=>matchProd(p,q));
-  $('stocklist').innerHTML=list.length?list.map(p=>{
-    const oh=onHand(p),low=isLow(p);
-    const right=nf(oh)+' '+esc(p.unit)+(low?' ⚠':'')+(SHOW_VALUES?('<br><span class="small">'+rm(valueOf(p))+'</span>'):'');
-    const sub=aiTextRole(p);
-    return '<div class="lrow"><span><b>'+esc(p.name)+'</b>'+
-      (sub?('<br><span class="small" style="color:#26418f">'+esc(sub)+'</span>'):'')+'</span>'+
-      '<span style="text-align:right;font-weight:700;color:'+(low?'#b3261e':'#1b5e20')+'">'+right+'</span></div>';}).join('')
-    :'<div class="small">No product matches that search.</div>';}
+  if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
+                                             :tr('so_search','Search brand or active ingredient…'));
+  // no cap here: the on-hand list has always scrolled inside its own box rather than
+  // collapsing, and a worker looking for one drum should not have to tap SHOW ALL.
+  m4StockList('stocklist',{values:SHOW_VALUES,mode:'ALL',query:(b?b.value:''),
+    edit:false,cap:0,tableId:'m4-ohtbl'});}
 
 // ---- urgent reorder alert center ----
 function renderAlerts(){
@@ -2149,44 +2301,17 @@ function m3PlanPick(which){
   if(typeof renderProgCheck==='function')renderProgCheck();
   if(typeof renderReady==='function')renderReady();
 }
+// v3.23 MODULE 4 — a thin wrapper over the SAME component #onhandcard mounts. It stays
+// a named function because refreshInventoryViews(), renderForTab() and the ccmode
+// segments in index.html all call it by name. The card, its id and its route are
+// untouched; only the list logic moved into m4StockList().
+// The guard is on the MOUNT now, not on #cctbl: the <table> is written BY the component,
+// so testing for it before the first paint would mean the panel never painted at all.
 function renderInvCC(){
-  if(!$('cctbl'))return;
-  const low=lowStock();
-  $('i-val').textContent=rm(totalStockValue()).replace('.00','');
-  $('i-low').textContent=low.length;
-  $('i-items').textContent=INVENTORY_RECON.length;
-  $('i-zero').textContent=INVENTORY_RECON.filter(p=>onHand(p)<=0).length;
-  $('invalert').innerHTML=low.length?'<div class="alertbig">⚠ '+low.length+' PRODUCT'+(low.length>1?'S':'')+' BELOW MINIMUM STOCK</div>':'';
-  const q=($('ccsearch').value||'').toLowerCase();
-  let list=INVENTORY_RECON.filter(p=>{
-    if(!q)return true;
-    const n=p.name.toLowerCase(), a=String(p.active_ingredient||'').toLowerCase();
-    if(ccMode==='BRAND')return n.includes(q);
-    if(ccMode==='AI')return a.includes(q);
-    return n.includes(q)||a.includes(q);});
-  const head='<tr><th>Product / active ingredient</th><th class="num">On hand</th><th class="num">Min</th><th class="num">Value</th></tr>';
-  const row=p=>{const oh=onHand(p),low=isLow(p);
-    return '<tr onclick="openInvEdit('+p.id+')" style="cursor:pointer">'+
-      '<td><div class="pn">'+esc(p.name)+(low?' <span class="cstat r">LOW</span>':'')+'</div><div class="pa">'+esc(p.active_ingredient||'—')+'</div>'+
-      '<div class="exphint">'+esc(packLabel(p))+' · '+rm(p.unit_price)+'/'+esc(p.container)+'</div></td>'+
-      '<td class="num '+(low?'lowq':'')+'">'+nf(oh)+'<br><span class="exphint">'+esc(p.unit)+'</span></td>'+
-      '<td class="num">'+nf(p.min_stock_threshold)+'</td>'+
-      '<td class="num">'+rm(valueOf(p))+'</td></tr>';};
-  // GROUP BY AI exists to cross-compare the whole catalogue — never truncate it
-  const CAP=15, more=(!ccShowAll&&ccMode!=='GROUP'&&list.length>CAP)?list.length-CAP:0;
-  if(more)list=list.slice(0,CAP);
-  const tail=more?('<tr><td colspan="4"><div class="collapsebtn" onclick="ccShowAll=true;renderInvCC()">▾ SHOW ALL '+(more+CAP)+' PRODUCTS</div></td></tr>')
-    :(ccShowAll?'<tr><td colspan="4"><div class="collapsebtn" onclick="ccShowAll=false;renderInvCC()">▴ SHOW ONLY THE FIRST '+CAP+'</div></td></tr>':'');
-  if(ccMode==='GROUP'){
-    const g={};list.forEach(p=>{const k=p.active_ingredient||'(not recorded)';(g[k]=g[k]||[]).push(p);});
-    const keys=Object.keys(g).sort();
-    $('cctbl').innerHTML=head+keys.map(k=>
-      '<tr><td colspan="4"><div class="aigrp">'+esc(k)+' · '+g[k].length+' product'+(g[k].length>1?'s':'')+
-      ' · '+nf(g[k].reduce((s,p)=>s+onHand(p),0))+' units · '+rm(g[k].reduce((s,p)=>s+valueOf(p),0))+'</div></td></tr>'+
-      g[k].map(row).join('')).join('');
-  } else {
-    $('cctbl').innerHTML=head+(list.length?list.map(row).join(''):'<tr><td colspan="4" class="small">No product matches that filter.</td></tr>')+tail;
-  }}
+  if(!$('m4-cc-list'))return;
+  const b=$('ccsearch');
+  m4StockList('m4-cc-list',{values:SHOW_VALUES,mode:ccMode,query:(b?b.value:''),
+    edit:true,cap:15,kpis:'m4-cc-kpis',alert:'invalert',tableId:'cctbl'});}
 let ccShowAll=false;
 async function openInvEdit(pid){
   const p=prodById(pid);if(!p)return;
@@ -2234,7 +2359,8 @@ function renderLedgerSummary(){
     '<div class="lgline" style="margin-top:10px;border-top:2px solid #e2e6e1;padding-top:8px"><span><b>Closing stock balance today</b></span><b>'+rm(S.closeVal)+'</b></div>';}
 
 // ================= Owner: Inventory Audit / Stock-Take Adjustment =================
-function renderStOpts(){fillProdSelect('st-prod','st-search');onStProd();}
+// v3.23 MODULE 4 — same one picker as Stock In and Stock Out, third mount.
+function renderStOpts(){fillProdSelect('st-prod','st-search','m4-pick-st');onStProd();}
 function onStProd(){const p=prodById($('st-prod').value);
   $('st-sys').textContent=p?(nf(onHand(p))+' '+p.unit):'—';
   $('st-ai').innerHTML=p?(esc(p.active_ingredient||'—')+'<br>'+esc(packLabel(p))):'—';
@@ -2786,6 +2912,16 @@ function procureNeeds(){
     const p=b.match[0];
     n.buyContainers=(p&&+p.unit_multiplier)?Math.ceil(n.gap/(+p.unit_multiplier)):0;
     n.container=p?p.container:'';
+    /* v3.23 M8 — the id of the brand this row would actually be bought as. This is an
+       ADDED field, never a changed one: every existing consumer of procureNeeds() reads
+       exactly what it always read. RECEIVE AGAINST THE BUY LIST needs the product itself
+       to build a stock-in line, and resolving brandsFor() a second time downstream would
+       let the row the Purchaser was shown and the row they receive drift apart. */
+    n.buyPid=p?p.id:0;
+    /* v3.23 M8 — false on every row from this function, by definition: this reads ISSUED
+       directives, which are committed work. m8PlannedNeeds() below returns rows carrying
+       planned:true, and the two are never summed into one figure. */
+    n.planned=false;
     /* v3.19 PIECE 4 — what this row will cost.
        CAUGHT BY A SCREENSHOT: the first version read "RM 0.18" for two bottles of Madell.
        currentMAC() returns cost per OPERATIONAL UNIT (RM 0.088 per ml) while unit_price is
@@ -2803,16 +2939,35 @@ function procureNeeds(){
     return n;})
     .filter(n=>n.short)
     .sort((a,b)=>(a.daysToOrder-b.daysToOrder)||(b.gap-a.gap));}
-/** The number that goes on the Inventory tile and in the Owner's TODAY list. */
+/** The number that goes on the Inventory tile and in the Owner's TODAY list.
+ *  v3.23 M8 — DELIBERATELY UNCHANGED, and this comment is the decision, not an oversight.
+ *  The anticipated rows added by m8PlannedNeeds() below are a FORECAST off a plan the
+ *  Owner may still move, re-dose or remove. This badge counts things waiting on a person
+ *  RIGHT NOW. Folding a forecast into it would make the tile jump on a day when nobody
+ *  decided anything and nobody did anything — and a badge that moves on its own stops
+ *  being read, which costs more than the forecast is worth. Anticipated demand is visible
+ *  INSIDE the card, labelled, behind a toggle. It never reaches the tile. */
 function procureCount(){return procureNeeds().length;}
 /** v3.18 — the Purchaser's queue. Ranked ABOVE the reorder alerts on purpose: a product
  *  under its minimum still lets the crew work, an ingredient at zero stops them dead. */
 function renderProcure(){
+  /* v3.23 M8 — RECEIVE AGAINST THE BUY LIST is painted from HERE and not from
+     renderForTab(), on purpose. It is a VIEW OF THIS QUEUE, so it must repaint on exactly
+     the events that change this queue — and every one of those paths (renderForTab on the
+     hub tab, renderAll, refreshInventoryViews after a stock movement, amSave/amIssue after
+     a directive is issued) already calls renderProcure(). Hanging it off this function
+     means there is no second wiring list that can fall out of step with the first, which
+     is how a panel ends up on screen showing what it showed at boot. Wrapped so a fault in
+     the newer card can never take down the queue that shipped in v3.18. */
+  try{ if(typeof m8RecvRender==='function')m8RecvRender(); }catch(e){}
   const box=$('procurebox'); if(!box)return;
   if(!roleAllows('procurecard')){box.innerHTML='';return;}
   const rows=procureNeeds();
   if(!rows.length){
-    box.innerHTML='<div class="alertnone">'+esc(tr('pr_none'))+'</div>';return;}
+    /* v3.23 M8 — an empty COMMITTED queue is not an empty screen any more: there may still
+       be planned phases coming, and "nothing to buy" plus "four sets due in three weeks"
+       is the exact pair of facts the Purchaser opens this card for. */
+    box.innerHTML='<div class="alertnone">'+esc(tr('pr_none'))+'</div>'+m8PlannedHTML();return;}
   const orderTotal=rows.reduce((t,n)=>t+(+n.estCost||0),0);
   const anyGuess=rows.some(n=>n.costGuess);
   box.innerHTML='<div class="alertbig">⚠ '+rows.length+' '+esc(tr('pr_head'))+'</div>'+
@@ -2851,7 +3006,12 @@ function renderProcure(){
                 esc(tr('pr_onboard'))+'</button>'))+
           '<button class="no" style="background:#e8f0fe;color:#123a71" onclick="openModule(\'inv\',\'in\')">'+
             esc(tr('pr_stockin'))+'</button>'+
-        '</div></div>';}).join('');}
+        '</div></div>';}).join('')+
+    /* v3.23 M8 — the anticipated block hangs BELOW the confirmed rows and below the
+       "Estimated order value" headline above them, which still totals confirmed rows and
+       nothing else. Order on the page is the argument: what you are committed to first,
+       what is coming after it, never one number made of both. */
+    m8PlannedHTML();}
 function procureGo(u){openModule('inv','hub');
   setTimeout(function(){const el=$('alloccard'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},140);}
 function procureOnboard(ai){
@@ -2860,6 +3020,369 @@ function procureOnboard(ai){
     const sel=$('ob-ai'), nu=$('ob-ainew');
     if(sel&&[...sel.options].some(o=>o.value===ai))sel.value=ai; else if(nu)nu.value=ai;
     if($('ob-name'))$('ob-name').focus();},140);}
+
+/* ====================================================================================
+   v3.23 · MODULE 8 · PIECE 5 — WHAT IS COMING, NOT YET ISSUED
+   procureNeeds() above reads issuedDrafts() and nothing else, which is correct for what it
+   is: a list of work the crew is about to do. But it means a phase the Owner has planned
+   for next month is invisible to the Purchaser until the day the directive is issued, and
+   that day is already inside the Sandakan turnaround. The Purchaser finds out too late.
+   This reads the season programme itself — the LIVE PHASE_PROGRAM, after
+   applyProgOverrides() has moved dates, changed doses and lifted out removed sets, never
+   PROG_SEED — and turns the phases falling inside the ordering window into anticipated
+   demand.
+   IT IS A SEPARATE FUNCTION RETURNING SEPARATE ROWS, on purpose. procureNeeds() keeps the
+   exact shape every existing consumer already reads; an anticipated row carries
+   planned:true and is never added into the confirmed total. A commitment and a forecast
+   are different money and must not become one number.
+   ==================================================================================== */
+
+/* HOW FAR AHEAD. SUPPLY_LEAD_DAYS is 7 — that is how long Sandakan takes to deliver, not
+   how far ahead a Purchaser should be looking. The farm's programme is written in monthly
+   SETS, so a horizon shorter than a month shows nothing for three weeks and then the whole
+   month at once, which is not a queue, it is a surprise. 45 days is the next full month of
+   sets, plus the 7-day turnaround, plus a fortnight of slack for the rain delays that move
+   these dates in practice (v3.20 moved 22 plan dates for exactly that reason). Past 45
+   days the Owner is likely to have edited the plan — PROG_OVER exists BECAUSE plans move —
+   so a longer forecast would be ordering against a plan that will not survive to be run. */
+const M8_PLAN_HORIZON_DAYS = 45;
+
+/* The toggle. DEFAULT OFF, and that is a decision: the question this card answers on open
+   is "what am I committed to", and turning it on by default would silently change what the
+   card means for a Purchaser who never asked for a forecast. The toggle strip always
+   prints the anticipated COUNT and VALUE even while it is off, so nothing is hidden — one
+   tap opens the detail, and the headline stays a commitment either way. */
+let m8PlanOn=false;
+
+/** RM per CONTAINER for a product.
+ *  THE MONEY TRAP, restated because it has been paid for once already (a screenshot in
+ *  v3.19 read "RM 0.18" for two bottles of Madell): currentMAC() returns cost per
+ *  OPERATIONAL unit — RM 0.088 per ml — while unit_price is per CONTAINER — RM 88 per
+ *  bottle. Multiplying a per-ml figure by a bottle count is wrong by unit_multiplier,
+ *  which is 1000 here. Everything is converted to a per-container cost FIRST, because a
+ *  container is what the Purchaser actually buys and what unitPrice means on a stock-in
+ *  line. Returns {rm, guess} — guess:true means there is no moving-average behind it and
+ *  the baseline list price is standing in, which must be said out loud on screen. */
+function m8ContainerCost(p){
+  if(!p)return {rm:0,guess:true};
+  const perUnit=(typeof currentMAC==='function')?(+currentMAC(p.id)||0):0;   // RM per ml / gm
+  const mult=+p.unit_multiplier||0;
+  const mac=(perUnit&&mult)?+(perUnit*mult).toFixed(4):0;                    // RM per bottle / bag
+  return {rm:mac||(+p.unit_price||0), guess:!mac};}
+
+/** Is this planned phase already accounted for somewhere the Purchaser can already see?
+ *  Returns '' when the phase is genuinely un-covered, or a short reason when it is not.
+ *  DOUBLE-COUNTING IS THE FAILURE MODE HERE, so every test below is a reason to DROP the
+ *  row. Dropping a row that might have been counted twice understates the order by one
+ *  line the Purchaser can still add by hand; inflating it buys material twice. */
+function m8PhaseCovered(ph){
+  if(!ph)return 'no phase';
+  // 1. finished. 'done' is the store's date, 'sheetDone' the workbook's tick — either one
+  //    means the material has been applied and nothing is owed for it.
+  if(ph.done||ph.sheetDone)return 'done';
+  // 2. activated. A PROGRAMS record carries phaseId directly, so this linkage is exact.
+  //    No status filter on purpose: ACTIVE means the crew is on it, anything else means it
+  //    has already been through. Neither is something to order for a second time.
+  if(typeof PROGRAMS!=='undefined'&&PROGRAMS.some(p=>String(p.phaseId||'')===String(ph.id)))
+    return 'activated';
+  // 3. material has already left the store against it. Every one of the 452 imported
+  //    stock-out rows carries the phaseId of its set (v3.20), so this is read straight off
+  //    the ledger and cannot drift from it.
+  if(typeof EVENTS!=='undefined'&&
+     EVENTS.some(e=>e.type==='STOCK_OUT'&&String(e.phaseId||'')===String(ph.id)))
+    return 'drawn';
+  /* 4. an ISSUED directive already covers it. THIS IS THE WEAK ONE AND IT IS WEAK BY
+        CONSTRUCTION: a directive record has no phaseId. amLoadTemplate() knows the phase
+        it loaded — it holds it in AM.tmpl — but amSave() does not copy AM.tmpl onto the
+        saved record, so the linkage is thrown away at save time. What survives is what
+        amLoadTemplate() PRE-FILLS: the directive's name defaults to
+        "<month> · <set>" and its due date defaults to the phase's plan date. So those two
+        are what we match on, and EITHER is enough, because a false drop is cheaper than a
+        double order. */
+  const label=(typeof monthLabel==='function'?monthLabel(ph.month):ph.month)+' · '+ph.set;
+  const norm=s=>String(s==null?'':s).toLowerCase().replace(/\s+/g,' ').trim();
+  const plan=String(ph.plan||'').slice(0,10);
+  const ds=(typeof issuedDrafts==='function')?issuedDrafts().filter(d=>!d.deleted):[];
+  // 4a. v3.23.1 — the EXACT link. amSave() now stamps the phase a directive was built
+  //     from, so from this release on the question has a real answer instead of a guess.
+  if(ds.some(d=>String(d.phaseId||'')===String(ph.id)&&d.phaseId))return 'issued';
+  /* 4b. the old heuristic, kept ONLY for directives written before v3.23.1, which carry no
+        phaseId at all. A directive that DOES carry one and points somewhere else is now
+        excluded from the name/date match — previously an unrelated directive that merely
+        fell due on the same day silently suppressed a planned phase. */
+  const legacy=ds.filter(d=>!d.phaseId);
+  if(legacy.some(d=>norm(d.name)===norm(label)))return 'issued';
+  if(plan&&legacy.some(d=>String(d.due||'').slice(0,10)===plan))return 'issued';
+  return '';}
+
+/** Every ingredient the PLANNED, not-yet-issued programme will need inside the window.
+ *  Same row shape as procureNeeds() plus planned:true and phases[], so the renderer and
+ *  the receive card can treat both kinds the same way without either kind pretending to
+ *  be the other. */
+function m8PlannedNeeds(){
+  if(typeof PHASE_PROGRAM==='undefined'||!PHASE_PROGRAM||!PHASE_PROGRAM.length)return [];
+  if(typeof projectPhase!=='function')return [];
+  const t0=dayStart(new Date()), t1=t0.getTime()+M8_PLAN_HORIZON_DAYS*86400000;
+  const need={};
+  PHASE_PROGRAM.forEach(ph=>{
+    if(!ph||!ph.plan||!ph.lines||!ph.lines.length)return;
+    const when=Date.parse(String(ph.plan).slice(0,10));
+    if(!isFinite(when))return;                       // a set with no readable date is not a plan
+    if(when<t0.getTime()||when>t1)return;            // behind us, or beyond the window
+    if(m8PhaseCovered(ph))return;                    // done, activated, drawn, or issued
+    /* the same call renderReady() makes at the top of ORDER PLANNER — the tank arithmetic
+       lives in projectPhase() and is not rewritten here. assumedLPT() supplies the litres
+       per tree the Owner last actually used when the set does not carry its own. */
+    const lpt=(+ph.litresPerTree)||((typeof assumedLPT==='function')?+assumedLPT(ph):0)||6;
+    let pr; try{ pr=projectPhase(ph,'ALL',lpt); }catch(e){ return; }
+    (pr.lines||[]).forEach(l=>{
+      if(!(+l.required>0))return;
+      const ai=l.ai||l.raw||'';
+      const k=String(ai).toLowerCase()+'|'+l.unit+'|'+(+l.pid||0);
+      if(!need[k])need[k]={ai:ai,pid:+l.pid||0,brand:'',unit:l.unit,req:0,slot:'ALL',
+        dirs:[],phases:[],due:'',planned:true};
+      const n=need[k];
+      n.req=+(n.req+(+l.required||0)).toFixed(2);
+      const lab=(typeof monthLabel==='function'?monthLabel(ph.month):ph.month)+' · '+ph.set;
+      if(!n.phases.some(x=>x.id===ph.id))
+        n.phases.push({id:ph.id,label:lab,plan:String(ph.plan).slice(0,10)});
+      const pl=String(ph.plan).slice(0,10);
+      if(!n.due||pl<n.due)n.due=pl;});});
+  return Object.keys(need).map(k=>{
+    const n=need[k];
+    const b=brandsFor('ALL',n.ai,n.unit,n.pid);
+    n.onHand=b.match.reduce((t,p)=>t+onHand(p),0);
+    n.brands=b.match.length;
+    n.gap=+(n.req-n.onHand).toFixed(2);
+    n.short=n.gap>0;
+    n.noBrand=!b.match.length;
+    const p=b.match[0];
+    n.buyContainers=(p&&+p.unit_multiplier)?Math.ceil(n.gap/(+p.unit_multiplier)):0;
+    n.container=p?p.container:'';
+    n.buyPid=p?p.id:0;
+    const c=m8ContainerCost(p);                    // RM per container — see the trap above
+    n.costPerContainer=c.rm;
+    n.costGuess=c.guess;
+    n.estCost=+(n.buyContainers*n.costPerContainer).toFixed(2);
+    n.orderBy=n.due?ymd(new Date(Date.parse(n.due)-SUPPLY_LEAD_DAYS*86400000)):'';
+    n.daysToOrder=n.orderBy?Math.ceil((Date.parse(n.orderBy)-dayStart(new Date()))/86400000):9e9;
+    return n;})
+    .filter(n=>n.short)
+    .sort((a,b)=>(a.daysToOrder-b.daysToOrder)||(b.gap-a.gap));}
+
+/** Anticipated rows, and their money, kept apart from the confirmed figure above them. */
+function m8PlannedValue(rows){return (rows||[]).reduce((t,n)=>t+(+n.estCost||0),0);}
+function m8TogglePlanned(){
+  m8PlanOn=!m8PlanOn;
+  /* renderProcure() repaints the whole card AND cascades into m8RecvRender(), so both the
+     queue and the receive list move together. The card's CONTENT changes, not just a class
+     on a button — a toggle that only recolours itself is a toggle nobody trusts. */
+  renderProcure();}
+
+/** The block that hangs under the confirmed queue. Returns '' when there is nothing coming,
+ *  because a control that does nothing is furniture. */
+function m8PlannedHTML(){
+  if(typeof roleAllows==='function'&&!roleAllows('procurecard'))return '';
+  let pl=[]; try{ pl=m8PlannedNeeds(); }catch(e){ pl=[]; }
+  if(!pl.length)return '';
+  const val=m8PlannedValue(pl);
+  let H='<div class="m8-plantog'+(m8PlanOn?' on':'')+'" onclick="m8TogglePlanned()">'+
+    '<span class="m8-pt-l">'+esc(m8PlanOn?tr('m8_hideplan','HIDE ANTICIPATED')
+                                         :tr('m8_showplan','SHOW ANTICIPATED'))+'</span>'+
+    '<span class="m8-pt-r">'+pl.length+' · '+rm(val)+'</span></div>';
+  if(!m8PlanOn)return H;
+  H+='<div class="m8-plan"><div class="m8-planhead">🔮 '+
+      esc(tr('m8_planhead','ANTICIPATED — NOT YET ISSUED'))+'</div>'+
+    '<div class="m8-planwhy">'+esc(tr('m8_planwhy','Programme sets the Owner has planned inside the ordering window. They may still be moved, re-dosed or dropped — nothing here is committed work, and none of it is in the estimated order value above.'))+
+      '<br>'+esc(tr('m8_planwin','Ordering window'))+' · '+M8_PLAN_HORIZON_DAYS+' '+
+      esc(tr('m8_plandays','days'))+'</div>'+
+    '<div class="m8-plantot"><span class="l">'+esc(tr('m8_plantot','Anticipated order value'))+
+      '</span><span class="v">'+rm(val)+'</span></div>';
+  H+=pl.map(n=>'<div class="m8-prow">'+
+      '<div class="m8-pn">'+esc(n.pid?((prodById(n.pid)||{}).name||n.ai):n.ai)+
+        ' <span class="m8-ptag">'+esc(tr('m8_plantag','ANTICIPATED'))+'</span>'+
+        (n.noBrand?(' <span class="minitag">'+esc(tr('pr_nobrand'))+'</span>'):'')+'</div>'+
+      '<div class="m8-pd">'+esc(tr('m8_planfor','For'))+' '+
+        esc(n.phases.map(x=>x.label+' · '+x.plan).join(' / '))+'</div>'+
+      '<table class="tbl"><tr>'+
+        '<td>'+esc(tr('pr_need'))+'</td><td class="num"><b>'+nf(n.req)+'</b> '+esc(n.unit)+'</td>'+
+        '<td>'+esc(tr('pr_have'))+'</td><td class="num '+(n.onHand?'':'lowq')+'">'+nf(n.onHand)+'</td>'+
+      '</tr><tr>'+
+        '<td>'+esc(tr('pr_gap'))+'</td><td class="num lowq"><b>'+nf(n.gap)+'</b> '+esc(n.unit)+'</td>'+
+        '<td>'+esc(tr('pr_buy'))+'</td><td class="num">'+
+          (n.buyContainers?('<b>'+n.buyContainers+'</b> '+esc(n.container)+
+            (n.estCost?('<br><span class="rowrm">'+rm(n.estCost)+'</span>'):'')):'—')+'</td>'+
+      '</tr></table>'+
+      (n.orderBy?('<div class="m8-pby">'+esc(tr('m8_planby','Order by'))+' <b>'+
+        esc(typeof dateShort==='function'?dateShort(n.orderBy):n.orderBy)+'</b></div>'):'')+
+    '</div>').join('');
+  return H+'</div>';}
+
+/* ====================================================================================
+   v3.23 · MODULE 8 · PIECE 3 — RECEIVE AGAINST THE BUY LIST
+   The app already worked out what to buy, per ingredient, and how many containers. Then it
+   made the Purchaser find each of those eight products again in a search box, key the
+   quantity it had itself computed, and key the price. This card lists the buy queue,
+   pre-fills the quantity, suggests the price, and lets the Purchaser correct whatever came
+   in short.
+   IT DOES NOT REIMPLEMENT RECEIVING. Everything it produces is pushed onto the SAME
+   IN_BASKET the v3.19 delivery basket owns, in the exact shape inReadLine() produces, and
+   is written by the SAME receiveBasket(). One STOCK_IN event per line with the fields it
+   always had — the ledger, the moving-average cost and the Apps Script never learn that
+   anything changed, and no script is redeployed.
+   THE INVOICE NUMBER IS NOT DUPLICATED HERE. It belongs to the delivery, not the line, and
+   it lives in in-ref where receiveBasket() reads it. This card says so and offers a jump.
+   ==================================================================================== */
+
+/* What the Purchaser has ticked and keyed, keyed by ROW so a repaint does not lose it. The
+   DOM handlers address rows by INDEX and look the key up here, because an ingredient name
+   can carry an apostrophe and interpolating it into an inline onclick is how you break a
+   card with a product called "Sam's". */
+let m8RecvState={};
+let m8RecvIdx=[];
+
+/** Which rows can actually be received: the ones with a real brand and a real order behind
+ *  them. A row with no brand yet is a job for ONBOARD, not for an invoice. */
+function m8RecvRows(){
+  let rows=[]; try{ rows=procureNeeds().slice(); }catch(e){ rows=[]; }
+  /* the receive list follows the same toggle as the queue above it, so the Purchaser who
+     ordered ahead can also book that delivery in. Anything else that turns up on the
+     invoice is still keyed by hand in STOCK IN LOG below, exactly as before. */
+  if(m8PlanOn){ try{ rows=rows.concat(m8PlannedNeeds()); }catch(e){} }
+  return rows.filter(n=>n&&+n.buyPid>0&&+n.buyContainers>0);}
+function m8RowKey(n){
+  return String(n.ai||'').toLowerCase()+'|'+String(n.unit||'')+'|'+(+n.buyPid||0)+
+         (n.planned?'|P':'|C');}
+function m8RecvKeyAt(i){return m8RecvIdx[+i]||'';}
+function m8RecvSlot(k){
+  if(!k)return null;
+  if(!m8RecvState[k])m8RecvState[k]={on:false,qty:'',price:''};
+  return m8RecvState[k];}
+function m8RecvSet(i,f,v){const s=m8RecvSlot(m8RecvKeyAt(i)); if(s)s[f]=v;}
+function m8RecvTickRow(i,el){
+  m8RecvSet(i,'on',!!(el&&el.checked));
+  m8RecvRender();}          // repaint, so the ticked total is never one tap behind
+
+/** Quantity and price for one row, resolving the pre-fill the same way in the renderer and
+ *  in the writer. An untouched box means the SUGGESTION is what gets used — if these two
+ *  ever disagreed, the Purchaser would be shown one price and charged another. */
+function m8RecvVals(n){
+  const k=m8RowKey(n), s=m8RecvState[k]||{on:false,qty:'',price:''};
+  const p=(typeof prodById==='function')?prodById(n.buyPid):null;
+  const c=m8ContainerCost(p);
+  const sug=(+n.costPerContainer||0)||(+c.rm||0);        // RM per CONTAINER, never per ml
+  return {k:k,s:s,p:p,sug:+sug||0,
+          guess:(+n.costPerContainer?!!n.costGuess:!!c.guess),
+          qty:+(s.qty!==''?s.qty:n.buyContainers)||0,
+          price:+(s.price!==''?s.price:sug)||0};}
+
+function m8RecvFootHTML(){
+  const rows=m8RecvRows();
+  let n=0,val=0;
+  rows.forEach(r=>{const v=m8RecvVals(r); if(v.s.on){n++;val+=v.qty*v.price;}});
+  return '<div class="m8-rtot'+(n?' on':'')+'"><span class="l">'+
+    esc(tr('m8_recvsel','Ticked'))+' · '+n+'</span><span class="v">'+
+    rm(+val.toFixed(2))+'</span><span class="s">'+esc(tr('m8_recvtot','Value of ticked lines'))+
+    '</span></div>';}
+/** Light repaint on keystroke: the row values and the footer only, so the box the
+ *  Purchaser is typing in keeps focus. */
+function m8RecvFoot(){
+  const rows=m8RecvRows();
+  rows.forEach((r,i)=>{const el=$('m8v'+i); if(!el)return;
+    const v=m8RecvVals(r);
+    el.innerHTML=v.s.on?('<b>'+rm(+(v.qty*v.price).toFixed(2))+'</b>'):'&nbsp;';});
+  const f=$('m8recvfoot'); if(f)f.innerHTML=m8RecvFootHTML();}
+
+function m8RecvGoInvoice(){
+  const el=$('in-ref'); if(!el)return;
+  const card=$('pnl-in'); if(card&&card.scrollIntoView)card.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){try{el.focus();}catch(e){}},160);}
+
+function m8RecvRender(){
+  const box=$('m8recvbox'); if(!box)return;
+  if(typeof roleAllows==='function'&&!roleAllows('m8recv')){box.innerHTML='';m8RecvIdx=[];return;}
+  const rows=m8RecvRows();
+  m8RecvIdx=rows.map(m8RowKey);
+  if(!rows.length){
+    // quiet, not broken: nothing is owed, so there is nothing to receive against
+    box.innerHTML='<div class="alertnone">'+
+      esc(tr('m8_recvnone','Nothing on the buy list yet. When the Owner issues a programme, the lines to receive appear here already filled in.'))+'</div>';
+    return;}
+  const H=[];
+  H.push('<div class="m8-rwhy">'+esc(tr('m8_recvwhy','These are the lines the buy queue asked for. Tick what actually arrived, correct the quantity if the supplier came up short, key the price you were charged, then add them all to the delivery below.'))+'</div>');
+  /* receiveBasket() REFUSES without an invoice number, and it reads it from in-ref in the
+     STOCK IN LOG card. Duplicating that field here would give one delivery two invoice
+     boxes that can disagree, so it is said instead of repeated. */
+  H.push('<div class="m8-rinv">'+esc(tr('m8_recvinv','The invoice number belongs to the delivery, not to the line — key it once in STOCK IN LOG below. RECEIVE ALL will refuse without it.'))+
+    ' <button class="m8-rgo" onclick="m8RecvGoInvoice()">'+
+      esc(tr('m8_recvgoinv','KEY INVOICE NO.'))+'</button></div>');
+  rows.forEach((n,i)=>{
+    const v=m8RecvVals(n), p=v.p; if(!p)return;
+    const nm=p.name||n.ai;
+    H.push('<div class="m8-rrow'+(v.s.on?' on':'')+(n.planned?' plan':'')+'">'+
+      '<label class="m8-rck"><input type="checkbox" id="m8c'+i+'"'+(v.s.on?' checked':'')+
+        ' onchange="m8RecvTickRow('+i+',this)">'+
+        '<span class="m8-rname">'+esc(nm)+'</span>'+
+        '<span class="m8-rtag'+(n.planned?' p':'')+'">'+
+          esc(n.planned?tr('m8_plantag','ANTICIPATED'):tr('m8_confirmtag','CONFIRMED'))+
+        '</span></label>'+
+      '<div class="m8-rmeta">'+esc(tr('m8_recvasked','Buy list asked for'))+' <b>'+
+        n.buyContainers+' '+esc(n.container)+'</b> · '+esc(tr('pr_gap'))+' '+
+        nf(n.gap)+' '+esc(n.unit)+'</div>'+
+      '<div class="m8-rgrid">'+
+        '<div><label>'+esc(tr('m8_recvqty','Containers received'))+'</label>'+
+          '<input type="number" min="0" step="any" inputmode="decimal" id="m8q'+i+'" value="'+
+            esc(String(v.s.qty!==''?v.s.qty:n.buyContainers))+
+            '" oninput="m8RecvSet('+i+',\'qty\',this.value);m8RecvFoot()"></div>'+
+        '<div><label>'+esc(tr('m8_recvprice','Price per container (RM)'))+'</label>'+
+          '<input type="number" min="0" step="0.01" inputmode="decimal" id="m8p'+i+'" value="'+
+            esc(String(v.s.price!==''?v.s.price:(v.sug?v.sug.toFixed(2):'')))+
+            '" oninput="m8RecvSet('+i+',\'price\',this.value);m8RecvFoot()">'+
+          /* labelled as a SUGGESTION, never as fact: prices change per delivery and the
+             figure behind it is either a moving average or the baseline list price. */
+          (v.sug?('<span class="m8-sugg">'+esc(tr('m8_recvsugg','suggestion'))+' '+
+            rm(v.sug)+' / '+esc(p.container)+
+            (v.guess?(' · '+esc(tr('pr_estguess'))):'')+'</span>'):'')+
+        '</div></div>'+
+      '<div class="m8-rval" id="m8v'+i+'">'+
+        (v.s.on?('<b>'+rm(+(v.qty*v.price).toFixed(2))+'</b>'):'&nbsp;')+'</div>'+
+    '</div>');});
+  H.push('<div class="m8-rerr" id="m8recverr"></div>');
+  H.push('<div id="m8recvfoot">'+m8RecvFootHTML()+'</div>');
+  H.push('<button class="bigbtn ghost" onclick="m8RecvAdd()">＋ '+
+    esc(tr('m8_recvadd','ADD TICKED TO THIS DELIVERY'))+'</button>');
+  box.innerHTML=H.join('');}
+
+/** Build the ticked rows as ORDINARY basket lines and push them onto the SAME IN_BASKET.
+ *  The object below is field-for-field what inReadLine() returns in CONTAINER mode — pid,
+ *  pname, ai, qty (operational units), unit, containers, container, unitPrice (RM per
+ *  container), value, shown, shownUnit. Get one of those wrong and receiveBasket() writes a
+ *  malformed STOCK_IN, so this shape is asserted field by field in the test suite. */
+async function m8RecvAdd(){
+  const err=$('m8recverr'); if(err)err.textContent='';
+  const rows=m8RecvRows(), take=[], bad=[];
+  rows.forEach(n=>{
+    const v=m8RecvVals(n); if(!v.s.on||!v.p)return;
+    const p=v.p, cont=+v.qty||0, price=+v.price||0;
+    if(!(cont>0)||!(price>0)){bad.push(p.name||n.ai);return;}
+    const ops=toOps(p,cont);                    // containers -> ml / gm, the ledger's unit
+    take.push({pid:p.id,pname:p.name,ai:p.active_ingredient,qty:ops,unit:p.unit,
+               containers:+cont.toFixed(4),container:p.container,unitPrice:price,
+               value:+(cont*price).toFixed(2),
+               shown:cont,shownUnit:p.container});});
+  if(bad.length){
+    if(err)err.textContent=tr('m8_recvbad','Key a quantity and a price for:')+' '+bad.join(', ');
+    return;}
+  if(!take.length){
+    if(err)err.textContent=tr('m8_recvnothing','Tick at least one line that arrived.');
+    return;}
+  take.forEach(l=>{IN_BASKET.push(l);});
+  if(typeof persistBasket==='function')await persistBasket();
+  m8RecvState={};                               // the ticks have become basket lines
+  if(typeof renderBasket==='function')renderBasket();
+  m8RecvRender();
+  toast('＋ '+take.length+' '+tr('m8_recvdone','line(s) added to this delivery'));
+  const el=$('inbasket'); if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'});}
 
 function renderProgCheck(){
   const box=$('chkbox');if(!box)return;
@@ -9924,7 +10447,19 @@ async function amSave(issue){
     slots:{}, status:issue?'ISSUED':(old?old.status:'DRAFT'),
     by:(CFG&&CFG.worker)||'', at:nowSec(),
     issuedAt:issue?nowSec():(old?old.issuedAt:''),
-    issuedBy:issue?((CFG&&CFG.worker)||''):(old?old.issuedBy:'')};
+    issuedBy:issue?((CFG&&CFG.worker)||''):(old?old.issuedBy:''),
+    /* v3.23.1 — THE PHASE THIS DIRECTIVE CAME FROM. amLoadTemplate() has always known it
+       and held it in AM.tmpl, and this function has always thrown it away, so a directive
+       and the workbook set it was built from had no linkage at all. Everything downstream
+       that wanted to ask "is this set already covered" had to guess from the directive's
+       NAME or its DUE DATE, both of which the Owner is free to change. That guess is what
+       made v3.23.0's anticipated-demand queue able to order a phase twice: rename the
+       directive AND move its date and the last thread was cut.
+       `old.phaseId` is kept on the fallback so editing an existing directive without
+       re-picking its template does not erase the link. Additive and needs no migration —
+       directives written before this release simply carry '', and the reader below treats
+       an empty phaseId as "unknown", never as "matches nothing". */
+    phaseId:AM.tmpl||(old&&old.phaseId)||''};
   // v3.18 — role and order travel with the line so the crew's card reads in the order
   // the tank is mixed, and costing keeps the label the Owner chose.
   lines.forEach((l,i)=>{rec.slots[l.slot]={slot:l.slot,role:l.role||roleOf(l.slot),

@@ -1063,6 +1063,68 @@ input.plate::placeholder{color:#d9c6c3;letter-spacing:2px;}
   background:#e8f3e9;color:#1b5e20;display:inline-block;}
 .prow .pr-by.soon{background:#fff3cd;color:#7a5b00;}
 .prow .pr-by.late{background:#fdecea;color:#b3261e;}
+/* ===== v3.23 · MODULE 8 — anticipated demand, and receiving against the buy list =====
+   Every class here is prefixed .m8- so nothing can collide with the stylesheet above it
+   or with the other lane working the same file. A name collision in v3.19.2 silently hid
+   a whole screen, which is why the prefix is a rule and not a habit.
+   The visual argument: a CONFIRMED row is a solid green/amber/red .prow — work the crew is
+   about to do. An ANTICIPATED row is a DASHED blue .m8-prow — a forecast the Owner may
+   still edit. They must never be mistaken for each other at a glance. */
+.m8-plantog{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  min-height:44px;box-sizing:border-box;margin-top:10px;padding:10px 13px;cursor:pointer;
+  user-select:none;border:2px dashed #b7c7e6;border-radius:12px;background:#f5f8ff;}
+.m8-plantog.on{border-style:solid;background:#e8f0fe;}
+.m8-plantog .m8-pt-l{font-size:11.5px;font-weight:900;letter-spacing:.4px;color:#26418f;}
+.m8-plantog .m8-pt-r{font-size:11.5px;font-weight:900;color:#123a71;white-space:nowrap;}
+.m8-plan{border:2px dashed #b7c7e6;border-radius:13px;padding:11px;margin-top:9px;background:#fbfcff;}
+.m8-planhead{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+  color:#26418f;margin-bottom:5px;}
+.m8-planwhy{font-size:10.5px;font-weight:700;line-height:1.5;color:#5a6b85;margin-bottom:9px;}
+.m8-plantot{display:flex;align-items:baseline;justify-content:space-between;gap:9px;
+  background:#26418f;color:#fff;border-radius:11px;padding:9px 12px;margin-bottom:10px;}
+.m8-plantot .l{font-size:9px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;opacity:.75;}
+.m8-plantot .v{font-size:19px;font-weight:900;white-space:nowrap;}
+.m8-prow{border:2px dashed #c3d3f0;border-radius:13px;padding:11px;margin-bottom:9px;background:#fff;}
+.m8-prow .m8-pn{font-size:14.5px;font-weight:900;line-height:1.3;}
+.m8-prow .m8-pd{font-size:10px;color:#6b7a6e;margin-top:2px;font-weight:700;}
+.m8-prow .tbl{margin-top:7px;}
+.m8-ptag{font-size:8.5px;background:#e8f0fe;color:#26418f;border:1px solid #c3d3f0;
+  border-radius:6px;padding:1px 6px;font-weight:900;letter-spacing:.4px;vertical-align:middle;}
+.m8-pby{font-size:10.5px;font-weight:900;border-radius:8px;padding:5px 9px;margin-top:7px;
+  background:#e8f0fe;color:#26418f;display:inline-block;}
+/* ---- receive against the buy list ---- */
+.m8-rwhy{font-size:11px;font-weight:700;line-height:1.5;color:var(--muted);margin-bottom:8px;}
+.m8-rinv{font-size:10.5px;font-weight:800;line-height:1.5;color:#7a5b00;background:#fff8e1;
+  border:1.5px solid #ffe0a3;border-radius:11px;padding:9px 11px;margin-bottom:10px;}
+.m8-rgo{min-height:36px;margin-top:6px;display:block;width:100%;background:#fff;color:#7a5b00;
+  border:1.5px solid #ffd07a;border-radius:9px;padding:8px 10px;font-size:10.5px;
+  font-weight:900;cursor:pointer;font-family:inherit;}
+.m8-rrow{border:2px solid #dfe4e8;border-radius:13px;padding:10px 11px;margin-bottom:9px;background:#fff;}
+.m8-rrow.on{border-color:var(--green2,#2e7d32);background:#f6fbf6;}
+.m8-rrow.plan{border-style:dashed;border-color:#c3d3f0;}
+.m8-rrow.plan.on{border-color:#26418f;background:#f5f8ff;}
+.m8-rck{display:flex;align-items:center;gap:9px;min-height:44px;cursor:pointer;user-select:none;margin:0;}
+.m8-rck input{width:24px;height:24px;flex-shrink:0;margin:0;accent-color:#2e7d32;}
+.m8-rname{font-size:14px;font-weight:900;line-height:1.3;flex:1;min-width:0;}
+.m8-rtag{font-size:8.5px;background:#e8f3e9;color:#1b5e20;border-radius:6px;padding:2px 6px;
+  font-weight:900;letter-spacing:.4px;flex-shrink:0;}
+.m8-rtag.p{background:#e8f0fe;color:#26418f;}
+.m8-rmeta{font-size:10px;font-weight:700;color:var(--muted);margin:2px 0 7px;line-height:1.45;}
+.m8-rgrid{display:flex;gap:9px;}
+.m8-rgrid>div{flex:1;min-width:0;}
+.m8-rgrid label{display:block;font-size:9.5px;font-weight:900;letter-spacing:.3px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.m8-rgrid input{width:100%;box-sizing:border-box;min-height:44px;}
+.m8-sugg{display:block;font-size:9.5px;font-weight:800;color:#6b7a6e;margin-top:3px;line-height:1.4;}
+.m8-rval{text-align:right;font-size:13px;font-weight:900;color:var(--green,#2e7d32);
+  min-height:18px;margin-top:6px;}
+.m8-rerr{color:#b3261e;font-size:11.5px;font-weight:800;line-height:1.45;margin:2px 0;}
+.m8-rtot{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px;
+  background:var(--lite,#eef4ee);border-radius:11px;padding:10px 12px;margin:4px 0 9px;}
+.m8-rtot.on{background:#0d3d12;color:#fff;}
+.m8-rtot .l{font-size:10.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;}
+.m8-rtot .v{font-size:19px;font-weight:900;white-space:nowrap;}
+.m8-rtot .s{flex-basis:100%;font-size:9px;font-weight:700;opacity:.72;}
 .wwait .wwaitsub{display:block;font-size:11px;font-weight:700;opacity:.85;margin-top:3px;}
 .tmplrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .tmpl{display:inline-block;background:#eef4ff;color:#26418f;border:1.5px solid #c3d3f0;
@@ -1486,6 +1548,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .cbleg{display:flex;flex-wrap:wrap;gap:8px 13px;}
 .cbleg span{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--muted);}
 .cbleg i{width:10px;height:10px;border-radius:3px;display:block;}
+
+/* ---- v3.23 · MODULE 4 · shared components ----
+   Two rules, both used, both prefixed .m4- so nothing here can reach a rule above it.
+   A CSS name collision silently hid a whole screen in v3.19.2; the prefix is the fix. */
+.m4-pick{display:block;}          /* mount div for the ONE product picker (m4Picker) */
+.m4-hide{display:none !important;} /* valuation KPI row when SHOW_VALUES is false */
 </style>
 </head>
 <body>
@@ -1742,6 +1810,24 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="procurebox"></div>
   </div>
 
+  <!-- ===== v3.23 · MODULE 8 · RECEIVE AGAINST THE BUY LIST =====
+       Sits directly under BUY FOR PROGRAMME because it is the other half of the same job:
+       the queue above says what to buy, this takes the same lines back in off the invoice
+       with the quantity already filled and the price suggested.
+       It writes NOTHING itself. Every line it builds is pushed onto the v3.19 delivery
+       basket in IN_BASKET and written by receiveBasket() further down this page, so each
+       one becomes an ordinary STOCK_IN event with exactly the fields it always had. No
+       Apps Script change.
+       The invoice number is deliberately NOT repeated here — it belongs to the delivery,
+       lives in #in-ref in the STOCK IN LOG card below, and receiveBasket() refuses without
+       it. Two invoice boxes for one delivery is two boxes that can disagree.
+       Painted by m8RecvRender(), which renderProcure() calls; every path that can change
+       what the buy queue says already calls renderProcure(). -->
+  <div class="card" id="m8recv" style="display:none">
+    <div class="sec">📦 <span data-t="m8_recvtitle">RECEIVE AGAINST THE BUY LIST</span></div>
+    <div id="m8recvbox"></div>
+  </div>
+
   <!-- URGENT REORDER ALERT CENTER — Purchaser + Owner/Marketing -->
   <div class="card" id="alertcenter" style="display:none">
     <div class="sec">🚨 <span data-t="m3_alerthead">Urgent Reorder Alert Center</span> <span class="m5-iq" onclick="m5Tog('m5-p14')">ⓘ</span></div>
@@ -1753,8 +1839,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <div class="card" id="pnl-in" style="display:none">
     <div class="sec">📥 Stock In Log — Sandakan Purchaser</div>
     <label>Product</label>
-    <input id="in-search" placeholder="Search brand or active ingredient…" oninput="renderInOpts()">
-    <select id="in-prod" size="5" style="margin-top:6px" onchange="onInProd()"></select>
+    <!-- v3.23 MODULE 4 — mount for the ONE product picker (m4Picker). The search box
+         #in-search and the <select> #in-prod are written here by renderInOpts(); the
+         ids are unchanged and every reader of them still resolves. -->
+    <div class="m4-pick" id="m4-pick-in"></div>
     <div class="aibox">
       <div><div class="cl">Active ingredient <span class="ro">READ-ONLY</span></div><div class="av" id="in-ai">—</div></div>
       <div class="cr" id="in-pack">—</div>
@@ -1785,8 +1873,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <div class="card" id="pnl-out" style="display:none">
     <div class="sec"><span data-t="so_head">📤 Material Stock Out — issued to the field</span> <span class="m5-iq" onclick="m5Tog('m5-p15')">ⓘ</span></div>
     <label data-t="so_product">Product</label>
-    <input id="out-search" placeholder="Search brand or active ingredient…" data-tph="so_search" oninput="renderOutOpts()">
-    <select id="out-prod" size="5" style="margin-top:6px" onchange="onOutProd()"></select>
+    <!-- v3.23 MODULE 4 — mount for the ONE product picker. renderOutOpts() writes
+         #out-search (carrying its data-tph="so_search") and #out-prod in here, then
+         applies the v3.16 worker placeholder swap on top exactly as before. -->
+    <div class="m4-pick" id="m4-pick-out"></div>
     <div class="aibox">
       <div id="out-aiwrap"><div class="cl"><span id="out-ailbl" data-t="so_ai">Active ingredient</span> <span class="ro" data-t="w_readonly">READ-ONLY</span></div><div class="av" id="out-ai">—</div></div>
       <div class="cr" id="out-onhand">—</div>
@@ -1848,7 +1938,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="oblist"></div>
   </div>
 
-  <!-- LIVE STOCK ON HAND -->
+  <!-- LIVE STOCK ON HAND
+       v3.23 MODULE 4 — this card is now a thin MOUNT SHELL over the one stock list
+       component (m4StockList, rendered by renderStock()). It keeps its own id, its own
+       search box and its own "WITH VALUATION" tag because HUB_PANELS lists 'onhandcard'
+       and MODULES.inv routes it into both SUPPLY HUB and STOCK OUT — deleting the card
+       would leave a routed panel with nothing behind it. #stocklist is the mount. -->
   <div class="card" id="onhandcard">
     <div class="sec">Stock on hand <span id="oh-valnote" class="minitag" style="display:none">WITH VALUATION</span></div>
     <input id="stocksearch" placeholder="Search brand or active ingredient…" oninput="renderStock()">
@@ -2231,11 +2326,15 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <p class="small hidden" id="m5-p13" style="margin-top:9px" data-t="m3_readynote">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
   </div>
 
-  <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only -->
+  <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only
+       v3.23 MODULE 4 — same one stock list component #onhandcard mounts, given
+       values:SHOW_VALUES, the ccmode segment and the CAP=15 collapse. The card keeps
+       its id: HUB_PANELS lists 'invcc' and MODULES.inv routes STOCK LEVEL to it, so it
+       stays a live panel and only its BODY became a mount shell. -->
   <div class="card" id="invcc" style="display:none">
     <div class="sec">📦 Inventory Control Center</div>
     <div id="invalert"></div>
-    <div class="kpis" style="margin-bottom:6px">
+    <div class="kpis" id="m4-cc-kpis" style="margin-bottom:6px">
       <div class="kpi"><div class="v" id="i-val">RM 0</div><div class="l">Live stock valuation</div></div>
       <div class="kpi"><div class="v" id="i-low">0</div><div class="l">Below minimum</div></div>
       <div class="kpi"><div class="v" id="i-items">0</div><div class="l">Products tracked</div></div>
@@ -2248,7 +2347,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       <div onclick="setCCMode('AI',this)">AI ONLY</div>
       <div onclick="setCCMode('GROUP',this)">GROUP BY AI</div>
     </div>
-    <div class="tblwrap"><table class="tbl" id="cctbl"></table></div>
+    <!-- the <table id="cctbl"> is written into this wrapper by m4StockList() — the one
+         place the row markup is authored, shared with #onhandcard. -->
+    <div class="tblwrap" id="m4-cc-list"></div>
     <p class="small" style="margin-top:8px">Tap a row to set that product's minimum stock level or correct its active ingredient. Valuation uses the baseline unit price from the Materials Cost list.</p>
   </div>
 
@@ -2263,8 +2364,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <div class="card" id="stocktake" style="display:none">
     <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment <span class="m5-iq" onclick="m5Tog('m5-p11')">ⓘ</span></div>
     <label>Product counted</label>
-    <input id="st-search" placeholder="Search brand or active ingredient…" oninput="renderStOpts()">
-    <select id="st-prod" size="5" style="margin-top:6px" onchange="onStProd()"></select>
+    <!-- v3.23 MODULE 4 — mount for the ONE product picker. #st-search / #st-prod are
+         written here by renderStOpts(); submitStockTake() still reads both by id. -->
+    <div class="m4-pick" id="m4-pick-st"></div>
     <div class="aibox">
       <div><div class="cl">System says <span class="ro">LIVE</span></div><div class="av" id="st-sys">—</div></div>
       <div class="cr" id="st-ai">—</div>
@@ -2691,7 +2793,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.22.0"></script>
-<script src="app.js?v=3.22.0"></script>
+<script src="database.js?v=3.23.1"></script>
+<script src="app.js?v=3.23.1"></script>
 </body>
 </html>
