@@ -1968,6 +1968,18 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <div id="synchealth"></div>
   <div class="appendnote" id="appendnote"></div>
   <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
+  <!-- v3.27.0 — THE CATCH-UP. SYNC pushes this phone's work UP; this pulls back DOWN the work
+       other phones did, so two devices can be brought level. A separate button on purpose: a
+       catch-up is a deliberate act, not something that should happen quietly in the background. -->
+  <button class="bigbtn ghost" id="catchupbtn" style="margin-top:9px" onclick="pullEvents(1)">⇩ CATCH UP FROM THE OFFICE SHEET</button>
+  <div class="small" id="catchupnote" style="margin:7px 2px 0;text-align:center;color:#6b6357">
+    Brings down the work done on the other phones. It only ever <b>adds</b> — nothing already on
+    this phone is changed or removed, and pressing it a second time changes nothing.<br>
+    <span style="opacity:.8">Tree totals are not affected — those already come from the office sheet.
+    Store movements dated on or before the opening count are left out so no balance moves twice.
+    Anything you cleared here but not in the sheet will come back.</span>
+  </div>
+  <div class="small" id="catchupsay" style="display:none;margin:6px 2px 0;text-align:center;font-weight:700"></div>
   <div class="m5-iqrow" onclick="m5Tog('m5-p3')"><span class="m5-iq">ⓘ</span></div>
   <p class="small hidden" id="m5-p3" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
   <div class="card">
@@ -2801,7 +2813,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.26.2"></script>
-<script src="app.js?v=3.26.2"></script>
+<script src="database.js?v=3.27.0"></script>
+<script src="app.js?v=3.27.0"></script>
 </body>
 </html>

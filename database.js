@@ -446,6 +446,20 @@ const ROPE_M_PER_FRUIT=1.5;
    material is affected — set it back to true and add pid 68 to PRODUCTS to switch it on again. */
 const ROPE_TRACKING=false;
 
+/* v3.27.0 — THE STOCK OPENING DATE. Read the header of this file: the `stock` figure carried by
+   every product in INVENTORY_RECON is "stock re-synced to the farm sheet 05/08/2026". It is a
+   SNAPSHOT, not a day-one figure — every movement up to that date is already baked inside it.
+   onHand() then computes  stock − usedOf + recvOf + adjOf  over the event store on top of it.
+   That is sound while a phone holds only its own rows. The moment the catch-up begins pulling
+   other phones' rows down, a STOCK_IN or STOCK_OUT dated on or before the snapshot would be
+   counted a SECOND time — once inside the 05/08 figure, once again as an event — and the store
+   balance would move for no reason whatsoever. pullEvents() therefore refuses every stock row
+   dated on or before this date. Tree logs, tying and task logs have no opening balance to
+   collide with and are pulled in full.
+   CHANGE THIS ONLY TOGETHER WITH the `stock` numbers in INVENTORY_RECON. The two are one fact
+   written in two places and must always describe the same moment. */
+const STOCK_OPEN_AT='2026-08-05';
+
 /* =====================================================================
    12. v2.9 — DROP AND ROTTEN CLASSIFICATION
    A fruit comes off the tree either still on its string (SECURED) or with no
@@ -1130,6 +1144,20 @@ const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"
   t25_shortask:'Tell Sandakan before you mix. Log it anyway?',
   t25_basisclash:'THAT SET IS MEASURED PER TREE, NOT PER TANK',
   t25_basisclash2:'Switch the job type to MANURE / SOIL first, or the crew will be told to put a whole tree dose into one tank.',
+  // v3.27.0 — the catch-up pull
+  t27_cu_run:'Catching up…',
+  t27_cu_btn:'⇩ CATCH UP FROM THE OFFICE SHEET',
+  t27_cu_nourl:'Set the Sync URL in Settings first',
+  t27_cu_offline:'No internet connection',
+  t27_cu_old:'The office sheet has not been updated yet — ask the Owner to paste the new Apps Script',
+  t27_cu_fail:'Could not reach the office sheet',
+  t27_cu_none:'✓ Nothing new — this phone already has every record in the office sheet',
+  t27_cu_got:'records brought down from the office sheet',
+  t27_cu_none2:'Nothing new. Everything in the office sheet is already on this phone.',
+  t27_cu_from:'Brought down',
+  t27_cu_skipdup:'already on this phone',
+  t27_cu_skipstock:'store movements dated on or before the opening count — skipped so the balance is not counted twice',
+  t27_cu_capped:'That is the most this can fetch at once. Press it again to bring down more.',
   t14_stillleft:'Still on the list tomorrow',
   t14_allfinished:'Every tree is done. This job leaves the list.',
   t14_saved:'✓ Saved · store updated',
@@ -1737,6 +1765,20 @@ const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Ta
   t25_shortask:'Beritahu Sandakan sebelum campur. Nak simpan juga?',
   t25_basisclash:'SET ITU DIUKUR IKUT POKOK, BUKAN IKUT TANGKI',
   t25_basisclash2:'Tukar jenis kerja kepada BAJA / SOIL dahulu, kalau tidak pekerja akan diberitahu masuk dos satu pokok penuh ke dalam satu tangki.',
+  // v3.27.0 — tarik rekod turun
+  t27_cu_run:'Sedang ambil…',
+  t27_cu_btn:'⇩ AMBIL REKOD DARI HELAIAN PEJABAT',
+  t27_cu_nourl:'Masukkan Sync URL dalam Tetapan dahulu',
+  t27_cu_offline:'Tiada sambungan internet',
+  t27_cu_old:'Helaian pejabat belum dikemas kini — minta Tuan tampal Apps Script yang baru',
+  t27_cu_fail:'Tidak dapat hubungi helaian pejabat',
+  t27_cu_none:'✓ Tiada yang baru — telefon ini sudah ada semua rekod dalam helaian pejabat',
+  t27_cu_got:'rekod diambil turun dari helaian pejabat',
+  t27_cu_none2:'Tiada yang baru. Semua dalam helaian pejabat sudah ada di telefon ini.',
+  t27_cu_from:'Diambil turun',
+  t27_cu_skipdup:'sudah ada di telefon ini',
+  t27_cu_skipstock:'pergerakan stor bertarikh pada atau sebelum kiraan pembukaan — dilangkau supaya baki tidak dikira dua kali',
+  t27_cu_capped:'Itu jumlah paling banyak sekali ambil. Tekan sekali lagi untuk ambil lagi.',
   t14_stillleft:'Masih dalam senarai esok',
   t14_allfinished:'Semua pokok sudah siap. Kerja ini keluar dari senarai.',
   t14_saved:'✓ Disimpan · stok stor dikemas kini',
