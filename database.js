@@ -877,6 +877,14 @@ const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"
   ts_harvest:'grade A/B/C, loss', ts_tying:'tally clicker, rope, balances',
   ts_scale:'weigh, photograph, send', ts_ops:'tasks, stock out',
   ts_inv:'stock in/out, levels, alerts',
+  /* v3.24 — ROLE-SPECIFIC TILE SUB-LABELS. A tile's sub-label had always been one fixed
+     string, so it named sections the reader could not open: Admin advertised "corrections,
+     yield, master, keys" to a Marketer entitled to only the last of the four, and after the
+     v3.24 narrowing it would have named three screens he does not have. Read by tileSub()
+     via ROLE_TILE_SUB, and only where a role's section list actually differs. */
+  ts_mkt_harvest:'backlog, wave, farm today',
+  ts_mkt_reports:'daily audit, month ledger',
+  ts_mkt_admin:'staff access keys',
   /* v3.18.5 — the 3-button harvest matrix and the active task notice bar */
   ca_btn:'🧺 GOOD FRUIT', ca_btnsub:'Tap to count',
   ca_counting:'Counting into', ca_intograde:'Counting into grade', ca_string:'String status',
@@ -1109,6 +1117,16 @@ const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"
   t14_mhonce:'man-hours — entered ONCE and split by trees',
   t14_keytrees:'Key how many trees were done.',
   t14_toomany:'That is more trees than the lot has left.',
+  // v3.25.0 (audit D-09) — the store-is-short warning on the crew's completion screen
+  t25_shortstock:'THE STORE DOES NOT HOLD ENOUGH FOR THIS JOB',
+  t25_shortask:'Tell Sandakan before you mix. Log it anyway?',
+  t25_onephone:'This role is already signed in on another phone',
+  t25_onephone2:'Only ONE phone per role during the trial, or the two phones will each keep their own figures and neither will be right.',
+  t25_onephone3:'Signed in on: ',
+  t25_onephone4:'Ask the Owner before you continue on this phone.',
+  t25_takeover:'USE THIS PHONE INSTEAD',
+  t25_basisclash:'THAT SET IS MEASURED PER TREE, NOT PER TANK',
+  t25_basisclash2:'Switch the job type to MANURE / SOIL first, or the crew will be told to put a whole tree dose into one tank.',
   t14_stillleft:'Still on the list tomorrow',
   t14_allfinished:'Every tree is done. This job leaves the list.',
   t14_saved:'✓ Saved · store updated',
@@ -1486,6 +1504,10 @@ const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Ta
   ts_harvest:'gred A/B/C, buah rosak', ts_tying:'kira ikat, tali, baki',
   ts_scale:'timbang, ambil gambar, hantar', ts_ops:'kerja, ambil bahan',
   ts_inv:'terima/ambil bahan, paras stok',
+  /* v3.24 — label kecil ikut peranan. Marketing hanya boleh buka bahagian ini sahaja. */
+  ts_mkt_harvest:'baki dalam bangsal, buah atas tali, hari ini',
+  ts_mkt_reports:'audit harian, lejar bulanan',
+  ts_mkt_admin:'kunci akses pekerja',
   /* v3.18.5 — matriks 3 butang dan bar tugasan hari ini */
   ca_btn:'🧺 BUAH ELOK', ca_btnsub:'Ketuk untuk kira',
   ca_counting:'Dikira ke gred', ca_intograde:'Dikira ke gred', ca_string:'Status tali',
@@ -1707,6 +1729,16 @@ const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Ta
   t14_mhonce:'jam-orang — dimasukkan SEKALI dan dibahagi ikut pokok',
   t14_keytrees:'Masukkan berapa pokok sudah dibuat.',
   t14_toomany:'Itu lebih banyak daripada baki pokok dalam lot ini.',
+  // v3.25.0 (audit D-09)
+  t25_shortstock:'STOK DALAM STOR TIDAK CUKUP UNTUK KERJA INI',
+  t25_shortask:'Beritahu Sandakan sebelum campur. Nak simpan juga?',
+  t25_onephone:'Peranan ini sudah log masuk di telefon lain',
+  t25_onephone2:'SATU telefon sahaja untuk setiap peranan semasa ujian, kalau tidak dua telefon akan simpan angka masing-masing dan kedua-duanya salah.',
+  t25_onephone3:'Log masuk di: ',
+  t25_onephone4:'Tanya Tuan dahulu sebelum teruskan di telefon ini.',
+  t25_takeover:'GUNA TELEFON INI SAHAJA',
+  t25_basisclash:'SET ITU DIUKUR IKUT POKOK, BUKAN IKUT TANGKI',
+  t25_basisclash2:'Tukar jenis kerja kepada BAJA / SOIL dahulu, kalau tidak pekerja akan diberitahu masuk dos satu pokok penuh ke dalam satu tangki.',
   t14_stillleft:'Masih dalam senarai esok',
   t14_allfinished:'Semua pokok sudah siap. Kerja ini keluar dari senarai.',
   t14_saved:'✓ Disimpan · stok stor dikemas kini',

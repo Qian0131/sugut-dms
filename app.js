@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.23.1';   // v3.23.1 - A DIRECTIVE NOW REMEMBERS WHICH PROGRAMME SET IT CAME FROM. amLoadTemplate() has always known the phase it built a directive out of and amSave() has always thrown that away, so nothing downstream could ask whether a planned set was already covered without guessing from the directive's NAME or its DUE DATE - both of which the Owner may change at will. v3.23.0's anticipated-demand queue relied on that guess, and rename-plus-reschedule cut the last thread, which would have put a phase on the order twice. amSave() now stamps phaseId, and the anticipated queue matches on it exactly; the old name/date heuristic is kept but applies ONLY to directives written before this release, which carry no phaseId - so an unrelated directive that merely falls due on the same day no longer suppresses a planned set either. Additive, no migration, no Apps Script redeploy. // v3.23.0 - ROUND 2 OF THE PARALLEL SPRINT: ONE PICKER, ONE STOCK LIST, AND A BUY LIST YOU CAN RECEIVE AGAINST. MODULE 4: the same product search widget had been hand-written FIVE times - Stock In, Stock Out, Stock-take, Stock on hand and the Control Center - so a fix to one of them reached one of them. There is now ONE picker component, m4Picker(), mounted at three places, and ONE list renderer, m4StockList(), mounted at two. Nothing was renamed and no panel was deleted: in-search/in-prod, out-search/out-prod, st-search/st-prod, stocksearch, ccsearch, cctbl, invcc and onhandcard all still exist and still answer to every caller they always did, because HUB_PANELS, roleAllows() and the Purchaser's tab routes read those ids and a rename would have silently unhooked them. THE COLUMNS FOLLOW THE ROLE, using the gates that were already there and were reused verbatim rather than rewritten - SHOW_VALUES hides every RM figure and the whole valuation KPI row from a worker, aiTextRole() decides whether a row says the word painted on the drum or the chemistry behind it. MODULE 8 PIECE 3: the buy queue already worked out what to order and how many containers, and then the Purchaser re-keyed all of it by hand when the delivery arrived. RECEIVE AGAINST THE BUY LIST now pre-fills those lines - tick what actually came, correct anything short, key the price - and pushes them into the SAME v3.19 delivery basket, so each line still becomes an ordinary STOCK_IN event with exactly the fields it always had. The invoice number is still keyed once in the Stock In log below, because it belongs to the delivery and not to the line. The pre-filled price is RM PER CONTAINER and is labelled a suggestion: currentMAC() is per ml and unit_price is per bottle, and confusing the two is the RM 0.18-for-two-bottles error a screenshot caught in v3.19. MODULE 8 PIECE 5: a phase the Owner has PLANNED but not yet issued was invisible to the Purchaser, so material for a job three weeks out could only be ordered after the job was announced. Programme sets planned inside a 45-day ordering window - one month of sets plus the 7-day Sandakan turnaround plus slack for the rain delays that moved 22 plan dates in v3.20 - now appear as ANTICIPATED rows, dashed and labelled, BELOW the confirmed queue and with their own separate value total. They are never added into the estimated order value, and they do NOT move the Inventory tile badge: that badge counts what is waiting on a person right now, and a number that jumps because of a forecast stops being believed. Default off, one tap to open, and the count and value are printed even while closed. A set is dropped from the forecast if it is done, if it was removed from the plan, if material has already left the store against it, or if an issued directive already covers it. No Apps Script redeploy - nothing new reaches the Sheet. // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.25.0';   // v3.25.0 - PIPELINE INTEGRITY AUDIT FIXES. Seven defects found by the 7 Aug closed-loop audit, each one reachable in the field: (D-05) showPhoto() wrote PHOTO_SEEN before the empty-photo bail, so APPROVE & DISPATCH unlocked on a load whose picture never arrived - the whole photo handshake could be walked past. (D-09) submitRun() had NO on-hand check at all while submitStockOut() one screen over has warned since v2.5, so a directive against an empty drum drove the store negative AND booked a cost for chemical that never left the shelf. (D-18) finally{runSaving=false} sat above the awaited kv write and closeRun(), so a second tap rewrote all 15 rows of a 5-part 3-lot job; there was also no catch, so a part-way failure left the modal silent and the retry duplicated. (D-04) a credit-exceeded approve sent the user to saveDispatch(), which writes no req_uuid - the request stayed PENDING with the photo already seen and was approved AGAIN after a top-up, invoicing one basket twice. The override now lives on the verification card itself. (D-07) nextSlotKey() reuses a freed key and amSave() never pruned AI_ALLOC, so editing a line left the OLD brand bound to it and the crew deducted the wrong chemical past allocPick()'s unit guard. (D-06) amLoadTemplate() never read ph.basis, and the heavy-rain branch offers PER_TREE fertiliser sets to a SPRAY job - 1,000 gm per TREE became 1,000 gm per TANK, a 66.7x under-dose. (D-12) each scale photo went up three times and lines_json alone breached the 49,000-char cell ceiling. NOTE the load-level photo_b64 is deliberately KEPT: readDispatchPhotos_() only sends photos down for undecided requests, so blanking it would leave decided loads with no picture in the history. Two audit findings are NOT fixed here and need a decision: DISPATCH and CREDIT_TOPUP still have no down-leg in refreshMasters(), so retailerCredit() and nextInvoiceSerial() remain per-device - run ONE PHONE PER ROLE until that is built. // v3.24.0 - MARKETING IS A ROLE AT LAST, INSTEAD OF A SECOND NAME FOR THE OWNER. FULL_ROLES is ['OWNER','MARKETING'], so every roles:FULL_ROLES tab and every 'return full' gate in roleAllows() has been handing the marketer whatever the Owner had; the workspace was the Owner's minus four panels and the only marketing-specific decision in the codebase was that the mkt tile was listed FIRST. Measured before this release: 8 tiles, 32 sections, RM figures on 21 of them - and a marketer who could receive supplier invoices, create products in the catalogue, author and issue a spray programme, approve corrections to harvest data, and read every cost screen in the app. IT IS NOW 4 TILES AND 11 SECTIONS: the whole of Review & Credit, harvest READ-ONLY (backlog, the wave, farm today - COLLECT goes, a marketer does not log a fruit drop), two reports (daily audit and month ledger), and STAFF. Inventory, Agronomist, Daily Ops and Fruit Tying go entirely. STAFF IS KEPT ON THE OWNER'S EXPLICIT INSTRUCTION, having been shown first that it is the widest grant on the list - the role that invoices customers can also mint logins. ADJUSTMENTS goes: approving a correction to harvest data is marking someone else's homework, which is the argument that has kept YIELD AUDIT away from this role since v3.2. HOW IT IS DONE MATTERS AS MUCH AS WHAT IT DOES. The v3.16 comment says why nobody fixed this: 'pulling MARKETING out of FULL_ROLES would have moved ~40 gates to fix one label.' That is still true and this release does NOT do it. Not one existing 'return full' line is edited. The narrowing is applied at the three gates that already exist, in the order they already fire: HUB_ORDER.MARKETING drops from eight keys to four; a roles: key closes the six sections that go; and ONE deny check, MKT_DENY, sits ABOVE the switch in roleAllows(). Widening the role again is a one-line revert on the array. COLLECT is the single section MKT_DENY cannot reach - it has panels:[] because it is a whole screen, not a panel - so the tab gate is the only place it can be closed, and that is called out where it is written. THE MONTH LEDGER IS SPLIT BY A SECOND, NARROWER MONEY GATE. The Owner's rule is that the marketer may see what the farm EARNED but not what it SPENT, and MONTH LEDGER carries material, labour, drawdown and margin in the same grid as yield and revenue. SHOW_SPEND answers that question; SHOW_VALUES answers 'may this person see money at all' and STAYS TRUE for him, because ~30 call sites read that flag meaning money rather than spend and widening it would have silently blanked his own invoices. The yield table, the revenue-per-merchant table and the year's revenue and net kg survive; the spend-per-lot table, the drawdown, the man-hour count, the margin tile and the labour-rate warning do not. The explanatory note is rewritten for that role rather than left pointing at a table that is not there. TWO LIVE DEFECTS FOUND ON THE WAY IN AND FIXED HERE. FIRST: renderTaskNotice() paints the OVERDUE PROGRAMME bar on EVERY role's home screen and hard-codes openModule('ops','tasks'), and openModule bounces a tile outside the role's HUB_ORDER straight to Home with no toast and no message. The Sandakan Purchaser's tile list is ['inv'], so a purchaser tapping that bar has been silently reloading his own home screen since the bar shipped in v3.18.5. It is now gated on holding the ops tile, which fixes him and stops the marketer inheriting it. SECOND: the tile gate was enforced in openModule and the SECTION gate was not - tabs.find(...)||tabs[0] meant a section you are not entitled to did not refuse, it silently opened whichever section happened to be first, which is worse than being turned away because nothing on the screen says it is the wrong one. A key that EXISTS in the module but is not yours now bounces home; a key that does not exist at all keeps the old fall-through, because the retired v3.19 keys in/alloc/onboard depend on landing on the Supply Hub and procureGo() still calls them. ALSO: a tile's sub-label now names what THIS role can open. Admin has advertised 'corrections, yield, master, keys' to a Marketer entitled to one of the four since v3.3; ROLE_TILE_SUB gives Harvest, Reports and Admin honest labels in English and Malay, and every other role falls through unchanged. OWNER, PURCHASER and WORKER entitlements are byte-for-byte what they were, asserted by the test harness. No migration, no Apps Script redeploy - nothing new reaches the Sheet. // v3.23.1 - A DIRECTIVE NOW REMEMBERS WHICH PROGRAMME SET IT CAME FROM. amLoadTemplate() has always known the phase it built a directive out of and amSave() has always thrown that away, so nothing downstream could ask whether a planned set was already covered without guessing from the directive's NAME or its DUE DATE - both of which the Owner may change at will. v3.23.0's anticipated-demand queue relied on that guess, and rename-plus-reschedule cut the last thread, which would have put a phase on the order twice. amSave() now stamps phaseId, and the anticipated queue matches on it exactly; the old name/date heuristic is kept but applies ONLY to directives written before this release, which carry no phaseId - so an unrelated directive that merely falls due on the same day no longer suppresses a planned set either. Additive, no migration, no Apps Script redeploy. // v3.23.0 - ROUND 2 OF THE PARALLEL SPRINT: ONE PICKER, ONE STOCK LIST, AND A BUY LIST YOU CAN RECEIVE AGAINST. MODULE 4: the same product search widget had been hand-written FIVE times - Stock In, Stock Out, Stock-take, Stock on hand and the Control Center - so a fix to one of them reached one of them. There is now ONE picker component, m4Picker(), mounted at three places, and ONE list renderer, m4StockList(), mounted at two. Nothing was renamed and no panel was deleted: in-search/in-prod, out-search/out-prod, st-search/st-prod, stocksearch, ccsearch, cctbl, invcc and onhandcard all still exist and still answer to every caller they always did, because HUB_PANELS, roleAllows() and the Purchaser's tab routes read those ids and a rename would have silently unhooked them. THE COLUMNS FOLLOW THE ROLE, using the gates that were already there and were reused verbatim rather than rewritten - SHOW_VALUES hides every RM figure and the whole valuation KPI row from a worker, aiTextRole() decides whether a row says the word painted on the drum or the chemistry behind it. MODULE 8 PIECE 3: the buy queue already worked out what to order and how many containers, and then the Purchaser re-keyed all of it by hand when the delivery arrived. RECEIVE AGAINST THE BUY LIST now pre-fills those lines - tick what actually came, correct anything short, key the price - and pushes them into the SAME v3.19 delivery basket, so each line still becomes an ordinary STOCK_IN event with exactly the fields it always had. The invoice number is still keyed once in the Stock In log below, because it belongs to the delivery and not to the line. The pre-filled price is RM PER CONTAINER and is labelled a suggestion: currentMAC() is per ml and unit_price is per bottle, and confusing the two is the RM 0.18-for-two-bottles error a screenshot caught in v3.19. MODULE 8 PIECE 5: a phase the Owner has PLANNED but not yet issued was invisible to the Purchaser, so material for a job three weeks out could only be ordered after the job was announced. Programme sets planned inside a 45-day ordering window - one month of sets plus the 7-day Sandakan turnaround plus slack for the rain delays that moved 22 plan dates in v3.20 - now appear as ANTICIPATED rows, dashed and labelled, BELOW the confirmed queue and with their own separate value total. They are never added into the estimated order value, and they do NOT move the Inventory tile badge: that badge counts what is waiting on a person right now, and a number that jumps because of a forecast stops being believed. Default off, one tap to open, and the count and value are printed even while closed. A set is dropped from the forecast if it is done, if it was removed from the plan, if material has already left the store against it, or if an issued directive already covers it. No Apps Script redeploy - nothing new reaches the Sheet. // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -447,7 +447,22 @@ function tr(key,en){
 /** Module / section names travel through the same table when they carry a `tn` key. */
 function moduleLabel(m){return m?(m.tn?tr(m.tn,m.name):m.name):'';}
 /** The small grey line under a tile name. Translated only where a worker sees it. */
+/* v3.24 — a tile now says what THIS role can actually open.
+   The sub-label was one fixed string per tile, written for whoever had the most of it, so
+   it named screens the reader could not reach. Admin has advertised "corrections, yield,
+   master, keys" to the Marketer since v3.3 — he has never had YIELD AUDIT or MASTER DB —
+   and the v3.24 narrowing would have taken ADJUSTMENTS as well, leaving a four-item label
+   in front of a one-item tile. A label that names a screen you cannot open teaches people
+   to stop reading labels.
+   Only roles whose section list actually differs get an entry; everything else falls
+   through to m.sub exactly as before, so OWNER, WORKER and PURCHASER are untouched.
+   The values are dictionary keys, not text, so tr() gives BM the same treatment the
+   MS_TILE_SUB line below has always given the worker's tiles. */
+const ROLE_TILE_SUB={
+  MARKETING:{harvest:'ts_mkt_harvest',reports:'ts_mkt_reports',admin:'ts_mkt_admin'}};
 function tileSub(k,m){
+  const byRole=ROLE_TILE_SUB[myRole()];
+  if(byRole&&byRole[k])return tr(byRole[k],m.sub);
   const s=MS_TILE_SUB[k];
   return (s&&isMs())?tr(s,m.sub):m.sub;}
 /** Loss-cause label and note, translated. `c_<KEY>` / `c_<KEY>_n` — so a fifth cause
@@ -521,7 +536,11 @@ const MODULES={
   // Card A good fruit by grade, Card B rotten loss. Nothing else competes for the
   // worker's thumb while fruit is being counted.
   harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
-    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],ic:'🥭',tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
+    /* v3.24 — COLLECT had NO roles key at all, which is why every role in the app could
+       open the fruit-counting screen. It is named explicitly now. This section has
+       panels:[] — it is a whole screen, not a panel — so it is the one section the
+       MKT_DENY set cannot reach, and the tab gate is the only place it can be closed. */
+    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],roles:['OWNER','WORKER'],ic:'🥭',tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
           // v3.9 — the backlog answers a harvest question, so it lives on the harvest tile
           // and every role that can reach harvest can reach it. The worker sees the plain
           // count; the flags and the trace are gated inside renderBacklog by SHOW_VALUES.
@@ -624,15 +643,23 @@ const MODULES={
           // v3.12 — what the directives actually cost, rolled up three ways. Separate
           // from COSTING because that reads the whole stock ledger; this reads only work
           // done against an issued programme, which is the number the Owner budgets on.
-          {k:'runs',  t:'PROGRAM RUNS',scr:'dash',panels:['runcostcard'],roles:FULL_ROLES,ic:'🧪',tn:'s_runs',d:'Daily, monthly and yearly cost of the work actually done'},
+          // v3.24 — Owner only. What the directives cost is material spend, and the
+          // marketer was narrowed off the cost side of the app in this release.
+          {k:'runs',  t:'PROGRAM RUNS',scr:'dash',panels:['runcostcard'],roles:['OWNER'],ic:'🧪',tn:'s_runs',d:'Daily, monthly and yearly cost of the work actually done'},
           // v3.15 — what was promised against what landed, by month and by year
           // v3.16 — was 📅, the same icon as DAILY AUDIT two rows above it in the same
           // section list. 🏁 says what this screen is: finished on time, or not.
-          {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:FULL_ROLES,ic:'🏁',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
-          {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:FULL_ROLES,ic:'📒',d:'The raw stock ledger, month by month'},
-          {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:FULL_ROLES,ic:'💵',d:'Man-hours and the rate they are priced at'}]},
+          // v3.24 — Owner only, all three. PROGRAM RECORD is agronomy compliance, COSTING
+          // is the raw material ledger and LABOUR carries the crew's hourly rate.
+          {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:['OWNER'],ic:'🏁',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
+          {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:['OWNER'],ic:'📒',d:'The raw stock ledger, month by month'},
+          {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:['OWNER'],ic:'💵',d:'Man-hours and the rate they are priced at'}]},
   admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',tn:'m_admin',
-    tabs:[{k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:FULL_ROLES,ic:'✏️',tn:'s_adjust',d:'Approve or reject field correction requests'},
+    /* v3.24 — ADJUSTMENTS is Owner only. Approving a correction to harvest data is marking
+       someone else's homework, which is the argument that has kept YIELD AUDIT away from
+       Marketing since v3.2; it applies here for the same reason. STAFF below is KEPT for
+       Marketing on the Owner's explicit instruction. */
+    tabs:[{k:'corr',  t:'ADJUSTMENTS',scr:'dash',panels:['corrpanel'], roles:['OWNER'],ic:'✏️',tn:'s_adjust',d:'Approve or reject field correction requests'},
           // v3.2 — the dual-signature yield audit is the Owner's alone. Marketing weighs
           // the fruit, so Marketing does not get to mark its own homework.
           {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER'],ic:'🔎',d:'Fruit counted vs fruit weighed — the mismatch list'},
@@ -652,12 +679,68 @@ const MODULES={
 //   MARKETING — Review & Credit first; the dispatch queue is the marketer's morning.
 //   WORKER    — field actions only, and Morning Scale is one of the four.
 //   PURCHASER — Inventory only, landing on the merged Supply Hub. No harvest, no money.
+// ======================================================================================
+// v3.24 — MARKETING IS NARROWED FROM EIGHT TILES TO FOUR.
+// Until this release MARKETING was not really a role. FULL_ROLES is ['OWNER','MARKETING'],
+// so every `roles:FULL_ROLES` tab and every `return full` in roleAllows() handed the
+// marketer whatever the Owner had; the workspace was the Owner's minus four panels, and
+// the ONLY marketing-specific decision in the codebase was that 'mkt' was listed first.
+// Measured before the change: 8 tiles, 32 sections, RM figures on 21 of them, and a
+// marketer who could receive supplier invoices, create products in the catalogue, author
+// and issue a spray programme, approve corrections to harvest data, and read every cost
+// screen in the app.
+//
+// The v3.16 comment on the mkt tile says why nobody fixed it: "pulling MARKETING out of
+// FULL_ROLES would have moved ~40 gates to fix one label." That is still true, and this
+// release does NOT do it. Not one existing `return full` line is edited. The narrowing is
+// applied at the three gates that already exist, in the order they already fire: the tile
+// list below, a `roles:` key on the six sections that go, and ONE deny check at the top of
+// roleAllows(). Widening the role again is a one-line revert on this array.
+//
+// WHAT THE MARKETER KEEPS, on the Owner's instruction (6 Aug 2026):
+//   mkt      — all five sections. Their actual job.
+//   harvest  — READ ONLY: backlog, the wave, farm today. COLLECT goes; a marketer does
+//              not log a fruit drop.
+//   reports  — daily audit and month ledger. Program runs, program record, costing and
+//              labour go: those are material spend and labour rates.
+//   admin    — STAFF only, and KEPT DELIBERATELY. The Owner wants his marketer able to add
+//              and edit access keys, and was shown first that this is the widest grant on
+//              the list. ADJUSTMENTS goes — approving corrections to harvest data is
+//              marking someone else's homework, which is the same argument that has always
+//              kept YIELD AUDIT away from this role.
+// The whole Inventory, Agronomist, Daily Ops and Fruit Tying tiles go. The Owner accepted
+// that he alone now covers the Sandakan desk when the Purchaser is offline.
+// ======================================================================================
 const HUB_ORDER={
   OWNER:    ['cmd','harvest','tying','inv','agro','ops','mkt','reports','admin'],
-  MARKETING:['mkt','harvest','tying','inv','agro','ops','reports','admin'],
+  MARKETING:['mkt','harvest','reports','admin'],  // v3.24 — was the Owner's eight
   WORKER:   ['harvest','tying','scale','ops'],   // + Morning Scale as its own tile
   PURCHASER:['inv']                              // Inventory ONLY — no harvest, no money
 };
+/* v3.24 — the panels behind the sections MARKETING no longer holds. This is the SECOND
+   gate, exactly as the v3.7 note above describes: the tile list decides what is on the
+   home screen, this decides what may render at all, so calling straight into a module
+   still exposes nothing extra. It is written as ONE deny check at the top of roleAllows()
+   rather than ~40 edits to the `full` gates below it — every one of those lines is left
+   verbatim, which is what makes this release revertible and what kept it out of the
+   OWNER / PURCHASER / WORKER paths entirely.
+   NOT in this list, and deliberately so: keyspanel (STAFF, kept on the Owner's rule),
+   backlogcard, wavecard, kpis, phibox, lotcard, mktcard, dashnote (the read-only harvest
+   sections), dailyaudit, matrixledger (the two reports kept), and every mkt panel. */
+const MKT_DENY=new Set([
+  // Fruit Tying tile
+  'tallycard','tyingcard',
+  // Inventory tile — the Sandakan Purchaser's desk
+  'procurecard','m8recv','alertcenter','pnl-in','alloccard','onboardcard','onhandcard',
+  'progcheck','progready','pnl-out','invcc','stocktake',
+  // Agronomist tile — a marketer does not prescribe chemistry
+  'agromatrix','agromonth','agroweather','agrorain','agrorecord',
+  // Daily Ops tile — the crew's work
+  'opstasks','opsgeneral','opshistory','opsassign','scalecard',
+  // Reports — the cost side: material spend and labour rates
+  'runcostcard','progrecord','ledgercard','labourcard',
+  // Admin — approving corrections to harvest data
+  'corrpanel']);
 /* v3.7 legacy shim — 'costadmin' was split into 'reports' + 'admin'. Anything still
    asking for the old key (a saved deep link, an older guide, a stale test) lands on
    Reports rather than bouncing the person to Home with no explanation. */
@@ -711,6 +794,13 @@ function tabsFor(k){
 // second, independent gate — a panel never renders for a role not entitled to it
 function roleAllows(id){
   const r=myRole(), full=FULL_ROLES.indexOf(r)>=0;
+  /* v3.24 — THE ONE LINE THAT NARROWS MARKETING. It sits ABOVE the switch on purpose: the
+     ~40 `return full` gates below are left exactly as they were written, so this release
+     changes what a marketer may open without changing what the word "full" means to any
+     other caller. Read the MKT_DENY comment beside HUB_ORDER before adding to this set —
+     a panel listed there is dead for MARKETING everywhere, including from a cross-link,
+     a toast, or a screen the Owner still reaches. */
+  if(r==='MARKETING'&&MKT_DENY.has(id))return false;
   switch(id){
     case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
     case 'procurecard': return full||r==='PURCHASER';   // v3.18 — Module 6 buy queue
@@ -863,6 +953,17 @@ function renderHub(){
 function renderTaskNotice(){
   const box=$('tasknotice'); if(!box)return;
   box.innerHTML='';
+  /* v3.24 — A LIVE DEFECT, FIXED HERE, THAT PRE-DATES THIS RELEASE.
+     Every row this function paints carries onclick="openModule('ops','tasks')", and
+     openModule bounces any tile that is not in the role's HUB_ORDER straight to Home with
+     no toast and no message. But this bar is painted on EVERY role's home screen. The
+     Sandakan Purchaser's tile list is ['inv'] — so a purchaser tapping "OVERDUE
+     PROGRAMME" today silently reloads his own home screen and nothing else happens. He
+     has never had the ops tile, so this has been true since the bar shipped in v3.18.5.
+     Narrowing MARKETING would have handed the marketer the identical dead tap.
+     The bar is crew work — what to spray today — so the honest gate is the tile that owns
+     the screen it opens. If a role does not hold 'ops', the notice is not theirs to see. */
+  if(hubTiles().indexOf('ops')<0)return;
   if(typeof issuedDrafts!=='function'||typeof dueState!=='function')return;
   const today=ymd(dayStart(new Date()));
   // due today or already late, and still unfinished
@@ -952,7 +1053,20 @@ function openModule(k,tabKey){
   if(!tabs.length){goHome();return;}
   // No section named and more than one to choose from -> show the menu, not a guess.
   if(!tabKey&&tabs.length>1){openMenu(k);return;}
-  const tab=tabs.find(t=>t.k===tabKey)||tabs[0];
+  /* v3.24 — THE TILE GATE WAS ENFORCED ABOVE; THE SECTION GATE WAS NOT.
+     This line used to read `tabs.find(t=>t.k===tabKey)||tabs[0]`, so a section the role is
+     not entitled to did not refuse — it silently opened whichever section happened to be
+     first. With v3.24's roles: keys that means a marketer routed to reports/record would
+     land on DAILY AUDIT and be shown a screen he did not ask for, which is worse than
+     being turned away, because nothing on it says it is the wrong screen.
+     The `||tabs[0]` fallback still has to exist: the v3.19 retired keys 'in', 'alloc' and
+     'onboard' are gone from MODULES.inv and depend on falling through to the Supply Hub,
+     and procureGo()/procureOnboard() still call them. So the two cases are separated —
+     a key that EXISTS in the module but is not yours is refused; a key that does not exist
+     at all keeps the old fall-through, unchanged. */
+  let tab=tabs.find(t=>t.k===tabKey);
+  if(!tab&&tabKey&&m.tabs.some(t=>t.k===tabKey)){goHome();return;}   // exists, not yours
+  if(!tab)tab=tabs[0];                                              // retired/unknown key
   curModule=k;curTab=tab.k;inMenu=false;
   hideAllPanels();
   (tab.panels||[]).forEach(id=>{const el=$(id);if(!el||!roleAllows(id))return;
@@ -1105,6 +1219,17 @@ function applyRole(){
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
   SHOW_VALUES=full;                                   // gates every RM figure in the app
+  /* v3.24 — a SECOND, NARROWER money gate, for the cost side only.
+     SHOW_VALUES answers "may this person see money at all". It cannot answer the question
+     the Owner actually asked on 6 Aug: the marketer may see what the farm EARNED but not
+     what it SPENT. So the four cost reports (PROGRAM RUNS, PROGRAM RECORD, COSTING,
+     LABOUR) left the role at the tab gate, and the one report he kept — MONTH LEDGER —
+     carries material, labour, drawdown and margin in the same grid as yield and revenue.
+     Splitting that grid by role is what this flag is for. It is deliberately NOT folded
+     into SHOW_VALUES: ~30 call sites read that flag and every one of them means "money",
+     not "spend", and widening it here would have silently blanked the marketer's own
+     invoices. Owner true, marketer false; Worker and Purchaser never saw either. */
+  SHOW_SPEND=full&&r!=='MARKETING';
   // v3.7 — a Farm Worker on a phone nobody has set a language on starts in Malay.
   // An explicit tap on BM or EN is remembered and always wins over this default.
   const wasLang=LANG;
@@ -1687,6 +1812,10 @@ let savingDrop=false, lastDrop={tree:null,time:0};
 // sheet: RM 18,591.73.
 let INV_OVERRIDE={};        // {pid:{min_stock_threshold, active_ingredient}} — Owner edits
 let SHOW_VALUES=false;      // financial figures are role-gated, never rendered for Worker/Purchaser
+// v3.24 — the cost side only: material, labour, drawdown and margin. Owner alone. A
+// marketer has SHOW_VALUES true and SHOW_SPEND false — he prices fruit and invoices
+// retailers, and does not see what the farm paid for chemistry or crew. Set in applyRole().
+let SHOW_SPEND=false;
 
 function prodById(id){return INVENTORY_RECON.find(p=>p.id===+id)||null;}
 function aiOf(id){const p=prodById(id);return p?(p.active_ingredient||''):'';}
@@ -7602,13 +7731,21 @@ async function openReqPhoto(u,title){
 let PHOTO_SEEN={};
 function showPhoto(src,title,isUuid){
   let img=src;
-  if(isUuid){const e=reqById(src); img=e?e.photo_b64:''; if(e)PHOTO_SEEN[e.uuid]=true;}
-  if(!img){toast('That photo has not reached this phone yet — sync at the hotspot',1);return;}
+  /* v3.25.0 FIX (audit D-05) — the "seen" flag used to be written here, on the request
+     merely EXISTING, and the empty-photo bail below came AFTER it. So a load whose picture
+     never arrived (truncated lines_json, a basket_no matching nothing) unlocked APPROVE &
+     DISPATCH while showing the "photo has not reached this phone" toast — the marketer
+     could invoice against a scale display nobody had looked at. The flag now means what it
+     says: it is written only once an image is genuinely on screen. */
+  if(isUuid){const e=reqById(src); img=(e&&e.photo_b64)?e.photo_b64:'';}
+  if(!img){toast('That photo has not reached this phone yet — sync at the hotspot',1);
+    if(isUuid)renderVerify();
+    return;}
   const box=$('lightbox'); if(!box)return;
   $('lb-title').textContent=title||'Scale photo';
   $('lb-img').src=img;
   box.classList.remove('hidden');
-  if(isUuid)renderVerify();}
+  if(isUuid){const e=reqById(src); if(e)PHOTO_SEEN[e.uuid]=true; renderVerify();}}
 function closePhoto(){const b=$('lightbox');if(b)b.classList.add('hidden');const i=$('lb-img');if(i)i.src='';}
 
 // ---- the Marketer's verification hub -------------------------------------------------
@@ -7749,15 +7886,47 @@ function verifyCardHtml(e){
         ' but this load is worth '+rm(t.total_value_rm)+'.</span></div>'):'')+
       (!seen?('<div class="mustsee">🔒 Open the photo first. Approve unlocks once you have looked at '+
         'the scale display on this phone.</div>'):'')+
-      '<button class="bigbtn" '+((!seen||unpriced.length||short)?'disabled ':'')+
+      /* v3.25.0 (audit D-04) — the override is keyed HERE now, against the request itself,
+         instead of sending the marketer to the retailer card where the invoice would be
+         written with no req_uuid and this request would stay open to be approved twice. */
+      (short&&seen&&!unpriced.length?verifyOverrideHtml(r,before,t.total_value_rm):'')+
+      '<button class="bigbtn" '+((!seen||unpriced.length||(short&&!OVR_OK))?'disabled ':'')+
         'onclick="approveReq(\''+esc(e.uuid)+'\')">'+
         (!seen?'🔒 AUDIT THE PHOTO FIRST'
               :(unpriced.length?'🔒 MISSING PRICE'
-              :(short?'🔒 CREDIT EXCEEDED — top up or dispatch from the retailer card'
+              :(short?(OVR_OK?'✓ APPROVE &amp; DISPATCH (OVERRIDE)':'🔒 CREDIT EXCEEDED — top up or key the Owner override')
               :'✓ APPROVE &amp; DISPATCH')))+'</button>'+
       '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
         'onclick="rejectReq(\''+esc(e.uuid)+'\')">↩ RETURN TO WORKER</button>'+
       '</div>'));}
+
+/** The overdraft override, on the verification card. Same 6-digit Owner key and the same
+ *  OVR_OK/OVR_BY pair the retailer card uses — one authorisation concept, two doors. */
+function verifyOverrideHtml(r,before,val){
+  if(OVR_OK)return '<div class="ovrok">🔓 ADMIN OVERRIDE ACTIVE — authorised by '+esc(OVR_BY)+
+    '.<br><span style="font-weight:600">Approving flags '+esc((r||{}).name||'')+
+    '’s account as overdrawn until it is settled.</span></div>';
+  return '<div class="ovrbox">'+
+    '<div style="font-weight:900;font-size:12.5px;color:#8c1d18">🔒 Approval locked</div>'+
+    '<div class="small" style="margin-top:4px">This load is worth '+rm(val)+' and '+
+      esc((r||{}).name||'')+' only holds '+rm(before)+'. The Owner may release it by keying '+
+      'their 6-digit access key below.</div>'+
+    '<label style="margin-top:8px">Admin Password Override</label>'+
+    '<input type="password" id="vf-ovr" inputmode="numeric" maxlength="6" autocomplete="off" '+
+      'placeholder="••••••" oninput="if(this.value.length===6)tryVerifyOverride()">'+
+    '<div class="pinerr" id="vf-ovrerr"></div>'+
+    '<button class="bigbtn ghost" style="margin-top:6px;padding:11px;font-size:13px" '+
+      'onclick="tryVerifyOverride()">🔓 UNLOCK APPROVAL</button>'+
+  '</div>';}
+function tryVerifyOverride(){
+  const el=$('vf-ovr'), er=$('vf-ovrerr'); if(!el)return;
+  const k=findKey(String(el.value||'').trim());
+  if(!k||k.role!=='OWNER'||String(k.status).toLowerCase()!=='active'){
+    if(er)er.textContent='That is not an active Owner access key.';
+    el.value=''; return;}
+  OVR_OK=true; OVR_BY=k.name;
+  toast('🔓 Override authorised by '+k.name);
+  renderVerify();}
 
 /** Recently decided loads stay visible for a day so a mistake is noticed while it is
  *  still fresh. The rows are read-only — a wrong approval is fixed with a credit top-up,
@@ -7804,8 +7973,21 @@ async function approveReq(u){
   if(!(t.total_kg>0)){toast('This load has no weight on it',1);return;}
   if(t.lines.some(x=>!(x.price_rm>0))){toast('A rate is missing — set it in PRICES & RETAILERS',1);return;}
   const before=retailerCredit(e.retailer_id), after=+((before-t.total_value_rm).toFixed(2));
-  if(after<CREDIT_FLOOR_RM){toast('Credit exceeded — top up, or dispatch from the retailer card with an Owner override',1);return;}
-  if(!confirm('Approve '+nf(t.total_kg)+' kg to '+r.name+' for '+rm(t.total_value_rm)+'?\n\n'+
+  /* v3.25.0 FIX (audit D-04) — this used to be a flat refusal that sent the user off to the
+     retailer card to dispatch "with an Owner override". That path is saveDispatch(), which
+     writes NO req_uuid — and reqDecision() closes a request only by matching req_uuid. So the
+     load was invoiced there and the request stayed PENDING in this very queue, photo already
+     seen. After a top-up it passed the credit check and was approved a SECOND time: one
+     basket, two invoices, the merchant's credit drawn down twice. The override now happens
+     HERE, on the request, so the request closes and the row carries the override signature. */
+  const over=after<CREDIT_FLOOR_RM;
+  if(over&&!OVR_OK){
+    toast('Credit exceeded — the Owner keys the 6-digit override on this card',1);
+    renderVerify(); return;}
+  if(over&&!confirm('ADMIN OVERRIDE — authorised by '+OVR_BY+'.\n\n'+r.name+' holds '+rm(before)+
+    ' and this load is worth '+rm(t.total_value_rm)+'.\nApproving leaves the account at '+rm(after)+
+    ' (overdrawn).\n\nApprove it?'))return;
+  if(!over&&!confirm('Approve '+nf(t.total_kg)+' kg to '+r.name+' for '+rm(t.total_value_rm)+'?\n\n'+
     'Weighed by '+(e.worker||'')+', photo checked by '+((CFG&&CFG.worker)||'')+'.\n'+
     'This writes the invoice and takes the credit down to '+rm(after)+'.'))return;
   vSaving=true;
@@ -7820,13 +8002,13 @@ async function approveReq(u){
       total_gross_kg:t.total_gross_kg, total_tare_kg:t.total_tare_kg,
       total_kg:t.total_kg, total_value_rm:t.total_value_rm,
       credit_before_rm:before, credit_after_rm:after,
-      over_credit:false, override_by:'', override_at:'',
+      over_credit:over, override_by:over?OVR_BY:'', override_at:over?stamp:'',
       // the three signatures, on the row itself
       req_uuid:e.uuid, weighed_by:e.worker||'', weighed_at:e.dt,
       verified_by:CFG.worker, verified_at:stamp, photo_kb:+e.photo_kb||photoKB(e.photo_b64),
       note:e.note||'',
       worker:CFG.worker, workerId:CFG.uid||'', device:CFG.device, synced:false});
-  } finally { vSaving=false; }
+  } finally { vSaving=false; clearOverride(); }
   LAST_INVOICE_UUID=du;
   VERIFY_SEL='';
   badge(); renderVerify(); renderDispatch(); renderMktLedger(); renderMarketing();
@@ -7862,11 +8044,40 @@ function dreqQueue(){return EVENTS.filter(e=>e.type==='DISPATCH_REQ'&&!e.synced)
 /** NOTE the asymmetry with slimDispatch(): a worker's DISPATCH_REQ photos MUST travel —
  *  they are the proof being uploaded. saveDispatchReqs_ splits them into DISPATCH_PHOTO on
  *  arrival, one row per basket, so no single cell is ever overloaded. */
+/* v3.25.0 FIX (audit D-12) — every basket's photo went up THREE TIMES: once in
+   lines[i].photo_b64, verbatim again inside the lines_json string, and basket 1's a third
+   time at load level. A 46,000-char photo therefore cost ~138,000 characters per basket, and
+   lines_json alone blew past the 49,000-char cell ceiling on a 2-basket load. This is the
+   exact shape recorded at the top of this file as having killed an upload once already —
+   "an eight-basket load produced 226,000, the upload died with a bare Failed to fetch" —
+   and slimDispatch() was written for it, but only ever wired into pushDispatch(). The
+   photos still travel: they ride lines[].photo_b64, which the Apps Script splits into the
+   photo tab. lines_json is rebuilt WITHOUT them, so it stays a compact index.
+
+   DELIBERATELY CONSERVATIVE: the load-level photo_b64 is LEFT ALONE. saveDispatchReqs_()
+   keeps that copy on purpose ("every screen written before v3.9 reads it"), and although
+   mergeDispatchReqs() back-fills it from basket 1, readDispatchPhotos_() only sends photos
+   down for UNDECIDED requests — so blanking it here would leave already-decided loads in
+   the history with no picture on the DISPATCH_REQ row. That is an audit signal, and thinning
+   it is not worth the extra bytes. Dropping base64 from lines_json alone removes one of the
+   three copies and is the one that actually breached the 49,000-char cell ceiling, since the
+   server rebuilds lines_json from lines[] regardless. Behaviour is otherwise unchanged. */
+function slimDispatchReq(e){
+  const out={...e};
+  const lines=Array.isArray(e.lines)?e.lines
+    :(typeof e.lines_json==='string'?(()=>{try{return JSON.parse(e.lines_json);}catch(x){return null;}})():null);
+  if(Array.isArray(lines)){
+    // lines_json is the INDEX — no base64 in it, ever. lines[] still carries the pictures.
+    out.lines_json=JSON.stringify(lines.map((x,i)=>{
+      const {photo_b64,...bare}=x||{};
+      if(bare.basket_no==null)bare.basket_no=i+1;
+      return photo_b64?{...bare,has_photo:1}:bare;}));}
+  return out;}
 async function pushDispatchReqs(){
   return pushOwnKey(dreqQueue(),'dispatchreqs','dispatchreqs',
     m=>{if(!dreqWarned){dreqWarned=true;toast(m,1);}},
     'Scale photos kept on this phone — update the Apps Script to add the DISPATCH_REQ tab',
-    tr('sy_l_scale'));}
+    tr('sy_l_scale'), slimDispatchReq);}
 /** Requests come back DOWN as well as up: the worker weighs on one phone and the
  *  Marketer audits on another, so without this the hub would only ever show loads
  *  weighed on the Marketer's own device — the v3.5 divergence bug, repeated. */
@@ -8175,23 +8386,47 @@ function renderMatrix(){
   d.months.forEach(m=>Object.keys(m.revenue).forEach(n=>{if(merchants.indexOf(n)<0)merchants.push(n);}));
   const clones=CLONE_SELL_ORDER.filter(c=>d.months.some(m=>m.clone[c]>0));
 
+  /* v3.24 — THE SPEND HALF OF THIS SCREEN IS OWNER-ONLY. On the Owner's instruction the
+     marketer keeps MONTH LEDGER but not the cost side of it, so everything below hangs off
+     SHOW_SPEND: the labour-rate warning (it names the rate), the two spend tiles and the
+     margin tile in the year roll-up, and TABLE 3 entirely — spend per lot, the man-hour
+     count, drawdown %, and the lot split behind the tap. What survives for him is the
+     yield table, the revenue-per-merchant table and the year's revenue and net kg, which
+     is the half of this screen he sells against. NOTE the two flags are NOT the same
+     question: SHOW_VALUES stays true for him, or his own invoices would blank out too. */
   box.innerHTML=
-    (LABOUR_RATE_OK?'':'<div class="critbox">Labour is priced at the placeholder rate of '+rm(LABOUR_RATE)+
+    ((LABOUR_RATE_OK||!SHOW_SPEND)?'':'<div class="critbox">Labour is priced at the placeholder rate of '+rm(LABOUR_RATE)+
       ' per man-hour. Set the real rate in the LABOUR tab — until then every labour and margin figure '+
       'on this screen is indicative only.</div>')+
-    '<div class="cnote">Sorted newest first. Tap a month to open its lot-by-lot spend and the merchant '+
-      'revenue split. <b>Drawdown %</b> is how much of everything that passed through the store was '+
-      'actually issued: (opening + receipts − closing) ÷ (opening + receipts).</div>'+
+    (SHOW_SPEND
+      ?('<div class="cnote">Sorted newest first. Tap a month to open its lot-by-lot spend and the merchant '+
+        'revenue split. <b>Drawdown %</b> is how much of everything that passed through the store was '+
+        'actually issued: (opening + receipts − closing) ÷ (opening + receipts).</div>')
+      // v3.24 — the same note without the half of the screen this role does not get. A
+      // sentence pointing at a table that is not there reads as a bug, not as a gate.
+      :'<div class="cnote">Sorted newest first: what was picked, and what it sold for. Material and '+
+        'labour spend are not shown for your role.</div>')+
 
     // ---- the year roll-up ----
     d.years.map(y=>'<div class="yrbox"><div class="yrhead">'+esc(y.year)+
       '<span>'+(SHOW_VALUES?rm(y.revenue_total):'—')+' revenue</span></div>'+
       '<div class="yrgrid">'+
         '<div><span class="dl">net kg sold</span><b>'+nf(y.kg_total)+'</b></div>'+
+        /* v3.24 — A SCREENSHOT CAUGHT THIS, not the 123 green assertions. With material,
+           labour and margin gated away the year strip was ONE tile in a four-column grid,
+           three-quarters empty, which reads as a screen that failed to load rather than
+           one that is deliberately gated. The replacement is not padding: average RM per
+           net kg is the marketer's own number — it is what he is judged on — and it is
+           printed nowhere else in the app. It is derived from two figures already on this
+           screen, so it can never disagree with them. The Owner's strip is untouched: he
+           gets the three spend tiles instead. */
+        (SHOW_SPEND?'':'<div><span class="dl">avg RM / net kg</span><b>'+
+          ((SHOW_VALUES&&y.kg_total>0)?rm(y.revenue_total/y.kg_total):'—')+'</b></div>')+
+        (SHOW_SPEND?(
         '<div><span class="dl">material</span><b>'+(SHOW_VALUES?rm(y.material_total):'—')+'</b></div>'+
         '<div><span class="dl">labour</span><b>'+(SHOW_VALUES?rm(y.labour_total):'—')+'</b></div>'+
         '<div class="'+(y.margin_rm<0?'neg':'pos')+'"><span class="dl">revenue − spend</span><b>'+
-          (SHOW_VALUES?rm(y.margin_rm):'—')+'</b></div>'+
+          (SHOW_VALUES?rm(y.margin_rm):'—')+'</b></div>'):'')+
       '</div></div>').join('')+
 
     // ---- TABLE 1 — yield volume per clone ----
@@ -8221,6 +8456,8 @@ function renderMatrix(){
       :'<div class="alertnone">Money figures are hidden for your role.</div>')+
 
     // ---- TABLE 3 — spend per lot + drawdown, expandable ----
+    // v3.24 — Owner only. Everything from here to the closing paragraph is the cost side.
+    (SHOW_SPEND?(
     '<div class="sec" style="margin-top:14px">🧾 Monthly spend per lot &amp; material drawdown</div>'+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Month</th><th class="num">Material</th><th class="num">Labour</th>'+
@@ -8257,7 +8494,13 @@ function renderMatrix(){
     '<p class="small">Every figure is recomputed from the append-only log each time this screen opens, so '+
       'a phone that syncs in late corrects the history rather than corrupting it. Material spend is '+
       'allocated to the lot the worker keyed on Stock Out; anything logged before per-lot allocation '+
-      'existed sits under <b>Not allocated</b>.</p>';}
+      'existed sits under <b>Not allocated</b>.</p>')
+    // v3.24 — the closing paragraph for a role without the spend table. The "recomputed
+    // from the append-only log" promise is true of the yield and revenue tables too and is
+    // the reason the numbers can be trusted, so it is kept; the lot-allocation sentence is
+    // dropped because it explains a table this role cannot see.
+    :'<p class="small">Every figure is recomputed from the append-only log each time this screen opens, so '+
+      'a phone that syncs in late corrects the history rather than corrupting it.</p>');}
 
 // ---- the ledger view (all retailers together) ----------------------------------------
 function renderMktLedger(){
@@ -10057,15 +10300,38 @@ function allocShort(u,slotK,line){
   const p=prodById(a.pid); if(!p)return true;
   return onHand(p) < (+a.dose||0);}
 function allocOf(u,slotK){return AI_ALLOC[allocKey(u,slotK)]||null;}
-/** A directive is runnable only when EVERY filled slot has a brand behind it. Half an
- *  allocation is worse than none: it would deduct four of five products and quietly
- *  under-cost the job. */
+/* v3.25.0 FIX (audit D-07) — allocations are keyed uuid|slotKey, and nextSlotKey() REUSES a
+   freed key: delete the FUNG line and the next fungicide added is called FUNG again. amSave()
+   rewrote rec.slots but never pruned AI_ALLOC, and nothing downstream compared the allocation
+   against the line it was supposed to serve. So swapping a line's chemical left the OLD brand
+   bound to the new line: submitRun() deducted Mancozeb for an Azoxystrobin recipe, wrote an
+   event whose `ai` and `pname` contradicted each other, and slipped past allocPick()'s unit
+   guard entirely. draftReady() now insists the allocation still MATCHES its line. */
+function allocMatches(a,l){
+  if(!a||!a.pid||!l)return false;
+  if(String(a.ai||'')!==String(l.ai||''))return false;
+  if(String(a.unit||'')!==String(l.unit||''))return false;
+  return true;}
+/** A directive is runnable only when EVERY filled slot has a brand behind it that still
+ *  matches the line. Half an allocation is worse than none: it would deduct four of five
+ *  products and quietly under-cost the job. A STALE one is worse still — it deducts the
+ *  wrong chemical and says nothing. */
 function draftReady(d){
   const ls=draftLines(d);
-  return ls.length>0&&ls.every(l=>{const a=allocOf(d.uuid,l.slot);return a&&a.pid;});}
+  return ls.length>0&&ls.every(l=>allocMatches(allocOf(d.uuid,l.slot),l));}
 function draftAllocCount(d){
   const ls=draftLines(d);
-  return {n:ls.filter(l=>{const a=allocOf(d.uuid,l.slot);return a&&a.pid;}).length,of:ls.length};}
+  return {n:ls.filter(l=>allocMatches(allocOf(d.uuid,l.slot),l)).length,of:ls.length};}
+/** Drop every allocation on this directive that no longer serves a live line. Called on
+ *  save, so a stale binding can never outlive the edit that orphaned it. */
+function pruneAlloc(rec){
+  const live={}; Object.keys(rec.slots||{}).forEach(k=>{live[allocKey(rec.uuid,k)]=rec.slots[k];});
+  let dropped=0;
+  Object.keys(AI_ALLOC).forEach(key=>{
+    if(key.indexOf(rec.uuid+'|')!==0)return;          // another directive — leave it alone
+    const l=live[key];
+    if(!l||!allocMatches(AI_ALLOC[key],l)){delete AI_ALLOC[key];dropped++;}});
+  return dropped;}
 function issuedDrafts(){return AGRO_DRAFTS.filter(d=>d.status==='ISSUED');}
 /** Slots waiting on the Purchaser, farm-wide — this is the number on the tile. */
 function unallocatedSlots(){
@@ -10326,6 +10592,28 @@ function amTemplatesHTML(){
       '<span class="ts2">'+esc(ph.set)+'</span></div>').join('')+'</div>';}
 function amLoadTemplate(id){
   const ph=allPhases().find(p=>p.id===id); if(!ph)return;
+  /* v3.25.0 FIX (audit D-06) — this function copied ph.lines[].qty straight into dose and
+     NEVER read ph.basis, while amBasis() derives the basis from the program toggle alone.
+     Normally SOIL phases are hidden from a SPRAY program, but the heavy-rain branch of
+     amTemplatesHTML() deliberately offers DRENCH *and SOIL* sets — and every one of the 15
+     PER_TREE fertiliser sets in PHASE_PROGRAM is mode SOIL. So one tap on 🌧️ HEAVY and a
+     "1,000 gm per TREE" set was saved as "1,000 gm per 1,000 L TANK": a whole-farm run then
+     deducted 2,565 gm instead of 171,000 gm and printed a tank instruction for a dry
+     broadcast that mixes no water. 66.7x under-dose is a crop failure, not a ledger error.
+     The basis now has to agree, and the Owner is offered the switch that makes it agree. */
+  const want=String(ph.basis||'')||'PER_1000L';
+  if(want!==amBasis()){
+    const toManure=(want==='PER_TREE');
+    const ask=(toManure?tr('t25_basisclash'):'THAT SET IS MEASURED PER TANK, NOT PER TREE')+
+      '\n\n'+String(ph.set||ph.id)+'\n\n'+
+      (toManure?tr('t25_basisclash2')
+              :'Switch the job type to SPRAYING first, or a whole tank dose will be logged against a single tree.')+
+      '\n\nSwitch to '+(toManure?'MANURING 🪣':'SPRAYING 💦')+' and load it?';
+    if(!confirm(ask))return;
+    AM.program=toManure?'MANURE':'SPRAY';
+    const ms=(toManure?MANURE_METHODS:SPRAY_METHODS);
+    if(!ms.some(m=>m.k===AM.method))AM.method=ms[0].k;
+    if(typeof renderAgroMatrix==='function')renderAgroMatrix();}
   AM.slots={};
   (ph.lines||[]).forEach(l=>{
     const p=prodById(l.pid); if(!p)return;
@@ -10465,6 +10753,11 @@ async function amSave(issue){
   lines.forEach((l,i)=>{rec.slots[l.slot]={slot:l.slot,role:l.role||roleOf(l.slot),
     ai:l.ai,pid:+l.pid||0,brand:l.brand||'',unit:l.unit,dose:+l.dose,ord:(+l.ord||i+1)};});
   if(old)AGRO_DRAFTS[AGRO_DRAFTS.indexOf(old)]=rec; else AGRO_DRAFTS.unshift(rec);
+  // v3.25.0 (audit D-07) — orphaned and mismatched brand locks die with the edit that made
+  // them stale, so Sandakan is asked again instead of the crew deducting last week's drum.
+  const orphans=pruneAlloc(rec);
+  if(orphans){await persistAlloc();
+    toast('↻ '+orphans+' brand '+(orphans===1?'lock':'locks')+' cleared — Sandakan must re-pick',1);}
   await persistDrafts();
   AM.uuid=''; if($('am-name'))$('am-name').value=''; AM.slots={}; AM.name=''; AM.tmpl='';
   AM.due=suggestDue(); if($('am-due'))$('am-due').value=AM.due;
@@ -11167,6 +11460,20 @@ async function submitRun(){
   const crew=Math.round(+$('run-crew').value||0), hours=+$('run-hours').value||0;
   if(!(crew>0&&hours>0)){RUN_CREWOPEN=true;runRender();return err.textContent=tr('w13_keycrew');}
 
+  /* v3.25.0 FIX (audit D-09) — this path wrote every STOCK_OUT row with NO on-hand check at
+     all, while submitStockOut() one screen over has warned since v2.5. A directive against an
+     empty drum drove the store negative AND booked a cost for it, because currentMAC() falls
+     back to the static cpu at zero stock — so the Owner's run-cost report showed money spent
+     on chemical that never left the shelf. Note the comparison is against the WHOLE JOB
+     quantity (pl.items[].qty, every active lot), not one tank's dose: allocShort() compares
+     per-tank and therefore stays silent on exactly the shortages that matter. */
+  const lowStock=pl.items.filter(it=>it.prod&&it.qty>it.onHand);
+  if(lowStock.length){
+    const lines=lowStock.map(it=>'• '+it.alloc.pname+' — need '+nf(it.qty)+' '+it.alloc.unit+
+      ', store shows '+nf(Math.max(0,it.onHand))+' '+it.alloc.unit).join('\n');
+    if(!confirm('⚠ '+tr('t25_shortstock')+'\n\n'+lines+
+      '\n\n'+tr('t25_shortask')))return;}
+
   for(const it of pl.items){
     const phi=PHI_PRODUCTS[(it.prod||{}).name]; if(!phi)continue;
     const days=Math.ceil((PEAK_DATE-new Date())/86400000);
@@ -11199,11 +11506,26 @@ async function submitRun(){
           // the record never lies about how many people were actually on the job
           crew:crew, hours:hours, manHours:shares[i],
           worker:CFG.worker, device:CFG.device, synced:false});}}
+  /* v3.25.0 FIX (audit D-18) — `finally{runSaving=false}` used to sit HERE, above the
+     awaited kv write and above closeRun(). The save button is never disabled, so a second
+     tap landing in that window passed the `if(!RUN||runSaving)return` guard with RUN and
+     RUN_TREES still populated and wrote the entire deduction — 15 rows for a 5-part job
+     across 3 lots — a second time. There was also no catch: a throw part-way through left
+     the modal open with no error text and the worker's natural retry duplicated the rows
+     already written. The guard now spans everything up to closeRun(), and a failure says so. */
+  }catch(ex){
+    runSaving=false;
+    err.textContent='The phone could not finish saving this job. Nothing more was written — '+
+      'check MY LOGS for what did save, then key the rest again.';
+    toast('⚠ Save failed part-way — check MY LOGS',1);
+    refreshInventoryViews();renderOpsTasks();renderOpsHistory();
+    return;}
+  try{
+    LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
+    const n=pl.trees, lots=pl.active.map(x=>x.lot).join(', ');
+    closeRun();
+    toast(tr('t14_saved')+' · '+n+' '+tr('t14_trees')+' · Lot '+lots);
   } finally { runSaving=false; }
-  LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
-  const n=pl.trees, lots=pl.active.map(x=>x.lot).join(', ');
-  closeRun();
-  toast(tr('t14_saved')+' · '+n+' '+tr('t14_trees')+' · Lot '+lots);
   refreshInventoryViews();renderOpsTasks();renderOpsHistory();renderRunCost();
   renderProgRecord();renderAllocCard();renderLabour();renderHub();badge();}
 
