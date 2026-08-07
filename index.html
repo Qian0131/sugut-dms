@@ -539,6 +539,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
   padding:6px 10px;font-size:10px;font-weight:900;cursor:pointer;flex-shrink:0;white-space:nowrap}
 .critbox{background:#fdecea;border:2px solid var(--warn);color:#8c1d18;border-radius:12px;padding:11px;
   font-weight:900;font-size:12.5px;margin-bottom:9px;animation:tflash 1.3s infinite}
+/* v3.26.0 (audit D-13) — grade-vs-weight doubt on the approval card. Amber, NOT the red
+   .critbox, and deliberately NOT animated: it sits near the credit warnings, and a second
+   flashing red box would rebuild the noise the v3.25.1 screenshot review just cut down. */
+.gdoubt{background:#fdf6e6;border:1px solid #e6d3a0;border-left:4px solid #b8860b;
+  border-radius:0 11px 11px 0;padding:11px 12px;margin:9px 0}
+.gdoubt .gdh{font-weight:900;font-size:11.5px;letter-spacing:.05em;color:#8a5a06;margin-bottom:6px}
+.gdoubt .gdr{font-size:12.5px;line-height:1.45;color:#5c3f08;margin-bottom:5px}
+.gdoubt .gdf{font-size:11.5px;color:#8a6d3f;border-top:1px solid #ecdfc0;padding-top:6px;margin-top:2px}
 .credok{background:var(--lite);border-radius:11px;padding:10px;font-weight:800;font-size:12px;color:var(--green)}
 .invbox{background:#0f3b16;color:#fff;border-radius:14px;padding:12px;margin-top:8px}
 .invbox .ir{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0}
@@ -2793,7 +2801,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.25.0"></script>
-<script src="app.js?v=3.25.0"></script>
+<script src="database.js?v=3.26.0"></script>
+<script src="app.js?v=3.26.0"></script>
 </body>
 </html>

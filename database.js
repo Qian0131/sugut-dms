@@ -1120,11 +1120,6 @@ const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"
   // v3.25.0 (audit D-09) — the store-is-short warning on the crew's completion screen
   t25_shortstock:'THE STORE DOES NOT HOLD ENOUGH FOR THIS JOB',
   t25_shortask:'Tell Sandakan before you mix. Log it anyway?',
-  t25_onephone:'This role is already signed in on another phone',
-  t25_onephone2:'Only ONE phone per role during the trial, or the two phones will each keep their own figures and neither will be right.',
-  t25_onephone3:'Signed in on: ',
-  t25_onephone4:'Ask the Owner before you continue on this phone.',
-  t25_takeover:'USE THIS PHONE INSTEAD',
   t25_basisclash:'THAT SET IS MEASURED PER TREE, NOT PER TANK',
   t25_basisclash2:'Switch the job type to MANURE / SOIL first, or the crew will be told to put a whole tree dose into one tank.',
   t14_stillleft:'Still on the list tomorrow',
@@ -1732,11 +1727,6 @@ const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Ta
   // v3.25.0 (audit D-09)
   t25_shortstock:'STOK DALAM STOR TIDAK CUKUP UNTUK KERJA INI',
   t25_shortask:'Beritahu Sandakan sebelum campur. Nak simpan juga?',
-  t25_onephone:'Peranan ini sudah log masuk di telefon lain',
-  t25_onephone2:'SATU telefon sahaja untuk setiap peranan semasa ujian, kalau tidak dua telefon akan simpan angka masing-masing dan kedua-duanya salah.',
-  t25_onephone3:'Log masuk di: ',
-  t25_onephone4:'Tanya Tuan dahulu sebelum teruskan di telefon ini.',
-  t25_takeover:'GUNA TELEFON INI SAHAJA',
   t25_basisclash:'SET ITU DIUKUR IKUT POKOK, BUKAN IKUT TANGKI',
   t25_basisclash2:'Tukar jenis kerja kepada BAJA / SOIL dahulu, kalau tidak pekerja akan diberitahu masuk dos satu pokok penuh ke dalam satu tangki.',
   t14_stillleft:'Masih dalam senarai esok',
