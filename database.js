@@ -437,6 +437,14 @@ const TIE_MIGRATION=[{"t":"A-011","d":"2026-07-21","n":6,"u":"A11/07-21"},{"t":"
    ===================================================================== */
 const ROPE_PID=68;
 const ROPE_M_PER_FRUIT=1.5;
+/* v3.26.1 — ROPE IS NOT TRACKED THIS SEASON. Owner's decision, 7 Aug 2026: this is the farm's
+   first season on the system and rope was never set up as a stock item — pid 68 does not exist
+   in PRODUCTS at all (the list ends at 67), so 454.5 m had been consumed against a product that
+   was not there, the balance sat permanently negative, and the tying screen kept telling the
+   crew to ask the Purchaser to key in rolls that were never going to be keyed in. Turning this
+   off stops rope being deducted, costed, badged or displayed. Nothing is deleted and no other
+   material is affected — set it back to true and add pid 68 to PRODUCTS to switch it on again. */
+const ROPE_TRACKING=false;
 
 /* =====================================================================
    12. v2.9 — DROP AND ROTTEN CLASSIFICATION
