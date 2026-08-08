@@ -304,6 +304,32 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .alertrow .aq{font-size:12px;font-weight:800;color:#7f1d1d;margin-top:3px;}
 .alertnone{background:var(--lite);border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:var(--green);text-align:center;}
 .alertbig{background:var(--warn);color:#fff;border-radius:11px;padding:8px 11px;font-weight:900;font-size:13px;text-align:center;margin-bottom:9px;animation:flashred2 1.1s infinite;}
+/* ===== v3.28.0 ===== the data-quality notice. AMBER and still, not red and flashing:
+   an unread label is a job for this week, not an emergency this minute, and a second
+   flashing red bar directly above the stock alarm would teach people to ignore both. */
+.gapbig{background:var(--amber,#b7791f);color:#fff;animation:none;}
+.gaphint{font-size:11.5px;color:var(--sub,#6b7280);line-height:1.45;margin:-4px 0 8px;text-align:center;}
+.gaprow{border-left:3px solid var(--amber,#b7791f);}
+.gaprow.tapfix{cursor:pointer;}
+.gaprow.tapfix:active{background:#fbf3e3;}
+.gapx{color:#8a5a12;font-weight:700;}
+.gapgo{font-size:11px;color:#8a5a12;font-weight:700;margin-top:3px;}
+/* ===== v3.28.0 ===== a retired product in the store list. Kept legible, not hidden:
+   the drum is still on the shelf and still in the valuation. */
+.tbl tr.retrow{opacity:.62;}
+.tbl tr.retrow .pn{font-style:italic;}
+.cstat.ret{background:#eceee9;color:#6b6f66;}
+/* ===== v3.28.0 ===== side-by-side, shown under the brand dropdown when more than one
+   product carries the prescribed ingredient. */
+.bcbox{margin-top:6px;border:1px solid var(--line,#e0e3da);border-radius:9px;padding:7px 8px;background:#fbfcfa;}
+.bch{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#6b7280;margin-bottom:5px;}
+.bcmp{padding:4px 0;border-top:1px solid #eceee9;}
+.bcmp:first-of-type{border-top:0;}
+.bcmp-own{background:#eef5ef;margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:5px;}
+.bcn{font-size:12px;font-weight:700;line-height:1.3;}
+.bcm{font-size:11px;color:#5d6b5b;line-height:1.4;}
+.bcq{color:#a3752a;font-style:italic;}
+.bcwarn{margin-top:6px;font-size:11px;line-height:1.45;color:#8a2b1f;background:#fbeceb;border-radius:7px;padding:6px 8px;}
 @keyframes flashred2{0%,100%{opacity:1;}50%{opacity:.55;}}
 .tbl{width:100%;border-collapse:collapse;font-size:11.5px;}
 .tbl th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1.5px solid #e2e6e1;padding:5px 4px;font-weight:800;}
@@ -1839,6 +1865,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <!-- URGENT REORDER ALERT CENTER — Purchaser + Owner/Marketing -->
   <div class="card" id="alertcenter" style="display:none">
     <div class="sec">🚨 <span data-t="m3_alerthead">Urgent Reorder Alert Center</span> <span class="m5-iq" onclick="m5Tog('m5-p14')">ⓘ</span></div>
+    <!-- v3.28.0 - products whose label has never been read. Above the low-stock list on
+         purpose: a product with no price makes every job that uses it cost nothing, which
+         is a worse silence than an empty drum. -->
+    <div id="datagaps"></div>
     <div id="alertlist"></div>
     <p class="small hidden" id="m5-p14" data-t="m3_alertnote" style="margin-top:8px">A product flashes red the moment its live quantity drops below its minimum stock level. Live quantity = opening stock − used + received (including entries still queued on this phone).</p>
   </div>
@@ -2801,7 +2831,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.27.1"></script>
-<script src="app.js?v=3.27.1"></script>
+<script src="database.js?v=3.28.0"></script>
+<script src="app.js?v=3.28.0"></script>
 </body>
 </html>
