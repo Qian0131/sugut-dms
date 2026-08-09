@@ -653,10 +653,25 @@ const CLONE_PRICE_SEED={
    Marketing -> PRICES & RETAILERS -> BASKET TARE. Until that is done the
    dispatch screen shows an amber "tare not verified" note.
    ===================================================================== */
+/* v3.29.7 - THE REAL BASKETS. 'Standard Red Box 2.0 kg' and 'Heavy Blue Crate 3.5 kg' were
+   invented placeholders that no one on the farm has ever used, and every load weighed
+   against them had the wrong weight taken off. The farm runs TWO baskets, both black: one
+   with a metal handle and one without, and the handle is the whole difference in tare.
+
+   TARE IS DELIBERATELY 0 AND UNVERIFIED. A made-up number that looks real is worse than a
+   zero that shouts: the app already paints a red "these tare weights have NOT been
+   verified" box and every net weight is flagged until somebody puts an EMPTY basket on the
+   scale and keys the reading. Put a 2.0 in here and that warning goes quiet while the
+   figure stays wrong - and at ~RM 16 a basket that is real money on every single load.
+   The Gate sets these next week; until then nothing is silently deducted.
+
+   NONE must stay. It is the "no basket" case and the scale card offers it by id.
+   New baskets are added in the app (Prices > Basket tare > ADD A BASKET) and travel to
+   every device through the shared `baskets` setting - they do NOT need to be listed here. */
 const BASKET_SEED=[
-  {id:'RED',  name:'Standard Red Box', tare_kg:2.0, ic:'🟥'},
-  {id:'BLUE', name:'Heavy Blue Crate', tare_kg:3.5, ic:'🟦'},
-  {id:'NONE', name:'Loose / no basket',tare_kg:0,   ic:'🍈'}
+  {id:'BLKH', name:'Black basket — with metal handle', tare_kg:0, ic:'🧺'},
+  {id:'BLKP', name:'Black basket — no metal handle',   tare_kg:0, ic:'🧺'},
+  {id:'NONE', name:'Loose / no basket',                tare_kg:0, ic:'🍈'}
 ];
 const BASKET_TARE_VERIFIED_SEED=false;
 
@@ -898,7 +913,7 @@ const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"
   /* --- sync --- */
   sy_head:'Send the day’s work to the office',
   sy_online:'ONLINE', sy_offline:'OFFLINE',
-  bk_red:'Standard Red Box', bk_blue:'Heavy Blue Crate', bk_none:'Loose / no basket',
+  bk_blkh:'Black basket — with metal handle', bk_blkp:'Black basket — no metal handle', bk_none:'Loose / no basket',
   ts_harvest:'grade A/B/C, loss', ts_tying:'tally clicker, rope, balances',
   ts_scale:'weigh, photograph, send', ts_ops:'tasks, stock out',
   ts_inv:'stock in/out, levels, alerts',
@@ -1520,7 +1535,7 @@ const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Ta
   w_note:'Catatan', w_key:'Kunci Masuk', w_queued:'Belum Dihantar',
   sy_head:'Hantar kerja hari ini ke pejabat',
   sy_online:'DALAM TALIAN', sy_offline:'LUAR TALIAN',
-  bk_red:'Kotak Merah Biasa', bk_blue:'Bakul Biru Berat', bk_none:'Tanpa bakul',
+  bk_blkh:'Bakul hitam — ada pemegang besi', bk_blkp:'Bakul hitam — tiada pemegang besi', bk_none:'Tanpa bakul',
   ts_harvest:'gred A/B/C, buah rosak', ts_tying:'kira ikat, tali, baki',
   ts_scale:'timbang, ambil gambar, hantar', ts_ops:'kerja, ambil bahan',
   ts_inv:'terima/ambil bahan, paras stok',
