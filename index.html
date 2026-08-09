@@ -1437,6 +1437,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .trow2.tsum{color:var(--green);border-top:1px solid #cfe0cc;margin-top:3px;padding-top:6px;}
 
 /* ---- v3.10 · what is stuck, and photos on demand ---- */
+.okbox2{background:#eef7ee;border:2px solid #1b5e20;border-radius:14px;padding:11px 13px;margin:0 0 10px;font-size:12px;line-height:1.5;color:#14401a;}
 .stuckbox{background:#fdecea;border:2px solid var(--warn);border-radius:14px;
   padding:11px 12px;margin-bottom:10px;}
 .stuckbox .sh{font-weight:900;font-size:13px;color:#8c1d18;margin-bottom:7px;}
@@ -1665,7 +1666,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <label>Logged in as</label>
     <div style="font-weight:800;font-size:15px;padding:4px 2px" id="su-who">—</div>
     <label>Device name (e.g. phone-01)</label>
-    <input id="su-device" placeholder="phone-01">
+    <select id="su-device"><option value="">— choose this device —</option><option value="owner-laptop">owner-laptop</option><option value="Gate-Iphone">Gate-Iphone</option><option value="field-a07">field-a07</option><option value="purchase-PC">purchase-PC</option></select>
     <label>Sync URL (Apps Script web app — from setup guide)</label>
     <input id="su-url" placeholder="https://script.google.com/macros/s/…/exec">
     <div style="height:14px"></div>
@@ -2834,7 +2835,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.29.4"></script>
-<script src="app.js?v=3.29.4"></script>
+<script src="database.js?v=3.30.0"></script>
+<script src="app.js?v=3.30.0"></script>
 </body>
 </html>
