@@ -1,13 +1,35 @@
 /* ==================================================================
-   PASTE CHECK - read this first
-   After you paste this whole file into the Apps Script editor, scroll to
-   the very bottom. The last line must read exactly:
 
-       // END OF FILE v3.11.0
+        S U G U T   D M S   B A C K E N D
 
-   If it does not, the paste did not land whole. Select all in the editor,
-   delete, and paste again from AppsScript_code.txt (that .txt opens
-   straight into Notepad, the .gs does not).
+        VERSION v3.12.0  -  8 SHARED SETTINGS
+
+   ------------------------------------------------------------------
+   PASTE CHECK - two things to look at, both take one second.
+
+   1. THE TOP (this line, right here). After pasting, the first thing
+      you see in the editor must say:
+
+              VERSION v3.12.0  -  8 SHARED SETTINGS
+
+      If it says 5 SHARED SETTINGS, or shows no version at all, you
+      have the wrong file. Paste again from AppsScript_code.txt.
+
+   2. THE BOTTOM. Scroll all the way down. The last line must read:
+
+              // END OF FILE v3.12.0
+
+      If it does not, the paste did not land whole. Click in the
+      editor, press Ctrl+A, press Delete, and paste again.
+
+   Always paste from AppsScript_code.txt - that one opens straight
+   into Notepad. The .gs file does not.
+   ------------------------------------------------------------------
+   THE 8 SHARED SETTINGS this version serves to every phone:
+     cloneprice  pricemeta  baskets  tareok  addtrees
+     agrodrafts  aialloc  newprods
+   The last three are new. Without them the farm programme, the brand
+   choices and any new product never leave the phone that made them.
    ================================================================== */
 /**
  * SUGUT DMS  -  Sync backend (Google Apps Script)
@@ -231,6 +253,8 @@ function doPost(req) {
     var events = body.events || [];
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var seen = getSeenUuids_(ss);
+    var natSeen = getNatKeys_(ss);          // v3.27.0
+    var blocked = [], natRows = [];         // v3.27.0
     var appended = 0, skipped = 0, errors = [];
 
     // group rows per sheet so each sheet gets one batch write
@@ -239,11 +263,32 @@ function doPost(req) {
       var e = events[i];
       if (!e || !e.uuid || !SHEET_MAP[e.type]) { errors.push('bad event ' + i); continue; }
       if (seen[e.uuid]) { skipped++; continue; }
+      /* v3.27.0 THE NAME TAG. uuid dedupe above only stops ONE phone re-sending. Two
+         phones filing the SAME job mint two different uuids, so both used to be written -
+         that is how DIR-001 set 2 was booked out twice (4 + 5 Aug 2026, 85,500 gm and
+         RM 908.44 each) off one broadcast. natkey is derived from the job itself, so the
+         second device's copy is recognisable. A repeat from the SAME device is allowed
+         through untouched: that is a genuine partial re-run, not a duplicate. The uuid is
+         marked seen so the phone stops re-sending a row we will never write, and the row
+         is logged to DUP_BLOCKED so nothing disappears silently.
+       */
+      if (e.natkey) {
+        var prevNat = natSeen[e.natkey];
+        if (prevNat && prevNat.device !== String(e.device || '')) {
+          blocked.push([new Date(), String(e.natkey), String(e.uuid), String(e.device || ''),
+            String(e.worker || ''), String(e.type || ''), String(e.pname || ''),
+            (e.qty === undefined ? '' : e.qty), String(e.unit || ''), String(e.lot || ''),
+            String(e.set || ''), prevNat.device, prevNat.when]);
+          seen[e.uuid] = true;
+          continue;
+        }
+      }
       var m = SHEET_MAP[e.type];
       if (!batches[m.sheet]) { batches[m.sheet] = []; extraFor[m.sheet] = m.extra || null; }
       // v2.5.1: the uuid is NOT marked seen here  -  only after its sheet write succeeds,
       // otherwise a failed write burns the uuid and the phone can never re-send it.
-      try { batches[m.sheet].push({ base: m.cols(e), extra: m.extra ? m.extra(e) : null, uuid: e.uuid }); }
+      try { batches[m.sheet].push({ base: m.cols(e), extra: m.extra ? m.extra(e) : null, uuid: e.uuid,
+        nat: e.natkey ? [String(e.natkey), String(e.device || ''), String(e.dt || ''), String(e.uuid)] : null }); }
       catch (err) { errors.push('event ' + i + ': ' + err); }
     }
     for (var name in batches) {
@@ -263,16 +308,27 @@ function doPost(req) {
         });
         sh.getRange(sh.getLastRow() + 1, 1, rows.length, w).setValues(rows);
         // written for real  -  now the uuids may be remembered
-        for (var q = 0; q < pack.length; q++) { seen[pack[q].uuid] = true; appended++; }
+        for (var q = 0; q < pack.length; q++) { seen[pack[q].uuid] = true; appended++;
+          // v3.27.0 same discipline as the uuid: a natkey is only remembered once its
+          // row is really on the sheet, or a failed write would block the honest retry.
+          if (pack[q].nat) { natRows.push(pack[q].nat);
+            natSeen[pack[q].nat[0]] = { device: pack[q].nat[1], when: pack[q].nat[2], uuid: pack[q].nat[3] }; } }
       } catch (err2) {
         // this sheet failed; its uuids stay unseen so the phone retries only these rows
         errors.push('sheet ' + name + ': ' + err2);
       }
     }
     saveSeenUuids_(ss, seen);
+    saveNatKeys_(ss, natRows); logBlocked_(ss, blocked);   // v3.27.0
     // v2.5.1: ok is FALSE when anything failed. The phone marks a batch synced on ok
     // alone, so reporting ok:true with errors deleted field data silently.
-    return json_({ ok: errors.length === 0, appended: appended, skipped: skipped, errors: errors });
+    /* v3.27.0 `ok` deliberately stays TRUE when rows are blocked: the phone SHOULD mark
+       them synced, because we are never going to accept them. `blocked` is what tells the
+       user, and DUP_BLOCKED is the permanent record. Reporting ok:false here would put the
+       phone in a retry loop over a row the server is correctly refusing. */
+    return json_({ ok: errors.length === 0, appended: appended, skipped: skipped, errors: errors,
+      blocked: blocked.length,
+      blockedRows: blocked.map(function (b) { return { product: b[6], qty: b[7], unit: b[8], lot: b[9], set: b[10], firstDevice: b[11] }; }) });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   } finally {
@@ -316,6 +372,12 @@ function doGet(e) {
   var full = legacy || role === 'OWNER' || role === 'MARKETING';
 
   // ---- single-photo fetch: the whole of Option B in one branch ----
+  /* v3.27.0 - asked for ON DEMAND by the Owner's ledger, never on the bulk sync, because
+     this one scans a whole sheet and the Apps Script quota will not carry that every pull. */
+  if (q.dupserials) {
+    return json_({ ok: true, dupserials: readDupSerials_(ss) });
+  }
+
   if (q.photo) {
     return json_({ ok: true, photo: true, req_uuid: String(q.photo),
                    photos: readDispatchPhotos_(ss, [String(q.photo)])[String(q.photo)] || [] });
@@ -340,6 +402,9 @@ function doGet(e) {
   // ---- masters: send them only if this phone does not already have them ----
   var mast = mastersFor_(ss);
   var same = q.sig && String(q.sig) === mast.sig;
+
+  /* v3.29.5 - THE RETURN ROAD. Served only when the app asks with a date floor. */
+  var ev = q.since ? readEvents_(ss, q.since) : { events: [], truncated: false, since: '' };
 
   return json_({
     ok: true,
@@ -373,7 +438,11 @@ function doGet(e) {
     treestats: readTreeStats_(ss),
     // v3.5.1 - which tabs that reading actually found, so a phone can SAY why a total
     // looks wrong instead of quietly showing a smaller number
-    treestatsmeta: TREE_STATS_META
+    treestatsmeta: TREE_STATS_META,
+    // v3.29.5 - the six event types that make a balance move, from the date floor onward.
+    events: ev.events,
+    events_from: ev.since,
+    events_truncated: !!ev.truncated
   });
 }
 
@@ -526,6 +595,354 @@ function readTreeStats_(ss) {
 var CORR_HEAD = ['uuid','dt','tree','lot','no','ctype','oldVal','newVal','note',
                  'worker','workerId','device','status','decidedBy','decidedAt',
                  'evUuid','evType','evDt'];   // v2.8  -  a LOGQTY request points at one log
+
+
+/* ========================= v3.30.0 JOB 3 - THE RETURN ROAD ==============================
+ * THE BUG THIS CLOSES, stated plainly: work travelled UP to this sheet and NEVER came back
+ * DOWN. doGet served eleven master tables and not one transactional row, so every balance
+ * in the app - which is a projection over that device's own local event store - was a
+ * private figure. Sandakan's deliveries were invisible to the field; the field's spraying
+ * was invisible to Sandakan. It was not a race window; it never healed.
+ *
+ * WHAT COMES DOWN: the six event types that make a balance move.
+ *   STOCK_IN / STOCK_OUT / STOCK_ADJUST  -> onHand() is opening - used + received + adjusted
+ *   DROP / ROTTEN / TIE                  -> the tree ledger
+ *
+ * WHY THE TREE LEDGER CANNOT DOUBLE-COUNT. securedDropsOf(), rottenTiedOf() and
+ * tieRoundsOf() are already written as `the Sheet's aggregate + only the local rows the
+ * Sheet has not seen yet`, gated on countsLocally(). A row that arrives through this road
+ * is stamped synced:true with an EMPTY syncedAt, so countsLocally() is false and the row is
+ * NOT added on top of the TREE_STATS total it is already inside. The inventory side has no
+ * such aggregate, so there the row is counted - which is the whole point.
+ *
+ * WHY THERE IS A DATE FLOOR. `since` is sent by the app (SYNC_EVENTS_FROM in database.js).
+ * Without it, every device would download the whole history including the pre-trial test
+ * rows the 7 Aug data audit found mixed in with the real ones, on the first sync of the
+ * trial. A row older than the floor stays on this sheet as history and simply does not
+ * travel. No floor sent = nothing served, deliberately: an old app must not be handed the
+ * lot by accident.
+ *
+ * COLUMNS ARE FOUND BY NAME with a positional fallback, the same defensive read
+ * readTreeStats_ uses, because these tabs have been edited by hand.
+ * ===================================================================================== */
+function evRead_(ss, names) {
+  var sh = null;
+  for (var q = 0; q < names.length; q++) { sh = ss.getSheetByName(names[q]); if (sh) break; }
+  if (!sh) return null;
+  var vals = sh.getDataRange().getValues();
+  if (vals.length < 2) return null;
+  var hr = 0;
+  for (var r = 0; r < Math.min(2, vals.length); r++) {
+    if (vals[r].join('|').toLowerCase().indexOf('uuid') >= 0) { hr = r; break; }
+  }
+  var head = vals[hr].map(function (v) { return String(v).trim().toLowerCase(); });
+  return {
+    vals: vals, from: hr + 1,
+    idx: function (want, fallback) {
+      for (var i = 0; i < want.length; i++) {
+        var c = head.indexOf(String(want[i]).toLowerCase());
+        if (c >= 0) return c;
+      }
+      return (fallback === undefined) ? -1 : fallback;
+    }
+  };
+}
+function evNum_(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function evNo_(v) { var t = String(v).trim().toUpperCase(); return t === 'NO' || t === 'FALSE' || t === 'UNTIED'; }
+/* Sheets hands back a Date object for anything it parsed as one. The app compares dt as a
+   plain 'YYYY-MM-DD HH:MM' string everywhere, so normalise here rather than in twenty
+   places downstream. */
+function evDt_(v) {
+  if (v instanceof Date) {
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return v.getFullYear() + '-' + p(v.getMonth() + 1) + '-' + p(v.getDate()) +
+           ' ' + p(v.getHours()) + ':' + p(v.getMinutes());
+  }
+  return String(v || '').trim();
+}
+
+var EV_MAX = 4000;   // hard ceiling per pull. Reported honestly if hit - never truncated in silence.
+
+function readEvents_(ss, since) {
+  var out = [], cut = String(since || '').slice(0, 10), truncated = false;
+  if (!cut) return { events: [], truncated: false, note: 'no floor sent' };
+  function keep(dt) { return String(dt || '').slice(0, 10) >= cut; }
+  function push(o) { if (out.length < EV_MAX) out.push(o); else truncated = true; }
+
+  // ---- DROP_LOGS: [uuid, dt, tree, lot, clone, qty, grade, estkg, worker, device] + Secured/DropKind/PickId
+  var d = evRead_(ss, ['DROP_LOGS', 'DROP_LOG', 'DROPS', 'HARVEST_LOGS']);
+  if (d) {
+    var c = { u: d.idx(['uuid'], 0), dt: d.idx(['dt'], 1), tr: d.idx(['tree'], 2), lo: d.idx(['lot'], 3),
+      cl: d.idx(['clone'], 4), q: d.idx(['qty', 'fruits'], 5), g: d.idx(['grade'], 6),
+      kg: d.idx(['estkg'], 7), w: d.idx(['worker'], 8), dv: d.idx(['device'], 9),
+      se: d.idx(['secured'], -1), dk: d.idx(['dropkind'], -1), pk: d.idx(['pickid'], -1) };
+    for (var i = d.from; i < d.vals.length; i++) {
+      var v = d.vals[i]; var dt = evDt_(v[c.dt]);
+      if (!v[c.u] || !keep(dt)) continue;
+      var o = { uuid: String(v[c.u]), type: 'DROP', dt: dt, tree: String(v[c.tr] || ''),
+        lot: String(v[c.lo] || ''), clone: String(v[c.cl] || ''), qty: evNum_(v[c.q]),
+        grade: String(v[c.g] || ''), estkg: evNum_(v[c.kg]), worker: String(v[c.w] || ''),
+        device: String(v[c.dv] || '') };
+      if (c.se >= 0 && evNo_(v[c.se])) o.secured = false;
+      if (c.dk >= 0 && v[c.dk]) o.dropKind = String(v[c.dk]);
+      if (c.pk >= 0 && v[c.pk]) o.pickId = String(v[c.pk]);
+      push(o);
+    }
+  }
+
+  // ---- ROTTEN_LOGS: uuid, dt, tree, lot, clone, qty, cause, causeLabel, tied, estkg, worker, workerId, device
+  var ro = evRead_(ss, ['ROTTEN_LOGS', 'ROTTEN_LOG', 'ROTTEN']);
+  if (ro) {
+    var rc = { u: ro.idx(['uuid'], 0), dt: ro.idx(['dt'], 1), tr: ro.idx(['tree'], 2), lo: ro.idx(['lot'], 3),
+      cl: ro.idx(['clone'], 4), q: ro.idx(['qty'], 5), ca: ro.idx(['cause'], 6),
+      cL: ro.idx(['causelabel'], 7), ti: ro.idx(['tied'], 8), kg: ro.idx(['estkg'], 9),
+      w: ro.idx(['worker'], 10), dv: ro.idx(['device'], 12) };
+    for (var j = ro.from; j < ro.vals.length; j++) {
+      var rv = ro.vals[j]; var rdt = evDt_(rv[rc.dt]);
+      if (!rv[rc.u] || !keep(rdt)) continue;
+      var r2 = { uuid: String(rv[rc.u]), type: 'ROTTEN', dt: rdt, tree: String(rv[rc.tr] || ''),
+        lot: String(rv[rc.lo] || ''), clone: String(rv[rc.cl] || ''), qty: evNum_(rv[rc.q]),
+        cause: String(rv[rc.ca] || ''), causeLabel: String(rv[rc.cL] || ''),
+        estkg: evNum_(rv[rc.kg]), worker: String(rv[rc.w] || ''), device: String(rv[rc.dv] || '') };
+      if (rc.ti >= 0 && evNo_(rv[rc.ti])) r2.tied = false;
+      push(r2);
+    }
+  }
+
+  // ---- TYING_LOGS: uuid, dt, tree, lot, clone, n, ropeM, roundId, worker, workerId, device
+  var t = evRead_(ss, ['TYING_LOGS', 'TYING_LOG', 'TIE_LOGS', 'TIE_LOG']);
+  if (t) {
+    var tc = { u: t.idx(['uuid'], 0), dt: t.idx(['dt'], 1), tr: t.idx(['tree'], 2), lo: t.idx(['lot'], 3),
+      cl: t.idx(['clone'], 4), n: t.idx(['n', 'qty', 'fruits'], 5), rp: t.idx(['ropem'], 6),
+      ri: t.idx(['roundid'], 7), w: t.idx(['worker'], 8), dv: t.idx(['device'], 10) };
+    for (var k = t.from; k < t.vals.length; k++) {
+      var tv = t.vals[k]; var tdt = evDt_(tv[tc.dt]);
+      if (!tv[tc.u] || !keep(tdt)) continue;
+      push({ uuid: String(tv[tc.u]), type: 'TIE', dt: tdt, tree: String(tv[tc.tr] || ''),
+        lot: String(tv[tc.lo] || ''), clone: String(tv[tc.cl] || ''), n: evNum_(tv[tc.n]),
+        ropeM: evNum_(tv[tc.rp]), roundId: String(tv[tc.ri] || ''),
+        worker: String(tv[tc.w] || ''), device: String(tv[tc.dv] || '') });
+    }
+  }
+
+  // ---- STOCK_OUT: [uuid, dt, pid, pname, qty, unit, set, cost, worker, device] + TargetLot/ActiveIngredient/...
+  var so = evRead_(ss, ['STOCK_OUT', 'STOCKOUT']);
+  if (so) {
+    var sc = { u: so.idx(['uuid'], 0), dt: so.idx(['dt'], 1), p: so.idx(['pid'], 2), pn: so.idx(['pname'], 3),
+      q: so.idx(['qty'], 4), un: so.idx(['unit'], 5), st: so.idx(['set'], 6), co: so.idx(['cost'], 7),
+      w: so.idx(['worker'], 8), dv: so.idx(['device'], 9), lo: so.idx(['targetlot'], -1),
+      ai: so.idx(['activeingredient'], -1), pg: so.idx(['programme'], -1),
+      tk: so.idx(['tanksused'], -1), wl: so.idx(['waterlitres'], -1),
+      cw: so.idx(['crew'], -1), hr: so.idx(['labourhours'], -1) };
+    for (var m = so.from; m < so.vals.length; m++) {
+      var sv = so.vals[m]; var sdt = evDt_(sv[sc.dt]);
+      if (!sv[sc.u] || !keep(sdt)) continue;
+      var s2 = { uuid: String(sv[sc.u]), type: 'STOCK_OUT', dt: sdt, pid: evNum_(sv[sc.p]),
+        pname: String(sv[sc.pn] || ''), qty: evNum_(sv[sc.q]), unit: String(sv[sc.un] || ''),
+        set: String(sv[sc.st] || ''), cost: evNum_(sv[sc.co]), worker: String(sv[sc.w] || ''),
+        device: String(sv[sc.dv] || '') };
+      if (sc.lo >= 0 && sv[sc.lo]) s2.lot = String(sv[sc.lo]);
+      if (sc.ai >= 0 && sv[sc.ai]) s2.ai = String(sv[sc.ai]);
+      if (sc.pg >= 0 && sv[sc.pg]) s2.progSet = String(sv[sc.pg]);
+      if (sc.tk >= 0 && sv[sc.tk] !== '') s2.tanks = evNum_(sv[sc.tk]);
+      if (sc.wl >= 0 && sv[sc.wl] !== '') s2.water = evNum_(sv[sc.wl]);
+      if (sc.cw >= 0 && sv[sc.cw] !== '') s2.crew = evNum_(sv[sc.cw]);
+      if (sc.hr >= 0 && sv[sc.hr] !== '') s2.hours = evNum_(sv[sc.hr]);
+      push(s2);
+    }
+  }
+
+  // ---- STOCK_IN: [uuid, dt, pid, pname, qty, unit, '', '', cost, supplier, worker] + InvoiceRef/AI/UnitPrice
+  //      NOTE: this tab carries NO device column - see the audit. Rows come down with device ''.
+  var si = evRead_(ss, ['STOCK_IN', 'STOCKIN']);
+  if (si) {
+    var ic = { u: si.idx(['uuid'], 0), dt: si.idx(['dt'], 1), p: si.idx(['pid'], 2), pn: si.idx(['pname'], 3),
+      q: si.idx(['qty'], 4), un: si.idx(['unit'], 5), co: si.idx(['cost'], 8),
+      su: si.idx(['supplier'], 9), w: si.idx(['worker'], 10), dv: si.idx(['device'], -1),
+      rf: si.idx(['invoiceref'], -1), ai: si.idx(['activeingredient'], -1),
+      up: si.idx(['unitprice'], -1) };
+    for (var n = si.from; n < si.vals.length; n++) {
+      var iv = si.vals[n]; var idt = evDt_(iv[ic.dt]);
+      if (!iv[ic.u] || !keep(idt)) continue;
+      var i2 = { uuid: String(iv[ic.u]), type: 'STOCK_IN', dt: idt, pid: evNum_(iv[ic.p]),
+        pname: String(iv[ic.pn] || ''), qty: evNum_(iv[ic.q]), unit: String(iv[ic.un] || ''),
+        cost: evNum_(iv[ic.co]), supplier: String(iv[ic.su] || ''),
+        worker: String(iv[ic.w] || ''), device: (ic.dv >= 0 ? String(iv[ic.dv] || '') : '') };
+      if (ic.rf >= 0 && iv[ic.rf]) i2.ref = String(iv[ic.rf]);
+      if (ic.ai >= 0 && iv[ic.ai]) i2.ai = String(iv[ic.ai]);
+      if (ic.up >= 0 && iv[ic.up] !== '') i2.unitPrice = evNum_(iv[ic.up]);
+      push(i2);
+    }
+  }
+
+  // ---- STOCK_ADJUST: uuid, dt, pid, pname, ai, unit, systemQty, counted, variance, varianceValueRM, note, worker, device
+  //      The app calls these before / counted / delta / cost.
+  var sa = evRead_(ss, ['STOCK_ADJUST', 'STOCKADJUST', 'ADJUSTMENTS']);
+  if (sa) {
+    var ac = { u: sa.idx(['uuid'], 0), dt: sa.idx(['dt'], 1), p: sa.idx(['pid'], 2), pn: sa.idx(['pname'], 3),
+      ai: sa.idx(['ai'], 4), un: sa.idx(['unit'], 5), bf: sa.idx(['systemqty'], 6),
+      ct: sa.idx(['counted'], 7), dl: sa.idx(['variance'], 8), co: sa.idx(['variancevaluerm'], 9),
+      nt: sa.idx(['note'], 10), w: sa.idx(['worker'], 11), dv: sa.idx(['device'], 12) };
+    for (var z = sa.from; z < sa.vals.length; z++) {
+      var av = sa.vals[z]; var adt = evDt_(av[ac.dt]);
+      if (!av[ac.u] || !keep(adt)) continue;
+      push({ uuid: String(av[ac.u]), type: 'STOCK_ADJUST', dt: adt, pid: evNum_(av[ac.p]),
+        pname: String(av[ac.pn] || ''), ai: String(av[ac.ai] || ''), unit: String(av[ac.un] || ''),
+        before: evNum_(av[ac.bf]), counted: evNum_(av[ac.ct]), delta: evNum_(av[ac.dl]),
+        cost: evNum_(av[ac.co]), note: String(av[ac.nt] || ''),
+        worker: String(av[ac.w] || ''), device: String(av[ac.dv] || '') });
+    }
+  }
+
+
+  /* ---- TASK_LOGS -> TASK_DONE. The labour side of every job: crew, hours, man-hours.
+         Nothing aggregates this, so without it the Owner's COSTING and LABOUR reports
+         only ever showed the hours logged on the Owner's own device. ---- */
+  var tl = evRead_(ss, ['TASK_LOGS', 'TASKLOGS']);
+  if (tl) {
+    var lc = { u: tl.idx(['uuid'], 0), dt: tl.idx(['dt'], 1), ti: tl.idx(['taskid'], 2),
+      k: tl.idx(['kind'], 3), kl: tl.idx(['kindlabel'], 4), lo: tl.idx(['lot'], 5),
+      ct: tl.idx(['count'], 6), cl: tl.idx(['countlabel'], 7), un: tl.idx(['unit'], 8),
+      tr: tl.idx(['trees'], 9), cw: tl.idx(['crew'], 10), hr: tl.idx(['hours'], 11),
+      mh: tl.idx(['manhours'], 12), w: tl.idx(['worker'], 13), dv: tl.idx(['device'], 14),
+      de: tl.idx(['detail'], 15) };
+    for (var a1 = tl.from; a1 < tl.vals.length; a1++) {
+      var lv = tl.vals[a1], ldt = evDt_(lv[lc.dt]);
+      if (!lv[lc.u] || !keep(ldt)) continue;
+      var det = [];
+      try { det = JSON.parse(String(lv[lc.de] || '[]')) || []; } catch (e1) { det = []; }
+      push({ uuid: String(lv[lc.u]), type: 'TASK_DONE', dt: ldt, taskId: String(lv[lc.ti] || ''),
+        kind: String(lv[lc.k] || ''), kindLabel: String(lv[lc.kl] || ''), lot: String(lv[lc.lo] || ''),
+        count: evNum_(lv[lc.ct]), countLabel: String(lv[lc.cl] || ''), unit: String(lv[lc.un] || ''),
+        trees: evNum_(lv[lc.tr]), crew: evNum_(lv[lc.cw]), hours: evNum_(lv[lc.hr]),
+        manHours: evNum_(lv[lc.mh]), worker: String(lv[lc.w] || ''),
+        device: String(lv[lc.dv] || ''), detail: det });
+    }
+  }
+
+  /* ---- SALES -> SALE. Marketing revenue. ---- */
+  var sl = evRead_(ss, ['SALES', 'SALE']);
+  if (sl) {
+    var qc = { u: sl.idx(['uuid'], 0), dt: sl.idx(['dt'], 1), b: sl.idx(['buyer'], 2),
+      g: sl.idx(['grade'], 3), kg: sl.idx(['kg'], 4), pp: sl.idx(['priceperkg'], 5),
+      am: sl.idx(['amount'], 6), nt: sl.idx(['note'], 7), w: sl.idx(['worker'], 8),
+      dv: sl.idx(['device'], 9) };
+    for (var a2 = sl.from; a2 < sl.vals.length; a2++) {
+      var qv = sl.vals[a2], qdt = evDt_(qv[qc.dt]);
+      if (!qv[qc.u] || !keep(qdt)) continue;
+      push({ uuid: String(qv[qc.u]), type: 'SALE', dt: qdt, buyer: String(qv[qc.b] || ''),
+        grade: String(qv[qc.g] || ''), kg: evNum_(qv[qc.kg]), pricePerKg: evNum_(qv[qc.pp]),
+        amount: evNum_(qv[qc.am]), note: String(qv[qc.nt] || ''),
+        worker: String(qv[qc.w] || ''), device: String(qv[qc.dv] || '') });
+    }
+  }
+
+  /* ---- MKT_DISPATCH -> DISPATCH and CREDIT_TOPUP. The retailer credit ledger is a
+         projection over these two, so a marketer's invoice was invisible to the Owner
+         and every credit balance was device-local. The tab carries its own `type`. ---- */
+  var md = evRead_(ss, ['MKT_DISPATCH', 'DISPATCH']);
+  if (md) {
+    var dc = { u: md.idx(['uuid'], 0), dt: md.idx(['dt'], 1), iv: md.idx(['invoice_no'], 2),
+      ty: md.idx(['type'], 3), ri: md.idx(['retailer_id'], 4), rn: md.idx(['retailer_name'], 5),
+      kA: md.idx(['kg_a'], -1), kB: md.idx(['kg_b'], -1), kC: md.idx(['kg_c'], -1),
+      tk: md.idx(['total_kg'], -1), tv: md.idx(['total_value_rm'], -1),
+      am: md.idx(['amount_rm'], -1), cb: md.idx(['credit_before_rm'], -1),
+      ca: md.idx(['credit_after_rm'], -1), lj: md.idx(['lines_json'], -1),
+      w: md.idx(['worker'], -1), dv: md.idx(['device'], -1) };
+    for (var a3 = md.from; a3 < md.vals.length; a3++) {
+      var dv2 = md.vals[a3], ddt = evDt_(dv2[dc.dt]);
+      if (!dv2[dc.u] || !keep(ddt)) continue;
+      var ty2 = String(dv2[dc.ty] || 'DISPATCH').trim().toUpperCase();
+      if (ty2 !== 'DISPATCH' && ty2 !== 'CREDIT_TOPUP') ty2 = 'DISPATCH';
+      var d3 = { uuid: String(dv2[dc.u]), type: ty2, dt: ddt,
+        invoice_no: String(dv2[dc.iv] || ''), retailer_id: String(dv2[dc.ri] || ''),
+        retailer_name: String(dv2[dc.rn] || ''), worker: (dc.w >= 0 ? String(dv2[dc.w] || '') : ''),
+        device: (dc.dv >= 0 ? String(dv2[dc.dv] || '') : '') };
+      if (dc.kA >= 0) d3.kg_A = evNum_(dv2[dc.kA]);
+      if (dc.kB >= 0) d3.kg_B = evNum_(dv2[dc.kB]);
+      if (dc.kC >= 0) d3.kg_C = evNum_(dv2[dc.kC]);
+      if (dc.tk >= 0) d3.total_kg = evNum_(dv2[dc.tk]);
+      if (dc.tv >= 0) d3.total_value_rm = evNum_(dv2[dc.tv]);
+      if (dc.am >= 0) d3.amount_rm = evNum_(dv2[dc.am]);
+      if (dc.cb >= 0) d3.credit_before_rm = evNum_(dv2[dc.cb]);
+      if (dc.ca >= 0) d3.credit_after_rm = evNum_(dv2[dc.ca]);
+      if (dc.lj >= 0 && dv2[dc.lj]) { d3.lines_json = String(dv2[dc.lj]);
+        try { d3.lines = JSON.parse(d3.lines_json) || []; } catch (e2) { d3.lines = []; } }
+      push(d3);
+    }
+  }
+
+  /* ---- LOG_ADJUST -> DROP_ADJUST / ROTTEN_ADJUST, TIE_ADJUST -> TIE_ADJUST.
+         Owner-approved corrections. TREE_STATS already contains these, so they ride down
+         with an EMPTY syncedAt and are NOT re-added to the tree ledger - see mergeEvents. ---- */
+  var la = evRead_(ss, ['LOG_ADJUST', 'LOG_ADJUSTMENTS', 'DROP_ADJUST']);
+  if (la) {
+    var ac2 = { u: la.idx(['uuid'], 0), dt: la.idx(['dt'], 1), ty: la.idx(['type'], 2),
+      ev: la.idx(['evuuid'], 3), tr: la.idx(['tree'], 5), lo: la.idx(['lot'], 6),
+      cl: la.idx(['clone'], 7), dl: la.idx(['delta'], 10), kg: la.idx(['estkg'], 11),
+      rs: la.idx(['reason'], 12), se: la.idx(['secured'], -1), ti: la.idx(['tied'], -1) };
+    for (var a4 = la.from; a4 < la.vals.length; a4++) {
+      var av2 = la.vals[a4], adt2 = evDt_(av2[ac2.dt]);
+      if (!av2[ac2.u] || !keep(adt2)) continue;
+      var lt = String(av2[ac2.ty] || '').toUpperCase();
+      var o4 = { uuid: String(av2[ac2.u]),
+        type: (lt.indexOf('ROTTEN') >= 0 ? 'ROTTEN_ADJUST' : 'DROP_ADJUST'), dt: adt2,
+        evUuid: String(av2[ac2.ev] || ''), tree: String(av2[ac2.tr] || ''),
+        lot: String(av2[ac2.lo] || ''), clone: String(av2[ac2.cl] || ''),
+        delta: evNum_(av2[ac2.dl]), estkg: evNum_(av2[ac2.kg]),
+        reason: String(av2[ac2.rs] || '') };
+      if (ac2.se >= 0 && evNo_(av2[ac2.se])) o4.secured = false;
+      if (ac2.ti >= 0 && evNo_(av2[ac2.ti])) o4.tied = false;
+      push(o4);
+    }
+  }
+  var ta2 = evRead_(ss, ['TIE_ADJUST', 'TIE_ADJUSTMENTS']);
+  if (ta2) {
+    var tc2 = { u: ta2.idx(['uuid'], 0), dt: ta2.idx(['dt'], 1), ev: ta2.idx(['evuuid'], 3),
+      tr: ta2.idx(['tree'], 5), lo: ta2.idx(['lot'], 6), cl: ta2.idx(['clone'], 7),
+      dl: ta2.idx(['delta'], 10), rp: ta2.idx(['ropem'], 11), rs: ta2.idx(['reason'], 12) };
+    for (var a5 = ta2.from; a5 < ta2.vals.length; a5++) {
+      var tv2 = ta2.vals[a5], tdt2 = evDt_(tv2[tc2.dt]);
+      if (!tv2[tc2.u] || !keep(tdt2)) continue;
+      push({ uuid: String(tv2[tc2.u]), type: 'TIE_ADJUST', dt: tdt2,
+        evUuid: String(tv2[tc2.ev] || ''), tree: String(tv2[tc2.tr] || ''),
+        lot: String(tv2[tc2.lo] || ''), clone: String(tv2[tc2.cl] || ''),
+        delta: evNum_(tv2[tc2.dl]), ropeM: evNum_(tv2[tc2.rp]),
+        reason: String(tv2[tc2.rs] || '') });
+    }
+  }
+
+  /* ---- AUDIT_LOG -> the anti-manipulation trail. LOG_VOID is the one that changes a
+         number: a record the Owner voided must read as voided on every device. ---- */
+  var au = evRead_(ss, ['AUDIT_LOG', 'AUDIT']);
+  if (au) {
+    var uc = { u: au.idx(['uuid'], 0), dt: au.idx(['dt'], 1), ty: au.idx(['type'], 2),
+      tu: au.idx(['targetuuid'], 3), tt: au.idx(['targettype'], 4), td: au.idx(['targetdt'], 5),
+      tw: au.idx(['targetworker'], 6), de: au.idx(['detail'], 7), rs: au.idx(['reason'], -1),
+      dd: au.idx(['dead'], -1),
+      w: au.idx(['worker'], -1), dv: au.idx(['device'], -1) };
+    for (var a6 = au.from; a6 < au.vals.length; a6++) {
+      var uv = au.vals[a6], udt = evDt_(uv[uc.dt]);
+      /* v3.29.8 - a row carrying a TOMBSTONE ignores the date floor. The rows it kills may
+         be older than the floor (the 4 Aug trial data is exactly that case), and a deletion
+         that is filtered out by date is a deletion that silently never happens. */
+      var hasDead = uc.dd >= 0 && String(uv[uc.dd] || '').trim() !== '';
+      if (!uv[uc.u] || (!keep(udt) && !hasDead)) continue;
+      var uty = String(uv[uc.ty] || '').trim().toUpperCase();
+      if (!uty) continue;
+      push({ uuid: String(uv[uc.u]), type: uty, dt: udt,
+        targetUuid: String(uv[uc.tu] || ''), targetType: String(uv[uc.tt] || ''),
+        targetDt: String(uv[uc.td] || ''), targetWorker: String(uv[uc.tw] || ''),
+        detail: String(uv[uc.de] || ''), reason: (uc.rs >= 0 ? String(uv[uc.rs] || '') : ''),
+        // v3.29.8 - the tombstone. Without this line a deletion stops at one device.
+        dead: (uc.dd >= 0 ? String(uv[uc.dd] || '') : ''),
+        worker: (uc.w >= 0 ? String(uv[uc.w] || '') : ''),
+        device: (uc.dv >= 0 ? String(uv[uc.dv] || '') : '') });
+    }
+  }
+
+  return { events: out, truncated: truncated, since: cut };
+}
 
 function corrSheet_(ss) {
   var sh = ss.getSheetByName('CORRECTIONS');
@@ -932,10 +1349,18 @@ function readDispatchReqs_(ss) {
  *   YIELD_ACK  an Owner answered a yield count vs weight mismatch. The alert is never
  *              cleared by editing a figure; it is answered, and both stay on the record.
  */
+/* v3.29.8 - `dead` is the TOMBSTONE COLUMN, and it is what makes a deletion travel.
+   Until now a clean-up removed rows from ONE phone and nothing else: the Sheet still held
+   them, so the return road put them straight back on the next sync, and no other device
+   ever learned they were meant to be gone. The Owner deleted the same two drops six times
+   in a row and watched them return every time.
+   `dead` holds the space-separated uuids that clean-up removed. It rides the audit trail,
+   which every device already reads, so a deletion now spreads exactly like a record does.
+   ensureHead_ adds the column to an existing sheet, so no manual sheet edit is needed. */
 var AUD_HEAD  = ['uuid', 'dt', 'type', 'targetUuid', 'targetType', 'targetDt', 'targetWorker',
                  'detail', 'day', 'dispatch_kg', 'harvest_fruits', 'avg_fruit_kg', 'flag',
                  'signed_field', 'signed_scale',
-                 'reason', 'worker', 'workerId', 'device'];
+                 'reason', 'worker', 'workerId', 'device', 'dead'];
 
 /** Deduped by uuid, so a phone that re-sends after a dropped connection cannot double-log.
  *  upsertByUuid_ creates the AUDIT_LOG tab on first use, so no manual sheet setup. */
@@ -1160,7 +1585,21 @@ function readDispatchDecisions_(ss) {
    is the one rule protecting this from being worse than no sync at all.
    ====================================================================================== */
 var SET_HEAD = ['key', 'value_json', 'updated_at', 'updated_by', 'role', 'device'];
-var SETTINGS_ALLOWED = ['cloneprice', 'pricemeta', 'baskets', 'tareok', 'addtrees'];
+// v3.12.0 - three more shared settings. agrodrafts is the Owner's five-slot recipe,
+// aialloc is the Purchaser's brand choice with its locked moving average cost, and
+// newprods is anything onboarded into the catalogue in Sandakan. All three are served
+// to EVERY role including WORKER, because a worker who cannot see the allocated brand
+// cannot start the job - which is the gap this release exists to close.
+// v3.19.2 - a ninth key. creditcap is the ceiling the Marketer sets on each merchant's
+// prepaid pool, keyed by retailer id: {RT-01:{cap_rm:30000, at:'...', by:'...'}}. It has to
+// travel DOWN as well as up - Marketing decides it, the Owner approves money against it -
+// which is exactly why it rides this channel rather than living on one phone.
+// UNTIL THIS FILE IS PASTED AND RE-DEPLOYED the phones still work: saveSettings_ below
+// refuses an unknown key by name, and v3.19.2 of the app keeps a refused key QUEUED and
+// says so on the sync screen rather than marking it clean. The ceiling then works on the
+// phone that set it and simply does not reach the others.
+var SETTINGS_ALLOWED = ['cloneprice', 'pricemeta', 'baskets', 'tareok', 'addtrees',
+                        'agrodrafts', 'aialloc', 'newprods', 'creditcap'];
 
 function saveSettings_(map) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1504,6 +1943,74 @@ function saveSeenUuids_(ss, seen) {
   if (fresh.length) sh.getRange(sh.getLastRow() + 1, 1, fresh.length, 1).setValues(fresh);
 }
 
+/* ---------- v3.27.0 THE NAME TAG: natural-key index + the blocked log ----------
+   Kept on their OWN hidden sheet rather than as extra columns on SYNC_INDEX, so the uuid
+   dedupe that every pipeline already depends on is not touched at all. */
+function getNatKeys_(ss) {
+  var sh = ss.getSheetByName('NAT_INDEX');
+  if (!sh) { sh = ss.insertSheet('NAT_INDEX'); sh.hideSheet(); sh.appendRow(['natkey', 'device', 'when', 'uuid']); }
+  var vals = sh.getDataRange().getValues();
+  var m = {};
+  for (var i = 1; i < vals.length; i++) {
+    if (!vals[i][0]) continue;
+    m[String(vals[i][0])] = { device: String(vals[i][1] || ''), when: String(vals[i][2] || ''), uuid: String(vals[i][3] || '') };
+  }
+  return m;
+}
+
+function saveNatKeys_(ss, rows) {
+  if (!rows || !rows.length) return;
+  var sh = ss.getSheetByName('NAT_INDEX');
+  if (!sh) return;
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, 4).setValues(rows);
+}
+
+/** Every refused row lands here in full. A duplicate that vanishes without trace is worse
+    than the duplicate itself - the Owner must be able to see what was turned away and why. */
+function logBlocked_(ss, rows) {
+  if (!rows || !rows.length) return;
+  var sh = ss.getSheetByName('DUP_BLOCKED');
+  if (!sh) {
+    sh = ss.insertSheet('DUP_BLOCKED');
+    sh.appendRow(['when', 'natkey', 'uuid', 'device', 'worker', 'type', 'product', 'qty',
+      'unit', 'lot', 'set', 'first_device', 'first_when']);
+  }
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, 13).setValues(rows);
+}
+
+/** v3.27.0 - the SHEET-WIDE duplicate invoice check. duplicateSerials() on the phone scans
+    that phone's own events, so on a two-phone farm it can never see the collision it exists
+    to catch. This reads MKT_DISPATCH itself. Read-only: it reports, it never renumbers. */
+function readDupSerials_(ss) {
+  var sh = ss.getSheetByName('MKT_DISPATCH');
+  if (!sh) return [];
+  var vals = sh.getDataRange().getValues();
+  if (vals.length < 2) return [];
+  var head = vals[0], iSer = -1, iUuid = -1, iDev = -1, iDt = -1;
+  for (var c = 0; c < head.length; c++) {
+    var h = String(head[c]).trim().toLowerCase();
+    if (h === 'invoice_no') iSer = c;
+    if (h === 'uuid') iUuid = c;
+    if (h === 'device') iDev = c;
+    if (h === 'dt') iDt = c;
+  }
+  if (iSer < 0 || iUuid < 0) return [];
+  var by = {};
+  for (var r = 1; r < vals.length; r++) {
+    var ser = String(vals[r][iSer] || '').trim();
+    if (!ser) continue;
+    if (!by[ser]) by[ser] = {};
+    by[ser][String(vals[r][iUuid])] = { device: iDev < 0 ? '' : String(vals[r][iDev] || ''), dt: iDt < 0 ? '' : String(vals[r][iDt] || '') };
+  }
+  var out = [];
+  for (var s2 in by) {
+    var ids = [];
+    for (var u in by[s2]) ids.push(u);
+    if (ids.length > 1) out.push({ serial: s2, loads: ids.length, on: ids.map(function (u) { return { uuid: u, device: by[s2][u].device, dt: by[s2][u].dt }; }) });
+  }
+  return out;
+}
+
 function tableToObjects_(ss, name) {
   var sh = ss.getSheetByName(name);
   if (!sh) return [];
@@ -1527,4 +2034,4 @@ function json_(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// END OF FILE v3.11.0
+// END OF FILE v3.12.0
