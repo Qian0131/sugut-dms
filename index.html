@@ -397,6 +397,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .otgrid>button{border:1px solid #dcd7c8;background:#faf8f3;border-radius:10px;padding:10px 4px;
   font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;color:#1c1b17;}
 .otgrid>button i{display:block;font-style:normal;font-size:19px;margin-bottom:2px;}
+/* v3.34.1 — ALL TOOLS on home. Reuses .otgrid so the buttons are the same object the
+   Command landing sheet already draws; only the label above it is new. */
+#hubmore{margin-top:14px;}
+#hubmore .hmlbl{font-size:11px;color:#6b675c;text-transform:uppercase;letter-spacing:.6px;
+  margin:0 2px 7px;font-weight:800;}
+#hubmore .otgrid>button{position:relative;min-height:64px;}
+#hubmore .otgrid>button u{position:absolute;top:3px;right:4px;text-decoration:none;
+  background:#a3341f;color:#fff;border-radius:99px;padding:1px 5px;font-size:9px;font-weight:900;}
 .otclose{width:100%;border:none;background:#e3ded1;border-radius:10px;padding:10px;font:inherit;
   font-weight:800;margin-top:9px;cursor:pointer;}
 
@@ -1913,6 +1921,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        Brand name and dose per tank, nothing else: no chemistry, no prices (v3.13 rule). -->
   <div id="tasknotice"></div>
   <div class="tiles" id="hubtiles"></div>
+  <!-- v3.34.1 — ALL TOOLS on the home screen. Anything a role owns that is not a big tile
+       lands here, so nothing is ever more than two taps from the screen the phone opens on.
+       Empty for every role whose home already shows every tile it owns. -->
+  <div id="hubmore"></div>
   <p class="hubnote" data-t="hubnote">Only the sections you are allowed to use are shown.<br>Tap a tile to open it · tap ← or 🏠 to come back.</p>
 </div>
 
@@ -3095,7 +3107,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.34.0"></script>
-<script src="app.js?v=3.34.0"></script>
+<script src="database.js?v=3.34.1"></script>
+<script src="app.js?v=3.34.1"></script>
 </body>
 </html>
