@@ -1116,6 +1116,16 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   mn_detail:'The full screens',
   mn_totrm:'RM',
   mn_nojob:'Issued outside a job',
+  /* --- v3.33.1 the backfill + the phone-match fingerprint --- */
+  sy_histok:'Full season loaded — this phone now holds the same records as the others',
+  sy_agree:'Do my phones agree?',
+  sy_full:'This phone holds the full season',
+  sy_notfull:'Still loading the older records — press SYNC once more',
+  sy_frecords:'Records held',
+  sy_ffirst:'Oldest fruit record',
+  sy_fdrops:'Good drops, all season',
+  sy_frot:'Loss, all season',
+  sy_agreenote:'Read these four on each phone after everybody has synced. Same four numbers = same season = the reports will agree. If one phone is short, it has records the others have not received yet — press SYNC on THAT phone first, never overwrite it.',
   hv_season:'Season so far',
   hv_day:'day',
   hv_dropped:'dropped',
@@ -1824,6 +1834,16 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   mn_detail:'Skrin penuh',
   mn_totrm:'RM',
   mn_nojob:'Keluar tanpa kerja',
+  /* --- v3.33.1 muat turun sejarah + cap padanan telefon --- */
+  sy_histok:'Rekod penuh musim sudah masuk — telefon ini kini sama dengan yang lain',
+  sy_agree:'Adakah telefon saya sepadan?',
+  sy_full:'Telefon ini ada rekod penuh musim',
+  sy_notfull:'Rekod lama masih dimuat turun — tekan SYNC sekali lagi',
+  sy_frecords:'Rekod disimpan',
+  sy_ffirst:'Rekod buah paling lama',
+  sy_fdrops:'Buah elok, sepanjang musim',
+  sy_frot:'Rosak, sepanjang musim',
+  sy_agreenote:'Baca empat angka ini pada setiap telefon selepas semua sync. Empat angka sama = musim sama = laporan akan sepadan. Kalau satu telefon kurang, ia ada rekod yang belum sampai kepada yang lain — tekan SYNC pada telefon ITU dahulu, jangan sekali-kali tulis ganti.',
   hv_season:'Musim setakat ini',
   hv_day:'hari',
   hv_dropped:'gugur',
@@ -2247,3 +2267,26 @@ const USAGE_IMPORT_2026=[{"uuid":"imp2026-0001","type":"STOCK_OUT","dt":"2026-01
    not land on four devices on trial morning. Move it forward to start a clean period.
    ===================================================================================== */
 const SYNC_EVENTS_FROM='2026-08-09';
+/* ===================================================================================
+   v3.33.1 · THE ONE-TIME BACKFILL FLOOR
+   ===================================================================================
+   SYNC_EVENTS_FROM above is the ROUTINE floor: what every sync asks for, kept recent so
+   the peak-season pull stays small. It was set to 9 Aug to fence off the test rows the
+   7 Aug data audit found mixed into the sheet.
+
+   That floor had a consequence nobody costed: a record keyed on a phone BEFORE it never
+   travels. The season opened well before 9 Aug, so each device held its own July work and
+   nobody else's — and the Owner's harvest report, the Gate's and the store's could never
+   agree no matter how many times they synced. The sync was working perfectly; it was
+   never asking for the older half.
+
+   SYNC_HISTORY_FROM is asked for ONCE per phone. After it lands, the phone stores the
+   date it backfilled and goes back to the routine floor for ever. Change this date and
+   every phone backfills again on its next sync — that is the intended way to correct it.
+
+   SET IT NO EARLIER THAN THE FIRST REAL RECORD. Everything before this date stays on the
+   sheet as history and does not travel, which is what keeps the pre-trial test rows out.
+   Rows the Owner has already cleaned up are refused at the door by the tombstone gate
+   (v3.29.8) whatever this date says, so a clean-up can never be undone by a backfill.
+   =================================================================================== */
+const SYNC_HISTORY_FROM='2026-07-01';
