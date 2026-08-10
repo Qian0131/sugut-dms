@@ -476,17 +476,90 @@ const DROP_KIND={
 const DROP_ORDER=['SECURED','UNSECURED'];
 
 /* =====================================================================
-   13. v3.0 — FRUIT GRADING
-   Every good fruit collected is counted under one of three grades. The
+   13. v3.0 — FRUIT GRADING   (v3.30.0: a FOURTH grade, BN — banana shape)
+   Every good fruit collected is counted under one of four grades. The
    grade travels on the DROP event itself, so the harvest count, the
    marketing basket and the retailer invoice all read the same letter.
+
+   BN — "banana" — is a SHAPE grade, and it is NOT a loss.
+   A rotten fruit cannot be eaten; a banana-shaped fruit is perfectly
+   edible and simply cannot be sold at grade. Reporting the two together
+   would hide both problems at once, so BN counts with the GOOD fruit and
+   is reported on its own line. `shape:true` is the marker, and it earns
+   two behaviours that are worth understanding before you touch them:
+
+     - BN is DELIBERATELY ABSENT FROM GRADE_BAND below. Every other letter
+       is decided by the fruit's WEIGHT; banana is decided by EYE. Because
+       bandOf() returns null for a grade with no band, the grade-versus-
+       weight drift warning switches ITSELF off for BN — there is no
+       special case anywhere in app.js. Add a BN row to GRADE_BAND and you
+       re-arm that warning on every banana fruit, and the crew will learn
+       to ignore warnings. Do not.
+     - gradeForWeight() likewise never SUGGESTS a shape grade.
+
+   Why it earns its place beyond the cheap sale price: a misshapen,
+   lopsided durian is a documented sign of INCOMPLETE POLLINATION (also
+   boron or calcium shortage, or water stress). Once banana is its own
+   grade, the BN share per lot and per clone becomes a pollination score
+   on the season report — worth far more than the fruit itself.
    ===================================================================== */
-const GRADE_ORDER=['A','B','C'];
+const GRADE_ORDER=['A','B','C','BN'];
 const GRADE_META={
-  A:{label:'Grade A', note:'export / premium pick'},
-  B:{label:'Grade B', note:'local premium'},
-  C:{label:'Grade C', note:'kampung / processing'}
+  A :{label:'Grade A', short:'A',  note:'export / premium pick'},
+  B :{label:'Grade B', short:'B',  note:'local premium'},
+  C :{label:'Grade C', short:'C',  note:'kampung / processing'},
+  BN:{label:'Banana',  short:'🍌', note:'wrong shape — edible, cheap sale or FOC',
+      shape:true}
 };
+/** The letters decided by weight — everything except the shape grades.
+ *  Use this, not GRADE_ORDER, anywhere a weight band is implied. */
+const GRADE_WEIGHED=GRADE_ORDER.filter(function(g){return !(GRADE_META[g]||{}).shape;});
+
+/* =====================================================================
+   13b. v3.30.0 — FRUIT THAT LEAVES WITHOUT AN INVOICE
+   Not every fruit that leaves the shed is sold. Some is a worker's
+   ration, some is a gift, some goes to a buyer as a sample, and some is
+   simply not fit to sell by the time anyone looks at it. Until now none
+   of that had a record, so the shed figure quietly drifted and nobody
+   could say where the fruit went.
+
+   THE CONTROL IS AN EQUATION, and it is the whole point of this section:
+
+       came in the gate = sold + cheap sale + FOC + dumped + still in shed
+
+   If it does not balance, fruit left with no record — which is exactly
+   what the Owner wants to see.
+
+   Two rules that keep it honest:
+     - EVERY outflow is a REQUEST that the Gate approves or refuses. A
+       worker asks on his phone; the card lands in the Marketer's queue
+       beside the weigh-ins. Nothing leaves unapproved.
+     - EVERY outflow is VALUED at what it would have sold for, from the
+       live clone x grade book. Giving away Grade A costs RM 40 a kilo
+       even though no money moved, and the approval card says so BEFORE
+       she taps. A gift nobody prices is a gift nobody counts.
+
+   `capKgMonth` is a SOFT control: over the line it warns, it never
+   blocks. Blocking a worker on trial day is how people stop using a
+   system and go back to paper. 0 = no limit set.
+   `isLoss` separates fruit GIVEN (still a benefit to someone) from fruit
+   LOST (pure waste) — the season report must never add those together.
+   ===================================================================== */
+const FOC_REASONS={
+  RATION:{label:'Worker ration',  ic:'👷', capKgMonth:200,
+          note:'the crew’s own fruit'},
+  GIFT  :{label:'Family & gift',  ic:'🎁', capKgMonth:0,
+          note:'the Owner’s gifts — no limit set, so it only ever warns on value'},
+  SAMPLE:{label:'Buyer sample',   ic:'🧪', capKgMonth:50,
+          note:'given to a merchant to win an order'},
+  DUMP  :{label:'Dumped',         ic:'🗑️', capKgMonth:0, isLoss:true,
+          note:'reached the shed but was not fit to sell — waste, not a gift'}
+};
+const FOC_REASON_ORDER=['RATION','GIFT','SAMPLE','DUMP'];
+/** The states a request can be in. A row is never edited: the decision is
+ *  its own append-only row pointing back at the request, exactly like
+ *  every other correction in this app. */
+const FOC_STATUS={PENDING:'PENDING',APPROVED:'APPROVED',REFUSED:'REFUSED'};
 
 /* =====================================================================
    14. v3.1 / v3.6 — MULTI-MERCHANT CREDIT MASTER
@@ -616,15 +689,22 @@ const ALLIANCE_RETAILER='Roll';
                    read it off CLONE_PRICE.
    ===================================================================== */
 const CLONE_SELL_ORDER=['MK','BT','B24','101','UM','TB'];
+/* v3.30.0 — BN is on EVERY clone's ladder. Any clone can set a badly
+   pollinated fruit, so every clone must be able to record one. It is last
+   in each list on purpose: the scale card offers the letters in this
+   order, and the shape grade belongs after the weight grades. */
 const CLONE_GRADES={
-  MK   :['A','B','C'],
-  BT   :['A','B'],
-  B24  :['A','B'],
-  '101':['A','B'],
-  UM   :['A','B'],
-  TB   :['A','B']        // unverified clone — sold on the 2-grade ladder until identified
+  MK   :['A','B','C','BN'],
+  BT   :['A','B','BN'],
+  B24  :['A','B','BN'],
+  '101':['A','B','BN'],
+  UM   :['A','B','BN'],
+  TB   :['A','B','BN']   // unverified clone — sold on the 2-grade ladder until identified
 };
 const BAND_TOP={min:1.5,max:null};      // >= 1.5 kg
+/* ⚠ NO 'BN' ROW HERE, ON PURPOSE — see the note on GRADE_META. Banana is a
+   SHAPE grade judged by eye; giving it a weight window would re-arm the
+   grade-versus-weight drift warning on every banana fruit. */
 const GRADE_BAND={
   MK   :{A:{min:1.5,max:null}, B:{min:1.0,max:1.5}, C:{min:0,max:1.0}},
   BT   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
@@ -633,13 +713,18 @@ const GRADE_BAND={
   UM   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
   TB   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}}
 };
+/* BN carries a real price, not zero. A banana fruit that is GIVEN away is
+   still valued at this rate on the FOC book, so the Owner can see what a
+   season of gifts actually cost; and a cheap sale is priced from the book
+   rather than typed in by hand at the gate. SEED ONLY — the Owner's
+   market-trend panel overwrites it like every other rate. */
 const CLONE_PRICE_SEED={
-  MK   :{A:40, B:30, C:25},   // Musang King  — the only 3-grade ladder
-  BT   :{A:45, B:35},         // Black Thorn  — top of the book
-  B24  :{A:25, B:20},         // B24          — priced with 101 / UM
-  '101':{A:25, B:20},
-  UM   :{A:25, B:20},         // Udang Merah
-  TB   :{A:25, B:20}
+  MK   :{A:40, B:30, C:25, BN:10},  // Musang King  — the only 3-grade ladder
+  BT   :{A:45, B:35,       BN:12},  // Black Thorn  — top of the book
+  B24  :{A:25, B:20,       BN:8 },  // B24          — priced with 101 / UM
+  '101':{A:25, B:20,       BN:8 },
+  UM   :{A:25, B:20,       BN:8 },  // Udang Merah
+  TB   :{A:25, B:20,       BN:8 }
 };
 
 /* =====================================================================
@@ -733,7 +818,7 @@ const YIELD_WINDOW_HOUR=12;      // the night's harvest = the 24 h ending at noo
    The Malay below is the glossary the Owner approved on 3 Aug 2026.
    Correcting a term is a one-line edit here; nothing else needs touching.
    ===================================================================== */
-const EN={"pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"Planned date","pe_dose":"Dose per 1,000 L tank","pe_save":"✓ SAVE THE CHANGE","pe_cancel":"Cancel","pe_saved":"Saved — it reaches the phones on the next sync","pe_removed":"Removed from the plan","pe_restored":"Back in the plan","pe_restore":"↺ PUT IT BACK","pe_removedlbl":"removed from the plan","pe_confirm":"Remove \u201c{s}\u201d from the plan?","pe_noline":"Keep at least one product","pe_active":"Close the active job on this set first","pe_locked":"This set cannot be removed.\n\n{n} stock-out entries are booked against it, worth {rm}. Removing it would leave that spend belonging to no programme at all.\n\nYou can still change the recipe — that only affects what is planned from now on.","pe_editwarn":"{n} stock-out entries worth {rm} are already booked against this set. A change here affects what is planned from now on — it does not touch what was already used.","pc_tag":"PROGRAMME CHANGED","pc_hint":"Tap to open the task","pc_cancel":"THIS SET IS CANCELLED","pc_date":"THE DATE HAS CHANGED","pc_mix":"THE MIX HAS CHANGED","pc_dose":"THE DOSE HAS CHANGED","pr_replan":"plan moved to the finishing day","pr_sheetsaid":"programme sheet ticked","pr_fromsheet":"From the farm programme sheet","pr_started":"started","pr_finished":"finished","pr_dayslate":"days late","pr_ontime":"on time","pr_rows":"stock-out entries","pr_nomaterial":"no material was booked against this set","pr_unconf":"Also listed, product not confirmed","lg_closing":"closing stock",
+const EN={"s_foc":"Rations & Gifts","sy_l_foc":"Rations & gifts","foc_waiting":"Waiting for a decision","foc_none":"Nothing waiting. Every request has been answered.","foc_to":"to","foc_fruit":"fruit","foc_askedby":"asked by","foc_worth":"Worth","foc_atrate":"at","foc_thismonth":"this month","foc_overcap":"this one takes it over the allowance","foc_approve":"APPROVE","foc_refuse":"REFUSE","foc_waitgate":"Waiting for the Gate to decide","foc_give":"Record fruit going out free","foc_reason":"Reason","foc_receiver":"Who gets it","foc_name":"name","foc_clone":"Clone","foc_grade":"Grade","foc_fruitn":"Fruit","foc_kg":"Weight kg","foc_note":"Note","foc_record":"RECORD IT","foc_ask":"ASK THE GATE","foc_book":"The book \u2014 this month","foc_value":"Value","foc_allow":"Allowance","foc_nolimit":"no limit","foc_balance":"Where the fruit went \u2014 this month","foc_camein":"Came in the gate","foc_sold":"Sold to merchants","foc_given":"Given free (FOC)","foc_dumped":"Dumped","foc_shed":"Still in the shed","foc_bal":"Balance","foc_valueword":"value","foc_lost":"lost","foc_missing":"MORE went out than came in","foc_nothingmissing":"nothing missing","foc_negshed":"More fruit has left the shed than the scale ever recorded arriving. Either a weigh-in was never keyed, or a load went out twice.","foc_needkg":"Key the weight first","foc_needwho":"Who is it for?","foc_bad":"Could not file that","foc_notyours":"Only the Gate may decide this","foc_already":"Already decided","foc_gone":"That request is gone","foc_approved":"Approved","foc_refused":"Refused","pe_edit":"✎ EDIT THIS SET","pe_remove":"🗑 REMOVE","pe_planned":"Planned date","pe_dose":"Dose per 1,000 L tank","pe_save":"✓ SAVE THE CHANGE","pe_cancel":"Cancel","pe_saved":"Saved — it reaches the phones on the next sync","pe_removed":"Removed from the plan","pe_restored":"Back in the plan","pe_restore":"↺ PUT IT BACK","pe_removedlbl":"removed from the plan","pe_confirm":"Remove \u201c{s}\u201d from the plan?","pe_noline":"Keep at least one product","pe_active":"Close the active job on this set first","pe_locked":"This set cannot be removed.\n\n{n} stock-out entries are booked against it, worth {rm}. Removing it would leave that spend belonging to no programme at all.\n\nYou can still change the recipe — that only affects what is planned from now on.","pe_editwarn":"{n} stock-out entries worth {rm} are already booked against this set. A change here affects what is planned from now on — it does not touch what was already used.","pc_tag":"PROGRAMME CHANGED","pc_hint":"Tap to open the task","pc_cancel":"THIS SET IS CANCELLED","pc_date":"THE DATE HAS CHANGED","pc_mix":"THE MIX HAS CHANGED","pc_dose":"THE DOSE HAS CHANGED","pr_replan":"plan moved to the finishing day","pr_sheetsaid":"programme sheet ticked","pr_fromsheet":"From the farm programme sheet","pr_started":"started","pr_finished":"finished","pr_dayslate":"days late","pr_ontime":"on time","pr_rows":"stock-out entries","pr_nomaterial":"no material was booked against this set","pr_unconf":"Also listed, product not confirmed","lg_closing":"closing stock",
   /* --- shell, tiles, sections --- */
   hubnote:'Only the sections you are allowed to use are shown.<br>Tap a tile to open it · tap ← or 🏠 to come back.',
   menuhead:'Choose a section. Every one is a full-width row — nothing is hidden off the side of the screen.',
@@ -1364,7 +1449,7 @@ const MONTH_LONG_MS=['Januari','Februari','Mac','April','Mei','Jun',
 
 /* Bahasa Malaysia — the terms the Owner approved. Anything missing here simply
    shows the English above, which is why a partial table is safe to ship. */
-const MS={"pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Tarikh rancang","pe_dose":"Dos setiap tangki 1,000 L","pe_save":"✓ SIMPAN PERUBAHAN","pe_cancel":"Batal","pe_saved":"Disimpan — sampai ke telefon lain selepas sync","pe_removed":"Dibuang dari rancangan","pe_restored":"Kembali ke rancangan","pe_restore":"↺ MASUK SEMULA","pe_removedlbl":"dibuang dari rancangan","pe_confirm":"Buang \u201c{s}\u201d dari rancangan?","pe_noline":"Simpan sekurang-kurangnya satu produk","pe_active":"Tutup kerja aktif pada set ini dahulu","pe_locked":"Set ini tidak boleh dibuang.\n\n{n} rekod keluar stok bernilai {rm} sudah direkod untuknya. Jika dibuang, perbelanjaan itu tiada program.\n\nAnda masih boleh ubah campuran — itu hanya untuk kerja akan datang.","pe_editwarn":"{n} rekod keluar stok bernilai {rm} sudah direkod untuk set ini. Perubahan di sini hanya untuk kerja akan datang — bahan yang sudah dipakai tidak berubah.","pc_tag":"PROGRAM BERUBAH","pc_hint":"Tekan untuk buka kerja","pc_cancel":"SET INI DIBATALKAN","pc_date":"TARIKH BERUBAH","pc_mix":"CAMPURAN BERUBAH","pc_dose":"DOS BERUBAH","pr_replan":"tarikh rancang dipindah ke hari siap","pr_sheetsaid":"helaian program tanda","pr_fromsheet":"Daripada helaian program ladang","pr_started":"mula","pr_finished":"siap","pr_dayslate":"hari lewat","pr_ontime":"ikut masa","pr_rows":"rekod keluar stok","pr_nomaterial":"tiada bahan direkod untuk set ini","pr_unconf":"Turut disenaraikan, produk belum disahkan","lg_closing":"baki stok",
+const MS={"s_foc":"Ransum & Hadiah","sy_l_foc":"Ransum & hadiah","foc_waiting":"Menunggu keputusan","foc_none":"Tiada yang menunggu. Semua permohonan sudah dijawab.","foc_to":"untuk","foc_fruit":"biji","foc_askedby":"dimohon oleh","foc_worth":"Bernilai","foc_atrate":"pada","foc_thismonth":"bulan ini","foc_overcap":"ini melebihi had bulanan","foc_approve":"LULUS","foc_refuse":"TOLAK","foc_waitgate":"Menunggu keputusan Pintu Gate","foc_give":"Rekod buah yang keluar percuma","foc_reason":"Sebab","foc_receiver":"Untuk siapa","foc_name":"nama","foc_clone":"Klon","foc_grade":"Gred","foc_fruitn":"Biji","foc_kg":"Berat kg","foc_note":"Nota","foc_record":"REKOD","foc_ask":"MOHON DARI GATE","foc_book":"Buku rekod \u2014 bulan ini","foc_value":"Nilai","foc_allow":"Had bulanan","foc_nolimit":"tiada had","foc_balance":"Ke mana buah pergi \u2014 bulan ini","foc_camein":"Masuk pintu","foc_sold":"Jual kepada peniaga","foc_given":"Diberi percuma (FOC)","foc_dumped":"Dibuang","foc_shed":"Masih dalam stor","foc_bal":"Imbangan","foc_valueword":"nilai","foc_lost":"hilang","foc_missing":"LEBIH keluar daripada yang masuk","foc_nothingmissing":"tiada yang hilang","foc_negshed":"Lebih banyak buah keluar daripada yang direkod masuk di penimbang. Sama ada satu timbangan tidak dikunci masuk, atau satu muatan keluar dua kali.","foc_needkg":"Kunci berat dahulu","foc_needwho":"Untuk siapa?","foc_bad":"Tidak dapat direkod","foc_notyours":"Hanya Gate boleh membuat keputusan ini","foc_already":"Sudah diputuskan","foc_gone":"Permohonan itu sudah tiada","foc_approved":"Diluluskan","foc_refused":"Ditolak","pe_edit":"✎ UBAH SET INI","pe_remove":"🗑 BUANG","pe_planned":"Tarikh rancang","pe_dose":"Dos setiap tangki 1,000 L","pe_save":"✓ SIMPAN PERUBAHAN","pe_cancel":"Batal","pe_saved":"Disimpan — sampai ke telefon lain selepas sync","pe_removed":"Dibuang dari rancangan","pe_restored":"Kembali ke rancangan","pe_restore":"↺ MASUK SEMULA","pe_removedlbl":"dibuang dari rancangan","pe_confirm":"Buang \u201c{s}\u201d dari rancangan?","pe_noline":"Simpan sekurang-kurangnya satu produk","pe_active":"Tutup kerja aktif pada set ini dahulu","pe_locked":"Set ini tidak boleh dibuang.\n\n{n} rekod keluar stok bernilai {rm} sudah direkod untuknya. Jika dibuang, perbelanjaan itu tiada program.\n\nAnda masih boleh ubah campuran — itu hanya untuk kerja akan datang.","pe_editwarn":"{n} rekod keluar stok bernilai {rm} sudah direkod untuk set ini. Perubahan di sini hanya untuk kerja akan datang — bahan yang sudah dipakai tidak berubah.","pc_tag":"PROGRAM BERUBAH","pc_hint":"Tekan untuk buka kerja","pc_cancel":"SET INI DIBATALKAN","pc_date":"TARIKH BERUBAH","pc_mix":"CAMPURAN BERUBAH","pc_dose":"DOS BERUBAH","pr_replan":"tarikh rancang dipindah ke hari siap","pr_sheetsaid":"helaian program tanda","pr_fromsheet":"Daripada helaian program ladang","pr_started":"mula","pr_finished":"siap","pr_dayslate":"hari lewat","pr_ontime":"ikut masa","pr_rows":"rekod keluar stok","pr_nomaterial":"tiada bahan direkod untuk set ini","pr_unconf":"Turut disenaraikan, produk belum disahkan","lg_closing":"baki stok",
   hubnote:'Hanya bahagian yang dibenarkan untuk anda sahaja dipaparkan.<br>Tekan satu petak untuk buka · tekan ← atau 🏠 untuk kembali.',
   menuhead:'Pilih satu bahagian. Semuanya baris penuh — tiada apa-apa tersembunyi di tepi skrin.',
   nav_home:'Utama', nav_sync:'Hantar Data',

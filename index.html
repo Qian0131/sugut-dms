@@ -216,6 +216,38 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .chiprow.rot>div{color:#6b4715;border-color:#dcc9a8;}
 .chiprow.rot>div.on{background:#8a5a1e;color:#fff;border-color:#8a5a1e;}
 .tallychips{margin-top:8px;min-height:4px;}
+/* ---- v3.30.0 · rations & gifts ------------------------------------------------------
+   The request card is deliberately the loudest thing on the screen: it is a decision
+   waiting on a person, not a row in a report. `.over` turns the whole card amber when
+   approving it would cross the month's allowance — a warning, never a block. */
+.focreq{border:1.5px solid #d8cfae;background:#fdf8ec;border-radius:12px;padding:9px 10px;margin:0 0 8px;}
+.focreq.over{border-color:#c9a227;background:#fdf2d8;}
+.fr-top{display:flex;gap:9px;align-items:flex-start;}
+.fr-ic{flex:none;width:40px;height:40px;border-radius:9px;background:#efe7d4;display:flex;
+  align-items:center;justify-content:center;font-size:19px;}
+.fr-who{flex:1;min-width:0;font-size:12px;line-height:1.35;}
+.fr-who b{display:block;font-size:13.5px;}
+.fr-who span{display:block;color:#6b675c;font-size:11px;overflow-wrap:break-word;}
+.fr-kg{text-align:right;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;}
+.fr-kg small{display:block;font-size:9.5px;font-weight:600;color:#6b675c;}
+.fr-kg .fr-rm{color:#33691e;font-size:10.5px;}
+.fr-note{font-size:11px;color:#6b675c;margin-top:6px;border-top:1px dashed #ddd2b4;padding-top:5px;
+  overflow-wrap:break-word;}
+.fr-note.bad{color:#8c1d18;font-weight:700;}
+.fr-meter{height:6px;border-radius:99px;background:#eae6dc;overflow:hidden;margin-top:4px;}
+.fr-meter>i{display:block;height:100%;background:#5b4a7a;}
+.fr-meter>i.hot{background:#8c1d18;}
+.fr-btns{display:flex;gap:6px;margin-top:8px;}
+.fr-btns>button{flex:1;border:none;border-radius:9px;padding:10px 4px;font:inherit;
+  font-size:13px;font-weight:800;cursor:pointer;}
+.fr-ok{background:#33691e;color:#fff;}
+.fr-no{background:#fff;color:#8c1d18;border:1.5px solid #8c1d18 !important;}
+.fr-quote{margin:6px 0 8px;font-size:13px;}
+.tbl tr.isloss td{background:#fbeae8;}
+.tbl tr.inrow td{background:#eef1f5;font-weight:700;}
+.tbl tr.eqrow td{border-top:2px solid #1c1b17;background:#f6f4ee;}
+.pill.hot{background:#8c1d18;color:#fff;}
+
 .tallychips .tc{display:inline-block;font-size:10.5px;font-weight:800;background:var(--lite);color:var(--green);
   border-radius:8px;padding:3px 8px;margin:3px 3px 0 0;}
 .tallychips .tc.rot{background:#f7edd8;color:#6b4715;}
@@ -2310,6 +2342,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="verifybox"></div>
   </div>
 
+  <!-- ===== RATIONS & GIFTS — fruit that leaves without an invoice (v3.30.0) =====
+       Sits beside the scale-photo queue on purpose: for the Gate these are one job,
+       "answer what is waiting". Everything inside is painted by renderFocQueue(). -->
+  <div class="card" id="foccard" style="display:none">
+    <div id="focbox"></div>
+  </div>
+
   <!-- ===== COSTING · DAILY OPERATIONAL AUDIT (v3.6) ===== -->
   <div class="card" id="dailyaudit" style="display:none">
     <div class="sec">📅 Daily operational audit</div>
@@ -2834,7 +2873,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.29.8"></script>
-<script src="app.js?v=3.29.8"></script>
+<script src="database.js?v=3.30.0"></script>
+<script src="app.js?v=3.30.0"></script>
 </body>
 </html>
