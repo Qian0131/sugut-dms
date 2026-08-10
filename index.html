@@ -3078,7 +3078,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.32.0"></script>
-<script src="app.js?v=3.32.0"></script>
+<!-- THE CACHE-BUST STAMP. This ?v= MUST equal APP_VERSION in app.js. The phones cache
+     app.js and database.js against this string, so shipping v3.33.0 with a ?v=3.32.0 on
+     it downloads the new index.html and then re-uses the OLD script from cache: the app
+     boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
+     and cost a round of uploads. t_version.js now fails the build on it. -->
+<script src="database.js?v=3.33.0"></script>
+<script src="app.js?v=3.33.0"></script>
 </body>
 </html>
