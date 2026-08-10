@@ -220,6 +220,14 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
    The request card is deliberately the loudest thing on the screen: it is a decision
    waiting on a person, not a row in a report. `.over` turns the whole card amber when
    approving it would cross the month's allowance — a warning, never a block. */
+/* v3.30.1b — the crew's own record. Deliberately plain: a date, what it was, how many kilos
+   and the answer. No money column exists here at all, so none can leak into it later. */
+.mymonth{background:#eef1f5;border-radius:10px;padding:10px 12px;margin:0 0 8px;font-size:14px;}
+.mymonth b{font-size:19px;}
+.tbl.myrec td{vertical-align:top;}
+.tbl.myrec td.yes{color:#2f6b3d;font-weight:800;}
+.tbl.myrec td.no{color:#8c1d18;font-weight:800;}
+
 .focreq{border:1.5px solid #d8cfae;background:#fdf8ec;border-radius:12px;padding:9px 10px;margin:0 0 8px;}
 .focreq.over{border-color:#c9a227;background:#fdf2d8;}
 .fr-top{display:flex;gap:9px;align-items:flex-start;}
@@ -2873,7 +2881,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.30.1"></script>
-<script src="app.js?v=3.30.1"></script>
+<script src="database.js?v=3.30.2"></script>
+<script src="app.js?v=3.30.2"></script>
 </body>
 </html>
