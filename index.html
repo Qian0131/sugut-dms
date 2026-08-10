@@ -216,6 +216,73 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .chiprow.rot>div{color:#6b4715;border-color:#dcc9a8;}
 .chiprow.rot>div.on{background:#8a5a1e;color:#fff;border-color:#8a5a1e;}
 .tallychips{margin-top:8px;min-height:4px;}
+/* ---- v3.31.0 · the Owner's landing ------------------------------------------------- */
+.seasonline{display:flex;align-items:center;gap:9px;background:var(--green2);color:#fff;
+  border-radius:11px;padding:9px 12px;margin:0 0 9px;}
+.seasonline .sl-ic{font-size:20px;}
+.seasonline .sl-t b{display:block;font-size:13.5px;}
+.seasonline .sl-t span{font-size:11px;opacity:.9;}
+.ownchips{display:flex;gap:6px;margin:0 0 9px;}
+.ownchip{flex:1;border:1.5px solid #dcd7c8;background:#fff;border-radius:99px;padding:9px 2px;
+  font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;color:#1c1b17;}
+.ownchip.on{background:#1c1b17;color:#fff;border-color:#1c1b17;}
+.todaystrip{background:#1c1b17;color:#fff;border-radius:12px;padding:11px 13px;margin:0 0 9px;}
+.todaystrip .lab{font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;opacity:.75;margin-bottom:6px;}
+.todaystrip .nums{display:flex;gap:6px;}
+.todaystrip .nums>div{flex:1;}
+.todaystrip b{display:block;font-size:20px;line-height:1.1;font-variant-numeric:tabular-nums;}
+.todaystrip span{font-size:9.5px;opacity:.8;text-transform:uppercase;letter-spacing:.3px;}
+.todaystrip .g{color:#8fe08f;}.todaystrip .r{color:#ffb0a2;}
+.dbar{display:flex;align-items:center;gap:6px;margin:0 0 8px;}
+.arw{flex:none;width:36px;height:36px;border:1.5px solid #dcd7c8;background:#fff;border-radius:9px;
+  font:inherit;font-size:15px;font-weight:800;cursor:pointer;color:#1c1b17;}
+.arw:disabled{opacity:.3;}
+.dpick{flex:1;border:1.5px solid #dcd7c8;background:#fff;border-radius:9px;padding:6px 8px;
+  font-size:12.5px;font-weight:800;text-align:center;}
+.dpick small{display:block;font-weight:400;font-size:10px;color:#6b675c;}
+.ownreset{width:100%;border:1.5px solid #a9761a;background:#fdf4e3;color:#a9761a;border-radius:9px;
+  padding:7px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;margin:0 0 8px;}
+.tbl.mtx td,.tbl.mtx th{text-align:right;padding:5px 3px;font-size:12.5px;}
+.tbl.mtx td:first-child,.tbl.mtx th:first-child{text-align:left;font-weight:800;font-size:11.5px;}
+.tbl.mtx .allcol{background:#eaf2ea;font-weight:800;}
+.tbl.mtx tr.treesrow td{background:#eef1f5;color:#6b675c;font-weight:700;font-size:11.5px;}
+.tbl.mtx tr.goodrow td{color:#2f6b3d;font-weight:700;}
+.tbl.mtx tr.badrow td{color:#8c1d18;font-weight:700;}
+.tbl.mtx tr.banrow td{background:#fdf4e3;}
+.tbl.mtx tr.leftrow td{background:#fbf7ea;}
+.tbl.mtx tr.perrow td{background:#f7f4fb;}
+.tbl.mtx td.flag{color:#8c1d18;font-weight:800;}
+.mtxnote{color:#6b675c;margin-top:5px;font-size:11px;}
+.tbl.bydate td,.tbl.bydate th{text-align:center;padding:5px 1px;font-size:11.5px;}
+.tbl.bydate td:first-child,.tbl.bydate th:first-child{text-align:left;font-weight:800;width:44px;}
+.tbl.bydate tr.farmrow td{background:#eaf2ea;font-weight:800;}
+.tbl.bydate td.allcol{background:#f2efe6;font-weight:800;}
+.tbl.bydate td.hi{background:#fff3d4;font-weight:800;}
+.tbl.bydate td.lo{color:#8c1d18;font-weight:800;}
+.tbl.bydate .dim{color:#c8c3b6;}
+.tbl.bydate .lossmark{color:#8c1d18;font-size:9px;margin-left:2px;vertical-align:super;}
+.ownchart{display:block;width:100%;height:auto;}
+.legend2{display:flex;gap:14px;font-size:11px;color:#6b675c;margin:6px 0 0;align-items:center;}
+.legend2 i{display:inline-block;width:16px;height:0;border-top:2.5px solid #008300;
+  vertical-align:middle;margin-right:5px;font-style:normal;}
+.legend2 i.p{border-top:2.5px dashed #8a8578;}
+.owntiles{display:flex;gap:7px;margin:10px 0 0;}
+.owntiles>button{flex:1;border:1.5px solid #dcd7c8;background:#fff;border-radius:12px;padding:11px 2px;
+  font:inherit;font-size:12px;font-weight:800;cursor:pointer;color:#1c1b17;}
+.owntiles>button i{display:block;font-style:normal;font-size:20px;margin-bottom:2px;}
+.owndrawer{width:100%;border:1.5px dashed #6b675c;background:none;border-radius:12px;padding:10px;
+  font:inherit;color:#6b675c;font-weight:800;font-size:12.5px;margin-top:8px;cursor:pointer;}
+.otsheet{position:fixed;left:10px;right:10px;bottom:66px;background:#fff;border-radius:16px;
+  box-shadow:0 -8px 30px rgba(0,0,0,.3);padding:14px;display:none;z-index:40;}
+.otsheet.on{display:block;}
+.otsheet h4{margin:0 0 10px;font-size:12px;color:#6b675c;text-transform:uppercase;letter-spacing:.6px;}
+.otgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.otgrid>button{border:1px solid #dcd7c8;background:#faf8f3;border-radius:10px;padding:10px 4px;
+  font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;color:#1c1b17;}
+.otgrid>button i{display:block;font-style:normal;font-size:19px;margin-bottom:2px;}
+.otclose{width:100%;border:none;background:#e3ded1;border-radius:10px;padding:10px;font:inherit;
+  font-weight:800;margin-top:9px;cursor:pointer;}
+
 /* ---- v3.30.0 · rations & gifts ------------------------------------------------------
    The request card is deliberately the loudest thing on the screen: it is a decision
    waiting on a person, not a row in a report. `.over` turns the whole card amber when
@@ -2350,6 +2417,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="verifybox"></div>
   </div>
 
+  <!-- ===== THE OWNER'S LANDING (v3.31.0) — one door, three windows.
+       Everything inside is painted by renderOwnerHome(); the chips re-render in place. -->
+  <div class="card" id="ownerhome" style="display:none">
+    <div id="ownerbox"></div>
+    <div class="otsheet" id="owntoolsheet"></div>
+  </div>
+
   <!-- ===== RATIONS & GIFTS — fruit that leaves without an invoice (v3.30.0) =====
        Sits beside the scale-photo queue on purpose: for the Gate these are one job,
        "answer what is waiting". Everything inside is painted by renderFocQueue(). -->
@@ -2881,7 +2955,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      database.js MUST load before app.js.
      The ?v= tag forces phones to fetch the new copy instead of a cached one.
      =================================================================== -->
-<script src="database.js?v=3.30.2"></script>
-<script src="app.js?v=3.30.2"></script>
+<script src="database.js?v=3.31.1"></script>
+<script src="app.js?v=3.31.1"></script>
 </body>
 </html>
