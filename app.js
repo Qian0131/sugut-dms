@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.32.0';   // v3.32.0 - THE HOME SCREEN STOPS BEING A MENU. The Owner said his page was "mess and crowded" and he was right: v3.31 gave him a proper landing but he still arrived at a NINE-TILE GRID first, and Command carried six tabs of which two - PROGRAM BUILDER and MASTER CONTROL - were second doors onto rooms he could already reach from FARM and ADMIN. The fix separates two ideas that had been the same array since v2.9: HUB_ORDER is the ENTITLEMENT (what openModule() checks, what a deep link is measured against, what applyRole() reads) and the new HOME_TILES is only what the home screen PAINTS. Shrinking HUB_ORDER would have started bouncing him out of screens he owns; shrinking HOME_TILES costs nothing, because everything left out is one tap away in ALL TOOLS on the landing. Home goes 9 tiles -> 4 (TODAY / FARM / MONEY / ADMIN) and Command 6 tabs -> 4, with exactly ONE door to the builder and ONE to master control, asserted. A role with no HOME_TILES entry keeps its old behaviour untouched, so WORKER, PURCHASER and MARKETING are unchanged - also asserted. THE GATE, IN THE ORDER SHE WORKS: her six sections were in no particular order, so the first thing on her screen was not the first thing she does. Now: the two queues that hold somebody else up (weight, then rations), then send out, then price, then the ledger - which is history and can wait until the lorry has gone. Nothing added, nothing removed, no gate touched. Her tile is renamed Gate & Merchants / Pintu & Peniaga. Deep links to the two closed Command doors fall through tabsFor() to the landing rather than a stranger's screen - the v3.24 rule - and that is asserted too. // v3.31.2 -  v3.31.2: THE CENSUS IS FINAL, AND THE CAPTION NO LONGER ARGUES WITH IT. v3.31.1 printed 'the real crop is larger than that line' because only 94 of 171 trees were censused. The Owner corrected it: the count was taken BEFORE fruit trimming, and trimming removes fruit, so the figure reads a little HIGH per tree - the opposite pull. Two effects in opposite directions means the honest thing is to claim NO direction at all: the caption now says what the number is (his July census, counted before trimming, on 94 of 171 trees) and leaves the judgement to the man who owns the trees. His instruction stands: the imported figure is FINAL - do not chase the uncounted trees and do not adjust it. // v3.31.1 -  v3.31.1: THE FORECAST WAS ALREADY HIS. The Owner said the drop forecast lives in his workbook, and it does - the 5 July census in 'Durian Farm Record- Census.xlsx', and the app already held it tree by tree: Lot A 213, Lot B 2,052, Lot C 437, 2,702 total, matching the workbook exactly. So the season chart no longer guesses at a target, it draws HIS number as an amber census line. But the same check found something he should see: the census was only taken on 94 of 171 trees - 25% of Lot A, 82% of Lot B, 51% of Lot C - and the uncounted trees were recorded as '-', not as zero. So 2,702 is the count of just over half the orchard and the real crop is bigger. The caption says so in bold under the chart, because a forecast built on half a farm that does not admit it is worse than no forecast at all. // v3.31.0 - v3.31.0 - THE OWNER LANDS ON WORK, NOT A MENU. Command gets a new first section: one season line that moves itself with the programme (no row of stage icons - he rejected those outright: "say it can auto switch i see no point to build 7 icon on top"), then TODAY / 7 DAYS / SEASON, then the harvest matrix he actually watches - trees, dropped, good, banana, bad, loss %, fruit per tree, left on tree - with the three lots SIDE BY SIDE and the worst lot flagging itself on quality and on yield-per-tree. 7 DAYS opens on the last seven but any week is reachable by the arrows, and the orange reset only appears once he has moved away, so he cannot get lost in old dates. SEASON carries the chart. Then FARM / MONEY / ADMIN and an ALL TOOLS drawer, because he reads, he does not key. THE HONEST PART OF THE CHART: this farm stores NO season plan, so there is no 'actual vs plan' line to draw. It plots what was actually collected and then carries TODAY'S RATE forward, capped at the fruit still hanging - the same rule dropForecast() already obeys so a forecast cannot promise fruit that does not exist - and the caption says in plain words that the dashed line is not a plan. Inventing a plan curve would have been the easy lie. AND THE BUG THE RENDER CAUGHT: 'left on tree' counted only the TIED balance while the season line above it counted tied PLUS the untied census estimate, so the header said 2,702 still on the trees and the table directly beneath it said 0. Two bases on one screen is worse than a rough number - it makes the reader distrust both. Now one basis, and where the census contributes the figure is printed with a leading ≈ and says so, which is this codebase's own derived-figure rule. Owner-only; MARKETING, WORKER and PURCHASER are all asserted unable to open it. // v3.30.2 - v3.30.2 - THE CREW GET THEIR RECORD BACK. v3.30.1 removed every RM from the rations screen, which was right, but it also removed the book and balance from the crew entirely - and that was an over-correction the Owner caught the same evening: a man who asked for fruit is entitled to see what was decided and what he has had, and a request he cannot look up afterwards is a request he will stop making. So the crew now have MY RECORD: their OWN decided requests, newest first - date, reason, grade, kilos, and the answer in words (Approved / Refused) - plus their own month against their own allowance with the same meter the Gate sees. In kilos. There is no money column in that table at all, so none can leak into it later. What they still do not get is the FARM's book or the fruit balance: those are farm-wide totals built round what the fruit was WORTH, and stripped of money they would be a list of somebody else's rations. Placed ABOVE the form, not below it, because the record is what he went looking for; the form is the thing he already knows how to find. Also fixed: the submit button carried class 'big', which is not a class this app defines - it had been rendering as a bare bordered box instead of the full-width green action button. Every role re-walked, and the money test now DEMANDS the worker record exists while still asserting zero RM reaches him. ALSO IN .2: DELETING A RATION NOW STICKS. mergeEvents() has refused a tombstoned uuid at the door since v3.29.8, but FOC arrives on its OWN road and mergeFoc() was written without that check - so a ration the Owner cleaned up was downloaded straight back out of FOC_LOG on the very next sync. That is exactly the fault he hit six times on 10 Aug, reopened by a new pipe three days later; any future down-leg must copy those three lines. The clean-up screen also could not SEE rations properly: they appeared only in an unfiltered list and with a BLANK label, which is worse than not offering them at all, so there is now a 'Rations & gifts' chip, a readable label per row, and ticking a request auto-adds the Gate's answer - otherwise an approval outlives the request it answers, focStatusOf() still finds it and the fruit balance still counts those kilos. // v3.30.1 - v3.30.1 - NO MONEY REACHES THE CREW. The Owner caught it the evening v3.30.0 went live: the rations screen printed RM on the request card, in the live quote as the form was filled, in the book and in the balance - to EVERY role, including the one this app deliberately keeps blind to price. SHOW_VALUES is the farm's money gate, it is false for WORKER and PURCHASER, and 74 other places already obey it; this screen shipped ignoring all of them, which put a price in front of the grader whose whole value as a control is that he calls the grade not knowing what it is worth. Every RM on the screen is now behind SHOW_VALUES. The value is still STAMPED on the record exactly as before - the crew are simply not shown it, so nothing about the Owner's fruit balance changes. Two things went with it, because with the money stripped out they made no sense: the QUEUE is now scoped - the Gate and Owner still answer for the whole farm, a worker sees only his OWN requests, because otherwise the screen listed the Owner's family gifts by name to the crew; and the BOOK and the BALANCE are management views, so a worker's screen now ends at his own requests and the form to ask with, which is all the tile ever promised. Asserted in a real browser for all three roles: zero 'RM' on the worker screen, he still sees his own 6 kg, he cannot see the gift to Encik Rahman, and both money roles keep everything. // v3.30.0 - v3.30.0 - FRUIT THAT LEAVES WITHOUT AN INVOICE, AND A FOURTH GRADE. Two gaps the Owner named on 10 Aug. FOC: rations, family gifts, buyer samples and fruit dumped at the shed had no record at all, so the shed figure drifted every week and nobody could say where the fruit went. Now every one of them is a REQUEST the Gate approves or refuses - a worker asks on his phone and the card lands in her queue beside the weigh-ins - and the control is an equation printed on the screen: came in the gate = sold + cheap sale + FOC + dumped + still in shed. If it does not balance, fruit left with no record, which is exactly the thing worth seeing. Three decisions carry it: a decision is an APPEND (FOC_APPROVE/FOC_REFUSE rows pointing at the request) never an edit, so two phones deciding at once cannot clobber a half-written row; the value is STAMPED at request time from the live clone x grade book, because recomputing later would let this week's market silently rewrite what last month's gift cost; and the monthly allowance WARNS but never blocks, because a worker refused by a machine on trial day is a worker who goes back to paper. focDecide() checks the role itself rather than trusting the button, so a stale screen cannot approve fruit out of the farm. BANANA: a fourth grade, BN, on every clone. It is NOT a loss - a rotten fruit cannot be eaten, a banana-shaped fruit is perfectly edible and simply cannot be sold at grade, and reporting them together hides both problems. It is deliberately absent from GRADE_BAND, which is what makes the grade-versus-weight warning switch itself off for banana with no special case anywhere. Building it found a real bug: gradeForWeight()'s fall-through returned the LAST letter on the clone's ladder, so appending BN would have made any NEGATIVE net weight - tare keyed larger than gross, which happens - come back as 'banana'. It now falls through to the last WEIGHED letter. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED: FOC_LOG is a new tab and `foc` is a new payload key; an older backend silently swallows the whole feature. Also: the render walk earned its keep again - 33 green structural assertions all passed while the rations screen rendered 24px tall and completely empty, because openModule() shows a panel but nothing paints it without a line in the per-tab dispatch. // v3.29.8 - A DELETION NOW TRAVELS. Opening the return road in v3.29.5 created a fault I did not foresee and the Owner found within a day: clean-up wiped a record from the phone, and the very next sync downloaded it straight back from the Sheet. Deleting became impossible - the same two drops were removed six times on 10 Aug and returned every time - and no other device ever learned a removal had happened. THE SHEET IS NOT EDITED: it is the farm's history and a silent hole in it is worse than a row nobody wants. Instead a clean-up now writes a TOMBSTONE - the uuids it killed, space-separated, in a new `dead` column on AUDIT_LOG, which every device already reads. mergeEvents() refuses a tombstoned uuid at the door, applyTombstones() drops any copy already held, and both run on every sync AND at boot so a device that was switched off still catches up. The tombstone list is built from what is on the device PLUS what is arriving, so a clean-up takes effect on the sync that carries it rather than the one after. A tombstone can never delete a tombstone (`!e.dead`), or a clean-up could erase the record of itself and the rows would quietly return. Audit rows carrying a tombstone are EXEMPT from the SYNC_EVENTS_FROM date floor, because the rows they kill are usually older than it - the 4 Aug trial data is exactly that case - and a deletion filtered out by date is a deletion that never happens. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED: `dead` is a new AUDIT_LOG column. // v3.29.7 - CREDIT OPENS TO THE GATE, AND THE REAL BASKETS. CREDIT: canSetPrice() gated three unrelated things behind one word - the labour rate, the retailer master and credit top-ups - and the Owner's instruction on 9 Aug was to let the Gate handle credit. Split into canSetPrice() (labour rate, Owner alone, because it prices the farm's own people) and canSetCredit() (retailer master + top-ups, Owner or Marketing, because the Gate is the device standing in front of the merchant while the lorry loads and an Owner out in the lot cannot release a load in time). This does not widen who SEES money - SHOW_VALUES and SHOW_SPEND are untouched - only who may move it, and every top-up stays an EVENT with a signed audit row naming the device and the person. BASKETS, AND A BUG THAT WOULD HAVE EATEN EVERY NEW ONE. The farm runs TWO baskets, both black, one with a metal handle and one without; the shipped list said 'Standard Red Box 2.0 kg' and 'Heavy Blue Crate 3.5 kg', which nobody has ever used, so every load was having an invented weight taken off it. Both are now seeded at ZERO and UNVERIFIED on purpose - a made-up tare that looks real is worse than a zero that shouts, because the red 'not verified' banner is the only thing standing between a guess and ~RM 16 a basket on every load. The Gate weighs and keys them next week. ADD A BASKET is new (Prices > Basket tare), Owner or Marketing, the same gate as the tare itself because a basket with no weight is useless to whoever adds it; new baskets arrive at zero tare and knock TARE_VERIFIED back off for the whole set, since ticking 'I have weighed them' can only ever mean all of them. THE BUG: applySetting('baskets') mapped over BASKET_SEED and NOTHING ELSE, so a basket added on one device survived exactly until the next sync, when the incoming list was filtered back down to the three shipped ids and the new one vanished on every device with no message at all - and initStore() did the same thing on every restart. Both now overlay the seed and then CARRY every extra basket through. A basket can be removed only if no weighed load references it, and the three seeded ones never. // v3.29.6 - THE RETURN ROAD, ALL ELEVEN TABS. v3.29.5 opened the road for the six types that move a STOCK or TREE balance; this closes the rest, because a report that tallies on stock and not on labour is still a report nobody can trust. readEvents_ now also serves TASK_LOGS (TASK_DONE - crew, hours, man-hours, the whole labour side of COSTING), SALES, MKT_DISPATCH (DISPATCH + CREDIT_TOPUP, which is what the retailer credit ledger is a projection over), LOG_ADJUST, TIE_ADJUST and AUDIT_LOG (LOG_VOID above all - a record the Owner voided must read as voided on every device). ONE SUBTLETY WORTH THE COMMENT IT HAS: downloaded rows carry an EMPTY syncedAt so countsLocally() reads false and they are not re-added on top of the TREE_STATS aggregate they are already inside - but readTreeStats_ reads TYING_LOGS, TIE_ADJUST, DROP_LOGS, ROTTEN_LOGS and LOG_ADJUST, and NOT TASK_LOGS. Fruit tied through an Owner-assigned task is therefore in no aggregate at all, and applying the same rule to it would have silently DROPPED it from the tied count. tiedLoggedOf() reads `fromSheet` for exactly that one exception. Rain is the only key still one-way, deliberately: one gauge, one device, nothing derived from it. // v3.29.5 - THE RETURN ROAD. THE ONE FIX: work travelled UP to the Google Sheet and never came back DOWN. refreshMasters() merged eleven master tables and never wrote to EVENTS; doGet served no transactional rows either. Every balance in this app is a projection over the LOCAL event store, so Sandakan's deliveries were invisible in the field and the field's spraying was invisible in Sandakan - not a race window, it never healed. readEvents_() now serves DROP / ROTTEN / TIE / STOCK_IN / STOCK_OUT / STOCK_ADJUST from a date floor (SYNC_EVENTS_FROM) and mergeEvents() folds them in on uuid, NEVER overwriting a local row because that row may be mid-push. Downloaded rows carry syncedAt EMPTY on purpose: countsLocally() then reads false, so a downloaded DROP is not added on top of the TREE_STATS total it is already inside, while the inventory side - which has no aggregate - counts it, which is the point. Dates are normalised server-side by evDt_() before any slice(0,10) comparison, for exactly the reason v3.29.4 documents. Pull throttled to 60s because every doGet spends Apps Script quota. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED AS A NEW VERSION - without it this release changes nothing. // v3.29.4 - THE DATE THAT LIED. v3.29.3's window was correct and still did nothing: four 4-August trial loads stayed on the Gate phone. Google Sheets parses the dt column of MKT_DISPATCH and AUDIT_LOG into a real Date cell, and the Apps Script serves String(dateCell) - 'Wed Aug 05 2026 03:40:00 GMT+0800 (Singapore Standard Time)' - while every date this app writes is 'YYYY-MM-DD HH:mm'. slice(0,10) of that is 'Wed Aug 05', and 'Wed Aug 05' >= '2026-08-07' is TRUE as text because W beats 2. So every decision pulled from another phone passed any date test put to it, and sorted above every properly-formatted one. The two CANCELLED rows vanished correctly only because that phone held them as LOCAL events in the right format - which is what made the split look like a state filter. normDt() accepts either form; applied on the way in (mergeDispatchDecisions, which now also rewrites a row whose stored dt is stale-format) and on the way out (decWhen, returnReason, the worker's decided list) because rows already sitting in REQ_DECIDED on three phones are otherwise never rewritten. Origin is the Apps Script, unchanged here on purpose - the client fix also heals the phones. // v3.29.3 - RECENTLY DECIDED NOW ACTUALLY MEANS RECENTLY. The comment on verifyHistory() has said since v3.8 that decided loads 'stay visible for a day so a mistake is noticed while it is still fresh'. The code never enforced it: it sorted every decided load and took the newest ten, for ever. On 9 Aug the Gate iPhone was still showing 4-5 Aug trial weighings - one of them a photo of a plate of food - as the farm's most recent decisions. Now filtered to DECIDED_DAYS=2, measured from the decision rather than the weighing so a load weighed last week and decided this morning still shows. Anything the window hides is counted underneath ('N older decided loads are not shown here') rather than silently dropped, same rule as the 'newest 150 of 459' line in Clean Up. No event is deleted or altered; this is what the panel CHOOSES to draw. // v3.29.2 - TWO THINGS THE OWNER'S PHONE SCREENSHOT CAUGHT. (1) verifyHistory() printed the literal word 'false' after the worker's name on every APPROVED row. The reason clause read `state!=='APPROVED' && (reason ? ' - '+reason : '')`; && returns its LEFT operand when that operand is falsy, so on an approved row the whole expression was the BOOLEAN false and the next + stamped five letters into the page. The Gate iPhone showed three rows reading 'Worker 1false'. Rewritten as `(state!=='APPROVED' && reason) ? ... : ''` so the falsy branch yields a string. test_v3292.js now sweeps the whole file for the same shape. (2) The tying Balances footnote still claimed the figure was 'carried in from the July census workbook on 2 Aug 2026' - untrue since v3.29.1 retired that seed - and now says where the number actually comes from. Display only; no arithmetic changed. // v3.29.1 - THE 959 SEED IS RETIRED. database.js shipped a static TIE_MIGRATION of 959 fruit on 63 trees covering 14-27 Jul, and tiedOf() adds it to everything logged since. The 9 Aug rebuild from the paper field book covers the same period and more (2,294 fruit, 86 trees, 14 Jul - 8 Aug), so pasting the book in on top of a live seed would have read 3,253 tied against a census of 2,623 - more fruit on string than fruit counted. 92 of the seed's 100 rows appear in the book unchanged; the 8 that differ are the one-tree Lot B row offset the book itself corrects. TIE_MIGRATION is now [] and the 100 rows are kept beside it as TIE_MIGRATION_RETIRED_2026_08_09 so the figure stays traceable. No app.js logic changed - tiedMigOf() already returns 0 for an empty array and tiedTrees() already picks trees up from TIE events. database.js MUST be re-uploaded with app.js or the balance double-counts. // v3.29.0 - BULK BACKDATE. The farm's paper field book holds 263 tying rounds across 86 trees and six scanned pages, 14 Jul - 8 Aug 2026. mdbBackTie() takes one round at a time, which is right for a correction and wrong for a book: at ~15s a round that is over an hour of clicking and a certainty of mistakes near the end. New block in MASTER CONTROL > BACKDATE (Owner only, same gate): paste 'tree date fruit' one per line. TWO PASSES ON PURPOSE - mdbBulkCheck() parses and validates everything and writes NOTHING; mdbBulkSave() only runs on the checked result. A half-written import is worse than a refused one because you cannot tell by looking which half landed. Parser accepts B2/B-2/b-002 and 5/8, 5/8/26, 2026-08-05; rejects future dates, unknown trees, non-integers. A count of ZERO is SKIPPED, not logged: the owner confirmed 8 Aug 2026 that a date written with no number under it means nobody tied anything that day, so there is no round. Rows are written with the same event shape as mdbBackTie - backdated:true, dt = the day the work happened at 08:00, enteredAt = the moment keyed - so a book typed weeks late can never read as live field logging. The already-in warning is deliberately worded as covering THIS PHONE ONLY, because TIE rows travel UP and never come down (see the pipeline audit): a phone cannot know what another device holds and must not imply it can. Partial-failure path tells you exactly how many rows DID save so the paste can be trimmed rather than re-run whole. // v3.28.0 - RETIRE, THE OWNER'S BRAND, AND THE WEATHER ENGINE LEARNS FORMULATION. Owner approved 8 Aug 2026. (1) THE PREREQUISITE NOBODY ASKED FOR: 'invover' was NOT in SETTINGS_KEYS. INV_OVERRIDE - the Owner's corrections to a product's minimum stock and active ingredient - was written to one phone's IndexedDB and NOWHERE ELSE, so Sandakan could read the Ardel label and the Owner's phone would never learn it. Same family as the v3.11 shared-settings fix: a setting is not an event. It now merges PER PRODUCT by `at` like agrodrafts/progover; whole-object newest-wins would let one phone's edit erase another's. Without this the whole release would have been device-local and worthless. (2) RETIRE: `retired` is a DATE not a boolean. Hidden from bpPool, brandsFor, systemicAlternatives and lowStock; UNCHANGED in the stock list (sunk to the bottom, marked), the valuation, run costing, MY LOGS and prodById - which must keep resolving or the orphaning we are avoiding happens anyway. A live directive naming it REFUSES the retire (the app already fails there with 'a brand has been removed from this directive' and the job stops); stock on the shelf only WARNS, because you retire things BECAUSE they are obsolete and retiring writes nothing off. Un-retire is one tap. No delete was added: 'a catalogue item is never deleted' stands. (3) THE OWNER'S BRAND TRAVELS: amLoadTemplate rebuilt the slot from the ingredient alone and threw l.pid away, even though bpAdd has ALWAYS stored the product. So a directive sized for Agus 24SC could be filled with Pengasus 47.17sc - the same chemical at roughly TWICE the strength. pid+pname now ride the slot as a DEFAULT, marked with a star; brandsFor already honoured a pid and amBuyPreview already printed the brand name, so the buy list now says what to top up. (4) NOT A LOCK - the Owner's 8 Aug correction, which overrode an earlier recommendation of mine: 'choosing different brand on the same AI is important due to either rain day or dry day... I have learn to add more other products and same AI due to weather and also cost.' Duplicate AIs are a deliberate tool and the list will GROW. allocPick can still choose anything; moving off the starred brand asks WHY and writes a BRAND_SWAP row, and Cancel cancels the swap rather than silently applying it. (5) rainClassOf(p) reads the FORMULATION out of the product name (SC/EC/WG/WP/SL/EW) - rainClass(aiText) keyed on the ingredient alone, so Agus and Pengasus got IDENTICAL rain advice, i.e. the app was blind to exactly the decision the Owner makes every season. rainClass is left intact for its existing callers. (6) SIDE BY SIDE when >1 brand carries an ingredient: strength, formulation, rainfastness, cost/unit, on hand - all read from data already present - plus a warning when the strengths differ. (7) DATA-QUALITY NOTICE, built as a standing rule not two hard-coded ids: no confirmed AI or RM 0 price raises it. Catches FOUR on the live catalogue, not the two asked for - pid 52 Zinc (powder) is priced at zero with a good ingredient and nobody had noticed. PRODUCT_RETIRE and BRAND_SWAP ride the EXISTING audit key (every field is already in AUD_HEAD), so THE APPS SCRIPT IS UNCHANGED for this release. // v3.27.1 - THE APPROVER CANNOT MOVE THE GOALPOSTS. Owner confirmed 8 Aug 2026 that the MARKETER is the gate person - she approves the daily weight the field phone recorded. That makes two of her existing powers a control problem rather than a convenience. (1) STAFF is now OWNER ONLY: keyspanel joined MKT_DENY and the tab dropped from FULL_ROLES to ['OWNER']. The old comment claimed keyspanel was 'kept on the Owner's rule', but FULL_ROLES is Owner AND Marketing, so she could create, edit and DELETE any login including the Owner's - an approver who can edit the logins of the people she checks is not an independent check. (2) PRICES STAY WITH HER, deliberately - negotiating merchant rates is her actual job and closing the screen would only mean phoning the Owner every time a rate moves - but savePrices() now snapshots the book BEFORE overwriting it and writes a PRICE_EDIT audit row naming who, when, which merchant, and every rate as old->new (audit D-27, a contract rate was rewritable with no stamp at all). priceEditLines() returns [] when nothing moved, so re-saving an unchanged book logs nothing. PRICE_EDIT rides the EXISTING audit key: every field it uses is already in AUD_HEAD, so THE APPS SCRIPT DID NOT CHANGE for this release - and it is excluded from the generic events batch, or it would upload on both keys. // v3.27.0 - THE NAME TAG (fix 1 of the two pre-trial safety fixes, Owner approved 7 Aug 2026). Every directive STOCK_OUT row now carries natkey = RUN|progId|slot|lot|qty|trees, computed by natKeyRun(). uuid() is random, so when two phones file the SAME real job they mint two different ids and the Sheet's SYNC_INDEX dedupe - which keys on uuid alone - wrote both. That is exactly how DIR-001 set 2 (MSolumax 3-16-36) went out TWICE, 4 Aug 21:20 from Worker 1 / Phone 2 and 5 Aug 23:28 from YC Lee / phone-01, 85,500 gm and RM 908.44 each off ONE broadcast, leaving the store at -23,000 gm. The key is derived from WHAT THE ROW IS, so both phones compute the same string. NOT in the key: timestamp, device, worker, crew, hours - they differ between two filings of one job and would defeat it. IN the key: the tree count, because a partial re-run over a DIFFERENT number of trees is real work and must still pass. Server side (AppsScript_code.gs): a new hidden NAT_INDEX sheet holds natkey|device|when|uuid - deliberately NOT extra columns on SYNC_INDEX, so the uuid dedupe every pipeline depends on is untouched. doPost refuses a natkey already held by a DIFFERENT device, marks its uuid seen so the phone stops re-sending a row we will never accept, and writes the full row to a visible DUP_BLOCKED tab - a duplicate that vanishes without trace is worse than the duplicate. A repeat from the SAME device passes untouched. ok stays TRUE on a block, deliberately: ok:false would put the phone in a retry loop over a row the server is correctly refusing. The phone alerts rather than toasts, because somebody has just repeated work the farm already has. ALSO readDupSerials_() + ?dupserials=1: the sheet-wide duplicate invoice check, because duplicateSerials() on the phone scans that phone's own events and on a two-phone farm can never see the collision it exists to catch (audit D-02). READ-ONLY - it reports, it never renumbers; server-minted serials are deferred to September with the rest of the scarce-resource work, and cannot bite before then because the 14 Aug trial runs on one phone. // v3.26.2 - THE PURCHASER GETS THE STORE. Owner's decision, 7 Aug 2026: Sandakan keeps the buying job and gains STOCK LEVEL and STOCK-TAKE, because he is the one standing in the store and he is doing the physical count before the 14 Aug trial. Found while making the change: those two sections were reachable by the OWNER ALONE. MKT_DENY has listed invcc and stocktake under 'Inventory tile - the Sandakan Purchaser's desk' since the v3.24.0 narrowing, so Marketing was already blocked; the Purchaser was blocked by roleAllows' `full` check. The tile had been handed to a role that could not open half of it. Both tabs now carry roles:['OWNER','MARKETING','PURCHASER'] and roleAllows returns full||PURCHASER for the two panels. THE MONEY GATE IS UNTOUCHED: SHOW_VALUES stays false for PURCHASER, so the stock list renders quantities and reorder flags, never RM valuations; verifycard, pricecard, ledgercard, keyspanel, masterdb and runcostcard all stay shut to him. Adding a product already worked (onboardcard, PURCHASER since v3.16). DELETING A PRODUCT DOES NOT EXIST FOR ANY ROLE and was not added - 'a catalogue item is never deleted' is a deliberate rule, because a product with stock history cannot be removed without orphaning every row that references it. // v3.26.1 - ROPE TRACKING OFF (ROPE_TRACKING=false in database.js). Owner's decision, 7 Aug 2026, first season on the system. pid 68 'Tying rope / string' NEVER EXISTED in PRODUCTS - the list ends at 67 - so 454.5 m had been consumed and 2 stock adjustments booked against a product that is not there, the balance sat permanently negative, and the tying screen kept telling the crew to ask the Purchaser to key in rolls nobody was going to key in. ropeNeeded() and ropeOnHand() now return 0, and that one fact switches the feature off cleanly: commitTieRound's `if(rp&&need>0)` stops writing the rope STOCK_OUT, the have<need shortage confirm cannot fire, the tying tile's rope<0 red badge goes quiet, ropeCardHTML() renders nothing and the tying toast drops its rope clause. THE TYING COUNT ITSELF IS UNTOUCHED - only the rope that used to ride along with it. Nothing is deleted; set ROPE_TRACKING=true and add pid 68 to PRODUCTS to turn it back on for a later season. // v3.26.0 - THE FOUR MONEY LEFTOVERS from the 7 Aug closed-loop audit. (D-13) lineCalc has always worked out which grade the average fruit weight FALLS IN and dispTotals threw the answer away: it showed as a bare warning glyph on the worker's own phone and reached nobody who prices the load. A basket keyed Grade A whose fruit average 1.30 kg - Grade B on the farm's own band table - was invoiced at RM 40/kg instead of RM 30, RM 455 over on 45.5 kg. The band now rides the line as band_grade/band_ok AND is recomputed on the approval card so loads weighed before this release are covered too. It WARNS, never blocks - a wrong fruit COUNT gives the same signal as a wrong grade. (D-08) allocShort compared the store against ONE tank's dose, frozen at allocation time, so a whole-farm job needing 2,565 ml against 2,000 ml on hand read 2000<1000=false and flagged nothing. It now uses directiveNeed(), which has computed the whole-job figure since v3.12 and was never wired in here; reading the live line also kills the stale-dose bug. (D-16) tiedLoggedOf was the ONE ledger aggregator missing countsLocally(), so a synced FTIE reply was added on top of the TREE_STATS snapshot that already contained it - 20 fruit tied read as 40, inflating the forecast and disarming the over-collection guard. (D-10) the receipt fallback wrote only into #dp-receipt, which does not exist on the VERIFY screen where approveReq leaves you, and quiet=true swallowed the toast - so on a plain http hotspot the receipt vanished silently. It now plants the text in whichever container is on screen, and a FAILURE is never quiet. // v3.25.1 - SCREENSHOT REVIEW OF v3.25.0. Two findings a 22-assertion green suite could not see, both on the Marketer's verify card. (1) The credit-exceeded BUTTON restated the whole problem directly under the new override box that had just explained it, putting the same fact on screen four times - credit line, CRITICAL box, override box, button. The button now reads just CREDIT EXCEEDED; nothing was removed. (2) Five t25_onephone*/ t25_takeover dictionary entries were left behind by the in-app one-phone-per-role lock the user chose NOT to build (a printed rule card is used instead) - dead keys read as live features to the next reader, which is how a renamed tab key survived 85 green tests in v3.22.0. Removed from EN and MS. ALSO RECORDED, NOT FIXED: the whole verify card is English-only in BM - header and bottom nav translate, the card body does not. Confirmed with the user as acceptable because the Marketer works in English. // v3.25.0 - PIPELINE INTEGRITY AUDIT FIXES. Seven defects found by the 7 Aug closed-loop audit, each one reachable in the field: (D-05) showPhoto() wrote PHOTO_SEEN before the empty-photo bail, so APPROVE & DISPATCH unlocked on a load whose picture never arrived - the whole photo handshake could be walked past. (D-09) submitRun() had NO on-hand check at all while submitStockOut() one screen over has warned since v2.5, so a directive against an empty drum drove the store negative AND booked a cost for chemical that never left the shelf. (D-18) finally{runSaving=false} sat above the awaited kv write and closeRun(), so a second tap rewrote all 15 rows of a 5-part 3-lot job; there was also no catch, so a part-way failure left the modal silent and the retry duplicated. (D-04) a credit-exceeded approve sent the user to saveDispatch(), which writes no req_uuid - the request stayed PENDING with the photo already seen and was approved AGAIN after a top-up, invoicing one basket twice. The override now lives on the verification card itself. (D-07) nextSlotKey() reuses a freed key and amSave() never pruned AI_ALLOC, so editing a line left the OLD brand bound to it and the crew deducted the wrong chemical past allocPick()'s unit guard. (D-06) amLoadTemplate() never read ph.basis, and the heavy-rain branch offers PER_TREE fertiliser sets to a SPRAY job - 1,000 gm per TREE became 1,000 gm per TANK, a 66.7x under-dose. (D-12) each scale photo went up three times and lines_json alone breached the 49,000-char cell ceiling. NOTE the load-level photo_b64 is deliberately KEPT: readDispatchPhotos_() only sends photos down for undecided requests, so blanking it would leave decided loads with no picture in the history. Two audit findings are NOT fixed here and need a decision: DISPATCH and CREDIT_TOPUP still have no down-leg in refreshMasters(), so retailerCredit() and nextInvoiceSerial() remain per-device - run ONE PHONE PER ROLE until that is built. // v3.24.0 - MARKETING IS A ROLE AT LAST, INSTEAD OF A SECOND NAME FOR THE OWNER. FULL_ROLES is ['OWNER','MARKETING'], so every roles:FULL_ROLES tab and every 'return full' gate in roleAllows() has been handing the marketer whatever the Owner had; the workspace was the Owner's minus four panels and the only marketing-specific decision in the codebase was that the mkt tile was listed FIRST. Measured before this release: 8 tiles, 32 sections, RM figures on 21 of them - and a marketer who could receive supplier invoices, create products in the catalogue, author and issue a spray programme, approve corrections to harvest data, and read every cost screen in the app. IT IS NOW 4 TILES AND 11 SECTIONS: the whole of Review & Credit, harvest READ-ONLY (backlog, the wave, farm today - COLLECT goes, a marketer does not log a fruit drop), two reports (daily audit and month ledger), and STAFF. Inventory, Agronomist, Daily Ops and Fruit Tying go entirely. STAFF IS KEPT ON THE OWNER'S EXPLICIT INSTRUCTION, having been shown first that it is the widest grant on the list - the role that invoices customers can also mint logins. ADJUSTMENTS goes: approving a correction to harvest data is marking someone else's homework, which is the argument that has kept YIELD AUDIT away from this role since v3.2. HOW IT IS DONE MATTERS AS MUCH AS WHAT IT DOES. The v3.16 comment says why nobody fixed this: 'pulling MARKETING out of FULL_ROLES would have moved ~40 gates to fix one label.' That is still true and this release does NOT do it. Not one existing 'return full' line is edited. The narrowing is applied at the three gates that already exist, in the order they already fire: HUB_ORDER.MARKETING drops from eight keys to four; a roles: key closes the six sections that go; and ONE deny check, MKT_DENY, sits ABOVE the switch in roleAllows(). Widening the role again is a one-line revert on the array. COLLECT is the single section MKT_DENY cannot reach - it has panels:[] because it is a whole screen, not a panel - so the tab gate is the only place it can be closed, and that is called out where it is written. THE MONTH LEDGER IS SPLIT BY A SECOND, NARROWER MONEY GATE. The Owner's rule is that the marketer may see what the farm EARNED but not what it SPENT, and MONTH LEDGER carries material, labour, drawdown and margin in the same grid as yield and revenue. SHOW_SPEND answers that question; SHOW_VALUES answers 'may this person see money at all' and STAYS TRUE for him, because ~30 call sites read that flag meaning money rather than spend and widening it would have silently blanked his own invoices. The yield table, the revenue-per-merchant table and the year's revenue and net kg survive; the spend-per-lot table, the drawdown, the man-hour count, the margin tile and the labour-rate warning do not. The explanatory note is rewritten for that role rather than left pointing at a table that is not there. TWO LIVE DEFECTS FOUND ON THE WAY IN AND FIXED HERE. FIRST: renderTaskNotice() paints the OVERDUE PROGRAMME bar on EVERY role's home screen and hard-codes openModule('ops','tasks'), and openModule bounces a tile outside the role's HUB_ORDER straight to Home with no toast and no message. The Sandakan Purchaser's tile list is ['inv'], so a purchaser tapping that bar has been silently reloading his own home screen since the bar shipped in v3.18.5. It is now gated on holding the ops tile, which fixes him and stops the marketer inheriting it. SECOND: the tile gate was enforced in openModule and the SECTION gate was not - tabs.find(...)||tabs[0] meant a section you are not entitled to did not refuse, it silently opened whichever section happened to be first, which is worse than being turned away because nothing on the screen says it is the wrong one. A key that EXISTS in the module but is not yours now bounces home; a key that does not exist at all keeps the old fall-through, because the retired v3.19 keys in/alloc/onboard depend on landing on the Supply Hub and procureGo() still calls them. ALSO: a tile's sub-label now names what THIS role can open. Admin has advertised 'corrections, yield, master, keys' to a Marketer entitled to one of the four since v3.3; ROLE_TILE_SUB gives Harvest, Reports and Admin honest labels in English and Malay, and every other role falls through unchanged. OWNER, PURCHASER and WORKER entitlements are byte-for-byte what they were, asserted by the test harness. No migration, no Apps Script redeploy - nothing new reaches the Sheet. // v3.23.1 - A DIRECTIVE NOW REMEMBERS WHICH PROGRAMME SET IT CAME FROM. amLoadTemplate() has always known the phase it built a directive out of and amSave() has always thrown that away, so nothing downstream could ask whether a planned set was already covered without guessing from the directive's NAME or its DUE DATE - both of which the Owner may change at will. v3.23.0's anticipated-demand queue relied on that guess, and rename-plus-reschedule cut the last thread, which would have put a phase on the order twice. amSave() now stamps phaseId, and the anticipated queue matches on it exactly; the old name/date heuristic is kept but applies ONLY to directives written before this release, which carry no phaseId - so an unrelated directive that merely falls due on the same day no longer suppresses a planned set either. Additive, no migration, no Apps Script redeploy. // v3.23.0 - ROUND 2 OF THE PARALLEL SPRINT: ONE PICKER, ONE STOCK LIST, AND A BUY LIST YOU CAN RECEIVE AGAINST. MODULE 4: the same product search widget had been hand-written FIVE times - Stock In, Stock Out, Stock-take, Stock on hand and the Control Center - so a fix to one of them reached one of them. There is now ONE picker component, m4Picker(), mounted at three places, and ONE list renderer, m4StockList(), mounted at two. Nothing was renamed and no panel was deleted: in-search/in-prod, out-search/out-prod, st-search/st-prod, stocksearch, ccsearch, cctbl, invcc and onhandcard all still exist and still answer to every caller they always did, because HUB_PANELS, roleAllows() and the Purchaser's tab routes read those ids and a rename would have silently unhooked them. THE COLUMNS FOLLOW THE ROLE, using the gates that were already there and were reused verbatim rather than rewritten - SHOW_VALUES hides every RM figure and the whole valuation KPI row from a worker, aiTextRole() decides whether a row says the word painted on the drum or the chemistry behind it. MODULE 8 PIECE 3: the buy queue already worked out what to order and how many containers, and then the Purchaser re-keyed all of it by hand when the delivery arrived. RECEIVE AGAINST THE BUY LIST now pre-fills those lines - tick what actually came, correct anything short, key the price - and pushes them into the SAME v3.19 delivery basket, so each line still becomes an ordinary STOCK_IN event with exactly the fields it always had. The invoice number is still keyed once in the Stock In log below, because it belongs to the delivery and not to the line. The pre-filled price is RM PER CONTAINER and is labelled a suggestion: currentMAC() is per ml and unit_price is per bottle, and confusing the two is the RM 0.18-for-two-bottles error a screenshot caught in v3.19. MODULE 8 PIECE 5: a phase the Owner has PLANNED but not yet issued was invisible to the Purchaser, so material for a job three weeks out could only be ordered after the job was announced. Programme sets planned inside a 45-day ordering window - one month of sets plus the 7-day Sandakan turnaround plus slack for the rain delays that moved 22 plan dates in v3.20 - now appear as ANTICIPATED rows, dashed and labelled, BELOW the confirmed queue and with their own separate value total. They are never added into the estimated order value, and they do NOT move the Inventory tile badge: that badge counts what is waiting on a person right now, and a number that jumps because of a forecast stops being believed. Default off, one tap to open, and the count and value are printed even while closed. A set is dropped from the forecast if it is done, if it was removed from the plan, if material has already left the store against it, or if an issued directive already covers it. No Apps Script redeploy - nothing new reaches the Sheet. // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.33.0';   // v3.33.0 - REPORTS: SIX FLAT SECTIONS BECOME THREE DOORS, AND THE MISSING ONE GETS BUILT. The Owner read the inventory of this tile and named what was wrong from outside: PROGRAM RUNS carried the MATERIAL half of a job and LABOUR carried the HOURS half on two separate screens, with nothing anywhere adding them up; COSTING was the raw stock ledger he had already said he wanted to stop reading; PROGRAM RECORD was agronomy compliance filed under money; and the report he actually designed - where the season is losing fruit - did not exist at all. MONEY is now ONE MONTH AT A TIME, his instruction: five lines for the month, then the two halves of every job's cost on ONE row each (joined by the name the work was filed under, because the id that ties a programme run's stock lines together is not carried on the labour side), then the store in five lines. The four original screens are folded shut behind detail toggles rather than deleted, and hideMoneyDetail() closes them on every paint so re-entering is deterministic. Revenue is SHOW_VALUES; every line that says what the farm PAID is SHOW_SPEND, so the Gate may open MONEY and sees the revenue side only. RECORD is SEVEN DATES WITH THE DAY NAME, also his instruction, stepping a week at a time with a date picker and defaulting to the last 7 days. The seven dates are generated from the CALENDAR, not from the log: a day nobody logged now prints as an empty day instead of vanishing, which is the difference between 'no fruit fell' and 'nobody wrote it down'. HARVEST is new - six sections, each ending in the action it implies: loss ranked by cause, lots judged PER TREE so 40 trees are not compared with 65, the banana grade finally read as a pollination score (added v3.30.0 and until now written by the crew and read by nothing), loss against the rain cage, where every kilo went, and the five trees carrying the loss. It is the only screen in this app that prints, and the day-by-day quality table is print-always / screen-optional because 40 rows is a meeting sheet, not a phone. Two honesties are printed on the sheet itself: the weather comparison is a correlation over a small number of days, and every cause and banana figure is only as complete as the crew's tap. PROGRAM RECORD moves to FARM beside the programme it measures, and its overdue badge moves with it. 81 new strings, both languages, parity asserted at 1106/1106. // v3.32.0 - THE HOME SCREEN STOPS BEING A MENU. The Owner said his page was "mess and crowded" and he was right: v3.31 gave him a proper landing but he still arrived at a NINE-TILE GRID first, and Command carried six tabs of which two - PROGRAM BUILDER and MASTER CONTROL - were second doors onto rooms he could already reach from FARM and ADMIN. The fix separates two ideas that had been the same array since v2.9: HUB_ORDER is the ENTITLEMENT (what openModule() checks, what a deep link is measured against, what applyRole() reads) and the new HOME_TILES is only what the home screen PAINTS. Shrinking HUB_ORDER would have started bouncing him out of screens he owns; shrinking HOME_TILES costs nothing, because everything left out is one tap away in ALL TOOLS on the landing. Home goes 9 tiles -> 4 (TODAY / FARM / MONEY / ADMIN) and Command 6 tabs -> 4, with exactly ONE door to the builder and ONE to master control, asserted. A role with no HOME_TILES entry keeps its old behaviour untouched, so WORKER, PURCHASER and MARKETING are unchanged - also asserted. THE GATE, IN THE ORDER SHE WORKS: her six sections were in no particular order, so the first thing on her screen was not the first thing she does. Now: the two queues that hold somebody else up (weight, then rations), then send out, then price, then the ledger - which is history and can wait until the lorry has gone. Nothing added, nothing removed, no gate touched. Her tile is renamed Gate & Merchants / Pintu & Peniaga. Deep links to the two closed Command doors fall through tabsFor() to the landing rather than a stranger's screen - the v3.24 rule - and that is asserted too. // v3.31.2 -  v3.31.2: THE CENSUS IS FINAL, AND THE CAPTION NO LONGER ARGUES WITH IT. v3.31.1 printed 'the real crop is larger than that line' because only 94 of 171 trees were censused. The Owner corrected it: the count was taken BEFORE fruit trimming, and trimming removes fruit, so the figure reads a little HIGH per tree - the opposite pull. Two effects in opposite directions means the honest thing is to claim NO direction at all: the caption now says what the number is (his July census, counted before trimming, on 94 of 171 trees) and leaves the judgement to the man who owns the trees. His instruction stands: the imported figure is FINAL - do not chase the uncounted trees and do not adjust it. // v3.31.1 -  v3.31.1: THE FORECAST WAS ALREADY HIS. The Owner said the drop forecast lives in his workbook, and it does - the 5 July census in 'Durian Farm Record- Census.xlsx', and the app already held it tree by tree: Lot A 213, Lot B 2,052, Lot C 437, 2,702 total, matching the workbook exactly. So the season chart no longer guesses at a target, it draws HIS number as an amber census line. But the same check found something he should see: the census was only taken on 94 of 171 trees - 25% of Lot A, 82% of Lot B, 51% of Lot C - and the uncounted trees were recorded as '-', not as zero. So 2,702 is the count of just over half the orchard and the real crop is bigger. The caption says so in bold under the chart, because a forecast built on half a farm that does not admit it is worse than no forecast at all. // v3.31.0 - v3.31.0 - THE OWNER LANDS ON WORK, NOT A MENU. Command gets a new first section: one season line that moves itself with the programme (no row of stage icons - he rejected those outright: "say it can auto switch i see no point to build 7 icon on top"), then TODAY / 7 DAYS / SEASON, then the harvest matrix he actually watches - trees, dropped, good, banana, bad, loss %, fruit per tree, left on tree - with the three lots SIDE BY SIDE and the worst lot flagging itself on quality and on yield-per-tree. 7 DAYS opens on the last seven but any week is reachable by the arrows, and the orange reset only appears once he has moved away, so he cannot get lost in old dates. SEASON carries the chart. Then FARM / MONEY / ADMIN and an ALL TOOLS drawer, because he reads, he does not key. THE HONEST PART OF THE CHART: this farm stores NO season plan, so there is no 'actual vs plan' line to draw. It plots what was actually collected and then carries TODAY'S RATE forward, capped at the fruit still hanging - the same rule dropForecast() already obeys so a forecast cannot promise fruit that does not exist - and the caption says in plain words that the dashed line is not a plan. Inventing a plan curve would have been the easy lie. AND THE BUG THE RENDER CAUGHT: 'left on tree' counted only the TIED balance while the season line above it counted tied PLUS the untied census estimate, so the header said 2,702 still on the trees and the table directly beneath it said 0. Two bases on one screen is worse than a rough number - it makes the reader distrust both. Now one basis, and where the census contributes the figure is printed with a leading ≈ and says so, which is this codebase's own derived-figure rule. Owner-only; MARKETING, WORKER and PURCHASER are all asserted unable to open it. // v3.30.2 - v3.30.2 - THE CREW GET THEIR RECORD BACK. v3.30.1 removed every RM from the rations screen, which was right, but it also removed the book and balance from the crew entirely - and that was an over-correction the Owner caught the same evening: a man who asked for fruit is entitled to see what was decided and what he has had, and a request he cannot look up afterwards is a request he will stop making. So the crew now have MY RECORD: their OWN decided requests, newest first - date, reason, grade, kilos, and the answer in words (Approved / Refused) - plus their own month against their own allowance with the same meter the Gate sees. In kilos. There is no money column in that table at all, so none can leak into it later. What they still do not get is the FARM's book or the fruit balance: those are farm-wide totals built round what the fruit was WORTH, and stripped of money they would be a list of somebody else's rations. Placed ABOVE the form, not below it, because the record is what he went looking for; the form is the thing he already knows how to find. Also fixed: the submit button carried class 'big', which is not a class this app defines - it had been rendering as a bare bordered box instead of the full-width green action button. Every role re-walked, and the money test now DEMANDS the worker record exists while still asserting zero RM reaches him. ALSO IN .2: DELETING A RATION NOW STICKS. mergeEvents() has refused a tombstoned uuid at the door since v3.29.8, but FOC arrives on its OWN road and mergeFoc() was written without that check - so a ration the Owner cleaned up was downloaded straight back out of FOC_LOG on the very next sync. That is exactly the fault he hit six times on 10 Aug, reopened by a new pipe three days later; any future down-leg must copy those three lines. The clean-up screen also could not SEE rations properly: they appeared only in an unfiltered list and with a BLANK label, which is worse than not offering them at all, so there is now a 'Rations & gifts' chip, a readable label per row, and ticking a request auto-adds the Gate's answer - otherwise an approval outlives the request it answers, focStatusOf() still finds it and the fruit balance still counts those kilos. // v3.30.1 - v3.30.1 - NO MONEY REACHES THE CREW. The Owner caught it the evening v3.30.0 went live: the rations screen printed RM on the request card, in the live quote as the form was filled, in the book and in the balance - to EVERY role, including the one this app deliberately keeps blind to price. SHOW_VALUES is the farm's money gate, it is false for WORKER and PURCHASER, and 74 other places already obey it; this screen shipped ignoring all of them, which put a price in front of the grader whose whole value as a control is that he calls the grade not knowing what it is worth. Every RM on the screen is now behind SHOW_VALUES. The value is still STAMPED on the record exactly as before - the crew are simply not shown it, so nothing about the Owner's fruit balance changes. Two things went with it, because with the money stripped out they made no sense: the QUEUE is now scoped - the Gate and Owner still answer for the whole farm, a worker sees only his OWN requests, because otherwise the screen listed the Owner's family gifts by name to the crew; and the BOOK and the BALANCE are management views, so a worker's screen now ends at his own requests and the form to ask with, which is all the tile ever promised. Asserted in a real browser for all three roles: zero 'RM' on the worker screen, he still sees his own 6 kg, he cannot see the gift to Encik Rahman, and both money roles keep everything. // v3.30.0 - v3.30.0 - FRUIT THAT LEAVES WITHOUT AN INVOICE, AND A FOURTH GRADE. Two gaps the Owner named on 10 Aug. FOC: rations, family gifts, buyer samples and fruit dumped at the shed had no record at all, so the shed figure drifted every week and nobody could say where the fruit went. Now every one of them is a REQUEST the Gate approves or refuses - a worker asks on his phone and the card lands in her queue beside the weigh-ins - and the control is an equation printed on the screen: came in the gate = sold + cheap sale + FOC + dumped + still in shed. If it does not balance, fruit left with no record, which is exactly the thing worth seeing. Three decisions carry it: a decision is an APPEND (FOC_APPROVE/FOC_REFUSE rows pointing at the request) never an edit, so two phones deciding at once cannot clobber a half-written row; the value is STAMPED at request time from the live clone x grade book, because recomputing later would let this week's market silently rewrite what last month's gift cost; and the monthly allowance WARNS but never blocks, because a worker refused by a machine on trial day is a worker who goes back to paper. focDecide() checks the role itself rather than trusting the button, so a stale screen cannot approve fruit out of the farm. BANANA: a fourth grade, BN, on every clone. It is NOT a loss - a rotten fruit cannot be eaten, a banana-shaped fruit is perfectly edible and simply cannot be sold at grade, and reporting them together hides both problems. It is deliberately absent from GRADE_BAND, which is what makes the grade-versus-weight warning switch itself off for banana with no special case anywhere. Building it found a real bug: gradeForWeight()'s fall-through returned the LAST letter on the clone's ladder, so appending BN would have made any NEGATIVE net weight - tare keyed larger than gross, which happens - come back as 'banana'. It now falls through to the last WEIGHED letter. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED: FOC_LOG is a new tab and `foc` is a new payload key; an older backend silently swallows the whole feature. Also: the render walk earned its keep again - 33 green structural assertions all passed while the rations screen rendered 24px tall and completely empty, because openModule() shows a panel but nothing paints it without a line in the per-tab dispatch. // v3.29.8 - A DELETION NOW TRAVELS. Opening the return road in v3.29.5 created a fault I did not foresee and the Owner found within a day: clean-up wiped a record from the phone, and the very next sync downloaded it straight back from the Sheet. Deleting became impossible - the same two drops were removed six times on 10 Aug and returned every time - and no other device ever learned a removal had happened. THE SHEET IS NOT EDITED: it is the farm's history and a silent hole in it is worse than a row nobody wants. Instead a clean-up now writes a TOMBSTONE - the uuids it killed, space-separated, in a new `dead` column on AUDIT_LOG, which every device already reads. mergeEvents() refuses a tombstoned uuid at the door, applyTombstones() drops any copy already held, and both run on every sync AND at boot so a device that was switched off still catches up. The tombstone list is built from what is on the device PLUS what is arriving, so a clean-up takes effect on the sync that carries it rather than the one after. A tombstone can never delete a tombstone (`!e.dead`), or a clean-up could erase the record of itself and the rows would quietly return. Audit rows carrying a tombstone are EXEMPT from the SYNC_EVENTS_FROM date floor, because the rows they kill are usually older than it - the 4 Aug trial data is exactly that case - and a deletion filtered out by date is a deletion that never happens. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED: `dead` is a new AUDIT_LOG column. // v3.29.7 - CREDIT OPENS TO THE GATE, AND THE REAL BASKETS. CREDIT: canSetPrice() gated three unrelated things behind one word - the labour rate, the retailer master and credit top-ups - and the Owner's instruction on 9 Aug was to let the Gate handle credit. Split into canSetPrice() (labour rate, Owner alone, because it prices the farm's own people) and canSetCredit() (retailer master + top-ups, Owner or Marketing, because the Gate is the device standing in front of the merchant while the lorry loads and an Owner out in the lot cannot release a load in time). This does not widen who SEES money - SHOW_VALUES and SHOW_SPEND are untouched - only who may move it, and every top-up stays an EVENT with a signed audit row naming the device and the person. BASKETS, AND A BUG THAT WOULD HAVE EATEN EVERY NEW ONE. The farm runs TWO baskets, both black, one with a metal handle and one without; the shipped list said 'Standard Red Box 2.0 kg' and 'Heavy Blue Crate 3.5 kg', which nobody has ever used, so every load was having an invented weight taken off it. Both are now seeded at ZERO and UNVERIFIED on purpose - a made-up tare that looks real is worse than a zero that shouts, because the red 'not verified' banner is the only thing standing between a guess and ~RM 16 a basket on every load. The Gate weighs and keys them next week. ADD A BASKET is new (Prices > Basket tare), Owner or Marketing, the same gate as the tare itself because a basket with no weight is useless to whoever adds it; new baskets arrive at zero tare and knock TARE_VERIFIED back off for the whole set, since ticking 'I have weighed them' can only ever mean all of them. THE BUG: applySetting('baskets') mapped over BASKET_SEED and NOTHING ELSE, so a basket added on one device survived exactly until the next sync, when the incoming list was filtered back down to the three shipped ids and the new one vanished on every device with no message at all - and initStore() did the same thing on every restart. Both now overlay the seed and then CARRY every extra basket through. A basket can be removed only if no weighed load references it, and the three seeded ones never. // v3.29.6 - THE RETURN ROAD, ALL ELEVEN TABS. v3.29.5 opened the road for the six types that move a STOCK or TREE balance; this closes the rest, because a report that tallies on stock and not on labour is still a report nobody can trust. readEvents_ now also serves TASK_LOGS (TASK_DONE - crew, hours, man-hours, the whole labour side of COSTING), SALES, MKT_DISPATCH (DISPATCH + CREDIT_TOPUP, which is what the retailer credit ledger is a projection over), LOG_ADJUST, TIE_ADJUST and AUDIT_LOG (LOG_VOID above all - a record the Owner voided must read as voided on every device). ONE SUBTLETY WORTH THE COMMENT IT HAS: downloaded rows carry an EMPTY syncedAt so countsLocally() reads false and they are not re-added on top of the TREE_STATS aggregate they are already inside - but readTreeStats_ reads TYING_LOGS, TIE_ADJUST, DROP_LOGS, ROTTEN_LOGS and LOG_ADJUST, and NOT TASK_LOGS. Fruit tied through an Owner-assigned task is therefore in no aggregate at all, and applying the same rule to it would have silently DROPPED it from the tied count. tiedLoggedOf() reads `fromSheet` for exactly that one exception. Rain is the only key still one-way, deliberately: one gauge, one device, nothing derived from it. // v3.29.5 - THE RETURN ROAD. THE ONE FIX: work travelled UP to the Google Sheet and never came back DOWN. refreshMasters() merged eleven master tables and never wrote to EVENTS; doGet served no transactional rows either. Every balance in this app is a projection over the LOCAL event store, so Sandakan's deliveries were invisible in the field and the field's spraying was invisible in Sandakan - not a race window, it never healed. readEvents_() now serves DROP / ROTTEN / TIE / STOCK_IN / STOCK_OUT / STOCK_ADJUST from a date floor (SYNC_EVENTS_FROM) and mergeEvents() folds them in on uuid, NEVER overwriting a local row because that row may be mid-push. Downloaded rows carry syncedAt EMPTY on purpose: countsLocally() then reads false, so a downloaded DROP is not added on top of the TREE_STATS total it is already inside, while the inventory side - which has no aggregate - counts it, which is the point. Dates are normalised server-side by evDt_() before any slice(0,10) comparison, for exactly the reason v3.29.4 documents. Pull throttled to 60s because every doGet spends Apps Script quota. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED AS A NEW VERSION - without it this release changes nothing. // v3.29.4 - THE DATE THAT LIED. v3.29.3's window was correct and still did nothing: four 4-August trial loads stayed on the Gate phone. Google Sheets parses the dt column of MKT_DISPATCH and AUDIT_LOG into a real Date cell, and the Apps Script serves String(dateCell) - 'Wed Aug 05 2026 03:40:00 GMT+0800 (Singapore Standard Time)' - while every date this app writes is 'YYYY-MM-DD HH:mm'. slice(0,10) of that is 'Wed Aug 05', and 'Wed Aug 05' >= '2026-08-07' is TRUE as text because W beats 2. So every decision pulled from another phone passed any date test put to it, and sorted above every properly-formatted one. The two CANCELLED rows vanished correctly only because that phone held them as LOCAL events in the right format - which is what made the split look like a state filter. normDt() accepts either form; applied on the way in (mergeDispatchDecisions, which now also rewrites a row whose stored dt is stale-format) and on the way out (decWhen, returnReason, the worker's decided list) because rows already sitting in REQ_DECIDED on three phones are otherwise never rewritten. Origin is the Apps Script, unchanged here on purpose - the client fix also heals the phones. // v3.29.3 - RECENTLY DECIDED NOW ACTUALLY MEANS RECENTLY. The comment on verifyHistory() has said since v3.8 that decided loads 'stay visible for a day so a mistake is noticed while it is still fresh'. The code never enforced it: it sorted every decided load and took the newest ten, for ever. On 9 Aug the Gate iPhone was still showing 4-5 Aug trial weighings - one of them a photo of a plate of food - as the farm's most recent decisions. Now filtered to DECIDED_DAYS=2, measured from the decision rather than the weighing so a load weighed last week and decided this morning still shows. Anything the window hides is counted underneath ('N older decided loads are not shown here') rather than silently dropped, same rule as the 'newest 150 of 459' line in Clean Up. No event is deleted or altered; this is what the panel CHOOSES to draw. // v3.29.2 - TWO THINGS THE OWNER'S PHONE SCREENSHOT CAUGHT. (1) verifyHistory() printed the literal word 'false' after the worker's name on every APPROVED row. The reason clause read `state!=='APPROVED' && (reason ? ' - '+reason : '')`; && returns its LEFT operand when that operand is falsy, so on an approved row the whole expression was the BOOLEAN false and the next + stamped five letters into the page. The Gate iPhone showed three rows reading 'Worker 1false'. Rewritten as `(state!=='APPROVED' && reason) ? ... : ''` so the falsy branch yields a string. test_v3292.js now sweeps the whole file for the same shape. (2) The tying Balances footnote still claimed the figure was 'carried in from the July census workbook on 2 Aug 2026' - untrue since v3.29.1 retired that seed - and now says where the number actually comes from. Display only; no arithmetic changed. // v3.29.1 - THE 959 SEED IS RETIRED. database.js shipped a static TIE_MIGRATION of 959 fruit on 63 trees covering 14-27 Jul, and tiedOf() adds it to everything logged since. The 9 Aug rebuild from the paper field book covers the same period and more (2,294 fruit, 86 trees, 14 Jul - 8 Aug), so pasting the book in on top of a live seed would have read 3,253 tied against a census of 2,623 - more fruit on string than fruit counted. 92 of the seed's 100 rows appear in the book unchanged; the 8 that differ are the one-tree Lot B row offset the book itself corrects. TIE_MIGRATION is now [] and the 100 rows are kept beside it as TIE_MIGRATION_RETIRED_2026_08_09 so the figure stays traceable. No app.js logic changed - tiedMigOf() already returns 0 for an empty array and tiedTrees() already picks trees up from TIE events. database.js MUST be re-uploaded with app.js or the balance double-counts. // v3.29.0 - BULK BACKDATE. The farm's paper field book holds 263 tying rounds across 86 trees and six scanned pages, 14 Jul - 8 Aug 2026. mdbBackTie() takes one round at a time, which is right for a correction and wrong for a book: at ~15s a round that is over an hour of clicking and a certainty of mistakes near the end. New block in MASTER CONTROL > BACKDATE (Owner only, same gate): paste 'tree date fruit' one per line. TWO PASSES ON PURPOSE - mdbBulkCheck() parses and validates everything and writes NOTHING; mdbBulkSave() only runs on the checked result. A half-written import is worse than a refused one because you cannot tell by looking which half landed. Parser accepts B2/B-2/b-002 and 5/8, 5/8/26, 2026-08-05; rejects future dates, unknown trees, non-integers. A count of ZERO is SKIPPED, not logged: the owner confirmed 8 Aug 2026 that a date written with no number under it means nobody tied anything that day, so there is no round. Rows are written with the same event shape as mdbBackTie - backdated:true, dt = the day the work happened at 08:00, enteredAt = the moment keyed - so a book typed weeks late can never read as live field logging. The already-in warning is deliberately worded as covering THIS PHONE ONLY, because TIE rows travel UP and never come down (see the pipeline audit): a phone cannot know what another device holds and must not imply it can. Partial-failure path tells you exactly how many rows DID save so the paste can be trimmed rather than re-run whole. // v3.28.0 - RETIRE, THE OWNER'S BRAND, AND THE WEATHER ENGINE LEARNS FORMULATION. Owner approved 8 Aug 2026. (1) THE PREREQUISITE NOBODY ASKED FOR: 'invover' was NOT in SETTINGS_KEYS. INV_OVERRIDE - the Owner's corrections to a product's minimum stock and active ingredient - was written to one phone's IndexedDB and NOWHERE ELSE, so Sandakan could read the Ardel label and the Owner's phone would never learn it. Same family as the v3.11 shared-settings fix: a setting is not an event. It now merges PER PRODUCT by `at` like agrodrafts/progover; whole-object newest-wins would let one phone's edit erase another's. Without this the whole release would have been device-local and worthless. (2) RETIRE: `retired` is a DATE not a boolean. Hidden from bpPool, brandsFor, systemicAlternatives and lowStock; UNCHANGED in the stock list (sunk to the bottom, marked), the valuation, run costing, MY LOGS and prodById - which must keep resolving or the orphaning we are avoiding happens anyway. A live directive naming it REFUSES the retire (the app already fails there with 'a brand has been removed from this directive' and the job stops); stock on the shelf only WARNS, because you retire things BECAUSE they are obsolete and retiring writes nothing off. Un-retire is one tap. No delete was added: 'a catalogue item is never deleted' stands. (3) THE OWNER'S BRAND TRAVELS: amLoadTemplate rebuilt the slot from the ingredient alone and threw l.pid away, even though bpAdd has ALWAYS stored the product. So a directive sized for Agus 24SC could be filled with Pengasus 47.17sc - the same chemical at roughly TWICE the strength. pid+pname now ride the slot as a DEFAULT, marked with a star; brandsFor already honoured a pid and amBuyPreview already printed the brand name, so the buy list now says what to top up. (4) NOT A LOCK - the Owner's 8 Aug correction, which overrode an earlier recommendation of mine: 'choosing different brand on the same AI is important due to either rain day or dry day... I have learn to add more other products and same AI due to weather and also cost.' Duplicate AIs are a deliberate tool and the list will GROW. allocPick can still choose anything; moving off the starred brand asks WHY and writes a BRAND_SWAP row, and Cancel cancels the swap rather than silently applying it. (5) rainClassOf(p) reads the FORMULATION out of the product name (SC/EC/WG/WP/SL/EW) - rainClass(aiText) keyed on the ingredient alone, so Agus and Pengasus got IDENTICAL rain advice, i.e. the app was blind to exactly the decision the Owner makes every season. rainClass is left intact for its existing callers. (6) SIDE BY SIDE when >1 brand carries an ingredient: strength, formulation, rainfastness, cost/unit, on hand - all read from data already present - plus a warning when the strengths differ. (7) DATA-QUALITY NOTICE, built as a standing rule not two hard-coded ids: no confirmed AI or RM 0 price raises it. Catches FOUR on the live catalogue, not the two asked for - pid 52 Zinc (powder) is priced at zero with a good ingredient and nobody had noticed. PRODUCT_RETIRE and BRAND_SWAP ride the EXISTING audit key (every field is already in AUD_HEAD), so THE APPS SCRIPT IS UNCHANGED for this release. // v3.27.1 - THE APPROVER CANNOT MOVE THE GOALPOSTS. Owner confirmed 8 Aug 2026 that the MARKETER is the gate person - she approves the daily weight the field phone recorded. That makes two of her existing powers a control problem rather than a convenience. (1) STAFF is now OWNER ONLY: keyspanel joined MKT_DENY and the tab dropped from FULL_ROLES to ['OWNER']. The old comment claimed keyspanel was 'kept on the Owner's rule', but FULL_ROLES is Owner AND Marketing, so she could create, edit and DELETE any login including the Owner's - an approver who can edit the logins of the people she checks is not an independent check. (2) PRICES STAY WITH HER, deliberately - negotiating merchant rates is her actual job and closing the screen would only mean phoning the Owner every time a rate moves - but savePrices() now snapshots the book BEFORE overwriting it and writes a PRICE_EDIT audit row naming who, when, which merchant, and every rate as old->new (audit D-27, a contract rate was rewritable with no stamp at all). priceEditLines() returns [] when nothing moved, so re-saving an unchanged book logs nothing. PRICE_EDIT rides the EXISTING audit key: every field it uses is already in AUD_HEAD, so THE APPS SCRIPT DID NOT CHANGE for this release - and it is excluded from the generic events batch, or it would upload on both keys. // v3.27.0 - THE NAME TAG (fix 1 of the two pre-trial safety fixes, Owner approved 7 Aug 2026). Every directive STOCK_OUT row now carries natkey = RUN|progId|slot|lot|qty|trees, computed by natKeyRun(). uuid() is random, so when two phones file the SAME real job they mint two different ids and the Sheet's SYNC_INDEX dedupe - which keys on uuid alone - wrote both. That is exactly how DIR-001 set 2 (MSolumax 3-16-36) went out TWICE, 4 Aug 21:20 from Worker 1 / Phone 2 and 5 Aug 23:28 from YC Lee / phone-01, 85,500 gm and RM 908.44 each off ONE broadcast, leaving the store at -23,000 gm. The key is derived from WHAT THE ROW IS, so both phones compute the same string. NOT in the key: timestamp, device, worker, crew, hours - they differ between two filings of one job and would defeat it. IN the key: the tree count, because a partial re-run over a DIFFERENT number of trees is real work and must still pass. Server side (AppsScript_code.gs): a new hidden NAT_INDEX sheet holds natkey|device|when|uuid - deliberately NOT extra columns on SYNC_INDEX, so the uuid dedupe every pipeline depends on is untouched. doPost refuses a natkey already held by a DIFFERENT device, marks its uuid seen so the phone stops re-sending a row we will never accept, and writes the full row to a visible DUP_BLOCKED tab - a duplicate that vanishes without trace is worse than the duplicate. A repeat from the SAME device passes untouched. ok stays TRUE on a block, deliberately: ok:false would put the phone in a retry loop over a row the server is correctly refusing. The phone alerts rather than toasts, because somebody has just repeated work the farm already has. ALSO readDupSerials_() + ?dupserials=1: the sheet-wide duplicate invoice check, because duplicateSerials() on the phone scans that phone's own events and on a two-phone farm can never see the collision it exists to catch (audit D-02). READ-ONLY - it reports, it never renumbers; server-minted serials are deferred to September with the rest of the scarce-resource work, and cannot bite before then because the 14 Aug trial runs on one phone. // v3.26.2 - THE PURCHASER GETS THE STORE. Owner's decision, 7 Aug 2026: Sandakan keeps the buying job and gains STOCK LEVEL and STOCK-TAKE, because he is the one standing in the store and he is doing the physical count before the 14 Aug trial. Found while making the change: those two sections were reachable by the OWNER ALONE. MKT_DENY has listed invcc and stocktake under 'Inventory tile - the Sandakan Purchaser's desk' since the v3.24.0 narrowing, so Marketing was already blocked; the Purchaser was blocked by roleAllows' `full` check. The tile had been handed to a role that could not open half of it. Both tabs now carry roles:['OWNER','MARKETING','PURCHASER'] and roleAllows returns full||PURCHASER for the two panels. THE MONEY GATE IS UNTOUCHED: SHOW_VALUES stays false for PURCHASER, so the stock list renders quantities and reorder flags, never RM valuations; verifycard, pricecard, ledgercard, keyspanel, masterdb and runcostcard all stay shut to him. Adding a product already worked (onboardcard, PURCHASER since v3.16). DELETING A PRODUCT DOES NOT EXIST FOR ANY ROLE and was not added - 'a catalogue item is never deleted' is a deliberate rule, because a product with stock history cannot be removed without orphaning every row that references it. // v3.26.1 - ROPE TRACKING OFF (ROPE_TRACKING=false in database.js). Owner's decision, 7 Aug 2026, first season on the system. pid 68 'Tying rope / string' NEVER EXISTED in PRODUCTS - the list ends at 67 - so 454.5 m had been consumed and 2 stock adjustments booked against a product that is not there, the balance sat permanently negative, and the tying screen kept telling the crew to ask the Purchaser to key in rolls nobody was going to key in. ropeNeeded() and ropeOnHand() now return 0, and that one fact switches the feature off cleanly: commitTieRound's `if(rp&&need>0)` stops writing the rope STOCK_OUT, the have<need shortage confirm cannot fire, the tying tile's rope<0 red badge goes quiet, ropeCardHTML() renders nothing and the tying toast drops its rope clause. THE TYING COUNT ITSELF IS UNTOUCHED - only the rope that used to ride along with it. Nothing is deleted; set ROPE_TRACKING=true and add pid 68 to PRODUCTS to turn it back on for a later season. // v3.26.0 - THE FOUR MONEY LEFTOVERS from the 7 Aug closed-loop audit. (D-13) lineCalc has always worked out which grade the average fruit weight FALLS IN and dispTotals threw the answer away: it showed as a bare warning glyph on the worker's own phone and reached nobody who prices the load. A basket keyed Grade A whose fruit average 1.30 kg - Grade B on the farm's own band table - was invoiced at RM 40/kg instead of RM 30, RM 455 over on 45.5 kg. The band now rides the line as band_grade/band_ok AND is recomputed on the approval card so loads weighed before this release are covered too. It WARNS, never blocks - a wrong fruit COUNT gives the same signal as a wrong grade. (D-08) allocShort compared the store against ONE tank's dose, frozen at allocation time, so a whole-farm job needing 2,565 ml against 2,000 ml on hand read 2000<1000=false and flagged nothing. It now uses directiveNeed(), which has computed the whole-job figure since v3.12 and was never wired in here; reading the live line also kills the stale-dose bug. (D-16) tiedLoggedOf was the ONE ledger aggregator missing countsLocally(), so a synced FTIE reply was added on top of the TREE_STATS snapshot that already contained it - 20 fruit tied read as 40, inflating the forecast and disarming the over-collection guard. (D-10) the receipt fallback wrote only into #dp-receipt, which does not exist on the VERIFY screen where approveReq leaves you, and quiet=true swallowed the toast - so on a plain http hotspot the receipt vanished silently. It now plants the text in whichever container is on screen, and a FAILURE is never quiet. // v3.25.1 - SCREENSHOT REVIEW OF v3.25.0. Two findings a 22-assertion green suite could not see, both on the Marketer's verify card. (1) The credit-exceeded BUTTON restated the whole problem directly under the new override box that had just explained it, putting the same fact on screen four times - credit line, CRITICAL box, override box, button. The button now reads just CREDIT EXCEEDED; nothing was removed. (2) Five t25_onephone*/ t25_takeover dictionary entries were left behind by the in-app one-phone-per-role lock the user chose NOT to build (a printed rule card is used instead) - dead keys read as live features to the next reader, which is how a renamed tab key survived 85 green tests in v3.22.0. Removed from EN and MS. ALSO RECORDED, NOT FIXED: the whole verify card is English-only in BM - header and bottom nav translate, the card body does not. Confirmed with the user as acceptable because the Marketer works in English. // v3.25.0 - PIPELINE INTEGRITY AUDIT FIXES. Seven defects found by the 7 Aug closed-loop audit, each one reachable in the field: (D-05) showPhoto() wrote PHOTO_SEEN before the empty-photo bail, so APPROVE & DISPATCH unlocked on a load whose picture never arrived - the whole photo handshake could be walked past. (D-09) submitRun() had NO on-hand check at all while submitStockOut() one screen over has warned since v2.5, so a directive against an empty drum drove the store negative AND booked a cost for chemical that never left the shelf. (D-18) finally{runSaving=false} sat above the awaited kv write and closeRun(), so a second tap rewrote all 15 rows of a 5-part 3-lot job; there was also no catch, so a part-way failure left the modal silent and the retry duplicated. (D-04) a credit-exceeded approve sent the user to saveDispatch(), which writes no req_uuid - the request stayed PENDING with the photo already seen and was approved AGAIN after a top-up, invoicing one basket twice. The override now lives on the verification card itself. (D-07) nextSlotKey() reuses a freed key and amSave() never pruned AI_ALLOC, so editing a line left the OLD brand bound to it and the crew deducted the wrong chemical past allocPick()'s unit guard. (D-06) amLoadTemplate() never read ph.basis, and the heavy-rain branch offers PER_TREE fertiliser sets to a SPRAY job - 1,000 gm per TREE became 1,000 gm per TANK, a 66.7x under-dose. (D-12) each scale photo went up three times and lines_json alone breached the 49,000-char cell ceiling. NOTE the load-level photo_b64 is deliberately KEPT: readDispatchPhotos_() only sends photos down for undecided requests, so blanking it would leave decided loads with no picture in the history. Two audit findings are NOT fixed here and need a decision: DISPATCH and CREDIT_TOPUP still have no down-leg in refreshMasters(), so retailerCredit() and nextInvoiceSerial() remain per-device - run ONE PHONE PER ROLE until that is built. // v3.24.0 - MARKETING IS A ROLE AT LAST, INSTEAD OF A SECOND NAME FOR THE OWNER. FULL_ROLES is ['OWNER','MARKETING'], so every roles:FULL_ROLES tab and every 'return full' gate in roleAllows() has been handing the marketer whatever the Owner had; the workspace was the Owner's minus four panels and the only marketing-specific decision in the codebase was that the mkt tile was listed FIRST. Measured before this release: 8 tiles, 32 sections, RM figures on 21 of them - and a marketer who could receive supplier invoices, create products in the catalogue, author and issue a spray programme, approve corrections to harvest data, and read every cost screen in the app. IT IS NOW 4 TILES AND 11 SECTIONS: the whole of Review & Credit, harvest READ-ONLY (backlog, the wave, farm today - COLLECT goes, a marketer does not log a fruit drop), two reports (daily audit and month ledger), and STAFF. Inventory, Agronomist, Daily Ops and Fruit Tying go entirely. STAFF IS KEPT ON THE OWNER'S EXPLICIT INSTRUCTION, having been shown first that it is the widest grant on the list - the role that invoices customers can also mint logins. ADJUSTMENTS goes: approving a correction to harvest data is marking someone else's homework, which is the argument that has kept YIELD AUDIT away from this role since v3.2. HOW IT IS DONE MATTERS AS MUCH AS WHAT IT DOES. The v3.16 comment says why nobody fixed this: 'pulling MARKETING out of FULL_ROLES would have moved ~40 gates to fix one label.' That is still true and this release does NOT do it. Not one existing 'return full' line is edited. The narrowing is applied at the three gates that already exist, in the order they already fire: HUB_ORDER.MARKETING drops from eight keys to four; a roles: key closes the six sections that go; and ONE deny check, MKT_DENY, sits ABOVE the switch in roleAllows(). Widening the role again is a one-line revert on the array. COLLECT is the single section MKT_DENY cannot reach - it has panels:[] because it is a whole screen, not a panel - so the tab gate is the only place it can be closed, and that is called out where it is written. THE MONTH LEDGER IS SPLIT BY A SECOND, NARROWER MONEY GATE. The Owner's rule is that the marketer may see what the farm EARNED but not what it SPENT, and MONTH LEDGER carries material, labour, drawdown and margin in the same grid as yield and revenue. SHOW_SPEND answers that question; SHOW_VALUES answers 'may this person see money at all' and STAYS TRUE for him, because ~30 call sites read that flag meaning money rather than spend and widening it would have silently blanked his own invoices. The yield table, the revenue-per-merchant table and the year's revenue and net kg survive; the spend-per-lot table, the drawdown, the man-hour count, the margin tile and the labour-rate warning do not. The explanatory note is rewritten for that role rather than left pointing at a table that is not there. TWO LIVE DEFECTS FOUND ON THE WAY IN AND FIXED HERE. FIRST: renderTaskNotice() paints the OVERDUE PROGRAMME bar on EVERY role's home screen and hard-codes openModule('ops','tasks'), and openModule bounces a tile outside the role's HUB_ORDER straight to Home with no toast and no message. The Sandakan Purchaser's tile list is ['inv'], so a purchaser tapping that bar has been silently reloading his own home screen since the bar shipped in v3.18.5. It is now gated on holding the ops tile, which fixes him and stops the marketer inheriting it. SECOND: the tile gate was enforced in openModule and the SECTION gate was not - tabs.find(...)||tabs[0] meant a section you are not entitled to did not refuse, it silently opened whichever section happened to be first, which is worse than being turned away because nothing on the screen says it is the wrong one. A key that EXISTS in the module but is not yours now bounces home; a key that does not exist at all keeps the old fall-through, because the retired v3.19 keys in/alloc/onboard depend on landing on the Supply Hub and procureGo() still calls them. ALSO: a tile's sub-label now names what THIS role can open. Admin has advertised 'corrections, yield, master, keys' to a Marketer entitled to one of the four since v3.3; ROLE_TILE_SUB gives Harvest, Reports and Admin honest labels in English and Malay, and every other role falls through unchanged. OWNER, PURCHASER and WORKER entitlements are byte-for-byte what they were, asserted by the test harness. No migration, no Apps Script redeploy - nothing new reaches the Sheet. // v3.23.1 - A DIRECTIVE NOW REMEMBERS WHICH PROGRAMME SET IT CAME FROM. amLoadTemplate() has always known the phase it built a directive out of and amSave() has always thrown that away, so nothing downstream could ask whether a planned set was already covered without guessing from the directive's NAME or its DUE DATE - both of which the Owner may change at will. v3.23.0's anticipated-demand queue relied on that guess, and rename-plus-reschedule cut the last thread, which would have put a phase on the order twice. amSave() now stamps phaseId, and the anticipated queue matches on it exactly; the old name/date heuristic is kept but applies ONLY to directives written before this release, which carry no phaseId - so an unrelated directive that merely falls due on the same day no longer suppresses a planned set either. Additive, no migration, no Apps Script redeploy. // v3.23.0 - ROUND 2 OF THE PARALLEL SPRINT: ONE PICKER, ONE STOCK LIST, AND A BUY LIST YOU CAN RECEIVE AGAINST. MODULE 4: the same product search widget had been hand-written FIVE times - Stock In, Stock Out, Stock-take, Stock on hand and the Control Center - so a fix to one of them reached one of them. There is now ONE picker component, m4Picker(), mounted at three places, and ONE list renderer, m4StockList(), mounted at two. Nothing was renamed and no panel was deleted: in-search/in-prod, out-search/out-prod, st-search/st-prod, stocksearch, ccsearch, cctbl, invcc and onhandcard all still exist and still answer to every caller they always did, because HUB_PANELS, roleAllows() and the Purchaser's tab routes read those ids and a rename would have silently unhooked them. THE COLUMNS FOLLOW THE ROLE, using the gates that were already there and were reused verbatim rather than rewritten - SHOW_VALUES hides every RM figure and the whole valuation KPI row from a worker, aiTextRole() decides whether a row says the word painted on the drum or the chemistry behind it. MODULE 8 PIECE 3: the buy queue already worked out what to order and how many containers, and then the Purchaser re-keyed all of it by hand when the delivery arrived. RECEIVE AGAINST THE BUY LIST now pre-fills those lines - tick what actually came, correct anything short, key the price - and pushes them into the SAME v3.19 delivery basket, so each line still becomes an ordinary STOCK_IN event with exactly the fields it always had. The invoice number is still keyed once in the Stock In log below, because it belongs to the delivery and not to the line. The pre-filled price is RM PER CONTAINER and is labelled a suggestion: currentMAC() is per ml and unit_price is per bottle, and confusing the two is the RM 0.18-for-two-bottles error a screenshot caught in v3.19. MODULE 8 PIECE 5: a phase the Owner has PLANNED but not yet issued was invisible to the Purchaser, so material for a job three weeks out could only be ordered after the job was announced. Programme sets planned inside a 45-day ordering window - one month of sets plus the 7-day Sandakan turnaround plus slack for the rain delays that moved 22 plan dates in v3.20 - now appear as ANTICIPATED rows, dashed and labelled, BELOW the confirmed queue and with their own separate value total. They are never added into the estimated order value, and they do NOT move the Inventory tile badge: that badge counts what is waiting on a person right now, and a number that jumps because of a forecast stops being believed. Default off, one tap to open, and the count and value are printed even while closed. A set is dropped from the forecast if it is done, if it was removed from the plan, if material has already left the store against it, or if an issued directive already covers it. No Apps Script redeploy - nothing new reaches the Sheet. // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -642,7 +642,12 @@ const MODULES={
     tabs:[{k:'build',t:'PROGRAM BUILDER',scr:'dash',panels:['agromatrix'],roles:FULL_ROLES,ic:'🧬',tn:'s_builder',d:'Build a five-part combo by active ingredient, per 1,000 L tank'},
           {k:'month',t:'THIS MONTH',scr:'dash',panels:['agromonth'],  roles:FULL_ROLES,ic:'🌱',d:'The phase timeline and what is due'},
           {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','agrorain'],roles:FULL_ROLES,ic:'🌧️',d:'Rain gauge and spray-window advice'},
-          {k:'rec',  t:'RECORD',    scr:'dash',panels:['agrorecord'], roles:FULL_ROLES,ic:'📝',d:'Log what was actually applied'}]},
+          {k:'rec',  t:'RECORD',    scr:'dash',panels:['agrorecord'], roles:FULL_ROLES,ic:'📝',d:'Log what was actually applied'},
+          /* v3.33.0 — moved out of Reports. What was promised against what landed is a
+             question about the PROGRAMME, not about money, so it sits beside the programme.
+             Owner only, exactly as it was in Reports — the roles: array is copied, not
+             widened, and roleAllows('progrecord') is unchanged. */
+          {k:'progrec',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:['OWNER'],ic:'🏁',tn:'s_record',d:'Issued, finished, on time or late — by month and year'}]},
   // v3.7 — reordered: the four hands-on sections first, the two planning ones last.
   // The landing section is still STOCK IN, so no muscle memory breaks.
   // v3.19 · LANE B · MODULE 3 — SIX TABS DOWN TO TWO, for whichever role actually saw six.
@@ -722,23 +727,37 @@ const MODULES={
   // v3.16 — was 📊, which now collides with the Review & Credit tile on the Owner's home
   // screen. Two identical icons in one 2-column grid is a tile you have to read rather
   // than recognise, which is the whole point of the Big Tile layout.
-  reports:{ic:'🗂️',name:'Reports',sub:'audit, ledger, costing, labour',
-    tabs:[{k:'daily', t:'DAILY AUDIT', scr:'dash',panels:['dailyaudit'],  roles:FULL_ROLES,ic:'📅',d:'Day by day: tied, good, loss, kg out'},
-          {k:'matrix',t:'MONTH LEDGER',scr:'dash',panels:['matrixledger'],roles:FULL_ROLES,ic:'📊',d:'Yield, revenue, spend and drawdown by month'},
-          // v3.12 — what the directives actually cost, rolled up three ways. Separate
-          // from COSTING because that reads the whole stock ledger; this reads only work
-          // done against an issued programme, which is the number the Owner budgets on.
-          // v3.24 — Owner only. What the directives cost is material spend, and the
-          // marketer was narrowed off the cost side of the app in this release.
-          {k:'runs',  t:'PROGRAM RUNS',scr:'dash',panels:['runcostcard'],roles:['OWNER'],ic:'🧪',tn:'s_runs',d:'Daily, monthly and yearly cost of the work actually done'},
-          // v3.15 — what was promised against what landed, by month and by year
-          // v3.16 — was 📅, the same icon as DAILY AUDIT two rows above it in the same
-          // section list. 🏁 says what this screen is: finished on time, or not.
-          // v3.24 — Owner only, all three. PROGRAM RECORD is agronomy compliance, COSTING
-          // is the raw material ledger and LABOUR carries the crew's hourly rate.
-          {k:'record',t:'PROGRAM RECORD',scr:'dash',panels:['progrecord'],roles:['OWNER'],ic:'🏁',tn:'s_record',d:'Issued, finished, on time or late — by month and year'},
-          {k:'sum',   t:'COSTING',     scr:'dash',panels:['ledgercard'],  roles:['OWNER'],ic:'📒',d:'The raw stock ledger, month by month'},
-          {k:'labour',t:'LABOUR',      scr:'dash',panels:['labourcard'],  roles:['OWNER'],ic:'💵',d:'Man-hours and the rate they are priced at'}]},
+  /* v3.33.0 — SIX FLAT SECTIONS BECOME THREE DOORS, AND THE MISSING ONE GETS BUILT.
+     The Owner read the inventory of this tile and said what it looked like from outside:
+     two sections carried the same month twice (PROGRAM RUNS was the material half of a
+     job and LABOUR was the hours half, on two separate screens), one was a raw stock
+     ledger he had already asked to stop reading, one was agronomy compliance filed under
+     money, and the report he actually designed — where the season is losing fruit — did
+     not exist at all.
+       💵 MONEY   · one month at a time. The month grid's own row for that month, then the
+                    two halves of "what did that job cost" on ONE line each, then the store
+                    in five lines. The four original screens are still here, behind detail
+                    toggles, so nothing is deleted — they stop being the first thing he sees.
+       📅 RECORD  · the daily audit, windowed to SEVEN DATES WITH THE DAY NAME on them and
+                    steppable by week. His words: "for the record i prefer it show 7 dates
+                    with day." An empty day now PRINTS as an empty day instead of vanishing,
+                    which is the difference between "nothing dropped" and "nobody logged".
+       🥭 HARVEST · new. Six sections, each ending in the action it implies, and the only
+                    screen in this app that prints.
+     PROGRAM RECORD leaves this tile for FARM, beside the programme it measures.
+     Every panel below is still gated twice — at the tab by roles:, and again inside the
+     renderer by roleAllows() + SHOW_SPEND, so the Gate opening MONEY sees revenue and
+     never spend. */
+  reports:{ic:'🗂️',name:'Reports',sub:'money, seven-day record, harvest',
+    tabs:[{k:'money',  t:'MONEY',  scr:'dash',ic:'💵',tn:'s_money',
+             panels:['moneycard','matrixledger','runcostcard','labourcard','ledgercard'],
+             roles:FULL_ROLES,d:'One month at a time — revenue, what the work cost, what the store is worth'},
+          {k:'record', t:'RECORD', scr:'dash',ic:'📅',tn:'s_rec7',
+             panels:['dailyaudit'],roles:FULL_ROLES,
+             d:'Seven days side by side — tied, good, loss, kg out'},
+          {k:'harvest',t:'HARVEST',scr:'dash',ic:'🥭',tn:'s_harv',
+             panels:['harvestrep'],roles:FULL_ROLES,
+             d:'The season’s quality, and the one sheet you print for the meeting'}]},
   admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',tn:'m_admin',
     /* v3.24 — ADJUSTMENTS is Owner only. Approving a correction to harvest data is marking
        someone else's homework, which is the argument that has kept YIELD AUDIT away from
@@ -850,6 +869,11 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   // v3.6 — a panel that is NOT in this list is never hidden by hideAllPanels() and leaks
   // onto every other screen. That has bitten this codebase once already.
   'scalecard','verifycard','dailyaudit','matrixledger',
+  /* v3.33.0 — the two new report panels. Read the four warnings below before touching
+     them: a panel id in index.html but NOT in this array is never hidden by
+     hideAllPanels() and sits on top of every other screen for the rest of the session.
+     It has shipped that way twice already (v3.6, v3.12). */
+  'moneycard','harvestrep',
   // v3.12 FIX — 'backlogcard' has been a live panel since v3.9 and was never in this
   // list, so hideAllPanels() could not hide it: once a worker opened BACKLOG the card
   // stayed on screen over every other section for the rest of the session. Exactly the
@@ -948,6 +972,11 @@ function roleAllows(id){
     // v3.6 — the summary ledger carries revenue per merchant and spend per lot.
     // Owner and Marketer only, exactly as briefed.
     case 'dailyaudit': case 'matrixledger': return full;
+    /* v3.33.0 — the two new report panels carry exactly what the panels they summarise
+       carry, so they carry exactly the same gate. MONEY additionally hides every spend
+       line behind SHOW_SPEND inside renderMoney(), which is what keeps the Gate on the
+       revenue side of a screen she is entitled to open. */
+    case 'moneycard': case 'harvestrep': return full;
     // v3.2 — the yield audit names who counted and who weighed. Owner only.
     case 'yieldaudit': case 'yieldstrip': return myRole()==='OWNER';
     case 'masterdb': return myRole()==='OWNER';
@@ -1241,7 +1270,9 @@ function sectionBadge(k,tk){
     const n=(typeof yieldFlags==='function')?yieldFlags().length:0; return n?{t:String(n)}:null;}
   if(k==='inv'&&tk==='lvl'){const n=lowStock().length; return n?{t:String(n),amber:1}:null;}
   if(k==='inv'&&tk==='alloc'){const n=unallocatedSlots(); return n?{t:String(n)}:null;}
-  if(k==='reports'&&tk==='record'){const n=overdueDirectives().length; return n?{t:String(n)}:null;}
+  /* v3.33.0 — the overdue-programme count followed PROGRAM RECORD to FARM. Left on
+     reports/record it would have counted late sprays on the daily harvest audit. */
+  if(k==='agro'&&tk==='progrec'){const n=overdueDirectives().length; return n?{t:String(n)}:null;}
   if(k==='agro'&&tk==='build'){
     const n=AGRO_DRAFTS.filter(d=>!d.deleted&&d.status==='DRAFT').length;
     return n?{t:String(n)+' DRAFT',amber:1}:null;}
@@ -1269,6 +1300,7 @@ function renderForTab(k,t){
   if(k==='agro'&&t==='month')renderTimeline();
   if(k==='agro'&&t==='wx'){renderWeather();renderRain();}
   if(k==='agro'&&t==='rec')renderRecord();
+  if(k==='agro'&&t==='progrec')renderProgRecord();
   if(k==='inv'&&t==='in'){renderInOpts();renderAlerts();renderStock();renderBasket();}
   // v3.22.0 MERGE FIX — Module 3 renamed the tabs 'chk' and 'next' into one tab, 'plan'.
   // These two lines went on dispatching on the OLD keys, so opening ORDER PLANNER ran no
@@ -1291,11 +1323,20 @@ function renderForTab(k,t){
   if((k==='mkt'||k==='ops')&&t==='foc')renderFocQueue();
   if(k==='mkt'&&t==='ledger')renderMktLedger();
   if(k==='mkt'&&t==='price')renderPrices();
-  if(k==='reports'&&t==='daily')renderDailyAudit();
-  if(k==='reports'&&t==='matrix')renderMatrix();
+  /* v3.33.0 — three doors. Missing one of these lines is not a blank row, it is a blank
+     SCREEN: openModule() shows the panel and nothing ever writes into it. That shipped
+     once already (the rations card, v3.30.0, 24px tall and empty behind 33 green
+     assertions) and is why the render walk exists. */
+  if(k==='reports'&&t==='money')renderMoney();
+  if(k==='reports'&&t==='record')renderDailyAudit();
+  if(k==='reports'&&t==='harvest')renderHarvestReport();
   if(k==='admin'&&t==='yield')renderYieldAudit();
   if(k==='admin'&&t==='master')renderMasterDB();
   if(k==='mkt'&&t==='sell')renderMarketing();
+  /* v3.33.0 — 'sum' / 'labour' / 'runs' / 'record' are retired KEYS, not retired screens:
+     all four panels are still shown, behind the detail toggles on MONEY. These lines are
+     kept so a saved deep link or an older guide still paints something rather than
+     landing on a card nobody wrote into. */
   if(k==='reports'&&t==='sum')renderLedgerSummary();
   if(k==='reports'&&t==='labour')renderLabour();
   if(k==='admin'&&t==='corr')renderCorrections();
@@ -1307,7 +1348,6 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='alloc')renderAllocCard();
   if(k==='inv'&&t==='onboard')renderOnboard();
   if(k==='reports'&&t==='runs')renderRunCost();
-  if(k==='reports'&&t==='record')renderProgRecord();
   // v3.16 — Tile F. The builder and the master suite reuse the panels the agro/admin
   // tiles already render, so only the Executive Summary needs its own painter.
   if(k==='cmd'&&t==='today')renderCmdToday();
@@ -8881,37 +8921,129 @@ function photoForDispatch(e){
   const q=reqById(e.req_uuid);
   return (q&&q.photo_b64)?q:null;}
 
-let DAILY_LIMIT=14;
-function moreDaily(){DAILY_LIMIT+=14;renderDailyAudit();}
+/* ======================================================================================
+   v3.33.0 · THE RECORD — SEVEN DATES, EACH WITH ITS DAY
+   ======================================================================================
+   The Owner's instruction was four words long: "show 7 dates with day". Two things follow
+   from it that the old scrolling list could not do.
+
+   FIRST, THE WINDOW IS FIXED AT SEVEN AND MOVES IN WEEKS. The old screen showed the most
+   recent 14 days with activity and a SHOW MORE button. "Most recent days WITH ACTIVITY" is
+   the trap: a day nobody logged simply was not there, so a gap in the record and a gap in
+   the harvest looked identical on the page. Here the seven dates are generated from the
+   calendar, not from the log, and a day with nothing on it prints as an empty day. That is
+   the difference between "no fruit fell" and "nobody wrote it down", and only one of those
+   is a farming problem.
+
+   SECOND, THE DAY NAME IS ON IT. A date alone does not answer "was that a Sunday?" — and
+   on this farm the crew, the lorry and the merchants all keep a weekly rhythm, so half the
+   patterns in this table are weekday patterns. The strip across the top is the same shape
+   as the Owner's landing (dates ACROSS, measures DOWN) so the two screens read the same way.
+
+   The window defaults to the last seven days ending today and steps a whole week at a time;
+   the date picker jumps to whatever week contains the date chosen. Nothing about the
+   underlying figures changed — dayField() is untouched, corrections are still folded in,
+   and the totals are the same numbers the tree balances carry.
+   ====================================================================================== */
+const WD_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const WD_MS=['Ahd','Isn','Sel','Rab','Kha','Jum','Sab'];
+/** The weekday of an ISO date, in the language on screen. */
+function wdShort(iso){
+  const d=new Date(String(iso)+'T00:00:00');
+  if(isNaN(d))return '';
+  return ((typeof LANG!=='undefined'&&LANG==='ms')?WD_MS:WD_EN)[d.getDay()]||'';}
+
+let REC_END='';          // last date of the window; '' means "ending today"
+function recEnd(){const t=todayISO();return (REC_END&&REC_END<=t)?REC_END:t;}
+function recWin(){const to=recEnd();return {from:dayShift(to,-6),to:to};}
+function recStep(n){
+  const t=todayISO();
+  let e=dayShift(recEnd(),n*7);
+  if(e>t)e=t;                       // the future is not a week you can step into
+  REC_END=(e===t)?'':e;
+  renderDailyAudit();}
+function recPick(v){
+  if(!v)return;
+  const t=todayISO();
+  REC_END=(v>=t)?'':v;
+  renderDailyAudit();}
+function recToday(){REC_END='';renderDailyAudit();}
+
+/** Seven calendar days, filled from the log where the log has something. */
+function recDays(){
+  const w=recWin(), by={};
+  dayField().forEach(r=>{by[r.day]=r;});
+  const blankCauses=()=>{const c={OTHER:0};ROT_ORDER.forEach(k=>{c[k]=0;});return c;};
+  const out=[];
+  for(let d=w.from;d<=w.to;d=dayShift(d,1))
+    out.push(by[d]||{day:d,tied:0,good:0,rotten:0,causes:blankCauses(),
+      kg:0,dispatch_kg:0,dispatch_rm:0,loads:[],buyers:{},empty:true});
+  return out;}
 
 function renderDailyAudit(){
   const box=$('dailybox'); if(!box)return;
   if(!roleAllows('dailyaudit')){box.innerHTML='';return;}
-  const days=dayField();
-  if(!days.length){box.innerHTML='<div class="alertnone">Nothing logged yet. This list fills itself from '+
-    'the tying, harvest and dispatch records as the season runs.</div>';return;}
-  const shown=days.slice(0,DAILY_LIMIT);
+  const w=recWin(), days=recDays(), atToday=!REC_END;
   const tot=days.reduce((a,r)=>({tied:a.tied+r.tied,good:a.good+r.good,rotten:a.rotten+r.rotten,
     kg:a.kg+r.dispatch_kg,rm:a.rm+r.dispatch_rm}),{tied:0,good:0,rotten:0,kg:0,rm:0});
-  const lossPct=(tot.good+tot.rotten)>0?(tot.rotten/(tot.good+tot.rotten)*100):0;
+  const off=tot.good+tot.rotten;
+  const lossPct=off>0?(tot.rotten/off*100):0;
+  const anything=days.some(r=>!r.empty);
+
+  // dates ACROSS, measures DOWN — the same shape as the Owner's landing
+  const strip='<div class="gridwrap"><table class="tbl bydate recstrip">'+
+    '<tr><th></th>'+days.map(r=>'<th>'+esc(wdShort(r.day))+'<br><small>'+shortDay(r.day)+'</small></th>').join('')+
+      '<th class="allcol">'+esc(tr('ow_tot','TOT'))+'</th></tr>'+
+    '<tr><td>'+esc(tr('rc_tied','Tied'))+'</td>'+
+      days.map(r=>'<td>'+(r.tied||'<span class="dim">·</span>')+'</td>').join('')+
+      '<td class="allcol">'+nf(tot.tied)+'</td></tr>'+
+    '<tr class="goodline"><td>'+esc(tr('rc_good','Good'))+'</td>'+
+      days.map(r=>'<td>'+(r.good||'<span class="dim">·</span>')+'</td>').join('')+
+      '<td class="allcol">'+nf(tot.good)+'</td></tr>'+
+    '<tr class="badline"><td>'+esc(tr('rc_loss','Loss'))+'</td>'+
+      days.map(r=>'<td>'+(r.rotten||'<span class="dim">·</span>')+'</td>').join('')+
+      '<td class="allcol">'+nf(tot.rotten)+'</td></tr>'+
+    '<tr class="farmrow"><td>'+esc(tr('rc_kgout','kg out'))+'</td>'+
+      days.map(r=>'<td>'+(r.dispatch_kg?nf(r.dispatch_kg):'<span class="dim">·</span>')+'</td>').join('')+
+      '<td class="allcol">'+nf(tot.kg)+'</td></tr>'+
+    '</table></div>';
+
   box.innerHTML=
-    '<div class="kpis" style="margin-bottom:8px">'+
-      '<div class="kpi"><div class="v">'+nf(tot.tied)+'</div><div class="l">counts tied</div></div>'+
-      '<div class="kpi"><div class="v">'+nf(tot.good)+'</div><div class="l">good drops</div></div>'+
-      '<div class="kpi'+(lossPct>15?' bad':'')+'"><div class="v">'+nf(tot.rotten)+'</div><div class="l">rotten · '+
-        nf(lossPct)+'%</div></div>'+
-      '<div class="kpi"><div class="v">'+nf(tot.kg)+'</div><div class="l">kg dispatched</div></div>'+
+    // the window control: a whole week at a time, and a date to jump to
+    '<div class="winbar">'+
+      '<button class="winb" onclick="recStep(-1)">‹</button>'+
+      '<div class="winlbl"><b>'+esc(wdShort(w.from))+' '+shortDay(w.from)+' – '+
+        esc(wdShort(w.to))+' '+shortDay(w.to)+'</b>'+
+        '<small>'+esc(atToday?tr('rc_last7','the last 7 days'):tr('rc_weekof','week ending ')+w.to)+'</small></div>'+
+      '<button class="winb'+(atToday?' off':'')+'" onclick="recStep(1)"'+(atToday?' disabled':'')+'>›</button>'+
     '</div>'+
-    '<div class="cnote">One row per day, newest first. <b>Tied</b> is what went onto the string that day; '+
-      '<b>good</b> and <b>rotten</b> are what came off it. Approved corrections are already folded in, so '+
-      'these figures agree with the tree balances. Tap 📷 to see the scale photo the load was invoiced from.</div>'+
-    shown.map(r=>{
-      const off=r.good+r.rotten;
-      const pct=off>0?(r.rotten/off*100):0;
+    '<div class="winpick">'+
+      '<input type="date" id="rec-date" value="'+esc(w.to)+'" max="'+esc(todayISO())+'" onchange="recPick(this.value)">'+
+      (atToday?'':'<button class="winnow" onclick="recToday()">'+esc(tr('rc_backnow','back to this week'))+'</button>')+
+    '</div>'+
+    '<div class="kpis" style="margin-bottom:8px">'+
+      '<div class="kpi"><div class="v">'+nf(tot.tied)+'</div><div class="l">'+esc(tr('rc_k1','counts tied'))+'</div></div>'+
+      '<div class="kpi"><div class="v">'+nf(tot.good)+'</div><div class="l">'+esc(tr('rc_k2','good drops'))+'</div></div>'+
+      '<div class="kpi'+(lossPct>15?' bad':'')+'"><div class="v">'+nf(tot.rotten)+'</div><div class="l">'+
+        esc(tr('rc_k3','rotten'))+' · '+nf(lossPct)+'%</div></div>'+
+      '<div class="kpi"><div class="v">'+nf(tot.kg)+'</div><div class="l">'+esc(tr('rc_k4','kg dispatched'))+'</div></div>'+
+    '</div>'+
+    strip+
+    '<div class="cnote">Seven calendar dates, newest first below. <b>Tied</b> is what went onto the '+
+      'string that day; <b>good</b> and <b>rotten</b> are what came off it. A date with nothing on it '+
+      'is shown as an empty day rather than skipped, so a gap in the record looks different from a '+
+      'quiet day. Approved corrections are already folded in. Tap 📷 to see the scale photo the load '+
+      'was invoiced from.</div>'+
+    days.slice().reverse().map(r=>{
+      const o=r.good+r.rotten;
+      const pct=o>0?(r.rotten/o*100):0;
       const buyers=Object.keys(r.buyers);
+      if(r.empty)return '<div class="dayrow empty">'+
+        '<div class="dayhead"><b>'+esc(wdShort(r.day))+' '+esc(r.day)+'</b>'+
+          '<span class="cstat">'+esc(tr('rc_nolog','nothing logged'))+'</span></div></div>';
       return '<div class="dayrow">'+
-        '<div class="dayhead"><b>'+esc(r.day)+'</b>'+
-          (pct>15?'<span class="cstat r">'+nf(pct)+'% LOSS</span>':(off?('<span class="cstat a">'+nf(pct)+'% loss</span>'):''))+
+        '<div class="dayhead"><b>'+esc(wdShort(r.day))+' '+esc(r.day)+'</b>'+
+          (pct>15?'<span class="cstat r">'+nf(pct)+'% LOSS</span>':(o?('<span class="cstat a">'+nf(pct)+'% loss</span>'):''))+
         '</div>'+
         '<div class="daygrid">'+
           '<div><span class="dl">tied</span><b>'+nf(r.tied)+'</b></div>'+
@@ -8936,10 +9068,8 @@ function renderDailyAudit(){
                  esc(e.invoice_no||'invoice')+'</span></span>';}).join('')+'</div>')
           : '<div class="buyrow dim">nothing dispatched this day</div>')+
       '</div>';}).join('')+
-    (days.length>shown.length
-      ? ('<button class="bigbtn ghost" style="padding:11px;font-size:13px" onclick="moreDaily()">SHOW '+
-         Math.min(14,days.length-shown.length)+' MORE DAYS ('+(days.length-shown.length)+' left)</button>')
-      : '')+
+    (anything?'':'<div class="alertnone">Nothing was logged in these seven days. Step back a week with ‹, '+
+      'or pick a date.</div>')+
     '<p class="small">📷 opens the photo the worker took of the scale; ▫ marks a load dispatched directly '+
       'by Marketing without a worker submission, so it has no photo behind it. Tapping the invoice number '+
       'copies its WhatsApp receipt.</p>';}
@@ -14370,3 +14500,600 @@ function m5Tog(id){
   if(!el)return;
   el.classList.toggle('hidden');
 }
+
+/* ======================================================================================
+   v3.33.0 · MONEY — ONE MONTH AT A TIME
+   ======================================================================================
+   The Owner's words were "for the money i prefer can toggle by month". That is one design
+   decision with three consequences, and all three are the point of this screen.
+
+   1. A MONTH IS THE UNIT, NOT A GRID. The old MONTH LEDGER showed every month at once,
+      which is the right shape for spotting a trend and the wrong shape for answering
+      "how did August go". Pick a month, read five lines. The grid is still one tap away.
+
+   2. THE TWO HALVES OF A JOB'S COST GO ON ONE LINE. PROGRAM RUNS carried the material a
+      job consumed and LABOUR carried the hours it took, on two separate screens, and no
+      screen in the app added them up. They are joined here by JOB NAME within the month —
+      the same name the crew filed the work under — so "Set 11 · foliar" reads material,
+      hours and total on one row. Joining by name rather than by id is deliberate: a
+      programme run writes several stock lines and several completion replies, and the id
+      that ties them together is not carried on the labour side at all.
+
+   3. NOTHING IS DELETED, IT IS FOLDED. The four screens this page summarises — the month
+      grid, cost by lot, labour and the raw stock ledger — are all still shown, behind
+      detail toggles that start closed. hideMoneyDetail() closes them on every paint, so
+      leaving the screen and coming back is deterministic.
+
+   THE MONEY GATE. Revenue is SHOW_VALUES; everything that says what the farm PAID is
+   SHOW_SPEND, which is false for the Gate. She may open MONEY — she prices fruit and
+   invoices it — and she sees the revenue side of the month and nothing else. The detail
+   toggles are not even drawn for her, because three of the four cards behind them are
+   spend screens.
+   ====================================================================================== */
+let MON_KEY='', MONEY_OPEN={};
+
+/** The four cards folded into this page, in the order they were argued about. */
+const MONEY_DETAIL=[
+  {k:'grid',id:'matrixledger',ic:'📊',t:'Month by month',   paint:function(){renderMatrix();}},
+  {k:'lot', id:'runcostcard', ic:'🧪',t:'Cost by lot',      paint:function(){renderRunCost();}},
+  {k:'rate',id:'labourcard',  ic:'👷',t:'Labour & the rate',paint:function(){renderLabour();}},
+  {k:'raw', id:'ledgercard',  ic:'📒',t:'Raw stock rows',   paint:function(){renderLedgerSummary();}}];
+
+function hideMoneyDetail(){
+  MONEY_DETAIL.forEach(function(d){
+    const el=$(d.id); if(!el)return;
+    el.style.display=(SHOW_SPEND&&MONEY_OPEN[d.k])?'':'none';});}
+
+function moneyTog(k){
+  MONEY_OPEN[k]=!MONEY_OPEN[k];
+  const d=MONEY_DETAIL.filter(function(x){return x.k===k;})[0];
+  renderMoney();
+  if(d&&MONEY_OPEN[k]&&typeof d.paint==='function')d.paint();}
+
+function monPick(v){if(!v)return;MON_KEY=v;renderMoney();}
+function monStep(n){
+  const ms=buildMonthMatrix().months;          // newest first
+  if(!ms.length)return;
+  let i=ms.map(function(m){return m.key;}).indexOf(MON_KEY);
+  if(i<0)i=0;
+  i=Math.min(ms.length-1,Math.max(0,i+n));      // +1 walks BACK in time
+  MON_KEY=ms[i].key;renderMoney();}
+
+/* ---- what the work actually cost, both halves ---------------------------------------- */
+/** Material and man-hours for one month, joined by the name the job was filed under.
+ *  Tanks are counted once per completion reply, never once per stock line, or a job that
+ *  drew five products would report five times the tanks it actually sprayed. */
+const NO_JOB='Issued outside a job';
+function workDone(mo){
+  const mac=movingAvgCost(), J={}, seenRun={};
+  const touch=function(n){n=String(n||'job');
+    if(!J[n])J[n]={name:n,tanks:0,material:0,mh:0,runs:{},lots:{}};return J[n];};
+  EVENTS.forEach(function(e){
+    if(!e||e.type!=='STOCK_OUT'||!e.dirRun)return;
+    if(String(e.dt||'').slice(0,7)!==mo)return;
+    const j=touch(e.progSet||'programme run');
+    j.material+=outCostOf(e,mac);
+    const rid=e.replyId||e.uuid;
+    j.runs[rid]=1;
+    if(e.lot)j.lots[e.lot]=1;
+    if(!seenRun[rid]){seenRun[rid]=1;j.tanks+=(+e.tanks||0);}});
+  labourRows().forEach(function(r){
+    if(String(r.dt||'').slice(0,7)!==mo)return;
+    const j=touch(r.what||'job');
+    j.mh+=(+r.mh||0);
+    if(r.lot)j.lots[r.lot]=1;});
+  /* THE RESIDUAL. Material can leave the store without a directive behind it — a repair,
+     a one-off issue, anything keyed straight out. It counts in the month's Material line
+     and belongs to no job, so without this row the table below silently disagrees with
+     the figure four lines above it on the same screen. Named, not hidden. */
+  let dirMat=0;
+  Object.keys(J).forEach(function(n){dirMat+=J[n].material;});
+  let allMat=0;
+  EVENTS.forEach(function(e){
+    if(!e||e.type!=='STOCK_OUT')return;
+    if(String(e.dt||'').slice(0,7)!==mo)return;
+    allMat+=outCostOf(e,mac);});
+  const spare=+(allMat-dirMat).toFixed(2);
+  if(Math.abs(spare)>=0.01)touch(NO_JOB).material+=spare;
+  const rows=Object.keys(J).map(function(n){
+    const j=J[n];
+    j.runs_n=Object.keys(j.runs).length;
+    j.lot_list=Object.keys(j.lots).sort().join(' ');
+    j.labour=+(j.mh*LABOUR_RATE).toFixed(2);
+    j.total=+(j.material+j.labour).toFixed(2);
+    return j;}).filter(function(j){return j.total>0||j.mh>0||j.material>0;})
+    .sort(function(a,b){
+      // the residual is not a job, so it sits last however large it is
+      if(a.name===NO_JOB)return 1;
+      if(b.name===NO_JOB)return -1;
+      return b.total-a.total;});
+  const tot=rows.reduce(function(a,r){
+    return {tanks:a.tanks+r.tanks,material:a.material+r.material,mh:a.mh+r.mh,
+            labour:a.labour+r.labour,total:a.total+r.total,runs:a.runs+r.runs_n};},
+    {tanks:0,material:0,mh:0,labour:0,total:0,runs:0});
+  return {rows:rows,tot:tot};}
+
+function renderMoney(){
+  const box=$('moneybox'); if(!box)return;
+  if(!roleAllows('moneycard')||!SHOW_VALUES){box.innerHTML='';hideMoneyDetail();return;}
+  const d=buildMonthMatrix(), ms=d.months;      // newest first
+  if(!ms.length){
+    box.innerHTML='<div class="alertnone">No month has any activity yet. This page builds itself from '+
+      'the harvest, dispatch, stock and labour records — it holds nothing of its own.</div>';
+    hideMoneyDetail();return;}
+  if(!MON_KEY||!ms.some(function(m){return m.key===MON_KEY;}))MON_KEY=ms[0].key;
+  const i=ms.map(function(m){return m.key;}).indexOf(MON_KEY), m=ms[i];
+  const newest=(i===0), oldest=(i===ms.length-1);
+  const w=workDone(m.key);
+  /* The job table's material MUST equal the month's Material line — see the residual row
+     in workDone(). If it ever does not, say so on the screen rather than printing two
+     different numbers four lines apart and letting the reader find it. */
+  const matGap=+(w.tot.material-m.material_total).toFixed(2);
+  const iv=buildLedgerSummary().months.filter(function(x){return x.key===m.key;})[0];
+
+  // --- the month itself, five lines -----------------------------------------------------
+  const line=function(lbl,val,cls,sub){
+    return '<tr'+(cls?' class="'+cls+'"':'')+'><td>'+lbl+(sub?('<small>'+sub+'</small>'):'')+
+      '</td><td class="num">'+val+'</td></tr>';};
+  const money=
+    '<div class="sec">'+esc(monthNameOf(m.key))+' — '+esc(tr('mn_themonth','the month'))+'</div>'+
+    '<table class="tbl fivel">'+
+      line(esc(tr('mn_revenue','Revenue')),rm(m.revenue_total),'',
+        nf(m.kg_total)+' kg · '+m.invoices+' invoice'+(m.invoices===1?'':'s'))+
+      (SHOW_SPEND?(
+        line(esc(tr('mn_material','Material')),rm(m.material_total))+
+        line(esc(tr('mn_labour','Labour')),rm(m.labour_total),'',nf(m.manhours)+' man-hours')+
+        line(esc(tr('mn_draw','Drawdown')),rm(m.open_val+m.in_val-m.close_val)+' · '+nf(m.drawdown_pct)+'%',
+          '','what left the store as a share of everything in it')+
+        line('<b>'+esc(tr('mn_net','Net'))+'</b>','<b>'+rm(m.margin_rm)+'</b>','netline'))
+        :line(esc(tr('mn_perkg','Average RM / kg')),
+            m.kg_total?rm(m.revenue_total/m.kg_total):'—'))+
+    '</table>';
+
+  // --- what the work cost, both halves on one line --------------------------------------
+  let work='';
+  if(SHOW_SPEND){
+    work='<div class="sec" style="margin-top:16px">'+esc(tr('mn_work','Cost of the work done'))+'</div>';
+    if(!w.rows.length)
+      work+='<div class="small">No job was filed in this month. The moment a worker secures a work log '+
+        'or a completion reply, it lands here with its material and its hours.</div>';
+    else work+=
+      '<div class="gridwrap"><table class="tbl work">'+
+        '<colgroup><col class="cjob"><col class="ctk"><col class="cmat"><col class="chr"><col class="crm"></colgroup>'+
+        '<tr><th>'+esc(tr('mn_job','Job'))+'</th><th class="num">'+esc(tr('mn_tanks','Tanks'))+'</th>'+
+        '<th class="num">'+esc(tr('mn_matshort','Material'))+'</th><th class="num">'+esc(tr('mn_hours','Hours'))+'</th>'+
+        '<th class="num allcol">'+esc(tr('mn_totrm','RM'))+'</th></tr>'+
+        w.rows.map(function(r){
+          const res=(r.name===NO_JOB);
+          return '<tr'+(res?' class="dimrow"':'')+'><td><b>'+esc(res?tr('mn_nojob','Issued outside a job'):r.name)+'</b>'+
+            (res?'<small>stock that left the store with no directive behind it</small>'
+                :(r.lot_list?('<small>Lot '+esc(r.lot_list)+'</small>'):''))+'</td>'+
+            '<td class="num">'+(r.tanks?nf(r.tanks):'—')+'</td>'+
+            '<td class="num">'+(r.material?nf(r.material):'—')+'</td>'+
+            '<td class="num">'+(r.mh?nf(r.mh):'—')+'</td>'+
+            '<td class="num allcol"><b>'+nf(r.total)+'</b></td></tr>';}).join('')+
+        '<tr class="totline"><td><b>'+esc(monthNameOf(m.key))+'</b></td>'+
+          '<td class="num"><b>'+nf(w.tot.tanks)+'</b></td>'+
+          '<td class="num"><b>'+nf(w.tot.material)+'</b></td>'+
+          '<td class="num"><b>'+nf(w.tot.mh)+'</b></td>'+
+          '<td class="num allcol"><b>'+nf(w.tot.total)+'</b></td></tr>'+
+      '</table></div>'+
+      '<div class="small">Every figure in this table is ringgit except <b>Tanks</b> and <b>Hours</b>. '+
+        'The material column adds up to the <b>Material</b> line at the top of this page — if it did '+
+        'not, one of the two would be wrong and there would be no way to tell which.</div>'+
+      (Math.abs(matGap)<0.01?'':'<div class="critbox">This table adds to '+rm(w.tot.material)+
+        ' of material but the month line above says '+rm(m.material_total)+'. One of the two is wrong. '+
+        'Do not budget off either figure until the difference of '+rm(Math.abs(matGap))+' is found.</div>')+
+      (LABOUR_RATE_OK?'':'<div class="critbox">The labour rate is still the placeholder '+rm(LABOUR_RATE)+
+        ' per man-hour, so every <b>Hours</b> figure priced on this page — and the labour column of the '+
+        'month grid — is indicative until you set the real one. Open <b>Labour &amp; the rate</b> below.</div>')+
+      '<div class="small">Material and hours are joined by the name the job was filed under. A job with '+
+        'hours and no material is hand work; a job with material and no hours was filed without a crew '+
+        'size, which is worth chasing — it is the one thing that makes this table read low.</div>';}
+
+  // --- the store, five lines -------------------------------------------------------------
+  let stock='';
+  if(SHOW_SPEND){
+    const S=buildLedgerSummary();
+    const op=iv?iv.openVal:S.openVal, bin=iv?iv.inVal:0, out=iv?iv.outVal:0;
+    const onhand=iv?iv.closeVal:S.closeVal;
+    const varv=iv?iv.varVal:0;
+    stock='<div class="sec" style="margin-top:16px">'+esc(tr('mn_store','Stock money — five lines'))+'</div>'+
+      '<table class="tbl fivel">'+
+        line(esc(tr('mn_open','Opening value')),rm(op),'',esc(monthNameOf(m.key))+', first day')+
+        line(esc(tr('mn_bought','Bought in')),rm(bin))+
+        line(esc(tr('mn_drawn','Drawn out')),rm(out))+
+        (Math.abs(varv)>0.005?line(esc(tr('mn_var','Stock-take variance')),rm(varv),'varline',
+          varv<0?'counted short':'found surplus'):'')+
+        line('<b>'+esc(tr('mn_onhand','On hand at month end'))+'</b>','<b>'+rm(onhand)+'</b>','netline')+
+      '</table>'+
+      '<div class="small">Every raw transaction behind these five lines is still in the Google Sheet, '+
+        'and still on this phone under <b>Raw stock rows</b>. Valuation is the moving average at the '+
+        'moment of issue.</div>';}
+
+  // --- the four folded screens ------------------------------------------------------------
+  let detail='';
+  if(SHOW_SPEND){
+    detail='<div class="sec" style="margin-top:16px">'+esc(tr('mn_detail','The full screens'))+'</div>'+
+      '<div class="dtogs">'+MONEY_DETAIL.map(function(x){
+        return '<button class="dtog'+(MONEY_OPEN[x.k]?' on':'')+'" onclick="moneyTog(\''+x.k+'\')">'+
+          x.ic+' '+esc(x.t)+'<span>'+(MONEY_OPEN[x.k]?'▾':'▸')+'</span></button>';}).join('')+'</div>'+
+      '<div class="small">Nothing was removed when this page was built — these are the four original '+
+        'screens, folded shut. Open one and it appears below this card.</div>';}
+
+  box.innerHTML=
+    '<div class="winbar">'+
+      '<button class="winb'+(oldest?' off':'')+'" onclick="monStep(1)"'+(oldest?' disabled':'')+'>‹</button>'+
+      '<div class="winlbl"><b>'+esc(monthNameOf(m.key))+'</b>'+
+        '<small>'+(i+1)+' of '+ms.length+' month'+(ms.length===1?'':'s')+' with activity</small></div>'+
+      '<button class="winb'+(newest?' off':'')+'" onclick="monStep(-1)"'+(newest?' disabled':'')+'>›</button>'+
+    '</div>'+
+    (ms.length>1?('<div class="winpick"><select id="mon-sel" onchange="monPick(this.value)">'+
+      ms.map(function(x){return '<option value="'+esc(x.key)+'"'+(x.key===m.key?' selected':'')+'>'+
+        esc(monthNameOf(x.key))+'</option>';}).join('')+'</select></div>'):'')+
+    money+work+stock+detail;
+
+  hideMoneyDetail();}
+
+/* ======================================================================================
+   v3.33.0 · HARVEST — WHERE THE SEASON IS LOSING FRUIT
+   ======================================================================================
+   This is the report the Owner designed and the app did not have. Every other screen in
+   Reports answers "what happened". This one answers "where do I improve", and every
+   section ends in an action somebody can take on a Monday morning.
+
+   THE SIX, AND WHY EACH ONE IS HERE
+     1 WHERE THE LOSS COMES FROM — the causes were recorded from the first release and
+       shown per day, and never once totalled. Ranked, so the biggest one is first.
+     2 BY LOT, JUDGED PER TREE — Lot C has 40 trees against Lot A's 65. Comparing raw
+       counts punishes the small lot for being small; per tree is the only fair reading.
+     3 BANANA % — misshapen fruit is a known sign of incomplete pollination. This grade
+       was added in v3.30.0 and NOTHING has read it since. It is a pollination score.
+     4 LOSS AGAINST THE WEATHER — the rain cage has been filling since v2.7.
+     5 WHERE THE FRUIT WENT — sold, cheap, FOC, dumped, still in the shed. The balance
+       existed on the Gate's screen and in no report.
+     6 THE TREES THAT LOSE THE MOST — the list he actually walks.
+
+   TWO HONESTIES THE PAGE MUST CARRY, because a report that overclaims is worse than no
+   report at all:
+     - Section 4 is a CORRELATION on a small number of days. It says so on the page, in
+       print as well as on screen. Loss after rain has an obvious mechanism, which is
+       exactly why it is easy to believe a coincidence.
+     - Sections 1, 3 and 6 are only as good as the crew's tap. A cause not chosen lands in
+       "not recorded"; a misshapen fruit not marked is counted as a normal one. Both are
+       stated rather than quietly rolled into the totals.
+
+   THE PRINT. His instruction was "the printed version should able to see by day fruit
+   drop. it should come with quality." So the by-day table is PRINT-ALWAYS and screen-
+   optional: on a phone it is 40-odd rows nobody scrolls, on the meeting sheet it is the
+   whole argument. This is the only screen in the app that prints.
+   ====================================================================================== */
+let HARV_ALL=false;
+function harvTogAll(){HARV_ALL=!HARV_ALL;renderHarvestReport();}
+function harvPrint(){try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}}
+
+function harvSeason(){return {from:seasonStart(),to:todayISO()};}
+
+/** 1 · every rotten fruit in the window, grouped by the cause the crew tapped. */
+function lossByCause(from,to){
+  const c={}; let good=0,bad=0;
+  for(const e of EVENTS){
+    if(!e||!inWindow(e.dt,from,to))continue;
+    if(e.type==='DROP')good+=(+e.qty||0);
+    else if(e.type==='DROP_ADJUST')good+=(+e.delta||0);
+    else if(e.type==='ROTTEN'||e.type==='ROTTEN_ADJUST'){
+      const q=(e.type==='ROTTEN')?(+e.qty||0):(+e.delta||0);
+      bad+=q;
+      const k=ROT_CAUSE[e.cause]?e.cause:'OTHER';
+      c[k]=(c[k]||0)+q;}}
+  const rows=Object.keys(c).map(function(k){
+    const meta=ROT_CAUSE[k]||{label:'Not recorded',ic:'❓'};
+    return {k:k,n:c[k],label:meta.label,ic:meta.ic,kind:ROT_KIND[k]||'—'};})
+    .filter(function(r){return r.n>0;}).sort(function(a,b){return b.n-a.n;});
+  rows.forEach(function(r){r.pct=bad?+(r.n/bad*100).toFixed(1):0;});
+  return {rows:rows,bad:bad,good:good,dropped:good+bad,
+    lossPct:(good+bad)?+(bad/(good+bad)*100).toFixed(1):0};}
+
+/** 3 · quality read per clone — loss and banana share side by side. */
+function harvByClone(from,to){
+  const C={};
+  const t=function(c){if(!C[c])C[c]={clone:c,good:0,bad:0,banana:0};return C[c];};
+  for(const e of EVENTS){
+    if(!e||!inWindow(e.dt,from,to))continue;
+    const c=e.clone||'—';
+    if(e.type==='DROP'){const q=+e.qty||0;t(c).good+=q;if(isShapeGrade(e.grade))t(c).banana+=q;}
+    else if(e.type==='ROTTEN')t(c).bad+=(+e.qty||0);}
+  const rows=Object.keys(C).map(function(k){return C[k];})
+    .filter(function(r){return r.good+r.bad>0;});
+  rows.forEach(function(r){
+    r.dropped=r.good+r.bad;
+    r.lossPct=r.dropped?+(r.bad/r.dropped*100).toFixed(1):0;
+    r.banPct=r.good?+(r.banana/r.good*100).toFixed(1):0;});
+  return rows.sort(function(a,b){return b.dropped-a.dropped;});}
+
+/** 4 · a day counts as WET if it rained that day or on either of the two days before it.
+ *  Two days is the wash-off / Phytophthora window this app already uses elsewhere. */
+function lossVsRain(from,to){
+  const wet={};
+  (typeof RAINFALL!=='undefined'?RAINFALL:[]).forEach(function(r){
+    if(!(+r.mm>0))return;
+    for(let i=0;i<=2;i++)wet[dayShift(String(r.date),i)]=1;});
+  const per={};
+  for(const e of EVENTS){
+    if(!e||!inWindow(e.dt,from,to))continue;
+    if(e.type!=='DROP'&&e.type!=='ROTTEN')continue;
+    const d=String(e.dt).slice(0,10);
+    if(!per[d])per[d]={good:0,bad:0};
+    if(e.type==='DROP')per[d].good+=(+e.qty||0); else per[d].bad+=(+e.qty||0);}
+  const A={dry:{days:0,good:0,bad:0},wet:{days:0,good:0,bad:0}};
+  Object.keys(per).forEach(function(d){
+    const b=wet[d]?A.wet:A.dry;
+    b.days++;b.good+=per[d].good;b.bad+=per[d].bad;});
+  ['dry','wet'].forEach(function(k){
+    const o=A[k];o.drop=o.good+o.bad;
+    o.lossPct=o.drop?+(o.bad/o.drop*100).toFixed(1):0;});
+  A.readings=(typeof RAINFALL!=='undefined')?RAINFALL.length:0;
+  A.have=A.readings>0&&(A.dry.days>0&&A.wet.days>0);
+  return A;}
+
+/** 6 · the trees carrying the loss, and what share of it the top few carry. */
+function worstTrees(from,to,n){
+  const T={};
+  for(const e of EVENTS){
+    if(!e||!inWindow(e.dt,from,to)||!e.tree)continue;
+    if(e.type!=='DROP'&&e.type!=='ROTTEN')continue;
+    if(!T[e.tree])T[e.tree]={id:e.tree,lot:e.lot||'',clone:e.clone||'',good:0,bad:0};
+    if(e.type==='DROP')T[e.tree].good+=(+e.qty||0); else T[e.tree].bad+=(+e.qty||0);}
+  const rows=Object.keys(T).map(function(k){return T[k];});
+  rows.forEach(function(r){r.dropped=r.good+r.bad;
+    r.lossPct=r.dropped?+(r.bad/r.dropped*100).toFixed(1):0;});
+  const totBad=rows.reduce(function(s,r){return s+r.bad;},0);
+  const top=rows.filter(function(r){return r.bad>0;})
+    .sort(function(a,b){return b.bad-a.bad||b.lossPct-a.lossPct;}).slice(0,n||5);
+  return {rows:top,trees:rows.length,totBad:totBad,
+    share:totBad?Math.round(top.reduce(function(s,r){return s+r.bad;},0)/totBad*100):0};}
+
+/** The by-day table — screen-optional, print-always. */
+function seasonDaily(from,to){
+  const per={};
+  for(const e of EVENTS){
+    if(!e||!inWindow(e.dt,from,to))continue;
+    if(e.type!=='DROP'&&e.type!=='ROTTEN')continue;
+    const d=String(e.dt).slice(0,10);
+    if(!per[d])per[d]={d:d,good:0,bad:0,banana:0};
+    if(e.type==='DROP'){per[d].good+=(+e.qty||0);
+      if(isShapeGrade(e.grade))per[d].banana+=(+e.qty||0);}
+    else per[d].bad+=(+e.qty||0);}
+  const rows=Object.keys(per).sort().map(function(k){return per[k];});
+  rows.forEach(function(r){r.dropped=r.good+r.bad;
+    r.lossPct=r.dropped?+(r.bad/r.dropped*100).toFixed(1):0;});
+  return rows;}
+
+function renderHarvestReport(){
+  const box=$('harvestbox'); if(!box)return;
+  if(!roleAllows('harvestrep')){box.innerHTML='';return;}
+  const w=harvSeason(), from=w.from, to=w.to;
+  const cause=lossByCause(from,to);
+  if(!cause.dropped){
+    box.innerHTML='<div class="alertnone">Nothing has come off a tree yet this season. This report '+
+      'builds itself the moment the first fruit is logged — it holds nothing of its own.</div>';return;}
+  const mx=harvestMatrix(from,to), rows=mx.rows, all=mx.all;
+  const clones=harvByClone(from,to);
+  const rain=lossVsRain(from,to);
+  const bal=fruitBalance(from,to);
+  const worst=worstTrees(from,to,5);
+  const daily=seasonDaily(from,to);
+  const bar=function(pct){return '<span class="lbar"><i style="width:'+Math.max(2,Math.min(100,pct))+'%"></i></span>';};
+  const sec=function(n,t,sub){return '<div class="hsec"><b>'+n+' · '+esc(t)+'</b>'+
+    (sub?('<small>'+esc(sub)+'</small>'):'')+'</div>';};
+  const act=function(txt){return '<div class="hact">'+txt+'</div>';};
+
+  let h='';
+
+  // ---- the season line -------------------------------------------------------------------
+  h+='<div class="hhead">'+
+      '<div class="ht">'+esc(tr('hv_season','Season so far'))+'</div>'+
+      '<div class="hd">'+esc(from)+' → '+esc(to)+' · '+esc(tr('hv_day','day'))+' '+seasonDay()+'</div>'+
+     '</div>'+
+     '<div class="kpis" style="margin-bottom:10px">'+
+       '<div class="kpi"><div class="v">'+nf(all.dropped)+'</div><div class="l">'+esc(tr('hv_dropped','dropped'))+'</div></div>'+
+       '<div class="kpi"><div class="v">'+nf(all.good)+'</div><div class="l">'+esc(tr('hv_good','good'))+'</div></div>'+
+       '<div class="kpi'+(cause.lossPct>15?' bad':'')+'"><div class="v">'+nf(all.bad)+'</div><div class="l">'+
+         esc(tr('hv_loss','loss'))+' '+nf(cause.lossPct)+'%</div></div>'+
+       '<div class="kpi"><div class="v">'+(all.est?'≈':'')+nf(all.left)+'</div><div class="l">'+
+         esc(tr('hv_left','left on tree'))+'</div></div>'+
+     '</div>';
+
+  // ---- 1 · where the loss comes from -------------------------------------------------------
+  h+=sec(1,tr('hv_s1','Where the loss comes from'),tr('hv_s1d','every rotten fruit, by the cause the crew tapped'));
+  h+='<div class="gridwrap"><table class="tbl hcause">'+
+     '<tr><th>'+esc(tr('hv_cause','Cause'))+'</th><th class="num">'+esc(tr('hv_fruit','Fruit'))+'</th>'+
+     '<th class="num">'+esc(tr('hv_share','Share'))+'</th><th></th></tr>'+
+     cause.rows.map(function(r){
+       return '<tr'+(r.k==='OTHER'?' class="dimrow"':'')+'><td>'+r.ic+' <b>'+esc(r.label)+'</b>'+
+         (r.kind==='PHYSIOLOGICAL'?'<small>a stress drop, not a pest</small>':'')+'</td>'+
+         '<td class="num">'+nf(r.n)+'</td><td class="num">'+nf(r.pct)+'%</td>'+
+         '<td class="barcell">'+bar(r.pct)+'</td></tr>';}).join('')+
+     '</table></div>';
+  if(cause.rows.length){
+    const top=cause.rows[0];
+    h+=act('<b>'+esc(top.label)+'</b> is the biggest single cause at '+nf(top.pct)+'% of the loss'+
+      (top.k==='OTHER'?' — and "not recorded" being top means the tap is being skipped, not that the '+
+        'fruit had no cause. That is a crew conversation, not a spray decision.'
+       :(ROT_KIND[top.k]==='PHYSIOLOGICAL'
+         ? '. A physiological drop points at water or nutrition, not at a pest — check irrigation and the last foliar before reaching for a spray.'
+         : '. Fixing the top cause is worth more than fixing the other three together.'))+'</div>');}
+  const unrec=cause.rows.filter(function(r){return r.k==='OTHER';})[0];
+  if(unrec&&unrec.pct>10)
+    h+='<div class="critbox">'+nf(unrec.pct)+'% of the loss has no cause on it. Until that falls, '+
+       'this ranking is a partial picture — the missing fruit could belong to any row above.</div>';
+
+  // ---- 2 · by lot, per tree ----------------------------------------------------------------
+  h+=sec(2,tr('hv_s2','By lot, judged per tree'),tr('hv_s2d','so a small lot is not punished for being small'));
+  const worstLot=LOT_KEYS.filter(function(l){return rows[l].dropped>0;})
+    .sort(function(x,y){return rows[y].lossPct-rows[x].lossPct;})[0];
+  h+='<div class="gridwrap"><table class="tbl hlot">'+
+     '<tr><th>'+esc(tr('hv_lot','Lot'))+'</th><th class="num">'+esc(tr('hv_trees','Trees'))+'</th>'+
+     '<th class="num">'+esc(tr('hv_good','Good'))+'</th><th class="num">'+esc(tr('hv_losspct','Loss %'))+'</th>'+
+     '<th class="num allcol">'+esc(tr('hv_pertree','/tree'))+'</th></tr>'+
+     LOT_KEYS.map(function(l){const r=rows[l];
+       return '<tr><td><b>Lot '+l+'</b></td><td class="num">'+nf(r.trees)+'</td>'+
+         '<td class="num">'+nf(r.good)+'</td>'+
+         '<td class="num'+(l===worstLot&&r.lossPct>0?' flag':'')+'">'+nf(r.lossPct)+'%</td>'+
+         '<td class="num allcol"><b>'+nf(r.perTree)+'</b></td></tr>';}).join('')+
+     '<tr class="totline"><td><b>'+esc(tr('hv_farm','FARM'))+'</b></td><td class="num"><b>'+nf(all.trees)+'</b></td>'+
+       '<td class="num"><b>'+nf(all.good)+'</b></td><td class="num"><b>'+nf(all.lossPct)+'%</b></td>'+
+       '<td class="num allcol"><b>'+nf(all.perTree)+'</b></td></tr>'+
+     '</table></div>';
+  if(worstLot)
+    h+=act('<b>Lot '+worstLot+'</b> is losing the highest share at '+nf(rows[worstLot].lossPct)+
+      '%, against '+nf(all.lossPct)+'% for the farm. Walk that lot first.</div>');
+
+  // ---- 3 · banana % ------------------------------------------------------------------------
+  const anyBan=all.banana>0||clones.some(function(c){return c.banana>0;});
+  h+=sec(3,'🍌 '+tr('hv_s3','Banana % — the pollination score'),
+        tr('hv_s3d','misshapen fruit is a known sign of incomplete pollination'));
+  if(!anyBan)
+    h+='<div class="small">No fruit has been marked 🍌 yet this season. Until the crew taps it on the '+
+       'collect screen this section stays empty — and a zero here means "not marked", not "none grew".</div>';
+  else{
+    h+='<div class="gridwrap"><table class="tbl hlot">'+
+       '<tr><th>'+esc(tr('hv_lot','Lot'))+'</th><th class="num">'+esc(tr('hv_good','Good'))+'</th>'+
+       '<th class="num">🍌</th><th class="num allcol">%</th><th>'+esc(tr('hv_reads','Reads as'))+'</th></tr>'+
+       LOT_KEYS.map(function(l){const r=rows[l];
+         const hi=r.banPct>=10;
+         return '<tr'+(hi?' class="warnrow"':'')+'><td><b>Lot '+l+'</b></td>'+
+           '<td class="num">'+nf(r.good)+'</td><td class="num">'+nf(r.banana)+'</td>'+
+           '<td class="num allcol"><b>'+nf(r.banPct)+'%</b></td>'+
+           '<td>'+(r.good?(hi?'<b class="flag">check pollination</b>':'normal'):'—')+'</td></tr>';}).join('')+
+       '<tr class="totline"><td><b>'+esc(tr('hv_farm','FARM'))+'</b></td><td class="num"><b>'+nf(all.good)+'</b></td>'+
+         '<td class="num"><b>'+nf(all.banana)+'</b></td><td class="num allcol"><b>'+nf(all.banPct)+'%</b></td>'+
+         '<td>—</td></tr>'+
+       '</table></div>';
+    const hiLot=LOT_KEYS.filter(function(l){return rows[l].good>0;})
+      .sort(function(x,y){return rows[y].banPct-rows[x].banPct;})[0];
+    if(hiLot&&rows[hiLot].banPct>=10)
+      h+=act('<b>Lot '+hiLot+'</b> at '+nf(rows[hiLot].banPct)+'% is well above the rest. Misshapen fruit '+
+        'points at incomplete pollination first — then at boron or water stress. Hand pollination on that '+
+        'lot next flowering is the cheapest thing to try.</div>');
+    else h+=act('No lot is above 10%. Misshapen fruit at this level is normal variation, not a signal.</div>');
+    // by clone, only when there is more than one to compare
+    const cb=clones.filter(function(c){return c.good>0;});
+    /* the same read, per clone. It carries its own caption because the page break can
+       land between it and the section header above, and a bare table on the top of a
+       printed page says nothing about what it is. */
+    if(cb.length>1)
+      h+='<div class="hcap">'+esc(tr('hv_byclone','The same read, per clone'))+'</div>'+
+        '<div class="gridwrap"><table class="tbl hlot">'+
+         '<tr><th>'+esc(tr('hv_clone','Clone'))+'</th><th class="num">'+esc(tr('hv_good','Good'))+'</th>'+
+         '<th class="num">🍌 %</th><th class="num allcol">'+esc(tr('hv_losspct','Loss %'))+'</th></tr>'+
+         cb.map(function(c){return '<tr><td><b>'+esc(c.clone)+'</b></td><td class="num">'+nf(c.good)+'</td>'+
+           '<td class="num">'+nf(c.banPct)+'%</td><td class="num allcol">'+nf(c.lossPct)+'%</td></tr>';}).join('')+
+         '</table></div>';}
+
+  // ---- 4 · loss against the weather ---------------------------------------------------------
+  h+=sec(4,tr('hv_s4','Loss against the weather'),tr('hv_s4d','a day counts as wet if it rained that day or in the two days before'));
+  if(!rain.have)
+    h+='<div class="small">Not enough to compare yet — this needs rain-cage readings on both wet and dry '+
+       'harvest days ('+rain.readings+' reading'+(rain.readings===1?'':'s')+' so far). Key the gauge each '+
+       'morning under FARM → WEATHER and this section fills itself.</div>';
+  else{
+    const worse=rain.wet.lossPct>rain.dry.lossPct;
+    h+='<div class="gridwrap"><table class="tbl hlot">'+
+       '<tr><th>'+esc(tr('hv_cond','Condition'))+'</th><th class="num">'+esc(tr('hv_days','Days'))+'</th>'+
+       '<th class="num">'+esc(tr('hv_drop','Drop'))+'</th><th class="num allcol">'+esc(tr('hv_losspct','Loss %'))+'</th></tr>'+
+       '<tr><td><b>'+esc(tr('hv_dry','Dry days'))+'</b></td><td class="num">'+rain.dry.days+'</td>'+
+         '<td class="num">'+nf(rain.dry.drop)+'</td><td class="num allcol"><b>'+nf(rain.dry.lossPct)+'%</b></td></tr>'+
+       '<tr'+(worse?' class="warnrow"':'')+'><td><b>'+esc(tr('hv_wet','Rain + 2 days after'))+'</b></td>'+
+         '<td class="num">'+rain.wet.days+'</td><td class="num">'+nf(rain.wet.drop)+'</td>'+
+         '<td class="num allcol"><b'+(worse?' class="flag"':'')+'>'+nf(rain.wet.lossPct)+'%</b></td></tr>'+
+       '</table></div>';
+    h+=act(worse
+      ? ('Loss runs '+nf(rain.wet.lossPct-rain.dry.lossPct)+' points higher in the wet window. If that holds, '+
+         'collecting twice a day in wet spells takes fruit off the ground before it turns.')
+      : ('Wet days are not reading worse than dry ones here. Nothing to act on in this section.'))+'</div>';
+    h+='<div class="hnote">This is a <b>correlation over '+(rain.dry.days+rain.wet.days)+' harvest days</b>, '+
+       'not a proof. It is worth watching, and it is not worth rebuilding the collection round on yet.</div>';}
+
+  // ---- 5 · where the fruit went ---------------------------------------------------------------
+  h+=sec(5,tr('hv_s5','Where the fruit went'),tr('hv_s5d','every kilo the gate weighed in, accounted for'));
+  if(!bal.in_kg)
+    h+='<div class="small">Nothing has been weighed in at the gate this season, so there is nothing to '+
+       'account for yet.</div>';
+  else{
+    const pc=function(kg){return bal.in_kg?nf(kg/bal.in_kg*100)+'%':'—';};
+    const wrow=function(lbl,kg,cls,money){
+      return '<tr'+(cls?' class="'+cls+'"':'')+'><td>'+esc(lbl)+'</td>'+
+        '<td class="num">'+nf(kg)+' kg</td>'+
+        (SHOW_VALUES?('<td class="num">'+(money==null?'—':rm(money))+'</td>'):'')+
+        '<td class="num allcol">'+pc(kg)+'</td></tr>';};
+    h+='<div class="gridwrap"><table class="tbl hlot">'+
+       '<tr><th>'+esc(tr('hv_went','Went to'))+'</th><th class="num">kg</th>'+
+       (SHOW_VALUES?('<th class="num">'+esc(tr('hv_worth','Worth'))+'</th>'):'')+
+       '<th class="num allcol">'+esc(tr('hv_share','Share'))+'</th></tr>'+
+       wrow(tr('hv_sold','Sold to merchants'),bal.sold_kg,'',bal.sold_rm)+
+       wrow(tr('hv_focgiven','Given free — rations & gifts'),bal.foc_kg,'',bal.foc_rm)+
+       wrow(tr('hv_dumped','Dumped'),bal.dump_kg,bal.dump_kg>0?'warnrow':'',bal.dump_rm)+
+       wrow(tr('hv_shed','Still in the shed'),Math.max(0,bal.shed_kg),'')+
+       '<tr class="totline"><td><b>'+esc(tr('hv_gatein','Weighed in at the gate'))+'</b></td>'+
+         '<td class="num"><b>'+nf(bal.in_kg)+' kg</b></td>'+
+         (SHOW_VALUES?'<td class="num"></td>':'')+
+         '<td class="num allcol"><b>'+(bal.balances?'✓':'⚠')+'</b></td></tr>'+
+       '</table></div>';
+    if(bal.unaccounted<0)
+      h+='<div class="critbox">'+nf(Math.abs(bal.unaccounted))+' kg more has left than was ever weighed in. '+
+         'Either a load went out without a gate weight, or a ration was approved against fruit that was '+
+         'never booked. Both are findable in the delivery ledger.</div>';
+    else h+=act('The dump line is the only one here that is pure loss. Cheap sale and rations are fruit that '+
+      'did a job — the number worth arguing about is what is <b>still in the shed</b>, because that is fruit '+
+      'ripening while it waits.</div>');}
+
+  // ---- 6 · the trees that lose the most ---------------------------------------------------------
+  h+=sec(6,tr('hv_s6','The trees that lose the most'),tr('hv_s6d','the list you actually walk'));
+  if(!worst.rows.length)
+    h+='<div class="small">No tree has lost a fruit this season. Nothing to walk.</div>';
+  else{
+    h+='<div class="gridwrap"><table class="tbl hlot">'+
+       '<tr><th>'+esc(tr('hv_tree','Tree'))+'</th><th>'+esc(tr('hv_clone','Clone'))+'</th>'+
+       '<th class="num">'+esc(tr('hv_drop','Drop'))+'</th><th class="num">'+esc(tr('hv_bad','Bad'))+'</th>'+
+       '<th class="num allcol">'+esc(tr('hv_losspct','Loss %'))+'</th></tr>'+
+       worst.rows.map(function(r){
+         return '<tr><td><b>'+esc(r.id)+'</b></td><td>'+esc(r.clone||'—')+'</td>'+
+           '<td class="num">'+nf(r.dropped)+'</td><td class="num">'+nf(r.bad)+'</td>'+
+           '<td class="num allcol'+(r.lossPct>25?' flag':'')+'"><b>'+nf(r.lossPct)+'%</b></td></tr>';}).join('')+
+       '</table></div>';
+    h+=act('These '+worst.rows.length+' trees carry <b>'+worst.share+'%</b> of the season’s loss, out of '+
+      worst.trees+' that dropped anything. Walking five trees is a morning; walking 171 is not.</div>');}
+
+  // ---- by day, with quality — print always, screen on request ---------------------------------
+  h+='<div class="hsec printkeep"><b>'+esc(tr('hv_s7','Day by day, with quality'))+'</b>'+
+     '<small>'+esc(tr('hv_s7d','the whole season, one row per day — this is what the printed sheet is for'))+'</small></div>'+
+     '<div class="noprint"><button class="dtog'+(HARV_ALL?' on':'')+'" onclick="harvTogAll()">'+
+       (HARV_ALL?'▾ ':'▸ ')+esc(tr('hv_showdays','show every day on screen'))+' ('+daily.length+')</button></div>'+
+     '<div class="dayfull'+(HARV_ALL?'':' onlyprint')+'">'+
+     '<div class="gridwrap"><table class="tbl hday">'+
+       '<tr><th>'+esc(tr('hv_date','Date'))+'</th><th>'+esc(tr('hv_dayname','Day'))+'</th>'+
+       '<th class="num">'+esc(tr('hv_good','Good'))+'</th><th class="num">🍌</th>'+
+       '<th class="num">'+esc(tr('hv_bad','Bad'))+'</th><th class="num allcol">'+esc(tr('hv_losspct','Loss %'))+'</th></tr>'+
+       daily.map(function(r){
+         return '<tr'+(r.lossPct>15?' class="warnrow"':'')+'><td>'+esc(r.d)+'</td><td>'+esc(wdShort(r.d))+'</td>'+
+           '<td class="num">'+nf(r.good)+'</td><td class="num">'+(r.banana?nf(r.banana):'')+'</td>'+
+           '<td class="num">'+(r.bad?nf(r.bad):'')+'</td>'+
+           '<td class="num allcol">'+nf(r.lossPct)+'%</td></tr>';}).join('')+
+       '<tr class="totline"><td><b>'+esc(tr('hv_season','Season'))+'</b></td><td>'+daily.length+'d</td>'+
+         '<td class="num"><b>'+nf(all.good)+'</b></td><td class="num"><b>'+nf(all.banana)+'</b></td>'+
+         '<td class="num"><b>'+nf(all.bad)+'</b></td>'+
+         '<td class="num allcol"><b>'+nf(all.lossPct)+'%</b></td></tr>'+
+     '</table></div></div>';
+
+  // ---- the print sheet's own footing, and the button ---------------------------------------
+  h+='<div class="hfoot onlyprint">S.H.A. HUP AIK PLANTATION · SUGUT DURIAN FARM — harvest quality, '+
+     esc(from)+' to '+esc(to)+'. Every figure is derived from the field log at the moment of printing; '+
+     'nothing on this sheet is stored or edited. Rain and programme comparisons are correlations over a '+
+     'small number of days, not proof. Loss causes and 🍌 marks are only as complete as the crew’s tap.</div>'+
+     '<button class="bigbtn noprint" style="margin-top:16px" onclick="harvPrint()">🖨️ '+
+       esc(tr('hv_print','PRINT — THE MEETING SHEET'))+'</button>'+
+     '<p class="small noprint">'+esc(tr('hv_printnote',
+       'This is the only screen in the app that prints. The day-by-day table is always on the printed sheet, whether or not it is open here.'))+'</p>';
+
+  box.innerHTML=h;}

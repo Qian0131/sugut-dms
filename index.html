@@ -261,6 +261,111 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tbl.bydate td.lo{color:#8c1d18;font-weight:800;}
 .tbl.bydate .dim{color:#c8c3b6;}
 .tbl.bydate .lossmark{color:#8c1d18;font-size:9px;margin-left:2px;vertical-align:super;}
+
+/* ===== v3.33.0 · REPORTS: THREE DOORS =================================================
+   Everything here is scoped to classes this release introduced, plus .gridwrap, which
+   app.js has emitted since v3.31 with no rule behind it — so a by-date table wider than
+   the phone was silently cut off at the right edge instead of scrolling. */
+.gridwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+/* the week / month stepper, shared by RECORD and MONEY */
+.winbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.winb{flex:0 0 46px;height:46px;border:1.5px solid #d8d3c6;background:#fff;border-radius:12px;
+  font-size:21px;font-weight:900;color:#2f6b3d;cursor:pointer;}
+.winb.off{opacity:.32;cursor:default;}
+.winlbl{flex:1;text-align:center;line-height:1.25;}
+.winlbl b{display:block;font-size:14.5px;}
+.winlbl small{display:block;color:#6b675c;font-size:11px;}
+.winpick{display:flex;gap:8px;margin-bottom:10px;}
+.winpick input,.winpick select{flex:1;padding:10px;border:1.5px solid #d8d3c6;border-radius:11px;
+  font:inherit;font-size:14px;background:#fff;}
+.winnow{border:none;background:#eaf2ea;color:#2f6b3d;border-radius:11px;padding:0 14px;
+  font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;}
+
+/* RECORD */
+.tbl.recstrip th{font-size:10px;line-height:1.15;}
+.tbl.recstrip th small{font-weight:400;color:#6b675c;font-size:9.5px;}
+.tbl.recstrip tr.goodline td{color:#2f6b3d;font-weight:700;}
+.tbl.recstrip tr.badline td{color:#8c1d18;font-weight:700;}
+.dayrow.empty{opacity:.55;}
+.dayrow.empty .cstat{background:#f1ede2;color:#6b675c;}
+
+/* MONEY */
+.tbl.fivel td{padding:9px 7px;font-size:14px;}
+.tbl.fivel td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
+.tbl.fivel td small{display:block;font-weight:400;color:#6b675c;font-size:11px;margin-top:2px;}
+.tbl.fivel tr.netline td{background:#eaf2ea;font-weight:900;}
+.tbl.fivel tr.varline td{background:#fdf4e3;}
+.tbl.work{table-layout:fixed;width:100%;}
+.tbl.work td,.tbl.work th{font-size:11.5px;padding:6px 2px;}
+.tbl.work th{font-size:10px;letter-spacing:0;}
+.tbl.work col.cjob{width:33%;}.tbl.work col.ctk{width:13%;}
+.tbl.work col.cmat{width:20%;}.tbl.work col.chr{width:14%;}.tbl.work col.crm{width:20%;}
+.tbl.work td:not(:first-child),.tbl.work th:not(:first-child){text-align:right;}
+.tbl.work tr.dimrow td{color:#8c8779;background:#faf8f3;}
+.tbl.work td small{display:block;color:#6b675c;font-size:10px;font-weight:400;}
+.tbl.work tr.totline td,.tbl.hlot tr.totline td,.tbl.hday tr.totline td,
+.tbl.hcause tr.totline td{background:#f2efe6;font-weight:900;}
+.dtogs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:7px;}
+.dtog{border:1.5px solid #d8d3c6;background:#fff;border-radius:11px;padding:11px 12px;
+  font:inherit;font-size:12.5px;font-weight:700;color:#1c1b17;cursor:pointer;
+  display:flex;align-items:center;gap:7px;min-height:44px;}
+.dtog.on{background:#eaf2ea;border-color:#2f6b3d;color:#1e4a2a;}
+.dtog span{color:#6b675c;font-weight:900;}
+
+/* HARVEST */
+.hhead{border-bottom:2px solid #2f6b3d;padding-bottom:7px;margin-bottom:10px;}
+.hhead .ht{font-size:15px;font-weight:900;}
+.hhead .hd{font-size:11.5px;color:#6b675c;}
+.hsec{margin:18px 0 7px;padding-left:9px;border-left:4px solid #2f6b3d;}
+.hsec b{display:block;font-size:14px;}
+.hsec small{display:block;color:#6b675c;font-size:11px;line-height:1.35;}
+.hact{background:#eaf2ea;border-left:3px solid #2f6b3d;border-radius:0 9px 9px 0;
+  padding:9px 11px;font-size:12.5px;line-height:1.45;margin-top:7px;}
+.hcap{font-size:11.5px;font-weight:800;color:#6b675c;margin:12px 0 3px;text-transform:uppercase;letter-spacing:.4px;}
+.hnote{color:#6b675c;font-size:11px;line-height:1.45;margin-top:6px;}
+.hfoot{font-size:9.5px;color:#6b675c;line-height:1.4;margin-top:14px;
+  border-top:1px solid #e2e6e1;padding-top:7px;}
+.tbl.hcause td,.tbl.hlot td,.tbl.hday td,
+.tbl.hcause th,.tbl.hlot th,.tbl.hday th{font-size:12.5px;padding:6px 4px;}
+.tbl.hcause td small,.tbl.hlot td small{display:block;color:#6b675c;font-size:10px;font-weight:400;}
+.tbl.hday td,.tbl.hday th{font-size:11.5px;padding:4px 3px;}
+.tbl.hcause tr.dimrow td{color:#8c8779;}
+/* .flag was styled only under .tbl.mtx, so every worst-lot mark on the new tables was
+   computed and then painted in ordinary black. */
+.tbl .flag,.tbl td.flag,.tbl b.flag{color:#8c1d18;font-weight:800;}
+.tbl.hlot tr.warnrow td,.tbl.hday tr.warnrow td{background:#fdf4e3;}
+.tbl.hcause td.barcell{width:74px;}
+.lbar{display:block;height:9px;background:#efece2;border-radius:5px;overflow:hidden;}
+.lbar i{display:block;height:100%;background:#8c1d18;}
+.onlyprint{display:none;}
+
+/* ===== THE PRINT SHEET =================================================================
+   One screen in this app prints: the harvest report. Everything else — the header, the
+   nav, every other card, every button — is removed, because a meeting sheet with a
+   SYNC button on it is not a meeting sheet. The screen container has to be released
+   from its scroll box as well, or the printer gets one phone-height page and stops. */
+@media print{
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important;}
+  /* #toast is a floating overlay. It printed "Welcome, Owner" across the middle of the
+     meeting sheet on the first proof — anything that floats has to be named here. */
+  .hdr,.nav,.subbar,.bigbtn,.noprint,.m5-iq,#backbtn,#langchip,#toast,.modal{display:none!important;}
+  [id^="scr-"]{overflow:visible!important;height:auto!important;max-height:none!important;}
+  .card{border:none!important;box-shadow:none!important;background:#fff!important;
+    padding:0!important;margin:0 0 8px!important;}
+  .card:not(#harvestrep){display:none!important;}
+  #harvestrep{display:block!important;}
+  .onlyprint{display:block!important;}
+  .gridwrap{overflow:visible!important;}
+  /* a row split across the page break loses its label. The FARM total of the banana
+     table was cut in half by the page edge on the first proof. */
+  .hsec,.hact,.tbl,.tbl tr,.kpis{page-break-inside:avoid;}
+  .tbl{font-size:9pt;width:100%;}
+  .tbl.hday{font-size:7.5pt;}
+  .hact{background:#f2f2f2!important;}
+  .kpi{border:1px solid #999!important;}
+  @page{margin:12mm;}
+}
 .ownchart{display:block;width:100%;height:auto;}
 .legend2{display:flex;gap:14px;font-size:11px;color:#6b675c;margin:6px 0 0;align-items:center;}
 .legend2 i{display:inline-block;width:16px;height:0;border-top:2.5px solid #008300;
@@ -2431,10 +2536,28 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="focbox"></div>
   </div>
 
-  <!-- ===== COSTING · DAILY OPERATIONAL AUDIT (v3.6) ===== -->
+  <!-- ===== v3.33.0 · REPORTS DOOR 1 · MONEY — one month at a time =====
+       The four screens this card folds (matrixledger, runcostcard, labourcard, ledgercard)
+       are all still below it in this file, unchanged. renderMoney() shows and hides them;
+       they are listed on the MONEY tab so openModule() can reach them at all. -->
+  <div class="card" id="moneycard" style="display:none">
+    <div class="sec">💵 Money</div>
+    <div id="moneybox"></div>
+  </div>
+
+  <!-- ===== v3.33.0 · REPORTS DOOR 2 · RECORD — seven dates with the day on them ===== -->
   <div class="card" id="dailyaudit" style="display:none">
-    <div class="sec">📅 Daily operational audit</div>
+    <div class="sec">📅 The record — seven days</div>
     <div id="dailybox"></div>
+  </div>
+
+  <!-- ===== v3.33.0 · REPORTS DOOR 3 · HARVEST — the season's quality =====
+       The ONLY screen in this app that prints. The @media print block in the stylesheet
+       above hides every other card, the header and the nav bar, and reveals the
+       .onlyprint blocks — so what comes out of the printer is this card and nothing else. -->
+  <div class="card" id="harvestrep" style="display:none">
+    <div class="sec">🥭 Harvest — where the season is losing fruit</div>
+    <div id="harvestbox"></div>
   </div>
 
   <!-- ===== COSTING · MONTHLY / YEARLY MATRIX LEDGER (v3.6) ===== -->
