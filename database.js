@@ -1116,6 +1116,8 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   mn_detail:'The full screens',
   mn_totrm:'RM',
   mn_nojob:'Issued outside a job',
+  mn_uncosted:'not costed yet',
+  mn_netnolab:'revenue less material only — labour is not in this figure',
   /* --- v3.33.1 the backfill + the phone-match fingerprint --- */
   sy_histok:'Full season loaded — this phone now holds the same records as the others',
   sy_agree:'Do my phones agree?',
@@ -1837,6 +1839,8 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   mn_detail:'Skrin penuh',
   mn_totrm:'RM',
   mn_nojob:'Keluar tanpa kerja',
+  mn_uncosted:'belum dikira kos',
+  mn_netnolab:'hasil tolak bahan sahaja — upah kerja tiada dalam angka ini',
   /* --- v3.33.1 muat turun sejarah + cap padanan telefon --- */
   sy_histok:'Rekod penuh musim sudah masuk — telefon ini kini sama dengan yang lain',
   sy_agree:'Adakah telefon saya sepadan?',

@@ -296,6 +296,11 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tbl.fivel td small{display:block;font-weight:400;color:#6b675c;font-size:11px;margin-top:2px;}
 .tbl.fivel tr.netline td{background:#eaf2ea;font-weight:900;}
 .tbl.fivel tr.varline td{background:#fdf4e3;}
+/* v3.34.2 — "not costed yet" is a STATEMENT, not a figure, so it must not be set in the
+   same heavy tabular numerals as the ringgit beside it. */
+.uncosted{font-weight:700;font-size:12.5px;color:#a9761a;font-style:italic;}
+.warnbox{background:#fdf4e3;border-left:4px solid #a9761a;color:#6b4715;border-radius:0 9px 9px 0;
+  padding:10px 12px;font-size:12.5px;line-height:1.5;margin:10px 0;}
 .tbl.work{table-layout:fixed;width:100%;}
 .tbl.work td,.tbl.work th{font-size:11.5px;padding:6px 2px;}
 .tbl.work th{font-size:10px;letter-spacing:0;}
@@ -3107,7 +3112,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.34.1"></script>
-<script src="app.js?v=3.34.1"></script>
+<script src="database.js?v=3.34.2"></script>
+<script src="app.js?v=3.34.2"></script>
 </body>
 </html>
