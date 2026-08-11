@@ -881,6 +881,13 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   sc_gross_calc:'Gross', sc_tare_calc:'tare', sc_net_calc:'NET', sc_avg:'avg',
   /* --- v3.8 · direct-touch scale form --- */
   sc_addnext:'➕ ADD NEXT BASKET',
+  /* --- v3.37.3 · a step is a place you can leave, and a locked button says why --- */
+  nr_needs:'This basket still needs',
+  nr_need_w:'the gross reading from the scale',
+  nr_need_c:'how many fruit are in it',
+  nr_need_p:'a photograph of the scale display',
+  nr_odd:'That is one basket of',
+  nr_odd2:'Check the decimal point — you can still send it if it is right.',
   /* --- v3.37.0 · THE NEW ROAD · the scale as four steps --- */
   nr_onlorry:'ON THE LORRY',
   nr_noweight:'not weighed',
@@ -1656,6 +1663,13 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   sc_gross_calc:'Berat kasar', sc_tare_calc:'berat bakul', sc_net_calc:'BERSIH', sc_avg:'purata',
   /* --- v3.8 · borang timbang sentuh terus --- */
   sc_addnext:'➕ TAMBAH BAKUL SETERUSNYA',
+  /* --- v3.37.3 · setiap langkah boleh diundur, butang terkunci mesti beritahu sebabnya --- */
+  nr_needs:'Bakul ini masih perlukan',
+  nr_need_w:'bacaan berat kasar dari penimbang',
+  nr_need_c:'berapa biji ada di dalamnya',
+  nr_need_p:'gambar paparan penimbang',
+  nr_odd:'Itu satu bakul seberat',
+  nr_odd2:'Semak tanda perpuluhan — jika betul, anda tetap boleh hantar.',
   /* --- v3.37.0 · JALAN BARU · penimbang jadi empat langkah --- */
   nr_onlorry:'ATAS LORI',
   nr_noweight:'belum ditimbang',
