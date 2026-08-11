@@ -1874,6 +1874,129 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .shd-left{font-size:10.5px;font-weight:800;color:#6b7a68;margin-top:6px;letter-spacing:.2px;}
 .shd-left b{color:var(--green);}
 .shd-over{font-size:10.5px;font-weight:800;color:var(--warn);margin-top:6px;line-height:1.45;}
+
+/* ---- v3.37.0 · THE NEW ROAD · the worker's scale as four steps ----
+   Built from the Owner's own tappable sample. Every rule is .nr- prefixed, same reason as
+   .m4-, .m5- and .shd-: a CSS name collision silently hid a whole screen in v3.19.2.
+   Sizes are thumb sizes, not desk sizes — this screen is used standing up, in a shed, at
+   6 am, by someone whose hands are wet. */
+.nr-steps{display:flex;gap:4px;margin:0 0 11px;}
+.nr-steps div{flex:1;height:5px;border-radius:3px;background:#dde4dc;}
+.nr-steps div.on{background:var(--green2);}
+.nr-back{color:#1a73e8;font-size:12.5px;font-weight:800;cursor:pointer;display:inline-block;
+  margin-bottom:9px;min-height:30px;}
+.nr-card{background:#fff;border-radius:14px;padding:12px;margin-bottom:10px;
+  box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.nr-sec{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);
+  margin:2px 0 8px;font-weight:900;}
+.nr-note{background:var(--lite);border-left:4px solid var(--green2);border-radius:0 10px 10px 0;
+  padding:9px 11px;font-size:11.5px;margin-bottom:10px;line-height:1.5;}
+.nr-empty{background:#fff;border:1.5px dashed #d7ded6;border-radius:12px;padding:14px;
+  font-size:11.5px;color:var(--muted);text-align:center;margin-bottom:10px;line-height:1.5;}
+.nr-seam{background:#eef4ff;border-left:4px solid #1a73e8;border-radius:0 10px 10px 0;
+  padding:8px 11px;font-size:10.5px;color:#20344d;margin-top:12px;line-height:1.55;}
+.nr-seam b{color:#0d47a1;}
+.nr-seam.r2{background:#fff3cd;border-color:#d0a000;color:#6b5200;}
+.nr-seam.r2 b{color:#6b5200;}
+
+/* ---- the buttons that move the road forward ---- */
+.nr-go{background:var(--green2);color:#fff;border:none;width:100%;padding:16px;
+  border-radius:14px;font-size:15.5px;font-weight:900;cursor:pointer;margin-top:9px;
+  font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.nr-go:disabled{background:#a8bfa9;}
+.nr-go.ghost{background:#fff;color:var(--green);border:2px dashed var(--green2);
+  font-size:13.5px;padding:13px;}
+.nr-go.dark{background:var(--green);}
+
+/* ---- step 1 · the shed's own cards ---- */
+.nr-sh{border:2px solid #e2e6e1;border-radius:14px;padding:11px;margin-bottom:9px;
+  cursor:pointer;background:#fff;-webkit-tap-highlight-color:transparent;}
+.nr-sh.on{border-color:var(--green2);background:#f4faf4;}
+.nr-shtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.nr-shname{font-weight:900;font-size:14.5px;line-height:1.2;}
+.nr-shn{font-size:22px;font-weight:900;color:var(--green);white-space:nowrap;}
+.nr-shn small{font-size:11px;font-weight:800;}
+.nr-lays{margin-top:5px;line-height:1.9;}
+.nr-lays.out{margin-top:8px;}
+.nr-lay{background:#f0f3ef;border-radius:6px;padding:2px 7px;margin-right:4px;
+  font-size:9.5px;font-weight:800;color:#6b7a68;display:inline-block;white-space:nowrap;}
+.nr-step{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:10px;
+  padding-top:10px;border-top:1px dashed #e2e6e1;}
+.nr-step button{width:56px;height:56px;border-radius:15px;border:none;background:var(--lite);
+  color:var(--green);font-size:27px;font-weight:900;cursor:pointer;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;}
+.nr-step button:active{background:#d6ead8;}
+.nr-step .n{font-size:31px;font-weight:900;min-width:76px;text-align:center;line-height:1.1;}
+.nr-step .lbl{font-size:9px;color:var(--muted);text-align:center;font-weight:700;}
+
+/* ---- step 1 · what is already on the lorry ---- */
+.nr-brow{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #f2f5f1;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.nr-brow:last-child{border-bottom:none;}
+.nr-bn{width:26px;height:26px;border-radius:50%;background:var(--lite);color:var(--green);
+  font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nr-brow.bad .nr-bn{background:#fdecea;color:var(--warn);}
+.nr-bm{flex:1;min-width:0;}
+.nr-bm b{display:block;font-size:13px;}
+.nr-bm span{display:block;font-size:10.5px;color:var(--muted);font-weight:700;}
+.nr-bs{font-size:9px;font-weight:900;letter-spacing:.4px;padding:3px 7px;border-radius:6px;flex-shrink:0;}
+.nr-bs.ok{background:var(--lite);color:var(--green);}
+.nr-bs.no{background:#fdecea;color:var(--warn);}
+.nr-bx{font-size:15px;color:var(--muted);padding:6px 4px;flex-shrink:0;}
+
+/* ---- step 2 · the scale ---- */
+.nr-pick{display:flex;align-items:center;justify-content:space-between;gap:9px;
+  background:var(--lite);border-radius:11px;padding:11px 12px;font-size:14.5px;}
+.nr-chg{font-size:11px;font-weight:800;color:#1a73e8;cursor:pointer;
+  text-decoration:underline;padding:6px;flex-shrink:0;}
+.nr-weigh{background:#1a2b1e;color:#9fe8a9;border-radius:14px;padding:14px;text-align:center;
+  font-family:ui-monospace,Consolas,monospace;}
+.nr-weigh .kg{font-size:40px;font-weight:900;letter-spacing:2px;line-height:1.1;}
+.nr-weigh .l{font-size:9.5px;color:#6b8a6e;letter-spacing:1px;}
+.nr-lbl{font-size:10.5px;color:var(--muted);display:block;margin:11px 0 5px;
+  text-transform:uppercase;letter-spacing:.5px;font-weight:800;}
+.nr-num{width:100%;padding:13px;border:1.5px solid #d7ded6;border-radius:11px;font-size:16px;
+  background:#fff;color:var(--ink);font-family:inherit;margin-top:6px;}
+.nr-num.empty{border-color:var(--warn);border-style:dashed;}
+.nr-calc{background:var(--lite);border-radius:10px;padding:10px 11px;font-size:12px;margin-top:10px;
+  line-height:1.5;}
+.nr-photo{display:block;border:2.5px dashed var(--green2);border-radius:14px;text-align:center;
+  padding:15px;cursor:pointer;margin-top:10px;background:#fff;font-size:13px;font-weight:800;
+  color:var(--green);}
+.nr-photo span{display:block;font-size:10px;font-weight:700;color:var(--muted);margin-top:3px;}
+.nr-photo.done{background:var(--lite);border-style:solid;padding:9px;}
+.nr-photo.done img{width:100%;max-height:150px;object-fit:cover;border-radius:10px;display:block;}
+.nr-photo.done div{margin-top:7px;}
+
+/* ---- step 3 · where is it going ---- */
+.nr-dest{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.nr-db{border:2px solid #e2e6e1;border-radius:15px;padding:16px 10px;text-align:center;
+  cursor:pointer;background:#fff;position:relative;-webkit-tap-highlight-color:transparent;}
+.nr-db:active{border-color:var(--green2);background:#f4faf4;}
+.nr-db .ic{font-size:27px;line-height:1.1;}
+.nr-db .t{font-weight:900;font-size:12.5px;margin-top:5px;line-height:1.25;}
+.nr-db .d{font-size:9.5px;color:var(--muted);margin-top:3px;line-height:1.35;font-weight:700;}
+.nr-db.off{opacity:.5;background:#f7f8f7;cursor:default;}
+.nr-db .r2{position:absolute;top:6px;right:6px;background:#fff3cd;color:#6b5200;
+  font-size:8px;font-weight:900;letter-spacing:.4px;padding:2px 5px;border-radius:5px;}
+
+/* ---- step 4 · the detail ---- */
+.nr-chips{display:flex;gap:7px;flex-wrap:wrap;}
+.nr-chips .selbtn{flex:0 0 auto;}
+.nr-chips.locked{opacity:.6;pointer-events:none;}
+.nr-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.nr-tbl td{padding:7px 3px;border-bottom:1px solid #f2f5f1;}
+.nr-tbl td.num{text-align:right;font-weight:800;white-space:nowrap;}
+.nr-tbl tr.tot td{border-bottom:none;font-weight:900;background:#f7faf7;}
+.nr-tbl u{display:block;text-decoration:none;font-size:9.5px;font-weight:700;color:var(--muted);
+  margin-top:2px;}
+/* wCalc() puts the fruit-average and the band check in a .v — on the old form it floated
+   right inside .dlnet; here it needs its own line or it runs into the NET figure. */
+.nr-calc .v{display:block;margin-top:5px;font-weight:800;color:var(--green);}
+.nr-shhead{display:flex;align-items:baseline;gap:7px;font-size:12px;color:var(--green);
+  margin:2px 0 7px;}
+.nr-shhead b{font-size:12.5px;font-weight:900;letter-spacing:.5px;}
+.nr-shhead span{margin-left:auto;font-size:11.5px;font-weight:900;color:var(--muted);}
 </style>
 </head>
 <body>
