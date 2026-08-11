@@ -1999,6 +1999,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .nr-odd{background:#fff3cd;border-left:4px solid #d0a000;border-radius:0 10px 10px 0;
   padding:10px 12px;font-size:12px;color:#6b5200;margin-top:10px;line-height:1.5;font-weight:700;}
 #nr-needs{margin-top:10px;}
+/* v3.37.4 — the cancel panel, and the clone locked on a correction */
+.nr-cx{margin-top:4px;}
+.nr-cx .nr-chips{margin-bottom:4px;}
+.nr-cxnote{font-size:10.5px;color:var(--muted);font-weight:700;line-height:1.5;margin-top:8px;}
+.nr-go.warn{background:var(--warn);}
+.nr-pick.locked{background:#f2f4f2;}
+.nr-lk{font-size:10px;font-weight:800;color:var(--muted);white-space:nowrap;letter-spacing:.2px;}
 .nr-tbl u{display:block;text-decoration:none;font-size:9.5px;font-weight:700;color:var(--muted);
   margin-top:2px;}
 /* wCalc() puts the fruit-average and the band check in a .v — on the old form it floated
@@ -3292,7 +3299,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.37.3"></script>
-<script src="app.js?v=3.37.3"></script>
+<script src="database.js?v=3.37.4"></script>
+<script src="app.js?v=3.37.4"></script>
 </body>
 </html>

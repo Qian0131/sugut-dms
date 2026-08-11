@@ -561,6 +561,18 @@ const FOC_REASON_ORDER=['RATION','GIFT','SAMPLE','DUMP'];
  *  every other correction in this app. */
 const FOC_STATUS={PENDING:'PENDING',APPROVED:'APPROVED',REFUSED:'REFUSED'};
 
+/* v3.37.4 — WHY A WEIGHED LOAD DOES NOT GO. These replace a prompt() box, which several
+   Android WebViews refuse to open at all — the cancel then ended in silence. Four buttons
+   covering what actually happens at the gate, plus a free note for everything else. The
+   chosen label is written into DISPATCH_CANCEL.reason as readable text, exactly as the
+   typed answer used to be, so every screen that already reads that field is untouched. */
+const CANCEL_REASONS=[
+  {k:'LORRY',  t:'rl_c_lorry',  en:'The lorry left without it'},
+  {k:'BUYER',  t:'rl_c_buyer',  en:'The buyer does not want it'},
+  {k:'REWEIGH',t:'rl_c_reweigh',en:'Weighed wrong — starting again'},
+  {k:'ELSE',   t:'rl_c_else',   en:'The fruit went somewhere else'}
+];
+
 /* =====================================================================
    14. v3.1 / v3.6 — MULTI-MERCHANT CREDIT MASTER
    The Owner edits this list in Marketing -> PRICES & RETAILERS and the
@@ -881,6 +893,16 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   sc_gross_calc:'Gross', sc_tare_calc:'tare', sc_net_calc:'NET', sc_avg:'avg',
   /* --- v3.8 · direct-touch scale form --- */
   sc_addnext:'➕ ADD NEXT BASKET',
+  /* --- v3.37.4 · the fix and the cancel --- */
+  rl_c_lorry:'The lorry left without it',
+  rl_c_buyer:'The buyer does not want it',
+  rl_c_reweigh:'Weighed wrong — starting again',
+  rl_c_else:'The fruit went somewhere else',
+  rl_cancelq2:'Why is this load not going?',
+  rl_cancelgo:'CANCEL THIS LOAD',
+  rl_cancelkeep:'The fruit stays counted in the shed — nothing is thrown away, only this delivery is called off.',
+  rl_needwhy:'Choose a reason first',
+  rl_clonelock:'locked on a correction',
   /* --- v3.37.3 · a step is a place you can leave, and a locked button says why --- */
   nr_needs:'This basket still needs',
   nr_need_w:'the gross reading from the scale',
@@ -974,7 +996,8 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   rl_resend:'📤 RESEND AS ATTEMPT', rl_newphoto:'A resend needs a NEW photo on every basket.',
   rl_locked:'Merchant and clone are locked on a correction. Cancel and start again if the buyer is wrong.',
   rl_cancelq:'Cancel this load? The fruit stays counted in the shed.',
-  rl_cancelwhy:'Why is it not going?', rl_cancelph:'e.g. lorry left without it',
+  rl_cancelwhy:'Why is it not going?', rl_cancelph:'anything to add? (optional)',
+  rl_cancelback:'← Keep this load',
   rl_cancelled:'CANCELLED', rl_cancelok:'🚫 Load cancelled — the fruit stays on the farm',
   rl_tofix:'TO FIX', rl_replaced:'replaced by attempt',
   gp_superseded:'SUPERSEDED · DO NOT USE',
@@ -1663,6 +1686,16 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   sc_gross_calc:'Berat kasar', sc_tare_calc:'berat bakul', sc_net_calc:'BERSIH', sc_avg:'purata',
   /* --- v3.8 · borang timbang sentuh terus --- */
   sc_addnext:'➕ TAMBAH BAKUL SETERUSNYA',
+  /* --- v3.37.4 · pembetulan dan pembatalan --- */
+  rl_c_lorry:'Lori bertolak tanpa muatan',
+  rl_c_buyer:'Pembeli tidak jadi ambil',
+  rl_c_reweigh:'Salah timbang — mula semula',
+  rl_c_else:'Buah dihantar ke tempat lain',
+  rl_cancelq2:'Kenapa muatan ini tidak jadi?',
+  rl_cancelgo:'BATALKAN MUATAN INI',
+  rl_cancelkeep:'Buah kekal dikira dalam stor — tiada yang dibuang, hanya penghantaran ini dibatalkan.',
+  rl_needwhy:'Pilih sebab dahulu',
+  rl_clonelock:'dikunci semasa pembetulan',
   /* --- v3.37.3 · setiap langkah boleh diundur, butang terkunci mesti beritahu sebabnya --- */
   nr_needs:'Bakul ini masih perlukan',
   nr_need_w:'bacaan berat kasar dari penimbang',
@@ -1756,7 +1789,8 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   rl_resend:'📤 HANTAR SEBAGAI CUBAAN', rl_newphoto:'Hantar semula perlu gambar BARU bagi setiap bakul.',
   rl_locked:'Pembeli dan klon dikunci semasa pembetulan. Batal dan mula semula jika pembeli salah.',
   rl_cancelq:'Batalkan muatan ini? Buah kekal dikira dalam stor.',
-  rl_cancelwhy:'Kenapa tidak jadi?', rl_cancelph:'cth. lori bertolak tanpa muatan',
+  rl_cancelwhy:'Kenapa tidak jadi?', rl_cancelph:'ada apa-apa nak tambah? (pilihan)',
+  rl_cancelback:'← Jangan batal',
   rl_cancelled:'DIBATALKAN', rl_cancelok:'🚫 Muatan dibatalkan — buah kekal di ladang',
   rl_tofix:'PERLU BETUL', rl_replaced:'diganti oleh cubaan',
   gp_superseded:'DIGANTI · JANGAN GUNA',
