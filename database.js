@@ -881,6 +881,15 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   sc_gross_calc:'Gross', sc_tare_calc:'tare', sc_net_calc:'NET', sc_avg:'avg',
   /* --- v3.8 · direct-touch scale form --- */
   sc_addnext:'➕ ADD NEXT BASKET',
+  /* --- v3.37.0 · THE SHED, and the picker that draws off it --- */
+  shd_title:'THE SHED',
+  shd_fruit:'fruit',
+  shd_tap:'Tap what this basket is filled with',
+  shd_lot:'Lot',
+  shd_more:'more',
+  shd_leftinshed:'left in the shed',
+  shd_over:'more fruit than the shed has a record of. Send it if the fruit is real — the drop log is what needs fixing.',
+  shd_none:'No fruit logged in the shed yet. Key the baskets by hand below — the shed fills up from the daily collection.',
   sc_takephoto2:'📷 TAKE PHOTO OF SCALE WEIGHT',
   sc_photodone:'PHOTO CAPTURED',
   sc_phototap:'tap to retake',
@@ -1612,6 +1621,15 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   sc_gross_calc:'Berat kasar', sc_tare_calc:'berat bakul', sc_net_calc:'BERSIH', sc_avg:'purata',
   /* --- v3.8 · borang timbang sentuh terus --- */
   sc_addnext:'➕ TAMBAH BAKUL SETERUSNYA',
+  /* --- v3.37.0 · STOR, dan pemilih yang mengambil daripadanya --- */
+  shd_title:'STOR BUAH',
+  shd_fruit:'biji',
+  shd_tap:'Tekan buah yang ada dalam bakul ini',
+  shd_lot:'Lot',
+  shd_more:'lagi',
+  shd_leftinshed:'tinggal dalam stor',
+  shd_over:'biji lebih daripada rekod stor. Hantar juga jika buah itu memang ada — rekod kutipan harian yang perlu dibetulkan.',
+  shd_none:'Belum ada buah direkod dalam stor. Masukkan bakul secara manual di bawah — stor diisi daripada kutipan harian.',
   sc_takephoto2:'📷 AMBIL GAMBAR BERAT PENIMBANG',
   sc_photodone:'GAMBAR SIAP DIAMBIL',
   sc_phototap:'tekan untuk ambil semula',
