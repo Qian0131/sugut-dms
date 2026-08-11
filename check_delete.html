@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1b5e20">
+<title>Sugut DMS — Delete Checker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;}
+body{background:#f5f7f4;color:#1a2b1e;max-width:520px;margin:0 auto;padding:14px;}
+.hd{background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;border-radius:14px;padding:14px;margin-bottom:12px;}
+.hd .t{font-size:17px;font-weight:800;}
+.hd .s{font-size:11px;opacity:.85;margin-top:2px;}
+.card{background:#fff;border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f3ef;font-size:13.5px;gap:8px;}
+.row:last-child{border-bottom:none;}
+.ok{color:#2f6b3d;font-weight:800;} .bad{color:#b3261e;font-weight:800;}
+.big{font-size:15px;font-weight:800;}
+.btn{background:#2e7d32;color:#fff;border:none;width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:800;margin-top:8px;}
+.btn:disabled{background:#a8bfa9;}
+.note{background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 10px 10px 0;padding:9px 11px;font-size:12px;margin-top:10px;}
+.warn{background:#fff3cd;border-left:4px solid #d0a000;border-radius:0 10px 10px 0;padding:9px 11px;font-size:12px;margin-top:10px;color:#6b5200;}
+.small{font-size:11px;color:#6b7a6e;margin-top:8px;}
+#log{font-size:12px;line-height:1.6;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="t">🗑 Delete Checker</div>
+  <div class="s">Checks whether deleted records are still hiding on THIS phone, and removes them.</div>
+</div>
+
+<div class="card">
+  <div class="row"><span>This phone's records</span><span class="big" id="c-events">…</span></div>
+  <div class="row"><span>Delete notes on this phone</span><span class="big" id="c-tomb-local">…</span></div>
+  <div class="row"><span>Delete notes in the Google Sheet</span><span class="big" id="c-tomb-sheet">…</span></div>
+  <div class="row"><span>Deleted records STILL on this phone</span><span class="big" id="c-stuck">…</span></div>
+  <div id="stucklist"></div>
+</div>
+
+<button class="btn" id="fixbtn" disabled onclick="fix()">…</button>
+<div id="log"></div>
+<div class="note"><b>What this does.</b> It reads the delete notes already recorded in the farm's
+Google Sheet, saves them onto this phone, and removes every record they name — exactly what the
+app's own sync does. It touches nothing else: no records are added, changed, or sent anywhere.</div>
+<div class="warn"><b>After fixing:</b> swipe the Sugut DMS app fully closed and open it again.
+The Ledger should then read 0.</div>
+<div class="small" id="ver">check_delete v1 · 11 Aug 2026</div>
+
+<script>
+const SYNC='https://script.google.com/macros/s/AKfycbyI_b_6aIIKfN2GZvC_osWLabqpSYBhAUoOuGc57BNDAG9YMfJ1jX6A2ubV-bPMPPhQvQ/exec';
+let db=null, localEv=[], sheetTombs=[], deadIds={}, stuck=[];
+const $=id=>document.getElementById(id);
+const log=m=>{$('log').innerHTML+=m+'<br>';};
+
+function openDb(){return new Promise(res=>{
+  const rq=indexedDB.open('sugut-dms',5);
+  rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null); rq.onblocked=()=>res(null);});}
+function all(store){return new Promise(res=>{
+  try{const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();
+  rq.onsuccess=()=>res(rq.result||[]);rq.onerror=()=>res([]);}catch(e){res([]);}});}
+function put(store,obj){return new Promise(res=>{
+  const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
+function del(store,key){return new Promise(res=>{
+  const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
+
+async function check(){
+  db=await openDb();
+  if(!db){$('c-events').textContent='no app data';$('fixbtn').textContent='OPEN THIS PAGE ON THE PHONE THAT SHOWS THE WRONG NUMBER';return;}
+  localEv=await all('events');
+  $('c-events').textContent=localEv.length;
+  const localTombs=localEv.filter(e=>e&&e.dead);
+  $('c-tomb-local').textContent=localTombs.length;
+
+  let j=null;
+  try{ j=await fetch(SYNC+'?role=OWNER&uid=&sig=&since=2026-08-01').then(r=>r.json()); }catch(e){}
+  if(!j||!j.ok){$('c-tomb-sheet').innerHTML='<span class="bad">cannot reach the Sheet</span>';
+    $('fixbtn').textContent='NO INTERNET — TRY AGAIN ON WIFI';return;}
+  sheetTombs=(j.events||[]).filter(e=>e&&e.dead);
+  $('c-tomb-sheet').textContent=sheetTombs.length;
+
+  deadIds={};
+  localTombs.concat(sheetTombs).forEach(t=>String(t.dead).split(/\s+/).forEach(u=>{if(u)deadIds[u]=1;}));
+  // a delete note must never delete a delete note
+  stuck=localEv.filter(e=>e&&deadIds[e.uuid]&&!e.dead);
+  $('c-stuck').innerHTML=stuck.length
+    ? '<span class="bad">'+stuck.length+'</span>' : '<span class="ok">0 ✓</span>';
+  $('stucklist').innerHTML=stuck.map(e=>'<div class="row"><span>'+
+    (e.type||'?')+' · '+String(e.dt||'').slice(0,16)+
+    (e.total_kg?(' · '+e.total_kg+' kg'):'')+(e.retailer_name?(' · '+e.retailer_name):'')+
+    '</span><span class="bad">STUCK</span></div>').join('');
+  if(stuck.length){
+    $('fixbtn').disabled=false;
+    $('fixbtn').textContent='✓ REMOVE '+stuck.length+' DELETED RECORD'+(stuck.length>1?'S':'')+' NOW';
+  }else{
+    $('fixbtn').textContent='NOTHING STUCK — THIS PHONE IS CLEAN';
+    log('If a screen still shows an old number, swipe the app closed and open it again.');
+  }
+}
+async function fix(){
+  $('fixbtn').disabled=true; $('fixbtn').textContent='WORKING…';
+  // 1. save the Sheet's delete notes onto this phone, so the app itself also knows
+  let saved=0;
+  const have={}; localEv.forEach(e=>{if(e&&e.uuid)have[e.uuid]=1;});
+  for(const t of sheetTombs){ if(!t.uuid||have[t.uuid])continue;
+    await put('events',Object.assign({},t,{synced:true,fromSheet:true})); saved++; }
+  // 2. remove every record a delete note names
+  let removed=0;
+  for(const e of stuck){ await del('events',e.uuid); removed++;
+    log('🗑 removed '+(e.type||'?')+' · '+String(e.dt||'').slice(0,16)+
+      (e.total_kg?(' · '+e.total_kg+' kg'):'')); }
+  log('<b>Done — '+removed+' removed, '+saved+' delete note'+(saved===1?'':'s')+' saved.</b>');
+  log('Now swipe the Sugut DMS app fully closed and open it again.');
+  $('fixbtn').textContent='✓ DONE — NOW REOPEN THE APP';
+}
+check();
+</script>
+</body>
+</html>
