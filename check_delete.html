@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1b5e20">
-<title>Sugut DMS — Delete Checker</title>
+<title>Sugut DMS — Delete Checker v2</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;}
 body{background:#f5f7f4;color:#1a2b1e;max-width:520px;margin:0 auto;padding:14px;}
@@ -12,106 +12,164 @@ body{background:#f5f7f4;color:#1a2b1e;max-width:520px;margin:0 auto;padding:14px
 .hd .t{font-size:17px;font-weight:800;}
 .hd .s{font-size:11px;opacity:.85;margin-top:2px;}
 .card{background:#fff;border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.sec{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#6b7a6e;margin-bottom:8px;font-weight:800;}
 .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f3ef;font-size:13.5px;gap:8px;}
 .row:last-child{border-bottom:none;}
 .ok{color:#2f6b3d;font-weight:800;} .bad{color:#b3261e;font-weight:800;}
 .big{font-size:15px;font-weight:800;}
-.btn{background:#2e7d32;color:#fff;border:none;width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:800;margin-top:8px;}
+.btn{background:#2e7d32;color:#fff;border:none;width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:800;margin-top:8px;}
 .btn:disabled{background:#a8bfa9;}
 .note{background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 10px 10px 0;padding:9px 11px;font-size:12px;margin-top:10px;}
 .warn{background:#fff3cd;border-left:4px solid #d0a000;border-radius:0 10px 10px 0;padding:9px 11px;font-size:12px;margin-top:10px;color:#6b5200;}
 .small{font-size:11px;color:#6b7a6e;margin-top:8px;}
-#log{font-size:12px;line-height:1.6;margin-top:8px;}
+#log,#log2{font-size:12px;line-height:1.6;margin-top:8px;}
+.wrow{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f0f3ef;}
+.wrow:last-child{border-bottom:none;}
+.wrow input{width:22px;height:22px;margin-top:2px;flex-shrink:0;}
+.wmain{flex:1;font-size:13px;}
+.wkg{font-weight:800;}
+.wsub{font-size:10.5px;color:#6b7a6e;}
+.st{font-size:9px;font-weight:800;border-radius:8px;padding:2px 7px;white-space:nowrap;}
+.st.p{background:#fff3cd;color:#7a5b00;} .st.r{background:#fdecea;color:#b3261e;} .st.c{background:#eee;color:#666;}
 </style>
 </head>
 <body>
 <div class="hd">
-  <div class="t">🗑 Delete Checker</div>
-  <div class="s">Checks whether deleted records are still hiding on THIS phone, and removes them.</div>
+  <div class="t">🗑 Delete Checker <span style="font-size:11px;opacity:.8">v2</span></div>
+  <div class="s">Finds records that should be gone from THIS phone — deleted invoices AND old trial weighings.</div>
 </div>
 
 <div class="card">
+  <div class="sec">1 · Deleted records still hiding</div>
   <div class="row"><span>This phone's records</span><span class="big" id="c-events">…</span></div>
-  <div class="row"><span>Delete notes on this phone</span><span class="big" id="c-tomb-local">…</span></div>
-  <div class="row"><span>Delete notes in the Google Sheet</span><span class="big" id="c-tomb-sheet">…</span></div>
+  <div class="row"><span>Delete notes (phone / Sheet)</span><span class="big" id="c-tombs">…</span></div>
   <div class="row"><span>Deleted records STILL on this phone</span><span class="big" id="c-stuck">…</span></div>
   <div id="stucklist"></div>
+  <button class="btn" id="fixbtn" disabled onclick="fix()">…</button>
+  <div id="log"></div>
 </div>
 
-<button class="btn" id="fixbtn" disabled onclick="fix()">…</button>
-<div id="log"></div>
-<div class="note"><b>What this does.</b> It reads the delete notes already recorded in the farm's
-Google Sheet, saves them onto this phone, and removes every record they name — exactly what the
-app's own sync does. It touches nothing else: no records are added, changed, or sent anywhere.</div>
-<div class="warn"><b>After fixing:</b> swipe the Sugut DMS app fully closed and open it again.
-The Ledger should then read 0.</div>
-<div class="small" id="ver">check_delete v1 · 11 Aug 2026</div>
+<div class="card">
+  <div class="sec">2 · Weighing records (the scale queue)</div>
+  <div class="small" style="margin:0 0 6px">These are loads weighed at the gate, waiting or decided.
+  They count in "kg weighed out". Ticked rows are from the TRIAL period (8 Aug or earlier) —
+  untick anything you want to keep, then press remove.</div>
+  <div id="wlist"><span class="small">reading…</span></div>
+  <button class="btn" id="wbtn" disabled onclick="wfix()">…</button>
+  <div id="log2"></div>
+</div>
+
+<div class="note"><b>What this does.</b> Part 1 applies delete notes already in the farm's Google
+Sheet — exactly what the app's own sync does. Part 2 removes the trial weighings you tick and
+writes a proper delete note, which the app will carry to the Sheet and every other phone on its
+next sync. Nothing else is touched.</div>
+<div class="warn"><b>After fixing:</b> swipe the Sugut DMS app fully closed, open it again, and
+tap ⇅ Sync once so the delete note travels.</div>
+<div class="small">check_delete v2 · 11 Aug 2026 · trial fence: on/before 2026-08-08</div>
 
 <script>
 const SYNC='https://script.google.com/macros/s/AKfycbyI_b_6aIIKfN2GZvC_osWLabqpSYBhAUoOuGc57BNDAG9YMfJ1jX6A2ubV-bPMPPhQvQ/exec';
-let db=null, localEv=[], sheetTombs=[], deadIds={}, stuck=[];
+const FENCE='2026-08-08';   // same fence the app's own sync floor uses (SYNC_EVENTS_FROM = 9 Aug)
+let db=null, localEv=[], sheetTombs=[], stuck=[], reqs=[];
 const $=id=>document.getElementById(id);
-const log=m=>{$('log').innerHTML+=m+'<br>';};
+const log=(t,m)=>{$(t).innerHTML+=m+'<br>';};
+const dstr=x=>String(x||'').slice(0,16);
+function nowStr(){const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
 
-function openDb(){return new Promise(res=>{
-  const rq=indexedDB.open('sugut-dms',5);
-  rq.onsuccess=e=>res(e.target.result); rq.onerror=()=>res(null); rq.onblocked=()=>res(null);});}
-function all(store){return new Promise(res=>{
-  try{const tx=db.transaction(store,'readonly');const rq=tx.objectStore(store).getAll();
-  rq.onsuccess=()=>res(rq.result||[]);rq.onerror=()=>res([]);}catch(e){res([]);}});}
-function put(store,obj){return new Promise(res=>{
-  const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=res;tx.onerror=res;});}
-function del(store,key){return new Promise(res=>{
-  const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);tx.oncomplete=res;tx.onerror=res;});}
+function openDb(){return new Promise(res=>{const rq=indexedDB.open('sugut-dms',5);
+  rq.onsuccess=e=>res(e.target.result);rq.onerror=()=>res(null);rq.onblocked=()=>res(null);});}
+function all(s){return new Promise(res=>{try{const tx=db.transaction(s,'readonly');
+  const rq=tx.objectStore(s).getAll();rq.onsuccess=()=>res(rq.result||[]);rq.onerror=()=>res([]);}catch(e){res([]);}});}
+function get1(s,k){return new Promise(res=>{try{const tx=db.transaction(s,'readonly');
+  const rq=tx.objectStore(s).get(k);rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>res(null);}catch(e){res(null);}});}
+function put(s,o){return new Promise(res=>{const tx=db.transaction(s,'readwrite');
+  tx.objectStore(s).put(o);tx.oncomplete=res;tx.onerror=res;});}
+function del(s,k){return new Promise(res=>{const tx=db.transaction(s,'readwrite');
+  tx.objectStore(s).delete(k);tx.oncomplete=res;tx.onerror=res;});}
+
+function reqState(u){
+  if(localEv.some(e=>e.type==='DISPATCH'&&String(e.req_uuid||'')===u))return 'INVOICED';
+  if(localEv.some(e=>e.type==='DISPATCH_REJECT'&&String(e.targetUuid||'')===u))return 'RETURNED';
+  if(localEv.some(e=>e.type==='DISPATCH_CANCEL'&&String(e.targetUuid||'')===u))return 'CANCELLED';
+  return 'WAITING';}
 
 async function check(){
   db=await openDb();
-  if(!db){$('c-events').textContent='no app data';$('fixbtn').textContent='OPEN THIS PAGE ON THE PHONE THAT SHOWS THE WRONG NUMBER';return;}
+  if(!db){$('c-events').textContent='no app data';
+    $('fixbtn').textContent=$('wbtn').textContent='OPEN THIS ON THE PHONE WITH THE WRONG NUMBER';return;}
   localEv=await all('events');
   $('c-events').textContent=localEv.length;
   const localTombs=localEv.filter(e=>e&&e.dead);
-  $('c-tomb-local').textContent=localTombs.length;
+  let j=null; try{ j=await fetch(SYNC+'?role=OWNER&uid=&sig=&since=2026-08-01').then(r=>r.json()); }catch(e){}
+  sheetTombs=(j&&j.ok&&Array.isArray(j.events))?j.events.filter(e=>e&&e.dead):[];
+  $('c-tombs').textContent=localTombs.length+' / '+(j&&j.ok?sheetTombs.length:'offline');
+  const dead={};
+  localTombs.concat(sheetTombs).forEach(t=>String(t.dead).split(/\s+/).forEach(u=>{if(u)dead[u]=1;}));
+  stuck=localEv.filter(e=>e&&dead[e.uuid]&&!e.dead);
+  $('c-stuck').innerHTML=stuck.length?'<span class="bad">'+stuck.length+'</span>':'<span class="ok">0 ✓</span>';
+  $('stucklist').innerHTML=stuck.map(e=>'<div class="row"><span>'+(e.type||'?')+' · '+dstr(e.dt)+
+    (e.total_kg?(' · '+e.total_kg+' kg'):'')+'</span><span class="bad">STUCK</span></div>').join('');
+  if(stuck.length){$('fixbtn').disabled=false;
+    $('fixbtn').textContent='✓ REMOVE '+stuck.length+' DELETED RECORD'+(stuck.length>1?'S':'');}
+  else $('fixbtn').textContent='PART 1 CLEAN ✓';
 
-  let j=null;
-  try{ j=await fetch(SYNC+'?role=OWNER&uid=&sig=&since=2026-08-01').then(r=>r.json()); }catch(e){}
-  if(!j||!j.ok){$('c-tomb-sheet').innerHTML='<span class="bad">cannot reach the Sheet</span>';
-    $('fixbtn').textContent='NO INTERNET — TRY AGAIN ON WIFI';return;}
-  sheetTombs=(j.events||[]).filter(e=>e&&e.dead);
-  $('c-tomb-sheet').textContent=sheetTombs.length;
-
-  deadIds={};
-  localTombs.concat(sheetTombs).forEach(t=>String(t.dead).split(/\s+/).forEach(u=>{if(u)deadIds[u]=1;}));
-  // a delete note must never delete a delete note
-  stuck=localEv.filter(e=>e&&deadIds[e.uuid]&&!e.dead);
-  $('c-stuck').innerHTML=stuck.length
-    ? '<span class="bad">'+stuck.length+'</span>' : '<span class="ok">0 ✓</span>';
-  $('stucklist').innerHTML=stuck.map(e=>'<div class="row"><span>'+
-    (e.type||'?')+' · '+String(e.dt||'').slice(0,16)+
-    (e.total_kg?(' · '+e.total_kg+' kg'):'')+(e.retailer_name?(' · '+e.retailer_name):'')+
-    '</span><span class="bad">STUCK</span></div>').join('');
-  if(stuck.length){
-    $('fixbtn').disabled=false;
-    $('fixbtn').textContent='✓ REMOVE '+stuck.length+' DELETED RECORD'+(stuck.length>1?'S':'')+' NOW';
-  }else{
-    $('fixbtn').textContent='NOTHING STUCK — THIS PHONE IS CLEAN';
-    log('If a screen still shows an old number, swipe the app closed and open it again.');
-  }
+  /* ---- part 2 · the weighing queue ---- */
+  reqs=localEv.filter(e=>e&&e.type==='DISPATCH_REQ')
+    .sort((a,b)=>String(a.dt||'').localeCompare(String(b.dt||'')));
+  if(!reqs.length){$('wlist').innerHTML='<span class="small">No weighing records on this phone.</span>';
+    $('wbtn').textContent='PART 2 CLEAN ✓';return;}
+  $('wlist').innerHTML=reqs.map((e,i)=>{
+    const st=reqState(String(e.uuid)), trial=String(e.dt||'').slice(0,10)<=FENCE;
+    const cls=st==='WAITING'?'p':(st==='RETURNED'?'r':'c');
+    return '<div class="wrow"><input type="checkbox" id="wk'+i+'" '+(trial?'checked':'')+'>'+
+      '<div class="wmain"><span class="wkg">'+(+e.total_kg||0)+' kg</span> → '+
+      (e.retailer_name||'—')+'<div class="wsub">'+dstr(e.dt)+' · weighed by '+(e.worker||'?')+
+      (trial?' · <b>trial period</b>':'')+'</div></div>'+
+      '<span class="st '+cls+'">'+st+'</span></div>';}).join('');
+  $('wbtn').disabled=false;
+  $('wbtn').textContent='✓ REMOVE TICKED WEIGHINGS';
 }
+
 async function fix(){
-  $('fixbtn').disabled=true; $('fixbtn').textContent='WORKING…';
-  // 1. save the Sheet's delete notes onto this phone, so the app itself also knows
-  let saved=0;
-  const have={}; localEv.forEach(e=>{if(e&&e.uuid)have[e.uuid]=1;});
-  for(const t of sheetTombs){ if(!t.uuid||have[t.uuid])continue;
-    await put('events',Object.assign({},t,{synced:true,fromSheet:true})); saved++; }
-  // 2. remove every record a delete note names
-  let removed=0;
-  for(const e of stuck){ await del('events',e.uuid); removed++;
-    log('🗑 removed '+(e.type||'?')+' · '+String(e.dt||'').slice(0,16)+
-      (e.total_kg?(' · '+e.total_kg+' kg'):'')); }
-  log('<b>Done — '+removed+' removed, '+saved+' delete note'+(saved===1?'':'s')+' saved.</b>');
-  log('Now swipe the Sugut DMS app fully closed and open it again.');
-  $('fixbtn').textContent='✓ DONE — NOW REOPEN THE APP';
+  $('fixbtn').disabled=true;$('fixbtn').textContent='WORKING…';
+  const have={};localEv.forEach(e=>{if(e&&e.uuid)have[e.uuid]=1;});
+  for(const t of sheetTombs){if(!t.uuid||have[t.uuid])continue;
+    await put('events',Object.assign({},t,{synced:true,fromSheet:true}));}
+  for(const e of stuck){await del('events',e.uuid);
+    log('log','🗑 removed '+(e.type||'?')+' · '+dstr(e.dt)+(e.total_kg?(' · '+e.total_kg+' kg'):''));}
+  $('fixbtn').textContent='✓ PART 1 DONE';
+  localEv=await all('events');
+}
+
+async function wfix(){
+  const picked=reqs.filter((e,i)=>{const c=$('wk'+i);return c&&c.checked;});
+  if(!picked.length){$('wbtn').textContent='NOTHING TICKED';return;}
+  $('wbtn').disabled=true;$('wbtn').textContent='WORKING…';
+  const ids=picked.map(e=>String(e.uuid));
+  /* a request's return/cancel notes go with it, so no orphan decision is left pointing
+     at a record that no longer exists — the same rule the app's FOC clean-up follows */
+  const linked=localEv.filter(e=>(e.type==='DISPATCH_REJECT'||e.type==='DISPATCH_CANCEL')
+    &&ids.includes(String(e.targetUuid||''))).map(e=>String(e.uuid));
+  const allIds=ids.concat(linked);
+  const cfg=await get1('kv','cfg'); const c=(cfg&&cfg.v)||{};
+  /* the delete note, in exactly the shape the app writes — synced:false, so the app's own
+     next sync uploads it to the Sheet and it travels to every phone */
+  const tomb={uuid:(crypto.randomUUID?crypto.randomUUID():'chk-'+Date.now()+'-'+Math.random().toString(36).slice(2)),
+    type:'ADMIN_CLEANUP',dt:nowStr(),removed:allIds.length,auto_linked:linked.length,was_synced:0,
+    dead:allIds.join(' '),
+    detail:'DISPATCH_REQ: '+ids.length+(linked.length?(' · decisions: '+linked.length):''),
+    filter:'check_delete page',
+    reason:'Trial weighing clean-up — '+ids.length+' weighing'+(ids.length>1?'s':'')+
+      (linked.length?(' and '+linked.length+' return/cancel note'+(linked.length>1?'s':'')):'')+
+      ' removed from the check page',
+    worker:c.worker||'Owner',workerId:c.uid||'',device:c.device||'check-page',synced:false};
+  await put('events',tomb);
+  for(const u of allIds){await del('events',u);}
+  picked.forEach(e=>log('log2','🗑 removed '+(+e.total_kg||0)+' kg · '+dstr(e.dt)+' → '+(e.retailer_name||'—')));
+  if(linked.length)log('log2','🗑 and '+linked.length+' return/cancel note'+(linked.length>1?'s':''));
+  log('log2','<b>Delete note written — the app will carry it to the Sheet on the next sync.</b>');
+  $('wbtn').textContent='✓ DONE — REOPEN THE APP, THEN TAP SYNC ONCE';
 }
 check();
 </script>
