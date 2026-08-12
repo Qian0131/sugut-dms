@@ -1987,6 +1987,34 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .nr-db .r2{position:absolute;top:6px;right:6px;background:#fff3cd;color:#6b5200;
   font-size:8px;font-weight:900;letter-spacing:.4px;padding:2px 5px;border-radius:5px;}
 
+/* ---- v3.39.0 · THE SHED — the one number, the layers, the four doors ---- */
+.shd-hero{background:#0f3d20;color:#fff;border-radius:14px;padding:15px 16px;text-align:center}
+.shd-hero .n{font-size:44px;font-weight:900;line-height:1}
+.shd-hero .l{font-size:12px;font-weight:800;letter-spacing:.4px;opacity:.92;margin-top:2px}
+.shd-hero .f{font-size:10.5px;opacity:.68;margin-top:8px;line-height:1.45}
+.sec2{font-size:10.5px;font-weight:900;letter-spacing:.9px;color:#6b675c;margin:14px 0 6px}
+.shd-cards{display:flex;flex-direction:column;gap:7px}
+.shd-c{background:#fff;border:1px solid #e3ded1;border-radius:12px;padding:10px 12px;cursor:pointer}
+.shd-c.open{border-color:var(--green2)}
+.shd-c .h{display:flex;align-items:baseline;gap:7px}
+.shd-c .h b{font-size:14px}
+.shd-c .cn{font-size:10px;color:#8a857a}
+.shd-c .h .n{margin-left:auto;font-size:19px;font-weight:900}
+.shd-c .h .n small{font-size:9.5px;font-weight:700;color:#6b675c}
+.shd-c .lays{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.shd-c .lays span{background:#f1ede2;border-radius:6px;padding:2px 7px;font-size:9.5px;
+  font-weight:700;color:#5c5a52}
+.shd-c .exp{margin-top:8px;border-top:1px solid #f0ece0;padding-top:7px}
+.shd-x{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.shx{background:#fff;border:1px solid #e3ded1;border-radius:12px;padding:10px 9px;text-align:center}
+.shx .i{font-size:18px;line-height:1.1}
+.shx .t{font-size:9px;font-weight:900;letter-spacing:.3px;color:#6b675c;margin-top:3px;line-height:1.25}
+.shx .v{font-size:20px;font-weight:900;margin-top:3px}
+.shx .v small{font-size:9px;font-weight:700;color:#6b675c}
+.shx .s{font-size:10px;color:#6b675c;font-weight:700}
+.shx.loss{background:#fceeea;border-color:#e8c4bc}
+.kpi.warn{background:#fdf4e3;border-color:#d0a000}
+
 /* ---- v3.38.0 · ROUND 2 — the money strip, the allowance meter, the armed confirm ----
    Every class here is `nr-` prefixed (the v3.19.2 rule): the app shares one stylesheet
    with every screen and a bare `.meter` or `.money` would repaint half the app. */
@@ -2752,11 +2780,15 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="scalebox"></div>
   </div>
 
-  <!-- ===== HARVEST · FRUIT BACKLOG & TRACE (v3.9) =====
-       Daily collection counts fruit IN, the Morning Scale counts fruit OUT, and the
-       difference is what is still standing in the shed. Weight and count only. -->
+  <!-- ===== HARVEST · THE SHED (v3.39.0, was FRUIT BACKLOG) =====
+       v3.39.0 — the panel id is DELIBERATELY unchanged. A panel id that exists in this
+       file but is missing from the hideAllPanels() list is never hidden and sits on top
+       of every other screen for the rest of the session; it has shipped that way twice
+       (v3.6, v3.12) and the panel-coverage test fails the build on it. Renaming the id
+       to something prettier would have bought nothing and risked exactly that. What the
+       card SHOWS is the shed queue itself — the same one the Morning Scale draws from. -->
   <div class="card" id="backlogcard" style="display:none">
-    <div class="sec" data-t="bl_head">📦 Fruit backlog &amp; trace</div>
+    <div class="sec" data-t="shd_head">📦 The shed</div>
     <div id="backlogbox"></div>
   </div>
 
@@ -3329,7 +3361,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.38.0"></script>
-<script src="app.js?v=3.38.0"></script>
+<script src="database.js?v=3.39.0"></script>
+<script src="app.js?v=3.39.0"></script>
 </body>
 </html>
