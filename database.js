@@ -945,6 +945,11 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   nr_seam3:'Seam 3 closed',
   nr_seam3b:'one scale screen. The merchant is a destination, not a different room.',
   e_needbasket:'Weigh at least one basket first',
+  /* --- v3.40.0 · the names that collided, and the two new segments --- */
+  s_spray:'SPRAY RECORD',  s_spray_d:'What was actually applied, and how it ran against the plan',
+  s_credit:'MERCHANT CREDIT', s_credit_d:'What each merchant owes, what was paid, and the balance',
+  m5_bylot:'📊 BY LOT', m5_runs:'🧪 RUNS', m5_labour:'👷 LABOUR', m5_bymonth:'📒 BY MONTH',
+  m5_applied:'📝 WHAT WAS APPLIED', m5_plan:'🏁 PLAN vs DONE',
   /* --- v3.39.0 · THE SHED replaces the backlog --- */
   rc_weighhere:'WEIGH A LOAD FOR THIS MERCHANT',
   rc_weighnote:'Weighing happens on the Morning Scale — the shed, the basket, the photograph and the harvest it came from, then one tap to invoice. It writes the same invoice this card used to, and the lot behind every kilo travels with it.',
@@ -1214,8 +1219,8 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   s_runs:'PROGRAM RUNS',         s_runs_d:'Daily, monthly and yearly cost of the work actually done',
   /* --- v3.33.0 reports: three doors --- */
   s_money:'MONEY',               s_money_d:'One month at a time — revenue, what the work cost, what the store is worth',
-  s_rec7:'RECORD',               s_rec7_d:'Seven days side by side — tied, good, loss, kg out',
-  s_harv:'HARVEST',              s_harv_d:'The season\u2019s quality, and the one sheet you print for the meeting',
+  s_rec7:'DAILY RECORD',         s_rec7_d:'Seven days side by side — tied, good, loss, kg out',
+  s_harv:'HARVEST REPORT',       s_harv_d:'The season\u2019s quality, and the one sheet you print for the meeting',
 
   /* --- v3.33.0 · the three report doors --- */
   rc_tied:'Tied',
@@ -1800,6 +1805,11 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   nr_seam3:'Jahitan 3 ditutup',
   nr_seam3b:'satu skrin penimbang sahaja. Peniaga ialah destinasi, bukan bilik yang lain.',
   e_needbasket:'Timbang sekurang-kurangnya satu bakul dahulu',
+  /* --- v3.40.0 · nama yang bertindih, dan dua segmen baharu --- */
+  s_spray:'REKOD SEMBURAN', s_spray_d:'Apa yang sebenarnya digunakan, dan bagaimana ia berbanding rancangan',
+  s_credit:'KREDIT PENIAGA', s_credit_d:'Berapa hutang setiap peniaga, apa yang dibayar, dan bakinya',
+  m5_bylot:'📊 IKUT LOT', m5_runs:'🧪 KERJA', m5_labour:'👷 BURUH', m5_bymonth:'📒 IKUT BULAN',
+  m5_applied:'📝 APA YANG DIGUNAKAN', m5_plan:'🏁 RANCANG vs SIAP',
   /* --- v3.39.0 · STOR BUAH menggantikan baki --- */
   rc_weighhere:'TIMBANG MUATAN UNTUK PENIAGA INI',
   rc_weighnote:'Penimbangan dibuat di Penimbang Pagi — stor, bakul, gambar dan kutipan asalnya, kemudian satu tekan untuk invois. Ia menulis invois yang sama seperti kad ini dahulu, dan lot di sebalik setiap kilogram ikut bersama.',
@@ -2061,8 +2071,8 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   s_runs:'KERJA PROGRAM',        s_runs_d:'Kos harian, bulanan dan tahunan kerja yang betul-betul dibuat',
   /* --- v3.33.0 laporan: tiga pintu --- */
   s_money:'WANG',                s_money_d:'Satu bulan pada satu masa \u2014 hasil jualan, kos kerja, nilai stor',
-  s_rec7:'REKOD',                s_rec7_d:'Tujuh hari bersebelahan \u2014 diikat, elok, rosak, kg keluar',
-  s_harv:'HASIL',                s_harv_d:'Mutu sepanjang musim, dan satu helaian yang dicetak untuk mesyuarat',
+  s_rec7:'REKOD HARIAN',         s_rec7_d:'Tujuh hari bersebelahan \u2014 diikat, elok, rosak, kg keluar',
+  s_harv:'LAPORAN HASIL',        s_harv_d:'Mutu sepanjang musim, dan satu helaian yang dicetak untuk mesyuarat',
 
   /* --- v3.33.0 · tiga pintu laporan --- */
   rc_tied:'Diikat',

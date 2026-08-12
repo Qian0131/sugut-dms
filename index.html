@@ -2644,7 +2644,11 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
 
   <!-- ===== v3.15 · OWNER / MARKETER · PROGRAM RECORD ===== -->
-  <div class="card" id="progrecord" style="display:none">
+  <div class="card m3-hide" id="progrecord" style="display:none">
+    <div class="m3-seg" style="margin-bottom:10px">
+      <div class="m3-seg-btn" id="m5-rc-applied2" onclick="m5RecPick('applied')" data-t="m5_applied">📝 WHAT WAS APPLIED</div>
+      <div class="m3-seg-btn on" id="m5-rc-plan2" onclick="m5RecPick('plan')" data-t="m5_plan">🏁 PLAN vs DONE</div>
+    </div>
     <div class="sec">📅 <span data-t="s_record">PROGRAM RECORD</span></div>
     <div id="progrecordbox"></div>
   </div>
@@ -2663,7 +2667,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       pump tank</b>. Tap a set to open its five combo blocks — Pesticide, Fungicide, Foliar, Biostimulator
       and Trace Elements — with the dose that goes into one tank and the total the whole job needs.</p>
   </div>
+  <!-- v3.40.0 — SPRAY RECORD's two halves. The segment lives in the card that shows
+       first; #progrecord starts hidden so the first paint matches the default. -->
   <div class="card" id="agrorecord" style="display:none">
+    <div class="m3-seg" style="margin-bottom:10px">
+      <div class="m3-seg-btn on" id="m5-rc-applied" onclick="m5RecPick('applied')" data-t="m5_applied">📝 WHAT WAS APPLIED</div>
+      <div class="m3-seg-btn"    id="m5-rc-plan"    onclick="m5RecPick('plan')"    data-t="m5_plan">🏁 PLAN vs DONE</div>
+    </div>
     <div class="sec">📒 Programme record — for the monthly &amp; yearly report</div>
     <div id="recbox"></div>
   </div>
@@ -3361,7 +3371,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.39.0"></script>
-<script src="app.js?v=3.39.0"></script>
+<script src="database.js?v=3.40.0"></script>
+<script src="app.js?v=3.40.0"></script>
 </body>
 </html>
