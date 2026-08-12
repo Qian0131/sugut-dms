@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.41.2';   // v3.41.2 - THE SYNC BUTTON THE GATE COULD NOT PRESS. Two faults, both on the road to one control, and the first one was MINE. (1) v3.41.0 put a 'last synced' stamp on her queue with a TAP TO SYNC link wired straight to netPull(). That call only PULLS - so her own approvals never went up - it shows nothing while it runs and nothing when it finishes, and it does not repaint the queue it is attached to, so even a pull that WORKED left the stamp still reading '45 min ago'. The screen was pixel-identical before and after the tap: a control indistinguishable from a dead button. It goes through doSync() now (push AND pull, the same thing SYNC NOW does), the WHOLE strip is the tap target rather than four small words, it says 'Checking...' the instant it is pressed - before any awaiting, because on a slow hotspot doSync() takes seconds and an unchanged control gets pressed again and again - and it repaints the queue, the stamp and the badge when it is done. (2) On the SYNC screen itself, measured at 390x720: the settings card (85px) + the health card (643px) + the append note (114px) put SYNC NOW at y=842 on a 611px-tall screen. Nearly a screen and a half of scrolling, past a wall of diagnostics, to reach the one control that screen exists for. The button now sits directly under the settings line; the health report - which is something you READ when something is wrong, not something you press - sits under it. Nothing else moved, no gate changed, and renderSync() finds the button by id either way. 668 assertions, all green.
+const APP_VERSION = 'v3.41.3';   // v3.41.3 - THE STRIP GOES WHERE SOMEBODY IS ACTUALLY WAITING. The Owner reported a Gate approval not reaching the worker's phone, then confirmed it arrived - the same shape as the 12 Aug ration: not lost, late. v3.41.0 put the 'last synced' strip on the Gate's dispatch queue and on the ration queue, but NOT on the one screen a man stands and stares at: his own WAITING list on the Morning Scale. He weighs a load, it says WAITING, and the answer may already be on the Gate's phone - netPull() runs every five minutes only while the app is OPEN and the device AWAKE, and a phone in a pocket suspends that timer. From the shed floor 'waiting for the Gate' and 'my phone has not looked' are the same word, and there was nothing on the screen to tell them apart. The strip is on his waiting list now, the whole strip is a sync (push and pull), and queueSync() repaints the scale card too - miss that and the strip sticks on 'Checking...' for the rest of the session. No change to how a decision travels: it already comes down on EVERY pull, ungated by the 60-second event throttle. 656 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -2250,6 +2250,9 @@ async function queueSync(){
      for the rest of the session - the exact failure this fix exists to remove. */
   try{ if(typeof renderVerify==='function')renderVerify(); }catch(x){}
   try{ if(typeof renderFocQueue==='function')renderFocQueue(); }catch(x){}
+  /* v3.41.3 — and the WORKER's waiting list, which is where the strip matters most. Miss
+     this and his strip sticks on "Checking…" for the rest of the session. */
+  try{ if(typeof renderScaleCard==='function')renderScaleCard(); }catch(x){}
   try{ if(typeof renderSync==='function')renderSync(); }catch(x){}
   try{ if(typeof badge==='function')badge(); }catch(x){}}
 
@@ -8465,8 +8468,16 @@ function nrArm(l){
 /** The retained gatepasses. Every row re-opens its own read-only card — which is the
  *  whole point: the driver can ask for the tally again after the form has been reset. */
 function waitingListHTML(){
-  const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''));
-  return '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
+  const mine=pendingDispatches().filter(isMyLoad);   // v3.41.3 — see isMyLoad()
+  /* v3.41.3 — THE MAN WAITING NEEDS THIS MOST OF ALL.
+     The Gate's queue and the ration queue got the "last synced" strip in v3.41.0. THIS
+     screen did not — and it is the one somebody stands and stares at. He weighs a load, it
+     says WAITING, and the answer is already on the Gate's phone: the app checks every five
+     minutes, but only while it is OPEN and the phone AWAKE, and a phone in a pocket
+     suspends that timer. From the shed floor "waiting" and "my phone has not looked" are
+     the same word. Now the strip says which, and the whole strip is a sync. */
+  return (mine.length?syncAgeHTML():'')+
+    '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
     (mine.length
       ? '<div class="scfoot" style="margin:-2px 0 8px">'+esc(tr('gp_taphint'))+'</div>'+
         mine.map(e=>'<div class="reqrow tapp" onclick="openGatepass(\''+esc(e.uuid)+'\')">'+
@@ -8482,12 +8493,49 @@ function waitingListHTML(){
           '<span class="gpgo">›</span></div>').join('')
       :'<div class="alertnone">'+esc(tr('sc_nothingwaiting'))+'</div>');}
 
+/* ======================================================================================
+   v3.41.3 · WHOSE LOAD IS THIS?  — the bug the Owner reported as "the Gate approved it and
+   the worker's phone never got it"
+   ======================================================================================
+   Both lists on a worker's Morning Scale — what is WAITING, and what has been DECIDED —
+   filtered on `workerId === CFG.uid` alone. That looks safe and it is not, because
+   CFG.uid CAN CHANGE UNDER A ROW THAT IS ALREADY WRITTEN.
+
+   The registry is the Sheet's. A phone that logs in before it has ever pulled the WORKERS
+   tab gets its id from the local seed; the first successful sync then replaces it with the
+   id the Owner actually keyed. Measured on a real login: the phone wrote the load with
+   `workerId:'U-WKR1'`, synced, and CFG.uid became 'U3'. From that instant:
+
+       pendingDispatches()                       still said 1   (the load is real)
+       ...but his WAITING list                   said 0
+       ...and myRecentDecisions()                said nothing
+
+   So the load vanished off his screen while still perfectly pending, and when the Gate
+   approved it the answer had nowhere to land. From the shed floor that is exactly "the
+   approval never reached my phone".
+
+   The fix is the rule renderFocQueue() has used since v3.30.1 and these two never learned:
+   a row is MINE if the id matches OR the NAME matches. A false positive shows a man a load
+   he did not weigh — visible, harmless, and correctable. A false negative loses him the
+   answer entirely, which is what happened. The names come from the same registry that
+   issues the ids, so this is not a guess. */
+function isMyLoad(e){
+  if(!e)return false;
+  const uid=String((CFG&&CFG.uid)||''), me=String((CFG&&CFG.worker)||'').trim().toLowerCase();
+  const rid=String(e.workerId||''), rn=String(e.worker||'').trim().toLowerCase();
+  if(!uid&&!me)return true;                       // no identity on this phone yet — show it all
+  if(rid&&uid&&rid===uid)return true;
+  if(me&&rn&&rn===me)return true;                 // the id moved under the row; the name did not
+  if(!rid&&!rn)return true;                       // an old row that carries neither
+  return false;}
+
 /** Approved and returned loads, so a worker sees the outcome instead of a silence.
  *  v3.8 — these re-open their gatepass too; a returned load still has to be reconciled
  *  against whatever physically left the gate. */
 function myRecentDecisions(){
   const mineIds={};
-  EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&(!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')))mineIds[e.uuid]=e;});
+  /* v3.41.3 — isMyLoad(), not a bare uid test. See the note above it. */
+  EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&isMyLoad(e))mineIds[e.uuid]=e;});
   const out=[], seen={};
   EVENTS.forEach(e=>{
     if(e.type==='DISPATCH'&&e.req_uuid&&mineIds[e.req_uuid]){
@@ -16551,8 +16599,10 @@ function renderFocQueue(){
      Owner's family gifts by name, which is nobody's business but the Owner's, and it is not
      what the tile promises ("ASK FOR FRUIT"). Scoped by workerId, falling back to the name
      for rows filed before uid was stamped. */
-  const mine=e=>String(e.workerId||'')===String((CFG&&CFG.uid)||'')||
-                (!e.workerId&&String(e.worker||'')===String(CFG.worker||''));
+  /* v3.41.3 — folded into the shared isMyLoad(). This screen already matched on the name
+     when the row carried NO id, but not when the row carried an id that had since moved,
+     which is the case that lost a worker his own request. One rule, both screens. */
+  const mine=isMyLoad;
   const pend=may?focPending():focPending().filter(mine);
   let h='';
 
