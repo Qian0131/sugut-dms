@@ -2039,6 +2039,11 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .syncage.old b{color:#7a5c14;}
 .syncage.old span{color:#a9761a;text-decoration:underline;cursor:pointer;font-weight:900;}
 .syncage.off{background:#f4f5f3;color:#8b9489;}
+.syncage.old span{text-decoration:underline;}
+/* v3.41.2 — the whole strip is the tap target, and it says so */
+.syncage[onclick]{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.syncage[onclick]:active{filter:brightness(.94);}
+.syncage.busy{background:#e6efe6;color:var(--green);font-weight:900;}
 /* ---- v3.41.0 · PRICES — a clone at a time ----
    The row is the summary AND the door: the rates are readable without opening it, so the
    Gate can check the book without touching a single box. */
@@ -2574,9 +2579,18 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="sec">⚙ Settings <span class="linkish" style="float:right" onclick="editSetup()">edit</span></div>
     <div class="small" id="cfginfo"></div>
   </div>
+  <!-- ===== v3.41.2 · THE BUTTON COMES FIRST =====================================
+       Measured on a 390x720 phone: the settings card (85px) plus the health card (643px)
+       plus the append note (114px) put SYNC NOW at y=842 on a 611px-tall screen — nearly
+       a screen and a half of scrolling, past a wall of diagnostics, to reach the one
+       control this entire screen exists for. The Gate reported it as "the sync button
+       cannot be pressed", and from where she was standing that is exactly what it was.
+       The button now sits directly under the settings line, and the health report — which
+       is something you READ when something is wrong, not something you press — sits
+       under it. Nothing else moved and renderSync() finds it by id either way. -->
+  <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
   <div id="synchealth"></div>
   <div class="appendnote" id="appendnote"></div>
-  <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
   <div class="m5-iqrow" onclick="m5Tog('m5-p3')"><span class="m5-iq">ⓘ</span></div>
   <p class="small hidden" id="m5-p3" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
   <div class="card">
@@ -3476,7 +3490,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.41.1"></script>
-<script src="app.js?v=3.41.1"></script>
+<script src="database.js?v=3.41.2"></script>
+<script src="app.js?v=3.41.2"></script>
 </body>
 </html>

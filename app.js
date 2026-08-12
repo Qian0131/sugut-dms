@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.41.1';   // v3.41.1 - THE TWO BUTTONS THAT COULD FAIL IN SILENCE. A walk of the whole road - collect, weigh, approve, invoice, credit, payment in, money read - found the single most-pressed control on the farm gated behind a BROWSER confirm(). v3.37.4 already established that several of this farm's Android WebViews refuse to open one outright, and a refused confirm() returns FALSE, so the tap ends in SILENCE indistinguishable from a dead button. On APPROVE & DISPATCH, which moves money dozens of times a morning at peak, that is not an acceptable failure mode. Both it and ADJUSTMENTS (approve/reject a field correction, the Owner's equivalent) now use the app's OWN on-screen confirm - the W_ARM pattern R2 built for the Gate's scale, same .armbox class, same rule: the first tap arms and paints the figures onto the card (kilos, merchant, ringgit, the credit balance after, who weighed it, who checked the photo), the second tap writes, and NOTHING is written on the arming tap. Both disarm on entering the tab, on opening another card, and whenever the row they point at stops being pending - so a second tap can never land on a load somebody else already decided. No other behaviour changed and no writer changed: approveReq() and decideCorrection() do exactly what they did, one tap later. 645 assertions, all green.
+const APP_VERSION = 'v3.41.2';   // v3.41.2 - THE SYNC BUTTON THE GATE COULD NOT PRESS. Two faults, both on the road to one control, and the first one was MINE. (1) v3.41.0 put a 'last synced' stamp on her queue with a TAP TO SYNC link wired straight to netPull(). That call only PULLS - so her own approvals never went up - it shows nothing while it runs and nothing when it finishes, and it does not repaint the queue it is attached to, so even a pull that WORKED left the stamp still reading '45 min ago'. The screen was pixel-identical before and after the tap: a control indistinguishable from a dead button. It goes through doSync() now (push AND pull, the same thing SYNC NOW does), the WHOLE strip is the tap target rather than four small words, it says 'Checking...' the instant it is pressed - before any awaiting, because on a slow hotspot doSync() takes seconds and an unchanged control gets pressed again and again - and it repaints the queue, the stamp and the badge when it is done. (2) On the SYNC screen itself, measured at 390x720: the settings card (85px) + the health card (643px) + the append note (114px) put SYNC NOW at y=842 on a 611px-tall screen. Nearly a screen and a half of scrolling, past a wall of diagnostics, to reach the one control that screen exists for. The button now sits directly under the settings line; the health report - which is something you READ when something is wrong, not something you press - sits under it. Nothing else moved, no gate changed, and renderSync() finds the button by id either way. 668 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -2040,6 +2040,15 @@ async function refreshMasters(){
             '&sig='+encodeURIComponent(MASTER_SIG||'')+
             (wantEv?('&since='+encodeURIComponent(evFloor)):'');
     const r=await fetchT(CFG.url+q,{},SYNC_TIMEOUT_MS);const j=await r.json();
+    /* v3.41.2 — STAMP IT THE MOMENT THE SERVER ANSWERS, not at the end of the function.
+       ⛔ THE STAMP WAS AT THE BOTTOM AND THAT WAS WRONG. Between here and there sit three
+       early returns — an unreadable WORKERS tab, an empty key list, and a dirty local
+       registry — plus fifteen optional sections, any of which can throw into the catch
+       below. On every one of those paths the phone HAD heard from the other phones and the
+       queue still read "45 min ago", which is the exact lie this stamp exists to stop
+       telling. It means "when did this phone last get an answer", so it is written where
+       the answer arrives. */
+    if(j&&j.ok){PULL_AT=Date.now(); PULL_AT_S=nowSec();}
     if(j&&j.sig&&j.sig!==MASTER_SIG){MASTER_SIG=j.sig;if(db)await put('kv',{k:'mastersig',v:MASTER_SIG});}
     // corrections are merged only AFTER the kill switch has cleared this device
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
@@ -2199,7 +2208,7 @@ async function refreshMasters(){
     KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');
     if(db)await put('kv',{k:'keys',v:KEYS});
     applyRole();renderKeys();
-    /* v3.41.0 - WHEN DID THIS PHONE LAST HEAR FROM THE OTHERS?
+    /* v3.41.0 - WHEN DID THIS PHONE LAST HEAR FROM THE OTHERS?  (stamped above, v3.41.2)
        The Owner spent an evening on 12 Aug convinced a worker's ration request was not
        reaching the Gate. It was: the row was in the Sheet, well-formed, and the Gate's
        phone was simply behind - netPull() runs every five minutes only while the app is
@@ -2207,7 +2216,6 @@ async function refreshMasters(){
        empty queue and an unrefreshed queue looked like exactly the same screen, and there
        was no way to tell them apart without opening the Sheet. This stamp is the whole
        fix: every queue that can be stale now says how old it is. */
-    PULL_AT=Date.now(); PULL_AT_S=nowSec();
     return got;
   }catch(e){/* offline or sheet unreachable — check again next sync */ return null;}}
 
@@ -2215,19 +2223,54 @@ async function refreshMasters(){
  *  Deliberately not a spinner or a colour alone: the point is that an EMPTY QUEUE and an
  *  UNREFRESHED QUEUE stop being the same screen. */
 let PULL_AT=0, PULL_AT_S='';
+/* v3.41.2 — THE TAP THAT DID NOTHING.
+   ⛔ THIS WAS MY BUG AND IT IS THE ONE THE GATE REPORTED. v3.41.0 put this stamp on her
+   queue with a TAP TO SYNC link wired straight to netPull(). Three things were wrong with
+   that, and together they made a control that is indistinguishable from a dead button:
+     1. netPull() only PULLS. Her approvals, sitting unsynced on her phone, never went up.
+     2. It shows NOTHING while it runs and NOTHING when it finishes - no toast, no change.
+     3. It does not repaint the queue, so even a pull that worked left the stamp still
+        reading "45 min ago". The screen was identical before and after the tap.
+   It goes through doSync() now - the same thing the SYNC NOW button does, push and pull -
+   the whole strip is the tap target rather than four small words, it says "Checking…" the
+   instant it is pressed, and it repaints the queue and the stamp when it is done. */
+let QSYNC=false;
+async function queueSync(){
+  if(QSYNC)return;
+  QSYNC=true;
+  /* immediate feedback, before any awaiting: on a slow hotspot doSync() can take seconds,
+     and a control that looks unchanged for five seconds gets pressed again and again. */
+  document.querySelectorAll('.syncage').forEach(function(el){
+    el.className='syncage busy';
+    el.innerHTML='⏳ '+esc(tr('sy_checking','Checking with the other phones…'));});
+  try{ await doSync(); }catch(x){}
+  QSYNC=false;
+  /* repaint whatever is on the screen. Wrapped one by one: a role that cannot open one of
+     these has no box to write into, and a throw here would leave the strip on "Checking…"
+     for the rest of the session - the exact failure this fix exists to remove. */
+  try{ if(typeof renderVerify==='function')renderVerify(); }catch(x){}
+  try{ if(typeof renderFocQueue==='function')renderFocQueue(); }catch(x){}
+  try{ if(typeof renderSync==='function')renderSync(); }catch(x){}
+  try{ if(typeof badge==='function')badge(); }catch(x){}}
+
 function syncAgeHTML(){
+  if(QSYNC)
+    return '<div class="syncage busy">⏳ '+esc(tr('sy_checking','Checking with the other phones…'))+'</div>';
   if(!CFG||!CFG.url)
     return '<div class="syncage off">'+esc(tr('sy_never','This phone is not linked to the Google Sheet, so this list only holds what was keyed on it.'))+'</div>';
+  /* the WHOLE strip is the tap target. Four underlined words on a phone held in one hand
+     at a lorry window is not a button. */
+  const tap=' onclick="queueSync()"';
   if(!PULL_AT)
-    return '<div class="syncage old">'+esc(tr('sy_notyet','Not synced since the app was opened — press SYNC to see what the other phones have sent.'))+'</div>';
+    return '<div class="syncage old"'+tap+'>'+esc(tr('sy_notyet','Not synced yet — tap here to send what is on this phone and fetch what the others have sent.'))+
+      ' <span>'+esc(tr('sy_pressync','TAP TO SYNC'))+'</span></div>';
   const mins=Math.floor((Date.now()-PULL_AT)/60000);
   const old=mins>=15;
-  return '<div class="syncage'+(old?' old':'')+'">'+
+  return '<div class="syncage'+(old?' old':'')+'"'+tap+'>'+
     esc(tr('sy_lastat','Last synced'))+' <b>'+esc(PULL_AT_S.slice(11,16)||PULL_AT_S)+'</b>'+
     ' · '+(mins<1?esc(tr('sy_justnow','just now'))
                     :(mins+' '+esc(tr('sy_minago','min ago'))))+
-    (old?(' · <span onclick="netPull()">'+esc(tr('sy_pressync','TAP TO SYNC'))+'</span>'):'')+
-    '</div>';}
+    ' · <span>'+esc(tr('sy_pressync','TAP TO SYNC'))+'</span></div>';}
 
 // ================= owner: master governance & user registry =================
 const ROLE_LABEL={OWNER:'Owner / Admin',MARKETING:'Marketing',PURCHASER:'Sandakan Purchaser',WORKER:'Farm Worker'};
@@ -3784,7 +3827,13 @@ async function doSync(auto){
       toast(left?('⚠ '+batch.length+' sent, but '+left+' '+tr(left>1?'sy_stuck_n':'sy_stuck_1'))
                 :(j.blocked>0?('✓ '+(batch.length-j.blocked)+' synced \u00b7 '+j.blocked+' duplicate blocked')
                              :('✓ '+batch.length+' events synced to Google Sheets')),!!left||j.blocked>0);
-      refreshMasters(); // hidden hotspot token validation runs after every sync
+      /* v3.41.2 — AWAITED. It was fire-and-forget, so doSync() resolved while the pull was
+         still in flight. Nothing depended on that until v3.41.0 put a "last synced" stamp on
+         the Gate's queue: she taps, doSync returns, the queue repaints from the OLD stamp,
+         and the pull lands a second later with nothing left to redraw it. The tap looked
+         dead every single morning, because a morning is exactly when she has rows to push.
+         Awaiting it costs nothing — doSync() is async and every caller already awaits it. */
+      await refreshMasters(); // hidden hotspot token validation runs after every sync
     }
     // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
     else throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
