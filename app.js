@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.41.4';   // v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
+const APP_VERSION = 'v3.41.5';   // v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -642,12 +642,12 @@ const MODULES={
   // v3.0 — tying has LEFT this module. The collection screen is now two cards only:
   // Card A good fruit by grade, Card B rotten loss. Nothing else competes for the
   // worker's thumb while fruit is being counted.
-  harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
+  harvest:{ic:IC_DUR,name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
     /* v3.24 — COLLECT had NO roles key at all, which is why every role in the app could
        open the fruit-counting screen. It is named explicitly now. This section has
        panels:[] — it is a whole screen, not a panel — so it is the one section the
        MKT_DENY set cannot reach, and the tab gate is the only place it can be closed. */
-    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],roles:['OWNER','WORKER'],ic:'🥭',tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
+    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],roles:['OWNER','WORKER'],ic:IC_DUR,tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
           // v3.9 — the backlog answers a harvest question, so it lives on the harvest tile
           // and every role that can reach harvest can reach it. The worker sees the plain
           // count; the flags and the trace are gated inside renderBacklog by SHOW_VALUES.
@@ -864,7 +864,7 @@ const MODULES={
           {k:'record', t:'DAILY RECORD', scr:'dash',ic:'📅',tn:'s_rec7',
              panels:['dailyaudit'],roles:FULL_ROLES,
              d:'Seven days side by side — tied, good, loss, kg out'},
-          {k:'harvest',t:'HARVEST REPORT',scr:'dash',ic:'🥭',tn:'s_harv',
+          {k:'harvest',t:'HARVEST REPORT',scr:'dash',ic:IC_DUR,tn:'s_harv',
              panels:['harvestrep'],roles:FULL_ROLES,
              d:'The season’s quality, and the one sheet you print for the meeting'}]},
   admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',tn:'m_admin',
@@ -2384,7 +2384,23 @@ function renderKeys(){
         '<button class="iconbtn warn" title="'+(a?'Revoke':'Restore')+'" onclick="toggleUser(\''+k.id+'\')"'+(me?' disabled':'')+'>'+(a?'⏻':'↩')+'</button>'+
         '<button class="iconbtn danger" title="Delete" onclick="deleteUser(\''+k.id+'\')"'+(me?' disabled':'')+'>🗑</button>'+
       '</div></div>';}).join('');}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+/* v3.41.5 — esc() NOW PROTECTS THE DURIAN. The harvest icon stopped being a character
+   and became a drawing (IC_DUR, see database.js), and a drawing is HTML. Roughly half the
+   places that paint an icon run it through esc() first — the tile drawer, ALL TOOLS, the
+   Master DB row, the FOC table — so escaping it blindly would have printed the raw markup
+   as visible text on those screens and nowhere else. Rather than hunt down every call site
+   (and miss the ones added next month), the icon is split out, the REAL text either side is
+   escaped exactly as before, and the icon is put back untouched. IC_DUR is an app constant,
+   never anything a person typed, so nothing user-supplied can ride through this hole.
+   ⛔ It still cannot save an <option>, a title="" or a textContent — see plain(). */
+function escRaw(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function esc(s){s=String(s==null?'':s);
+  return (typeof IC_DUR==='string'&&s.indexOf(IC_DUR)>=0)
+    ? s.split(IC_DUR).map(escRaw).join(IC_DUR)
+    : escRaw(s);}
+/** The same string with every drawing taken back out, for the places that can only hold
+ *  plain text: a browser dialog, textContent, an <option>, a title attribute, an export. */
+function plain(s){return String(s==null?'':s).split(/<svg[\s\S]*?<\/svg>/).join('').replace(/\s{2,}/g,' ').trim();}
 
 // ---- add / edit form ----
 let editingId=null, formRole='WORKER', formStatus='Active';
@@ -3582,7 +3598,7 @@ function refreshInventoryViews(){
 // so what the Owner sees on screen is literally what lands in the audit trail.
 function describeEvent(e){
   if(!e)return '';
-  if(e.type==='DROP')        return '🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree+(e.grade?(' · Grade '+e.grade):'');
+  if(e.type==='DROP')        return IC_DUR+' '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree+(e.grade?(' · Grade '+e.grade):'');
   if(e.type==='ROTTEN')      return '🍂 '+e.qty+' rotten @ '+e.tree+(e.cause?(' · '+e.cause):'');
   // v3.30.2 - rations & gifts, readable at a glance in the clean-up list
   if(e.type==='FOC_REQ')     return '🎁 '+(e.reasonLabel||e.reason||'FOC')+' · '+nf(e.kg)+' kg'+
@@ -3734,7 +3750,7 @@ function renderSync(){
   const L=$('ledger');
   L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
     let d=describeEvent(e);
-    if(e.type==='DROP') d='🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
+    if(e.type==='DROP') d=IC_DUR+' '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
     else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'')+(e.progSet?(' · '+e.progSet):'');
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
@@ -3779,7 +3795,9 @@ async function removeEvent(u){
   if(e.synced){toast('Synced records can never be removed. Request a correction.',1);return;}
   if(!canVoidEntry()){
     toast('Records cannot be deleted. Tap “Request correction” — the Owner decides.',1);return;}
-  const d=describeEvent(e);
+  /* v3.41.5 — plain(): askForm writes its title and sub with textContent, which cannot
+     draw the durian and would print its markup at the man about to void a record. */
+  const d=plain(describeEvent(e));
   const res=await askForm({
     title:'Void this queued entry',
     sub:'“'+d+'” has not reached the Google Sheet yet. Voiding writes a permanent audit row naming you, '+
@@ -11050,7 +11068,7 @@ function renderMatrix(){
       '</div></div>').join('')+
 
     // ---- TABLE 1 — yield volume per clone ----
-    '<div class="sec" style="margin-top:14px">🥭 Monthly yield volume — net KG per clone</div>'+
+    '<div class="sec" style="margin-top:14px">'+IC_DUR+' Monthly yield volume — net KG per clone</div>'+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Month</th>'+clones.map(c=>'<th class="num">'+esc(c)+'</th>').join('')+
       '<th class="num">TOTAL</th></tr>'+
@@ -12352,7 +12370,7 @@ async function writeAdjust(e,newQty,reason,isVoid){
 
 // ---- the three log tables ------------------------------------------------------------
 const MDB_LOGS={
-  harvest  :{t:'harvest_log',   ic:'🥭', types:['DROP','ROTTEN'],       unit:'fruits'},
+  harvest  :{t:'harvest_log',   ic:IC_DUR, types:['DROP','ROTTEN'],       unit:'fruits'},
   tying    :{t:'tying_log',     ic:'🎗️', types:['TIE'],                 unit:'fruits'},
   inventory:{t:'inventory_ledger',ic:'📦',types:['STOCK_IN','STOCK_OUT'],unit:''}
 };
@@ -12361,7 +12379,7 @@ function mdbRows(kind){
   return EVENTS.filter(e=>def.types.indexOf(e.type)>=0)
     .slice().sort((a,b)=>String(a.dt)<String(b.dt)?1:(String(a.dt)>String(b.dt)?-1:0));}
 function mdbRowLabel(e){
-  if(e.type==='DROP')     return '🥭 '+(e.clone||'?')+' Grade '+(e.grade||'?')+' @ '+e.tree+
+  if(e.type==='DROP')     return IC_DUR+' '+(e.clone||'?')+' Grade '+(e.grade||'?')+' @ '+e.tree+
                                  (isSecuredDrop(e)?'':' · untied');
   if(e.type==='ROTTEN')   return '🍂 rotten @ '+e.tree+(e.causeLabel?(' · '+e.causeLabel):'');
   if(e.type==='TIE')      return '🎗️ tied @ '+e.tree+' · '+nf(e.ropeM||0)+' m rope';
@@ -13309,7 +13327,7 @@ function fxKind(){
     '<div class="sec" style="margin-top:13px">What kind of work?</div>'+
     card('tie','🎗️','A TYING ROUND','One tree, one day — rope comes off the store on that same day')+
     card('bulk','📋','A WHOLE PAGE OF THE FIELD BOOK','Paste many rounds at once, checked before anything is written')+
-    card('drop','🥭','A COLLECTION','Fruit picked up and graded')+
+    card('drop',IC_DUR,'A COLLECTION','Fruit picked up and graded')+
     card('rot','🍂','A FRUIT LOSS','Rotten or damaged fruit, with its cause');}
 
 function fxForm(){
@@ -15843,7 +15861,7 @@ function progCounts(monthKey){
    ===================================================================================== */
 let CMP_PER='7', CMP_MET='fruit', CMP_NUM=false, CMP_PICK=null;
 const CMP_MEASURES={
-  fruit:{lab:'cb_l_fruit',chip:'cb_fruit',ic:'🥭',money:0,good:'up',unit:''},
+  fruit:{lab:'cb_l_fruit',chip:'cb_fruit',ic:IC_DUR,money:0,good:'up',unit:''},
   kg   :{lab:'cb_l_kg',   chip:'cb_kg',   ic:'⚖️',money:0,good:'up',unit:' kg'},
   rm_in:{lab:'cb_l_in',   chip:'cb_in',   ic:'💰',money:1,good:'up',unit:''},
   rm_out:{lab:'cb_l_mat', chip:'cb_mat',  ic:'🧪',money:1,good:'dn',unit:''}
@@ -17107,7 +17125,7 @@ function renderOwnerHome(){
          so a row of stage buttons would be furniture the Owner has to read past. ---- */
   const f=(typeof dropForecast==='function')?dropForecast():null;
   h+='<div class="seasonline">'+
-       '<span class="sl-ic">🥭</span>'+
+       '<span class="sl-ic">'+IC_DUR+'</span>'+
        '<span class="sl-t"><b>'+esc(tr('ow_harvest','HARVEST'))+' · '+
          esc(tr('ow_day','day'))+' '+seasonDay()+'</b>'+
          '<span>'+(f&&f.hanging>0

@@ -1,3 +1,12 @@
+/* v3.41.5 — THE DURIAN. The harvest icon was a MANGO emoji: there is no durian in
+   Unicode, so every screen that means "fruit off our own trees" was showing somebody
+   else's fruit. IC_DUR is a drawing, not a font character — it renders the same on
+   every phone, needs no network and no image file. It lives HERE because database.js
+   loads first, so both files can use it at parse time.
+   ⛔ IT IS HTML. It may go anywhere innerHTML is written (esc() protects it — see
+   esc() in app.js) but NEVER inside an <option>, a title="" or a textContent — those
+   cannot draw and would print the markup. That is why SEASON_STAGES keeps an emoji. */
+const IC_DUR='<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" class="duric" role="img" aria-label="durian"><path d="M29.6 3.5h5a2.2 2.2 0 0 1 2.2 2.2V19h-9.4V5.7a2.2 2.2 0 0 1 2.2-2.2z" fill="#6b4a1f"/><rect x="27.4" y="3.5" width="3.2" height="15.5" rx="1.6" fill="#000" opacity=".14"/><polygon points="30.7,18.2 32.0,11.0 33.3,18.2 37.2,18.9 41.0,12.7 39.7,19.9 43.1,22.0 48.8,17.7 45.1,23.9 47.5,27.1 54.4,25.1 48.7,29.6 49.7,33.4 56.9,34.1 50.0,36.2 49.6,40.2 56.0,43.5 48.9,42.8 47.1,46.4 52.0,51.9 45.5,48.6 42.6,51.3 45.2,58.2 40.3,52.8 36.6,54.2 36.6,61.6 34.0,54.7 30.0,54.7 27.4,61.6 27.4,54.2 23.7,52.8 18.8,58.2 21.4,51.3 18.5,48.6 12.0,51.9 16.9,46.4 15.1,42.8 8.0,43.5 14.4,40.2 14.0,36.2 7.1,34.1 14.3,33.4 15.3,29.6 9.6,25.1 16.5,27.1 18.9,23.9 15.2,17.7 20.9,22.0 24.3,19.9 23.0,12.7 26.8,18.9" fill="#8caa4e" stroke="#4f6b28" stroke-width="1.2" stroke-linejoin="round"/><ellipse cx="24" cy="27" rx="10" ry="11" fill="#ffffff" opacity=".13"/><path d="M25.4 24.6L23.7 29.2L27.1 29.2Z" fill="#c9d98c"/><path d="M25.4 24.6L27.1 29.2L25.4 29.2Z" fill="#6f8c3c"/><path d="M32.0 24.6L30.3 29.2L33.7 29.2Z" fill="#c9d98c"/><path d="M32.0 24.6L33.7 29.2L32.0 29.2Z" fill="#6f8c3c"/><path d="M38.6 24.6L36.9 29.2L40.3 29.2Z" fill="#c9d98c"/><path d="M38.6 24.6L40.3 29.2L38.6 29.2Z" fill="#6f8c3c"/><path d="M22.1 31.3L20.4 35.9L23.8 35.9Z" fill="#c9d98c"/><path d="M22.1 31.3L23.8 35.9L22.1 35.9Z" fill="#6f8c3c"/><path d="M28.7 31.3L27.0 35.9L30.4 35.9Z" fill="#c9d98c"/><path d="M28.7 31.3L30.4 35.9L28.7 35.9Z" fill="#6f8c3c"/><path d="M35.3 31.3L33.6 35.9L37.0 35.9Z" fill="#c9d98c"/><path d="M35.3 31.3L37.0 35.9L35.3 35.9Z" fill="#6f8c3c"/><path d="M41.9 31.3L40.2 35.9L43.6 35.9Z" fill="#c9d98c"/><path d="M41.9 31.3L43.6 35.9L41.9 35.9Z" fill="#6f8c3c"/><path d="M18.8 38.1L17.1 42.7L20.5 42.7Z" fill="#c9d98c"/><path d="M18.8 38.1L20.5 42.7L18.8 42.7Z" fill="#6f8c3c"/><path d="M25.4 38.1L23.7 42.7L27.1 42.7Z" fill="#c9d98c"/><path d="M25.4 38.1L27.1 42.7L25.4 42.7Z" fill="#6f8c3c"/><path d="M32.0 38.1L30.3 42.7L33.7 42.7Z" fill="#c9d98c"/><path d="M32.0 38.1L33.7 42.7L32.0 42.7Z" fill="#6f8c3c"/><path d="M38.6 38.1L36.9 42.7L40.3 42.7Z" fill="#c9d98c"/><path d="M38.6 38.1L40.3 42.7L38.6 42.7Z" fill="#6f8c3c"/><path d="M45.2 38.1L43.5 42.7L46.9 42.7Z" fill="#c9d98c"/><path d="M45.2 38.1L46.9 42.7L45.2 42.7Z" fill="#6f8c3c"/><path d="M22.1 44.8L20.4 49.4L23.8 49.4Z" fill="#c9d98c"/><path d="M22.1 44.8L23.8 49.4L22.1 49.4Z" fill="#6f8c3c"/><path d="M28.7 44.8L27.0 49.4L30.4 49.4Z" fill="#c9d98c"/><path d="M28.7 44.8L30.4 49.4L28.7 49.4Z" fill="#6f8c3c"/><path d="M35.3 44.8L33.6 49.4L37.0 49.4Z" fill="#c9d98c"/><path d="M35.3 44.8L37.0 49.4L35.3 49.4Z" fill="#6f8c3c"/><path d="M41.9 44.8L40.2 49.4L43.6 49.4Z" fill="#c9d98c"/><path d="M41.9 44.8L43.6 49.4L41.9 49.4Z" fill="#6f8c3c"/><polygon points="32.0,46.7 32.8,49.0 35.2,49.0 33.3,50.5 34.0,52.8 32.0,51.5 30.0,52.8 30.7,50.5 28.8,49.0 31.2,49.0" fill="#3d2a0c" opacity=".55"/></svg>';
 /* =====================================================================
    Sugut DMS — database.js
    S.H.A. Hup Aik Plantation Sdn Bhd · Sugut Durian Farm
@@ -334,7 +343,7 @@ const GROWTH_PHASE={
   FRUITSET :{label:'Fruit set',            ic:'🫧',note:'Hold the young fruit — calcium, boron, gentle feeding.'},
   FRUITDEV :{label:'Fruit development',    ic:'🟢',note:'Bulking the fruit. Heaviest nutrient and PnD demand.'},
   MATURING :{label:'Fruit maturing',       ic:'🟡',note:'Filling and flavour. Watch every residue cut-off.'},
-  HARVEST  :{label:'Harvest / peak drop',  ic:'🥭',note:'Collection. Spraying is the exception, not the rule.'}
+  HARVEST  :{label:'Harvest / peak drop',  ic:IC_DUR,note:'Collection. Spraying is the exception, not the rule.'}
 };
 const MONTH_PHASE={'2026 Jan (2)':'RECOVERY','Boosting':'INDUCTION','March':'FLOWERING','April':'FRUITSET',
   'May':'FRUITDEV','May 2':'FRUITDEV','June':'FRUITDEV','June 2':'FRUITDEV','July':'MATURING',
@@ -1163,7 +1172,7 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   tn_pertank:'Per tank: 1,000 L water', tn_pertree:'Per tree',
   tn_waiting:'Waiting for the store — no brand matched yet',
   tn_hint:'Tap to open the task',
-  ca_tag:'Card A · good fruit', ca_head:'🥭 Good fruit collected — count each grade',
+  ca_tag:'Card A · good fruit', ca_head:IC_DUR+' Good fruit collected — count each grade',
   ca_note:'Count Grade A, B and C separately. For every grade say whether the fruit came off <b>Secured (Tied)</b> — a string was on it — or <b>Unsecured (Untied)</b>, meaning it was never tied. Leave a grade on 0 if none was picked.',
   ca_none:'Nothing counted yet.', ca_save:'✓ SAVE GOOD FRUIT',
   cb_tag:'Card B · loss', cb_head:'🍂 Fruit lost — not sellable',
@@ -2024,7 +2033,7 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   tn_pertank:'Setiap tangki: 1,000 L air', tn_pertree:'Setiap pokok',
   tn_waiting:'Menunggu stor — belum ada jenama dipadankan',
   tn_hint:'Ketuk untuk buka tugasan',
-  ca_tag:'Kad A · buah elok', ca_head:'🥭 Buah elok dikutip — kira ikut gred',
+  ca_tag:'Kad A · buah elok', ca_head:IC_DUR+' Buah elok dikutip — kira ikut gred',
   ca_note:'Kira Gred A, B dan C berasingan. Bagi setiap gred, nyatakan sama ada buah itu <b>Bertali (Diikat)</b> — ada tali padanya — atau <b>Tanpa Tali</b>, bermakna ia tidak pernah diikat. Biarkan gred pada 0 jika tiada dikutip.',
   ca_none:'Belum ada yang dikira.', ca_save:'✓ SIMPAN BUAH ELOK',
   cb_tag:'Kad B · buah rosak', cb_head:'🍂 Buah rosak — tidak boleh dijual',
