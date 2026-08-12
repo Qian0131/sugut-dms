@@ -2044,6 +2044,19 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .syncage[onclick]{cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .syncage[onclick]:active{filter:brightness(.94);}
 .syncage.busy{background:#e6efe6;color:var(--green);font-weight:900;}
+/* ---- v3.41.4 · A NEWER VERSION IS ON THE SERVER ----
+   Amber, not red: nothing is broken, the phone is simply behind. Full width, thumb-tall,
+   and the whole bar is the button. */
+#verbar:empty{display:none;}
+#verbar{position:sticky;top:0;z-index:60;}
+.verbar{display:flex;align-items:center;gap:10px;background:#a9761a;color:#fff;
+  padding:11px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.verbar:active{background:#946614;}
+.verbar .ic{font-size:19px;line-height:1;}
+.verbar .t{font-weight:900;font-size:12.5px;line-height:1.25;}
+.verbar .s{font-size:10px;opacity:.9;font-weight:700;margin-top:2px;line-height:1.35;}
+.verbar .go{margin-left:auto;background:#fff;color:#7a5c14;border-radius:9px;
+  padding:8px 11px;font-size:11.5px;font-weight:900;white-space:nowrap;}
 /* ---- v3.41.0 · PRICES — a clone at a time ----
    The row is the summary AND the door: the rates are readable without opening it, so the
    Gate can check the book without touching a single box. */
@@ -2179,6 +2192,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
   </div>
 </div>
+
+<!-- ===== v3.41.4 · THE PHONE THAT IS BEHIND SAYS SO ============================
+     Directly under the header so it is on EVERY screen, not only the home one: a phone
+     that is behind may be sitting on any tile. It renders empty unless the server is
+     actually running a different version, so it costs nothing the rest of the time. -->
+<div id="verbar"></div>
 
 <!-- LOCK SCREEN (revoked devices) -->
 <div id="lockscreen" class="hidden">
@@ -3490,7 +3509,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.41.3"></script>
-<script src="app.js?v=3.41.3"></script>
+<script src="database.js?v=3.41.4"></script>
+<script src="app.js?v=3.41.4"></script>
 </body>
 </html>

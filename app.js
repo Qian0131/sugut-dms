@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.41.3';   // v3.41.3 - THE STRIP GOES WHERE SOMEBODY IS ACTUALLY WAITING. The Owner reported a Gate approval not reaching the worker's phone, then confirmed it arrived - the same shape as the 12 Aug ration: not lost, late. v3.41.0 put the 'last synced' strip on the Gate's dispatch queue and on the ration queue, but NOT on the one screen a man stands and stares at: his own WAITING list on the Morning Scale. He weighs a load, it says WAITING, and the answer may already be on the Gate's phone - netPull() runs every five minutes only while the app is OPEN and the device AWAKE, and a phone in a pocket suspends that timer. From the shed floor 'waiting for the Gate' and 'my phone has not looked' are the same word, and there was nothing on the screen to tell them apart. The strip is on his waiting list now, the whole strip is a sync (push and pull), and queueSync() repaints the scale card too - miss that and the strip sticks on 'Checking...' for the rest of the session. No change to how a decision travels: it already comes down on EVERY pull, ungated by the 60-second event throttle. 656 assertions, all green.
+const APP_VERSION = 'v3.41.4';   // v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -405,6 +405,9 @@ async function netPull(){
     toast('📋 '+nn+' new job'+(nn>1?'s':'')+' from the Owner');}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)netPull();});
 setInterval(netPull,5*60*1000);
+/* v3.41.4 — one check shortly after boot, so a phone that is behind finds out even before
+   its first sync. Delayed so it never competes with the first paint. */
+setTimeout(function(){try{checkServerVersion(true);}catch(x){}},6000);
 
 // ================= TREE MASTER engine (v2.2) =================
 // TREE_FIX holds every Owner-APPROVED correction, keyed by TreeID. It is replayed
@@ -2048,7 +2051,11 @@ async function refreshMasters(){
        queue still read "45 min ago", which is the exact lie this stamp exists to stop
        telling. It means "when did this phone last get an answer", so it is written where
        the answer arrives. */
-    if(j&&j.ok){PULL_AT=Date.now(); PULL_AT_S=nowSec();}
+    if(j&&j.ok){PULL_AT=Date.now(); PULL_AT_S=nowSec();
+      /* v3.41.4 — and while we are talking to the server, ask whether this phone is behind.
+         Deliberately NOT awaited: a slow answer must never hold up the sync the person is
+         waiting on, and the bar paints itself when it lands. */
+      try{ checkServerVersion(); }catch(x){}}
     if(j&&j.sig&&j.sig!==MASTER_SIG){MASTER_SIG=j.sig;if(db)await put('kv',{k:'mastersig',v:MASTER_SIG});}
     // corrections are merged only AFTER the kill switch has cleared this device
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
@@ -2255,6 +2262,73 @@ async function queueSync(){
   try{ if(typeof renderScaleCard==='function')renderScaleCard(); }catch(x){}
   try{ if(typeof renderSync==='function')renderSync(); }catch(x){}
   try{ if(typeof badge==='function')badge(); }catch(x){}}
+
+/* ======================================================================================
+   v3.41.4 · THE PHONE THAT IS BEHIND SAYS SO
+   ======================================================================================
+   Four phones in three places. After every release the Owner had to ask each person to
+   read a version number off their screen, and on 12 Aug one phone was still on the old
+   build a day later because nobody knew. The reason is not carelessness: a phone that has
+   the app on its home screen keeps its own saved copy of index.html, and that saved copy
+   still carries the OLD ?v= — so it loads the old app.js out of the cache and never once
+   asks the server whether anything changed. Closing the app does not help. Nothing on the
+   phone had any way to notice.
+
+   So the app asks. After every successful pull it fetches index.html from its own address
+   with a cache-buster on it — which is the one request the saved copy cannot answer — and
+   reads the ?v= the SERVER is serving. If that differs from the APP_VERSION this phone is
+   running, a bar appears on every screen saying so, and tapping it reloads through a fresh
+   address so the phone has to fetch the new files.
+
+   ⛔ IT NEVER RELOADS BY ITSELF. A phone that reloads on its own could do it in the middle
+   of a weigh-in, and an unsent queue lives in IndexedDB but a half-keyed basket does not.
+   The person taps it, when their hands are free.
+   Deliberately quiet in the two cases where it would be lying: opened from a file (the
+   harnesses) and any answer that is not a clean version string. */
+let SRV_VER='', VER_CHECK_AT=0;
+const VER_CHECK_GAP_MS=10*60*1000;      // once every ten minutes at most; it is one small GET
+function appBaseUrl(){
+  try{ const l=location; if(l.protocol==='file:')return ''; return l.origin+l.pathname; }
+  catch(x){ return ''; }}
+async function checkServerVersion(force){
+  const base=appBaseUrl(); if(!base)return '';                 // opened from a file — say nothing
+  if(!force&&(Date.now()-VER_CHECK_AT)<VER_CHECK_GAP_MS)return SRV_VER;
+  VER_CHECK_AT=Date.now();
+  try{
+    const u=base+(base.slice(-1)==='/'?'':'')+'?vercheck='+Date.now();
+    const r=await fetchT(u,{cache:'no-store'},12000);
+    if(!r||!r.ok)return SRV_VER;
+    const t=await r.text();
+    /* the same two script tags the deploy check reads. Assert the THING, not a string that
+       looks like it: index.html carries a COMMENT about this very trap. */
+    const tags=(t.match(/<script[^>]*src="[^"]*\?v=[0-9.]+"/g)||[])
+      .map(x=>(x.match(/\?v=([0-9.]+)/)||[])[1]);
+    if(tags.length!==2||!tags[0]||tags[0]!==tags[1])return SRV_VER;   // half-published: say nothing
+    SRV_VER='v'+tags[0];
+    renderVerBar();
+    return SRV_VER;
+  }catch(x){ return SRV_VER; }}
+
+function verIsBehind(){
+  return !!(SRV_VER&&APP_VERSION&&SRV_VER!==APP_VERSION);}
+
+function renderVerBar(){
+  const box=$('verbar'); if(!box)return;
+  if(!verIsBehind()){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="verbar" onclick="loadNewVersion()">'+
+    '<div class="ic">↻</div>'+
+    '<div><div class="t">'+esc(tr('vb_title','A newer version is ready'))+' — '+esc(SRV_VER)+'</div>'+
+    '<div class="s">'+esc(tr('vb_sub','This phone is still running'))+' '+esc(APP_VERSION)+' · '+
+      esc(tr('vb_safe','nothing you have keyed is lost'))+'</div></div>'+
+    '<div class="go">'+esc(tr('vb_go','LOAD IT'))+'</div></div>';}
+
+/** Reload through an address the saved copy cannot answer, so the phone must go and fetch
+ *  the new files. Not location.reload(): on a home-screen app that can be served straight
+ *  back out of the same cache that caused the problem. */
+function loadNewVersion(){
+  const base=appBaseUrl(); if(!base)return;
+  try{ location.replace(base+'?new='+encodeURIComponent(SRV_VER||String(Date.now()))); }
+  catch(x){ try{ location.reload(); }catch(y){} }}
 
 function syncAgeHTML(){
   if(QSYNC)
