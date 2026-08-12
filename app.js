@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.41.0';   // v3.41.0 - THE KEY-IN REWORK: ONE QUESTION A SCREEN, EVERYWHERE. The Owner audited every form in the app and gave one direction: key it in the way the Morning Scale does - weight to delivery, step by step - and said MASTER DB in particular was 'very confuse'. Five screens are rebuilt to ask ONE thing at a time and check the answer before offering the next; not one WRITER changed, because this release rebuilds the ASKING, not the writing. (1) MASTER DB is FIX A RECORD - four steps (what is wrong / find it / what it says now / the change and why) replacing a five-chip nav where the BACKDATE chip alone mounted four forms and a paste box, about fifteen live fields. Zero fields on the opening screen. TREES and QR left it and are sections of their own: neither is a correction, and sharing a screen with the delete tools is what made it read as everything-dangerous-in-one-place. The old inline-edit CRUD path (mdbSec/mdbPickLog/mdbEditRow/mdbSaveEdit/mdbDeleteRow) is DELETED, not parked - an unreachable second way to edit a harvest row is the duplicate-route fault v3.39/v3.40 spent two releases closing. (2) ASK FOR FRUIT is three taps and one number, down from seven boxes. Two of those seven a worker could not answer honestly - the WEIGHT of fruit not in his hands, and the clone and grade of fruit not yet handed to him - so the SHED answers them (its own cards are the picker) and the weight is estimated from the count, said out loud as an estimate. DUMP is deliberately not offered here: a dumped basket is not a request, it crosses the scale. (3) PRICES: seventeen live boxes become at most FOUR. One segment picks the job (THE BOOK / BASKET TARE / COMPARE), one tap inside the book picks the clone. EVERY input stays MOUNTED and merely hidden - savePrices(), trendNudge(), trendReset() and saveBaskets() read the whole book by id in one pass, and removing a box would write a zero over a negotiated rate. THIS RESTRUCTURE FOUND A SHIPPED BUG: the old matrix drew columns for A, B and C only, MK carries a fourth grade BN (banana, v3.30.0), so pr-MK-BN never existed and savePrices() bailed on the first missing element - THE SPOT PRICE BOOK COULD NOT BE SAVED AT ALL. It saves now, and BN has a box at last. (4) SUPPLY HUB is THE STORE: seven cards on one page become four jobs behind one bar (TO BUY / RECEIVE / BRANDS / ON HAND), toggled with .m3-hide because openModule() writes inline display and inline beats a class. (5) Two owed fixes. FOC_HEAD names its columns `by`/`byId` and this app writes `worker`/`workerId`, so EVERY ration in the farm's archive reads as asked by nobody - mapped on the wire in pushFoc() and normalised on the way down in mergeFoc(), no Apps Script change. And every queue that can be stale now says how old it is: an empty queue and an unrefreshed queue were the same screen, which cost the Owner an evening on 12 Aug. STAFF delete drops confirm() (Android WebViews refuse to open one) for askForm(), counts the person's records, steers to REVOKE and needs the word DELETE typed. 117 new assertions drive every new step flow with real taps on real phones and assert the EVENT written at the end of each road; 550 across 13 harnesses, all green.
+const APP_VERSION = 'v3.41.1';   // v3.41.1 - THE TWO BUTTONS THAT COULD FAIL IN SILENCE. A walk of the whole road - collect, weigh, approve, invoice, credit, payment in, money read - found the single most-pressed control on the farm gated behind a BROWSER confirm(). v3.37.4 already established that several of this farm's Android WebViews refuse to open one outright, and a refused confirm() returns FALSE, so the tap ends in SILENCE indistinguishable from a dead button. On APPROVE & DISPATCH, which moves money dozens of times a morning at peak, that is not an acceptable failure mode. Both it and ADJUSTMENTS (approve/reject a field correction, the Owner's equivalent) now use the app's OWN on-screen confirm - the W_ARM pattern R2 built for the Gate's scale, same .armbox class, same rule: the first tap arms and paints the figures onto the card (kilos, merchant, ringgit, the credit balance after, who weighed it, who checked the photo), the second tap writes, and NOTHING is written on the arming tap. Both disarm on entering the tab, on opening another card, and whenever the row they point at stops being pending - so a second tap can never land on a load somebody else already decided. No other behaviour changed and no writer changed: approveReq() and decideCorrection() do exactly what they did, one tap later. 645 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -447,19 +447,49 @@ function renderMyCorrections(){
 // ================= owner: pending data adjustments =================
 let corrFilter='PENDING';
 function setCorrFilter(f,el){corrFilter=f;[...$('corrfilter').children].forEach(x=>x.classList.remove('on'));if(el)el.classList.add('on');renderCorrections();}
+/* v3.41.1 — which correction, and which answer, is armed. Cleared on entry to the tab and
+   whenever the row it points at stops being pending. */
+let CORR_ARM='';
+function corrDisarm(){CORR_ARM='';renderCorrections();}
 function renderCorrections(){
   const panel=$('corrpanel'); if(!panel)return;
   const r=myRole();
   panel.style.display=(r==='OWNER'||r==='MARKETING')?'':'none';   // never the Purchaser
   if(panel.style.display==='none')return;
   const pend=CORRECTIONS.filter(c=>c.status==='PENDING');
+  /* v3.41.1 — an armed row that is no longer pending (decided on another phone, or cleaned
+     up) must not stay armed, or the second tap lands on nothing. */
+  if(CORR_ARM&&!pend.some(c=>c.uuid===String(CORR_ARM).split('|')[0]))CORR_ARM='';
   const b=$('corrcount'); b.textContent=pend.length; b.classList.toggle('hidden',!pend.length);
   const list=corrFilter==='PENDING'?pend:(corrFilter==='DECIDED'?CORRECTIONS.filter(c=>c.status!=='PENDING'):CORRECTIONS.slice());
   list.sort((a,b2)=>b2.dt.localeCompare(a.dt));
   $('corrlist').innerHTML=list.length?list.map(c=>{
     const s=c.status==='APPROVED'?'a':(c.status==='REJECTED'?'r':'p');
+    /* v3.41.1 — ARMED, ON THE SCREEN. The browser dialog these two buttons used to raise is
+       refused outright by several of this farm's Android WebViews (v3.37.4), and a refused
+       confirm() returns FALSE — so the tap ended in silence that looks exactly like a dead
+       button. First tap arms and says what it is about to do; second tap writes. */
+    const armY=CORR_ARM===(c.uuid+'|1'), armN=CORR_ARM===(c.uuid+'|0');
+    const arm=(armY||armN)
+      ?('<div class="armbox"><b>'+esc(tr('vf_armhead','CHECK IT, THEN TAP AGAIN'))+'</b>'+
+        '<div class="w">'+esc(armY?(c.ctype==='NOTE'?tr('cr_armack','Acknowledge this note')
+                                                    :tr('cr_armok','Approve this change'))
+                                  :tr('cr_armno','Reject this request'))+'</div>'+
+        '<div class="k">'+esc(c.tree)+' · '+esc(corrSummary(c))+'</div>'+
+        '<div class="s">'+esc(armY
+            ?(c.ctype==='LOGQTY'
+              ?tr('cr_armlog','This files a signed adjustment against that log. The original row is kept.')
+              :tr('cr_armtree','This permanently updates the Tree Master across the whole app.'))
+            :tr('cr_armback','The worker sees the answer on his own phone.'))+'<br>'+
+          esc(tr('vf_armnote','Nothing is written until the second tap.'))+'</div>'+
+        '<div style="margin-top:9px"><span class="linkish" style="color:#cfe3cf" '+
+          'onclick="corrDisarm()">'+esc(tr('vf_armno','NOT YET — GO BACK'))+'</span></div></div>')
+      :'';
     const acts=(c.status==='PENDING'&&canApprove())
-      ?'<div class="cacts"><button class="ok" onclick="decideCorrection(\''+c.uuid+'\',1)">✓ '+(c.ctype==='NOTE'?'ACKNOWLEDGE':'APPROVE CHANGE')+'</button><button class="no" onclick="decideCorrection(\''+c.uuid+'\',0)">✕ REJECT REQUEST</button></div>'
+      ?(arm+'<div class="cacts"><button class="ok" onclick="decideCorrection(\''+c.uuid+'\',1)">'+
+        (armY?('✓ '+esc(tr('cr_armgo','TAP AGAIN TO SAVE'))):('✓ '+(c.ctype==='NOTE'?'ACKNOWLEDGE':'APPROVE CHANGE')))+
+        '</button><button class="no" onclick="decideCorrection(\''+c.uuid+'\',0)">'+
+        (armN?('✕ '+esc(tr('cr_armgo','TAP AGAIN TO SAVE'))):'✕ REJECT REQUEST')+'</button></div>')
       :(c.status==='PENDING'?'<div class="small">Owner approval required.</div>'
         :'<div class="small">'+c.status.toLowerCase()+' by '+(c.decidedBy||'—')+' · '+(c.decidedAt||'')+'</div>');
     return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(c.tree)+'</div>'+
@@ -1490,7 +1520,9 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='lvl')renderInvCC();
   if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
   if(k==='mkt'&&t==='disp'){renderDispatch();renderMarketing();}   // v3.36.0 — cash sales live on MERCHANTS now
-  if(k==='mkt'&&t==='verify'){renderVerify();renderFocQueue();}    // v3.36.0 — the QUEUE is both queues
+  /* v3.41.1 — entering the QUEUE always disarms. AP_ARM is module state and survives the
+     trip off the tile; a card left armed last week must not be one tap from an invoice. */
+  if(k==='mkt'&&t==='verify'){AP_ARM='';renderVerify();renderFocQueue();}    // v3.36.0 — the QUEUE is both queues
   // v3.31.0 — without this the landing is a blank card, exactly like the rations screen was
   if(k==='cmd'&&t==='home')renderOwnerHome();
   /* v3.30.0 — RATIONS & GIFTS, painted from BOTH doors. Missing this line is not a blank
@@ -1541,7 +1573,9 @@ function renderForTab(k,t){
      landing on a card nobody wrote into. */
   if(k==='reports'&&t==='sum')renderLedgerSummary();
   if(k==='reports'&&t==='labour')renderLabour();
-  if(k==='admin'&&t==='corr')renderCorrections();
+  /* v3.41.1 — entering ADJUSTMENTS always disarms; CORR_ARM is module state and survives
+     the trip off the tile. */
+  if(k==='admin'&&t==='corr'){CORR_ARM='';renderCorrections();}
   if(k==='admin'&&t==='reg')renderKeys();
   if(k==='scale'&&t==='scale')renderScaleCard();
   if(k==='harvest'&&t==='backlog')renderBacklog();
@@ -6094,12 +6128,12 @@ async function decideCorrection(id,ok){
   const c=CORRECTIONS.find(x=>x.uuid===id); if(!c||c.status!=='PENDING')return;
   const isLog=(c.ctype==='LOGQTY');
   const t=treeById(c.tree);
-  if(ok){
-    if(!confirm('Approve this change?\n\n'+c.tree+'\n'+corrSummary(c)+'\n\n'+
-      (isLog?'This files a signed adjustment against that log. The original row is kept.'
-            :'This permanently updates the Tree Master across the whole app.')))return;
-  }else{
-    if(!confirm('Reject this request?\n\n'+c.tree+'\n'+corrSummary(c)))return;}
+  /* v3.41.1 — on-screen confirm, for the same reason as approveReq(): a browser dialog a
+     phone refuses to open returns FALSE, and the tap ends in silence that looks exactly
+     like a dead button. First tap arms and paints the change into the card; second writes. */
+  const armKey=id+'|'+(ok?'1':'0');
+  if(CORR_ARM!==armKey){ CORR_ARM=armKey; renderCorrections(); return; }
+  CORR_ARM='';
   c.status=ok?'APPROVED':'REJECTED'; c.decidedBy=CFG.worker; c.decidedAt=now(); c.synced=false;
   if(ok){ if(isLog)await applyLogCorrection(c); else if(t)await bakeApproved(c); }
   await persistCorrection(c);
@@ -9949,11 +9983,37 @@ function closePhoto(){const b=$('lightbox');if(b)b.classList.add('hidden');const
 
 // ---- the Marketer's verification hub -------------------------------------------------
 let VERIFY_SEL='', vSaving=false;
-function openVerify(u){VERIFY_SEL=(VERIFY_SEL===u?'':u);renderVerify();}
+/* v3.41.1 — which card, if any, is ARMED. Held here beside VERIFY_SEL because it obeys the
+   same rules: opening another card, leaving the tab, or a sync bringing a new queue all
+   have to disarm, or a second tap lands on a load the person is no longer looking at. */
+let AP_ARM='';
+function apDisarm(){AP_ARM='';renderVerify();}
+function openVerify(u){AP_ARM='';VERIFY_SEL=(VERIFY_SEL===u?'':u);renderVerify();}
+
+/** The on-screen confirm for APPROVE & DISPATCH. Same four facts the browser dialog
+ *  carried, on the card, where nothing can refuse to draw it. */
+function verifyArmHtml(e,r,t,before,after,short){
+  const cashLoad=isCashRetailer(e.retailer_id);
+  return '<div class="armbox">'+
+    '<b>'+esc(tr('vf_armhead','CHECK IT, THEN TAP AGAIN'))+'</b>'+
+    '<div class="w">'+nf(t.total_kg)+' kg → '+esc(r.name)+'</div>'+
+    '<div class="v"><b>'+rm(t.total_value_rm)+'</b></div>'+
+    '<div class="k">'+esc(cashLoad
+        ? tr('vf_armcash','CASH SALE — collect it now')
+        : (tr('vf_armbal','Credit after this')+': '+rm(after)))+
+      (short?(' · '+esc(tr('vf_armover','OVERDRAWN — Owner override signed by'))+' '+esc(OVR_BY||'')):'')+
+    '</div>'+
+    '<div class="s">'+esc(tr('vf_armby','Weighed by'))+' '+esc(e.worker||'?')+' · '+
+      esc(tr('vf_armseen','photo checked by'))+' '+esc((CFG&&CFG.worker)||'')+'<br>'+
+      esc(tr('vf_armnote','Nothing is written until the second tap.'))+'</div>'+
+  '</div>';}
 
 function renderVerify(){
   const box=$('verifybox'); if(!box)return;
-  if(!canDispatch()){box.innerHTML='';VERIFY_SEL='';return;}
+  if(!canDispatch()){box.innerHTML='';VERIFY_SEL='';AP_ARM='';return;}
+  /* an armed card that is no longer in the queue — decided on another phone, or cleaned up —
+     must never stay armed, or the second tap lands on nothing. */
+  if(AP_ARM&&!pendingDispatches().some(x=>x.uuid===AP_ARM))AP_ARM='';
   const q=pendingDispatches();
   box.innerHTML=
     /* v3.41.0 - the stamp. An empty queue and an unrefreshed queue used to be the same
@@ -10129,7 +10189,12 @@ function verifyCardHtml(e){
          instead of sending the marketer to the retailer card where the invoice would be
          written with no req_uuid and this request would stay open to be approved twice. */
       (short&&seen&&!unpriced.length?verifyOverrideHtml(r,before,t.total_value_rm):'')+
-      '<button class="bigbtn" '+((!seen||unpriced.length||(short&&!OVR_OK))?'disabled ':'')+
+      /* v3.41.1 — the armed confirm. It carries the same four facts the browser dialog
+         carried (kilos, merchant, ringgit, resulting balance) plus who weighed it and who
+         checked the photo, and it lives ON THE CARD where a phone cannot refuse to draw it. */
+      (AP_ARM===e.uuid?verifyArmHtml(e,r,t,before,after,short):'')+
+      '<button class="bigbtn'+(AP_ARM===e.uuid?' danger':'')+'" '+
+        ((!seen||unpriced.length||(short&&!OVR_OK))?'disabled ':'')+
         'onclick="approveReq(\''+esc(e.uuid)+'\')">'+
         (!seen?'🔒 AUDIT THE PHOTO FIRST'
               :(unpriced.length?'🔒 MISSING PRICE'
@@ -10137,8 +10202,13 @@ function verifyCardHtml(e){
                  box that had just explained it in full. A phone-size screenshot showed the
                  same fact on screen FOUR times: the credit line, the CRITICAL box, the
                  override box and this button. Nothing is removed; the button stops shouting. */
+              :(AP_ARM===e.uuid?esc(tr('vf_armgo','TAP AGAIN TO WRITE THE INVOICE'))
               :(short?(OVR_OK?'✓ APPROVE &amp; DISPATCH (OVERRIDE)':'🔒 CREDIT EXCEEDED')
-              :'✓ APPROVE &amp; DISPATCH')))+'</button>'+
+              :'✓ APPROVE &amp; DISPATCH'))))+'</button>'+
+      (AP_ARM===e.uuid
+        ?('<button class="bigbtn ghost" style="margin-top:7px;padding:11px;font-size:12.5px" '+
+          'onclick="apDisarm()">'+esc(tr('vf_armno','NOT YET — GO BACK'))+'</button>')
+        :'')+
       '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
         'onclick="rejectReq(\''+esc(e.uuid)+'\')">↩ RETURN TO WORKER</button>'+
       '</div>'));}
@@ -10246,13 +10316,17 @@ async function approveReq(u){
   if(over&&!OVR_OK){
     toast('Credit exceeded — the Owner keys the 6-digit override on this card',1);
     renderVerify(); return;}
-  if(over&&!confirm('ADMIN OVERRIDE — authorised by '+OVR_BY+'.\n\n'+r.name+' holds '+rm(before)+
-    ' and this load is worth '+rm(t.total_value_rm)+'.\nApproving leaves the account at '+rm(after)+
-    ' (overdrawn).\n\nApprove it?'))return;
-  if(!over&&!confirm('Approve '+nf(t.total_kg)+' kg to '+r.name+' for '+rm(t.total_value_rm)+'?\n\n'+
-    'Weighed by '+(e.worker||'')+', photo checked by '+((CFG&&CFG.worker)||'')+'.\n'+
-    (cashLoad?'This writes the invoice. It is a CASH sale - collect '+rm(t.total_value_rm)+' now.'
-             :'This writes the invoice and takes the credit down to '+rm(after)+'.')))return;
+  /* v3.41.1 — THE CONFIRM IS ON THE SCREEN NOW, NOT IN A BROWSER DIALOG.
+     ⛔ THIS IS THE MOST-PRESSED BUTTON ON THE FARM and it was gated behind confirm().
+     v3.37.4 established that several of this farm's Android WebViews refuse to open a
+     browser dialog outright — and a refused confirm() returns FALSE, so the tap ended in
+     SILENCE that is indistinguishable from a button that does nothing. On the one control
+     that moves money that is not an acceptable failure mode.
+     So: the first tap ARMS and paints the figures into the card; the second tap writes.
+     Exactly the W_ARM pattern R2 built for the Gate's own scale confirm, for the same
+     reason and with the same class. Nothing is written on the arming tap. */
+  if(AP_ARM!==u){ AP_ARM=u; renderVerify(); return; }
+  AP_ARM='';
   vSaving=true;
   const du=uuid(), stamp=now(), serial=nextInvoiceSerial(stamp);
   try{
