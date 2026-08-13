@@ -492,6 +492,49 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
    plus a thumb, so the last control can always be brought clear of it. */
 #treezone{padding-bottom:132px;}
 .savedock{background:linear-gradient(to top,var(--bg) 78%,rgba(245,247,244,.85));}
+/* ===== v3.43.0 · WHO'S ON =====
+   Colour is never the only signal: every dot is paired with a word (WORKING / QUIET /
+   NO RECORD), because the amber and the green are a red-green pair and this app has
+   already failed one colour-blind check ([[dms-season-report-design]]). */
+.whonav{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:var(--lite);border-radius:11px;padding:7px 6px;margin-bottom:9px;font-size:13px;}
+.whonav .whostep{padding:2px 13px;font-weight:800;color:var(--green);cursor:pointer;user-select:none;}
+.whonav .whostep.off{color:#c3c9c0;}
+.whotabs{display:flex;gap:6px;margin-bottom:10px;}
+.whotabs div{flex:1;text-align:center;padding:9px 4px;border-radius:11px;background:#fff;
+  border:1px solid #dfe4dc;font-size:11.5px;font-weight:800;color:var(--muted);cursor:pointer;}
+.whotabs div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+.whoalert{background:var(--amberbg);border:1px solid var(--gold);border-radius:12px;
+  padding:10px 12px;margin-bottom:10px;font-size:12.5px;line-height:1.5;}
+.whorow{display:flex;gap:10px;align-items:flex-start;padding:11px 2px;
+  border-bottom:1px solid #eef1ec;cursor:pointer;}
+.whodot{width:11px;height:11px;border-radius:50%;flex:0 0 11px;margin-top:5px;}
+.whodot.on{background:#2e7d32;box-shadow:0 0 0 3px #d7ecd8;}
+.whodot.idle{background:#e6a700;box-shadow:0 0 0 3px #fdf0cd;}
+.whodot.off{background:#bcc3ba;}
+.whomain{flex:1;min-width:0;}
+.whoname{font-weight:800;font-size:14px;}
+.whometa{font-size:11px;color:var(--muted);margin-top:1px;}
+.whochips{margin-top:5px;}
+.whochips span{display:inline-block;background:var(--lite);border-radius:8px;padding:2px 8px;
+  margin:2px 4px 0 0;font-weight:700;font-size:11px;color:#2a3a2c;}
+.whochips span.none{background:#f3f0e8;color:#8a7f5f;font-weight:600;}
+.whoright{text-align:right;font-size:11px;color:var(--muted);flex:0 0 auto;}
+.whoright .whost{font-weight:800;font-size:11px;}
+.whost.on{color:#2e7d32;} .whost.idle{color:#a37700;} .whost.off{color:#9aa398;}
+.whoright .whoago{color:#98a29b;}
+.whodet{display:none;background:#fbfcfa;border:1px solid #e6eae3;border-radius:11px;
+  padding:9px 10px;margin:0 2px 8px;}
+.whodet.open{display:block;}
+.whofeed{font-size:12px;}
+.whof{display:flex;gap:9px;padding:6px 0;border-bottom:1px dashed #e8ece6;}
+.whof:last-child{border-bottom:none;}
+.whoft{flex:0 0 44px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.whofw{flex:1;line-height:1.45;overflow-wrap:break-word;}
+.whofn{color:var(--green);font-weight:700;}
+.whofd{display:inline-block;margin-left:6px;font-size:10px;color:#98a29b;}
+.whogap{margin-top:11px;background:#fbfcfa;border:1px dashed #d8ded4;border-radius:11px;
+  padding:9px 10px;font-size:11px;color:var(--muted);line-height:1.5;}
 /* ===== v3.18.5 · ACTIVE TASK NOTICE BAR ===== */
 .tasknote{background:#0d3d12;color:#fff;border-radius:14px;padding:11px 13px;margin-bottom:11px;
   border-left:6px solid var(--gold);cursor:pointer;user-select:none;box-shadow:0 2px 8px rgba(0,0,0,.18);}
@@ -2971,6 +3014,23 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="otsheet" id="owntoolsheet"></div>
   </div>
 
+  <!-- ===== v3.43.0 · COMMAND DOOR 2 · WHO'S ON =====
+       The Owner, first trial morning: "we can't see or monitor when the other user login
+       and what they do." Every writer in this app already stamps worker / workerId /
+       device / dt on the row it saves, so WHAT each person did and WHEN needs no new data
+       at all — it is an aggregation of records already on the Sheet, done in the render,
+       exactly like the daily audit.
+       ⛔ WHAT IT CANNOT SHOW, AND MUST NEVER PRETEND TO: A LOGIN. Nothing in app.js and
+       nothing in AppsScript_code.gs records one — tryLogin() sets CFG and writes no event,
+       doPost has no session branch, and there is no device tab in the workbook. So this
+       screen says "first record" and "last record", never "logged in", and the honest gap
+       is printed on the screen rather than hidden. The login stamp is a separate release:
+       it needs a new sheet tab and the Owner's own Apps Script re-deploy. -->
+  <div class="card" id="whocard" style="display:none">
+    <div class="sec">👥 <span data-t="wo_head">Who is on the farm</span></div>
+    <div id="whobox"></div>
+  </div>
+
   <!-- ===== RATIONS & GIFTS — fruit that leaves without an invoice (v3.30.0) =====
        Sits beside the scale-photo queue on purpose: for the Gate these are one job,
        "answer what is waiting". Everything inside is painted by renderFocQueue(). -->
@@ -3525,7 +3585,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.42.0"></script>
-<script src="app.js?v=3.42.0"></script>
+<script src="database.js?v=3.43.0"></script>
+<script src="app.js?v=3.43.0"></script>
 </body>
 </html>

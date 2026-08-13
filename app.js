@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.42.0';   // v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
+const APP_VERSION = 'v3.43.0';   // v3.43.0 - WHO'S ON. The Owner, on the first trial morning: 'for owner view we can't see or monitor when the other user login and what they do.' COMMAND gains a second door, directly under TODAY because that is the order the two questions get asked every morning - what happened, then who did it. It needs NO NEW DATA: every writer in this app already stamps worker / workerId / device and a timestamp on the row it saves, about twenty call sites all identical, so the whole screen is an aggregation of records already on the Sheet done in the render - no new event type, no .gs change, no sync change, the same rule the daily audit follows. THE PHONES lists one row per registered person INCLUDING the ones who saved nothing, because the empty rows are the entire point, and each row carries a status word beside its dot (WORKING / QUIET / NO RECORD) since amber-and-green is a red-green pair this app has already failed a colour-blind check on. QUIET is 90 minutes: a crew walking between lots is easily an hour between saves, and a warning that cries wolf on an honest morning is a warning nobody reads. MINUTE BY MINUTE is the same day as one feed, every record turned into a plain sentence, and a record type the describer does not know still prints under its own name rather than vanishing - an audit screen may not silently drop a row. A day stepper walks backwards and refuses to step into tomorrow. OWNER ALONE, gated at the tab AND again in roleAllows(), and deliberately NOT `return full`: FULL_ROLES is Owner and Marketing, and the Gate is the person who approves the crew's loads - an approver reading the minute log of the people she checks is the same independence problem that closed the staff registry to her in v3.27.1. ⛔ WHAT IT REFUSES TO SAY IS A LOGIN. Grepping app.js and AppsScript_code.gs for LOGIN, lastSeen, heartbeat and deviceSeen returns ZERO hits: tryLogin() assigns CFG and writes no event, doPost has no session branch, and there is no device tab in the workbook. So a phone that is opened and never used leaves no trace anywhere, and this screen says FIRST RECORD and LAST RECORD, never 'logged in'. The gap is PRINTED at the foot of the screen instead of being hidden, because a monitor the Owner cannot trust is worse than no monitor. The login stamp is its own release - new event, new sheet tab, and his own Apps Script re-deploy. PREVIOUS: v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -623,6 +623,12 @@ const MODULES={
   // screens rather than being stacked onto a summary that is already dense.
   cmd:{ic:'👑',name:'Command',sub:'today, summary, compare',tn:'m_cmd',
     tabs:[{k:'home',  t:'TODAY',           scr:'dash',panels:['ownerhome'], roles:['OWNER'],ic:'📌',tn:'s_today', d:'Today, the week or the whole season — drop, quality and what is left on the trees'},
+          /* v3.43.0 — DOOR 2. It sits directly under TODAY because the two questions are
+             asked in that order every morning: what happened, then who did it. OWNER only —
+             a screen that shows what each person did is exactly the "marking someone else's
+             homework" line that has kept YIELD AUDIT and ADJUSTMENTS off MARKETING since
+             v3.2, and it applies here with more force, not less. */
+          {k:'who',   t:"WHO'S ON",         scr:'dash',panels:['whocard'],   roles:['OWNER'],ic:'👥',tn:'s_who',   d:'Who is on which phone, what they have recorded today, and who has gone quiet'},
           {k:'exec',  t:'EXECUTIVE SUMMARY',scr:'dash',panels:['cmdexec'],   roles:['OWNER'],ic:'📈',tn:'s_exec',  d:'Variance alerts, rain, retailer revenue, drawdown and the drop forecast'},
           {k:'cmp',   t:'COMPARE',         scr:'dash',panels:['cmdcompare'],roles:['OWNER'],ic:'📊',tn:'s_compare',d:'7 days, this month or the whole season — against the period before it'},
           /* v3.39.0 — 'today' (OLD TODAY CARD) RETIRED. It was kept as the way back if the
@@ -1019,6 +1025,10 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
      hideAllPanels() and sits on top of every other screen for the rest of the session.
      It has shipped that way twice already (v3.6, v3.12). */
   'moneycard','harvestrep',
+  /* v3.43.0 — WHO'S ON. Read the warnings above: an id in index.html but NOT in this array
+     is never hidden by hideAllPanels() and sits on top of every other screen for the rest of
+     the session. It has shipped that way twice (v3.6, backlogcard in v3.12). */
+  'whocard',
   // v3.12 FIX — 'backlogcard' has been a live panel since v3.9 and was never in this
   // list, so hideAllPanels() could not hide it: once a worker opened BACKLOG the card
   // stayed on screen over every other section for the rest of the session. Exactly the
@@ -1125,6 +1135,11 @@ function roleAllows(id){
     case 'tallycard': return full||myRole()==='WORKER';
     // v3.0 — anything carrying a retailer credit balance is Owner / Marketing only
     case 'dispatchcard': case 'mktledger': case 'pricecard': return full;
+    /* v3.43.0 — WHO'S ON is OWNER ALONE, and not `full`. FULL_ROLES is Owner AND Marketing,
+       so `return full` would hand the Gate a screen showing what every worker did and when —
+       she is the person who approves their loads, and an approver reading the crew's minute
+       log is the same independence problem that closed keyspanel to her in v3.27.1. */
+    case 'whocard': return myRole()==='OWNER';
     // v3.6 — the worker's scale form shows weight and a photo, never a price, so a
     // Worker may reach it. The verification hub deducts credit, so they may not.
     case 'scalecard':    return full||myRole()==='WORKER';
@@ -1542,6 +1557,11 @@ function renderForTab(k,t){
   if(k==='mkt'&&t==='verify'){AP_ARM='';renderVerify();renderFocQueue();}    // v3.36.0 — the QUEUE is both queues
   // v3.31.0 — without this the landing is a blank card, exactly like the rations screen was
   if(k==='cmd'&&t==='home')renderOwnerHome();
+  /* v3.43.0 — and it opens on TODAY, on THE PHONES, with no row expanded. WHO_DAY/WHO_TAB/
+     WHO_OPEN are module state and survive the trip off the tile; without this reset the
+     Owner comes back to whatever day he was reading last week. Same precedent as
+     m3PlanPick(), m5RecPick(), MONEY_OPEN and PRC_VIEW. */
+  if(k==='cmd'&&t==='who'){WHO_DAY='';WHO_TAB='people';WHO_OPEN=-1;renderWho();}
   /* v3.30.0 — RATIONS & GIFTS, painted from BOTH doors. Missing this line is not a blank
      row, it is a blank SCREEN: the panel is shown by openModule() but nothing ever writes
      into it, and 33 green structural assertions all passed while the card rendered 24px
@@ -14877,7 +14897,7 @@ function directiveCardsHTML(){
                 '<span class="pgl">LOT '+L+'</span>'+
                 '<span class="pgbar"><i style="width:'+pct+'%"></i></span>'+
                 '<span class="pgn">'+n+'/'+t+'</span></div>';}).join('')+'</div>'+
-          '<button class="wbtn" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
+          '<button class="whostep" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
         /* v3.18 — the card used to grey out and say only "waiting". It now says WHY and
            HOW MANY, because a crew that can see the reason stops walking to the office to
            ask the Owner. Still no chemistry and no prices — a count and a plain sentence. */
@@ -17176,6 +17196,200 @@ function ownSeasonChart(){
       (cen.full?'':(' '+esc(tr('ow_censuscount','Counted on'))+' '+cen.counted+' '+
         esc(tr('ow_censusof','of'))+' '+cen.total+' '+esc(tr('ow_censustrees','trees'))+'.'))+
     '</div>';}
+
+/* ======================================================================================
+   v3.43.0 · WHO'S ON — COMMAND ▸ door 2
+   ======================================================================================
+   The Owner, on the first trial morning: "for owner view we can't see or monitor when the
+   other user login and what they do."
+
+   ⛔ READ THIS BEFORE ADDING A "LOGGED IN AT" LINE. THERE IS NO LOGIN RECORD.
+   Grepped app.js and AppsScript_code.gs for LOGIN / lastSeen / heartbeat / deviceSeen:
+   ZERO hits. tryLogin() assigns CFG and calls applyRole() — it writes no event. doPost has
+   no session branch. There is no device tab in the workbook. A phone that logs in and does
+   nothing leaves NO trace anywhere, so this screen may only ever say FIRST RECORD and LAST
+   RECORD. Saying "logged in" would be inventing a number, and the whole point of the screen
+   is that the Owner can trust it. The login stamp is a separate release (new event + new
+   sheet tab + HIS Apps Script re-deploy) and until it ships the gap is PRINTED on screen.
+
+   Everything else needs no new data whatsoever. Every writer in this app already stamps
+   `worker`, `workerId`, `device` and a timestamp on the row it saves — about twenty call
+   sites, all identical — so this is an aggregation of records that are already on the
+   Sheet, done in the render. No new event type, no .gs change, no sync change. Same rule
+   the daily audit follows. ==================================================== */
+let WHO_TAB='people';                 // 'people' | 'feed'
+let WHO_DAY='';                       // '' = today; otherwise an ISO day
+let WHO_OPEN=-1;
+/** Every timestamp shape this codebase writes, in the order they were introduced. */
+function whoWhen(e){return String(e&&(e.dt||e.at||e.ts||e.enteredAt)||'');}
+function whoDay(){return WHO_DAY||todayStr();}
+function whoShift(n){
+  const d=new Date(whoDay()+'T12:00:00'); d.setDate(d.getDate()+n);
+  const iso=ymd(d); if(iso>todayStr())return;          // never step into tomorrow
+  WHO_DAY=(iso===todayStr())?'':iso; WHO_OPEN=-1; renderWho();}
+function whoTab(t){WHO_TAB=t;WHO_OPEN=-1;renderWho();}
+function whoOpen(i){WHO_OPEN=(WHO_OPEN===i?-1:i);renderWho();}
+/** Who wrote a row. The id is the identity; the name is what a person reads. A row written
+ *  before v3.27's name tag has no workerId, so the name is the fallback key — never the
+ *  other way round, or two phones sharing a name would merge into one person. */
+function whoKey(e){return String(e&&(e.workerId||e.worker||'')).trim();}
+function whoName(e){return String(e&&(e.worker||e.workerId||'')).trim()||'—';}
+/** One line of plain language per record. A type this does not know still prints, with its
+ *  own name in lower case — an unknown record must never vanish from an audit screen. */
+function whoLine(e){
+  const q=+e.qty||0, money=(typeof SHOW_VALUES!=='undefined'&&SHOW_VALUES);
+  const rm=v=>money?(' · RM '+nf(v||0)):'';
+  switch(e.type){
+    case 'DROP':    return (e.tree||'')+' · '+q+' '+(e.grade?('grade '+e.grade):'fruit')+
+                           (e.secured?' (secured)':' (unsecured)')+(e.backdated?' — backdated':'');
+    case 'ROTTEN':  return (e.tree||'')+' · '+q+' lost'+(e.cause?(' — '+e.cause):'');
+    case 'TIE':     return (e.tree||'')+' · '+q+' fruit tied';
+    case 'TIE_ADJUST': return 'tying corrected on '+(e.tree||'');
+    case 'TASK_DONE':  return 'finished a task'+(e.kind?(' — '+e.kind):'');
+    case 'DISPATCH_REQ':    return 'weighed a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
+                                   (e.merchant?(' · '+e.merchant):'');
+    case 'DISPATCH':        return 'APPROVED a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
+                                   (e.merchant?(' · '+e.merchant):'')+rm(e.rm);
+    case 'DISPATCH_REJECT': return 'RETURNED a load'+(e.note?(' — '+e.note):'');
+    case 'DISPATCH_CANCEL': return 'cancelled a load';
+    case 'SALE':            return 'a sale'+(e.merchant?(' · '+e.merchant):'')+rm(e.rm);
+    case 'CREDIT_TOPUP':    return 'merchant payment received'+rm(e.rm);
+    case 'FOC_REQ':         return 'fruit out with no invoice'+(e.reason?(' — '+e.reason):'');
+    case 'STOCK_IN':        return 'stock received'+(e.product?(' · '+e.product):'');
+    case 'STOCK_OUT':       return 'stock taken out'+(e.product?(' · '+e.product):'');
+    case 'STOCK_ADJUST':    return 'stock-take adjustment'+(e.product?(' · '+e.product):'');
+    case 'PRICE_EDIT':      return 'changed a price';
+    case 'CORR':            return 'asked for a correction';
+    case 'LOG_VOID':        return 'voided a record';
+    case 'ADMIN_CLEANUP':   return 'cleaned up trial rows';
+    case 'YIELD_ACK':       return 'signed off the yield audit';
+    case 'PRODUCT_RETIRE':  return 'retired a product';
+    case 'BRAND_SWAP':      return 'swapped a brand';
+    default: return String(e.type||'record').toLowerCase().replace(/_/g,' ');}}
+/** Everything one day holds, newest first. */
+function whoEvents(day){
+  return EVENTS.filter(e=>whoWhen(e).slice(0,10)===day)
+    .sort((a,b)=>whoWhen(a)<whoWhen(b)?1:-1);}
+/** One row per PERSON, plus every registered person who wrote nothing that day — the empty
+ *  rows are the whole point of the screen, so they are built from the registry, not from
+ *  the records. A person with records but no registry row still appears. */
+function whoPeople(day){
+  const evs=whoEvents(day), byKey={};
+  const seed=k=>byKey[k]||(byKey[k]={key:k,name:'',role:'',devices:{},first:'',last:'',n:0,
+    trees:{},good:0,lost:0,tied:0,weighed:0,approved:0,returned:0,kg:0,other:0});
+  (typeof KEYS!=='undefined'?KEYS:[]).forEach(k=>{
+    if(!isActive(k))return;
+    const p=seed(String(k.id||k.name||'').trim()); p.name=k.name||p.name; p.role=k.role||'';});
+  evs.forEach(e=>{
+    const k=whoKey(e); if(!k)return;
+    /* A row written before the v3.27 name tag has no workerId, so it keys on the NAME and
+       would sit beside the same person's id-keyed rows. Fold it in when the name matches a
+       registry row already seeded — one person, one line. */
+    let key=k;
+    if(!byKey[key]){
+      const hit=Object.keys(byKey).find(x=>byKey[x].name&&byKey[x].name===whoName(e));
+      key=hit||k;}
+    const p=seed(key); if(!p.name)p.name=whoName(e);
+    const t=whoWhen(e);
+    if(!p.first||t<p.first)p.first=t;
+    if(t>p.last)p.last=t;
+    p.n++; if(e.device)p.devices[e.device]=(p.devices[e.device]||0)+1;
+    switch(e.type){
+      case 'DROP':   p.good+=+e.qty||0; if(e.tree)p.trees[e.tree]=1; break;
+      case 'ROTTEN': p.lost+=+e.qty||0; if(e.tree)p.trees[e.tree]=1; break;
+      case 'TIE':    p.tied+=+e.qty||0; if(e.tree)p.trees[e.tree]=1; break;
+      case 'DISPATCH_REQ': p.weighed++; p.kg+=+e.kg||0; break;
+      case 'DISPATCH':        p.approved++; break;
+      case 'DISPATCH_REJECT': p.returned++; break;
+      default: p.other++;}});
+  return Object.keys(byKey).map(k=>byKey[k])
+    .sort((a,b)=>(b.n-a.n)||String(a.name).localeCompare(String(b.name)));}
+/** Minutes between two 'YYYY-MM-DD HH:MM' stamps. */
+function whoMins(a,b){
+  const P=s=>{const m=/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)/.exec(String(s));
+    return m?Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5]):null;};
+  const x=P(a),y=P(b); return (x==null||y==null)?null:Math.round((y-x)/60000);}
+function whoAgo(m){
+  if(m==null)return '';
+  if(m<1)return 'just now';
+  if(m<60)return m+' min ago';
+  const h=Math.floor(m/60), r=m%60; return h+' h'+(r?(' '+r+' min'):'')+' ago';}
+/* QUIET is 90 minutes. A tree visit, a tying round and a weighing all take well under that,
+   and a crew walking between lots can easily be an hour between saves — a tighter window
+   would cry wolf on an honest morning, which is the fastest way to make a warning ignored. */
+const WHO_QUIET_MIN=90;
+function renderWho(){
+  const box=$('whobox'); if(!box)return;
+  if(!roleAllows('whocard')){box.innerHTML='';return;}
+  const day=whoDay(), isToday=(day===todayStr()), stamp=now();
+  const people=whoPeople(day), evs=whoEvents(day);
+  let h='<div class="whonav"><span class="whostep" onclick="whoShift(-1)">◀</span>'+
+    '<b>'+(isToday?(esc(tr('wo_today','Today'))+' · '):'')+esc(day)+'</b>'+
+    '<span class="whostep'+(isToday?' off':'')+'" onclick="whoShift(1)">▶</span></div>';
+  h+='<div class="whotabs">'+
+     '<div class="'+(WHO_TAB==='people'?'on':'')+'" onclick="whoTab(\'people\')">'+
+       esc(tr('wo_tpeople','THE PHONES'))+'</div>'+
+     '<div class="'+(WHO_TAB==='feed'?'on':'')+'" onclick="whoTab(\'feed\')">'+
+       esc(tr('wo_tfeed','MINUTE BY MINUTE'))+' ('+evs.length+')</div></div>';
+
+  if(WHO_TAB==='people'){
+    // the warning first, and only when it is TRUE — a quiet phone on a past day is not news
+    const quiet=isToday?people.filter(p=>p.n>0&&whoMins(p.last,stamp)>WHO_QUIET_MIN):[];
+    if(quiet.length)h+='<div class="whoalert">⚠ <b>'+quiet.map(p=>esc(p.name)).join(', ')+
+      '</b> '+esc(tr('wo_quietmsg','has recorded nothing for over an hour and a half.'))+'</div>';
+    h+='<div class="wholist">';
+    people.forEach((p,i)=>{
+      const mins=p.last?whoMins(p.last,stamp):null;
+      const st=(p.n===0)?'off':((isToday&&mins!=null&&mins>WHO_QUIET_MIN)?'idle':'on');
+      const stl=(p.n===0)?tr('wo_none','NO RECORD'):(st==='idle'?tr('wo_quiet','QUIET'):tr('wo_working','WORKING'));
+      const chips=[];
+      if(Object.keys(p.trees).length)chips.push(Object.keys(p.trees).length+' '+tr('wo_trees','trees'));
+      if(p.good)chips.push(p.good+' '+tr('wo_good','fruit'));
+      if(p.lost)chips.push(p.lost+' '+tr('wo_lost','lost'));
+      if(p.tied)chips.push(p.tied+' '+tr('wo_tied','tied'));
+      if(p.weighed)chips.push(p.weighed+' '+tr('wo_weighed','weighed')+' · '+nkg(p.kg)+' kg');
+      if(p.approved)chips.push(p.approved+' '+tr('wo_approved','approved'));
+      if(p.returned)chips.push(p.returned+' '+tr('wo_returned','returned'));
+      if(p.other)chips.push(p.other+' '+tr('wo_otherrec','other'));
+      const dev=Object.keys(p.devices).sort((a,b)=>p.devices[b]-p.devices[a]);
+      h+='<div class="whorow" onclick="whoOpen('+i+')"><div class="whodot '+st+'"></div>'+
+        '<div class="whomain"><div class="whoname">'+esc(p.name)+'</div>'+
+        '<div class="whometa">'+esc(p.role||tr('wo_norole','not in the staff list'))+
+          (dev.length?(' · '+esc(dev.join(', '))):'')+'</div>'+
+        '<div class="whochips">'+(chips.length
+            ? chips.map(c=>'<span>'+esc(c)+'</span>').join('')
+            : '<span class="none">'+esc(tr('wo_nothing','nothing recorded'))+'</span>')+'</div></div>'+
+        '<div class="whoright"><div class="whost '+st+'">'+esc(stl)+'</div>'+
+          (p.first?('<div>'+esc(tr('wo_first','first'))+' '+esc(p.first.slice(11,16))+'</div>'+
+                    '<div>'+esc(tr('wo_last','last'))+' '+esc(p.last.slice(11,16))+'</div>'+
+                    (isToday&&mins!=null?('<div class="whoago">'+esc(whoAgo(mins))+'</div>'):''))
+                  :'<div class="whoago">—</div>')+
+        '</div></div>';
+      h+='<div class="whodet'+(WHO_OPEN===i?' open':'')+'" id="whodet-'+i+'">'+
+         (WHO_OPEN===i?whoDetail(p,day):'')+'</div>';});
+    h+='</div>';
+    if(people.some(p=>p.n===0))h+='<p class="small">'+esc(tr('wo_silentnote',
+      'A person with no record may simply not have worked. The app does not record a login, so a phone that was opened and never used looks exactly like a phone that was never opened.'))+'</p>';
+  }else{
+    if(!evs.length)h+='<p class="small">'+esc(tr('wo_noev','Nothing was recorded on this day.'))+'</p>';
+    else{h+='<div class="whofeed">';
+      evs.forEach(e=>{h+='<div class="whof"><div class="whoft">'+esc(whoWhen(e).slice(11,16))+'</div>'+
+        '<div class="whofw"><span class="whofn">'+esc(whoName(e))+'</span> — '+esc(whoLine(e))+
+        (e.device?('<span class="whofd">'+esc(e.device)+'</span>'):'')+'</div></div>';});
+      h+='</div>';}}
+
+  /* THE GAP, PRINTED. Never let this screen imply it knows something it does not. */
+  h+='<div class="whogap">'+esc(tr('wo_gap',
+    'This screen reads records that were saved. It cannot show a login — nothing in the app or in the Google Sheet records one yet, so a phone that was opened and never used leaves no trace at all.'))+'</div>';
+  box.innerHTML=h;}
+/** One person's own day, in their own words. Built only when the row is open. */
+function whoDetail(p,day){
+  const mine=whoEvents(day).filter(e=>{
+    const k=whoKey(e); return k===p.key||whoName(e)===p.name;});
+  if(!mine.length)return '<div class="small">'+esc(tr('wo_nothingday','This phone saved nothing on this day.'))+'</div>';
+  return '<div class="whofeed">'+mine.map(e=>
+    '<div class="whof"><div class="whoft">'+esc(whoWhen(e).slice(11,16))+'</div>'+
+    '<div class="whofw">'+esc(whoLine(e))+'</div></div>').join('')+'</div>';}
 
 /** THE LANDING ITSELF. One panel; the chips re-render it in place. */
 function renderOwnerHome(){
