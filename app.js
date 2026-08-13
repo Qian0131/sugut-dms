@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.43.0';   // v3.43.0 - WHO'S ON. The Owner, on the first trial morning: 'for owner view we can't see or monitor when the other user login and what they do.' COMMAND gains a second door, directly under TODAY because that is the order the two questions get asked every morning - what happened, then who did it. It needs NO NEW DATA: every writer in this app already stamps worker / workerId / device and a timestamp on the row it saves, about twenty call sites all identical, so the whole screen is an aggregation of records already on the Sheet done in the render - no new event type, no .gs change, no sync change, the same rule the daily audit follows. THE PHONES lists one row per registered person INCLUDING the ones who saved nothing, because the empty rows are the entire point, and each row carries a status word beside its dot (WORKING / QUIET / NO RECORD) since amber-and-green is a red-green pair this app has already failed a colour-blind check on. QUIET is 90 minutes: a crew walking between lots is easily an hour between saves, and a warning that cries wolf on an honest morning is a warning nobody reads. MINUTE BY MINUTE is the same day as one feed, every record turned into a plain sentence, and a record type the describer does not know still prints under its own name rather than vanishing - an audit screen may not silently drop a row. A day stepper walks backwards and refuses to step into tomorrow. OWNER ALONE, gated at the tab AND again in roleAllows(), and deliberately NOT `return full`: FULL_ROLES is Owner and Marketing, and the Gate is the person who approves the crew's loads - an approver reading the minute log of the people she checks is the same independence problem that closed the staff registry to her in v3.27.1. ⛔ WHAT IT REFUSES TO SAY IS A LOGIN. Grepping app.js and AppsScript_code.gs for LOGIN, lastSeen, heartbeat and deviceSeen returns ZERO hits: tryLogin() assigns CFG and writes no event, doPost has no session branch, and there is no device tab in the workbook. So a phone that is opened and never used leaves no trace anywhere, and this screen says FIRST RECORD and LAST RECORD, never 'logged in'. The gap is PRINTED at the foot of the screen instead of being hidden, because a monitor the Owner cannot trust is worse than no monitor. The login stamp is its own release - new event, new sheet tab, and his own Apps Script re-deploy. PREVIOUS: v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
+const APP_VERSION = 'v3.44.0';   // v3.44.0 - PROGRAMME COST, set by set. His words: 'i would like to have each set of detail volume usage, and rm.' REPORTS already totalled material by month and by lot, and PROGRAM RUNS counted runs and tanks, but nothing in this app had ever shown ONE SET's product lines - which is the question he actually asks: what did the 6 August spray cost me, drum by drum. It is REPORTS door 4 and deliberately NOT a fifth toggle inside MONEY, because MONEY is a once-a-month read already carrying four detail cards and this is a screen he opens whenever a set is sprayed; burying it would cost a tap every time. Also NOT in FARM beside SPRAY RECORD, which answers 'was it done on time' and is open to roles that must never see RM. OWNER alone, gated at the tab, again in roleAllows(), and a third time on SHOW_SPEND before a single ringgit is painted. TWO SHAPES, ONE PANEL, his pick: on screen month -> set -> products, the only shape that fits a phone without sideways scrolling; on paper the programme sheet with sets across the top and products down the side, because that is what his own Excel looks like and what he carries into a meeting. The print swap is keyed on a BODY CLASS, not an id rule, so the harvest sheet's print block - the one screen ever proved on real paper - is left byte-identical. Scope is programme sets only, also his pick: a STOCK_OUT row with no `set` was drawn by hand and belongs to the store screens. ⛔ THE WHOLE RISK IS DOUBLE COUNTING. submitRun() stamps tanks, trees, crew, hours and manHours onto EVERY row of a filing, once per LOT, so a 3-product job over 2 lots writes them six times; summing naively reports 9 tanks and 48 man-hours for a job that used 3 and 16. Rows are grouped by `replyId` - the one id all three writers stamp per job - and the per-lot figures are keyed by lot and OVERWRITTEN, never added. The harness asserts those exact wrong numbers cannot appear. It stores nothing: every figure is re-read from the store, so it cannot drift from the material that actually left the shed, and a set that was never marked done has no rows and therefore no cost - the screen says so instead of printing a quiet zero, which is the whole point, because on 13 August the 11 August round was missing from the app AND from the farm's old spreadsheet. t_classes.js, added one release earlier, caught this release's own orphan class on its first run: a `k2` that never existed in the stylesheet. PREVIOUS: v3.43.1 - THE BUTTON THE CREW COULD NOT SEE. A one-line repair of damage v3.43.0 did to a screen it never meant to touch. Namespacing the new WHO'S ON classes away from the existing .wbtn was done as a blanket replace of the string class="wbtn", and it silently renamed a call site 2,400 lines away: the crew's MARK WORK DONE button on the programme card. The onclick was untouched so the button still WORKED - it simply stopped looking like a button, losing its green, its full width and its padding, which on a phone in a shed means nobody presses it. 46 assertions were green at the time, because every one of them was about WHO'S ON. The lesson is not 'be careful with sed': it is that a rename is only safe when it is SCOPED to the block it belongs to, and that the blast radius of a string replace is the whole file. t_classes.js is the guard: it reads every class name app.js writes into markup and fails if one has no rule in the stylesheet (731 checked, 7 legacy orphans baselined and listed for clearing), and it holds an ANCHORS table of specific elements that must keep their exact class - the MARK DONE button is the first entry. One orphan of this release's own making, an unstyled `wholist` wrapper, is removed. Nothing else in v3.43.0 changed. PREVIOUS: v3.43.0 - WHO'S ON. The Owner, on the first trial morning: 'for owner view we can't see or monitor when the other user login and what they do.' COMMAND gains a second door, directly under TODAY because that is the order the two questions get asked every morning - what happened, then who did it. It needs NO NEW DATA: every writer in this app already stamps worker / workerId / device and a timestamp on the row it saves, about twenty call sites all identical, so the whole screen is an aggregation of records already on the Sheet done in the render - no new event type, no .gs change, no sync change, the same rule the daily audit follows. THE PHONES lists one row per registered person INCLUDING the ones who saved nothing, because the empty rows are the entire point, and each row carries a status word beside its dot (WORKING / QUIET / NO RECORD) since amber-and-green is a red-green pair this app has already failed a colour-blind check on. QUIET is 90 minutes: a crew walking between lots is easily an hour between saves, and a warning that cries wolf on an honest morning is a warning nobody reads. MINUTE BY MINUTE is the same day as one feed, every record turned into a plain sentence, and a record type the describer does not know still prints under its own name rather than vanishing - an audit screen may not silently drop a row. A day stepper walks backwards and refuses to step into tomorrow. OWNER ALONE, gated at the tab AND again in roleAllows(), and deliberately NOT `return full`: FULL_ROLES is Owner and Marketing, and the Gate is the person who approves the crew's loads - an approver reading the minute log of the people she checks is the same independence problem that closed the staff registry to her in v3.27.1. ⛔ WHAT IT REFUSES TO SAY IS A LOGIN. Grepping app.js and AppsScript_code.gs for LOGIN, lastSeen, heartbeat and deviceSeen returns ZERO hits: tryLogin() assigns CFG and writes no event, doPost has no session branch, and there is no device tab in the workbook. So a phone that is opened and never used leaves no trace anywhere, and this screen says FIRST RECORD and LAST RECORD, never 'logged in'. The gap is PRINTED at the foot of the screen instead of being hidden, because a monitor the Owner cannot trust is worse than no monitor. The login stamp is its own release - new event, new sheet tab, and his own Apps Script re-deploy. PREVIOUS: v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -870,6 +870,14 @@ const MODULES={
           {k:'record', t:'DAILY RECORD', scr:'dash',ic:'📅',tn:'s_rec7',
              panels:['dailyaudit'],roles:FULL_ROLES,
              d:'Seven days side by side — tied, good, loss, kg out'},
+          /* v3.44.0 — DOOR 4. It is its own section and NOT a fifth toggle inside MONEY:
+             MONEY is a once-a-month read that already carries four detail cards, and this is
+             a screen he opens whenever a set is sprayed. Burying it would cost a tap every
+             time. ⛔ It is also NOT in FARM beside SPRAY RECORD, which answers "was it done
+             on time" and is open to roles that must never see RM — the v3.24 line. */
+          {k:'pcost',  t:'PROGRAMME COST',scr:'dash',ic:'🧪',tn:'s_pcost',
+             panels:['pcostcard'],roles:['OWNER'],
+             d:'Every set, every product — the volume that went in and what it cost'},
           {k:'harvest',t:'HARVEST REPORT',scr:'dash',ic:IC_DUR,tn:'s_harv',
              panels:['harvestrep'],roles:FULL_ROLES,
              d:'The season’s quality, and the one sheet you print for the meeting'}]},
@@ -1029,6 +1037,8 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
      is never hidden by hideAllPanels() and sits on top of every other screen for the rest of
      the session. It has shipped that way twice (v3.6, backlogcard in v3.12). */
   'whocard',
+  /* v3.44.0 — same rule as every id above: absent from this list means never hidden. */
+  'pcostcard',
   // v3.12 FIX — 'backlogcard' has been a live panel since v3.9 and was never in this
   // list, so hideAllPanels() could not hide it: once a worker opened BACKLOG the card
   // stayed on screen over every other section for the rest of the session. Exactly the
@@ -1140,6 +1150,10 @@ function roleAllows(id){
        she is the person who approves their loads, and an approver reading the crew's minute
        log is the same independence problem that closed keyspanel to her in v3.27.1. */
     case 'whocard': return myRole()==='OWNER';
+    /* v3.44.0 — material cost is SPEND. The Gate reads revenue and never spend
+       (SHOW_VALUES true, SHOW_SPEND false), so this is Owner alone, and the renderer
+       checks SHOW_SPEND a second time before it paints a single ringgit. */
+    case 'pcostcard': return myRole()==='OWNER';
     // v3.6 — the worker's scale form shows weight and a photo, never a price, so a
     // Worker may reach it. The verification hub deducts credit, so they may not.
     case 'scalecard':    return full||myRole()==='WORKER';
@@ -1588,6 +1602,10 @@ function renderForTab(k,t){
      module state and survived the trip, so a card left open stayed open for the rest of
      the session. Clearing it here makes the promise true. */
   if(k==='reports'&&t==='money'){MONEY_OPEN={};renderMoney();}
+  /* v3.44.0 — PC_MO/PC_OPEN are module state and survive the trip off the tile; without
+     this reset he comes back inside whatever month he read last week. The MONEY_OPEN /
+     PRC_VIEW / WHO_DAY precedent. */
+  if(k==='reports'&&t==='pcost'){PC_MO='';PC_OPEN='';renderProgCost();}
   if(k==='reports'&&t==='record')renderDailyAudit();
   if(k==='reports'&&t==='harvest')renderHarvestReport();
   if(k==='admin'&&t==='yield')renderYieldAudit();
@@ -14897,7 +14915,15 @@ function directiveCardsHTML(){
                 '<span class="pgl">LOT '+L+'</span>'+
                 '<span class="pgbar"><i style="width:'+pct+'%"></i></span>'+
                 '<span class="pgn">'+n+'/'+t+'</span></div>';}).join('')+'</div>'+
-          '<button class="whostep" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
+          /* ⛔ v3.43.1 — THIS CLASS IS `wbtn`, THE WORKER'S FULL-WIDTH GREEN BUTTON, AND
+             v3.43.0 RENAMED IT BY ACCIDENT. Namespacing the new WHO'S ON classes did a
+             blanket replace of the string `class="wbtn"`, and this call site — the crew's
+             MARK WORK DONE button on the programme card — was collateral. It kept working
+             (the onclick is untouched) but it stopped LOOKING like a button: no green, no
+             width, no padding. Nobody was going to press it. A blanket rename must be
+             scoped to the block it belongs to; there is now a guard test for exactly this
+             string in t_classes.js. */
+          '<button class="wbtn" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
         /* v3.18 — the card used to grey out and say only "waiting". It now says WHY and
            HOW MANY, because a crew that can see the reason stops walking to the office to
            ask the Owner. Still no chemistry and no prices — a count and a plain sentence. */
@@ -17198,6 +17224,168 @@ function ownSeasonChart(){
     '</div>';}
 
 /* ======================================================================================
+   v3.44.0 · PROGRAMME COST — REPORTS ▸ door 4
+   ======================================================================================
+   The Owner, 13 Aug: "i would like to have each set of detail volume usage, and rm."
+   REPORTS ▸ MONEY already totals material by month and by lot, and PROGRAM RUNS counts
+   runs and tanks — but nothing in the app has ever shown ONE SET's product lines. That is
+   the question he actually asks: what did the 6 August spray cost me, drum by drum.
+
+   ⛔ IT STORES NOTHING. Every figure is re-read from the STOCK_OUT rows the store already
+   writes, grouped by the filing that produced them, so it can never disagree with the
+   store — the same rule REPORTS ▸ MONEY has followed since v3.6. A round that was never
+   marked done has no rows, therefore no cost, and the screen SAYS SO rather than printing
+   a quiet zero. That is the whole point: on 13 Aug the 11 August round was missing from
+   both the app and the farm's old spreadsheet, and a report that hides an absence would
+   have hidden exactly the thing he needed to see.
+
+   SCOPE: programme sets only — his choice. A STOCK_OUT row with no `set` is material drawn
+   by hand and belongs to the store screens, not here.
+
+   TWO SHAPES, ONE PANEL. On screen: month → set → products, because that is the only shape
+   that fits a phone without sideways scrolling. On paper: the programme sheet — sets across
+   the top, products down the side — because that is the shape his Excel already uses and
+   the one he takes into a meeting. `.pcscreen` and `.pcprint` swap under @media print. ==*/
+let PC_MO='', PC_OPEN='';
+function pcRm(v){return 'RM '+nf(+v||0);}
+/** One entry per SET RUN. The grouping key is the filing (`replyId`), which submitRun(),
+ *  the programme reply and MARK DONE all stamp once per job — so a five-product job across
+ *  three lots is ONE run here, not fifteen. */
+function pcRuns(){
+  const by={};
+  for(const e of EVENTS){
+    if(!e||e.type!=='STOCK_OUT')continue;
+    const set=String(e.set||'').trim(); if(!set)continue;      // programme sets only
+    const day=String(e.dt||'').slice(0,10); if(day.length!==10)continue;
+    const key=String(e.replyId||e.progId||'')+'|'+day+'|'+set;
+    const r=by[key]||(by[key]={key:key,day:day,mo:day.slice(0,7),set:set,rm:0,
+      prods:{},order:[],lots:{},crew:0,hours:0,who:''});
+    /* tanks / trees / man-hours are written onto EVERY row of a filing, once per LOT.
+       Summing them would multiply by the number of products. Keyed by lot and overwritten. */
+    const lot=String(e.lot||'—');
+    r.lots[lot]={tanks:+e.tanks||0,trees:+e.treesDone||+e.trees||0,
+                 litres:+e.litres||+e.water||0,mh:+e.manHours||0};
+    if(+e.crew)r.crew=+e.crew;
+    if(+e.hours)r.hours=+e.hours;
+    if(!r.who&&e.worker)r.who=e.worker;
+    const pk=String(e.pname||e.pid||'?');
+    if(!r.prods[pk]){r.prods[pk]={name:pk,unit:e.unit||'',qty:0,rm:0};r.order.push(pk);}
+    r.prods[pk].qty+=+e.qty||0;
+    r.prods[pk].rm +=+e.cost||0;
+    r.rm+=+e.cost||0;
+    by[key]=r;}
+  return Object.keys(by).map(k=>by[k]).sort((a,b)=>a.day<b.day?1:-1);}
+function pcLotSum(r,f){return Object.keys(r.lots).reduce((s,L)=>s+(+r.lots[L][f]||0),0);}
+function pcMonths(){
+  const m={},out=[];
+  pcRuns().forEach(r=>{if(!m[r.mo]){m[r.mo]=1;out.push(r.mo);}});
+  return out.sort().reverse();}
+function pcOfMonth(mo){return pcRuns().filter(r=>r.mo===mo);}
+function pcMoTotal(mo){return pcOfMonth(mo).reduce((s,r)=>s+r.rm,0);}
+function pcMoLabel(mo){
+  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const p=String(mo).split('-'); return (M[(+p[1]||1)-1]||mo)+' '+p[0];}
+function pcOpenMo(mo){PC_MO=mo;PC_OPEN='';renderProgCost();$('scr-dash').scrollTop=0;}
+function pcBack(){PC_MO='';PC_OPEN='';renderProgCost();$('scr-dash').scrollTop=0;}
+function pcTog(k){PC_OPEN=(PC_OPEN===k?'':k);renderProgCost();}
+/** The second screen in this app that prints. A body class, not an id rule, so the harvest
+ *  sheet's own print block is left exactly as it was. */
+function pcPrint(){
+  document.body.classList.add('printing-pcost');
+  const done=()=>document.body.classList.remove('printing-pcost');
+  try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}
+  setTimeout(done,1500);}
+
+function renderProgCost(){
+  const box=$('pcostbox'); if(!box)return;
+  if(!roleAllows('pcostcard')||!SHOW_SPEND){box.innerHTML='';return;}
+  const runs=pcRuns();
+  if(!runs.length){
+    box.innerHTML='<p class="small">'+esc(tr('pc_none',
+      'No programme set has drawn material yet. The moment a job is marked done, its products and cost land here.'))+'</p>';
+    return;}
+  let h='', screen='', print='';
+
+  /* ---------- ON SCREEN: month, then set, then products ---------- */
+  if(!PC_MO){
+    const total=pcMonths().reduce((s,m)=>s+pcMoTotal(m),0);
+    screen+='<div class="kpis"><div class="kpi"><div class="v">'+pcRm(total)+'</div>'+
+      '<div class="l">'+esc(tr('pc_allmat','material, all sets'))+'</div></div>'+
+      '<div class="kpi"><div class="v">'+runs.length+'</div>'+
+      '<div class="l">'+esc(tr('pc_setsrun','sets run'))+'</div></div></div>';
+    screen+='<div class="sec" style="margin-top:12px">'+esc(tr('pc_tapmo','Tap a month'))+'</div>';
+    pcMonths().forEach(mo=>{
+      const rs=pcOfMonth(mo);
+      screen+='<div class="pcrow" onclick="pcOpenMo(\''+esc(mo)+'\')">'+
+        '<div class="pcm"><div class="pcn">'+esc(pcMoLabel(mo))+'</div>'+
+        '<div class="pcs">'+rs.length+' '+esc(rs.length===1?tr('pc_set','set'):tr('pc_sets','sets'))+'</div></div>'+
+        '<div class="pcv">'+pcRm(pcMoTotal(mo))+'</div><div class="pcg">›</div></div>';});
+  }else{
+    const rs=pcOfMonth(PC_MO);
+    screen+='<div class="pcback" onclick="pcBack()">‹ '+esc(tr('pc_allmonths','all months'))+'</div>'+
+      '<div class="sec">'+esc(pcMoLabel(PC_MO))+' · '+rs.length+' '+
+      esc(rs.length===1?tr('pc_set','set'):tr('pc_sets','sets'))+' · '+pcRm(pcMoTotal(PC_MO))+'</div>';
+    rs.forEach(r=>{
+      const open=(PC_OPEN===r.key);
+      const tanks=pcLotSum(r,'tanks'), trees=pcLotSum(r,'trees'), mh=pcLotSum(r,'mh');
+      screen+='<div class="pcrow" onclick="pcTog(\''+esc(r.key)+'\')">'+
+        '<div class="pcd">'+esc(r.day.slice(8)+'/'+r.day.slice(5,7))+'</div>'+
+        '<div class="pcm"><div class="pcn" style="font-size:13px">'+esc(r.set)+'</div>'+
+        '<div class="pcs">'+r.order.length+' '+esc(tr('pc_products','products'))+
+          (tanks?(' · '+nf(tanks)+' '+esc(tr('pc_tanks','tanks'))):'')+
+          (trees?(' · '+trees+' '+esc(tr('pc_trees','trees'))):'')+'</div></div>'+
+        '<div class="pcv">'+pcRm(r.rm)+'</div><div class="pcg">'+(open?'⌄':'›')+'</div></div>'+
+        '<div class="pcdet'+(open?' open':'')+'">'+(open?pcLineTable(r,mh):'')+'</div>';});}
+
+  /* ---------- ON PAPER: the programme sheet, one block per month ----------
+     It follows the SCREEN. Standing inside August, the sheet that comes out is August —
+     printing all eight months because he wanted one is how a person stops using a print
+     button. On the month list it prints everything, which is the year-end read. */
+  (PC_MO?[PC_MO]:pcMonths()).forEach(mo=>{
+    const rs=pcOfMonth(mo).slice().reverse(), names=[], seen={};
+    rs.forEach(r=>r.order.forEach(k=>{if(!seen[k]){seen[k]=r.prods[k].unit;names.push(k);}}));
+    print+='<div class="pcsheet"><div class="sec">'+esc(pcMoLabel(mo))+' · '+pcRm(pcMoTotal(mo))+'</div>'+
+      '<div class="gridwrap"><table class="tbl pcgrid"><tr><th>'+esc(tr('pc_product','Product'))+'</th>'+
+      rs.map(r=>'<th class="num">'+esc(r.set)+'<br><small>'+esc(r.day.slice(8)+'/'+r.day.slice(5,7))+'</small></th>').join('')+
+      '<th class="num">'+esc(tr('ow_tot','TOT'))+'</th></tr>';
+    names.forEach(n=>{
+      let t=0;
+      print+='<tr><td>'+esc(n)+'</td>'+rs.map(r=>{
+        const p=r.prods[n]; if(p)t+=p.rm;
+        return '<td class="num">'+(p?('<b>'+nf(p.qty)+' '+esc(p.unit)+'</b><br>'+nf(p.rm)):'·')+'</td>';}).join('')+
+        '<td class="num"><b>'+nf(t)+'</b></td></tr>';});
+    print+='<tr class="totline"><td><b>'+esc(tr('pc_total','Total'))+'</b></td>'+
+      rs.map(r=>'<td class="num"><b>'+nf(r.rm)+'</b></td>').join('')+
+      '<td class="num"><b>'+nf(pcMoTotal(mo))+'</b></td></tr></table></div></div>';});
+
+  h='<div class="pcscreen">'+screen+
+    '<button class="bigbtn noprint" style="margin-top:14px" onclick="pcPrint()">🖨️ '+
+      esc(tr('pc_print','PRINT — EVERY SET, EVERY PRODUCT'))+'</button>'+
+    '<p class="small noprint" style="margin-top:9px">'+esc(tr('pc_note',
+      'Every figure is re-read from the store each time this screen opens — it is derived, never stored, so it cannot drift from the material that actually left the shed. A set that was never marked done has no rows here at all.'))+
+    '</p></div><div class="pcprint">'+
+      '<div class="hfoot onlyprint" style="margin-bottom:10px">S.H.A. HUP AIK PLANTATION · SUGUT DURIAN FARM — programme material, set by set. Derived from the store ledger at the moment of printing.</div>'+
+      print+'</div>';
+  box.innerHTML=h;}
+/** One set's products: what went in, and what it cost. */
+function pcLineTable(r,mh){
+  let h='<table class="tbl"><tr><th>'+esc(tr('pc_product','Product'))+'</th>'+
+    '<th class="num">'+esc(tr('pc_volume','Volume'))+'</th><th class="num">RM</th></tr>';
+  r.order.forEach(k=>{const p=r.prods[k];
+    h+='<tr><td>'+esc(p.name)+'</td><td class="num"><b>'+nf(p.qty)+' '+esc(p.unit)+'</b></td>'+
+       '<td class="num">'+nf(p.rm)+'</td></tr>';});
+  h+='<tr class="totline"><td><b>'+r.order.length+' '+esc(tr('pc_products','products'))+'</b></td>'+
+     '<td></td><td class="num"><b>'+pcRm(r.rm)+'</b></td></tr></table>';
+  const lots=Object.keys(r.lots).filter(L=>L!=='—').sort();
+  const bits=[];
+  if(lots.length)bits.push(esc(tr('pc_lots','Lots'))+' '+lots.join(', '));
+  if(r.crew&&r.hours)bits.push(r.crew+' '+esc(tr('pc_crew','crew'))+' × '+nf(r.hours)+' '+esc(tr('pc_hrs','h')));
+  if(mh)bits.push(nf(mh)+' '+esc(tr('pc_mh','man-hours')));
+  if(r.who)bits.push(esc(tr('pc_by','keyed by'))+' '+esc(r.who));
+  if(bits.length)h+='<div class="small" style="margin-top:7px">'+bits.join(' · ')+'</div>';
+  return h;}
+
+/* ======================================================================================
    v3.43.0 · WHO'S ON — COMMAND ▸ door 2
    ======================================================================================
    The Owner, on the first trial morning: "for owner view we can't see or monitor when the
@@ -17337,7 +17525,7 @@ function renderWho(){
     const quiet=isToday?people.filter(p=>p.n>0&&whoMins(p.last,stamp)>WHO_QUIET_MIN):[];
     if(quiet.length)h+='<div class="whoalert">⚠ <b>'+quiet.map(p=>esc(p.name)).join(', ')+
       '</b> '+esc(tr('wo_quietmsg','has recorded nothing for over an hour and a half.'))+'</div>';
-    h+='<div class="wholist">';
+    h+='<div>';
     people.forEach((p,i)=>{
       const mins=p.last?whoMins(p.last,stamp):null;
       const st=(p.n===0)?'off':((isToday&&mins!=null&&mins>WHO_QUIET_MIN)?'idle':'on');

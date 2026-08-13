@@ -492,6 +492,33 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
    plus a thumb, so the last control can always be brought clear of it. */
 #treezone{padding-bottom:132px;}
 .savedock{background:linear-gradient(to top,var(--bg) 78%,rgba(245,247,244,.85));}
+/* ===== v3.44.0 · PROGRAMME COST ===== */
+.pcrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #eef1ec;cursor:pointer;}
+.pcrow:last-child{border-bottom:none;}
+.pcd{flex:0 0 40px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.pcm{flex:1;min-width:0;}
+.pcn{font-weight:800;font-size:14px;}
+.pcs{font-size:11px;color:var(--muted);margin-top:1px;}
+.pcv{font-weight:800;color:var(--green);font-variant-numeric:tabular-nums;font-size:13px;}
+.pcg{color:#c3c9c0;font-size:17px;}
+.pcdet{display:none;background:#fbfcfa;border:1px solid #e6eae3;border-radius:11px;padding:9px 10px;margin:0 2px 8px;}
+.pcdet.open{display:block;}
+.pcback{display:inline-block;font-size:12px;font-weight:800;color:var(--green);cursor:pointer;
+  background:var(--lite);border-radius:9px;padding:5px 11px;margin-bottom:9px;}
+.pcprint{display:none;}
+.pcsheet{margin-bottom:14px;}
+.pcgrid{min-width:520px;font-size:11px;}
+.pcgrid th{white-space:nowrap;}
+/* THE SECOND SCREEN THAT PRINTS. Keyed on a body class, so the harvest sheet's own print
+   block above is left exactly as it was written — it is the one screen that has been proved
+   on real paper and it is not being touched to add a second. */
+@media print{
+  body.printing-pcost #harvestrep{display:none!important;}
+  body.printing-pcost #pcostcard{display:block!important;}
+  body.printing-pcost .pcprint{display:block!important;}
+  body.printing-pcost .pcscreen{display:none!important;}
+  body.printing-pcost .pcgrid{min-width:0!important;}
+}
 /* ===== v3.43.0 · WHO'S ON =====
    Colour is never the only signal: every dot is paired with a word (WORKING / QUIET /
    NO RECORD), because the amber and the green are a red-green pair and this app has
@@ -3062,6 +3089,18 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="harvestbox"></div>
   </div>
 
+  <!-- ===== v3.44.0 · REPORTS DOOR 4 · PROGRAMME COST =====
+       Each set's products, the volume that went in, and what it cost. Two shapes in one
+       panel: .pcscreen is month -> set -> products (the only shape that fits a phone
+       without sideways scrolling), .pcprint is the programme sheet with sets across the
+       top, which is what his own Excel looks like and what he takes to a meeting.
+       @media print swaps them. Stores nothing: every figure is re-read from the STOCK_OUT
+       rows the store already writes. -->
+  <div class="card" id="pcostcard" style="display:none">
+    <div class="sec">🧪 <span data-t="pc_head">Programme cost — set by set</span></div>
+    <div id="pcostbox"></div>
+  </div>
+
   <!-- ===== COSTING · MONTHLY / YEARLY MATRIX LEDGER (v3.6) ===== -->
   <div class="card" id="matrixledger" style="display:none">
     <div class="sec">📊 Monthly &amp; yearly matrix ledger</div>
@@ -3585,7 +3624,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.43.0"></script>
-<script src="app.js?v=3.43.0"></script>
+<script src="database.js?v=3.44.0"></script>
+<script src="app.js?v=3.44.0"></script>
 </body>
 </html>
