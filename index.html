@@ -2296,6 +2296,18 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="s"><span data-t="h_scansub">camera QR scan · or</span> <span class="linkish" onclick="event.stopPropagation();showPicker()" data-t="h_picklist">pick tree from list</span></div>
   </div>
   <div id="qrview"></div>
+  <!-- v3.42.0 — THE CAMERA IS A PLACE YOU CAN LEAVE.
+       Before this release the only two exits from a live camera were a QR that read and a
+       camera that failed. A tag too dirty to scan was a dead end: startScan() hides the
+       scan box AND the picker, so the way to the manual list was hidden behind the very
+       screen the worker was stuck on. The Owner hit it on the first trial morning —
+       "cannot backward to choose manual". These two buttons sit UNDER the viewfinder and
+       walk the same road back the ← arrow now walks. -->
+  <div id="camctl" class="hidden" style="margin-top:10px">
+    <button class="bigbtn ghost" onclick="stopScan()" data-t="h_camclose">✕ CLOSE CAMERA</button>
+    <div style="height:8px"></div>
+    <button class="bigbtn ghost" onclick="camToList()" data-t="h_campick">☰ PICK TREE FROM LIST INSTEAD</button>
+  </div>
   <div id="picker" class="hidden">
     <div style="height:8px"></div>
     <div class="card">
@@ -2377,7 +2389,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       </div>
     </div>
 
-    <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
+    <!-- v3.42.0 — it said CANCEL, which reads as "cancel the whole job". It is the step
+         back to the tree list, and it now says so. Same function, one more honest word. -->
+    <button class="bigbtn ghost" onclick="cancelTree()" data-t="h_othertree">← CHOOSE A DIFFERENT TREE</button>
 
     <!-- ---- BUTTON C · ONE ATOMIC SAVE, pinned to the bottom of the screen ----
          v3.18.5 fix, found on a SCREENSHOT and not by the suite: this block must be the
@@ -3511,7 +3525,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.41.5"></script>
-<script src="app.js?v=3.41.5"></script>
+<script src="database.js?v=3.42.0"></script>
+<script src="app.js?v=3.42.0"></script>
 </body>
 </html>

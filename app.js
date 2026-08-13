@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.41.5';   // v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
+const APP_VERSION = 'v3.42.0';   // v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -1350,6 +1350,12 @@ function renderTaskNotice(){
     '<div class="tn-hint">'+esc(tr('tn_hint','Tap to open the task'))+'</div>'+
   '</div>';}
 function showScreen(x){
+  /* v3.42.0 — A CAMERA LEFT RUNNING IS A CAMERA STILL RUNNING. stopScan() was reachable
+     only from a successful scan or a camera error, so every other way off this screen —
+     the home tab, a tile, the sync tab — left the viewfinder live, draining the phone and
+     holding the camera against the next app that asks for it. One guard, at the one place
+     every screen change passes through. */
+  try{if(x!=='harvest'&&scanner)stopScan();}catch(e){}
   SCREENS.forEach(k=>$('scr-'+k).classList.toggle('hidden',k!==x));
   $('scr-setup').classList.add('hidden');$('scr-login').classList.add('hidden');
   $('nav-home').classList.toggle('on',x==='home');
@@ -1386,6 +1392,14 @@ function hubBack(){
     if(typeof W_GATEPASS!=='undefined'&&W_GATEPASS&&curTab==='scale'){closeGatepass();return;}
     if(curTab==='scale'&&!inMenu&&typeof WSTEP!=='undefined'&&WSTEP!=='shed'){
       wGo(WSTEP==='detail'?'dest':'shed'); return;}
+    /* v3.42.0 — AND THE COLLECT ROAD, WHICH HAS THE SAME THREE STEPS AND WAS MISSED.
+       v3.37.3 taught the arrow about the scale and stopped there. COLLECT is scan box ->
+       camera / tree list -> tree card, and from the tree card ← threw the worker out to
+       the section list with the count gone. Now: tree card -> tree list -> out. From a
+       live camera it closes the camera, which until this release nothing could do. */
+    if(curModule==='harvest'&&curTab==='log'&&!inMenu&&typeof HSTEP!=='undefined'&&HSTEP!=='pick'){
+      if(HSTEP==='cam'){stopScan();return;}
+      cancelTree();return;}
     if(curModule&&!inMenu&&tabsFor(curModule).length>1){openMenu(curModule);return;}
     goHome();}}
 /* ======================================================================================
@@ -2531,14 +2545,44 @@ async function saveSetup(){CFG=Object.assign({},CFG,{device:$('su-device').value
 
 // ================= harvest =================
 let qty=1,grade='A',curTree=null,scanner=null;
+/* ======================================================================================
+   v3.42.0 · THE COLLECT ROAD HAS STEPS, AND EVERY STEP IS A PLACE YOU CAN LEAVE
+   ======================================================================================
+   Found on the first trial morning, and it is the same fault v3.37.3 fixed for the Morning
+   Scale — this screen was simply never looked at afterwards.
+
+   COLLECT is three steps: SCAN BOX -> (CAMERA | TREE LIST) -> TREE CARD. The only back
+   control the phone offers is the ← in the header, and hubBack() knew nothing about any of
+   them: from the tree card it threw the worker all the way out to the section list, and
+   walking back in landed on the scan box with the counted fruit already gone.
+
+   Worse, the camera had no exit at all. startScan() hides the scan box AND the picker, so
+   the "pick tree from list" link the worker needs when a tag is too dirty to read is behind
+   the screen they are stuck on. The only two ways out were a QR that read and a camera that
+   failed. That is what "cannot backward to choose manual" means.
+
+   HSTEP is the whole of the new state — 'pick' | 'cam' | 'tree'. It changes nothing about
+   what is COUNTED or SAVED: GCOUNT/GKIND and logTreeVisit() are untouched below. ====== */
+let HSTEP='pick';
+/** ← from the tree card with fruit already counted must not throw the count away on one
+ *  tap. It arms, says so on the screen, and the SECOND tap discards — never a browser
+ *  dialog, which is the v3.37.4 rule: a worker's job does not live inside a pop-up. */
+let HBACK_ARM=false;
+function hDisarm(){HBACK_ARM=false;const e=$('visit-err');if(e&&e.dataset.harm){e.textContent='';delete e.dataset.harm;}}
 function startScan(){
   if(typeof Html5Qrcode==='undefined'){toast('Camera scanner unavailable — use the tree list',1);showPicker();return;}
   $('scanbox').classList.add('hidden');$('picker').classList.add('hidden');const v=$('qrview');v.style.display='block';
+  const c=$('camctl');if(c)c.classList.remove('hidden');
+  HSTEP='cam';
   scanner=new Html5Qrcode('qrview');
   scanner.start({facingMode:'environment'},{fps:10,qrbox:220},txt=>{stopScan();selectTree(txt.trim());},()=>{})
   .catch(()=>{stopScan();toast('Camera not available — pick from list',1);showPicker();});}
-function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');}
-function showPicker(){$('picker').classList.remove('hidden');buildLotSelect();
+function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');
+  const c=$('camctl');if(c)c.classList.add('hidden');
+  if(HSTEP==='cam')HSTEP='pick';}
+/** The exit the dirty tag needs: close the camera and open the manual list in one tap. */
+function camToList(){stopScan();showPicker();}
+function showPicker(){HSTEP='pick';$('picker').classList.remove('hidden');buildLotSelect();
   // v2.5.1: pass the button too, or the grid shows Lot B while "Lot A" stays highlighted
   pickLot(curLot,($('lotbtns')||{children:[]}).children[LOTS.indexOf(curLot)]);}
 let curLot='B';
@@ -2571,7 +2615,22 @@ function renderGrid(){
 function pickLot(l,el){curLot=l;if(el){[...$('lotbtns').children].forEach(x=>x.classList.remove('on'));el.classList.add('on');}
   if($('h-lot').options.length)$('h-lot').value=l;
   renderGrid(); buildTreeSelect();}
-function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
+/* v3.42.0 — one step back, not "cancel the job". It closes the tree card and puts the
+   tree list back on the screen, which is what a worker who scanned the wrong tag wants.
+   A count already on the card is not thrown away silently: the first tap arms and says
+   how many fruit are at stake, the second tap discards. */
+function cancelTree(){
+  const pend=(typeof gTotal==='function'?gTotal():0)+(typeof rotQty==='number'?rotQty:0);
+  if(pend>0&&!HBACK_ARM){
+    HBACK_ARM=true;
+    const e=$('visit-err');
+    const msg=pend+' '+tr('h_backarm','fruit counted and NOT saved. Tap again to leave this tree and lose them.');
+    if(e){e.dataset.harm='1';e.textContent=msg;}
+    toast(msg,1);
+    return;}
+  hDisarm();
+  curTree=null;$('treezone').classList.add('hidden');
+  HSTEP='pick';showPicker();}
 // v3.0 — Card A. Three independent counters, one per grade, each with its own
 // SECURED / UNSECURED answer, because a tree can drop tied Grade A and untied
 // Grade C in the same round and the two mean completely different things.
@@ -2589,6 +2648,7 @@ function gZero(g){GCOUNT[g]=0;GLOG=GLOG.filter(x=>x!==g);paintGrade(g);gTotalPai
 function gKind(g,k){GKIND[g]=k;paintGrade(g);gTotalPaint();}
 /** One tap on the big green button = one more fruit of the selected grade. */
 function gTap(){
+  if(typeof hDisarm==='function')hDisarm();   // v3.42.0 — counting again un-arms the leave warning
   const r=$('good-reveal'); if(r)r.classList.add('open');
   GCOUNT[GSEL]=(GCOUNT[GSEL]||0)+1; GLOG.push(GSEL);
   paintGrade(GSEL); gTotalPaint();}
@@ -6147,6 +6207,7 @@ function rotBump(d){rotQty=Math.max(0,rotQty+d);if($('rot-n'))$('rot-n').textCon
 /** One tap on the brown button = one more lost fruit. It wakes from grey on the first tap,
  *  so a tree that lost nothing never asks the worker a single question. */
 function rotTap(){
+  if(typeof hDisarm==='function')hDisarm();   // v3.42.0 — counting again un-arms the leave warning
   const b=$('rotbtn'); if(b)b.classList.remove('gray');
   const r=$('rot-reveal'); if(r)r.classList.add('open');
   rotQty++;
@@ -6793,6 +6854,7 @@ function selectTree(id){
   $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
   curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
   $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');
+  HSTEP='tree'; hDisarm();                     // v3.42.0 — the third step of the collect road
   renderGradeRows(); gClearAll();
   renderRotCauses(); rotReset();
   if($('g-err'))$('g-err').textContent='';
