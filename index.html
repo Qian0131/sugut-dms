@@ -2542,6 +2542,17 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pgo{font-size:11.5px;font-weight:800;color:#fff;background:#1d5c2a;border:0;border-radius:8px;padding:8px 11px;white-space:nowrap;font-family:inherit}
 .mdq{width:96px;padding:6px 8px;font-size:13.5px;text-align:right;border:1.5px solid #d6ddd2;border-radius:8px;font-family:inherit}
 .pk-brand{color:#5a6b52;font-weight:600}
+.stmtstep{display:flex;align-items:center;gap:9px;margin:9px 0}
+.stmtar{width:40px;height:40px;border-radius:10px;border:1.5px solid #cfdcc9;background:#fff;color:#1d5c2a;font-weight:800;font-size:18px;font-family:inherit}
+.stmtar.off{opacity:.35}
+.stmtlab{flex:1;text-align:center;font-weight:800;font-size:15px}
+.stmtrow{cursor:pointer}
+.stmtsub td{background:#f7f9f6;font-size:12.5px;padding:7px 8px}
+@media print{
+  body.printing-stmt .card:not(#stmtcard){display:none!important;}
+  body.printing-stmt .noprint{display:none!important;}
+  body.printing-stmt #stmtcard{box-shadow:none;border:0}
+}
 </style>
 
   <!-- ===== v3.18 · MODULE 6 · BUY FOR PROGRAMME =====
@@ -2836,6 +2847,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <p class="small hidden" id="m5-p11" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
   </div>
 
+  <!-- v3.54.0 · THE MONTHLY STATEMENT. A PAGE off SHELF, on the proven csOpen/stOpen pattern.
+       ⛔ IT MUST LIVE INSIDE <div id="scr-stock">. The first cut put it beside #progseg, which
+       sits in the DASH screen, so stmtOpen() correctly un-hid a card inside a container that
+       was itself hidden and the Purchaser got a blank page. Exactly the fault v3.51.0 hit with
+       progcheck/progready/stocktake. A panel is only as visible as its screen. -->
+  <div class="card" id="stmtcard" style="display:none"><div id="stmtbox"></div></div>
+
   <div class="card" id="onhandcard">
     <div class="sec">Stock on hand <span id="oh-valnote" class="minitag" style="display:none">WITH VALUATION</span></div>
     <!-- v3.48.0 — STOCK LEVEL retired INTO this card. These three blocks are the only things
@@ -2865,6 +2883,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
          Same entitlement as the print button; they are one job, so they are one pair. -->
     <button class="bigbtn noprint" id="st-open" style="margin-top:8px;display:none"
             onclick="stOpen()" data-t="st_openbtn">✓ KEY IN THE COUNTED SHEET</button>
+    <!-- v3.54.0 — the monthly statement, parked into SHELF at the Owner's instruction. -->
+    <button class="bigbtn ghost noprint" id="stmt-open" style="margin-top:8px;display:none"
+            onclick="stmtOpen()" data-t="sm_openbtn">📄 MY MONTH — WHAT I KEYED</button>
   </div>
 </div>
 
@@ -3813,7 +3834,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.53.0"></script>
-<script src="app.js?v=3.53.0"></script>
+<script src="database.js?v=3.54.0"></script>
+<script src="app.js?v=3.54.0"></script>
 </body>
 </html>
