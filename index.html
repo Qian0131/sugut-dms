@@ -2674,11 +2674,16 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
     <div class="convnote" id="out-bdnote" style="display:block"></div>
     <label><span data-t="so_lot">Target lot applied</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
+    <!-- v3.49.1 — ALL joins A/B/C. It is a real SPLIT by tree count, not a fourth lot value:
+         LOT_KEYS is ['A','B','C'] and every per-lot report groups on it, so writing 'ALL' onto
+         a row would drop that material out of the lot bars, the ledger and PROGRAMME COST. -->
     <div class="lotbtns" id="out-lots">
       <div id="ol-A" onclick="pickOutLot('A')">LOT A</div>
       <div id="ol-B" onclick="pickOutLot('B')">LOT B</div>
       <div id="ol-C" onclick="pickOutLot('C')">LOT C</div>
+      <div id="ol-ALL" onclick="pickOutLot('ALL')" data-t="ob_alllots">ALL LOTS</div>
     </div>
+    <div class="convnote" id="out-splitnote" style="display:block"></div>
     <div class="sec" style="margin-top:14px" data-t="ob_addone">ADD ONE PRODUCT AT A TIME</div>
     <label data-t="so_product">Product</label>
     <!-- v3.23 MODULE 4 — mount for the ONE product picker. renderOutOpts() writes
@@ -3758,7 +3763,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.49.0"></script>
-<script src="app.js?v=3.49.0"></script>
+<script src="database.js?v=3.49.1"></script>
+<script src="app.js?v=3.49.1"></script>
 </body>
 </html>
