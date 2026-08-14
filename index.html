@@ -2539,6 +2539,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pchip.pover{background:#fde4e2;color:#a3271b}
 .pchip.pcome{background:#f0f3ee;color:#5a6b52}
 .pchip.pcan{background:#efe9f5;color:#4a3070}
+.pgo{font-size:11.5px;font-weight:800;color:#fff;background:#1d5c2a;border:0;border-radius:8px;padding:8px 11px;white-space:nowrap;font-family:inherit}
 </style>
 
   <!-- ===== v3.18 · MODULE 6 · BUY FOR PROGRAMME =====
@@ -3604,6 +3605,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div id="md-lotwrap">
       <label>Which lot was done?</label>
       <!-- v3.51.1 — ALL LOTS joins A/B/C here as well, and is a real split by tree count. -->
+      <!-- v3.52.0 — these TICK rather than choose. The Owner: "it can be press either 1 or 2
+           or 3 lots depend on actual." ALL is a convenience that ticks every one. -->
       <div class="lotbtns" id="md-lots">
         <div id="ml-A" onclick="mdLot('A')">LOT A</div>
         <div id="ml-B" onclick="mdLot('B')">LOT B</div>
@@ -3611,6 +3614,15 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
         <div id="ml-ALL" onclick="mdLot('ALL')" data-t="ob_alllots">ALL LOTS</div>
       </div>
       <div class="convnote" id="md-splitnote" style="display:block"></div>
+    </div>
+    <div id="md-lptrow" style="display:none">
+      <label>Litres of mix each tree takes <span class="minitag">REQUIRED FOR SPRAY</span></label>
+      <input type="number" id="md-lpt" min="0" step="any" inputmode="decimal" oninput="mdCalc()">
+    </div>
+    <div id="md-dayrow">
+      <label data-t="ob_day">Day the work was done</label>
+      <input type="date" id="md-day" onchange="mdDayNote()">
+      <div class="convnote" id="md-bdnote" style="display:block"></div>
     </div>
     <div class="convnote" id="md-plan">—</div>
     <div class="rainrow" id="md-crewrow">
@@ -3796,7 +3808,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.51.1"></script>
-<script src="app.js?v=3.51.1"></script>
+<script src="database.js?v=3.52.1"></script>
+<script src="app.js?v=3.52.1"></script>
 </body>
 </html>
