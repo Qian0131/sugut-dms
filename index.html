@@ -2539,7 +2539,27 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pchip.pover{background:#fde4e2;color:#a3271b}
 .pchip.pcome{background:#f0f3ee;color:#5a6b52}
 .pchip.pcan{background:#efe9f5;color:#4a3070}
-.pgo{font-size:11.5px;font-weight:800;color:#fff;background:#1d5c2a;border:0;border-radius:8px;padding:8px 11px;white-space:nowrap;font-family:inherit}
+/* v3.55.0 — THE THUMB, MEASURED. The harness put a ruler on these and they came back 30 px
+   tall and 76 px wide, which is under the v3.37.3 floor and was true before this release too;
+   it only became worth fixing when a row started carrying two of them. */
+.pgo{font-size:11.5px;font-weight:800;color:#fff;background:#1d5c2a;border:0;border-radius:8px;padding:11px 12px;min-height:42px;min-width:104px;white-space:nowrap;font-family:inherit}
+/* v3.55.0 — a row can now carry two buttons. They stack rather than sit side by side: at
+   360 px a MARK DONE and a CANCEL on one line squeeze both below the 44 px the v3.37.3
+   reach work fixed as the smallest thing a thumb can hit in the field. */
+.pgostack{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.pgo.pno{background:#fff;color:#a52222;border:1.5px solid #edc9c9}
+.pgo.pgh{background:#fff;color:#1d5c2a;border:1.5px solid #bfd6bb}
+/* the cancel page */
+.cxset{border:1.5px solid #dde5d9;border-radius:11px;padding:10px 11px;margin-bottom:4px}
+.cxlbl{font-size:10px;letter-spacing:.11em;font-weight:800;color:#5a6b52;margin:12px 0 5px}
+.cxchips{display:flex;flex-wrap:wrap;gap:7px}
+.cxchip{border:1.5px solid #d6e0d2;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;
+  background:#fff;color:#20481f;min-height:42px;display:flex;align-items:center}
+.cxchip.on{background:#1d5c2a;color:#fff;border-color:#1d5c2a}
+.cxfld{width:100%;border:1.5px solid #d6e0d2;border-radius:10px;padding:11px;font-size:15px;font-family:inherit;margin-top:5px}
+.cxnote{background:#eaf5e8;border-left:4px solid #1d7a28;border-radius:0 10px 10px 0;padding:10px 12px;
+  font-size:12.5px;color:#20481f;margin-top:9px}
+.cxnote.warnish{background:#fffceb;border-left-color:#d3a71a;color:#4a3d16}
 .mdq{width:96px;padding:6px 8px;font-size:13.5px;text-align:right;border:1.5px solid #d6ddd2;border-radius:8px;font-family:inherit}
 .pk-brand{color:#5a6b52;font-weight:600}
 .stmtstep{display:flex;align-items:center;gap:9px;margin:9px 0}
@@ -2814,6 +2834,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       <div class="sec" style="margin-top:10px">🔍 <span data-t="m3_chkhead">Upcoming programme stock check</span> <span class="m5-iq" onclick="m5Tog('m5-p12')">ⓘ</span></div>
       <div id="chkbox"></div>
       <p class="small hidden" id="m5-p12" style="margin-top:9px" data-t="m3_chknote">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+      <!-- v3.55.0 — the mount for STOCK PRESSURE BY SET, arriving from the retired
+           FARM ▸ SPRAY RECORD. renderDrawdown('ddbox') fills it; the same function still
+           returns its markup to the old caller, so there is one table, not two. -->
+      <div id="ddbox"></div>
     </div>
   </div>
   <div class="card m3-hide" id="progready" style="display:none">
@@ -3101,6 +3125,19 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        three times (v3.6, v3.12, and the v3.51 stock-take page caught in testing). -->
   <div class="card" id="progseg" style="display:none"></div>
   <div id="progcard" style="display:none"></div>
+
+  <!-- v3.55.0 · THE CANCEL PAGE. A PAGE off THE PROGRAMME, on the proven csOpen / stOpen /
+       stmtOpen pattern. ⛔ IT MUST LIVE INSIDE <div id="scr-dash">, beside #progcard — the
+       lesson v3.51.0 and v3.54.0 both had to learn: routing a card correctly into a screen
+       container that is itself hidden paints a blank page. A panel is only as visible as its
+       screen, so it sits one line from the card it stands in front of. -->
+  <!-- ⛔ m3-hide IS BAKED INTO THE CLASS, and the harness is what said so. This card is
+       named in the prog tab's panels — it has to be, or cxOpen() could never reveal it — and
+       openModule() writes display:'' onto every panel its tab names. So the display:none in
+       the markup is lifted the moment the tile opens, and without the class the cancel page
+       stood on the programme screen unasked. Only .m3-hide (display:none !important) beats an
+       inline rule. Same reason #progready and #progrecord carry it. -->
+  <div class="card m3-hide" id="cxcard" style="display:none"><div id="cxbox"></div></div>
 
   <div class="card" id="agromonth" style="display:none">
     <div class="sec">🗓️ Month timeline — combo sets in date order <span class="m5-iq" onclick="m5Tog('m5-p6')">ⓘ</span></div>
@@ -3834,7 +3871,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.54.0"></script>
-<script src="app.js?v=3.54.0"></script>
+<script src="database.js?v=3.55.0"></script>
+<script src="app.js?v=3.55.0"></script>
 </body>
 </html>
