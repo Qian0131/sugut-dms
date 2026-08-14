@@ -2623,10 +2623,32 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       <div id="in-uo" onclick="setInUnit('O')">LOOSE <span id="in-uolbl">ml/gm</span></div>
     </div>
     <div class="convnote" id="in-conv">—</div>
-    <label>Invoice / reference number</label>
-    <input id="in-ref" placeholder="e.g. INV-2026-0814" autocomplete="off">
-    <label>Supplier (optional)</label>
-    <input id="in-supplier" placeholder="e.g. Sandakan AgriSupply" autocomplete="off">
+    <!-- ===== v3.49.0 · THE INVOICE STOPS BEING COMPULSORY =====
+         His words: "for receiving issue can it be other option (cause we dun have to keep
+         keying invoice no and company for all the item)." The invoice was REQUIRED, and
+         receiveBasket() refused to save without one — so stock that genuinely arrives without
+         a document (a transfer from Sandakan, a sample, a replacement drum) could not be
+         received at all, and the shelf drifted.
+         ⛔ IT IS NOT SIMPLY DELETED. An unreferenced delivery is a real weakness in an audit
+         trail, so the box stays, it is still the default, and choosing NO INVOICE asks for a
+         one-word reason instead — a blank is replaced by a stated one, never by nothing. -->
+    <div class="segs" id="in-refmode">
+      <div class="on" id="in-rm-inv" onclick="setInRefMode('INV')" data-t="si_haveinv">📄 WITH INVOICE</div>
+      <div id="in-rm-no" onclick="setInRefMode('NONE')" data-t="si_noinv">✋ NO INVOICE</div>
+    </div>
+    <div id="in-refwrap">
+      <label data-t="si_ref">Invoice / reference number</label>
+      <input id="in-ref" placeholder="e.g. INV-2026-0814" autocomplete="off">
+      <label data-t="si_supp">Supplier (optional)</label>
+      <input id="in-supplier" placeholder="e.g. Sandakan AgriSupply" autocomplete="off">
+    </div>
+    <div id="in-nowrap" style="display:none">
+      <label data-t="si_whyno">Why is there no invoice</label>
+      <select id="in-noreason"></select>
+    </div>
+    <label data-t="ob_dayin">Day it arrived</label>
+    <input type="date" id="in-day" onchange="inDayNote()">
+    <div class="convnote" id="in-bdnote" style="display:block"></div>
     <div class="pinerr" id="in-err"></div>
     <!-- v3.19 — ADD builds a delivery; SUBMIT still receives a single line on its own, so
          nobody who knows the old flow has to learn a new one. -->
@@ -2639,6 +2661,25 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <!-- MATERIAL STOCK OUT — Farm Worker (Owner/Marketing may also use it) -->
   <div class="card" id="pnl-out" style="display:none">
     <div class="sec"><span data-t="so_head">📤 Material Stock Out — issued to the field</span> <span class="m5-iq" onclick="m5Tog('m5-p15')">ⓘ</span></div>
+    <!-- ===== v3.49.0 · ONE ANSWER FOR THE WHOLE ISSUE =====
+         Set, day and lot are asked ONCE at the top. Lot is here rather than on each line
+         because a crew sprays a lot at a time, and because dropping it (as the sample did)
+         would have broken the per-lot figures in PROGRAMME COST and the lot bars on the
+         dashboard. The DAY is the backdate: blank means today, exactly as before. -->
+    <div class="onbrow">
+      <div><label data-t="so_set">What was it for</label>
+        <select id="sset"></select></div>
+      <div><label data-t="ob_day">Day it left the shed</label>
+        <input type="date" id="out-day" onchange="renderOutBasket()"></div>
+    </div>
+    <div class="convnote" id="out-bdnote" style="display:block"></div>
+    <label><span data-t="so_lot">Target lot applied</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
+    <div class="lotbtns" id="out-lots">
+      <div id="ol-A" onclick="pickOutLot('A')">LOT A</div>
+      <div id="ol-B" onclick="pickOutLot('B')">LOT B</div>
+      <div id="ol-C" onclick="pickOutLot('C')">LOT C</div>
+    </div>
+    <div class="sec" style="margin-top:14px" data-t="ob_addone">ADD ONE PRODUCT AT A TIME</div>
     <label data-t="so_product">Product</label>
     <!-- v3.23 MODULE 4 — mount for the ONE product picker. renderOutOpts() writes
          #out-search (carrying its data-tph="so_search") and #out-prod in here, then
@@ -2651,16 +2692,17 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <label><span data-t="so_qty">Quantity used</span> (<span id="out-unitlbl">ml/gm</span>)</label>
     <input type="number" id="out-qty" min="0" step="any" inputmode="decimal" value="1000" oninput="onOutCalc()">
     <div class="convnote" id="out-conv">—</div>
-    <label><span data-t="so_lot">Target lot applied</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
-    <div class="lotbtns" id="out-lots">
-      <div id="ol-A" onclick="pickOutLot('A')">LOT A</div>
-      <div id="ol-B" onclick="pickOutLot('B')">LOT B</div>
-      <div id="ol-C" onclick="pickOutLot('C')">LOT C</div>
-    </div>
-    <label data-t="so_set">For spray set</label>
-    <select id="sset"></select>
+    <!-- v3.49.0 — the lot buttons moved UP into the header block above: they are one answer
+         for the whole issue, not a per-line answer. Only one #out-lots exists. -->
     <div class="pinerr" id="out-err"></div>
-    <button class="bigbtn" onclick="submitStockOut()" data-t="so_save">✓ SAVE STOCK OUT</button>
+    <!-- v3.49.0 — ADD, not SAVE. Nothing is written until the basket is submitted. -->
+    <button class="bigbtn ghost" onclick="outAddLine()" data-t="ob_add">＋ ADD TO THE LIST</button>
+    <!-- FILL is deliberately SMALLER than ADD. Both were full-width ghosts in the first cut and
+         a screenshot showed two identical buttons with no hierarchy: adding one product is the
+         every-time action, filling from the plan is the shortcut. -->
+    <button class="bigbtn ghost" onclick="outFillFromPlan()" style="margin-top:7px;padding:10px;font-size:12px" data-t="ob_fill">📋 FILL THE WHOLE SET FROM THE PLAN</button>
+    <p class="small" style="margin-top:6px" data-t="ob_fillnote">When the crew followed the programme this fills every product in one tap. Then change or remove whatever was different.</p>
+    <div id="outbasket" style="margin-top:10px"></div>
     <p class="small hidden" id="m5-p15" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
   </div>
 
@@ -3581,6 +3623,16 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="crewline" id="run-crewline"></div>
     <div class="mh" id="run-mh"></div>
 
+    <!-- ===== v3.49.0 · THE BACKDATE =====
+         "where is to back date my programe task completed" — 13 Aug. Until now this filing
+         stamped dt:now(), so a set sprayed on the 6th could only be recorded as done today,
+         which is why August is short by roughly RM 2,050 in PROGRAMME COST.
+         Blank means today, exactly as before, so a crew filing at the end of their own day
+         never touches it. -->
+    <label data-t="ob_day">Day the work was done</label>
+    <input type="date" id="run-day" onchange="runDayNote()">
+    <div class="convnote" id="run-bdnote" style="display:block"></div>
+
     <div class="pinerr" id="run-err"></div>
     <button class="bigbtn" id="run-save" onclick="submitRun()" data-t="w13_savetally">💾 Save &amp; Tally Store</button>
     <div style="height:8px"></div>
@@ -3706,7 +3758,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.48.1"></script>
-<script src="app.js?v=3.48.1"></script>
+<script src="database.js?v=3.49.0"></script>
+<script src="app.js?v=3.49.0"></script>
 </body>
 </html>
