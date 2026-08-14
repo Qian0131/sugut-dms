@@ -492,6 +492,16 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
    plus a thumb, so the last control can always be brought clear of it. */
 #treezone{padding-bottom:132px;}
 .savedock{background:linear-gradient(to top,var(--bg) 78%,rgba(245,247,244,.85));}
+/* ===== v3.47.0 · THE COUNT SHEET ===== */
+.csrow td{padding:7px 4px;}
+.csbox{display:inline-block;border-bottom:1.5px solid #98a29b;min-width:46px;height:16px;}
+.cssub{font-size:9.5px;color:var(--muted);display:block;}
+.cssign{margin-top:16px;font-size:12px;line-height:2.4;}
+@media print{
+  body.printing-count #harvestrep{display:none!important;}
+  body.printing-count #countsheet{display:block!important;}
+  body.printing-count .noprint{display:none!important;}
+}
 /* ===== v3.44.0 · PROGRAMME COST ===== */
 .pcrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #eef1ec;cursor:pointer;}
 .pcrow:last-child{border-bottom:none;}
@@ -2524,11 +2534,24 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        openModule() sets that itself on every entry and inline beats a class (v3.19). -->
   <div class="card" id="invhubseg" style="display:none">
     <div class="m3-seg">
-      <div class="m3-seg-btn on" id="m8-s-buy"   onclick="m8HubPick('buy')">🛒 TO BUY</div>
-      <div class="m3-seg-btn"    id="m8-s-recv"  onclick="m8HubPick('recv')">📥 RECEIVE</div>
-      <div class="m3-seg-btn"    id="m8-s-match" onclick="m8HubPick('match')">🔗 BRANDS</div>
-      <div class="m3-seg-btn"    id="m8-s-hand"  onclick="m8HubPick('hand')">📦 ON HAND</div>
+      <div class="m3-seg-btn on" id="m8-s-buy"   onclick="m8HubPick('buy')"   data-t="m8_buy">🛒 BUY</div>
+      <div class="m3-seg-btn"    id="m8-s-recv"  onclick="m8HubPick('recv')"  data-t="m8_recv">📥 RECEIVE</div>
+      <div class="m3-seg-btn"    id="m8-s-issue" onclick="m8HubPick('issue')" data-t="m8_issue">📤 ISSUE</div>
+      <div class="m3-seg-btn"    id="m8-s-hand"  onclick="m8HubPick('hand')"  data-t="m8_shelf">📦 SHELF</div>
     </div>
+  </div>
+
+  <!-- ===== v3.47.0 · THE COUNT SHEET =====
+       His ask: "Shelf - have print out button for purchaser to ask estate to do stock check
+       every month." It is a PRINT, not a job — it is not something he does daily, so it is
+       not a fifth button on the bar. It lives inside SHELF and prints through the same
+       body-class trick as the programme-cost sheet, leaving the harvest sheet's own print
+       block byte-identical.
+       ⛔ FULL + OPENED, never a decimal. "11.9 bags" is not a thing a person can find in a
+       shed. Two blank boxes per line, because that is how a store is actually counted. -->
+  <div class="card" id="countsheet" style="display:none">
+    <div class="sec">🧾 <span data-t="cs_head">Monthly stock check — print for the estate</span></div>
+    <div id="countbox"></div>
   </div>
 
   <div class="card" id="procurecard" style="display:none">
@@ -2678,6 +2701,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="sec">Stock on hand <span id="oh-valnote" class="minitag" style="display:none">WITH VALUATION</span></div>
     <input id="stocksearch" placeholder="Search brand or active ingredient…" oninput="renderStock()">
     <div id="stocklist" style="margin-top:6px;max-height:300px;overflow-y:auto"></div>
+    <!-- v3.47.0 — the count sheet. Only the roles that may run a stock-take are offered it;
+         a worker reading the shelf under his stock-out form has no business printing one. -->
+    <button class="bigbtn ghost noprint" id="cs-open" style="margin-top:11px;display:none"
+            onclick="csOpen()" data-t="cs_openbtn">🧾 PRINT A COUNT SHEET FOR THE ESTATE</button>
   </div>
 </div>
 
@@ -3627,7 +3654,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.46.0"></script>
-<script src="app.js?v=3.46.0"></script>
+<script src="database.js?v=3.47.0"></script>
+<script src="app.js?v=3.47.0"></script>
 </body>
 </html>
