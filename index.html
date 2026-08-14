@@ -492,89 +492,6 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
    plus a thumb, so the last control can always be brought clear of it. */
 #treezone{padding-bottom:132px;}
 .savedock{background:linear-gradient(to top,var(--bg) 78%,rgba(245,247,244,.85));}
-/* ===== v3.47.0 · THE COUNT SHEET ===== */
-.csrow td{padding:7px 4px;}
-.csbox{display:inline-block;border-bottom:1.5px solid #98a29b;min-width:46px;height:16px;}
-.cssub{font-size:9.5px;color:var(--muted);display:block;}
-.cssign{margin-top:16px;font-size:12px;line-height:2.4;}
-@media print{
-  body.printing-count #harvestrep{display:none!important;}
-  body.printing-count #countsheet{display:block!important;}
-  body.printing-count .noprint{display:none!important;}
-}
-/* ===== v3.44.0 · PROGRAMME COST ===== */
-.pcrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #eef1ec;cursor:pointer;}
-.pcrow:last-child{border-bottom:none;}
-.pcd{flex:0 0 40px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
-.pcm{flex:1;min-width:0;}
-.pcn{font-weight:800;font-size:14px;}
-.pcs{font-size:11px;color:var(--muted);margin-top:1px;}
-.pcv{font-weight:800;color:var(--green);font-variant-numeric:tabular-nums;font-size:13px;}
-.pcg{color:#c3c9c0;font-size:17px;}
-.pcdet{display:none;background:#fbfcfa;border:1px solid #e6eae3;border-radius:11px;padding:9px 10px;margin:0 2px 8px;}
-.pcdet.open{display:block;}
-.pcback{display:inline-block;font-size:12px;font-weight:800;color:var(--green);cursor:pointer;
-  background:var(--lite);border-radius:9px;padding:5px 11px;margin-bottom:9px;}
-.pcsplit{display:flex;gap:8px;margin-bottom:9px;}
-.pcsplit span{flex:1;background:var(--lite);border-radius:10px;padding:6px 8px;font-size:11.5px;
-  font-weight:700;color:var(--green);text-align:center;}
-.pcprint{display:none;}
-.pcsheet{margin-bottom:14px;}
-.pcgrid{min-width:520px;font-size:11px;}
-.pcgrid th{white-space:nowrap;}
-/* THE SECOND SCREEN THAT PRINTS. Keyed on a body class, so the harvest sheet's own print
-   block above is left exactly as it was written — it is the one screen that has been proved
-   on real paper and it is not being touched to add a second. */
-@media print{
-  body.printing-pcost #harvestrep{display:none!important;}
-  body.printing-pcost #pcostcard{display:block!important;}
-  body.printing-pcost .pcprint{display:block!important;}
-  body.printing-pcost .pcscreen{display:none!important;}
-  body.printing-pcost .pcgrid{min-width:0!important;}
-}
-/* ===== v3.43.0 · WHO'S ON =====
-   Colour is never the only signal: every dot is paired with a word (WORKING / QUIET /
-   NO RECORD), because the amber and the green are a red-green pair and this app has
-   already failed one colour-blind check ([[dms-season-report-design]]). */
-.whonav{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:var(--lite);border-radius:11px;padding:7px 6px;margin-bottom:9px;font-size:13px;}
-.whonav .whostep{padding:2px 13px;font-weight:800;color:var(--green);cursor:pointer;user-select:none;}
-.whonav .whostep.off{color:#c3c9c0;}
-.whotabs{display:flex;gap:6px;margin-bottom:10px;}
-.whotabs div{flex:1;text-align:center;padding:9px 4px;border-radius:11px;background:#fff;
-  border:1px solid #dfe4dc;font-size:11.5px;font-weight:800;color:var(--muted);cursor:pointer;}
-.whotabs div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
-.whoalert{background:var(--amberbg);border:1px solid var(--gold);border-radius:12px;
-  padding:10px 12px;margin-bottom:10px;font-size:12.5px;line-height:1.5;}
-.whorow{display:flex;gap:10px;align-items:flex-start;padding:11px 2px;
-  border-bottom:1px solid #eef1ec;cursor:pointer;}
-.whodot{width:11px;height:11px;border-radius:50%;flex:0 0 11px;margin-top:5px;}
-.whodot.on{background:#2e7d32;box-shadow:0 0 0 3px #d7ecd8;}
-.whodot.idle{background:#e6a700;box-shadow:0 0 0 3px #fdf0cd;}
-.whodot.off{background:#bcc3ba;}
-.whomain{flex:1;min-width:0;}
-.whoname{font-weight:800;font-size:14px;}
-.whometa{font-size:11px;color:var(--muted);margin-top:1px;}
-.whochips{margin-top:5px;}
-.whochips span{display:inline-block;background:var(--lite);border-radius:8px;padding:2px 8px;
-  margin:2px 4px 0 0;font-weight:700;font-size:11px;color:#2a3a2c;}
-.whochips span.none{background:#f3f0e8;color:#8a7f5f;font-weight:600;}
-.whoright{text-align:right;font-size:11px;color:var(--muted);flex:0 0 auto;}
-.whoright .whost{font-weight:800;font-size:11px;}
-.whost.on{color:#2e7d32;} .whost.idle{color:#a37700;} .whost.off{color:#9aa398;}
-.whoright .whoago{color:#98a29b;}
-.whodet{display:none;background:#fbfcfa;border:1px solid #e6eae3;border-radius:11px;
-  padding:9px 10px;margin:0 2px 8px;}
-.whodet.open{display:block;}
-.whofeed{font-size:12px;}
-.whof{display:flex;gap:9px;padding:6px 0;border-bottom:1px dashed #e8ece6;}
-.whof:last-child{border-bottom:none;}
-.whoft{flex:0 0 44px;color:var(--muted);font-variant-numeric:tabular-nums;}
-.whofw{flex:1;line-height:1.45;overflow-wrap:break-word;}
-.whofn{color:var(--green);font-weight:700;}
-.whofd{display:inline-block;margin-left:6px;font-size:10px;color:#98a29b;}
-.whogap{margin-top:11px;background:#fbfcfa;border:1px dashed #d8ded4;border-radius:11px;
-  padding:9px 10px;font-size:11px;color:var(--muted);line-height:1.5;}
 /* ===== v3.18.5 · ACTIVE TASK NOTICE BAR ===== */
 .tasknote{background:#0d3d12;color:#fff;border-radius:14px;padding:11px 13px;margin-bottom:11px;
   border-left:6px solid var(--gold);cursor:pointer;user-select:none;box-shadow:0 2px 8px rgba(0,0,0,.18);}
@@ -605,8 +522,6 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .tile{background:#fff;border-radius:16px;padding:15px 10px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.07);cursor:pointer;user-select:none;border:2px solid transparent;min-height:112px;display:flex;flex-direction:column;justify-content:center;}
 .tile:active{border-color:var(--green2);transform:scale(.98);}
-/* v3.41.5 — the durian drawing sits on the text line like the emoji it replaced. */
-.duric{width:1em;height:1em;vertical-align:-.15em;flex:none}
 .tile .ti{font-size:30px;display:block;margin-bottom:5px;line-height:1;}
 .tile .tn{font-weight:900;font-size:14px;color:var(--green);line-height:1.2;}
 .tile .ts{font-size:9.5px;color:var(--muted);margin-top:3px;line-height:1.3;}
@@ -2072,98 +1987,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .nr-db .r2{position:absolute;top:6px;right:6px;background:#fff3cd;color:#6b5200;
   font-size:8px;font-weight:900;letter-spacing:.4px;padding:2px 5px;border-radius:5px;}
 
-/* ---- v3.41.0 · FIX A RECORD — one question a screen ----
-   The step bar is the whole point of the release: it says where you are, what you have
-   already answered, and it is the way BACK. A finished step is tappable; the one you are
-   on and the ones ahead are not. */
-.fxbar{display:flex;gap:4px;margin:0 0 12px;}
-.fxbar div{flex:1;text-align:center;padding:7px 2px 6px;border-radius:9px;background:#f1f3f0;
-  color:#9aa398;line-height:1.15;}
-.fxbar div b{display:block;font-size:12.5px;font-weight:900;}
-.fxbar div span{display:block;font-size:7.5px;font-weight:900;letter-spacing:.3px;margin-top:2px;}
-.fxbar div.on{background:var(--green2);color:#fff;}
-.fxbar div.done{background:#dcebdc;color:var(--green);cursor:pointer;}
-/* the big one-tap answers on step 1 and on WHAT KIND OF WORK */
-.fxq{display:flex;align-items:center;gap:11px;border:2px solid #e2e6e1;border-radius:15px;
-  padding:14px 13px;background:#fff;cursor:pointer;margin-top:8px;
-  -webkit-tap-highlight-color:transparent;}
-.fxq:active{border-color:var(--green2);background:#f4faf4;}
-.fxq .ic{font-size:25px;line-height:1;}
-.fxq .t{font-weight:900;font-size:13.5px;line-height:1.2;}
-.fxq .d{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35;font-weight:700;}
-.fxq .go{margin-left:auto;font-size:21px;color:#c3cdc2;font-weight:900;}
-/* the read-back — the record as every phone currently holds it, before anything is typed */
-.fxrec{background:#0f3d20;color:#fff;border-radius:14px;padding:14px 15px;margin:11px 0;}
-.fxrec .w{font-size:14.5px;font-weight:900;line-height:1.25;}
-.fxrec .n{font-size:26px;font-weight:900;margin-top:6px;line-height:1.1;}
-.fxrec .n span{font-size:13px;font-weight:800;opacity:.8;}
-.fxrec .k{font-size:12px;font-weight:800;opacity:.9;margin-top:3px;}
-.fxrec .s{font-size:10.5px;opacity:.76;margin-top:9px;line-height:1.5;font-weight:600;}
-.fxone{background:#f1f3f0;border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800;
-  color:#3d463c;margin-bottom:10px;line-height:1.35;}
-.fxsum{background:#eaf2ea;border-radius:10px;padding:10px 12px;margin-top:11px;font-size:13px;
-  font-weight:800;color:var(--green);}
-.fxstart{text-align:center;font-size:11px;font-weight:900;letter-spacing:.6px;color:#9aa398;
-  padding:14px 0 2px;cursor:pointer;}
-/* ---- v3.41.0 · ASK FOR FRUIT — the count, with thumb steppers ----
-   Same reasoning as the scale's basket count: a number a man keys standing under a tree
-   gets buttons his thumb can hit, not a spinner arrow 9px tall. */
-.askn{display:flex;gap:6px;align-items:stretch;margin-top:4px;}
-.askn input{flex:1;text-align:center;font-size:23px;font-weight:900;margin:0;}
-.askn button{width:52px;border:2px solid #d9e2d8;background:#fff;border-radius:12px;
-  font-size:19px;font-weight:900;color:var(--green);cursor:pointer;font-family:inherit;
-  -webkit-tap-highlight-color:transparent;}
-.askn button:active{background:#eaf2ea;}
-/* ---- v3.41.0 · HOW OLD IS THIS QUEUE ----
-   Quiet when it is fresh, loud when it is not. The whole point is that an empty queue and
-   an unrefreshed queue stop looking identical. */
-.syncage{font-size:10.5px;font-weight:800;color:#8b9489;padding:6px 9px;border-radius:8px;
-  background:#f4f5f3;margin-bottom:9px;line-height:1.4;}
-.syncage b{color:#5c6659;}
-.syncage.old{background:#fdf4e3;color:#7a5c14;}
-.syncage.old b{color:#7a5c14;}
-.syncage.old span{color:#a9761a;text-decoration:underline;cursor:pointer;font-weight:900;}
-.syncage.off{background:#f4f5f3;color:#8b9489;}
-.syncage.old span{text-decoration:underline;}
-/* v3.41.2 — the whole strip is the tap target, and it says so */
-.syncage[onclick]{cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.syncage[onclick]:active{filter:brightness(.94);}
-.syncage.busy{background:#e6efe6;color:var(--green);font-weight:900;}
-/* ---- v3.41.4 · A NEWER VERSION IS ON THE SERVER ----
-   Amber, not red: nothing is broken, the phone is simply behind. Full width, thumb-tall,
-   and the whole bar is the button. */
-#verbar:empty{display:none;}
-#verbar{position:sticky;top:0;z-index:60;}
-.verbar{display:flex;align-items:center;gap:10px;background:#a9761a;color:#fff;
-  padding:11px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.verbar:active{background:#946614;}
-.verbar .ic{font-size:19px;line-height:1;}
-.verbar .t{font-weight:900;font-size:12.5px;line-height:1.25;}
-.verbar .s{font-size:10px;opacity:.9;font-weight:700;margin-top:2px;line-height:1.35;}
-.verbar .go{margin-left:auto;background:#fff;color:#7a5c14;border-radius:9px;
-  padding:8px 11px;font-size:11.5px;font-weight:900;white-space:nowrap;}
-/* ---- v3.41.0 · PRICES — a clone at a time ----
-   The row is the summary AND the door: the rates are readable without opening it, so the
-   Gate can check the book without touching a single box. */
-.prcc{border:1px solid #e3ded1;border-radius:12px;background:#fff;margin-top:7px;overflow:hidden;}
-.prcc.open{border-color:var(--green2);}
-.prcc .h{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;}
-.prcc .h:active{background:#f4faf4;}
-.prcc .nm b{display:block;font-size:13.5px;font-weight:900;line-height:1.2;}
-.prcc .nm span{display:block;font-size:9.5px;color:var(--muted);font-weight:700;margin-top:2px;}
-.prcc .p{margin-left:auto;display:flex;gap:5px;}
-.prcc .p i{font-style:normal;font-size:11px;font-weight:900;background:#eef3ed;color:var(--green);
-  border-radius:7px;padding:4px 7px;white-space:nowrap;}
-.prcc .p i.lowq{background:#fceeea;color:#8c1d18;}
-.prcc .go{font-size:18px;color:#c3cdc2;font-weight:900;}
-.prcc .b{padding:2px 12px 13px;border-top:1px dashed #e8e4d8;}
-.prcg{margin-top:9px;}
-.prcg label{font-size:12px;font-weight:800;color:#4a5548;}
-.prcg label span{font-weight:700;color:var(--muted);font-size:10px;}
-.prcg input{margin-top:3px;}
-.fr-quote .s{font-size:10.5px;color:var(--muted);font-weight:700;margin-top:3px;line-height:1.4;}
-
 /* ---- v3.39.0 · THE SHED — the one number, the layers, the four doors ---- */
 .shd-hero{background:#0f3d20;color:#fff;border-radius:14px;padding:15px 16px;text-align:center}
 .shd-hero .n{font-size:44px;font-weight:900;line-height:1}
@@ -2278,12 +2101,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
 </div>
 
-<!-- ===== v3.41.4 · THE PHONE THAT IS BEHIND SAYS SO ============================
-     Directly under the header so it is on EVERY screen, not only the home one: a phone
-     that is behind may be sitting on any tile. It renders empty unless the server is
-     actually running a different version, so it costs nothing the rest of the time. -->
-<div id="verbar"></div>
-
 <!-- LOCK SCREEN (revoked devices) -->
 <div id="lockscreen" class="hidden">
   <div class="ic">⛔</div>
@@ -2379,18 +2196,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="s"><span data-t="h_scansub">camera QR scan · or</span> <span class="linkish" onclick="event.stopPropagation();showPicker()" data-t="h_picklist">pick tree from list</span></div>
   </div>
   <div id="qrview"></div>
-  <!-- v3.42.0 — THE CAMERA IS A PLACE YOU CAN LEAVE.
-       Before this release the only two exits from a live camera were a QR that read and a
-       camera that failed. A tag too dirty to scan was a dead end: startScan() hides the
-       scan box AND the picker, so the way to the manual list was hidden behind the very
-       screen the worker was stuck on. The Owner hit it on the first trial morning —
-       "cannot backward to choose manual". These two buttons sit UNDER the viewfinder and
-       walk the same road back the ← arrow now walks. -->
-  <div id="camctl" class="hidden" style="margin-top:10px">
-    <button class="bigbtn ghost" onclick="stopScan()" data-t="h_camclose">✕ CLOSE CAMERA</button>
-    <div style="height:8px"></div>
-    <button class="bigbtn ghost" onclick="camToList()" data-t="h_campick">☰ PICK TREE FROM LIST INSTEAD</button>
-  </div>
   <div id="picker" class="hidden">
     <div style="height:8px"></div>
     <div class="card">
@@ -2472,9 +2277,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       </div>
     </div>
 
-    <!-- v3.42.0 — it said CANCEL, which reads as "cancel the whole job". It is the step
-         back to the tree list, and it now says so. Same function, one more honest word. -->
-    <button class="bigbtn ghost" onclick="cancelTree()" data-t="h_othertree">← CHOOSE A DIFFERENT TREE</button>
+    <button class="bigbtn ghost" onclick="cancelTree()">CANCEL</button>
 
     <!-- ---- BUTTON C · ONE ATOMIC SAVE, pinned to the bottom of the screen ----
          v3.18.5 fix, found on a SCREENSHOT and not by the suite: this block must be the
@@ -2519,109 +2322,12 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       background:#fff;color:var(--green2,#2e7d32);}
     .m3-seg-btn.on{background:var(--green2,#2e7d32);color:#fff;border-color:var(--green2,#2e7d32);}
     .m3-hide{display:none !important;}
-  
-/* v3.51.0 — the programme screen. Deliberately reuses .kpis/.kpi and .m3-seg from elsewhere;
-   only the row and the status chip are new, and both are namespaced with a p- prefix so no
-   existing rule can be caught by them (the v3.43.0 .wbtn lesson). */
-.card2{background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.prow{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f0f3ee}
-.prow:last-child{border:0}
-.pmain{flex:1;min-width:0}
-.pn{font-weight:700;font-size:14.5px}
-.pd{font-size:12.5px;color:#6b7a63;margin-top:2px}
-.pr{font-size:12px;color:#8b9784;white-space:nowrap}
-.pnote{font-size:11.5px;color:#8b9784;margin-top:3px;font-style:italic}
-.pnote.warnish{color:#a3611a;font-style:normal;font-weight:600}
-.pchip{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:20px;margin-left:5px;vertical-align:1px}
-.pchip.pon{background:#e7f1e5;color:#175023}
-.pchip.plate{background:#fdf0d2;color:#8a5c07}
-.pchip.pdue{background:#e8f0fe;color:#123a71}
-.pchip.pover{background:#fde4e2;color:#a3271b}
-.pchip.pcome{background:#f0f3ee;color:#5a6b52}
-.pchip.pcan{background:#efe9f5;color:#4a3070}
-/* v3.55.0 — THE THUMB, MEASURED. The harness put a ruler on these and they came back 30 px
-   tall and 76 px wide, which is under the v3.37.3 floor and was true before this release too;
-   it only became worth fixing when a row started carrying two of them. */
-.pgo{font-size:11.5px;font-weight:800;color:#fff;background:#1d5c2a;border:0;border-radius:8px;padding:11px 12px;min-height:42px;min-width:104px;white-space:nowrap;font-family:inherit}
-/* v3.55.0 — a row can now carry two buttons. They stack rather than sit side by side: at
-   360 px a MARK DONE and a CANCEL on one line squeeze both below the 44 px the v3.37.3
-   reach work fixed as the smallest thing a thumb can hit in the field. */
-.pgostack{display:flex;flex-direction:column;gap:6px;align-items:stretch}
-.pgo.pno{background:#fff;color:#a52222;border:1.5px solid #edc9c9}
-.pgo.pgh{background:#fff;color:#1d5c2a;border:1.5px solid #bfd6bb}
-/* the cancel page */
-.cxset{border:1.5px solid #dde5d9;border-radius:11px;padding:10px 11px;margin-bottom:4px}
-.cxlbl{font-size:10px;letter-spacing:.11em;font-weight:800;color:#5a6b52;margin:12px 0 5px}
-.cxchips{display:flex;flex-wrap:wrap;gap:7px}
-.cxchip{border:1.5px solid #d6e0d2;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;
-  background:#fff;color:#20481f;min-height:42px;display:flex;align-items:center}
-.cxchip.on{background:#1d5c2a;color:#fff;border-color:#1d5c2a}
-.cxfld{width:100%;border:1.5px solid #d6e0d2;border-radius:10px;padding:11px;font-size:15px;font-family:inherit;margin-top:5px}
-.cxnote{background:#eaf5e8;border-left:4px solid #1d7a28;border-radius:0 10px 10px 0;padding:10px 12px;
-  font-size:12.5px;color:#20481f;margin-top:9px}
-.cxnote.warnish{background:#fffceb;border-left-color:#d3a71a;color:#4a3d16}
-.mdq{width:96px;padding:6px 8px;font-size:13.5px;text-align:right;border:1.5px solid #d6ddd2;border-radius:8px;font-family:inherit}
-.pk-brand{color:#5a6b52;font-weight:600}
-.stmtstep{display:flex;align-items:center;gap:9px;margin:9px 0}
-.stmtar{width:40px;height:40px;border-radius:10px;border:1.5px solid #cfdcc9;background:#fff;color:#1d5c2a;font-weight:800;font-size:18px;font-family:inherit}
-.stmtar.off{opacity:.35}
-.stmtlab{flex:1;text-align:center;font-weight:800;font-size:15px}
-.stmtrow{cursor:pointer}
-.stmtsub td{background:#f7f9f6;font-size:12.5px;padding:7px 8px}
-@media print{
-  body.printing-stmt .card:not(#stmtcard){display:none!important;}
-  body.printing-stmt .noprint{display:none!important;}
-  body.printing-stmt #stmtcard{box-shadow:none;border:0}
-}
-</style>
+  </style>
 
   <!-- ===== v3.18 · MODULE 6 · BUY FOR PROGRAMME =====
        What an ISSUED directive still needs bought. Deliberately ABOVE the reorder alert
        centre: a product under its minimum still lets the crew work, an ingredient the
        Owner prescribed with nothing behind it stops them dead. -->
-  <!-- ===== v3.41.0 · THE STORE — one job at a time ==============================
-       SUPPLY HUB mounted SEVEN cards on one page: the buy queue, the reorder alerts,
-       receive-against-the-invoice, stock in, brand matching, a new-product form and the
-       live on-hand list. Four unrelated jobs, and the Purchaser scrolled past three of
-       them to reach the one he opened the tile for. This bar picks the job; m8HubPick()
-       toggles the cards with the .m3-hide class - NEVER style.display, because
-       openModule() sets that itself on every entry and inline beats a class (v3.19). -->
-  <div class="card" id="invhubseg" style="display:none">
-    <div class="m3-seg">
-      <div class="m3-seg-btn on" id="m8-s-buy"   onclick="m8HubPick('buy')"   data-t="m8_buy">🛒 BUY</div>
-      <div class="m3-seg-btn"    id="m8-s-recv"  onclick="m8HubPick('recv')"  data-t="m8_recv">📥 RECEIVE</div>
-      <div class="m3-seg-btn"    id="m8-s-issue" onclick="m8HubPick('issue')" data-t="m8_issue">📤 ISSUE</div>
-      <div class="m3-seg-btn"    id="m8-s-hand"  onclick="m8HubPick('hand')"  data-t="m8_shelf">📦 SHELF</div>
-    </div>
-  </div>
-
-  <!-- ===== v3.48.0 · BUY HOLDS TWO QUESTIONS =====
-       ORDER PLANNER retired as a menu row and landed here, because it is one tap from the
-       thing it was being confused with and answers the opposite half of the same question:
-         TO BUY NOW      — what an issued directive still needs bought  (procureNeeds)
-         PROGRAMME CHECK — what the programme itself will consume, this phase and next,
-                           whether or not an order was ever raised     (programNeeds)
-       Its own THIS PHASE / NEXT PHASE switch lives inside #progcheck and is untouched. -->
-  <div class="card" id="m8buyseg" style="display:none">
-    <div class="m3-seg">
-      <div class="m3-seg-btn on" id="m8-b-now"  onclick="m8BuyPick('now')"  data-t="m8_buynow">🛒 TO BUY NOW</div>
-      <div class="m3-seg-btn"    id="m8-b-plan" onclick="m8BuyPick('plan')" data-t="m8_progchk">📅 PROGRAMME CHECK</div>
-    </div>
-  </div>
-
-  <!-- ===== v3.47.0 · THE COUNT SHEET =====
-       His ask: "Shelf - have print out button for purchaser to ask estate to do stock check
-       every month." It is a PRINT, not a job — it is not something he does daily, so it is
-       not a fifth button on the bar. It lives inside SHELF and prints through the same
-       body-class trick as the programme-cost sheet, leaving the harvest sheet's own print
-       block byte-identical.
-       ⛔ FULL + OPENED, never a decimal. "11.9 bags" is not a thing a person can find in a
-       shed. Two blank boxes per line, because that is how a store is actually counted. -->
-  <div class="card" id="countsheet" style="display:none">
-    <div class="sec">🧾 <span data-t="cs_head">Monthly stock check — print for the estate</span></div>
-    <div id="countbox"></div>
-  </div>
-
   <div class="card" id="procurecard" style="display:none">
     <div class="sec">🛒 <span data-t="pr_title">BUY FOR PROGRAMME</span></div>
     <div id="procurebox"></div>
@@ -2677,32 +2383,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       <div id="in-uo" onclick="setInUnit('O')">LOOSE <span id="in-uolbl">ml/gm</span></div>
     </div>
     <div class="convnote" id="in-conv">—</div>
-    <!-- ===== v3.49.0 · THE INVOICE STOPS BEING COMPULSORY =====
-         His words: "for receiving issue can it be other option (cause we dun have to keep
-         keying invoice no and company for all the item)." The invoice was REQUIRED, and
-         receiveBasket() refused to save without one — so stock that genuinely arrives without
-         a document (a transfer from Sandakan, a sample, a replacement drum) could not be
-         received at all, and the shelf drifted.
-         ⛔ IT IS NOT SIMPLY DELETED. An unreferenced delivery is a real weakness in an audit
-         trail, so the box stays, it is still the default, and choosing NO INVOICE asks for a
-         one-word reason instead — a blank is replaced by a stated one, never by nothing. -->
-    <div class="segs" id="in-refmode">
-      <div class="on" id="in-rm-inv" onclick="setInRefMode('INV')" data-t="si_haveinv">📄 WITH INVOICE</div>
-      <div id="in-rm-no" onclick="setInRefMode('NONE')" data-t="si_noinv">✋ NO INVOICE</div>
-    </div>
-    <div id="in-refwrap">
-      <label data-t="si_ref">Invoice / reference number</label>
-      <input id="in-ref" placeholder="e.g. INV-2026-0814" autocomplete="off">
-      <label data-t="si_supp">Supplier (optional)</label>
-      <input id="in-supplier" placeholder="e.g. Sandakan AgriSupply" autocomplete="off">
-    </div>
-    <div id="in-nowrap" style="display:none">
-      <label data-t="si_whyno">Why is there no invoice</label>
-      <select id="in-noreason"></select>
-    </div>
-    <label data-t="ob_dayin">Day it arrived</label>
-    <input type="date" id="in-day" onchange="inDayNote()">
-    <div class="convnote" id="in-bdnote" style="display:block"></div>
+    <label>Invoice / reference number</label>
+    <input id="in-ref" placeholder="e.g. INV-2026-0814" autocomplete="off">
+    <label>Supplier (optional)</label>
+    <input id="in-supplier" placeholder="e.g. Sandakan AgriSupply" autocomplete="off">
     <div class="pinerr" id="in-err"></div>
     <!-- v3.19 — ADD builds a delivery; SUBMIT still receives a single line on its own, so
          nobody who knows the old flow has to learn a new one. -->
@@ -2715,30 +2399,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <!-- MATERIAL STOCK OUT — Farm Worker (Owner/Marketing may also use it) -->
   <div class="card" id="pnl-out" style="display:none">
     <div class="sec"><span data-t="so_head">📤 Material Stock Out — issued to the field</span> <span class="m5-iq" onclick="m5Tog('m5-p15')">ⓘ</span></div>
-    <!-- ===== v3.49.0 · ONE ANSWER FOR THE WHOLE ISSUE =====
-         Set, day and lot are asked ONCE at the top. Lot is here rather than on each line
-         because a crew sprays a lot at a time, and because dropping it (as the sample did)
-         would have broken the per-lot figures in PROGRAMME COST and the lot bars on the
-         dashboard. The DAY is the backdate: blank means today, exactly as before. -->
-    <div class="onbrow">
-      <div><label data-t="so_set">What was it for</label>
-        <select id="sset"></select></div>
-      <div><label data-t="ob_day">Day it left the shed</label>
-        <input type="date" id="out-day" onchange="renderOutBasket()"></div>
-    </div>
-    <div class="convnote" id="out-bdnote" style="display:block"></div>
-    <label><span data-t="so_lot">Target lot applied</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
-    <!-- v3.49.1 — ALL joins A/B/C. It is a real SPLIT by tree count, not a fourth lot value:
-         LOT_KEYS is ['A','B','C'] and every per-lot report groups on it, so writing 'ALL' onto
-         a row would drop that material out of the lot bars, the ledger and PROGRAMME COST. -->
-    <div class="lotbtns" id="out-lots">
-      <div id="ol-A" onclick="pickOutLot('A')">LOT A</div>
-      <div id="ol-B" onclick="pickOutLot('B')">LOT B</div>
-      <div id="ol-C" onclick="pickOutLot('C')">LOT C</div>
-      <div id="ol-ALL" onclick="pickOutLot('ALL')" data-t="ob_alllots">ALL LOTS</div>
-    </div>
-    <div class="convnote" id="out-splitnote" style="display:block"></div>
-    <div class="sec" style="margin-top:14px" data-t="ob_addone">ADD ONE PRODUCT AT A TIME</div>
     <label data-t="so_product">Product</label>
     <!-- v3.23 MODULE 4 — mount for the ONE product picker. renderOutOpts() writes
          #out-search (carrying its data-tph="so_search") and #out-prod in here, then
@@ -2751,17 +2411,16 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <label><span data-t="so_qty">Quantity used</span> (<span id="out-unitlbl">ml/gm</span>)</label>
     <input type="number" id="out-qty" min="0" step="any" inputmode="decimal" value="1000" oninput="onOutCalc()">
     <div class="convnote" id="out-conv">—</div>
-    <!-- v3.49.0 — the lot buttons moved UP into the header block above: they are one answer
-         for the whole issue, not a per-line answer. Only one #out-lots exists. -->
+    <label><span data-t="so_lot">Target lot applied</span> <span class="minitag" data-t="w_required">REQUIRED</span></label>
+    <div class="lotbtns" id="out-lots">
+      <div id="ol-A" onclick="pickOutLot('A')">LOT A</div>
+      <div id="ol-B" onclick="pickOutLot('B')">LOT B</div>
+      <div id="ol-C" onclick="pickOutLot('C')">LOT C</div>
+    </div>
+    <label data-t="so_set">For spray set</label>
+    <select id="sset"></select>
     <div class="pinerr" id="out-err"></div>
-    <!-- v3.49.0 — ADD, not SAVE. Nothing is written until the basket is submitted. -->
-    <button class="bigbtn ghost" onclick="outAddLine()" data-t="ob_add">＋ ADD TO THE LIST</button>
-    <!-- FILL is deliberately SMALLER than ADD. Both were full-width ghosts in the first cut and
-         a screenshot showed two identical buttons with no hierarchy: adding one product is the
-         every-time action, filling from the plan is the shortcut. -->
-    <button class="bigbtn ghost" onclick="outFillFromPlan()" style="margin-top:7px;padding:10px;font-size:12px" data-t="ob_fill">📋 FILL THE WHOLE SET FROM THE PLAN</button>
-    <p class="small" style="margin-top:6px" data-t="ob_fillnote">When the crew followed the programme this fills every product in one tap. Then change or remove whatever was different.</p>
-    <div id="outbasket" style="margin-top:10px"></div>
+    <button class="bigbtn" onclick="submitStockOut()" data-t="so_save">✓ SAVE STOCK OUT</button>
     <p class="small hidden" id="m5-p15" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
   </div>
 
@@ -2812,104 +2471,10 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        search box and its own "WITH VALUATION" tag because HUB_PANELS lists 'onhandcard'
        and MODULES.inv routes it into both SUPPLY HUB and STOCK OUT — deleting the card
        would leave a routed panel with nothing behind it. #stocklist is the mount. -->
-
-  <!-- ===== v3.48.0 · THREE CARDS PHYSICALLY MOVED INTO THE STOCK SCREEN =====
-       Retiring the 'plan', 'lvl' and 'take' ROUTES was not enough on its own, and the reach
-       harness is what said so: #progcheck, #progready and #stocktake were authored inside
-       <div id="scr-dash">, because their old tabs all declared scr:'dash'. The hub tab
-       declares scr:'stock', so routing them without moving them left three cards correctly
-       un-hidden inside a screen container that was itself hidden — display:'' on a child of
-       a display:none parent paints nothing.
-       Exactly the move v3.16 made for #alloccard and #onboardcard for exactly this reason.
-       ⛔ THE MARKUP IS COPIED BYTE-FOR-BYTE. Same ids, same classes, same inline styles, same
-       onclick handlers, same ⓘ note ids — every renderer, every roleAllows() gate and every
-       HUB_PANELS entry resolves as before. Only the parent element changed. -->
-  <div class="card" id="progcheck" style="display:none">
-    <div class="sec">📅 <span data-t="m3_orderplanner">Order Planner</span></div>
-    <div class="m3-seg">
-      <div class="m3-seg-btn on" id="m3-pl-now" onclick="m3PlanPick('now')" data-t="m3_thisphase">THIS PHASE</div>
-      <div class="m3-seg-btn" id="m3-pl-next" onclick="m3PlanPick('next')" data-t="m3_nextphase">NEXT PHASE</div>
-    </div>
-    <div id="m3-pl-nowbox">
-      <div class="sec" style="margin-top:10px">🔍 <span data-t="m3_chkhead">Upcoming programme stock check</span> <span class="m5-iq" onclick="m5Tog('m5-p12')">ⓘ</span></div>
-      <div id="chkbox"></div>
-      <p class="small hidden" id="m5-p12" style="margin-top:9px" data-t="m3_chknote">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
-      <!-- v3.55.0 — the mount for STOCK PRESSURE BY SET, arriving from the retired
-           FARM ▸ SPRAY RECORD. renderDrawdown('ddbox') fills it; the same function still
-           returns its markup to the old caller, so there is one table, not two. -->
-      <div id="ddbox"></div>
-    </div>
-  </div>
-  <div class="card m3-hide" id="progready" style="display:none">
-    <div class="sec">📅 <span data-t="m3_readyhead">Next phase material readiness</span> <span class="m5-iq" onclick="m5Tog('m5-p13')">ⓘ</span></div>
-    <div id="readybox"></div>
-    <p class="small hidden" id="m5-p13" style="margin-top:9px" data-t="m3_readynote">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
-  </div>
-  <div class="card" id="stocktake" style="display:none">
-    <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment <span class="m5-iq" onclick="m5Tog('m5-p11')">ⓘ</span></div>
-    <label>Product counted</label>
-    <!-- v3.23 MODULE 4 — mount for the ONE product picker. #st-search / #st-prod are
-         written here by renderStOpts(); submitStockTake() still reads both by id. -->
-    <div class="m4-pick" id="m4-pick-st"></div>
-    <div class="aibox">
-      <div><div class="cl">System says <span class="ro">LIVE</span></div><div class="av" id="st-sys">—</div></div>
-      <div class="cr" id="st-ai">—</div>
-    </div>
-    <label>Physical count (<span id="st-unitlbl">ml/gm</span>)</label>
-    <input type="number" id="st-count" min="0" step="any" inputmode="decimal" oninput="onStCalc()">
-    <div class="varbox" id="st-var">Enter the counted quantity to see the variance.</div>
-    <label>Reason / note</label>
-    <input id="st-note" placeholder="e.g. spillage in store, damaged bag" autocomplete="off">
-    <div class="pinerr" id="st-err"></div>
-    <button class="bigbtn" onclick="submitStockTake()">✓ POST STOCK-TAKE ADJUSTMENT</button>
-    <!-- v3.48.0 — the way back. This card is now a PAGE hung off SHELF, and the v3.37.3 reach
-         lesson applies: a control you cannot reach is a control that does not exist. Without
-         this the only exit from the form is the hardware back button. -->
-    <button class="bigbtn ghost" id="st-back" onclick="stClose()" style="margin-top:8px" data-t="st_back">← BACK TO THE SHELF</button>
-    <div style="height:8px"></div>
-    <div id="st-recent"></div>
-    <p class="small hidden" id="m5-p11" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
-  </div>
-
-  <!-- v3.54.0 · THE MONTHLY STATEMENT. A PAGE off SHELF, on the proven csOpen/stOpen pattern.
-       ⛔ IT MUST LIVE INSIDE <div id="scr-stock">. The first cut put it beside #progseg, which
-       sits in the DASH screen, so stmtOpen() correctly un-hid a card inside a container that
-       was itself hidden and the Purchaser got a blank page. Exactly the fault v3.51.0 hit with
-       progcheck/progready/stocktake. A panel is only as visible as its screen. -->
-  <div class="card" id="stmtcard" style="display:none"><div id="stmtbox"></div></div>
-
   <div class="card" id="onhandcard">
     <div class="sec">Stock on hand <span id="oh-valnote" class="minitag" style="display:none">WITH VALUATION</span></div>
-    <!-- v3.48.0 — STOCK LEVEL retired INTO this card. These three blocks are the only things
-         the old row had that this one did not. renderStock() shows or hides each by role, so
-         the crew reading this same list under their STOCK OUT form see none of them. -->
-    <div id="oh-alert"></div>
-    <div class="kpis" id="oh-kpis" style="display:none;margin-bottom:6px">
-      <div class="kpi"><div class="v" id="i-val">RM 0</div><div class="l">Live stock valuation</div></div>
-      <div class="kpi"><div class="v" id="i-low">0</div><div class="l">Below minimum</div></div>
-      <div class="kpi"><div class="v" id="i-items">0</div><div class="l">Products tracked</div></div>
-      <div class="kpi"><div class="v" id="i-zero">0</div><div class="l">Out of stock</div></div>
-    </div>
     <input id="stocksearch" placeholder="Search brand or active ingredient…" oninput="renderStock()">
-    <div class="segs" id="oh-mode" style="display:none">
-      <div class="on" onclick="ohMode('ALL',this)">BRAND + AI</div>
-      <div onclick="ohMode('BRAND',this)">BRAND ONLY</div>
-      <div onclick="ohMode('AI',this)">AI ONLY</div>
-      <div onclick="ohMode('GROUP',this)">GROUP BY AI</div>
-    </div>
     <div id="stocklist" style="margin-top:6px;max-height:300px;overflow-y:auto"></div>
-    <p class="small" id="oh-edithint" style="margin-top:7px;display:none">Tap a row to set that product's minimum stock level or correct its active ingredient.</p>
-    <!-- v3.47.0 — the count sheet. Only the roles that may run a stock-take are offered it;
-         a worker reading the shelf under his stock-out form has no business printing one. -->
-    <button class="bigbtn ghost noprint" id="cs-open" style="margin-top:11px;display:none"
-            onclick="csOpen()" data-t="cs_openbtn">🧾 PRINT A COUNT SHEET FOR THE ESTATE</button>
-    <!-- v3.48.0 — and the other half of that job: where the counted paper is keyed back in.
-         Same entitlement as the print button; they are one job, so they are one pair. -->
-    <button class="bigbtn noprint" id="st-open" style="margin-top:8px;display:none"
-            onclick="stOpen()" data-t="st_openbtn">✓ KEY IN THE COUNTED SHEET</button>
-    <!-- v3.54.0 — the monthly statement, parked into SHELF at the Owner's instruction. -->
-    <button class="bigbtn ghost noprint" id="stmt-open" style="margin-top:8px;display:none"
-            onclick="stmtOpen()" data-t="sm_openbtn">📄 MY MONTH — WHAT I KEYED</button>
   </div>
 </div>
 
@@ -2919,18 +2484,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="sec">⚙ Settings <span class="linkish" style="float:right" onclick="editSetup()">edit</span></div>
     <div class="small" id="cfginfo"></div>
   </div>
-  <!-- ===== v3.41.2 · THE BUTTON COMES FIRST =====================================
-       Measured on a 390x720 phone: the settings card (85px) plus the health card (643px)
-       plus the append note (114px) put SYNC NOW at y=842 on a 611px-tall screen — nearly
-       a screen and a half of scrolling, past a wall of diagnostics, to reach the one
-       control this entire screen exists for. The Gate reported it as "the sync button
-       cannot be pressed", and from where she was standing that is exactly what it was.
-       The button now sits directly under the settings line, and the health report — which
-       is something you READ when something is wrong, not something you press — sits
-       under it. Nothing else moved and renderSync() finds it by id either way. -->
-  <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
   <div id="synchealth"></div>
   <div class="appendnote" id="appendnote"></div>
+  <button class="bigbtn blue" id="syncbtn" onclick="doSync()">⇧ SYNC NOW</button>
   <div class="m5-iqrow" onclick="m5Tog('m5-p3')"><span class="m5-iq">ⓘ</span></div>
   <p class="small hidden" id="m5-p3" style="margin:8px 0;text-align:center">Sync runs automatically when the phone finds internet. Synced rows appear in the Google Sheets database.</p>
   <div class="card">
@@ -2972,23 +2528,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
 
   <div class="card" id="masterdb" style="display:none">
-    <div class="sec">🩹 Fix a record</div>
+    <div class="sec">🔐 Master Database Control</div>
     <div id="masterdbbox"></div>
-  </div>
-
-  <!-- ===== v3.41.0 - TREES and QR leave MASTER DB =====================================
-       They were chips 3 and 5 of that panel's five-chip nav. Neither is a correction: one
-       grows the census, the other prints the poster a new worker scans. Both ids are in
-       HUB_PANELS - a panel here but NOT in that array is never hidden by hideAllPanels()
-       and floats over every other screen for the rest of the session (v3.6, v3.12). -->
-  <div class="card" id="treescard" style="display:none">
-    <div class="sec">🌳 The tree census</div>
-    <div id="treesbox"></div>
-  </div>
-
-  <div class="card" id="qrcard" style="display:none">
-    <div class="sec">📱 Scan to install the app</div>
-    <div id="qrsecbox"></div>
   </div>
 
   <!-- ===== v3.2 · DUAL-SIGNATURE YIELD AUDIT (Owner only) ===== -->
@@ -3119,26 +2660,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
 
   <!-- ===== AGRONOMIST · MONTH TIMELINE (v2.8, Option 3) ===== -->
-  <!-- ===== v3.51.0 · THE PROGRAMME · step 2 of 4 =====
-       Two panels only: the bar and one card the renderer fills. Fewer ids is fewer things
-       that can be left un-hidden on the wrong screen — the leak this codebase has shipped
-       three times (v3.6, v3.12, and the v3.51 stock-take page caught in testing). -->
-  <div class="card" id="progseg" style="display:none"></div>
-  <div id="progcard" style="display:none"></div>
-
-  <!-- v3.55.0 · THE CANCEL PAGE. A PAGE off THE PROGRAMME, on the proven csOpen / stOpen /
-       stmtOpen pattern. ⛔ IT MUST LIVE INSIDE <div id="scr-dash">, beside #progcard — the
-       lesson v3.51.0 and v3.54.0 both had to learn: routing a card correctly into a screen
-       container that is itself hidden paints a blank page. A panel is only as visible as its
-       screen, so it sits one line from the card it stands in front of. -->
-  <!-- ⛔ m3-hide IS BAKED INTO THE CLASS, and the harness is what said so. This card is
-       named in the prog tab's panels — it has to be, or cxOpen() could never reveal it — and
-       openModule() writes display:'' onto every panel its tab names. So the display:none in
-       the markup is lifted the moment the tile opens, and without the class the cancel page
-       stood on the programme screen unasked. Only .m3-hide (display:none !important) beats an
-       inline rule. Same reason #progready and #progrecord carry it. -->
-  <div class="card m3-hide" id="cxcard" style="display:none"><div id="cxbox"></div></div>
-
   <div class="card" id="agromonth" style="display:none">
     <div class="sec">🗓️ Month timeline — combo sets in date order <span class="m5-iq" onclick="m5Tog('m5-p6')">ⓘ</span></div>
     <div id="tlbox"></div>
@@ -3296,23 +2817,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <div class="otsheet" id="owntoolsheet"></div>
   </div>
 
-  <!-- ===== v3.43.0 · COMMAND DOOR 2 · WHO'S ON =====
-       The Owner, first trial morning: "we can't see or monitor when the other user login
-       and what they do." Every writer in this app already stamps worker / workerId /
-       device / dt on the row it saves, so WHAT each person did and WHEN needs no new data
-       at all — it is an aggregation of records already on the Sheet, done in the render,
-       exactly like the daily audit.
-       ⛔ WHAT IT CANNOT SHOW, AND MUST NEVER PRETEND TO: A LOGIN. Nothing in app.js and
-       nothing in AppsScript_code.gs records one — tryLogin() sets CFG and writes no event,
-       doPost has no session branch, and there is no device tab in the workbook. So this
-       screen says "first record" and "last record", never "logged in", and the honest gap
-       is printed on the screen rather than hidden. The login stamp is a separate release:
-       it needs a new sheet tab and the Owner's own Apps Script re-deploy. -->
-  <div class="card" id="whocard" style="display:none">
-    <div class="sec">👥 <span data-t="wo_head">Who is on the farm</span></div>
-    <div id="whobox"></div>
-  </div>
-
   <!-- ===== RATIONS & GIFTS — fruit that leaves without an invoice (v3.30.0) =====
        Sits beside the scale-photo queue on purpose: for the Gate these are one job,
        "answer what is waiting". Everything inside is painted by renderFocQueue(). -->
@@ -3340,20 +2844,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        above hides every other card, the header and the nav bar, and reveals the
        .onlyprint blocks — so what comes out of the printer is this card and nothing else. -->
   <div class="card" id="harvestrep" style="display:none">
-    <div class="sec"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" class="duric" role="img" aria-label="durian"><path d="M29.6 3.5h5a2.2 2.2 0 0 1 2.2 2.2V19h-9.4V5.7a2.2 2.2 0 0 1 2.2-2.2z" fill="#6b4a1f"/><rect x="27.4" y="3.5" width="3.2" height="15.5" rx="1.6" fill="#000" opacity=".14"/><polygon points="30.7,18.2 32.0,11.0 33.3,18.2 37.2,18.9 41.0,12.7 39.7,19.9 43.1,22.0 48.8,17.7 45.1,23.9 47.5,27.1 54.4,25.1 48.7,29.6 49.7,33.4 56.9,34.1 50.0,36.2 49.6,40.2 56.0,43.5 48.9,42.8 47.1,46.4 52.0,51.9 45.5,48.6 42.6,51.3 45.2,58.2 40.3,52.8 36.6,54.2 36.6,61.6 34.0,54.7 30.0,54.7 27.4,61.6 27.4,54.2 23.7,52.8 18.8,58.2 21.4,51.3 18.5,48.6 12.0,51.9 16.9,46.4 15.1,42.8 8.0,43.5 14.4,40.2 14.0,36.2 7.1,34.1 14.3,33.4 15.3,29.6 9.6,25.1 16.5,27.1 18.9,23.9 15.2,17.7 20.9,22.0 24.3,19.9 23.0,12.7 26.8,18.9" fill="#8caa4e" stroke="#4f6b28" stroke-width="1.2" stroke-linejoin="round"/><ellipse cx="24" cy="27" rx="10" ry="11" fill="#ffffff" opacity=".13"/><path d="M25.4 24.6L23.7 29.2L27.1 29.2Z" fill="#c9d98c"/><path d="M25.4 24.6L27.1 29.2L25.4 29.2Z" fill="#6f8c3c"/><path d="M32.0 24.6L30.3 29.2L33.7 29.2Z" fill="#c9d98c"/><path d="M32.0 24.6L33.7 29.2L32.0 29.2Z" fill="#6f8c3c"/><path d="M38.6 24.6L36.9 29.2L40.3 29.2Z" fill="#c9d98c"/><path d="M38.6 24.6L40.3 29.2L38.6 29.2Z" fill="#6f8c3c"/><path d="M22.1 31.3L20.4 35.9L23.8 35.9Z" fill="#c9d98c"/><path d="M22.1 31.3L23.8 35.9L22.1 35.9Z" fill="#6f8c3c"/><path d="M28.7 31.3L27.0 35.9L30.4 35.9Z" fill="#c9d98c"/><path d="M28.7 31.3L30.4 35.9L28.7 35.9Z" fill="#6f8c3c"/><path d="M35.3 31.3L33.6 35.9L37.0 35.9Z" fill="#c9d98c"/><path d="M35.3 31.3L37.0 35.9L35.3 35.9Z" fill="#6f8c3c"/><path d="M41.9 31.3L40.2 35.9L43.6 35.9Z" fill="#c9d98c"/><path d="M41.9 31.3L43.6 35.9L41.9 35.9Z" fill="#6f8c3c"/><path d="M18.8 38.1L17.1 42.7L20.5 42.7Z" fill="#c9d98c"/><path d="M18.8 38.1L20.5 42.7L18.8 42.7Z" fill="#6f8c3c"/><path d="M25.4 38.1L23.7 42.7L27.1 42.7Z" fill="#c9d98c"/><path d="M25.4 38.1L27.1 42.7L25.4 42.7Z" fill="#6f8c3c"/><path d="M32.0 38.1L30.3 42.7L33.7 42.7Z" fill="#c9d98c"/><path d="M32.0 38.1L33.7 42.7L32.0 42.7Z" fill="#6f8c3c"/><path d="M38.6 38.1L36.9 42.7L40.3 42.7Z" fill="#c9d98c"/><path d="M38.6 38.1L40.3 42.7L38.6 42.7Z" fill="#6f8c3c"/><path d="M45.2 38.1L43.5 42.7L46.9 42.7Z" fill="#c9d98c"/><path d="M45.2 38.1L46.9 42.7L45.2 42.7Z" fill="#6f8c3c"/><path d="M22.1 44.8L20.4 49.4L23.8 49.4Z" fill="#c9d98c"/><path d="M22.1 44.8L23.8 49.4L22.1 49.4Z" fill="#6f8c3c"/><path d="M28.7 44.8L27.0 49.4L30.4 49.4Z" fill="#c9d98c"/><path d="M28.7 44.8L30.4 49.4L28.7 49.4Z" fill="#6f8c3c"/><path d="M35.3 44.8L33.6 49.4L37.0 49.4Z" fill="#c9d98c"/><path d="M35.3 44.8L37.0 49.4L35.3 49.4Z" fill="#6f8c3c"/><path d="M41.9 44.8L40.2 49.4L43.6 49.4Z" fill="#c9d98c"/><path d="M41.9 44.8L43.6 49.4L41.9 49.4Z" fill="#6f8c3c"/><polygon points="32.0,46.7 32.8,49.0 35.2,49.0 33.3,50.5 34.0,52.8 32.0,51.5 30.0,52.8 30.7,50.5 28.8,49.0 31.2,49.0" fill="#3d2a0c" opacity=".55"/></svg> Harvest — where the season is losing fruit</div>
+    <div class="sec">🥭 Harvest — where the season is losing fruit</div>
     <div id="harvestbox"></div>
-  </div>
-
-  <!-- ===== v3.44.0 · REPORTS DOOR 4 · PROGRAMME COST =====
-       Each set's products, the volume that went in, and what it cost. Two shapes in one
-       panel: .pcscreen is month -> set -> products (the only shape that fits a phone
-       without sideways scrolling), .pcprint is the programme sheet with sets across the
-       top, which is what his own Excel looks like and what he takes to a meeting.
-       @media print swaps them. Stores nothing: every figure is re-read from the STOCK_OUT
-       rows the store already writes. -->
-  <div class="card" id="pcostcard" style="display:none">
-    <div class="sec">🧪 <span data-t="pc_head">Programme cost — set by set</span></div>
-    <div id="pcostbox"></div>
   </div>
 
   <!-- ===== COSTING · MONTHLY / YEARLY MATRIX LEDGER (v3.6) ===== -->
@@ -3389,6 +2881,23 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        changes. #progready starts with class m3-hide baked in below so the very first paint
        matches the old PROGRAM CHECK default (THIS PHASE first); m3PlanPick() in app.js
        swaps it. -->
+  <div class="card" id="progcheck" style="display:none">
+    <div class="sec">📅 <span data-t="m3_orderplanner">Order Planner</span></div>
+    <div class="m3-seg">
+      <div class="m3-seg-btn on" id="m3-pl-now" onclick="m3PlanPick('now')" data-t="m3_thisphase">THIS PHASE</div>
+      <div class="m3-seg-btn" id="m3-pl-next" onclick="m3PlanPick('next')" data-t="m3_nextphase">NEXT PHASE</div>
+    </div>
+    <div id="m3-pl-nowbox">
+      <div class="sec" style="margin-top:10px">🔍 <span data-t="m3_chkhead">Upcoming programme stock check</span> <span class="m5-iq" onclick="m5Tog('m5-p12')">ⓘ</span></div>
+      <div id="chkbox"></div>
+      <p class="small hidden" id="m5-p12" style="margin-top:9px" data-t="m3_chknote">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+    </div>
+  </div>
+  <div class="card m3-hide" id="progready" style="display:none">
+    <div class="sec">📅 <span data-t="m3_readyhead">Next phase material readiness</span> <span class="m5-iq" onclick="m5Tog('m5-p13')">ⓘ</span></div>
+    <div id="readybox"></div>
+    <p class="small hidden" id="m5-p13" style="margin-top:9px" data-t="m3_readynote">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
+  </div>
 
   <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only
        v3.23 MODULE 4 — same one stock list component #onhandcard mounts, given
@@ -3425,6 +2934,27 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
 
   <!-- INVENTORY AUDIT / STOCK-TAKE ADJUSTMENT (v2.3) -->
+  <div class="card" id="stocktake" style="display:none">
+    <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment <span class="m5-iq" onclick="m5Tog('m5-p11')">ⓘ</span></div>
+    <label>Product counted</label>
+    <!-- v3.23 MODULE 4 — mount for the ONE product picker. #st-search / #st-prod are
+         written here by renderStOpts(); submitStockTake() still reads both by id. -->
+    <div class="m4-pick" id="m4-pick-st"></div>
+    <div class="aibox">
+      <div><div class="cl">System says <span class="ro">LIVE</span></div><div class="av" id="st-sys">—</div></div>
+      <div class="cr" id="st-ai">—</div>
+    </div>
+    <label>Physical count (<span id="st-unitlbl">ml/gm</span>)</label>
+    <input type="number" id="st-count" min="0" step="any" inputmode="decimal" oninput="onStCalc()">
+    <div class="varbox" id="st-var">Enter the counted quantity to see the variance.</div>
+    <label>Reason / note</label>
+    <input id="st-note" placeholder="e.g. spillage in store, damaged bag" autocomplete="off">
+    <div class="pinerr" id="st-err"></div>
+    <button class="bigbtn" onclick="submitStockTake()">✓ POST STOCK-TAKE ADJUSTMENT</button>
+    <div style="height:8px"></div>
+    <div id="st-recent"></div>
+    <p class="small hidden" id="m5-p11" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
+  </div>
   <div class="lock" id="phibox" style="display:none"></div>
   <div class="card" id="lotcard">
     <div class="sec">Harvest vs July census · by lot (this phone + synced baseline at last sync)</div>
@@ -3636,14 +3166,11 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
       <div id="rl-B" onclick="rpLot('B')">LOT B</div>
       <div id="rl-C" onclick="rpLot('C')">LOT C</div>
     </div>
-    <!-- v3.51.1 — the third completion road. Hidden with the other two while labour is off. -->
-    <div id="rp-crewrow">
-      <label>Workers on the job <span class="minitag">REQUIRED</span></label>
-      <input type="number" id="rp-crew" min="1" step="1" inputmode="numeric" placeholder="e.g. 3">
-      <label>Hours worked, per worker <span class="minitag">REQUIRED</span></label>
-      <input type="number" id="rp-hours" min="0" step="any" inputmode="decimal" placeholder="e.g. 4.5" oninput="rpCalc()">
-      <div class="convnote" id="rp-labour">—</div>
-    </div>
+    <label>Workers on the job <span class="minitag">REQUIRED</span></label>
+    <input type="number" id="rp-crew" min="1" step="1" inputmode="numeric" placeholder="e.g. 3">
+    <label>Hours worked, per worker <span class="minitag">REQUIRED</span></label>
+    <input type="number" id="rp-hours" min="0" step="any" inputmode="decimal" placeholder="e.g. 4.5" oninput="rpCalc()">
+    <div class="convnote" id="rp-labour">—</div>
     <div class="sec" style="margin-top:12px">Material this reply will deduct</div>
     <div class="tblwrap" style="max-height:210px"><table class="tbl" id="rp-tbl"></table></div>
     <div class="pinerr" id="rp-err"></div>
@@ -3664,38 +3191,21 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
     <div id="md-lotwrap">
       <label>Which lot was done?</label>
-      <!-- v3.51.1 — ALL LOTS joins A/B/C here as well, and is a real split by tree count. -->
-      <!-- v3.52.0 — these TICK rather than choose. The Owner: "it can be press either 1 or 2
-           or 3 lots depend on actual." ALL is a convenience that ticks every one. -->
       <div class="lotbtns" id="md-lots">
         <div id="ml-A" onclick="mdLot('A')">LOT A</div>
         <div id="ml-B" onclick="mdLot('B')">LOT B</div>
         <div id="ml-C" onclick="mdLot('C')">LOT C</div>
-        <div id="ml-ALL" onclick="mdLot('ALL')" data-t="ob_alllots">ALL LOTS</div>
       </div>
-      <div class="convnote" id="md-splitnote" style="display:block"></div>
-    </div>
-    <div id="md-tanksrow" style="display:none">
-      <label data-t="md_howmanytanks">How many tanks were used <span class="minitag">1 TANK = 1,000 L</span></label>
-      <input type="number" id="md-tanks" min="0" step="any" inputmode="decimal" oninput="mdCalc()">
-    </div>
-    <div id="md-dayrow">
-      <label data-t="ob_day">Day the work was done</label>
-      <input type="date" id="md-day" onchange="mdDayNote()">
-      <div class="convnote" id="md-bdnote" style="display:block"></div>
     </div>
     <div class="convnote" id="md-plan">—</div>
-    <div class="rainrow" id="md-crewrow">
+    <div class="rainrow">
       <div><label>Workers on the job</label>
         <input type="number" id="md-crew" min="1" step="1" inputmode="numeric"></div>
       <div><label>Hours each</label>
         <input type="number" id="md-hours" min="0" step="any" inputmode="decimal"></div>
     </div>
-    <p class="small" id="md-crewnote">These two are remembered, so next time it is one tap.</p>
-    <div class="tblwrap" style="max-height:300px"><table class="tbl" id="md-tbl"></table></div>
-    <!-- v3.52.2 — only shown once something has actually been changed. -->
-    <button class="bigbtn ghost" id="md-reset" style="display:none;margin-top:7px;padding:9px;font-size:12px"
-            onclick="mdResetQty()" data-t="md_backtoplan">↺ BACK TO THE PLANNED AMOUNTS</button>
+    <p class="small">These two are remembered, so next time it is one tap.</p>
+    <div class="tblwrap" style="max-height:230px"><table class="tbl" id="md-tbl"></table></div>
     <div class="pinerr" id="md-err"></div>
     <button class="bigbtn" onclick="submitMarkDone()">✓ CONFIRM — DEDUCT PLANNED MIX</button>
     <div style="height:8px"></div>
@@ -3735,16 +3245,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
     <div class="crewline" id="run-crewline"></div>
     <div class="mh" id="run-mh"></div>
-
-    <!-- ===== v3.49.0 · THE BACKDATE =====
-         "where is to back date my programe task completed" — 13 Aug. Until now this filing
-         stamped dt:now(), so a set sprayed on the 6th could only be recorded as done today,
-         which is why August is short by roughly RM 2,050 in PROGRAMME COST.
-         Blank means today, exactly as before, so a crew filing at the end of their own day
-         never touches it. -->
-    <label data-t="ob_day">Day the work was done</label>
-    <input type="date" id="run-day" onchange="runDayNote()">
-    <div class="convnote" id="run-bdnote" style="display:block"></div>
 
     <div class="pinerr" id="run-err"></div>
     <button class="bigbtn" id="run-save" onclick="submitRun()" data-t="w13_savetally">💾 Save &amp; Tally Store</button>
@@ -3871,7 +3371,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.55.0"></script>
-<script src="app.js?v=3.55.0"></script>
+<script src="database.js?v=3.40.0"></script>
+<script src="app.js?v=3.40.0"></script>
 </body>
 </html>
