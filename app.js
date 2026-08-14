@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.40.0';   // v3.40.0 - CONSOLIDATION: THE SAME WORD ON TWO DOORS, AND FIVE CARDS ON ONE SCREEN. The Owner reported repeated tabs on v3.39.0 with every phone already updated, so they were real - and an audit of all four roles found they were ALL ON HIS PHONE (the Gate, the worker and the Purchaser came back clean, and no panel was reachable from two doors any more). They were repeats of NAME and of MEANING, which no structural check looks for. (1) RECORD existed twice - Agronomist and Reports - on unrelated screens. Agronomist's is now SPRAY RECORD, and PROGRAM RECORD folds into it behind a PLAN vs DONE segment: they are two halves of one question (what the programme asked for, what actually happened) and they were two doors to it. Reports' is DAILY RECORD. Reports' HARVEST, which collided with the name of a whole TILE, is HARVEST REPORT. (2) MONEY mounted FIVE cards open at once, so the ledger somebody opened the tile for was four screens of scrolling below the summary. The summary stays; the four detail cards go behind ONE switch - BY LOT / RUNS / LABOUR / BY MONTH. No panel removed, no figure changed, and the panels: array is untouched because an id that leaves it stops being hidden by hideAllPanels(). Built on m3PlanPick()'s precedent and its `.m3-hide` class, because openModule() sets style.display itself on every entry and would win against anything else. (3) The Gate's LEDGER is MERCHANT CREDIT. It read as the farm's money report and is not one - it is what a merchant owes, which she opens daily. DELIBERATELY NOT merged into REPORTS MONEY: that is the Owner's monthly read, and burying her daily job inside it would cost her a screen to save a word. (4) Her FARM TODAY dropped `mktcard` - a marketing summary on a FARM screen, every line of which is one tap away on the GATE tile that is the first tile she has. THE RULE THIS RELEASE ADDS: a duplicate is not only a panel reachable twice. Two doors can carry the same WORD, or answer the same QUESTION, and the structural audit that found neither will still come back clean. // v3.39.0 - ROUND 3: FOUR ANSWERS BECOME ONE, AND THE CLUTTER GOES. (1) THE SHED replaces BACKLOG. The farm had FOUR different answers to 'how much fruit is in the shed' and only one of them was a different QUESTION. BACKLOG counted collected-minus-INVOICED, so a ration, a dumped basket and a load standing at the gate all left the shed without moving the number the crew read. THE SHED now simply SHOWS shedNow() - the very queue the Morning Scale enforces - so the number the crew read and the number the scale allows cannot drift. Counted in FRUIT, never kilos: a count is measured at both ends, a weight upstream is an estimate. (2) THE MONEY READS THE SAME SHED. mktlFifo() ran a PRIVATE queue built from the drop log with only invoices poured through it, so an unstamped invoice could be credited to a lot whose fruit had actually been given away or dumped. It now walks shedConsumers() - one queue, every door, in the order the season happened. A stamped line still wins. An invoice line with money but no fruit count is carried through as unattributed rather than silently dropped. (3) THREE OLD DOORS CLOSED, each of which was a second way to do something the New Road now does properly: the Add-basket form on the merchant card (a second scale with no shed, no layer, no photo), the v2.9 ready-to-sell + log-a-sale panel, and the Gate's typed give-form. Their six orphaned functions are DELETED, not left looking alive. THE WORKER'S ASK FOR FRUIT IS UNTOUCHED - for him it is a request for fruit he has not got yet, not a record of fruit leaving, and v3.30.1 already had to be pulled back from that exact over-correction. (4) THE CLUTTER: the Owner's home swaps FARM (the programme, set aside this season) for GATE & MERCHANTS, which was buried in ALL TOOLS while every load he approves and every credit balance lives behind it. Four duplicate routes closed - OLD TODAY CARD, Daily Ops' second Morning Scale, Inventory's second STOCK OUT, and FARM TODAY (role-scoped to the Gate, whose only farm view it is, rather than deleted). THE CREW'S STOCK OUT IS THE COPY THAT STAYS: a WORKER has no Inventory tile. Owner 36 sections -> 32; the worker, the Gate and the Purchaser keep every tile they had. // v3.38.0 - ROUND 2 OF THE NEW ROAD: THE OTHER THREE DOORS. R1 drew four destinations on the scale and lit one. This lights the other three, and the point is that it took no new road to do it. CASH is a merchant - the standing RT-CASH row - so the weighing, the layer stamp, the invoice serial, the receipt and the ledger all came free; the ONE difference is that cash is paid now, so creditApplies() is the single place that says the credit floor does not bite and the receipt prints PAID IN CASH instead of a balance. FREE and DUMP ride the FOC road that already had an allowance, a queue and a loss report - one row per basket, which is the shape a ration always had (one clone, one grade, one rate). Their harvest layers travel packed into the `note` column behind a marker, because FOC_HEAD is fixed and R2's rule is NO BACKEND REDEPLOY before the peak; focLayersOf() is the one door that reads them, so when the column exists it changes in one place. The rows share a batch ref so the Gate answers a three-basket ration in ONE tap. THE GATE'S OWN SCALE now ends in a confirm instead of her own queue - wOneStep() - and that confirm is a SECOND TAP ON THE SCREEN, never confirm(): v3.37.4 was spent learning that Android WebViews swallow dialogs, and money must not depend on one. Her load is written as ONE DISPATCH row, deliberately NOT as a request she instantly approves, because req_uuid still comes back EMPTY from the Sheet and every other phone would count that fruit twice. Photo is now required for the WORKER and optional for the GATE (Owner's decision) - a rule about the ROLE, not the destination. Small rations cross the scale like everything else (Owner's decision). KNOWN AND NAMED, not silent: an FOC basket's photograph stays on the weighing phone - FOC_LOG has no photo column and no photo road - so the row carries the FACT of the photo and the Gate's card says so out loud. // v3.37.7 - THE OWNER COULD NOT DELETE A RECORD HIS OWN PHONE HAD NEVER RECEIVED. Chased down by reading the farm's real Sheet: the surviving trial load (ref 6873BD, 3.50 kg to Roll, 11 Aug) was weighed on the WORKER's phone and approved by the Gate. The Owner deleted its INVOICE correctly - that row carries a tombstone - but the WEIGHING behind it had never synced down to him, so the clean-up screen, which lists only what is on this phone, could not offer it. 44 records carry a delete note; that one carries none. It was therefore never deleted at all, and the decision row on the Sheet kept re-arming it on the two phones that did hold it. (The link that should have dragged the weighing along with its invoice is `req_uuid`, and it comes back EMPTY on every invoice the Sheet returns - noted for a later backend fix; not touched here.) NEW: a GHOST chip. A decision this phone holds with no weighing and no invoice behind it is listed, dated, priced and named by ref, and ticking it writes an ordinary tombstone - which travels, and clears the load from whichever phones still hold it. Shown ONLY when the chip is on, never swept up by an unfiltered list. THE RULE: the person who can delete must be able to reach everything that EXISTS, not only what happens to have synced to the phone in his hand. // v3.37.6 - THE INVOICE THAT WOULD NOT DIE. The Owner deleted the trial records and one load stayed on the worker's AND the Gate's phone. Two faults, and the second one is why it survived every attempt. (1) THREE DOWN-LEGS HAD NO TOMBSTONE GATE. mergeDispatchReqs() - the pipe that carries WEIGHINGS back from the Sheet - tested only 'is this uuid already in EVENTS', which a deleted row cheerfully fails, so the next sync put it straight back on every phone. mergeDispatchDecisions() and mergeCorrections() were the same. This is the THIRD time this exact fault has been found (mergeEvents v3.29.8, mergeFoc v3.30.2, these now), so the gate is now ONE shared door, deadWith(), which the next new pipe inherits instead of forgetting. (2) AND A DELETED LOAD KEPT A SECOND RECORD SOMEWHERE NO TOMBSTONE HAD EVER REACHED: the approval pulled down into REQ_DECIDED is a kv map, not the log, so reqDecision() went on answering APPROVED off that shadow - the load stayed on the worker's 'recently decided' list and stayed closed in the Gate's queue even with every event gone. applyTombstones() now purges it too. THE RULE: a tombstone must reach EVERY store a record can hide in, not only the log - and a delete is only as good as the WEAKEST pipe that can write the record back. // v3.37.5 - A SYNC WAS TAKING THE WORK OFF THE SHED FLOOR. The Owner photographed a load that had been emptied out from under its own screen: THE LOAD listing a 3.50 kg basket above a lock reading 'Weigh at least one basket first', a merchant chip lit green beside 'Choose which merchant this load is going to', a lorry plate still in its box that the app no longer held - and the back arrow throwing him off a screen he was plainly standing on. ONE LINE causes all of it: refreshMasters(), which runs on EVERY sync, ends its staff-registry leg with `applyRole(); renderKeys();` - and applyRole() opened with an unconditional resetMarketingView(), which throws away WLINES, W_RET, W_PLATE, W_NOTE, W_REDO, W_GATEPASS and (since v3.37.3) WSTEP too, while renderKeys() paints the OWNER's staff screen and nothing repaints the worker's scale. On an online phone, mid-load, at a moment nobody chose. resetMarketingView() exists for 'a DIFFERENT PERSON is now using this phone' (v3.2, still right - PHOTO_SEEN must never survive a change of hands); a routine registry refresh is not that. The reset is now tied to the IDENTITY it protects rather than to the function call - same person, same work, untouched - showLogin() clears the marker so handing the phone over still wipes everything, and a reset that DOES fire now REPAINTS the scale. THE RULE, third time this week: never leave a screen showing work the app no longer has. // v3.37.4 - THE RETURN ROAD, FINE-TUNED. The Owner ran a load worker->gate->returned->worker and reported the two-way part sound, the FIX and the CANCEL not. Walking it with real taps found three. (1) THE CLONE LOCK WAS A PROMISE THE CODE NO LONGER KEPT: the fix bar has said 'merchant and clone are locked on a correction' since v3.9, and the New Road's weigh step drew the whole clone picker anyway - so attempt 2 of a Musang King load could leave as Black Thorn, at a different price, off a different lot, crediting different trees. The clone is now a locked chip on a correction and wlSet() refuses the field outright, so a stale screen cannot do it either; the GRADE stays editable, because re-grading is what a returned load is usually for - the v3.9 rule to the letter. (2) THE CORRECTION ONLY ANNOUNCED ITSELF ON THE FIRST STEP: the fix bar now rides with the step bar on all four, so the rule is on the screen where it binds. (3) CANCEL WAS confirm() THEN prompt() - the BROWSER's dialogs, and prompt() is disabled outright in many Android WebViews, where it returns null, the reason comes back empty and the whole cancel ends in a toast nobody sees. It is a panel in the app now: four reasons the crew actually uses, plus a note, writing the same DISPATCH_CANCEL with the same readable `reason` text, so every screen downstream is untouched. THE RULE: never put a step of a worker's job inside a browser dialog - it is the one part of the screen we do not control. // v3.37.3 - A STEP IS A PLACE YOU CAN LEAVE, AND A LOCKED BUTTON SAYS WHY. Three faults the Owner hit in one sentence - 'kg can be key in but it cannot proceed... once wrong key in the backward to front page cannot function'. (1) hubBack() - the arrow in the header, the only back control the phone offers - was written when the scale was ONE screen, so all it could mean was 'leave it'. Mis-key a weight, reach for the arrow, and you are thrown out to the tile list; walk back in and you are on the weigh step again with the wrong number still in the box. It now steps back along the road (detail->dest, dest/weigh->shed) and only leaves from the first step, and it closes an open gatepass instead of abandoning it. (2) The in-page back link was a 30 px span at the TOP of the step - measured 436 px above the top of the screen by the time the thumb is at the weight and the camera, i.e. not reachable at all. It is a 46 px target now, and every step past the first carries a way back at the BOTTOM, where the thumb already is. (3) BASKET DONE stayed grey and SILENT: wDone() is three conditions - weight, count, photograph - and the only thing that ever mentioned them was the button going grey. New wBasketNeeds() lists what is missing, above the button, live. THE RULE, twice in two releases: a control that can REFUSE must say why, on the screen it refuses on. Also new: a basket over 150 kg is called out as a decimal-point slip - warns, never blocks. // v3.37.2 - THE FIELD FOUND TWO THINGS ON THE FIRST MORNING. (1) A KILO NOW READS THE WAY THE SCALE READS IT - two decimals, everywhere on the worker's road, the gate tally and the returned-load card. nf() trims trailing zeros, which is right for a fruit count and wrong for a weight: the display said 48.50 and the app printed 48.5, so a gatepass did not match the machine the driver was standing at. New nkg(); 23 figures moved; the STORED number never changes, only how it is written. (2) THE PHOTO 'COULD NOT UPLOAD' - two faults stacked. compressPhoto() fixed the width at 640 px and only stepped the QUALITY down, so a grainy picture of a lit LCD in a dark shed - the ordinary case here, not the edge one - could still sit over the 46,000-character ceiling at the quality floor and be REFUSED; it now steps the RESOLUTION down too (640/512/416/336/272) because a smaller photograph beats no photograph and a load that cannot leave. And the refusal was INVISIBLE: onBasketPhoto() writes its failure into #w-err, which the New Road only drew on the LAST step, three screens from the camera - so the worker tapped, waited, and nothing happened at all. #w-err now sits under the camera. THE RULE: every screen that can FAIL must carry the element that says so - a handler that writes an error to an id is only as honest as the screen that draws it. The file input also left display:none for off-screen-rendered, which some Android WebViews will actually open from a label. // v3.37.1 - THE SAME VERSION NUMBER WENT OUT TWICE, SO THE PHONES COULD NOT TELL. v3.37.0 was published as the shed STRIP above the old basket form, then REBUILT the same day into the four-step New Road at the Owner's word - and shipped again under the SAME version, which means the SAME '?v=3.37.0' cache-buster, which means every phone that had already fetched the first build kept it and had no way of knowing a second one existed. No code fault: the release process let one number name two builds. THE RULE, now written where it cannot be missed: a file that changes after it has been published gets a NEW version, even on the same day, even for the same feature - the cache-buster is the only thing a phone can compare, so the version is not a label for the feature, it is the identity of the FILE. Identical code to the rebuilt v3.37.0 otherwise. // v3.37.0 - THE NEW ROAD, ROUND 1: THE SCALE BECOMES FOUR STEPS AND THE SHED KEEPS ITS OWN RECORD. Built to the Owner's own tappable sample. The morning scale stops being one long form that asked for the merchant and the lorry BEFORE the worker had touched any fruit - three of the five seams lived in that ordering alone - and becomes the road the fruit travels: 1 THE SHED (tap a clone x grade card, set the count on a thumb stepper), 2 WEIGH (gross, basket, photo; the count and the kilos in one motion), 3 WHERE IS IT GOING (four destinations; only MERCHANT is wired, the other three are drawn and labelled ROUND 2 rather than hidden), 4 THE DETAIL (merchant, lorry, note - asked LAST). A basket is still one line and a load is still many baskets to one merchant written as ONE DISPATCH_REQ: the sample let a basket hold several picks, the scale cannot, because one basket has one weight and splitting it between clones would be the estimate this round exists to delete. THE SHED KEEPS ITS OWN RECORD: Round 1 of the New Road. The root cause the Owner's own role-play found - the shed had no ledger, so every screen rebuilt it by a different subtraction and only 18% of sold ringgit could be traced to a lot - is answered with ONE queue: every DROP is a dated, lot-stamped layer, and every door out (DISPATCH lines, PENDING weighings, approved rations) draws off it oldest-first, in FRUIT, exactly once - an approved weighing is represented by its invoice, a returned one puts the fruit back. What is left standing IS the shed. On top of the worker's scale form the shed's own cards now sit: tap one and the basket is already the right clone and grade with its harvest layers behind it, so the same fruit is never keyed twice; the COUNT stays the worker's, with thumb steppers, because that is a physical count and not a lookup. At submit every line - picked or hand-keyed - is STAMPED with the harvest days and lots it drew, and the ledger now PREFERS that stamp over reconstructing it, so per-lot earnings are measured rather than inferred; FIFO stays behind it for every row written before today. An over-draw WARNS and never blocks. `layers` rides inside lines_json, which already travels - no new spreadsheet column, no new payload key, the Apps Script does NOT need redeploying. // v3.36.1 - THE CLEAN-UP SCREEN LEARNS ABOUT WEIGHINGS. The 240.5 kg lesson of 11 Aug, encoded: a load lives as TWO records - the invoice (DISPATCH) and the weighing (DISPATCH_REQ) - and the clean-up screen only offered the first, so the Owner's correct delete of his three trial invoices left three trial weighings feeding 'kg weighed out' on the Gate's new ledger, and it took a standalone check page to remove them. Now: (1) a WEIGHINGS chip, whose family includes the return/cancel notes, exactly like the v3.30.2 rations chip; (2) readable labels for all three types in the list - a row you cannot read is a row you delete by accident; (3) the expansion drags the weighing behind a selected invoice and the notes behind a selected weighing, ONE-WAY on purpose: ticking a weighing never silently removes an invoice, because money must never leave on the back of a scale record; (4) the impact preview counts the weighings and their kilos; (5) the 'delete those rows in the Sheet as well' warning, which predated the v3.29.8 tombstone and has been wrong for two days, now says what actually happens: the delete note travels by itself. THE RULE: every event type any screen SUMS must be selectable in this screen - checked against the reducers when a new type is added. No event shape, gate or payload key moved - the Apps Script does NOT need redeploying. // v3.36.0 - THE GATE GETS HER FOUR TABS, AND THE LEDGER LEARNS OPTION E. Six sections become four jobs: QUEUE (the weighed loads AND the ration requests - both are 'answer what is waiting', and they were already ordered 1-2 in v3.32.0 for exactly that reason), MERCHANTS (every door about WHO buys: cards, add/edit, top-up, invoice, and the cash-sale form, which is just a buyer with no account), PRICES (matrix, trend, tare - the retailer master LEFT this screen, where it was the FOURTH merchant list in one tile with its own add/edit/credit doors), and LEDGER. The LEDGER is Option E from the agreed sample: the TIMEFRAME DECIDES THE ORDER - a day is a till (money first, learning folded away), a month or season is a lesson (what each tree earned leads). The per-tree bars get their lot from a FIFO through the shed, counted in FRUIT: drops are layered per clone x grade in date order with the lot stamped on each layer, and a dispatch line draws its fruit count off the oldest layers. Fruit, never kilos, because fruit is counted on both sides while kilos are estimated upstream and weighed downstream. A MEASURED %% chip states how much of the money came down a single-lot layer; lines that cannot be matched are an UNMATCHED row, never a guess. The one-line balance uses the v3.35.1-fixed fruitBalance and stays one line until it is broken, when it takes the card and goes red. Old tab keys 'foc' and 'sell' are retired, not renamed - deep links fall through to the first tab, the v3.19/v3.24 rule. NOTHING was deleted: every panel is still in index.html, the worker's ASK FOR FRUIT door on Daily Ops is untouched, and no event shape, gate or payload key moved - the Apps Script does NOT need redeploying. // v3.35.1 - THREE MONEY BUGS ON THE GATE'S FRUIT BALANCE, ALL FOUND BY READING THE CODE RATHER THAN BY A TEST OR A SCREENSHOT. (A) focSoldKg summed `e.amount || e.total_rm` over DISPATCH rows and NEITHER FIELD IS EVER WRITTEN - both writers, saveDispatch() on the retailer card and approveReq() in the photo queue, store `total_value_rm`, and the down-leg copies the row verbatim. So 'Sold to merchants' has printed RM 0.00 since the table shipped, next to a correct kilo figure, which reads as though the whole crop was given away. (B) fruitBalance took IN from DISPATCH_REQ only, so a load the Gate weighs herself on the retailer card - a DISPATCH with no req_uuid - was subtracted from sold and never added to in, and the balance announced 'MORE went out than came in' on an ordinary honest sale. That line is the Owner's theft alarm and an alarm that fires on honest work is worse than none, so it is fixed at the source: a direct dispatch now counts in as well as out and nets to zero on the shed line, which is what it is. (C) focGateInKg had no decision filter, so a returned load and the worker's re-weigh of the SAME basket both counted as fruit through the gate - the same one-job-two-uuids shape v3.35.0 found in labour, in a different pipe. RETURNED and CANCELLED are out; PENDING stays, because that fruit really is standing at the gate. Nothing else moved: no screen, no gate, no event shape, no payload key - the Apps Script does NOT need redeploying. // v3.35.0 - THE SAME JOB, FILED TWICE, IS FOUND AND NAMED. The Owner got to the diagnosis before I did: 'august task is real just the cost cant tally and maybe 2 different device update the task'. That is exactly it. A general task filed on two phones is TWO records with two uuids describing ONE job, and uuid is the only identity an append-only log has - so nothing in the app can tell they are the same thing, every device that holds both counts both, and the hours double. 64 against 16 is what that looks like from outside. It is not a sync fault and it cannot be fixed by deleting August, because the WORK IS REAL: deleting a real record to escape a wrong total loses the record of what the crew actually did. Only the extra copy should go. So completions are grouped by what they DESCRIBE rather than by their id - same calendar day, same kind of work, same lot - and every group more than one device filed is shown with the person and the device on each row. Deliberately loose on crew and hours, because two people keying one job rarely key it identically (2 crew x 4 hours on one phone, 8 man-hours on the other) and matching on those would miss the very duplicates that matter. The FIRST filing is always the keeper, by timestamp then uuid, so the choice is stable: run it on two phones and the same row survives on both. One button ticks the extras - never a first filing - and drops into the existing audited clean-up screen, which shows the impact before anything goes and tombstones what it removes so it cannot come back on Sandakan's phone next week. TASK_DONE ONLY: a repeated programme run is REPORTED but never offered, because its hours sit on the STOCK_OUT rows that carry the material cost and removing one would remove material from the reconciliation he is about to spend two days on. // v3.34.3 - A LABOUR RATE OF ZERO NOW SURVIVES CLOSING THE APP, AND THE REASON TWO DEVICES DISAGREE IS NAMED. Reported: 'only owner labour and gate labour cost show different figure'. Both devices hold the same TASK_DONE rows - he confirmed the rest tallies - so the man-hours are identical and only their PRICE differs. LABOUR_RATE is stored in this phone's own kv under 'labrate' and is NOT in SETTINGS_KEYS, so unlike the price matrix, the basket tare and the product overrides it has never travelled between devices: the Owner changed his and the Gate kept the RM 8 seed. Sharing it properly needs 'labrate' added to SETTINGS_ALLOWED in the Apps Script as well, which is a backend edit and the wrong week for one, so the durable fix waits for the monthly-labour-cost work after the peak; until then the rate must be set to the same figure on each device by hand, which is a 30-second job now that zero is the figure. WHAT IS FIXED HERE IS WORSE AND IS PURE APP: the boot loader read 'if(lr&&+lr.v>0)', so a SAVED ZERO WAS THROWN AWAY and the seed came back on the next open. The Owner's whole plan is to zero labour, settle programme and material against the recorded facts and price labour monthly afterwards - and that plan would have silently unwound itself every time he closed the app, with no message and every money figure quietly wrong again. Only 'nothing has ever been saved' may now fall through to the seed. // v3.34.2 - LABOUR CAN NOW BE HONESTLY UNCOSTED. The Owner's plan: zero the labour figure, settle and tally the programme and material against the recorded facts, and only then work out a real monthly labour cost to bring in. That is the right order, because material and programme are RECORDED - every gram came off a stock ledger with a moving-average cost behind it - while labour is the only figure on the money page that was ever invented, a placeholder RM 8 multiplied by man-hours nobody had priced. Setting the rate to zero already did most of the job, but the screen then read 'Labour RM 0.00', which is a different lie: it says the crew worked for nothing, and it feeds a Net that looks complete. A rate of exactly zero now means NOT COSTED YET in those words, everywhere: the man-hours are still shown because they are real and are what a monthly figure will eventually be priced against, Net states that it is revenue less material only, and the red placeholder alarm - which is correct while the rate is a FORGOTTEN default and pure noise once zero is a deliberate decision - stands down in favour of a calm amber note saying what is missing and what to do about it. The rate editor says the same thing rather than nagging the Owner who deliberately set it there. Nothing is deleted: every TASK_DONE row, crew size and hour stays exactly where it is, so the day the real monthly cost arrives there is something to apply it to. // v3.34.1 - HARVEST WAS MISSING FROM THE OWNER'S HOME, AND HE WAS RIGHT. v3.32.0 took his home screen from nine tiles to four and justified it with one line: 'everything left out is one tap away in ALL TOOLS on the landing.' The drawer was built, it works, and drawerTiles() was called from exactly ONE place - ownTools(), a sheet on the COMMAND landing. So the real path from the screen he opens the phone to was Home -> Command -> scroll past the alerts, the matrix, the chart and the plan box -> ALL TOOLS -> Harvest. Five steps to the screen this farm logs fruit on, two days before the peak. He reported it as missing and that is the correct word for it, whatever the entitlement array says. Two changes and neither undoes the declutter. HARVEST goes back on his home tiles - five still render in the same four rows of a 2-column grid, so nothing above the fold moves - and ALL TOOLS is now painted on the HOME SCREEN itself, carrying its tiles' badges, so Fruit Tying, Inventory, Daily Ops and the Gate are one tap from home instead of five. Nothing a role owns is more than TWO taps from home again, which is what v3.32.0 claimed and did not deliver; t_home.js now ASSERTS it (every owned tile is either a big tile or a drawer button, and never both) rather than taking the claim on trust. Roles with no HOME_TILES entry already show every tile they own, so drawerTiles() returns empty and the row does not draw: WORKER, PURCHASER and MARKETING are untouched, asserted as in v3.32.0. // v3.34.0 - THE GATE READS THE SAME MONEY PAGE AS THE OWNER. His instruction once revenue finally matched across the devices: 'purchase doesnt have a full set like owner, so the total amount cant tally'. He is right, and it is a better argument than the one the code was making. A page that shows RM 8,532.50 coming in and nothing going out cannot be added up, so the person standing at the gate has no way to tell whether the month is sound - she can only report a number, never check one. This REVERSES v3.24, which narrowed the marketer off the cost side. That was a defensible default, not a finding: who sees the farm's margin is the Owner's decision and he has made it. Two changes, both marked REVERSE POINT in the source so putting it back is a two-line job: SHOW_SPEND drops its MARKETING exclusion, and runcostcard / ledgercard / labourcard leave MKT_DENY so the four detail toggles at the bottom of MONEY actually open for her - widening one without the other would have drawn her four buttons that open nothing, which is a worse screen than the one she had. What she now sees: material, labour, drawdown, net, the stock five-liner and all four full screens behind them. What she still cannot do: change the labour rate - canSetPrice() is untouched and stays Owner-only, so she reads the rate and cannot move it. progrecord stays denied; it is agronomy compliance, it moved to FARM in v3.33.0 and she has no FARM tile. The money-gate test is INVERTED rather than deleted, and now asserts that the Owner and the Gate render the same nine rows in the same order - so the day anyone flips this back the suite says which decision is in force instead of going quiet. // v3.33.2 - THE FINGERPRINT WAS MEASURING ONE THING IT CANNOT COMPARE AND MISSING THE ONE THAT WAS ACTUALLY WRONG. v3.33.1 worked: three devices came back reading 2026-07-27 / 11 drops / 16 loss, identical, which is the backfill doing its job. But the card also printed RECORDS HELD - 901 on the laptop, 892 at the gate, 859 in the field - and those three can never match, because the down-leg serves a different SUBSET per role on purpose (a field phone is never sent merchant loads or scale photos, v3.10). A number that is designed to differ has no business sitting in a matching test: it invites the Owner to chase the security model. It moves below a dashed line and says so in words. And the figure he first reported - 3 invoices at the gate against 0 on his laptop - was not on the card at all, because revenue is built from DISPATCH rows and the fingerprint counted only fruit. INVOICES and KG SENT OUT join the must-match block, counted in kilos and invoice numbers rather than ringgit so a worker's phone shows the same five figures as the Owner's and SHOW_VALUES is not reopened to make a diagnostic work. Five numbers that must match, one that must not. // v3.33.1 - THE PHONES WERE NEVER HOLDING THE SAME SEASON, AND THE REPORTS WERE RIGHT TO DISAGREE. The Owner found his harvest, record and money figures differing between devices even after every phone had synced. Nothing was wrong with the arithmetic: every report in this app is DERIVED from the event log by one formula that runs on the phone, so two phones cannot compute a number differently - they can only hold different records. And they did. SYNC_EVENTS_FROM has been '2026-08-09' since v3.29.5: the down-leg only ever ASKS the sheet for records dated on or after that day. It was set there for a good reason - to fence off the test rows the 7 Aug data audit found mixed into the sheet - but the season opened weeks earlier, so everything keyed on a phone before 9 Aug stayed on that phone for ever. Three devices, three different Julys, and no amount of syncing could close it because the gap was in the QUESTION, not the answer. FIX: SYNC_HISTORY_FROM, a deeper floor asked for ONCE per phone through exactly the pull the light floor already uses - same endpoint, same mergeEvents(), same tombstone gate, no backend change and no new sync leg two days before the peak. mergeEvents() dedupes by uuid so a record already held costs bandwidth and nothing else; a reply that comes back truncated does NOT set the done-flag, so a season too big for one pull finishes on the next sync rather than leaving a phone believing it is complete. Rows the Owner cleaned up stay dead: applyTombstones() refuses them at the door whatever the floor says, so a backfill can never undo a deletion. Moving SYNC_HISTORY_FROM re-runs the backfill on every phone, which is the intended way to correct the date. ALSO: DO MY PHONES AGREE - four numbers on the sync screen (records held, oldest fruit record, season drops, season loss). Same four on two phones means the same season and therefore reports that agree. It tells him to press SYNC on the SHORT phone rather than overwrite it, because a phone holding fewer records may be the one holding work nobody else has. // v3.33.0 - REPORTS: SIX FLAT SECTIONS BECOME THREE DOORS, AND THE MISSING ONE GETS BUILT. The Owner read the inventory of this tile and named what was wrong from outside: PROGRAM RUNS carried the MATERIAL half of a job and LABOUR carried the HOURS half on two separate screens, with nothing anywhere adding them up; COSTING was the raw stock ledger he had already said he wanted to stop reading; PROGRAM RECORD was agronomy compliance filed under money; and the report he actually designed - where the season is losing fruit - did not exist at all. MONEY is now ONE MONTH AT A TIME, his instruction: five lines for the month, then the two halves of every job's cost on ONE row each (joined by the name the work was filed under, because the id that ties a programme run's stock lines together is not carried on the labour side), then the store in five lines. The four original screens are folded shut behind detail toggles rather than deleted, and hideMoneyDetail() closes them on every paint so re-entering is deterministic. Revenue is SHOW_VALUES; every line that says what the farm PAID is SHOW_SPEND, so the Gate may open MONEY and sees the revenue side only. RECORD is SEVEN DATES WITH THE DAY NAME, also his instruction, stepping a week at a time with a date picker and defaulting to the last 7 days. The seven dates are generated from the CALENDAR, not from the log: a day nobody logged now prints as an empty day instead of vanishing, which is the difference between 'no fruit fell' and 'nobody wrote it down'. HARVEST is new - six sections, each ending in the action it implies: loss ranked by cause, lots judged PER TREE so 40 trees are not compared with 65, the banana grade finally read as a pollination score (added v3.30.0 and until now written by the crew and read by nothing), loss against the rain cage, where every kilo went, and the five trees carrying the loss. It is the only screen in this app that prints, and the day-by-day quality table is print-always / screen-optional because 40 rows is a meeting sheet, not a phone. Two honesties are printed on the sheet itself: the weather comparison is a correlation over a small number of days, and every cause and banana figure is only as complete as the crew's tap. PROGRAM RECORD moves to FARM beside the programme it measures, and its overdue badge moves with it. 81 new strings, both languages, parity asserted at 1106/1106. // v3.32.0 - THE HOME SCREEN STOPS BEING A MENU. The Owner said his page was "mess and crowded" and he was right: v3.31 gave him a proper landing but he still arrived at a NINE-TILE GRID first, and Command carried six tabs of which two - PROGRAM BUILDER and MASTER CONTROL - were second doors onto rooms he could already reach from FARM and ADMIN. The fix separates two ideas that had been the same array since v2.9: HUB_ORDER is the ENTITLEMENT (what openModule() checks, what a deep link is measured against, what applyRole() reads) and the new HOME_TILES is only what the home screen PAINTS. Shrinking HUB_ORDER would have started bouncing him out of screens he owns; shrinking HOME_TILES costs nothing, because everything left out is one tap away in ALL TOOLS on the landing. Home goes 9 tiles -> 4 (TODAY / FARM / MONEY / ADMIN) and Command 6 tabs -> 4, with exactly ONE door to the builder and ONE to master control, asserted. A role with no HOME_TILES entry keeps its old behaviour untouched, so WORKER, PURCHASER and MARKETING are unchanged - also asserted. THE GATE, IN THE ORDER SHE WORKS: her six sections were in no particular order, so the first thing on her screen was not the first thing she does. Now: the two queues that hold somebody else up (weight, then rations), then send out, then price, then the ledger - which is history and can wait until the lorry has gone. Nothing added, nothing removed, no gate touched. Her tile is renamed Gate & Merchants / Pintu & Peniaga. Deep links to the two closed Command doors fall through tabsFor() to the landing rather than a stranger's screen - the v3.24 rule - and that is asserted too. // v3.31.2 -  v3.31.2: THE CENSUS IS FINAL, AND THE CAPTION NO LONGER ARGUES WITH IT. v3.31.1 printed 'the real crop is larger than that line' because only 94 of 171 trees were censused. The Owner corrected it: the count was taken BEFORE fruit trimming, and trimming removes fruit, so the figure reads a little HIGH per tree - the opposite pull. Two effects in opposite directions means the honest thing is to claim NO direction at all: the caption now says what the number is (his July census, counted before trimming, on 94 of 171 trees) and leaves the judgement to the man who owns the trees. His instruction stands: the imported figure is FINAL - do not chase the uncounted trees and do not adjust it. // v3.31.1 -  v3.31.1: THE FORECAST WAS ALREADY HIS. The Owner said the drop forecast lives in his workbook, and it does - the 5 July census in 'Durian Farm Record- Census.xlsx', and the app already held it tree by tree: Lot A 213, Lot B 2,052, Lot C 437, 2,702 total, matching the workbook exactly. So the season chart no longer guesses at a target, it draws HIS number as an amber census line. But the same check found something he should see: the census was only taken on 94 of 171 trees - 25% of Lot A, 82% of Lot B, 51% of Lot C - and the uncounted trees were recorded as '-', not as zero. So 2,702 is the count of just over half the orchard and the real crop is bigger. The caption says so in bold under the chart, because a forecast built on half a farm that does not admit it is worse than no forecast at all. // v3.31.0 - v3.31.0 - THE OWNER LANDS ON WORK, NOT A MENU. Command gets a new first section: one season line that moves itself with the programme (no row of stage icons - he rejected those outright: "say it can auto switch i see no point to build 7 icon on top"), then TODAY / 7 DAYS / SEASON, then the harvest matrix he actually watches - trees, dropped, good, banana, bad, loss %, fruit per tree, left on tree - with the three lots SIDE BY SIDE and the worst lot flagging itself on quality and on yield-per-tree. 7 DAYS opens on the last seven but any week is reachable by the arrows, and the orange reset only appears once he has moved away, so he cannot get lost in old dates. SEASON carries the chart. Then FARM / MONEY / ADMIN and an ALL TOOLS drawer, because he reads, he does not key. THE HONEST PART OF THE CHART: this farm stores NO season plan, so there is no 'actual vs plan' line to draw. It plots what was actually collected and then carries TODAY'S RATE forward, capped at the fruit still hanging - the same rule dropForecast() already obeys so a forecast cannot promise fruit that does not exist - and the caption says in plain words that the dashed line is not a plan. Inventing a plan curve would have been the easy lie. AND THE BUG THE RENDER CAUGHT: 'left on tree' counted only the TIED balance while the season line above it counted tied PLUS the untied census estimate, so the header said 2,702 still on the trees and the table directly beneath it said 0. Two bases on one screen is worse than a rough number - it makes the reader distrust both. Now one basis, and where the census contributes the figure is printed with a leading ≈ and says so, which is this codebase's own derived-figure rule. Owner-only; MARKETING, WORKER and PURCHASER are all asserted unable to open it. // v3.30.2 - v3.30.2 - THE CREW GET THEIR RECORD BACK. v3.30.1 removed every RM from the rations screen, which was right, but it also removed the book and balance from the crew entirely - and that was an over-correction the Owner caught the same evening: a man who asked for fruit is entitled to see what was decided and what he has had, and a request he cannot look up afterwards is a request he will stop making. So the crew now have MY RECORD: their OWN decided requests, newest first - date, reason, grade, kilos, and the answer in words (Approved / Refused) - plus their own month against their own allowance with the same meter the Gate sees. In kilos. There is no money column in that table at all, so none can leak into it later. What they still do not get is the FARM's book or the fruit balance: those are farm-wide totals built round what the fruit was WORTH, and stripped of money they would be a list of somebody else's rations. Placed ABOVE the form, not below it, because the record is what he went looking for; the form is the thing he already knows how to find. Also fixed: the submit button carried class 'big', which is not a class this app defines - it had been rendering as a bare bordered box instead of the full-width green action button. Every role re-walked, and the money test now DEMANDS the worker record exists while still asserting zero RM reaches him. ALSO IN .2: DELETING A RATION NOW STICKS. mergeEvents() has refused a tombstoned uuid at the door since v3.29.8, but FOC arrives on its OWN road and mergeFoc() was written without that check - so a ration the Owner cleaned up was downloaded straight back out of FOC_LOG on the very next sync. That is exactly the fault he hit six times on 10 Aug, reopened by a new pipe three days later; any future down-leg must copy those three lines. The clean-up screen also could not SEE rations properly: they appeared only in an unfiltered list and with a BLANK label, which is worse than not offering them at all, so there is now a 'Rations & gifts' chip, a readable label per row, and ticking a request auto-adds the Gate's answer - otherwise an approval outlives the request it answers, focStatusOf() still finds it and the fruit balance still counts those kilos. // v3.30.1 - v3.30.1 - NO MONEY REACHES THE CREW. The Owner caught it the evening v3.30.0 went live: the rations screen printed RM on the request card, in the live quote as the form was filled, in the book and in the balance - to EVERY role, including the one this app deliberately keeps blind to price. SHOW_VALUES is the farm's money gate, it is false for WORKER and PURCHASER, and 74 other places already obey it; this screen shipped ignoring all of them, which put a price in front of the grader whose whole value as a control is that he calls the grade not knowing what it is worth. Every RM on the screen is now behind SHOW_VALUES. The value is still STAMPED on the record exactly as before - the crew are simply not shown it, so nothing about the Owner's fruit balance changes. Two things went with it, because with the money stripped out they made no sense: the QUEUE is now scoped - the Gate and Owner still answer for the whole farm, a worker sees only his OWN requests, because otherwise the screen listed the Owner's family gifts by name to the crew; and the BOOK and the BALANCE are management views, so a worker's screen now ends at his own requests and the form to ask with, which is all the tile ever promised. Asserted in a real browser for all three roles: zero 'RM' on the worker screen, he still sees his own 6 kg, he cannot see the gift to Encik Rahman, and both money roles keep everything. // v3.30.0 - v3.30.0 - FRUIT THAT LEAVES WITHOUT AN INVOICE, AND A FOURTH GRADE. Two gaps the Owner named on 10 Aug. FOC: rations, family gifts, buyer samples and fruit dumped at the shed had no record at all, so the shed figure drifted every week and nobody could say where the fruit went. Now every one of them is a REQUEST the Gate approves or refuses - a worker asks on his phone and the card lands in her queue beside the weigh-ins - and the control is an equation printed on the screen: came in the gate = sold + cheap sale + FOC + dumped + still in shed. If it does not balance, fruit left with no record, which is exactly the thing worth seeing. Three decisions carry it: a decision is an APPEND (FOC_APPROVE/FOC_REFUSE rows pointing at the request) never an edit, so two phones deciding at once cannot clobber a half-written row; the value is STAMPED at request time from the live clone x grade book, because recomputing later would let this week's market silently rewrite what last month's gift cost; and the monthly allowance WARNS but never blocks, because a worker refused by a machine on trial day is a worker who goes back to paper. focDecide() checks the role itself rather than trusting the button, so a stale screen cannot approve fruit out of the farm. BANANA: a fourth grade, BN, on every clone. It is NOT a loss - a rotten fruit cannot be eaten, a banana-shaped fruit is perfectly edible and simply cannot be sold at grade, and reporting them together hides both problems. It is deliberately absent from GRADE_BAND, which is what makes the grade-versus-weight warning switch itself off for banana with no special case anywhere. Building it found a real bug: gradeForWeight()'s fall-through returned the LAST letter on the clone's ladder, so appending BN would have made any NEGATIVE net weight - tare keyed larger than gross, which happens - come back as 'banana'. It now falls through to the last WEIGHED letter. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED: FOC_LOG is a new tab and `foc` is a new payload key; an older backend silently swallows the whole feature. Also: the render walk earned its keep again - 33 green structural assertions all passed while the rations screen rendered 24px tall and completely empty, because openModule() shows a panel but nothing paints it without a line in the per-tab dispatch. // v3.29.8 - A DELETION NOW TRAVELS. Opening the return road in v3.29.5 created a fault I did not foresee and the Owner found within a day: clean-up wiped a record from the phone, and the very next sync downloaded it straight back from the Sheet. Deleting became impossible - the same two drops were removed six times on 10 Aug and returned every time - and no other device ever learned a removal had happened. THE SHEET IS NOT EDITED: it is the farm's history and a silent hole in it is worse than a row nobody wants. Instead a clean-up now writes a TOMBSTONE - the uuids it killed, space-separated, in a new `dead` column on AUDIT_LOG, which every device already reads. mergeEvents() refuses a tombstoned uuid at the door, applyTombstones() drops any copy already held, and both run on every sync AND at boot so a device that was switched off still catches up. The tombstone list is built from what is on the device PLUS what is arriving, so a clean-up takes effect on the sync that carries it rather than the one after. A tombstone can never delete a tombstone (`!e.dead`), or a clean-up could erase the record of itself and the rows would quietly return. Audit rows carrying a tombstone are EXEMPT from the SYNC_EVENTS_FROM date floor, because the rows they kill are usually older than it - the 4 Aug trial data is exactly that case - and a deletion filtered out by date is a deletion that never happens. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED: `dead` is a new AUDIT_LOG column. // v3.29.7 - CREDIT OPENS TO THE GATE, AND THE REAL BASKETS. CREDIT: canSetPrice() gated three unrelated things behind one word - the labour rate, the retailer master and credit top-ups - and the Owner's instruction on 9 Aug was to let the Gate handle credit. Split into canSetPrice() (labour rate, Owner alone, because it prices the farm's own people) and canSetCredit() (retailer master + top-ups, Owner or Marketing, because the Gate is the device standing in front of the merchant while the lorry loads and an Owner out in the lot cannot release a load in time). This does not widen who SEES money - SHOW_VALUES and SHOW_SPEND are untouched - only who may move it, and every top-up stays an EVENT with a signed audit row naming the device and the person. BASKETS, AND A BUG THAT WOULD HAVE EATEN EVERY NEW ONE. The farm runs TWO baskets, both black, one with a metal handle and one without; the shipped list said 'Standard Red Box 2.0 kg' and 'Heavy Blue Crate 3.5 kg', which nobody has ever used, so every load was having an invented weight taken off it. Both are now seeded at ZERO and UNVERIFIED on purpose - a made-up tare that looks real is worse than a zero that shouts, because the red 'not verified' banner is the only thing standing between a guess and ~RM 16 a basket on every load. The Gate weighs and keys them next week. ADD A BASKET is new (Prices > Basket tare), Owner or Marketing, the same gate as the tare itself because a basket with no weight is useless to whoever adds it; new baskets arrive at zero tare and knock TARE_VERIFIED back off for the whole set, since ticking 'I have weighed them' can only ever mean all of them. THE BUG: applySetting('baskets') mapped over BASKET_SEED and NOTHING ELSE, so a basket added on one device survived exactly until the next sync, when the incoming list was filtered back down to the three shipped ids and the new one vanished on every device with no message at all - and initStore() did the same thing on every restart. Both now overlay the seed and then CARRY every extra basket through. A basket can be removed only if no weighed load references it, and the three seeded ones never. // v3.29.6 - THE RETURN ROAD, ALL ELEVEN TABS. v3.29.5 opened the road for the six types that move a STOCK or TREE balance; this closes the rest, because a report that tallies on stock and not on labour is still a report nobody can trust. readEvents_ now also serves TASK_LOGS (TASK_DONE - crew, hours, man-hours, the whole labour side of COSTING), SALES, MKT_DISPATCH (DISPATCH + CREDIT_TOPUP, which is what the retailer credit ledger is a projection over), LOG_ADJUST, TIE_ADJUST and AUDIT_LOG (LOG_VOID above all - a record the Owner voided must read as voided on every device). ONE SUBTLETY WORTH THE COMMENT IT HAS: downloaded rows carry an EMPTY syncedAt so countsLocally() reads false and they are not re-added on top of the TREE_STATS aggregate they are already inside - but readTreeStats_ reads TYING_LOGS, TIE_ADJUST, DROP_LOGS, ROTTEN_LOGS and LOG_ADJUST, and NOT TASK_LOGS. Fruit tied through an Owner-assigned task is therefore in no aggregate at all, and applying the same rule to it would have silently DROPPED it from the tied count. tiedLoggedOf() reads `fromSheet` for exactly that one exception. Rain is the only key still one-way, deliberately: one gauge, one device, nothing derived from it. // v3.29.5 - THE RETURN ROAD. THE ONE FIX: work travelled UP to the Google Sheet and never came back DOWN. refreshMasters() merged eleven master tables and never wrote to EVENTS; doGet served no transactional rows either. Every balance in this app is a projection over the LOCAL event store, so Sandakan's deliveries were invisible in the field and the field's spraying was invisible in Sandakan - not a race window, it never healed. readEvents_() now serves DROP / ROTTEN / TIE / STOCK_IN / STOCK_OUT / STOCK_ADJUST from a date floor (SYNC_EVENTS_FROM) and mergeEvents() folds them in on uuid, NEVER overwriting a local row because that row may be mid-push. Downloaded rows carry syncedAt EMPTY on purpose: countsLocally() then reads false, so a downloaded DROP is not added on top of the TREE_STATS total it is already inside, while the inventory side - which has no aggregate - counts it, which is the point. Dates are normalised server-side by evDt_() before any slice(0,10) comparison, for exactly the reason v3.29.4 documents. Pull throttled to 60s because every doGet spends Apps Script quota. NEEDS THE APPS SCRIPT PASTED AND DEPLOYED AS A NEW VERSION - without it this release changes nothing. // v3.29.4 - THE DATE THAT LIED. v3.29.3's window was correct and still did nothing: four 4-August trial loads stayed on the Gate phone. Google Sheets parses the dt column of MKT_DISPATCH and AUDIT_LOG into a real Date cell, and the Apps Script serves String(dateCell) - 'Wed Aug 05 2026 03:40:00 GMT+0800 (Singapore Standard Time)' - while every date this app writes is 'YYYY-MM-DD HH:mm'. slice(0,10) of that is 'Wed Aug 05', and 'Wed Aug 05' >= '2026-08-07' is TRUE as text because W beats 2. So every decision pulled from another phone passed any date test put to it, and sorted above every properly-formatted one. The two CANCELLED rows vanished correctly only because that phone held them as LOCAL events in the right format - which is what made the split look like a state filter. normDt() accepts either form; applied on the way in (mergeDispatchDecisions, which now also rewrites a row whose stored dt is stale-format) and on the way out (decWhen, returnReason, the worker's decided list) because rows already sitting in REQ_DECIDED on three phones are otherwise never rewritten. Origin is the Apps Script, unchanged here on purpose - the client fix also heals the phones. // v3.29.3 - RECENTLY DECIDED NOW ACTUALLY MEANS RECENTLY. The comment on verifyHistory() has said since v3.8 that decided loads 'stay visible for a day so a mistake is noticed while it is still fresh'. The code never enforced it: it sorted every decided load and took the newest ten, for ever. On 9 Aug the Gate iPhone was still showing 4-5 Aug trial weighings - one of them a photo of a plate of food - as the farm's most recent decisions. Now filtered to DECIDED_DAYS=2, measured from the decision rather than the weighing so a load weighed last week and decided this morning still shows. Anything the window hides is counted underneath ('N older decided loads are not shown here') rather than silently dropped, same rule as the 'newest 150 of 459' line in Clean Up. No event is deleted or altered; this is what the panel CHOOSES to draw. // v3.29.2 - TWO THINGS THE OWNER'S PHONE SCREENSHOT CAUGHT. (1) verifyHistory() printed the literal word 'false' after the worker's name on every APPROVED row. The reason clause read `state!=='APPROVED' && (reason ? ' - '+reason : '')`; && returns its LEFT operand when that operand is falsy, so on an approved row the whole expression was the BOOLEAN false and the next + stamped five letters into the page. The Gate iPhone showed three rows reading 'Worker 1false'. Rewritten as `(state!=='APPROVED' && reason) ? ... : ''` so the falsy branch yields a string. test_v3292.js now sweeps the whole file for the same shape. (2) The tying Balances footnote still claimed the figure was 'carried in from the July census workbook on 2 Aug 2026' - untrue since v3.29.1 retired that seed - and now says where the number actually comes from. Display only; no arithmetic changed. // v3.29.1 - THE 959 SEED IS RETIRED. database.js shipped a static TIE_MIGRATION of 959 fruit on 63 trees covering 14-27 Jul, and tiedOf() adds it to everything logged since. The 9 Aug rebuild from the paper field book covers the same period and more (2,294 fruit, 86 trees, 14 Jul - 8 Aug), so pasting the book in on top of a live seed would have read 3,253 tied against a census of 2,623 - more fruit on string than fruit counted. 92 of the seed's 100 rows appear in the book unchanged; the 8 that differ are the one-tree Lot B row offset the book itself corrects. TIE_MIGRATION is now [] and the 100 rows are kept beside it as TIE_MIGRATION_RETIRED_2026_08_09 so the figure stays traceable. No app.js logic changed - tiedMigOf() already returns 0 for an empty array and tiedTrees() already picks trees up from TIE events. database.js MUST be re-uploaded with app.js or the balance double-counts. // v3.29.0 - BULK BACKDATE. The farm's paper field book holds 263 tying rounds across 86 trees and six scanned pages, 14 Jul - 8 Aug 2026. mdbBackTie() takes one round at a time, which is right for a correction and wrong for a book: at ~15s a round that is over an hour of clicking and a certainty of mistakes near the end. New block in MASTER CONTROL > BACKDATE (Owner only, same gate): paste 'tree date fruit' one per line. TWO PASSES ON PURPOSE - mdbBulkCheck() parses and validates everything and writes NOTHING; mdbBulkSave() only runs on the checked result. A half-written import is worse than a refused one because you cannot tell by looking which half landed. Parser accepts B2/B-2/b-002 and 5/8, 5/8/26, 2026-08-05; rejects future dates, unknown trees, non-integers. A count of ZERO is SKIPPED, not logged: the owner confirmed 8 Aug 2026 that a date written with no number under it means nobody tied anything that day, so there is no round. Rows are written with the same event shape as mdbBackTie - backdated:true, dt = the day the work happened at 08:00, enteredAt = the moment keyed - so a book typed weeks late can never read as live field logging. The already-in warning is deliberately worded as covering THIS PHONE ONLY, because TIE rows travel UP and never come down (see the pipeline audit): a phone cannot know what another device holds and must not imply it can. Partial-failure path tells you exactly how many rows DID save so the paste can be trimmed rather than re-run whole. // v3.28.0 - RETIRE, THE OWNER'S BRAND, AND THE WEATHER ENGINE LEARNS FORMULATION. Owner approved 8 Aug 2026. (1) THE PREREQUISITE NOBODY ASKED FOR: 'invover' was NOT in SETTINGS_KEYS. INV_OVERRIDE - the Owner's corrections to a product's minimum stock and active ingredient - was written to one phone's IndexedDB and NOWHERE ELSE, so Sandakan could read the Ardel label and the Owner's phone would never learn it. Same family as the v3.11 shared-settings fix: a setting is not an event. It now merges PER PRODUCT by `at` like agrodrafts/progover; whole-object newest-wins would let one phone's edit erase another's. Without this the whole release would have been device-local and worthless. (2) RETIRE: `retired` is a DATE not a boolean. Hidden from bpPool, brandsFor, systemicAlternatives and lowStock; UNCHANGED in the stock list (sunk to the bottom, marked), the valuation, run costing, MY LOGS and prodById - which must keep resolving or the orphaning we are avoiding happens anyway. A live directive naming it REFUSES the retire (the app already fails there with 'a brand has been removed from this directive' and the job stops); stock on the shelf only WARNS, because you retire things BECAUSE they are obsolete and retiring writes nothing off. Un-retire is one tap. No delete was added: 'a catalogue item is never deleted' stands. (3) THE OWNER'S BRAND TRAVELS: amLoadTemplate rebuilt the slot from the ingredient alone and threw l.pid away, even though bpAdd has ALWAYS stored the product. So a directive sized for Agus 24SC could be filled with Pengasus 47.17sc - the same chemical at roughly TWICE the strength. pid+pname now ride the slot as a DEFAULT, marked with a star; brandsFor already honoured a pid and amBuyPreview already printed the brand name, so the buy list now says what to top up. (4) NOT A LOCK - the Owner's 8 Aug correction, which overrode an earlier recommendation of mine: 'choosing different brand on the same AI is important due to either rain day or dry day... I have learn to add more other products and same AI due to weather and also cost.' Duplicate AIs are a deliberate tool and the list will GROW. allocPick can still choose anything; moving off the starred brand asks WHY and writes a BRAND_SWAP row, and Cancel cancels the swap rather than silently applying it. (5) rainClassOf(p) reads the FORMULATION out of the product name (SC/EC/WG/WP/SL/EW) - rainClass(aiText) keyed on the ingredient alone, so Agus and Pengasus got IDENTICAL rain advice, i.e. the app was blind to exactly the decision the Owner makes every season. rainClass is left intact for its existing callers. (6) SIDE BY SIDE when >1 brand carries an ingredient: strength, formulation, rainfastness, cost/unit, on hand - all read from data already present - plus a warning when the strengths differ. (7) DATA-QUALITY NOTICE, built as a standing rule not two hard-coded ids: no confirmed AI or RM 0 price raises it. Catches FOUR on the live catalogue, not the two asked for - pid 52 Zinc (powder) is priced at zero with a good ingredient and nobody had noticed. PRODUCT_RETIRE and BRAND_SWAP ride the EXISTING audit key (every field is already in AUD_HEAD), so THE APPS SCRIPT IS UNCHANGED for this release. // v3.27.1 - THE APPROVER CANNOT MOVE THE GOALPOSTS. Owner confirmed 8 Aug 2026 that the MARKETER is the gate person - she approves the daily weight the field phone recorded. That makes two of her existing powers a control problem rather than a convenience. (1) STAFF is now OWNER ONLY: keyspanel joined MKT_DENY and the tab dropped from FULL_ROLES to ['OWNER']. The old comment claimed keyspanel was 'kept on the Owner's rule', but FULL_ROLES is Owner AND Marketing, so she could create, edit and DELETE any login including the Owner's - an approver who can edit the logins of the people she checks is not an independent check. (2) PRICES STAY WITH HER, deliberately - negotiating merchant rates is her actual job and closing the screen would only mean phoning the Owner every time a rate moves - but savePrices() now snapshots the book BEFORE overwriting it and writes a PRICE_EDIT audit row naming who, when, which merchant, and every rate as old->new (audit D-27, a contract rate was rewritable with no stamp at all). priceEditLines() returns [] when nothing moved, so re-saving an unchanged book logs nothing. PRICE_EDIT rides the EXISTING audit key: every field it uses is already in AUD_HEAD, so THE APPS SCRIPT DID NOT CHANGE for this release - and it is excluded from the generic events batch, or it would upload on both keys. // v3.27.0 - THE NAME TAG (fix 1 of the two pre-trial safety fixes, Owner approved 7 Aug 2026). Every directive STOCK_OUT row now carries natkey = RUN|progId|slot|lot|qty|trees, computed by natKeyRun(). uuid() is random, so when two phones file the SAME real job they mint two different ids and the Sheet's SYNC_INDEX dedupe - which keys on uuid alone - wrote both. That is exactly how DIR-001 set 2 (MSolumax 3-16-36) went out TWICE, 4 Aug 21:20 from Worker 1 / Phone 2 and 5 Aug 23:28 from YC Lee / phone-01, 85,500 gm and RM 908.44 each off ONE broadcast, leaving the store at -23,000 gm. The key is derived from WHAT THE ROW IS, so both phones compute the same string. NOT in the key: timestamp, device, worker, crew, hours - they differ between two filings of one job and would defeat it. IN the key: the tree count, because a partial re-run over a DIFFERENT number of trees is real work and must still pass. Server side (AppsScript_code.gs): a new hidden NAT_INDEX sheet holds natkey|device|when|uuid - deliberately NOT extra columns on SYNC_INDEX, so the uuid dedupe every pipeline depends on is untouched. doPost refuses a natkey already held by a DIFFERENT device, marks its uuid seen so the phone stops re-sending a row we will never accept, and writes the full row to a visible DUP_BLOCKED tab - a duplicate that vanishes without trace is worse than the duplicate. A repeat from the SAME device passes untouched. ok stays TRUE on a block, deliberately: ok:false would put the phone in a retry loop over a row the server is correctly refusing. The phone alerts rather than toasts, because somebody has just repeated work the farm already has. ALSO readDupSerials_() + ?dupserials=1: the sheet-wide duplicate invoice check, because duplicateSerials() on the phone scans that phone's own events and on a two-phone farm can never see the collision it exists to catch (audit D-02). READ-ONLY - it reports, it never renumbers; server-minted serials are deferred to September with the rest of the scarce-resource work, and cannot bite before then because the 14 Aug trial runs on one phone. // v3.26.2 - THE PURCHASER GETS THE STORE. Owner's decision, 7 Aug 2026: Sandakan keeps the buying job and gains STOCK LEVEL and STOCK-TAKE, because he is the one standing in the store and he is doing the physical count before the 14 Aug trial. Found while making the change: those two sections were reachable by the OWNER ALONE. MKT_DENY has listed invcc and stocktake under 'Inventory tile - the Sandakan Purchaser's desk' since the v3.24.0 narrowing, so Marketing was already blocked; the Purchaser was blocked by roleAllows' `full` check. The tile had been handed to a role that could not open half of it. Both tabs now carry roles:['OWNER','MARKETING','PURCHASER'] and roleAllows returns full||PURCHASER for the two panels. THE MONEY GATE IS UNTOUCHED: SHOW_VALUES stays false for PURCHASER, so the stock list renders quantities and reorder flags, never RM valuations; verifycard, pricecard, ledgercard, keyspanel, masterdb and runcostcard all stay shut to him. Adding a product already worked (onboardcard, PURCHASER since v3.16). DELETING A PRODUCT DOES NOT EXIST FOR ANY ROLE and was not added - 'a catalogue item is never deleted' is a deliberate rule, because a product with stock history cannot be removed without orphaning every row that references it. // v3.26.1 - ROPE TRACKING OFF (ROPE_TRACKING=false in database.js). Owner's decision, 7 Aug 2026, first season on the system. pid 68 'Tying rope / string' NEVER EXISTED in PRODUCTS - the list ends at 67 - so 454.5 m had been consumed and 2 stock adjustments booked against a product that is not there, the balance sat permanently negative, and the tying screen kept telling the crew to ask the Purchaser to key in rolls nobody was going to key in. ropeNeeded() and ropeOnHand() now return 0, and that one fact switches the feature off cleanly: commitTieRound's `if(rp&&need>0)` stops writing the rope STOCK_OUT, the have<need shortage confirm cannot fire, the tying tile's rope<0 red badge goes quiet, ropeCardHTML() renders nothing and the tying toast drops its rope clause. THE TYING COUNT ITSELF IS UNTOUCHED - only the rope that used to ride along with it. Nothing is deleted; set ROPE_TRACKING=true and add pid 68 to PRODUCTS to turn it back on for a later season. // v3.26.0 - THE FOUR MONEY LEFTOVERS from the 7 Aug closed-loop audit. (D-13) lineCalc has always worked out which grade the average fruit weight FALLS IN and dispTotals threw the answer away: it showed as a bare warning glyph on the worker's own phone and reached nobody who prices the load. A basket keyed Grade A whose fruit average 1.30 kg - Grade B on the farm's own band table - was invoiced at RM 40/kg instead of RM 30, RM 455 over on 45.5 kg. The band now rides the line as band_grade/band_ok AND is recomputed on the approval card so loads weighed before this release are covered too. It WARNS, never blocks - a wrong fruit COUNT gives the same signal as a wrong grade. (D-08) allocShort compared the store against ONE tank's dose, frozen at allocation time, so a whole-farm job needing 2,565 ml against 2,000 ml on hand read 2000<1000=false and flagged nothing. It now uses directiveNeed(), which has computed the whole-job figure since v3.12 and was never wired in here; reading the live line also kills the stale-dose bug. (D-16) tiedLoggedOf was the ONE ledger aggregator missing countsLocally(), so a synced FTIE reply was added on top of the TREE_STATS snapshot that already contained it - 20 fruit tied read as 40, inflating the forecast and disarming the over-collection guard. (D-10) the receipt fallback wrote only into #dp-receipt, which does not exist on the VERIFY screen where approveReq leaves you, and quiet=true swallowed the toast - so on a plain http hotspot the receipt vanished silently. It now plants the text in whichever container is on screen, and a FAILURE is never quiet. // v3.25.1 - SCREENSHOT REVIEW OF v3.25.0. Two findings a 22-assertion green suite could not see, both on the Marketer's verify card. (1) The credit-exceeded BUTTON restated the whole problem directly under the new override box that had just explained it, putting the same fact on screen four times - credit line, CRITICAL box, override box, button. The button now reads just CREDIT EXCEEDED; nothing was removed. (2) Five t25_onephone*/ t25_takeover dictionary entries were left behind by the in-app one-phone-per-role lock the user chose NOT to build (a printed rule card is used instead) - dead keys read as live features to the next reader, which is how a renamed tab key survived 85 green tests in v3.22.0. Removed from EN and MS. ALSO RECORDED, NOT FIXED: the whole verify card is English-only in BM - header and bottom nav translate, the card body does not. Confirmed with the user as acceptable because the Marketer works in English. // v3.25.0 - PIPELINE INTEGRITY AUDIT FIXES. Seven defects found by the 7 Aug closed-loop audit, each one reachable in the field: (D-05) showPhoto() wrote PHOTO_SEEN before the empty-photo bail, so APPROVE & DISPATCH unlocked on a load whose picture never arrived - the whole photo handshake could be walked past. (D-09) submitRun() had NO on-hand check at all while submitStockOut() one screen over has warned since v2.5, so a directive against an empty drum drove the store negative AND booked a cost for chemical that never left the shelf. (D-18) finally{runSaving=false} sat above the awaited kv write and closeRun(), so a second tap rewrote all 15 rows of a 5-part 3-lot job; there was also no catch, so a part-way failure left the modal silent and the retry duplicated. (D-04) a credit-exceeded approve sent the user to saveDispatch(), which writes no req_uuid - the request stayed PENDING with the photo already seen and was approved AGAIN after a top-up, invoicing one basket twice. The override now lives on the verification card itself. (D-07) nextSlotKey() reuses a freed key and amSave() never pruned AI_ALLOC, so editing a line left the OLD brand bound to it and the crew deducted the wrong chemical past allocPick()'s unit guard. (D-06) amLoadTemplate() never read ph.basis, and the heavy-rain branch offers PER_TREE fertiliser sets to a SPRAY job - 1,000 gm per TREE became 1,000 gm per TANK, a 66.7x under-dose. (D-12) each scale photo went up three times and lines_json alone breached the 49,000-char cell ceiling. NOTE the load-level photo_b64 is deliberately KEPT: readDispatchPhotos_() only sends photos down for undecided requests, so blanking it would leave decided loads with no picture in the history. Two audit findings are NOT fixed here and need a decision: DISPATCH and CREDIT_TOPUP still have no down-leg in refreshMasters(), so retailerCredit() and nextInvoiceSerial() remain per-device - run ONE PHONE PER ROLE until that is built. // v3.24.0 - MARKETING IS A ROLE AT LAST, INSTEAD OF A SECOND NAME FOR THE OWNER. FULL_ROLES is ['OWNER','MARKETING'], so every roles:FULL_ROLES tab and every 'return full' gate in roleAllows() has been handing the marketer whatever the Owner had; the workspace was the Owner's minus four panels and the only marketing-specific decision in the codebase was that the mkt tile was listed FIRST. Measured before this release: 8 tiles, 32 sections, RM figures on 21 of them - and a marketer who could receive supplier invoices, create products in the catalogue, author and issue a spray programme, approve corrections to harvest data, and read every cost screen in the app. IT IS NOW 4 TILES AND 11 SECTIONS: the whole of Review & Credit, harvest READ-ONLY (backlog, the wave, farm today - COLLECT goes, a marketer does not log a fruit drop), two reports (daily audit and month ledger), and STAFF. Inventory, Agronomist, Daily Ops and Fruit Tying go entirely. STAFF IS KEPT ON THE OWNER'S EXPLICIT INSTRUCTION, having been shown first that it is the widest grant on the list - the role that invoices customers can also mint logins. ADJUSTMENTS goes: approving a correction to harvest data is marking someone else's homework, which is the argument that has kept YIELD AUDIT away from this role since v3.2. HOW IT IS DONE MATTERS AS MUCH AS WHAT IT DOES. The v3.16 comment says why nobody fixed this: 'pulling MARKETING out of FULL_ROLES would have moved ~40 gates to fix one label.' That is still true and this release does NOT do it. Not one existing 'return full' line is edited. The narrowing is applied at the three gates that already exist, in the order they already fire: HUB_ORDER.MARKETING drops from eight keys to four; a roles: key closes the six sections that go; and ONE deny check, MKT_DENY, sits ABOVE the switch in roleAllows(). Widening the role again is a one-line revert on the array. COLLECT is the single section MKT_DENY cannot reach - it has panels:[] because it is a whole screen, not a panel - so the tab gate is the only place it can be closed, and that is called out where it is written. THE MONTH LEDGER IS SPLIT BY A SECOND, NARROWER MONEY GATE. The Owner's rule is that the marketer may see what the farm EARNED but not what it SPENT, and MONTH LEDGER carries material, labour, drawdown and margin in the same grid as yield and revenue. SHOW_SPEND answers that question; SHOW_VALUES answers 'may this person see money at all' and STAYS TRUE for him, because ~30 call sites read that flag meaning money rather than spend and widening it would have silently blanked his own invoices. The yield table, the revenue-per-merchant table and the year's revenue and net kg survive; the spend-per-lot table, the drawdown, the man-hour count, the margin tile and the labour-rate warning do not. The explanatory note is rewritten for that role rather than left pointing at a table that is not there. TWO LIVE DEFECTS FOUND ON THE WAY IN AND FIXED HERE. FIRST: renderTaskNotice() paints the OVERDUE PROGRAMME bar on EVERY role's home screen and hard-codes openModule('ops','tasks'), and openModule bounces a tile outside the role's HUB_ORDER straight to Home with no toast and no message. The Sandakan Purchaser's tile list is ['inv'], so a purchaser tapping that bar has been silently reloading his own home screen since the bar shipped in v3.18.5. It is now gated on holding the ops tile, which fixes him and stops the marketer inheriting it. SECOND: the tile gate was enforced in openModule and the SECTION gate was not - tabs.find(...)||tabs[0] meant a section you are not entitled to did not refuse, it silently opened whichever section happened to be first, which is worse than being turned away because nothing on the screen says it is the wrong one. A key that EXISTS in the module but is not yours now bounces home; a key that does not exist at all keeps the old fall-through, because the retired v3.19 keys in/alloc/onboard depend on landing on the Supply Hub and procureGo() still calls them. ALSO: a tile's sub-label now names what THIS role can open. Admin has advertised 'corrections, yield, master, keys' to a Marketer entitled to one of the four since v3.3; ROLE_TILE_SUB gives Harvest, Reports and Admin honest labels in English and Malay, and every other role falls through unchanged. OWNER, PURCHASER and WORKER entitlements are byte-for-byte what they were, asserted by the test harness. No migration, no Apps Script redeploy - nothing new reaches the Sheet. // v3.23.1 - A DIRECTIVE NOW REMEMBERS WHICH PROGRAMME SET IT CAME FROM. amLoadTemplate() has always known the phase it built a directive out of and amSave() has always thrown that away, so nothing downstream could ask whether a planned set was already covered without guessing from the directive's NAME or its DUE DATE - both of which the Owner may change at will. v3.23.0's anticipated-demand queue relied on that guess, and rename-plus-reschedule cut the last thread, which would have put a phase on the order twice. amSave() now stamps phaseId, and the anticipated queue matches on it exactly; the old name/date heuristic is kept but applies ONLY to directives written before this release, which carry no phaseId - so an unrelated directive that merely falls due on the same day no longer suppresses a planned set either. Additive, no migration, no Apps Script redeploy. // v3.23.0 - ROUND 2 OF THE PARALLEL SPRINT: ONE PICKER, ONE STOCK LIST, AND A BUY LIST YOU CAN RECEIVE AGAINST. MODULE 4: the same product search widget had been hand-written FIVE times - Stock In, Stock Out, Stock-take, Stock on hand and the Control Center - so a fix to one of them reached one of them. There is now ONE picker component, m4Picker(), mounted at three places, and ONE list renderer, m4StockList(), mounted at two. Nothing was renamed and no panel was deleted: in-search/in-prod, out-search/out-prod, st-search/st-prod, stocksearch, ccsearch, cctbl, invcc and onhandcard all still exist and still answer to every caller they always did, because HUB_PANELS, roleAllows() and the Purchaser's tab routes read those ids and a rename would have silently unhooked them. THE COLUMNS FOLLOW THE ROLE, using the gates that were already there and were reused verbatim rather than rewritten - SHOW_VALUES hides every RM figure and the whole valuation KPI row from a worker, aiTextRole() decides whether a row says the word painted on the drum or the chemistry behind it. MODULE 8 PIECE 3: the buy queue already worked out what to order and how many containers, and then the Purchaser re-keyed all of it by hand when the delivery arrived. RECEIVE AGAINST THE BUY LIST now pre-fills those lines - tick what actually came, correct anything short, key the price - and pushes them into the SAME v3.19 delivery basket, so each line still becomes an ordinary STOCK_IN event with exactly the fields it always had. The invoice number is still keyed once in the Stock In log below, because it belongs to the delivery and not to the line. The pre-filled price is RM PER CONTAINER and is labelled a suggestion: currentMAC() is per ml and unit_price is per bottle, and confusing the two is the RM 0.18-for-two-bottles error a screenshot caught in v3.19. MODULE 8 PIECE 5: a phase the Owner has PLANNED but not yet issued was invisible to the Purchaser, so material for a job three weeks out could only be ordered after the job was announced. Programme sets planned inside a 45-day ordering window - one month of sets plus the 7-day Sandakan turnaround plus slack for the rain delays that moved 22 plan dates in v3.20 - now appear as ANTICIPATED rows, dashed and labelled, BELOW the confirmed queue and with their own separate value total. They are never added into the estimated order value, and they do NOT move the Inventory tile badge: that badge counts what is waiting on a person right now, and a number that jumps because of a forecast stops being believed. Default off, one tap to open, and the count and value are printed even while closed. A set is dropped from the forecast if it is done, if it was removed from the plan, if material has already left the store against it, or if an issued directive already covers it. No Apps Script redeploy - nothing new reaches the Sheet. // v3.21.0 - THE OWNER CAN NOW FIX HIS OWN PROGRAMME. A set that came from the farm workbook could not be touched in the app at all - the timeline offered ACTIVATE and COPY, and the copy left the wrong original sitting there, so every mistake came back through a rebuild of database.js. It has already happened twice. Now: EDIT changes the planned date, the dose per 1,000 L tank, or drops a product; REMOVE takes the set out of the plan and leaves a PUT IT BACK button under the month. It is an OVERLAY, never a rewrite - PROG_SEED keeps the workbook programme untouched and every apply rebuilds from it, so a change cannot compound and can always be lifted off. Rides the shared-settings channel as a NINTH key, merging per phase id with newest-wins like agrodrafts, because a removal is a tombstone that MUST travel - a phone that never learned of it would go on sending the crew to a cancelled job. THE GUARD: a set with stock-out entries against it CANNOT be removed, and says how many and what they are worth; deleting it would orphan that spend, which is the exact defect v3.20 was built to close. Editing the recipe stays allowed and says plainly it affects only what is planned from now on. WHO IS TOLD: on the Owner's rule, changing a set that is already finished is SILENT, and changing one not yet done raises a flagged notice on the crew's home screen in Malay - SET INI DIBATALKAN, TARIKH BERUBAH, CAMPURAN BERUBAH, DOS BERUBAH - capped at two so it never becomes a wall. Owner-only, gated the same way every RM figure is. No Apps Script change: nothing new reaches the Sheet beyond the settings blob that already exists. // v3.20.1 - THE AGENT'S SUGGESTIONS ARE OUT OF THE PROGRAMME. Aug Sets 2, 3, 4 and 5 and the whole of September were recommendations written into the workbook by an assistant, not work the Owner had decided on - the Aug sheet says 'recommendation from AI' beside them and the Sep sheet still carries an example row telling the reader to delete it once logging starts. Ten sets removed. Nothing is lost: not one of them had material booked against it, the removal is asserted against the ledger before it runs, and the workbook still holds them. KEPT: Aug Fert Set 1 (3 Aug, already done, MSolumax booked), Aug Set 1 (6 Aug, the residue cut-off anchor) and Aug Fert Set 2 (18 Aug) - the workbook's own footnote says the 3 Aug and 18 Aug dates were moved across from the July sheet, which makes them the Owner's rounds rather than a suggestion. The Purchaser's BUY FOR PROGRAMME queue therefore goes quiet after 6 Aug, which is correct: there is no confirmed work beyond it yet. // v3.20.0 - THE PROGRAMME NOW KNOWS WHEN THE WORK WAS ACTUALLY FINISHED. THE FINISHING DATE IS THE STOCK-OUT DATE, AND THE PLAN DATE IS MOVED TO MATCH IT, on the Owner's instruction: the early rounds are sprayed with a hand power pump and no engine, so a full round takes more than one day, and rain part-way through adds another - that was never lateness, it was the length of the job. 22 plan dates moved; the date first written in the workbook is kept in planOriginal and printed on the card, and where the workbook tick disagrees with the day material left the store the store wins and the workbook date is shown beside it, never dropped. The farm's own programme workbook has carried an ACTUAL date beside every PLAN all year; the app had never read it, so a season of completed work showed as LATE and 0 applied. All 37 done dates are in, and EVERY ONE of the 452 imported stock-out entries now carries the phaseId of the set it belongs to - the spend on a programme set is summed straight from the ledger and cannot drift from it. EIGHT ROUNDS TOOK MORE THAN ONE DAY and the Actual cell said so in free text - '12 14 mar', '18 23-march', '29 30 Apri' - which a first pass read as no date at all. They now carry a started AND a finished date. BOOSTING was sprayed LOT BY LOT on three days (Lot B 23/02, Lot A 25/02, Lot C 28/02) with the whole farm's material booked once on 28/02; it keeps a date per lot. SEVEN SETS existed in the workbook and nowhere in the app - Jan round 2 Sets 1-3, Boosting, March Sets 1-3 - so their material belonged to no programme at all; they are added, with six planned lines the workbook names but that cannot be resolved to a product ('Amino', 'Calcim Boron', '20-20-20', '15-15-30') kept as UNCONFIRMED TEXT rather than guessed onto a pid. NINE SETS had no plan date at all - May Set 1, May round 2 Sets 1-3, June Sets 1-3, June round 2 Sets 1-2 - which is why their deadline strip was blank; filled from the workbook. July Set 5's plan is corrected 29/07 -> 28/07: v3.19.1 derived it from the day material moved, and the workbook is the original. Where the store and the workbook disagree by a day or three the WORKBOOK WINS, on the Owner's instruction. A set known done only from the sheet reports fromFile, so no screen ever claims a phone filed it. Data plus three small readers; no Apps Script redeploy. // v3.19.2 - THE SEASON'S SPENDING IS NOW IN THE APP. Eight months of spray and fertiliser rounds lived only in the farm's own workbook, so every costing screen read RM 0 of input spend for 2026. All 152 recorded lines are imported as 452 ordinary STOCK_OUT events - RM 33,347.90 across 44 products, 29 Jan to 3 Aug. THE TRAP THIS DESIGN AVOIDS: onHand() is opening minus used plus received, so posting a year of usage against the CURRENT shelf count sends every product deeply negative - Xilca to minus 24,000 ml. So all 44 opening balances are re-based from 'what is on the shelf' to 'what was received since 1 January'; opening minus the import returns each product to its counted stock and the store still values at RM 19,604.22, product by product. Whole-farm jobs are split by tree count (A 65 / B 66 / C 40 of 171) with the last lot absorbing the rounding, because five screens filter costs by lot and a single whole-farm row is invisible to all of them. GA3 is left WHOLE with no lot - tablets do not divide, and 5.70 of a tablet is not a number anyone should read. Fixed uuids mean six phones carrying this file cannot make six copies, and the entries go in unsynced on purpose so the first sync carries the year up to the Sheet. Stamped IMPORT 2026 / sheet-import throughout. ALSO: GA3 was in NO programme line at all, though the crew applied it twice - the Owner confirmed 5 tablets per 1,000 L tank, which is exactly the 15 tablets recorded against three tanks on 22/04 and 30/04, so April Set 3 and May Set 1 now carry it. Data plus a one-time migration; no Apps Script redeploy. // v3.19.1 - FARM SHEET RE-SYNC, 05/08/2026. The farm's inventory workbook was recounted; seven products no longer matched the app's opening stock. Xilca 2,000->5,000 ml, Heromix T1 1,000->6,000 ml, Fetto 480 0->2,000 ml, Pictor 0->2,000 ml and MSolumax 52,000->92,000 gm are deliveries the app never saw; Betakal Amino 10,000->0 ml and Flora 4,000->2,000 ml are the 29/07 soil drench it never deducted. The re-synced valuation lands on RM 19,604.22, which is the workbook's own stock-value figure - an independent check that all seven are right. TWO JULY JOBS WERE MISSING FROM THE PROGRAMME ENTIRELY: July Set 2 (10/07 soil drench - MSolumax, Betakal Amino, Xilca, Flora) and July Set 5 (29/07 soil drench - Betakal Amino, Xilca, Flora, no MSolumax). Both are DRENCH at 10 litres per tree, doses read off the recorded whole-farm quantities against two 1,000 L tanks. Without them the costing had two unpaid days and the on-time record counted work that was never listed. AND: Aug Fert Set 1 (03/08) listed MSolumax AND Polysulphate; only MSolumax was actually spread, confirmed by the Owner, so the Polysulphate line is removed rather than left showing as owed. Data only - no code path changed, no Apps Script redeploy. // v3.19.0 - ONE DELIVERY, MANY LINES. A supplier invoice has one number and many products on it; the form had it the other way round and WIPED the invoice number after every save, so a delivery of eight products meant typing the same invoice number eight times. Now: type it ONCE, press ADD TO THIS DELIVERY for each product, then RECEIVE ALL. Every line still becomes its own STOCK_IN event with exactly the fields it always had, sharing one timestamp, so the ledger, the moving-average cost and the Apps Script never learn anything changed - no script redeploy. The single-line SUBMIT button is untouched for anyone who prefers it, and a half-keyed delivery survives the phone going to sleep. ALSO: the BUY FOR PROGRAMME queue now shows what the order is WORTH - per row and as a total - because a Purchaser cannot place an order without knowing that, and keys unit prices on the very next screen. A SCREENSHOT caught the first version reading RM 0.18 for two bottles: currentMAC() is RM per ml, unit_price is RM per BOTTLE, and multiplying the first by a bottle count is wrong by the unit multiplier. Everything is converted to a per-container cost first. // v3.18.5 - MODULE 1: THE HARVEST SCREEN IS NOW TWO BUTTONS AND A SAVE BAR. Card A, Card B and the visit card were three bordered boxes, six steppers, six quick-add rows and three paragraphs of prose - about two and a half screens of scrolling at every tree. Now: TAP the green button to count a fruit into the selected grade, TAP the brown one only if fruit was lost (it stays grey and silent on a clean tree), and one save bar pinned to the bottom that never scrolls away. UNDO takes back the tap that was actually made, tracked in order, not one off whichever grade happens to be selected. All five clones, all FOUR loss causes including UNRIPE, and the v3.16 one-visit atomic commit are untouched - GCOUNT, GKIND, rotQty, rotCause and rotTied are the same state they always were, only the way a thumb reaches them changed. PLUS the ACTIVE TASK NOTICE BAR on the worker's home screen: what they are meant to be spraying today, brand name and dose per 1,000 L tank only - no chemistry, no money - shown ONLY when a directive is actually due, because a bar that is always there is furniture. A SCROLL TEST caught what the green suite could not see: the sticky save bar had no clearance beneath it, so the rotten counter and its cause chips sat permanently underneath it and could not be reached at any scroll position. // v3.18.4 - A FIFTH APPLICATION METHOD: LEAF AND FRUIT, 13 litres of mix per tree, sitting between Whole Tree (15 L) and Leaf Only (12 L). It is the outer canopy leaf plus the hanging fruit, without working the deep inside branches. Its mode is SPRAY, not LEAF, and that is the safety point - SPRAY means the chemical touches fruit, so the PHI residue warning and the fruit-contact guard both fire on it; filing it as LEAF would have made it silently exempt from both. English and Bahasa Malaysia labels included. The other four methods are untouched. // v3.18.3 - THE WHOLE STORE NOW ANSWERS "DOES RAIN WASH THIS OFF". Thirty-three products had no answer; three remain (Ardel, VS 34, tying rope). Two ingredients came from the farm's OWN 2026 programme sheet, where the active ingredient is written to the right of the product: Stunza = Mepiquat chloride (MEP), Plantara = Brassinosteroid (BR). TWO NEW ANSWERS beyond systemic and contact: SOIL for the sixteen granular ground feeds, which never touch a leaf, and ADJUVANT for the sticker, which has no action of its own - both are now excluded from the rainy-day wash-off list, because telling a crew a bag of 12-12-17 might wash off is the noise that makes a real warning ignorable. Diafenthiuron and glufosinate classified CONTACT; the plant hormones, mepiquat and boscalid SYSTEMIC. THREE CATEGORY ERRORS CORRECTED against the makers' own pages: Amotan 22.8SC is a FUNGICIDE (was Pesticide), Agus 24SC is an INSECTICIDE (was Fungicide), Anmi 4.8SC is a FUNGICIDE (was Foliar). Pictor and Azatin are deliberately UNTOUCHED - the farm's sheet and the makers disagree, so those two drums need reading. // v3.18.2 - EIGHT OF THE TWELVE UNCONFIRMED DRUMS NOW HAVE A REAL ACTIVE INGREDIENT, researched from manufacturer and Malaysian distributor pages: Amotan 22.8SC = Azoxystrobin, Madell = Carbosulfan, Arimo 23EC = Difenoconazole, Agus 24SC = Diafenthiuron, Fetto 480 = Metalaxyl-M, Entrust 18SL = Glufosinate-ammonium (NOT the spinosad product of the same trade name), Pengasus 47.17sc = Diafenthiuron (this is Syngenta PEGASUS), Anmi 4.8SC = Hexaconazole. Stunza, Plantara, Ardel and VS 34 were NOT FOUND and stay as brand rows. THE SAFETY PAYOFF: Agus 24SC and Pengasus 47.17sc are the SAME CHEMICAL under two names, which the app could not see before and can now warn about; Pegasus's published 14-day PHI is registered for both. EVERY VALUE MUST BE CHECKED AGAINST THE PHYSICAL LABEL - the Malaysian Pesticides Board registry was unreachable, so none of this is registry-confirmed. // v3.18.1 - EVERY DRUM IS NOW FINDABLE BY THE NAME PAINTED ON IT. The Program Builder lists ACTIVE INGREDIENTS, but 13 of the farm's 68 products have never had their ingredient confirmed, so ELEVEN of them collapsed into one unreadable row called "(confirm - see label)" - Madell, Stunza, Fetto 480, Amotan, Arimo, Agus, Ardel, Plantara, Anmi, VS 34, Pengasus, and the farm's ONLY herbicide. Searching for the brand matched nothing, because the picker only ever matched chemistry. Nothing was missing from the catalogue; it simply could not be reached by the name on the container. Those products now get ONE ROW EACH, titled by brand, pinned to that exact product, so the Purchaser's allocation has a single obvious answer - and the search box now matches brand names as well as ingredients, so "Madell", "Envoy" or "Racun rumput" all find their drum. // v3.18.0 - THE COMBO IS NO LONGER A CAGE, AND WHAT IT NEEDS BOUGHT NO LONGER EVAPORATES. The five fixed slots become a free list of components: a contact AND a systemic fungicide in one tank for an outbreak, four fertiliser varieties at once, the herbicide that was reachable from nowhere. The role on a line is now a label, not a gate. AND: an ingredient with zero stock is shown in red and stays selectable instead of being hidden; issuing a directive tells the Owner what must be bought and by when; the Purchaser gets a BUY FOR PROGRAMME queue ranked above the reorder alerts; the brand dropdown never disappears again; an unallocated line finally reports itself as short; and every shortage screen now reads the Program Builder's own directives, which none of them did before. Line keys stay unique so allocKey and every consumer downstream are unchanged - directives written before v3.18 need no migration. // v3.17.2 - A CORRECTION CAN NOW ONLY LAND ONCE. Only the phone holding the original entry writes its adjustment, and that adjustment's id is derived from the correction's id, so a second phone can never append a duplicate. Includes a one-time clear-out of rows a phone re-made for entries it does not hold. // v3.17.1 - THE LOGIN SCREEN CAN NOW FETCH THE STAFF LIST BY ITSELF, so a phone that was logged out (or pushed out when the Owner changed a key) can still learn a PIN created afterwards. Automatic when the screen opens, plus a button. It reads the WORKERS list and nothing else - no kill switch, no farm data. // v3.17.0 - THE OWNER'S COMMAND TILE GAINS TWO TABS. TODAY lists everything waiting on the Owner as colour + icon + word, each row naming and opening the screen that fixes it, above today's figures, the crop on the trees, the month's margin and which phones have gone quiet. COMPARE answers the one question no other screen could: is this better or worse than before - 7 days, month-to-date or the season, against a LIKE-FOR-LIKE previous period, never a part-month against a whole one. The v3.16 Executive Summary, the four isolated workspaces and every earlier feature are untouched
+const APP_VERSION = 'v3.56.0';   // v3.56.0 - REKOD SAYA: THE CREW'S DAY BOARD. The Owner: 'the purpose of this task board is for workers to double check what he had key in today, and he can also check the history mean yesterday or whatever specific date. so he knw what had key in, sync to sheet or respond from gate.' A sixth tile - his own count, 'since current workers only 5 tabs' - and WORKER ONLY, gated on the tile and again in roleAllows(); the Owner has THE STORE ▸ MY MONTH, which shows everything rather than only his own. THREE FACTS ON EVERY LINE because he named three: what was keyed, ON THIS PHONE vs IN THE SHEET, and the Gate's answer - WAITING / CHECKED / SENT BACK on a load, WAITING / APPROVED / REFUSED on a ration - read from reqDecision() and focStatusOf(), the same two functions the Gate's own queue reads, so his phone and hers can never disagree. Plus the TIME down the left, because the job is standing at the end of a row asking 'did that go in?': two loads keyed four minutes apart, both four baskets, both to Ah Seng, is the mistake a day shows and a month total hides. ⛔ A DAY, NOT A MONTH - the first design was the Purchaser's statement with a crew filter and the Owner corrected it; '38 fruit in August' cannot answer whether the 14 counted an hour ago went in. TODAY opens every time, ‹ and › walk a day, and a date box reaches any day he has ever keyed, never a future one. ⛔ NOTHING NEW IS RECORDED: all eight record types a crew phone can write - DROP, ROTTEN, TIE, TIE_ADJUST, DISPATCH_REQ, FOC_REQ, STOCK_OUT, TASK_DONE - already carry the worker and the device, checked one by one before this was designed. There is no form on this screen, so its risk is a layout and never a ledger. ONE LINE PER ACTION, not per row: collecting writes one event per TREE and an issue one per PRODUCT, so the day is grouped on the round ids the writers already stamp (pickId/roundId/reportId/replyId). ⛔ AND IT REPLACES A SCREEN THAT LIED: DAILY OPS ▸ TODAY'S TASKS carried 'Completion replies sent from this phone', which listed only work filed against a programme job - of the 452 rows in this farm's ledger, ZERO qualify - and filtered by neither the phone nor the person. It has never shown one row to anybody; the route is dropped and the card kept, unrouted, exactly as #invcc was in v3.48.0. PREVIOUS: v3.55.0 - STEP 4 OF 4: A SET THAT DID NOT HAPPEN. The Owner: 'cancel & replace with a weather reason', and on the two FARM rows, 'close both'. THE CANCELLATION: six reasons (rain, ground too wet, too windy, no material, no crew, plan changed) plus a free line, and an optional new day - he asked for BOTH, so a set can be moved or simply dropped. OWNER ONLY, his answer, gated twice. A set with stock-out rows against it CANNOT be cancelled: it happened, and that spend has to keep belonging to something - the same rule progLock() has enforced since v3.21, said again here because this is a second road to the same damage. ⛔ THE REPLACEMENT IS DERIVED, NOT STORED, AND THAT IS THE WHOLE DESIGN: the first cut planned the moved set as a BLUEPRINT, which would have been silently local - BLUEPRINTS are in NO sync payload, so the Owner would have moved a spray to the 8th and no crew phone would ever have heard of it. The new day rides inside the cancellation record instead (newPlan), which is a PROGRAMS row, which already syncs and already merges, and progMoved() grows the replacement phase off it wherever phases are listed. No new record type, no new Sheet tab, no Apps Script re-deploy - the one thing held back until after 22 August. THE TIDY: FARM drops from four rows to two. THIS MONTH is retired as a ROUTE only - its card, #agromonth, is now THE PROGRAMME's fourth segment ✎ PLAN (Owner only), so the timeline, the day-and-dose editor, PUT IT BACK and ＋ BUILD A SET THAT IS NOT ON THE SHEET all keep working, one door instead of two. SPRAY RECORD's two halves go where each belongs: PLAN vs DONE returns to REPORTS where it lived until v3.33.0, and STOCK PRESSURE BY SET - a BUYING question that was sitting on an agronomy screen the Purchaser cannot open - moves to THE STORE ▸ ORDER PLANNER, one renderer with two mounts rather than a second copy. ⛔ AND THE REASON THE TIDY WAS WORTH MORE THAN A SHORTER MENU: setStatus() (the timeline) and progStatus() (the programme screen) are two engines deciding the same thing, and with both cards now on ONE screen a cancelled set would have read DUE NOW beside CANCELLED. setStatus() now tests progCancelled() first, so they cannot disagree. PREVIOUS: v3.54.0 - THE MONTHLY STATEMENT, AND WHAT BUILDING IT FOUND. The Owner: 'for purchaser he need to have a statement that he already key in like received, issue, by month, so he will correct it.' Parked into SHELF at his instruction, the same screen for him and the Purchaser, grouped by product with every entry one tap behind it. ⛔ BUILDING THE FIGURES BEFORE DRAWING THE SCREEN IS WHAT MADE THIS WORTH SHIPPING: totalling the ledger by month returned 452 movements and EVERY ONE OF THEM GOING OUT. Not one delivery has ever been recorded, in six months - March 51 out, April 71, May 99, June 114, July 60, August 3, and zero in against any of them. The opening quantities came from the workbook import and the store has only ever been drawn down since. That is precisely why four products go negative the moment July and August are keyed honestly, and it was invisible because nothing in this app had ever put the two sides on one screen. So this is not a report; it is the screen that would have caught it in March, and it says so out loud - the RECEIVED side prints 'Nothing has ever been received into this store' rather than an empty table a reader could mistake for a quiet month. ⛔ IT EDITS NOTHING. This app has never changed a record and does not start here: a wrong line is corrected by keying the correction, and both stay on the ledger. The statement's whole job is that you cannot correct what you cannot see. Built as a PAGE off SHELF on the proven csOpen/stOpen pattern - no tab routes to it, it is opened by its button, closed by its own STMT_OPEN guard, listed in HUB_PANELS so walking off the tile puts it away, and every other segment closes it so it cannot leak onto BUY. Fourth screen in the app to print, fourth to use a body class rather than an id rule. PREVIOUS: v3.53.0 - THE BRAND IN GREY, AND LITRE AND KILOGRAM. Two asks from the Owner while step 4 waits. FIRST: 'that AI option should come with brand name in the grey wording.' The picker already CARRIED every brand name and printed a COUNT instead - 'Fungicide, 1 brand' - which tells him a number when the thing standing in his shed has a name painted on it. So the grey sub-line names them, for EVERY ingredient and not only the unconfirmed ones, and it does so in BOTH places: the picker he chooses from AND the line he has chosen, because naming the brand only while choosing helps him pick and then takes it away again. The six-brand cap is gone - he asked for all of them, and a cap that never fires on today's catalogue is a cap that surprises somebody the day it grows. ⛔ THE BRAND DOES NOT BECOME THE TITLE: the programme prescribes a CHEMICAL and the Purchaser chooses which brand carries it, and that separation is exactly what lets him buy Pengasus when Agus is out of stock. Only 3 of the farm's 65 ingredients have more than one brand, which is precisely why naming them matters. SECOND: 'add a unit for liter and kg', for all products. Added with their own containers - L: bottle 1, jerrycan 5, pail 18, drum 20, IBC tank 1000; kg: pack 1, bag 25, sack 50, tote 500 - because the container size is expressed IN the unit and a 20 L drum is 20 here where the same drum under 'ml' is 20000. ⛔ AND THE GUARD THAT HAD TO COME WITH THEM. The programme sheet doses in ml and gm, so a dose of 1000 on an ml product is one litre and the SAME 1000 on an L product is a thousand litres - a whole IBC tank. Nothing stopped that before, because until today every dosed product was in ml or gm and the question could not arise. amDoseGuard() fires once per line on the way out of the box, offers the ml/gm figure, and is a WARNING not a refusal because 200 kg of fertiliser across the farm is a real prescription. It is not a validation nicety: it is one keystroke that would empty a shed on paper and put a five-figure hole in the cost report. PREVIOUS: v3.52.3 - HE KEYS TANKS, NOT LITRES PER TREE. The Owner, on the v3.52.1 fix: 'the material volume should base on how many ipc tanks.' He is right and the first version asked the wrong question. Nobody on this farm measures litres per tree - they fill the IPC tank, spray until it is empty, and count the tanks. The 11.7 L/tree figure was something I DERIVED from his usage log three days ago, and asking him to key a derived number so the app could re-derive the one he already had is backwards. The programme's dose is written PER 1,000 L, so tanks IS the multiplier with no arithmetic in between: 2 tanks x a 1,000 ml dose = 2,000 ml. The implied rate is still printed underneath - '2,000 L over 131 trees = 15.27 L/tree' - because two tanks over 40 trees and two tanks over 171 trees are very different jobs and that number is worth seeing before he confirms; it is DERIVED and shown, never asked for, and it still feeds LAST_LPT for the ACTIVATE screen which genuinely does work in litres per tree. A properly activated record still supplies its own planned tanks, scaled to the lots ticked, so nobody re-keys what the app already worked out. ⛔ THE LESSON: I fixed a zero by inventing an input, and the input was the wrong unit. The right question was not 'what number is missing' but 'what does the person actually count'. PREVIOUS: v3.52.2 - THE AMOUNTS ARE EDITABLE, WHICH HE APPROVED AND I DID NOT BUILD. The Owner: 'the volume material cannot be change'. He asked for editable amounts in the step-3 mock, I recommended them, he agreed - and I shipped a read-only table anyway. It matters more than convenience: every set he is back-filling was sprayed WEEKS ago at whatever the field actually mixed, and a screen that can only write the plan turns a catch-up into a second set of numbers that are tidy and wrong. MD_QTY holds an override per product and the write loop uses it. ⛔ AN OVERRIDE IS NEVER SILENTLY DISCARDED: when the lots or the litres change, the recomputed figure repopulates only the rows he has NOT touched - throwing away typing the moment he ticks another lot is the kind of small betrayal that makes a person stop trusting a screen. A CHANGED tag marks each edited row and one ghost button puts the whole sheet back to the plan. ⛔ THE INPUTS ARE REBUILT ONLY BY mdCalc(), never on keystroke - mdSetQty() repaints the totals and the on-hand cells through mdTotalsOnly() instead, because rewriting the row a person is typing into is the v3.9.1 focus bug this project already fixed once. The zero-quantity refusal added in v3.52.1 now also accepts an edited amount standing on its own, so a set with no computable rate can still be recorded from what the field actually used. Read-only for a worker: his road is one button and the planned mix. Proved: editing 1,533 to 2,000, then ticking a third lot, keeps the 2,000, moves the untouched rows, and writes 21 rows whose edited product totals exactly 2,000 across A, B and C. PREVIOUS: v3.52.1 - THE SHEET THAT OFFERED TO DEDUCT NOTHING. Caught by a screenshot of my own step-3 build, not by any of its 524 assertions. Opening MARK DONE on August Set 1 showed '0 tanks of 1000 L' and '0 ml' against all seven products, and CONFIRM would have written a completion with NO MATERIAL - the exact silence this whole feature exists to end, manufactured by the feature itself. Cause: Aug Set 1 is a PER_1000L set, mdMult() multiplied the record's `tanks`, and progEnsureRecord() built that record from an imported phase whose tanks AND litresPerTree are both empty - the workbook never carried a spray rate. So the maths now runs from the one number a person actually knows: tanks = litres of mix per tree x trees ticked / 1000, asked for on the sheet when the set is foliar, prefilled from the last job (LAST_LPT), remembered after saving, and overridden by a real tanks figure when the record came from a proper activation. A FERT set is untouched - its dose is per tree, so the multiplier is simply the trees ticked. ⛔ AND IT NOW REFUSES TO SAVE A ZERO rather than recording a job that consumed nothing. Second fault in the same screenshot: the line read 'for Lot ALL' while only A and B were ticked, because mdLotVal collapses any multi-selection to ALL for the older readers; it names the ticked lots now - 'Lot A + B' - and prints the arithmetic under it, '11.7 L/tree x 131 trees'. Proved end to end afterwards: A+B at 11.7 L/tree writes 14 rows across two lots, not one of them zero, dated 2026-08-06, and August Set 1 stops reading OVERDUE. ⛔ THE LESSON, AND IT IS THE SECOND TIME THIS WEEK: a suite that is green proves the things it thought to ask. Look at the screen. PREVIOUS: v3.52.0 - STEP 3 OF 4 - MARK DONE FROM THE PROGRAMME, AND LOTS BECOME A MULTI-SELECT. The Owner approved the shape and then improved it: on the lot picker, 'i think it can be press either 1 or 2 or 3 lots depend on actual' - which is the real morning, because a crew does Lot A, or A and B, or the whole farm, and only they know which. So LOT_ALL stops being a fourth button and becomes what it always meant: all three ticked. ⛔ AND THE QUANTITY FOLLOWS THE SELECTION, which is the part that would have been wrong if I had simply allowed multiple ticks: the programme's dose is per tree, so doing A and B is 131 of 171 trees and must deduct 131/171 of the plan - 1,310 of 1,710 gm - not all of it and not half. mdShare() answers that, and the write loop then apportions the result BETWEEN the ticked lots by their own tree counts through splitExact(), so A 650 + B 660 re-adds to exactly 1,310 and every per-lot report still balances. Ticking one lot is the old single-row behaviour with no arithmetic at all. THE DOOR IS A DOOR, NOT A ROAD: MARK DONE on the programme screen opens the completion screen that ALREADY EXISTS. ⛔ That is a direct consequence of the fault the Owner found in v3.51.0 - crew and hours survived on two of three completion roads because I changed one - and a fourth road would be a fourth place to miss. The only wrinkle is that openMarkDone() needs a PROGRAMS record and a set planned on the workbook but never ACTIVATED has none, which is exactly the state August Set 1 is in and part of why it reads OVERDUE; progEnsureRecord() builds one from the phase itself, and NOTHING IS INVENTED - trees, products, doses and the plan date all come from his own imported sheet, stamped madeFor:'PROGRAMME_SCREEN' so an audit can tell a back-filled activation from one made at the time. THE BACKDATE reaches this road through the same stampFor() as the issue basket and the run filing: blank means today, a past day lands at midday, the future is refused before a row is written. ⛔ THE DAY BOX IS ABSENT FOR A WORKER, not greyed - the Owner's rule is that only he and the Purchaser record a day other than today, and a field a person can see but cannot use is a field they will try to use and then ask about. PREVIOUS: v3.51.1 - THE OTHER TWO COMPLETION ROADS. The Owner, within minutes of v3.51.0 going live: 'the mark down still maintain workers and hour, and also no option for all lot, only lot a b c.' He was right and I was wrong. ⛔ THERE ARE THREE COMPLETION ROADS IN THIS APP, NOT ONE, and v3.51.0 changed exactly one of them: MARK WORK DONE (openRun/submitRun) on the crew's task card. The other two - CONFIRM COMPLETION (openMarkDone/submitMarkDone) and MIXED A DIFFERENT AMOUNT (openReply/submitReply) - still demanded workers and hours before they would save, and still offered only LOT A/B/C. My own check after v3.51.0 drove openRun, saw the crew block hidden, and reported the job done; it never opened the other two. A switch that reaches one of three roads is not a switch, and a test that exercises the road you just edited proves only that you edited it. reach_v3510.js now walks ALL THREE and asserts the crew row is hidden and the save is not refused on every one, so a fourth road added later fails the suite instead of shipping. ALL LOTS joins CONFIRM COMPLETION, and - as on the issue basket - it is a real SPLIT and never a label: LOT_KEYS is ['A','B','C'] and every per-lot report groups on it, so lot:'ALL' would deduct the stock correctly and then hide it from the lot bars, the ledger and PROGRAMME COST. 1,710 gm across the farm becomes A 650 + B 660 + C 400, which re-adds to exactly 1,710, and the tree counts are printed under the buttons before anything is saved. Two things fixed on the way that nothing had asked for: tanks and water are now stamped ONCE PER LOT rather than repeated onto every product of that lot, which is the v3.44.0 double-counting rule PROGRAMME COST depends on; and these rows now carry phaseId, so a set completed through this road is finally visible to the v3.50.0 status engine instead of reading OVERDUE for ever. PREVIOUS: v3.51.0 - STEP 2 OF 4 - THE PROGRAMME BECOMES A SCREEN, AND LABOUR IS SWITCHED OFF. Two of the Owner's instructions in one release. FIRST, THE SCREEN: 'purchaser and workers should able to see the programme done and coming programme - help to reorganize and design a simple and direct view for 3 user.' One tab, one bar, three words in his order - DONE, COMING, TODAY - every view built from progStatus()/progList() shipped in v3.50.0, so no screen computes a status of its own and the four places that answer this question today cannot drift into four answers. ⛔ READ-ONLY ON PURPOSE: marking done and cancelling are steps 3 and 4, so everybody can see the season eight days before peak without one new way to write anything - the risk of this release is a layout, not a ledger. THE PURCHASER NOW HOLDS TWO TILES, having held exactly one since v3.26.2, and the crew hold a fifth; both are deliberate widenings and reach_v3480.js was UPDATED rather than loosened, so a third tile would still fail the line. The worker's shape is different, not reduced: TODAY first because that is his job, plus COMING which he has never been able to see, and no DONE because a season-long audit is not his screen. Marketing gets nothing - she is the gate, not the field. SECOND, LABOUR OFF: 'deleted workers on the job and hour in the time being, we focus on the task first no labour.' ⛔ THE FIELDS ARE HIDDEN, NOT DELETED, AND NO READER IS TOUCHED - ten months of filings carry real crew, hours and manHours, and the monthly matrix, the duplicate-finder and the run-cost table all read them; ripping the fields out would have rewritten history's shape to save one modal two inputs. LABOUR_ON is a single switch. ⛔ AND THE HONEST PART, which is the whole reason this is not a two-line change: a row filed with labour off has manHours 0, and left alone every labour figure for those jobs would print RM 0 - which does not read as 'not recorded', it reads as 'the work was free'. That is exactly the quiet number this project has spent six releases removing, so such rows are STAMPED labourOff:true and labourMissing() lets any screen print a word instead of a confident zero. PREVIOUS: v3.50.0 - STEP 1 OF 4 - THE PROGRAMME STATUS ENGINE. The Owner's decisions of 14 Aug: three days' grace, six status words, LATE not DELAYED, one screen for three users, and build all four steps. This release is the ENGINE ONLY: pure functions, no screen moved, nothing new written, so nothing can break because nothing is displaced. progStatus() is the ONE function every later screen will ask, so no screen ever computes a status of its own. ⛔ THE FINDING THAT SHAPED IT, and it came from running his own rule against his own history BEFORE writing anything: all 38 completed sets came back ON TIME by exactly zero days. That is not ten perfect months - every row has done === plan because the imported workbook had a single date column. Then the marker made it exact rather than inferred: all 452 seeded stock-out rows carry device 'sheet-import' and worker 'IMPORT 2026', so progImported() ASKS whether a single row came from a real phone instead of guessing from 'done === plan', which would have libelled any set genuinely finished on its planned day. Result: 38 of 41 are flagged imported, which is the honest number. The rule therefore works FORWARD from today, no historic set is ever recoloured, and ⛔ NO DATE IS EVER INVENTED for the old months - a guessed date inside a cost report is worse than an honest gap. AND A SECOND GAP FOUND ON THE WAY: progNoMaterial() reports two sets - July Set 1 and July Fert Set 1 - that are TICKED DONE in the workbook and carry NO material rows at all, so they cost exactly nothing in PROGRAMME COST. That is the same silence as the August RM 2,050, three weeks older, and nothing in the app would ever have said so. CANCELLATION NEEDS NO NEW EVENT TYPE, which is what makes step 4 possible before 22 August: a cancelled set is a PROGRAMS record with status 'CANCELLED', and PROGRAMS already syncs, already carries phaseId and status, and mergePrograms() already merges status changes - a new event type would have needed a new Sheet tab and the Owner's Apps Script re-deploy, the one thing being held back. ⛔ AND A NAME COLLISION CAUGHT BY ITS OWN TEST: the tally function was first called progCounts(), which already exists 2,000 lines below counting DIRECTIVES for the monthly record with two live callers. The later definition silently won and every figure came back in that function's shape - zeros that looked entirely plausible. Renamed progTally(). Same fault as the v3.43.0 .wbtn rename wearing different clothes: the blast radius of a name in this file is the whole file. PREVIOUS: v3.49.2 - THE BACKDATE THAT WOULD HAVE LEAKED INTO THE NEXT JOB. Found while tracing the route for the Owner's question 'how do i backdate on the program', by driving the real screen rather than describing it from memory. v3.49.0 added the DAY THE WORK WAS DONE box to the programme filing and did NOT reset it in openRun(). Every other field there is reset on open - crew, hours, the error line, the tree counts - because the modal is opened once per job. The date was not. So a person who backdated one filing to 6 August and then opened the NEXT directive found 6 August still sitting in the box, and would have filed today's work on a week-old date with NOTHING on screen to say so: the note only appears when the value differs from today, and it would have been showing the previous job's date, which reads as correct. That is a silent wrong number in the one report this whole feature exists to repair, and it would have been most likely to bite on exactly the day he sits down to key 6 and 11 August back to back. One line - clear the box, repaint the note - and a regression pin in reach_v3490.js that seeds a directive, backdates it, closes, reopens and asserts the box is empty. ⛔ THE LESSON, AND IT IS THE SAME ONE AS csClose(): a control added to an existing form inherits none of that form's lifecycle. If the form resets on open, the new field must be added to the reset, or it becomes the one field carrying yesterday's answer. PREVIOUS: v3.49.1 - LOT "ALL", AND IT IS A SPLIT RATHER THAN A LABEL. The Owner, one hour after v3.49.0 went live: 'for the issue it should have option A, B, C or all.' ⛔ THE ONE-LINE IMPLEMENTATION WOULD HAVE BEEN WRONG. Writing lot:'ALL' onto the row is trivial and would have quietly broken three screens, because LOT_KEYS is ['A','B','C'] and every per-lot grouping in this app keys on it: the lot bars on the dashboard, the per-lot disbursement in the monthly ledger, and the per-lot figures PROGRAMME COST reads. The material would still have left the shelf correctly but would have belonged to NO LOT AT ALL - deducted, costed, and invisible to every report that asks where it went, which is exactly the class of quiet hole this project keeps closing. So ALL SPLITS: one row per lot per product, apportioned by TREE COUNT (A 65 - B 66 - C 40 of 171), through the SAME splitExact() submitRun() has always used for a whole-farm filing, including its rounding-drift correction, so the three parts always add back to exactly what left the shed and never to 1,999.99. Nothing new is invented and the crew's road and the Purchaser's road now agree on what 'the whole farm' means. The split happens at the LAST possible moment, inside the write loop, so the basket still holds the honest total the Purchaser keyed and only the written rows are divided; picking a single lot behaves exactly as it always did, one row carrying the whole quantity. ⛔ AND IT IS SHOWN BEFORE IT IS SAVED - the tree counts and the resulting per-lot figures are printed under the buttons, because an apportionment the Owner cannot see is an assumption rather than a record. splitAll:true is stamped on every divided row so an audit can tell an apportioned figure from a keyed one. PREVIOUS: v3.49.0 - THE DAY IT ACTUALLY HAPPENED, AND TWO BASKETS. The Owner asked 'where is to back date my programe task completed' and the honest answer was NOWHERE: every write path in this app stamped dt:now(), so a set sprayed on 6 August could only be recorded as done today. That is not cosmetic - it is exactly why the 6 Aug set and the 11 Aug round could not be entered at all, and why PROGRAMME COST under-reports August by roughly RM 2,050. THREE SCREENS HAD ONE FAULT BETWEEN THEM, so there is ONE helper: stampFor(iso) returns now() for blank or today (so nobody who ignores the new box is affected by a single character), the chosen day at MIDDAY for a past date - never 00:00, because a timezone slip would walk it into the day before - and NULL for the future, which every caller refuses to save, because recording work that has not happened is fiction and would take stock out of a shed before it was there. ⛔ NO SHEET COLUMN, NO .gs EDIT, NO RE-DEPLOY: every dt in this app is already the string 'YYYY-MM-DD HH:mm' and every ledger, day stepper and report slices it by string, so a backdate is a string swap. ISSUE BECOMES A BASKET, his words: 'add one product by one base like programme, after finish all the whole set then only we submit, allowed the item with a small deleted button before submit.' Same shape as the delivery basket that has worked since v3.19 - the questions with ONE answer are asked once at the top, lines are added underneath, each removable, nothing written until the final button. ⛔ LOT IS IN THE HEADER AND NOT DROPPED. The approved mock-up left it off the line entirely, which would have quietly killed it - lot is required by submitStockOut(), keys the per-lot figures in PROGRAMME COST and drives the lot bars, so losing it would have broken the very report this basket exists to feed. It is asked once because a crew sprays a lot at a time: one answer instead of six. ⛔ AND THE CREW DO NOT PAY A SECOND TAP FOR THE PURCHASER'S BASKET - this same card is the worker's STOCK OUT screen and he takes ONE drum, so an empty basket still shows SAVE and submitOutBasket() pulls the line off the form; the one-product road is unchanged and only the eight-product road got shorter. FILL THE WHOLE SET FROM THE PLAN turns a followed programme into one tap and leaves him editing the exceptions instead of keying the rule. The basket PERSISTS to the same kv store as IN_BASKET, because a half-keyed basket is the one thing that does not survive a reload (v3.41.4) and a Purchaser copying eight products off a WhatsApp message must not lose them to a phone lock. Lines group under one replyId exactly as submitRun() groups a filing, so PROGRAMME COST reads a hand-keyed set the same way it reads a crew filing. THE INVOICE STOPS BEING COMPULSORY - 'we dun have to keep keying invoice no and company for all the item'. receiveBasket() REFUSED to save without one, so stock that genuinely arrives without a document (a transfer from Sandakan, a sample, a replacement drum) could not be received at all and the shelf drifted. ⛔ IT IS NOT SIMPLY DELETED: an unreferenced delivery is a real hole in an audit trail, so WITH INVOICE stays the default and NO INVOICE asks a one-word reason instead, writing 'NO INVOICE - <reason>' into the same ref column, which reads honestly on the Sheet and can never be mistaken for a real invoice number. Both the basket road and the single-line road take the identical rule, or the two would disagree about whether an invoice is compulsory depending on which button was pressed. EVERY CLASS THE NEW BASKET WRITES IS ONE THE DELIVERY BASKET ALREADY OWNS - bskt/bh/bline/bn/bs/bx/btot - not one invented, because t_classes.js fails the build on an unstyled class and because two baskets that look different are two things to learn instead of one. PREVIOUS: v3.48.1 - THE STORE COMES ONTO HOME. One line, and it is the v3.32.0 split doing exactly what it was built for. The Owner: 'pull the store to my main tab'. The tile was ALWAYS his - HUB_ORDER has carried 'inv' from the start - but home paints from HOME_TILES, and 'inv' was not in it, so the tile he now opens several times a day sat two taps down inside ALL TOOLS. Only HOME_TILES.OWNER changes: entitlement, gates and routes are untouched, which is the whole reason v3.32.0 separated what is PAINTED from what is ALLOWED. Placed third, after TODAY and HARVEST, because it is peak week and the two collection screens keep the top row. Six tiles fill the 2-column grid exactly where five left one sitting alone, so it costs a row and wastes none. ⛔ NOBODY ELSE IS AFFECTED: HOME_TILES has one entry, OWNER; every other role falls through homeTiles() to hubTiles() as before, and the Purchaser's home already showed the store because it is the only tile he holds. PREVIOUS: v3.48.0 - THE TILE BECOMES ONE ROW, AND THE MAN WHO BUYS THE STOCK MAY SEE WHAT IT COST. The Owner, looking at his own Inventory menu: 'old planner, stock lv and stock check consider repeated right? can we deleted to avoid confuse.' He was right about ONE of the three, and the other two would have cost him something, so all three were opened and read before any was touched. STOCK LEVEL was a true duplicate - #invcc mounted the SAME component as #onhandcard (m4StockList), so one table had two routes; its three unique features (money KPIs, tap-a-row-to-set-the-minimum, BRAND/AI/GROUP modes) are switched on inside renderStock() under roleAllows('invcc'), the very gate the retired row used, so the crew - who read this same list under their STOCK OUT form - see byte-for-byte what they saw before. STOCK-TAKE was NOT a duplicate and I argued against deleting it: it is where the count sheet v3.47.0 prints comes back IN, the only screen that turns the estate's paper into a ledger adjustment, so printing and posting stop being one job split across two menus and become two buttons on one screen. ORDER PLANNER was NOT a duplicate either, though it is the one that LOOKS doubled: BUY is procureNeeds() - what an issued directive still needs bought - while the planner is programNeeds() - what the programme will consume whether or not an order was ever raised, a phase AHEAD, which is the whole point when a chemical takes three weeks to arrive; it becomes a toggle inside BUY. ⛔ NOT ONE CARD IS DELETED OR MOVED. progcheck, progready, stocktake and invcc keep their ids, markup, renderers and places in HUB_PANELS; only what ROUTES to them changed, and deep links to inv/plan, inv/lvl and inv/take fall through tabsFor() onto the hub exactly as the retired v3.19 and v3.46.0 keys do. THE TILE IS RENAMED to THE STORE ('remove inventory and its main tab as the store') - name, sub and tn only. ⛔ THE KEY STAYS 'inv', because that is what openModule(), every deep link, LEGACY_GO.stock, HUB_ORDER, HOME_TILES and all seven harnesses are measured against; renaming a key is a rename with the blast radius of the whole file, which is what renamed the crew's MARK WORK DONE button in v3.43.0. THE PURCHASER SEES RM ON MATERIALS - his words, 'yes let him see RM on all the purchase, not a fruit'. He already keys the price of every line he receives, so hiding the shelf total from the man buying the stock was the inconsistency, not the disclosure. The fruit side is kept off his phone by ENTITLEMENT and not by this flag: he holds exactly one tile, so the five screens he can reach are HOME plus the four store jobs, and that walk was RUN with the flag forced on before the flag shipped - RM appears only on the buy queue and the valuation, and nothing matching revenue/retailer/merchant/credit/payout/per-kg renders anywhere. reach_v3480.js pins that walk so a future tile grant to PURCHASER fails the suite instead of quietly handing him the fruit money. SHOW_SPEND is deliberately NOT widened. AND A FAULT OF MY OWN, found while answering his 'any technical impact?': v3.47.0 made ISSUE a segment on the store bar, which handed OWNER and MARKETING a SECOND route to the stock-out form, because the bar does not consult the tab list and roleAllows('pnl-out') is true for them - the exact duplicate-door the v3.39.0 note closed. My v3.47.0 harness missed it because it only checked the old MENU ROW was gone. Resolved the v3.39.0 way, by asking who has no alternative: DAILY OPS - STOCK OUT is now roles:['WORKER'] because the crew have no store tile and it is their only door; Owner, Marketing and Purchaser all use ISSUE on the bar. The GATE is untouched - narrowing roleAllows() instead of the ROUTE would have taken the form away from the people who use it every day. PREVIOUS: v3.47.0 - THE STORE BECOMES THE FOUR JOBS HE APPROVED, AND A SHED IS COUNTED IN CONTAINERS. His instruction after approving the mock-up: 'i wan purchase in DMS store complete sample as the mock up.' Less was needed than it looked: v3.41.0 had already put four jobs behind one bar, so this release re-cuts them rather than inventing them. BRANDS is FOLDED INTO RECEIVE - matching a brand to the ingredient the Owner asked for, and onboarding a product the store never carried, are things you do WHILE receiving an invoice; they were never a job of their own, and giving them a quarter of the bar cost the Purchaser the slot he actually needed. ISSUE takes that slot, and the v3.46.0 menu row is RETIRED after a single release - it existed only to give him a route at all, and leaving both would be the duplicate-door fault this project keeps closing; a deep link to inv/out falls through tabsFor() to the hub exactly as the retired v3.19 keys do, and roleAllows() keeps his pnl-out grant, which is what v3.46.0 was really about. THE UNIT RULE, his sharpest observation of the day: 'i know that programme set up sometime by gm or ml, but when u go to inventory this unit will make thing difficult.' The programme speaks in ml and gm, the store speaks in bottles, drums and bags - both right, different jobs. A dose must stay exact because 2.5 kg per 1,000 L is chemistry, but nobody buys, counts or stores in millilitres. unit_multiplier already held the conversion, so packQty() prints the container big and the exact ml/gm small underneath, and ⛔ NOT ONE STORED NUMBER CHANGES - on-hand is still computed in ml/gm everywhere, this is a way of printing it, and the programme screens are untouched. packFullPart() never yields a decimal: 95,000 gm is 11 bags + 7,000 gm, because '11.9 bags' is not something a person can find in a shed. THE COUNT SHEET answers 'Shelf - have print out button for purchaser to ask estate to do stock check every month'. It is a PRINT, not a job, so it is a page hung off SHELF with a back button rather than a fifth segment, and leaving SHELF puts it away - a card left in the wrong group leaks onto every other screen for the session, which this codebase shipped twice (v3.6, v3.12). Two blank boxes a line, FULL and OPENED, because that is how a store is actually counted. It prints the app's own figure by the Owner's decision: a blind count finds more mistakes, a visible one actually gets done. The button rides the STOCK-TAKE entitlement, not the shelf list's, so the crew - who see the same list under their stock-out form - are not offered a store-wide count they cannot post. Third screen in the app to print, third to use a body class rather than an id rule, so the harvest sheet's print block is still byte-identical to the day it was proved on paper. It stores nothing: what comes back is keyed through the existing STOCK-TAKE, which already posts a signed adjustment. PREVIOUS: v3.46.0 - THE PURCHASER CAN FINALLY RECORD MATERIAL LEAVING. Two edits, and they close the fault behind the Owner's complaint that his workers 'are still no able to key the stock but they will whatssap to purchase and he will help to update'. Driving the app as all four roles showed the Purchaser could receive stock, read the shelf and run a stock-take but had NO WAY AT ALL to record an issue: his tile list is ['inv'], STOCK OUT was retired from that tile in v3.39.0 as a duplicate of DAILY OPS STOCK OUT, and he has no Ops tile - so a retirement that was correct for everyone else left him with no route to the panel, and roleAllows() refused him a second time. What that cost is not cosmetic: a worker WhatsApps 'I took 2 litres of Xilca' and the only thing the Purchaser could do was a STOCK-TAKE adjustment, which records a counting correction - no set, no cost, invisible to PROGRAMME COST. So the store drifted and the programme under-reported, by design of one gate. The section returns to the Inventory tile with roles:['PURCHASER'] ALONE, which is what keeps the v3.39.0 promise intact: Owner and Marketing still reach the identical panel from Daily Ops and gain NO second door, and the crew are untouched. `pnl-out` is widened by one role and opstasks / opshistory / opsgeneral deliberately are NOT - those are the crew's job list, not his desk. No new render path was needed: renderForTab still carries the inv/out line from before the retirement. ⛔ THE LESSON: when a screen is retired as a DUPLICATE, check it is a duplicate FOR EVERY ROLE - it is only a duplicate for someone who owns the other door. PREVIOUS: v3.45.0 - PROGRAMME COST, NARROWED AND DE-DUPLICATED. Two corrections the Owner asked for within an hour of v3.44.0 going live. ONE, 'the programme cost should only for spraying and fertilizer': the screen took every STOCK_OUT row that carried a `set`, which would have let tying rope - a Consumable - sit in a chemical cost report the moment a tying round was ever filed against a set. PC_CATS is an ALLOW list (Fungicide, Pesticide, Fertiliser, Foliar, Powder, Growth Reg, Herbicide), not a deny list, because a deny list lets the next category the Purchaser invents - fuel, packaging, tools - walk straight in on the day it is created. The trade is that a genuinely new INPUT category would be dropped, so it is not silent: whatever is turned away is counted and printed at the foot of the screen with its ringgit. TWO, 'certain month repeated like may 1 and 2, please help to merge to month': the calendar grouping was never wrong - the app has always grouped by the DATE - it was the LABEL. Every set name carries the name of the Excel tab it came from, so under a heading already reading MAY 2026 the rows said 'May 2 - Set 3 (flower) rnd2' and looked like a second May. pcSplitSet() strips the prefix, and ONLY when it really is a month: 'Boosting (Feb)' is named as a tab too, and a set called 'Merchant Tan - special mix' is left entirely alone. The date on the left of each row is what still separates two sets that end up sharing a name - May had a Fert Set 1 on the 5th and another on the 20th. ⛔ THE STRIPPED PREFIX IS NOT THROWN AWAY. It is kept and PRINTED when it disagrees with the calendar month, because that disagreement is real and was invisible before: 'May - Set 1' was done on 30 April, and four January sets were done in February. Silently removing the word would have destroyed the only evidence that the plan and the day did not match. Each row now also carries 💦 or 🪣 - the app's own runs answer from dirProgram, the imported history from its naming - and a month showing both prints the two subtotals. PREVIOUS: v3.44.0 - PROGRAMME COST, set by set. His words: 'i would like to have each set of detail volume usage, and rm.' REPORTS already totalled material by month and by lot, and PROGRAM RUNS counted runs and tanks, but nothing in this app had ever shown ONE SET's product lines - which is the question he actually asks: what did the 6 August spray cost me, drum by drum. It is REPORTS door 4 and deliberately NOT a fifth toggle inside MONEY, because MONEY is a once-a-month read already carrying four detail cards and this is a screen he opens whenever a set is sprayed; burying it would cost a tap every time. Also NOT in FARM beside SPRAY RECORD, which answers 'was it done on time' and is open to roles that must never see RM. OWNER alone, gated at the tab, again in roleAllows(), and a third time on SHOW_SPEND before a single ringgit is painted. TWO SHAPES, ONE PANEL, his pick: on screen month -> set -> products, the only shape that fits a phone without sideways scrolling; on paper the programme sheet with sets across the top and products down the side, because that is what his own Excel looks like and what he carries into a meeting. The print swap is keyed on a BODY CLASS, not an id rule, so the harvest sheet's print block - the one screen ever proved on real paper - is left byte-identical. Scope is programme sets only, also his pick: a STOCK_OUT row with no `set` was drawn by hand and belongs to the store screens. ⛔ THE WHOLE RISK IS DOUBLE COUNTING. submitRun() stamps tanks, trees, crew, hours and manHours onto EVERY row of a filing, once per LOT, so a 3-product job over 2 lots writes them six times; summing naively reports 9 tanks and 48 man-hours for a job that used 3 and 16. Rows are grouped by `replyId` - the one id all three writers stamp per job - and the per-lot figures are keyed by lot and OVERWRITTEN, never added. The harness asserts those exact wrong numbers cannot appear. It stores nothing: every figure is re-read from the store, so it cannot drift from the material that actually left the shed, and a set that was never marked done has no rows and therefore no cost - the screen says so instead of printing a quiet zero, which is the whole point, because on 13 August the 11 August round was missing from the app AND from the farm's old spreadsheet. t_classes.js, added one release earlier, caught this release's own orphan class on its first run: a `k2` that never existed in the stylesheet. PREVIOUS: v3.43.1 - THE BUTTON THE CREW COULD NOT SEE. A one-line repair of damage v3.43.0 did to a screen it never meant to touch. Namespacing the new WHO'S ON classes away from the existing .wbtn was done as a blanket replace of the string class="wbtn", and it silently renamed a call site 2,400 lines away: the crew's MARK WORK DONE button on the programme card. The onclick was untouched so the button still WORKED - it simply stopped looking like a button, losing its green, its full width and its padding, which on a phone in a shed means nobody presses it. 46 assertions were green at the time, because every one of them was about WHO'S ON. The lesson is not 'be careful with sed': it is that a rename is only safe when it is SCOPED to the block it belongs to, and that the blast radius of a string replace is the whole file. t_classes.js is the guard: it reads every class name app.js writes into markup and fails if one has no rule in the stylesheet (731 checked, 7 legacy orphans baselined and listed for clearing), and it holds an ANCHORS table of specific elements that must keep their exact class - the MARK DONE button is the first entry. One orphan of this release's own making, an unstyled `wholist` wrapper, is removed. Nothing else in v3.43.0 changed. PREVIOUS: v3.43.0 - WHO'S ON. The Owner, on the first trial morning: 'for owner view we can't see or monitor when the other user login and what they do.' COMMAND gains a second door, directly under TODAY because that is the order the two questions get asked every morning - what happened, then who did it. It needs NO NEW DATA: every writer in this app already stamps worker / workerId / device and a timestamp on the row it saves, about twenty call sites all identical, so the whole screen is an aggregation of records already on the Sheet done in the render - no new event type, no .gs change, no sync change, the same rule the daily audit follows. THE PHONES lists one row per registered person INCLUDING the ones who saved nothing, because the empty rows are the entire point, and each row carries a status word beside its dot (WORKING / QUIET / NO RECORD) since amber-and-green is a red-green pair this app has already failed a colour-blind check on. QUIET is 90 minutes: a crew walking between lots is easily an hour between saves, and a warning that cries wolf on an honest morning is a warning nobody reads. MINUTE BY MINUTE is the same day as one feed, every record turned into a plain sentence, and a record type the describer does not know still prints under its own name rather than vanishing - an audit screen may not silently drop a row. A day stepper walks backwards and refuses to step into tomorrow. OWNER ALONE, gated at the tab AND again in roleAllows(), and deliberately NOT `return full`: FULL_ROLES is Owner and Marketing, and the Gate is the person who approves the crew's loads - an approver reading the minute log of the people she checks is the same independence problem that closed the staff registry to her in v3.27.1. ⛔ WHAT IT REFUSES TO SAY IS A LOGIN. Grepping app.js and AppsScript_code.gs for LOGIN, lastSeen, heartbeat and deviceSeen returns ZERO hits: tryLogin() assigns CFG and writes no event, doPost has no session branch, and there is no device tab in the workbook. So a phone that is opened and never used leaves no trace anywhere, and this screen says FIRST RECORD and LAST RECORD, never 'logged in'. The gap is PRINTED at the foot of the screen instead of being hidden, because a monitor the Owner cannot trust is worse than no monitor. The login stamp is its own release - new event, new sheet tab, and his own Apps Script re-deploy. PREVIOUS: v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -203,6 +203,9 @@ async function initStore(){
     const pv=kv.find(x=>x.k==='progover'); if(pv&&pv.v&&typeof pv.v==='object') PROG_OVER=pv.v;
     // v3.19 — a phone that slept mid-delivery must not lose eight keyed lines
     const ib=kv.find(x=>x.k==='inbasket');   if(ib&&Array.isArray(ib.v)) IN_BASKET=ib.v;
+    // v3.49.0 — the issue basket survives a locked phone for the same reason the delivery
+    // basket does: a Purchaser keying eight products off a WhatsApp message must not lose them.
+    const ob=kv.find(x=>x.k==='outbasket');  if(ob&&Array.isArray(ob.v)) OUT_BASKET=ob.v;
     applyNewProducts();
     const w3=kv.find(x=>x.k==='wx3'); if(w3&&w3.v) WX3=String(w3.v);
     const au=kv.find(x=>x.k==='appurl');   if(au&&au.v) APP_URL=String(au.v);
@@ -348,6 +351,45 @@ function uuid(){ if(crypto&&crypto.randomUUID)return crypto.randomUUID();
 function natKeyRun(progId,slot,lot,qty,trees){
   return 'RUN|'+progId+'|'+slot+'|'+lot+'|'+(+qty||0).toFixed(2)+'|'+(+trees||0);}
 function now(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+/* ======================================================================================
+   v3.49.0 · THE DAY IT ACTUALLY HAPPENED
+   ======================================================================================
+   The Owner asked "where is to back date my programe task completed" on 13 August, and the
+   answer was: nowhere. EVERY write path in this app stamped dt:now(), so a job done
+   yesterday could only be recorded as today's. That is not a cosmetic problem — it is why
+   the 6 August set and the 11 August round could not be entered at all, and why PROGRAMME
+   COST under-reports August by roughly RM 2,050.
+   ONE helper serves all three write paths (the run filing, the issue basket, the delivery),
+   because they had one fault between them.
+   ⛔ THE FORMAT IS NOT NEGOTIABLE. Every dt in this app is the string "YYYY-MM-DD HH:mm" and
+   the Apps Script, the ledgers, the day steppers and every report slice it by string. So a
+   backdate is a STRING SWAP, not a schema change: no Sheet column, no .gs edit, no re-deploy.
+   ⛔ AND IT REFUSES THE FUTURE. Recording work that has not happened is not backdating, it is
+   fiction, and it would put stock out of the shed before it was there. A blank box means
+   today, which is what it has always meant, so nobody who ignores the new field is affected. */
+const DAY_NOON='12:00';                     // a backdated entry lands at midday, never 00:00,
+                                            // so a timezone slip cannot walk it into the day before
+function todayISO(){const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+/** '' or today -> now() (unchanged behaviour). A past date -> that day at midday.
+ *  A future date -> null, and the caller must refuse to save. */
+function stampFor(iso){
+  const s=String(iso||'').trim();
+  if(!s)return now();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return now();
+  const t=todayISO();
+  if(s>t)return null;                       // the future is not a thing that has happened
+  if(s===t)return now();                    // today keeps the real clock time
+  return s+' '+DAY_NOON;}
+/** The one sentence every backdating screen prints, so they cannot word it differently. */
+function backdateNote(iso){
+  const s=String(iso||'').trim();
+  if(!s||s===todayISO())return '';
+  if(s>todayISO())return tr('bd_future','That day has not happened yet. Pick today or a day already past.');
+  return tr('bd_saving','⏪ This will be recorded on')+' '+s+', '+tr('bd_nottoday','not today.');}
+/** the run filing's copy of the same note — one function, so the two screens cannot word it
+ *  differently or drift apart. */
+function runDayNote(){const n=$('run-bdnote'); if(n)n.textContent=backdateNote(($('run-day')||{}).value||'');}
 /* v3.29.4 — EVERY date in this app is written "YYYY-MM-DD HH:mm". One is not. Google Sheets
    parses the dt column of MKT_DISPATCH and AUDIT_LOG into a real Date cell, and the Apps
    Script serves it as String(dateCell) — "Wed Aug 05 2026 03:40:00 GMT+0800 (Singapore
@@ -405,6 +447,9 @@ async function netPull(){
     toast('📋 '+nn+' new job'+(nn>1?'s':'')+' from the Owner');}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)netPull();});
 setInterval(netPull,5*60*1000);
+/* v3.41.4 — one check shortly after boot, so a phone that is behind finds out even before
+   its first sync. Delayed so it never competes with the first paint. */
+setTimeout(function(){try{checkServerVersion(true);}catch(x){}},6000);
 
 // ================= TREE MASTER engine (v2.2) =================
 // TREE_FIX holds every Owner-APPROVED correction, keyed by TreeID. It is replayed
@@ -447,19 +492,49 @@ function renderMyCorrections(){
 // ================= owner: pending data adjustments =================
 let corrFilter='PENDING';
 function setCorrFilter(f,el){corrFilter=f;[...$('corrfilter').children].forEach(x=>x.classList.remove('on'));if(el)el.classList.add('on');renderCorrections();}
+/* v3.41.1 — which correction, and which answer, is armed. Cleared on entry to the tab and
+   whenever the row it points at stops being pending. */
+let CORR_ARM='';
+function corrDisarm(){CORR_ARM='';renderCorrections();}
 function renderCorrections(){
   const panel=$('corrpanel'); if(!panel)return;
   const r=myRole();
   panel.style.display=(r==='OWNER'||r==='MARKETING')?'':'none';   // never the Purchaser
   if(panel.style.display==='none')return;
   const pend=CORRECTIONS.filter(c=>c.status==='PENDING');
+  /* v3.41.1 — an armed row that is no longer pending (decided on another phone, or cleaned
+     up) must not stay armed, or the second tap lands on nothing. */
+  if(CORR_ARM&&!pend.some(c=>c.uuid===String(CORR_ARM).split('|')[0]))CORR_ARM='';
   const b=$('corrcount'); b.textContent=pend.length; b.classList.toggle('hidden',!pend.length);
   const list=corrFilter==='PENDING'?pend:(corrFilter==='DECIDED'?CORRECTIONS.filter(c=>c.status!=='PENDING'):CORRECTIONS.slice());
   list.sort((a,b2)=>b2.dt.localeCompare(a.dt));
   $('corrlist').innerHTML=list.length?list.map(c=>{
     const s=c.status==='APPROVED'?'a':(c.status==='REJECTED'?'r':'p');
+    /* v3.41.1 — ARMED, ON THE SCREEN. The browser dialog these two buttons used to raise is
+       refused outright by several of this farm's Android WebViews (v3.37.4), and a refused
+       confirm() returns FALSE — so the tap ended in silence that looks exactly like a dead
+       button. First tap arms and says what it is about to do; second tap writes. */
+    const armY=CORR_ARM===(c.uuid+'|1'), armN=CORR_ARM===(c.uuid+'|0');
+    const arm=(armY||armN)
+      ?('<div class="armbox"><b>'+esc(tr('vf_armhead','CHECK IT, THEN TAP AGAIN'))+'</b>'+
+        '<div class="w">'+esc(armY?(c.ctype==='NOTE'?tr('cr_armack','Acknowledge this note')
+                                                    :tr('cr_armok','Approve this change'))
+                                  :tr('cr_armno','Reject this request'))+'</div>'+
+        '<div class="k">'+esc(c.tree)+' · '+esc(corrSummary(c))+'</div>'+
+        '<div class="s">'+esc(armY
+            ?(c.ctype==='LOGQTY'
+              ?tr('cr_armlog','This files a signed adjustment against that log. The original row is kept.')
+              :tr('cr_armtree','This permanently updates the Tree Master across the whole app.'))
+            :tr('cr_armback','The worker sees the answer on his own phone.'))+'<br>'+
+          esc(tr('vf_armnote','Nothing is written until the second tap.'))+'</div>'+
+        '<div style="margin-top:9px"><span class="linkish" style="color:#cfe3cf" '+
+          'onclick="corrDisarm()">'+esc(tr('vf_armno','NOT YET — GO BACK'))+'</span></div></div>')
+      :'';
     const acts=(c.status==='PENDING'&&canApprove())
-      ?'<div class="cacts"><button class="ok" onclick="decideCorrection(\''+c.uuid+'\',1)">✓ '+(c.ctype==='NOTE'?'ACKNOWLEDGE':'APPROVE CHANGE')+'</button><button class="no" onclick="decideCorrection(\''+c.uuid+'\',0)">✕ REJECT REQUEST</button></div>'
+      ?(arm+'<div class="cacts"><button class="ok" onclick="decideCorrection(\''+c.uuid+'\',1)">'+
+        (armY?('✓ '+esc(tr('cr_armgo','TAP AGAIN TO SAVE'))):('✓ '+(c.ctype==='NOTE'?'ACKNOWLEDGE':'APPROVE CHANGE')))+
+        '</button><button class="no" onclick="decideCorrection(\''+c.uuid+'\',0)">'+
+        (armN?('✕ '+esc(tr('cr_armgo','TAP AGAIN TO SAVE'))):'✕ REJECT REQUEST')+'</button></div>')
       :(c.status==='PENDING'?'<div class="small">Owner approval required.</div>'
         :'<div class="small">'+c.status.toLowerCase()+' by '+(c.decidedBy||'—')+' · '+(c.decidedAt||'')+'</div>');
     return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(c.tree)+'</div>'+
@@ -590,6 +665,12 @@ const MODULES={
   // screens rather than being stacked onto a summary that is already dense.
   cmd:{ic:'👑',name:'Command',sub:'today, summary, compare',tn:'m_cmd',
     tabs:[{k:'home',  t:'TODAY',           scr:'dash',panels:['ownerhome'], roles:['OWNER'],ic:'📌',tn:'s_today', d:'Today, the week or the whole season — drop, quality and what is left on the trees'},
+          /* v3.43.0 — DOOR 2. It sits directly under TODAY because the two questions are
+             asked in that order every morning: what happened, then who did it. OWNER only —
+             a screen that shows what each person did is exactly the "marking someone else's
+             homework" line that has kept YIELD AUDIT and ADJUSTMENTS off MARKETING since
+             v3.2, and it applies here with more force, not less. */
+          {k:'who',   t:"WHO'S ON",         scr:'dash',panels:['whocard'],   roles:['OWNER'],ic:'👥',tn:'s_who',   d:'Who is on which phone, what they have recorded today, and who has gone quiet'},
           {k:'exec',  t:'EXECUTIVE SUMMARY',scr:'dash',panels:['cmdexec'],   roles:['OWNER'],ic:'📈',tn:'s_exec',  d:'Variance alerts, rain, retailer revenue, drawdown and the drop forecast'},
           {k:'cmp',   t:'COMPARE',         scr:'dash',panels:['cmdcompare'],roles:['OWNER'],ic:'📊',tn:'s_compare',d:'7 days, this month or the whole season — against the period before it'},
           /* v3.39.0 — 'today' (OLD TODAY CARD) RETIRED. It was kept as the way back if the
@@ -609,12 +690,12 @@ const MODULES={
   // v3.0 — tying has LEFT this module. The collection screen is now two cards only:
   // Card A good fruit by grade, Card B rotten loss. Nothing else competes for the
   // worker's thumb while fruit is being counted.
-  harvest:{ic:'🥭',name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
+  harvest:{ic:IC_DUR,name:'Harvest',sub:'grade A/B/C, loss',tn:'m_harvest',
     /* v3.24 — COLLECT had NO roles key at all, which is why every role in the app could
        open the fruit-counting screen. It is named explicitly now. This section has
        panels:[] — it is a whole screen, not a panel — so it is the one section the
        MKT_DENY set cannot reach, and the tab gate is the only place it can be closed. */
-    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],roles:['OWNER','WORKER'],ic:'🥭',tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
+    tabs:[{k:'log', t:'COLLECT',   scr:'harvest',panels:[],roles:['OWNER','WORKER'],ic:IC_DUR,tn:'s_collect',d:'Count good fruit by grade, and loss with its cause'},
           // v3.9 — the backlog answers a harvest question, so it lives on the harvest tile
           // and every role that can reach harvest can reach it. The worker sees the plain
           // count; the flags and the trace are gated inside renderBacklog by SHOW_VALUES.
@@ -649,8 +730,27 @@ const MODULES={
            roles:['OWNER','MARKETING','WORKER'],ic:'⚖️',tn:'s_scale',
            d:'Weigh the baskets and photograph the scale display'}]},
   ops:{ic:'📋',name:'Daily Ops',sub:'tasks, stock out',tn:'m_ops',
-    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory'],ic:'📋',tn:'s_tasks',d:'The jobs assigned to you, with one-tap completion'},
-          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],ic:'📤',tn:'s_stockout',d:'Draw material from the store, against a lot'},
+    /* v3.56.0 — 'opshistory' DROPPED FROM THIS TAB. The card said "Completion replies sent
+       from this phone" and did neither thing it claimed: it listed only work filed against a
+       programme job — of the 452 stock-out rows in this farm's ledger, ZERO qualify — and it
+       filtered by neither the phone nor the person. It has never shown one row. REKOD SAYA
+       answers the question it was pretending to. ⛔ The card and renderOpsHistory() stay in
+       the build, unrouted, exactly as #invcc did in v3.48.0: removing a route is reversible,
+       deleting a renderer with live callers is not. */
+    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral'],ic:'📋',tn:'s_tasks',d:'The jobs assigned to you, with one-tap completion'},
+          /* v3.48.0 — ⛔ THE CREW'S DOOR, AND ONLY THE CREW'S. A fault I shipped in v3.47.0
+             and found while answering the Owner's "any technical impact?": making ISSUE a
+             segment on the store bar handed OWNER and MARKETING a SECOND route to this exact
+             form, because roleAllows('pnl-out') is true for them and the bar does not consult
+             the tab list. Two doors to one form is the duplicate the v3.39.0 note closed and
+             the v3.46.0 note re-opened for one release on purpose.
+             Resolved the same way v3.39.0 resolved it — by asking who has no alternative. The
+             WORKER has no store tile, so this is his only door and it stays his. Owner and
+             Marketing hold the store, so they use ISSUE on the bar like the Purchaser does.
+             `roleAllows('pnl-out')` is deliberately NOT narrowed: the crew still need the
+             panel, and narrowing the gate rather than the ROUTE would have taken the form
+             away from the people who use it every day. */
+          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],roles:['WORKER'],ic:'📤',tn:'s_stockout',d:'Draw material from the store, against a lot'},
           /* v3.30.0 — the WORKER's door to the same rations screen. It is scoped to
              ['WORKER'] on purpose and NOT given to the Owner: he already reaches foccard
              from Review & Credit, and a second door for one person is exactly the
@@ -664,12 +764,53 @@ const MODULES={
              behind a second door. Exactly the duplicate-route fault being closed across
              this release. A deep link to ops/scale falls through to the landing. */
           ]},
+  /* ======================================================================================
+     v3.51.0 · STEP 2 OF 4 · THE PROGRAMME — ONE SCREEN, THREE USERS
+     ======================================================================================
+     The Owner: "purchaser and workers should able to see the programme done and coming
+     programme. help to reorganize and design a simple and direct view for 3 user."
+
+     ONE tab, one segment bar, three words: DONE · COMING · TODAY, in his order. Every view is
+     built from progList()/progStatus() (v3.50.0) so no screen computes a status of its own —
+     the fault this codebase keeps closing is two places deciding the same thing differently.
+     ⛔ READ-ONLY IN THIS RELEASE. Marking done and cancelling are steps 3 and 4. Shipping the
+     view first means everybody can see the season eight days before peak without a single new
+     way to write anything, so the risk of this release is a layout, not a ledger.
+     ⛔ THE WORKER'S SHAPE IS DIFFERENT, NOT REDUCED. He gets TODAY first because that is his
+     job, and COMING so he can prepare — which he has never been able to see. He does not get
+     DONE, because a season-long audit is not his screen, and hideChem()/SHOW_VALUES already
+     strip chemistry and money from everything he reads. */
+  /* ======================================================================================
+     v3.56.0 · REKOD SAYA — the crew's own day board
+     ======================================================================================
+     One tab, one card, WORKER only. It answers the three questions the Owner named: what did
+     I key today, did it reach the Sheet, and what did the Gate say. ⛔ It writes nothing —
+     there is no form on it — so the risk of this tile is a layout, never a ledger. */
+  mine:{ic:'📄',name:'My Record',sub:'what I keyed today',tn:'m_mine',
+    tabs:[{k:'day',t:'MY RECORD',scr:'dash',panels:['minecard'],
+           roles:['WORKER'],ic:'📄',tn:'m_mine',
+           d:'Everything I keyed today, and whether it reached the Sheet'}]},
+  prog:{ic:'📅',name:'The Programme',sub:'done · coming · today',tn:'m_prog',
+    /* v3.55.0 — 'agromonth' and 'cxcard' JOIN THIS TAB'S PANELS. openModule() only ever
+       shows the panels its tab names, so a card the screen means to reveal later has to be
+       routed here even though it starts hidden: #agromonth is the ✎ PLAN view and #cxcard is
+       the cancel page. Both are held down by .m3-hide, which renderProgScreen()/cxOpen()
+       lift — the display:none they carry in the markup is only the FIRST paint. */
+    tabs:[{k:'hub',t:'THE PROGRAMME',scr:'dash',panels:['progseg','progcard','agromonth','cxcard'],
+           roles:['OWNER','PURCHASER','WORKER'],ic:'📅',tn:'m_prog',
+           d:'What is done, what is coming, what is due now, and the plan'}]},
   agro:{ic:'🌱',name:'Agronomist',sub:'program builder, timeline, weather',
     // v3.12 — the seasonal matrix is the Agronomist's main tool now and therefore sits
     // first. The v2.6 "My sets" AI->brand builder is untouched and still lives under the
     // month timeline: every set the Owner has already built keeps its edit path.
     tabs:[{k:'build',t:'PROGRAM BUILDER',scr:'dash',panels:['agromatrix'],roles:FULL_ROLES,ic:'🧬',tn:'s_builder',d:'Build a five-part combo by active ingredient, per 1,000 L tank'},
-          {k:'month',t:'THIS MONTH',scr:'dash',panels:['agromonth'],  roles:FULL_ROLES,ic:'🌱',d:'The phase timeline and what is due'},
+          /* v3.55.0 · STEP 4 — 'month' RETIRED AS A ROUTE. The Owner, on THIS MONTH and
+             SPRAY RECORD: "close both". THE PROGRAMME ▸ ✎ PLAN now shows #agromonth — the
+             same card, the same editor, the same ＋ BUILD A SET button — so this row was a
+             second door to a screen that already had one. ⛔ THE CARD IS NOT DELETED and
+             renderTimeline() is unchanged; only the route is gone. A deep link to agro/month
+             falls through tabsFor() to PROGRAM BUILDER, exactly as the retired v3.19
+             inventory keys and v3.40 'progrec' do. */
           {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','agrorain'],roles:FULL_ROLES,ic:'🌧️',d:'Rain gauge and spray-window advice'},
           /* v3.40.0 — TWO RECORD SCREENS BECOME ONE, AND THE NAME COLLISION GOES.
              This tab was called RECORD and so was REPORTS ▸ RECORD — the same word on two
@@ -679,7 +820,16 @@ const MODULES={
              question — what the programme asked for, and what actually happened — and
              they were two doors to it. Same panels, same role gates: `progrecord` is still
              OWNER-only through roleAllows(), which is the second gate and is untouched. */
-          {k:'rec',  t:'SPRAY RECORD',scr:'dash',panels:['agrorecord','progrecord'], roles:FULL_ROLES,ic:'📝',tn:'s_spray',d:'What was actually applied, and how it ran against the plan'},
+          /* v3.55.0 · STEP 4 — 'rec' RETIRED AS A ROUTE, and its two halves go where each
+             one belongs rather than staying bolted together.
+               • WHAT WAS APPLIED — a month × applied × material table. REPORTS ▸ PROGRAMME
+                 COST already prints every set of every month WITH the ringgit, from the
+                 ledger. This was the same question answered more thinly.
+               • Stock pressure by set — the only thing on that card with no home. It is a
+                 BUYING question, so it moves to THE STORE ▸ ORDER PLANNER (#ddbox), beside
+                 the phase stock check it belongs with.
+               • PLAN vs DONE — the work-order compliance record. It goes back to REPORTS,
+                 where it lived until v3.33.0, Owner-only, gates untouched. */
           /* v3.33.0 — moved out of Reports. What was promised against what landed is a
              question about the PROGRAMME, not about money, so it sits beside the programme.
              Owner only, exactly as it was in Reports — the roles: array is copied, not
@@ -706,7 +856,14 @@ const MODULES={
   // Purchaser's six, so touching them would be removing a route nobody asked to collapse.
   // Net effect: Purchaser sees hub + plan (2, was 6). Owner/Marketing see hub + plan + out +
   // lvl + take (5, was 9) — same reduction, zero panels lost either direction.
-  inv:{ic:'📦',name:'Inventory',sub:'stock in/out, levels, alerts',tn:'m_inv',
+  /* v3.48.0 — THE TILE IS RENAMED, THE KEY IS NOT. Owner, 13 Aug 2026: "remove inventory and
+     [make] its main tab THE STORE". Only `name`/`sub`/`tn` change here; the key stays 'inv'
+     because that is what openModule(), every deep link, LEGACY_GO.stock, HUB_ORDER, HOME_TILES,
+     MODULE_ALIAS and all seven reach harnesses are measured against. Renaming a key is a
+     rename with the blast radius of the whole file — the exact class of fault that renamed the
+     crew's MARK WORK DONE button in v3.43.0. The label is the only thing the Owner can see, so
+     the label is the only thing that moves. */
+  inv:{ic:'🛒',name:'The Store',sub:'buy · receive · issue · shelf',tn:'m_inv',
     // v3.16 — TILE D · the Purchaser's SUPPLY HUB. Receiving an invoice, matching a brand
     // to the ingredient the Owner asked for, and onboarding a product the store has never
     // carried are one continuous job done at one desk, and splitting them across three
@@ -726,12 +883,37 @@ const MODULES={
     // the same job: the queue says what to buy, the receive card takes the same lines back
     // in off the invoice. Putting it anywhere else would make the Purchaser re-find, by
     // search box, the eight products the app had just listed for them.
-    tabs:[{k:'hub', t:'SUPPLY HUB',   scr:'stock',panels:['procurecard','m8recv','alertcenter','pnl-in','alloccard','onboardcard','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy for programme, invoice in, brand matched, new product, live stock — one page'},
+    /* v3.41.0 - SEVEN CARDS ON ONE PAGE BECOME FOUR JOBS BEHIND ONE BAR. Every panel is
+       still listed here and still hidden by hideAllPanels(); 'invhubseg' leads because it
+       is the bar itself and must never be hidden while the tab is open. The name changes
+       to THE STORE because SUPPLY HUB described the page, not the job. */
+    /* v3.48.0 — ONE ROW. 'plan', 'lvl' and 'take' are retired as routes and their panels
+       joined this list, so every one of them is still hidden by hideAllPanels() and still
+       opened by openModule() — they are simply reached from the job bar now instead of a
+       menu. progcheck/progready ride the BUY toggle, stocktake is a page off SHELF, and
+       invcc is deliberately NOT here: its three unique features moved onto #onhandcard,
+       so routing the card as well would put two copies of the same table on one screen. */
+    /* ⛔ 'stocktake' and 'countsheet' are deliberately ABSENT from this list, and the reason is
+       the difference between a JOB and a PAGE. openModule() sets display:'' on everything it
+       routes, so a page listed here would be on screen the moment the store opens — which is
+       exactly what a screenshot caught: the stock-take form sitting under the job bar on
+       SHELF, on first entry, before anybody asked for it. Pages are opened by their own
+       button (stOpen/csOpen) and closed by their own guard. They are hidden on the way OUT by
+       HUB_PANELS, which lists both. */
+    tabs:[{k:'hub', t:'THE STORE',    scr:'stock',panels:['invhubseg','m8buyseg','procurecard','m8recv','alertcenter','progcheck','progready','pnl-in','alloccard','onboardcard','pnl-out','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy, receive, issue and count — the whole store on one bar'},
           // v3.19 — ORDER PLANNER merges the old PROGRAM CHECK ('chk') and NEXT PHASE
           // ('next') tabs. Both panels ship exactly as before — progcheck and progready are
           // still separate cards in index.html, still both listed in HUB_PANELS, still both
           // gated by roleAllows() — only the segment toggle between them is new.
-          {k:'plan',t:'ORDER PLANNER',scr:'dash', panels:['progcheck','progready'],           roles:['OWNER','MARKETING','PURCHASER'],ic:'📅',tn:'m3_orderplanner',d:'Program check for the phase running now, and what to order for the one after — one screen, one toggle'},
+          /* v3.48.0 — 'plan' RETIRED as a route. Owner, 13 Aug 2026, on the whole tile:
+             "remove inventory and [make] its main tab the store". I checked this one against
+             BUY before agreeing it could move: they are NOT the same table. BUY is
+             procureNeeds() — what an issued directive still needs bought. The planner is
+             programNeeds() — what the programme will consume whether or not an order exists,
+             and it looks a phase AHEAD, which is the whole point when a chemical takes three
+             weeks to arrive. So it is not deleted, it is a toggle inside BUY (M8_BUYVIEW).
+             Both cards keep their ids, their renderers and their gates; a deep link to
+             inv/plan falls through tabsFor() onto the hub. */
           /* v3.39.0 — 'out' RETIRED FROM INVENTORY. It is the identical pair of panels as
              DAILY OPS ▸ STOCK OUT. ⛔ THE CREW'S COPY IS THE ONE THAT STAYS: a WORKER has
              no Inventory tile at all, so retiring the Ops copy instead would have taken
@@ -743,8 +925,35 @@ const MODULES={
              is the one standing in the store. He does NOT gain the marketing desk — see
              roleAllows() below, and note SHOW_VALUES stays false for PURCHASER so the stock
              list shows QUANTITIES, not valuations. */
-          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:['OWNER','MARKETING','PURCHASER'],ic:'📦',tn:'s_stocklvl',d:'Live valuation, reorder alerts, active ingredients'},
-          {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'🧾',d:'Physical count vs system, posted as an adjustment'}]},
+          /* v3.46.0 — STOCK OUT RETURNS TO THIS TILE, FOR THE PURCHASER ALONE. v3.39.0 retired it
+             here as a duplicate of DAILY OPS ▸ STOCK OUT and kept the crew's copy, which was right
+             — except the Purchaser has no Ops tile, so for him it was not a duplicate, it was the
+             only door, and it was closed. `roles:['PURCHASER']` is what keeps the v3.39.0 promise
+             intact: Owner and Marketing still reach the identical panel from Ops and gain no second
+             door here, and the crew are untouched. The renderer line for inv/out was never removed
+             (renderForTab, 'the v3.19 retired keys' comment), so this needs no new render path. */
+          /* v3.47.0 — the v3.46.0 menu row is RETIRED after one release. It existed to give the
+             Purchaser a route at all; ISSUE is now a segment on THE STORE's bar, where the eye
+             lands, and leaving both would be the duplicate-door fault this project keeps closing.
+             A deep link to inv/out falls through tabsFor() to the hub, exactly as the retired
+             v3.19 keys do. `pnl-out` stays in roleAllows() for him — that gate is what v3.46.0
+             was really about. */
+          /* v3.48.0 — 'lvl' RETIRED, and this one really was a duplicate: #invcc mounted the
+             SAME component as #onhandcard (m4StockList), so the Owner had two routes drawing
+             one table. Its three unique features — the money KPIs, tap-a-row-to-set-the-
+             minimum, and the BRAND/AI/GROUP modes — are switched on inside renderStock()
+             under `roleAllows('invcc')`, the very gate this row used. The crew's copy of that
+             same list is unchanged because the gate says no for them.
+             The #invcc card and renderInvCC() STAY in the build, unrouted: refreshEverything()
+             still calls the renderer, it returns harmlessly with no mount on screen, and
+             deleting markup to tidy is how a routed panel ends up with nothing behind it. */
+          /* v3.48.0 — 'take' RETIRED as a route, but NOT as a feature, and this is the one I
+             argued against deleting. It is where the printed count sheet comes back IN. The
+             estate counts on paper; this form is the only thing that can turn that paper into
+             a ledger adjustment. Printing and posting were one job split across two menus, so
+             it is now the second button under the print button, on the same screen, via the
+             stOpen()/ST_OPEN page pattern. */
+          ]},
   // v3.0 — Marketing is the morning dispatch desk: weigh the baskets, invoice the
   // retailer, watch the credit come down. Owner and Marketing only.
   // v3.16 — TILE E · REVIEW & CREDIT. The Marketer's morning is auditing what the field
@@ -827,7 +1036,24 @@ const MODULES={
           {k:'record', t:'DAILY RECORD', scr:'dash',ic:'📅',tn:'s_rec7',
              panels:['dailyaudit'],roles:FULL_ROLES,
              d:'Seven days side by side — tied, good, loss, kg out'},
-          {k:'harvest',t:'HARVEST REPORT',scr:'dash',ic:'🥭',tn:'s_harv',
+          /* v3.44.0 — DOOR 4. It is its own section and NOT a fifth toggle inside MONEY:
+             MONEY is a once-a-month read that already carries four detail cards, and this is
+             a screen he opens whenever a set is sprayed. Burying it would cost a tap every
+             time. ⛔ It is also NOT in FARM beside SPRAY RECORD, which answers "was it done
+             on time" and is open to roles that must never see RM — the v3.24 line. */
+          {k:'pcost',  t:'PROGRAMME COST',scr:'dash',ic:'🧪',tn:'s_pcost',
+             panels:['pcostcard'],roles:['OWNER'],
+             d:'Every set, every product — the volume that went in and what it cost'},
+          /* v3.55.0 — PLAN vs DONE comes home. It lived here until v3.33.0, moved to FARM ▸
+             SPRAY RECORD, and comes back now that that row is closed. Owner-only, the same
+             roleAllows('progrecord') gate it has always had — the roles: array is copied,
+             not widened. ⛔ #progrecord carries class m3-hide in the markup from the days it
+             was the hidden half of a segment; renderForTab() lifts it, or this row would
+             route to a card that paints nothing. */
+          {k:'progrec',t:'PLAN vs DONE',scr:'dash',ic:'🏁',tn:'s_plandone',
+             panels:['progrecord'],roles:['OWNER'],
+             d:'What the programme asked for against what was actually filed'},
+          {k:'harvest',t:'HARVEST REPORT',scr:'dash',ic:IC_DUR,tn:'s_harv',
              panels:['harvestrep'],roles:FULL_ROLES,
              d:'The season’s quality, and the one sheet you print for the meeting'}]},
   admin:{ic:'🔐',name:'Admin',sub:'corrections, yield, master, keys',tn:'m_admin',
@@ -841,7 +1067,20 @@ const MODULES={
           {k:'yield', t:'YIELD AUDIT', scr:'dash',panels:['yieldaudit'],roles:['OWNER'],ic:'🔎',d:'Fruit counted vs fruit weighed — the mismatch list'},
           // v3.3 — the Owner's master override suite. OWNER only, and the panel renders
           // an empty string for anyone else so none of its markup reaches the DOM.
-          {k:'master',t:'MASTER DB',   scr:'dash',panels:['masterdb'], roles:['OWNER'],ic:'🔐',d:'Owner override suite, tree expansion, QR tags'},
+          /* v3.41.0 - MASTER DB IS 'FIX A RECORD', AND IT IS ONE JOB AGAIN.
+             The Owner's words: "especially admin master DB is very confuse". It carried five
+             unrelated chips - the correction table, the backdate engine, the census, the
+             clean-up and a QR printer - and every one of them opened a full page of controls
+             at once. The panel is now a four-step flow (what is wrong -> find it -> read it
+             back -> the change and why), keyed the way he asked for: like the Morning Scale.
+             TREES and QR are their own sections below. Neither is a correction: one grows the
+             census, the other prints a poster for a new worker's phone, and sharing a screen
+             with the delete tools is what made that screen read as everything-dangerous-in-
+             one-place. Same OWNER-only gate at the tab AND again in roleAllows(); no panel is
+             lost and no writer changed. */
+          {k:'master',t:'FIX A RECORD',scr:'dash',panels:['masterdb'], roles:['OWNER'],ic:'🩹',tn:'s_fixrec',d:'Correct a number, key work that was never logged, or clear out trial rows'},
+          {k:'trees', t:'TREES',       scr:'dash',panels:['treescard'],roles:['OWNER'],ic:'🌳',tn:'s_trees',d:'The census - add a new planting spot, live in every dropdown at once'},
+          {k:'qr',    t:'APP QR TAG',  scr:'dash',panels:['qrcard'],   roles:['OWNER'],ic:'📱',tn:'s_qrtag',d:'The code a new worker scans to install the app'},
           {k:'reg',   t:'STAFF',       scr:'dash',panels:['keyspanel'],roles:['OWNER'],ic:'🔑',tn:'s_staff',d:'Access keys and who may do what'}]}
 };
 // v3.7 — tile order per role. The role gate is applied here AND again in roleAllows(),
@@ -888,7 +1127,7 @@ const MODULES={
 // that he alone now covers the Sandakan desk when the Purchaser is offline.
 // ======================================================================================
 const HUB_ORDER={
-  OWNER:    ['cmd','harvest','tying','scale','inv','agro','ops','mkt','reports','admin'],
+  OWNER:    ['cmd','harvest','tying','scale','inv','prog','agro','ops','mkt','reports','admin'],
   /* v3.30.0 — 'admin' REMOVED. It had become a DEAD TILE: v3.27.1 closed STAFF to the
      Marketer and that was the last section her Admin tile held, so tapping it ran
      openModule() -> tabs.length===0 -> goHome() and bounced her back with no message.
@@ -902,8 +1141,16 @@ const HUB_ORDER={
      missing, which is the mirror image of the dead-tile fault noted just above: a live
      screen nobody could open. A tile is not a decoration, it is the door. */
   MARKETING:['mkt','scale','harvest','reports'],  // v3.24 — was the Owner's eight
-  WORKER:   ['harvest','tying','scale','ops'],   // + Morning Scale as its own tile
-  PURCHASER:['inv']                              // Inventory ONLY — no harvest, no money
+  /* v3.51.0 — 'prog' joins the crew and the Purchaser. The Owner's decision: both of them
+     must be able to see what is done and what is coming. The Purchaser has held exactly one
+     tile since v3.26.2 and now holds two; that is a deliberate widening, and reach_v3480.js
+     is updated rather than loosened so the change is recorded instead of slipping through. */
+  /* v3.56.0 — THE SIXTH TILE, and it is the crew's only one. The Owner counted the five
+     himself: "since current workers only 5 tabs. we may make another tab for him to check
+     what is he key in and sync". It is deliberately NOT given to anyone else — the Owner has
+     THE STORE ▸ MY MONTH, which shows everything rather than only his own. */
+  WORKER:   ['harvest','tying','scale','ops','prog','mine'],   // + Morning Scale as its own tile
+  PURCHASER:['inv','prog']                       // the store, and the programme he buys for
 };
 /* v3.24 — the panels behind the sections MARKETING no longer holds. This is the SECOND
    gate, exactly as the v3.7 note above describes: the tile list decides what is on the
@@ -956,6 +1203,23 @@ const MKT_DENY=new Set([
    Reports rather than bouncing the person to Home with no explanation. */
 const MODULE_ALIAS={costadmin:'reports'};
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
+  // v3.48.0 — BUY's own sub-toggle. In this array for the same reason every other panel is:
+  // a card that hideAllPanels() cannot see stays on screen over the next module.
+  'm8buyseg',
+  // v3.51.0 — the programme screen's two panels.
+  'progseg','progcard',
+  /* v3.48.0 — 'countsheet' JOINS THE LIST. It shipped in v3.47.0 outside it, relying on
+     csClose() alone, which covers a segment change but NOT walking off the tile entirely —
+     precisely the hole the note below describes and this codebase has shipped through twice.
+     Being listed here does NOT put it on screen: it is a page, so no tab routes to it, and
+     hideAllPanels() only ever HIDES. Same for 'stocktake', listed at the top of this array
+     since v2.3 and no longer routed by any tab as of this release. */
+  'countsheet','stmtcard',
+  // v3.56.0 — the crew's day board.
+  'minecard',
+  // v3.55.0 — the cancel page. Same reasoning: a page no tab lands on still has to be
+  // hideable, or it rides along onto the next tile.
+  'cxcard',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
@@ -969,6 +1233,12 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
      hideAllPanels() and sits on top of every other screen for the rest of the session.
      It has shipped that way twice already (v3.6, v3.12). */
   'moneycard','harvestrep',
+  /* v3.43.0 — WHO'S ON. Read the warnings above: an id in index.html but NOT in this array
+     is never hidden by hideAllPanels() and sits on top of every other screen for the rest of
+     the session. It has shipped that way twice (v3.6, backlogcard in v3.12). */
+  'whocard',
+  /* v3.44.0 — same rule as every id above: absent from this list means never hidden. */
+  'pcostcard',
   // v3.12 FIX — 'backlogcard' has been a live panel since v3.9 and was never in this
   // list, so hideAllPanels() could not hide it: once a worker opened BACKLOG the card
   // stayed on screen over every other section for the rest of the session. Exactly the
@@ -1002,7 +1272,15 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   // every other screen for the rest of the session; that has happened twice already
   // (v3.6 and again with backlogcard in v3.12), so the panel-coverage test now fails
   // the build if any panel id in index.html is missing here.
-  'cmdtoday','cmdcompare'];
+  'cmdtoday','cmdcompare',
+  /* v3.41.0 - TREES and QR left MASTER DB and became sections of their own. Read the four
+     warnings above before touching these two ids: a panel that exists in index.html but is
+     NOT in this array is never hidden by hideAllPanels() and sits on top of every other
+     screen for the rest of the session. That has shipped twice (v3.6, and backlogcard in
+     v3.12) and the panel-coverage test fails the build on it. */
+  'treescard','qrcard',
+  /* v3.41.0 - the bar THE STORE's four jobs hang off. Same rule as every id above it. */
+  'invhubseg'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -1030,8 +1308,16 @@ function hubTiles(){return HUB_ORDER[myRole()]||HUB_ORDER.WORKER;}
       wrong way round. Nothing is taken away — agro keeps its full entitlement in
       HUB_ORDER and is one tap away in ALL TOOLS, which is the whole point of the
       v3.32.0 split between what is PAINTED and what is ALLOWED. */
+/* v3.48.1 — THE STORE COMES ONTO HOME. Owner's request, 13 Aug 2026: "pull the store to my
+   main tab". It was already his — HUB_ORDER has listed 'inv' since the beginning — but it sat
+   in the ALL TOOLS drawer, which is two taps from a screen he now opens several times a day.
+   This is the v3.32.0 split working as designed: entitlement (HUB_ORDER) is untouched, only
+   what home PAINTS changes, so nothing about who may open what moves an inch.
+   Placed third, after TODAY and HARVEST: it is peak week and the two collection screens keep
+   the top row. Six tiles fill the 2-column grid exactly — five left an odd tile alone on the
+   last row, so this costs one row and wastes no space. */
 const HOME_TILES={
-  OWNER:['cmd','harvest','mkt','reports','admin']   // TODAY · HARVEST · GATE · MONEY · ADMIN
+  OWNER:['cmd','harvest','inv','prog','mkt','reports','admin']   // TODAY · HARVEST · STORE · PROGRAMME · GATE · MONEY · ADMIN
 };
 function homeTiles(){return HOME_TILES[myRole()]||hubTiles();}
 /** What the ALL TOOLS drawer holds: everything he may open that is not already on home. */
@@ -1051,7 +1337,10 @@ function roleAllows(id){
      a toast, or a screen the Owner still reaches. */
   if(r==='MARKETING'&&MKT_DENY.has(id))return false;
   switch(id){
-    case 'pnl-in': case 'alertcenter': return full||r==='PURCHASER';
+    /* v3.51.0 — the programme view is open to all three of the people who work the season.
+       ⛔ It is READ-ONLY in this release, so this gate opens a page and not a write path. */
+    case 'progseg': case 'progcard': return full||r==='PURCHASER'||r==='WORKER';
+    case 'pnl-in': case 'alertcenter': case 'invhubseg': return full||r==='PURCHASER';
     case 'procurecard': return full||r==='PURCHASER';   // v3.18 — Module 6 buy queue
     /* v3.23 — RECEIVE AGAINST THE BUY LIST shows the same rows as the buy queue and pushes
        into the same delivery basket, so it carries exactly the same entitlement. Gating it
@@ -1059,7 +1348,25 @@ function roleAllows(id){
        gating it narrower would hide it from the Owner, who covers the desk on a Sunday. */
     case 'm8recv': return full||r==='PURCHASER';
     case 'progcheck': case 'progready': return full||r==='PURCHASER';
-    case 'pnl-out': case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
+    /* v3.46.0 — THE PURCHASER JOINS pnl-out, AND ONLY pnl-out. Measured on 13 Aug by driving
+       the app as all four roles: he could receive stock, read the shelf and run a stock-take, but
+       he had NO WAY AT ALL to record material leaving. His tile list is ['inv'], STOCK OUT was
+       retired from that tile in v3.39.0 as a duplicate of DAILY OPS ▸ STOCK OUT, and he has no
+       Ops tile — so the retirement, correct for everyone else, left him with no route to the
+       panel, and this gate refused him a second time.
+       What that cost is not cosmetic. A worker WhatsApps "I took 2 litres of Xilca" and the only
+       thing the Purchaser can do is a STOCK-TAKE adjustment, which records a counting correction:
+       no set, no cost, invisible to PROGRAMME COST. The store drifts and the programme
+       under-reports, by design of this line.
+       ⛔ opstasks / opshistory / opsgeneral are deliberately NOT widened — those are the crew's
+       job list, not his. */
+    case 'pnl-out': return full||r==='WORKER'||r==='PURCHASER';
+    case 'opstasks': case 'opshistory': case 'opsgeneral': return full||r==='WORKER';
+    /* v3.56.0 — ⛔ THE CREW'S, AND ONLY THE CREW'S. Not `full||`: this board shows one
+       person's own entries, so an Owner opening it would see HIS OWN keying, which is not
+       what he would expect from a screen called REKOD SAYA on a worker's phone. He has
+       THE STORE ▸ MY MONTH for the whole picture. Gated here as well as on the tile. */
+    case 'minecard': return r==='WORKER';
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
     case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard':
     case 'wavecard': case 'mktpanel': return full;
@@ -1067,6 +1374,15 @@ function roleAllows(id){
     case 'tallycard': return full||myRole()==='WORKER';
     // v3.0 — anything carrying a retailer credit balance is Owner / Marketing only
     case 'dispatchcard': case 'mktledger': case 'pricecard': return full;
+    /* v3.43.0 — WHO'S ON is OWNER ALONE, and not `full`. FULL_ROLES is Owner AND Marketing,
+       so `return full` would hand the Gate a screen showing what every worker did and when —
+       she is the person who approves their loads, and an approver reading the crew's minute
+       log is the same independence problem that closed keyspanel to her in v3.27.1. */
+    case 'whocard': return myRole()==='OWNER';
+    /* v3.44.0 — material cost is SPEND. The Gate reads revenue and never spend
+       (SHOW_VALUES true, SHOW_SPEND false), so this is Owner alone, and the renderer
+       checks SHOW_SPEND a second time before it paints a single ringgit. */
+    case 'pcostcard': return myRole()==='OWNER';
     // v3.6 — the worker's scale form shows weight and a photo, never a price, so a
     // Worker may reach it. The verification hub deducts credit, so they may not.
     case 'scalecard':    return full||myRole()==='WORKER';
@@ -1090,7 +1406,11 @@ function roleAllows(id){
     case 'moneycard': case 'harvestrep': return full;
     // v3.2 — the yield audit names who counted and who weighed. Owner only.
     case 'yieldaudit': case 'yieldstrip': return myRole()==='OWNER';
-    case 'masterdb': return myRole()==='OWNER';
+    /* v3.41.0 - the two sections that left MASTER DB carry the gate they had inside it.
+       treescard writes to the census every worker's dropdown reads; qrcard prints the link
+       to the app itself. Owner alone, and renderTrees()/renderQr() each write an EMPTY
+       STRING for anybody else, so none of their markup ever reaches the DOM either. */
+    case 'masterdb': case 'treescard': case 'qrcard': return myRole()==='OWNER';
     // v3.16 — the Executive Summary carries retailer revenue, material drawdown and a
     // recommended credit ceiling. Owner alone, and renderCmdExec() writes an empty string
     // for anyone else so none of its markup ever reaches the DOM.
@@ -1288,6 +1608,12 @@ function renderTaskNotice(){
     '<div class="tn-hint">'+esc(tr('tn_hint','Tap to open the task'))+'</div>'+
   '</div>';}
 function showScreen(x){
+  /* v3.42.0 — A CAMERA LEFT RUNNING IS A CAMERA STILL RUNNING. stopScan() was reachable
+     only from a successful scan or a camera error, so every other way off this screen —
+     the home tab, a tile, the sync tab — left the viewfinder live, draining the phone and
+     holding the camera against the next app that asks for it. One guard, at the one place
+     every screen change passes through. */
+  try{if(x!=='harvest'&&scanner)stopScan();}catch(e){}
   SCREENS.forEach(k=>$('scr-'+k).classList.toggle('hidden',k!==x));
   $('scr-setup').classList.add('hidden');$('scr-login').classList.add('hidden');
   $('nav-home').classList.toggle('on',x==='home');
@@ -1324,6 +1650,14 @@ function hubBack(){
     if(typeof W_GATEPASS!=='undefined'&&W_GATEPASS&&curTab==='scale'){closeGatepass();return;}
     if(curTab==='scale'&&!inMenu&&typeof WSTEP!=='undefined'&&WSTEP!=='shed'){
       wGo(WSTEP==='detail'?'dest':'shed'); return;}
+    /* v3.42.0 — AND THE COLLECT ROAD, WHICH HAS THE SAME THREE STEPS AND WAS MISSED.
+       v3.37.3 taught the arrow about the scale and stopped there. COLLECT is scan box ->
+       camera / tree list -> tree card, and from the tree card ← threw the worker out to
+       the section list with the count gone. Now: tree card -> tree list -> out. From a
+       live camera it closes the camera, which until this release nothing could do. */
+    if(curModule==='harvest'&&curTab==='log'&&!inMenu&&typeof HSTEP!=='undefined'&&HSTEP!=='pick'){
+      if(HSTEP==='cam'){stopScan();return;}
+      cancelTree();return;}
     if(curModule&&!inMenu&&tabsFor(curModule).length>1){openMenu(curModule);return;}
     goHome();}}
 /* ======================================================================================
@@ -1367,8 +1701,19 @@ function openModule(k,tabKey){
   if(!tab)tab=tabs[0];                                              // retired/unknown key
   curModule=k;curTab=tab.k;inMenu=false;
   hideAllPanels();
+  /* v3.48.0 — ⛔ CLEAR .m3-hide ON THE WAY IN. Found by the reach harness: the crew's
+     STOCK OUT form was INVISIBLE on a phone where somebody had previously used the store,
+     and this farm shares phones. The cause is that .m3-hide carries !important and is
+     applied by the segment bars (m8HubPick, m8BuyPick, m3PlanPick, m5RecPick) — but it was
+     only ever removed by those same bars. #pnl-out belongs to the store's ISSUE job AND to
+     Daily Ops ▸ STOCK OUT, so picking SHELF stamped the class on it and nothing on the Ops
+     road ever took it off: display:'' below is set, and loses to the !important class.
+     hideAllPanels() manages style.display, so the class needed the same treatment. Every
+     bar re-applies its own state on entry (renderForTab calls m8HubPick, which now also
+     re-applies m8BuyPick), so clearing here cannot strip a hide that is still wanted. */
   (tab.panels||[]).forEach(id=>{const el=$(id);if(!el||!roleAllows(id))return;
     if(id==='phibox'){el.dataset.dashhide='';return;}
+    el.classList.remove('m3-hide');
     el.style.display='';});
   showScreen(tab.scr);
   $('backbtn').classList.remove('hidden');
@@ -1425,7 +1770,7 @@ function renderV26(){renderWeather();renderGeneralTasks();renderAssign();
   renderLabour();renderReady();renderRain();renderTimeline();renderRecord();
   renderTying();renderMyLogs();renderRotCauses();renderWave();renderMarketing();
   renderGradeRows();renderTally();renderDispatch();renderMktLedger();renderPrices();
-  renderYieldAudit();renderMasterDB();
+  renderYieldAudit();renderMasterDB();renderTrees();renderQr();
   renderScaleCard();renderVerify();renderDailyAudit();renderMatrix();
   renderAgroMatrix();renderAllocCard();renderOnboard();renderRunCost();renderProgRecord();
   if(typeof renderProcure==='function')renderProcure();   // v3.18
@@ -1441,7 +1786,24 @@ function renderForTab(k,t){
   if(k==='ops'&&t==='scale')renderScaleCard();
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='ops'&&t==='assign')renderAssign();
-  if(k==='agro'&&t==='month')renderTimeline();
+  /* v3.51.0 — the programme screen repaints from HERE on every entry, and progPick() resets
+     the segment to the first one this role is allowed. Deterministic re-entry, same reasoning
+     as m5RecPick() below: a screen that remembers a segment the new role cannot open is a
+     screen that opens blank. */
+  /* v3.55.0 — the cancel page is a PAGE: entering the tile must put it away, or the Owner
+     walks off mid-cancellation and walks back onto a half-filled form. Its own open-flag
+     guard makes this free when nothing was open. */
+  /* v3.56.0 — REKOD SAYA opens on TODAY every time. A day board that remembered last
+     Tuesday would answer the wrong question the moment he taps it, which is the same
+     determinism rule m5RecPick() and progPick() follow. */
+  if(k==='mine'){MINE_DAY=todayISO();renderMine();}
+  if(k==='prog'){if(typeof cxClose==='function')cxClose();progPick(PROG_VIEW||progTabsFor()[0]);}
+  if(k!=='prog'&&typeof cxClose==='function')cxClose();
+  /* v3.55.0 — PLAN vs DONE back in REPORTS. The m3-hide class is a leftover from its life as
+     the hidden half of the SPRAY RECORD segment; without lifting it the row would route to a
+     card the stylesheet keeps at display:none !important. */
+  if(k==='reports'&&t==='progrec'){const e=$('progrecord');if(e)e.classList.remove('m3-hide');
+    if(typeof renderProgRecord==='function')renderProgRecord();}
   if(k==='agro'&&t==='wx'){renderWeather();renderRain();}
   /* v3.40.0 — SPRAY RECORD carries both halves now. m5RecPick() resets the segment AND
      paints, so re-entering the tab is deterministic; the retired 'progrec' key is kept
@@ -1461,16 +1823,27 @@ function renderForTab(k,t){
   if(k==='inv'&&t==='lvl')renderInvCC();
   if(k==='inv'&&t==='take'){renderStOpts();renderStRecent();}
   if(k==='mkt'&&t==='disp'){renderDispatch();renderMarketing();}   // v3.36.0 — cash sales live on MERCHANTS now
-  if(k==='mkt'&&t==='verify'){renderVerify();renderFocQueue();}    // v3.36.0 — the QUEUE is both queues
+  /* v3.41.1 — entering the QUEUE always disarms. AP_ARM is module state and survives the
+     trip off the tile; a card left armed last week must not be one tap from an invoice. */
+  if(k==='mkt'&&t==='verify'){AP_ARM='';renderVerify();renderFocQueue();}    // v3.36.0 — the QUEUE is both queues
   // v3.31.0 — without this the landing is a blank card, exactly like the rations screen was
   if(k==='cmd'&&t==='home')renderOwnerHome();
+  /* v3.43.0 — and it opens on TODAY, on THE PHONES, with no row expanded. WHO_DAY/WHO_TAB/
+     WHO_OPEN are module state and survive the trip off the tile; without this reset the
+     Owner comes back to whatever day he was reading last week. Same precedent as
+     m3PlanPick(), m5RecPick(), MONEY_OPEN and PRC_VIEW. */
+  if(k==='cmd'&&t==='who'){WHO_DAY='';WHO_TAB='people';WHO_OPEN=-1;renderWho();}
   /* v3.30.0 — RATIONS & GIFTS, painted from BOTH doors. Missing this line is not a blank
      row, it is a blank SCREEN: the panel is shown by openModule() but nothing ever writes
      into it, and 33 green structural assertions all passed while the card rendered 24px
      tall and empty. Caught by the render walk, exactly like the v3.18.5 sticky bar. */
   if((k==='mkt'||k==='ops')&&t==='foc')renderFocQueue();
   if(k==='mkt'&&t==='ledger')renderMktLedger();
-  if(k==='mkt'&&t==='price')renderPrices();
+  /* v3.41.0 - reset the segment AND the open clone on entry. PRC_VIEW and PRC_CLONE are
+     module state and survive the trip off the tile; without this the Gate comes back to
+     BASKET TARE because that is where she was last week. Same precedent as m3PlanPick()
+     and m5RecPick(), and the same fault MONEY_OPEN had until v3.40.0. */
+  if(k==='mkt'&&t==='price'){PRC_VIEW='book';PRC_CLONE='';renderPrices();}
   /* v3.33.0 — three doors. Missing one of these lines is not a blank row, it is a blank
      SCREEN: openModule() shows the panel and nothing ever writes into it. That shipped
      once already (the rations card, v3.30.0, 24px tall and empty behind 33 green
@@ -1486,10 +1859,25 @@ function renderForTab(k,t){
      module state and survived the trip, so a card left open stayed open for the rest of
      the session. Clearing it here makes the promise true. */
   if(k==='reports'&&t==='money'){MONEY_OPEN={};renderMoney();}
+  /* v3.44.0 — PC_MO/PC_OPEN are module state and survive the trip off the tile; without
+     this reset he comes back inside whatever month he read last week. The MONEY_OPEN /
+     PRC_VIEW / WHO_DAY precedent. */
+  if(k==='reports'&&t==='pcost'){PC_MO='';PC_OPEN='';renderProgCost();}
   if(k==='reports'&&t==='record')renderDailyAudit();
   if(k==='reports'&&t==='harvest')renderHarvestReport();
   if(k==='admin'&&t==='yield')renderYieldAudit();
-  if(k==='admin'&&t==='master')renderMasterDB();
+  /* v3.41.0 - fxReset(), not renderMasterDB(). FIX is module state and survives the trip
+     off the tile, so without this a half-answered flow is still standing there when the
+     Owner comes back - the exact fault MONEY_OPEN had in v3.40.0, where a detail card left
+     open stayed open for the rest of the session. Same precedent as m3PlanPick('now') and
+     m5RecPick('applied'): reset AND paint, so re-entry is deterministic. */
+  if(k==='admin'&&t==='master')fxReset();
+  /* v3.41.0 - the two sections that left MASTER DB. Missing one of these lines is not a
+     blank row, it is a blank SCREEN: openModule() shows the panel and nothing ever writes
+     into it. That shipped once already (the rations card, v3.30.0, 24px tall and empty
+     behind 33 green assertions), which is why the render walk exists. */
+  if(k==='admin'&&t==='trees')renderTrees();
+  if(k==='admin'&&t==='qr')renderQr();
   if(k==='mkt'&&t==='sell')renderMarketing();
   /* v3.33.0 — 'sum' / 'labour' / 'runs' / 'record' are retired KEYS, not retired screens:
      all four panels are still shown, behind the detail toggles on MONEY. These lines are
@@ -1497,7 +1885,9 @@ function renderForTab(k,t){
      landing on a card nobody wrote into. */
   if(k==='reports'&&t==='sum')renderLedgerSummary();
   if(k==='reports'&&t==='labour')renderLabour();
-  if(k==='admin'&&t==='corr')renderCorrections();
+  /* v3.41.1 — entering ADJUSTMENTS always disarms; CORR_ARM is module state and survives
+     the trip off the tile. */
+  if(k==='admin'&&t==='corr'){CORR_ARM='';renderCorrections();}
   if(k==='admin'&&t==='reg')renderKeys();
   if(k==='scale'&&t==='scale')renderScaleCard();
   if(k==='harvest'&&t==='backlog')renderBacklog();
@@ -1514,7 +1904,12 @@ function renderForTab(k,t){
   if(k==='cmd'&&t==='build')renderAgroMatrix();
   if(k==='cmd'&&t==='master')renderMasterDB();
   // v3.16 — the merged Purchaser page paints every form it carries in one pass.
-  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();renderOnboard();renderProcure();renderBasket();}}
+  /* v3.41.0 - paint everything once (a hidden card still has to be correct the moment its
+     segment is tapped), THEN reset the bar to TO BUY. Resetting is not cosmetic: M8_VIEW is
+     module state and survives the trip off the tile, so without it the Purchaser comes back
+     to whichever job he was on last week. */
+  if(k==='inv'&&t==='hub'){renderInOpts();renderAlerts();renderStock();renderAllocCard();
+    renderOnboard();renderProcure();renderBasket();m8HubPick('buy');}}
 /** v3.2 — a session ALWAYS starts on the retailer list. Without this, logging out and
  *  back in — possibly as a different person — left the previous user's open retailer
  *  card, their half-keyed baskets and any granted overdraft override on the screen. */
@@ -1594,7 +1989,20 @@ function applyRole(){
   if(typeof renderCmdExec==='function')renderCmdExec();
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
-  SHOW_VALUES=full;                                   // gates every RM figure in the app
+  /* v3.48.0 — THE PURCHASER SEES RM ON MATERIALS. Owner's decision, 13 Aug 2026, in his own
+     words: "yes let him see RM on all the purchase, not a fruit." He already keys the price of
+     every line he receives — the invoice is in his hand — so hiding the shelf total from the
+     man buying the stock was the inconsistency, not the disclosure.
+     ⛔ WHY THIS IS SAFE, AND WHY IT IS NOT A GENERAL WIDENING: this flag is app-wide (~30 call
+     sites), so the fruit side is kept off his phone by ENTITLEMENT, not by this flag. He holds
+     exactly one tile — 'inv' — so the five screens he can reach are HOME plus the four store
+     sections. Verified by walking every one of them with the flag forced on: RM appears only on
+     the buy queue and the stock valuation, and NOTHING matching revenue/retailer/merchant/
+     credit/payout/per-kg renders anywhere. reach_v3480.js pins that walk, so a future tile grant
+     to PURCHASER fails the suite instead of quietly handing him the fruit money.
+     SHOW_SPEND is deliberately NOT widened below — it gates the cost REPORTS, a different
+     question, on a tile he does not hold. */
+  SHOW_VALUES=full||r==='PURCHASER';                  // gates every RM figure in the app
   /* v3.24 — a SECOND, NARROWER money gate, for the cost side only.
      SHOW_VALUES answers "may this person see money at all". It cannot answer the question
      the Owner actually asked on 6 Aug: the marketer may see what the farm EARNED but not
@@ -1957,6 +2365,19 @@ async function refreshMasters(){
             '&sig='+encodeURIComponent(MASTER_SIG||'')+
             (wantEv?('&since='+encodeURIComponent(evFloor)):'');
     const r=await fetchT(CFG.url+q,{},SYNC_TIMEOUT_MS);const j=await r.json();
+    /* v3.41.2 — STAMP IT THE MOMENT THE SERVER ANSWERS, not at the end of the function.
+       ⛔ THE STAMP WAS AT THE BOTTOM AND THAT WAS WRONG. Between here and there sit three
+       early returns — an unreadable WORKERS tab, an empty key list, and a dirty local
+       registry — plus fifteen optional sections, any of which can throw into the catch
+       below. On every one of those paths the phone HAD heard from the other phones and the
+       queue still read "45 min ago", which is the exact lie this stamp exists to stop
+       telling. It means "when did this phone last get an answer", so it is written where
+       the answer arrives. */
+    if(j&&j.ok){PULL_AT=Date.now(); PULL_AT_S=nowSec();
+      /* v3.41.4 — and while we are talking to the server, ask whether this phone is behind.
+         Deliberately NOT awaited: a slow answer must never hold up the sync the person is
+         waiting on, and the bar paints itself when it lands. */
+      try{ checkServerVersion(); }catch(x){}}
     if(j&&j.sig&&j.sig!==MASTER_SIG){MASTER_SIG=j.sig;if(db)await put('kv',{k:'mastersig',v:MASTER_SIG});}
     // corrections are merged only AFTER the kill switch has cleared this device
     const inCorr=(j&&j.ok&&Array.isArray(j.corrections))?j.corrections:null;
@@ -2116,8 +2537,139 @@ async function refreshMasters(){
     KEYS=ks.filter(x=>String(x.status).toLowerCase()!=='deleted');
     if(db)await put('kv',{k:'keys',v:KEYS});
     applyRole();renderKeys();
+    /* v3.41.0 - WHEN DID THIS PHONE LAST HEAR FROM THE OTHERS?  (stamped above, v3.41.2)
+       The Owner spent an evening on 12 Aug convinced a worker's ration request was not
+       reaching the Gate. It was: the row was in the Sheet, well-formed, and the Gate's
+       phone was simply behind - netPull() runs every five minutes only while the app is
+       OPEN and the device awake, and an iPhone in the background suspends the timer. An
+       empty queue and an unrefreshed queue looked like exactly the same screen, and there
+       was no way to tell them apart without opening the Sheet. This stamp is the whole
+       fix: every queue that can be stale now says how old it is. */
     return got;
   }catch(e){/* offline or sheet unreachable — check again next sync */ return null;}}
+
+/** How long since this phone last heard from the others, in words a person can act on.
+ *  Deliberately not a spinner or a colour alone: the point is that an EMPTY QUEUE and an
+ *  UNREFRESHED QUEUE stop being the same screen. */
+let PULL_AT=0, PULL_AT_S='';
+/* v3.41.2 — THE TAP THAT DID NOTHING.
+   ⛔ THIS WAS MY BUG AND IT IS THE ONE THE GATE REPORTED. v3.41.0 put this stamp on her
+   queue with a TAP TO SYNC link wired straight to netPull(). Three things were wrong with
+   that, and together they made a control that is indistinguishable from a dead button:
+     1. netPull() only PULLS. Her approvals, sitting unsynced on her phone, never went up.
+     2. It shows NOTHING while it runs and NOTHING when it finishes - no toast, no change.
+     3. It does not repaint the queue, so even a pull that worked left the stamp still
+        reading "45 min ago". The screen was identical before and after the tap.
+   It goes through doSync() now - the same thing the SYNC NOW button does, push and pull -
+   the whole strip is the tap target rather than four small words, it says "Checking…" the
+   instant it is pressed, and it repaints the queue and the stamp when it is done. */
+let QSYNC=false;
+async function queueSync(){
+  if(QSYNC)return;
+  QSYNC=true;
+  /* immediate feedback, before any awaiting: on a slow hotspot doSync() can take seconds,
+     and a control that looks unchanged for five seconds gets pressed again and again. */
+  document.querySelectorAll('.syncage').forEach(function(el){
+    el.className='syncage busy';
+    el.innerHTML='⏳ '+esc(tr('sy_checking','Checking with the other phones…'));});
+  try{ await doSync(); }catch(x){}
+  QSYNC=false;
+  /* repaint whatever is on the screen. Wrapped one by one: a role that cannot open one of
+     these has no box to write into, and a throw here would leave the strip on "Checking…"
+     for the rest of the session - the exact failure this fix exists to remove. */
+  try{ if(typeof renderVerify==='function')renderVerify(); }catch(x){}
+  try{ if(typeof renderFocQueue==='function')renderFocQueue(); }catch(x){}
+  /* v3.41.3 — and the WORKER's waiting list, which is where the strip matters most. Miss
+     this and his strip sticks on "Checking…" for the rest of the session. */
+  try{ if(typeof renderScaleCard==='function')renderScaleCard(); }catch(x){}
+  try{ if(typeof renderSync==='function')renderSync(); }catch(x){}
+  try{ if(typeof badge==='function')badge(); }catch(x){}}
+
+/* ======================================================================================
+   v3.41.4 · THE PHONE THAT IS BEHIND SAYS SO
+   ======================================================================================
+   Four phones in three places. After every release the Owner had to ask each person to
+   read a version number off their screen, and on 12 Aug one phone was still on the old
+   build a day later because nobody knew. The reason is not carelessness: a phone that has
+   the app on its home screen keeps its own saved copy of index.html, and that saved copy
+   still carries the OLD ?v= — so it loads the old app.js out of the cache and never once
+   asks the server whether anything changed. Closing the app does not help. Nothing on the
+   phone had any way to notice.
+
+   So the app asks. After every successful pull it fetches index.html from its own address
+   with a cache-buster on it — which is the one request the saved copy cannot answer — and
+   reads the ?v= the SERVER is serving. If that differs from the APP_VERSION this phone is
+   running, a bar appears on every screen saying so, and tapping it reloads through a fresh
+   address so the phone has to fetch the new files.
+
+   ⛔ IT NEVER RELOADS BY ITSELF. A phone that reloads on its own could do it in the middle
+   of a weigh-in, and an unsent queue lives in IndexedDB but a half-keyed basket does not.
+   The person taps it, when their hands are free.
+   Deliberately quiet in the two cases where it would be lying: opened from a file (the
+   harnesses) and any answer that is not a clean version string. */
+let SRV_VER='', VER_CHECK_AT=0;
+const VER_CHECK_GAP_MS=10*60*1000;      // once every ten minutes at most; it is one small GET
+function appBaseUrl(){
+  try{ const l=location; if(l.protocol==='file:')return ''; return l.origin+l.pathname; }
+  catch(x){ return ''; }}
+async function checkServerVersion(force){
+  const base=appBaseUrl(); if(!base)return '';                 // opened from a file — say nothing
+  if(!force&&(Date.now()-VER_CHECK_AT)<VER_CHECK_GAP_MS)return SRV_VER;
+  VER_CHECK_AT=Date.now();
+  try{
+    const u=base+(base.slice(-1)==='/'?'':'')+'?vercheck='+Date.now();
+    const r=await fetchT(u,{cache:'no-store'},12000);
+    if(!r||!r.ok)return SRV_VER;
+    const t=await r.text();
+    /* the same two script tags the deploy check reads. Assert the THING, not a string that
+       looks like it: index.html carries a COMMENT about this very trap. */
+    const tags=(t.match(/<script[^>]*src="[^"]*\?v=[0-9.]+"/g)||[])
+      .map(x=>(x.match(/\?v=([0-9.]+)/)||[])[1]);
+    if(tags.length!==2||!tags[0]||tags[0]!==tags[1])return SRV_VER;   // half-published: say nothing
+    SRV_VER='v'+tags[0];
+    renderVerBar();
+    return SRV_VER;
+  }catch(x){ return SRV_VER; }}
+
+function verIsBehind(){
+  return !!(SRV_VER&&APP_VERSION&&SRV_VER!==APP_VERSION);}
+
+function renderVerBar(){
+  const box=$('verbar'); if(!box)return;
+  if(!verIsBehind()){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="verbar" onclick="loadNewVersion()">'+
+    '<div class="ic">↻</div>'+
+    '<div><div class="t">'+esc(tr('vb_title','A newer version is ready'))+' — '+esc(SRV_VER)+'</div>'+
+    '<div class="s">'+esc(tr('vb_sub','This phone is still running'))+' '+esc(APP_VERSION)+' · '+
+      esc(tr('vb_safe','nothing you have keyed is lost'))+'</div></div>'+
+    '<div class="go">'+esc(tr('vb_go','LOAD IT'))+'</div></div>';}
+
+/** Reload through an address the saved copy cannot answer, so the phone must go and fetch
+ *  the new files. Not location.reload(): on a home-screen app that can be served straight
+ *  back out of the same cache that caused the problem. */
+function loadNewVersion(){
+  const base=appBaseUrl(); if(!base)return;
+  try{ location.replace(base+'?new='+encodeURIComponent(SRV_VER||String(Date.now()))); }
+  catch(x){ try{ location.reload(); }catch(y){} }}
+
+function syncAgeHTML(){
+  if(QSYNC)
+    return '<div class="syncage busy">⏳ '+esc(tr('sy_checking','Checking with the other phones…'))+'</div>';
+  if(!CFG||!CFG.url)
+    return '<div class="syncage off">'+esc(tr('sy_never','This phone is not linked to the Google Sheet, so this list only holds what was keyed on it.'))+'</div>';
+  /* the WHOLE strip is the tap target. Four underlined words on a phone held in one hand
+     at a lorry window is not a button. */
+  const tap=' onclick="queueSync()"';
+  if(!PULL_AT)
+    return '<div class="syncage old"'+tap+'>'+esc(tr('sy_notyet','Not synced yet — tap here to send what is on this phone and fetch what the others have sent.'))+
+      ' <span>'+esc(tr('sy_pressync','TAP TO SYNC'))+'</span></div>';
+  const mins=Math.floor((Date.now()-PULL_AT)/60000);
+  const old=mins>=15;
+  return '<div class="syncage'+(old?' old':'')+'"'+tap+'>'+
+    esc(tr('sy_lastat','Last synced'))+' <b>'+esc(PULL_AT_S.slice(11,16)||PULL_AT_S)+'</b>'+
+    ' · '+(mins<1?esc(tr('sy_justnow','just now'))
+                    :(mins+' '+esc(tr('sy_minago','min ago'))))+
+    ' · <span>'+esc(tr('sy_pressync','TAP TO SYNC'))+'</span></div>';}
 
 // ================= owner: master governance & user registry =================
 const ROLE_LABEL={OWNER:'Owner / Admin',MARKETING:'Marketing',PURCHASER:'Sandakan Purchaser',WORKER:'Farm Worker'};
@@ -2154,7 +2706,23 @@ function renderKeys(){
         '<button class="iconbtn warn" title="'+(a?'Revoke':'Restore')+'" onclick="toggleUser(\''+k.id+'\')"'+(me?' disabled':'')+'>'+(a?'⏻':'↩')+'</button>'+
         '<button class="iconbtn danger" title="Delete" onclick="deleteUser(\''+k.id+'\')"'+(me?' disabled':'')+'>🗑</button>'+
       '</div></div>';}).join('');}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+/* v3.41.5 — esc() NOW PROTECTS THE DURIAN. The harvest icon stopped being a character
+   and became a drawing (IC_DUR, see database.js), and a drawing is HTML. Roughly half the
+   places that paint an icon run it through esc() first — the tile drawer, ALL TOOLS, the
+   Master DB row, the FOC table — so escaping it blindly would have printed the raw markup
+   as visible text on those screens and nowhere else. Rather than hunt down every call site
+   (and miss the ones added next month), the icon is split out, the REAL text either side is
+   escaped exactly as before, and the icon is put back untouched. IC_DUR is an app constant,
+   never anything a person typed, so nothing user-supplied can ride through this hole.
+   ⛔ It still cannot save an <option>, a title="" or a textContent — see plain(). */
+function escRaw(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function esc(s){s=String(s==null?'':s);
+  return (typeof IC_DUR==='string'&&s.indexOf(IC_DUR)>=0)
+    ? s.split(IC_DUR).map(escRaw).join(IC_DUR)
+    : escRaw(s);}
+/** The same string with every drawing taken back out, for the places that can only hold
+ *  plain text: a browser dialog, textContent, an <option>, a title attribute, an export. */
+function plain(s){return String(s==null?'':s).split(/<svg[\s\S]*?<\/svg>/).join('').replace(/\s{2,}/g,' ').trim();}
 
 // ---- add / edit form ----
 let editingId=null, formRole='WORKER', formStatus='Active';
@@ -2209,14 +2777,48 @@ async function toggleUser(id){
   k.status=a?'Revoked':'Active';
   await persistKeys(true);
   toast(a?('⛔ '+k.name+' revoked'):('✓ '+k.name+' restored'));}
+/** How much of the farm's history has this person's name on it. */
+function staffWorkCount(k){
+  const name=String((k&&k.name)||''), uid=String((k&&k.id)||'');
+  if(!name&&!uid)return 0;
+  return EVENTS.filter(e=>e&&(String(e.workerId||'')===uid||
+    (!e.workerId&&String(e.worker||'')===name))).length;}
+
+/* v3.41.0 — THE DELETE GUARD, AND THE END OF confirm() ON THIS SCREEN.
+   Two faults, one fix.
+   (1) It asked with a browser confirm(). v3.37.4 already established that several Android
+       WebViews on this farm refuse to open one at all — the cancel then ends in silence,
+       and here the silence is indistinguishable from "deleted". askForm() is the pattern
+       that replaced it everywhere else; it is used here for the same reason.
+   (2) It offered no warning at all for a person whose name is on the farm's records. A
+       delete does not remove their work — every row keeps the name — but it DOES wipe
+       their phone and lock it permanently the next time they open the app. For someone who
+       has logged work, REVOKE is almost always what the Owner means: it closes the login
+       and leaves the person in the registry, so their history still resolves to a person
+       rather than to a name nobody can look up. So the count is said out loud and the
+       Owner has to type the word DELETE to go past it. */
 async function deleteUser(id){
   const k=KEYS.find(x=>x.id===id);if(!k)return;
   if(isMe(k)){toast('You cannot delete your own account',1);return;}
   if(activeOwners(KEYS.filter(x=>x.id!==id))===0){toast('Keep at least one active Owner',1);return;}
-  if(!confirm('DELETE '+k.name+' from the registry?\n\nThis removes them completely. After you push the registry, their phone wipes all farm data and locks permanently.\n\nTheir already-synced records stay in the Google Sheet.'))return;
+  const n=staffWorkCount(k);
+  const res=await askForm({
+    title:'Delete '+k.name+'?',
+    sub:(n?(k.name+' has '+n+' record'+(n===1?'':'s')+' in the farm\u2019s log. Deleting them does '+
+            'not remove that work \u2014 every row keeps the name \u2014 but it does wipe their phone '+
+            'and lock it permanently once you push the registry. If you only want to close '+
+            'the login, press Cancel and use REVOKE (\u23fb) instead: it keeps them in the '+
+            'registry so their history still resolves to a person. ')
+           :(k.name+' has no records in the log yet. ')) +
+        'To go ahead, type DELETE below.',
+    f1:{label:'Type DELETE to confirm',type:'text',value:'',placeholder:'DELETE'},
+    ok:'\ud83d\uddd1 DELETE '+k.name});
+  if(!res)return;
+  if(String(res.v1||'').trim().toUpperCase()!=='DELETE'){
+    toast('Not deleted \u2014 the word did not match',1);return;}
   KEYS=KEYS.filter(x=>x.id!==id);
   await persistKeys(true);
-  toast('🗑 '+k.name+' deleted');}
+  toast('\ud83d\uddd1 '+k.name+' deleted');}
 
 // ---- push the registry up to the WORKERS tab ----
 async function pushRegistry(manual){
@@ -2251,14 +2853,44 @@ async function saveSetup(){CFG=Object.assign({},CFG,{device:$('su-device').value
 
 // ================= harvest =================
 let qty=1,grade='A',curTree=null,scanner=null;
+/* ======================================================================================
+   v3.42.0 · THE COLLECT ROAD HAS STEPS, AND EVERY STEP IS A PLACE YOU CAN LEAVE
+   ======================================================================================
+   Found on the first trial morning, and it is the same fault v3.37.3 fixed for the Morning
+   Scale — this screen was simply never looked at afterwards.
+
+   COLLECT is three steps: SCAN BOX -> (CAMERA | TREE LIST) -> TREE CARD. The only back
+   control the phone offers is the ← in the header, and hubBack() knew nothing about any of
+   them: from the tree card it threw the worker all the way out to the section list, and
+   walking back in landed on the scan box with the counted fruit already gone.
+
+   Worse, the camera had no exit at all. startScan() hides the scan box AND the picker, so
+   the "pick tree from list" link the worker needs when a tag is too dirty to read is behind
+   the screen they are stuck on. The only two ways out were a QR that read and a camera that
+   failed. That is what "cannot backward to choose manual" means.
+
+   HSTEP is the whole of the new state — 'pick' | 'cam' | 'tree'. It changes nothing about
+   what is COUNTED or SAVED: GCOUNT/GKIND and logTreeVisit() are untouched below. ====== */
+let HSTEP='pick';
+/** ← from the tree card with fruit already counted must not throw the count away on one
+ *  tap. It arms, says so on the screen, and the SECOND tap discards — never a browser
+ *  dialog, which is the v3.37.4 rule: a worker's job does not live inside a pop-up. */
+let HBACK_ARM=false;
+function hDisarm(){HBACK_ARM=false;const e=$('visit-err');if(e&&e.dataset.harm){e.textContent='';delete e.dataset.harm;}}
 function startScan(){
   if(typeof Html5Qrcode==='undefined'){toast('Camera scanner unavailable — use the tree list',1);showPicker();return;}
   $('scanbox').classList.add('hidden');$('picker').classList.add('hidden');const v=$('qrview');v.style.display='block';
+  const c=$('camctl');if(c)c.classList.remove('hidden');
+  HSTEP='cam';
   scanner=new Html5Qrcode('qrview');
   scanner.start({facingMode:'environment'},{fps:10,qrbox:220},txt=>{stopScan();selectTree(txt.trim());},()=>{})
   .catch(()=>{stopScan();toast('Camera not available — pick from list',1);showPicker();});}
-function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');}
-function showPicker(){$('picker').classList.remove('hidden');buildLotSelect();
+function stopScan(){if(scanner){scanner.stop().catch(()=>{});scanner=null;}$('qrview').style.display='none';$('scanbox').classList.remove('hidden');
+  const c=$('camctl');if(c)c.classList.add('hidden');
+  if(HSTEP==='cam')HSTEP='pick';}
+/** The exit the dirty tag needs: close the camera and open the manual list in one tap. */
+function camToList(){stopScan();showPicker();}
+function showPicker(){HSTEP='pick';$('picker').classList.remove('hidden');buildLotSelect();
   // v2.5.1: pass the button too, or the grid shows Lot B while "Lot A" stays highlighted
   pickLot(curLot,($('lotbtns')||{children:[]}).children[LOTS.indexOf(curLot)]);}
 let curLot='B';
@@ -2291,7 +2923,22 @@ function renderGrid(){
 function pickLot(l,el){curLot=l;if(el){[...$('lotbtns').children].forEach(x=>x.classList.remove('on'));el.classList.add('on');}
   if($('h-lot').options.length)$('h-lot').value=l;
   renderGrid(); buildTreeSelect();}
-function cancelTree(){curTree=null;$('treezone').classList.add('hidden');}
+/* v3.42.0 — one step back, not "cancel the job". It closes the tree card and puts the
+   tree list back on the screen, which is what a worker who scanned the wrong tag wants.
+   A count already on the card is not thrown away silently: the first tap arms and says
+   how many fruit are at stake, the second tap discards. */
+function cancelTree(){
+  const pend=(typeof gTotal==='function'?gTotal():0)+(typeof rotQty==='number'?rotQty:0);
+  if(pend>0&&!HBACK_ARM){
+    HBACK_ARM=true;
+    const e=$('visit-err');
+    const msg=pend+' '+tr('h_backarm','fruit counted and NOT saved. Tap again to leave this tree and lose them.');
+    if(e){e.dataset.harm='1';e.textContent=msg;}
+    toast(msg,1);
+    return;}
+  hDisarm();
+  curTree=null;$('treezone').classList.add('hidden');
+  HSTEP='pick';showPicker();}
 // v3.0 — Card A. Three independent counters, one per grade, each with its own
 // SECURED / UNSECURED answer, because a tree can drop tied Grade A and untied
 // Grade C in the same round and the two mean completely different things.
@@ -2309,6 +2956,7 @@ function gZero(g){GCOUNT[g]=0;GLOG=GLOG.filter(x=>x!==g);paintGrade(g);gTotalPai
 function gKind(g,k){GKIND[g]=k;paintGrade(g);gTotalPaint();}
 /** One tap on the big green button = one more fruit of the selected grade. */
 function gTap(){
+  if(typeof hDisarm==='function')hDisarm();   // v3.42.0 — counting again un-arms the leave warning
   const r=$('good-reveal'); if(r)r.classList.add('open');
   GCOUNT[GSEL]=(GCOUNT[GSEL]||0)+1; GLOG.push(GSEL);
   paintGrade(GSEL); gTotalPaint();}
@@ -2760,6 +3408,158 @@ function onInCalc(){const p=prodById($('in-prod').value);if(!p){$('in-conv').tex
   const total=inUnitMode==='C'?(+$('in-qty').value||0)*price:cont*price;
   $('in-conv').innerHTML='Receiving <b>'+nf(ops)+' '+esc(p.unit)+'</b> = '+nf(cont)+' '+esc(p.container)+
     ' · invoice value <b>'+rm(total)+'</b>';}
+/* ======================================================================================
+   v3.49.0 · ISSUE BECOMES A BASKET
+   ======================================================================================
+   His words, approving the sample: "Issue - can it be more simple and tidy, add one product
+   by one base like programme, after finish all the whole set then only we submit (allowed the
+   item with a small deleted button before submit)."
+
+   The shape is deliberately the SAME as the delivery basket that has worked since v3.19:
+   the questions with ONE answer for the whole job are asked once at the top, the lines are
+   added one at a time underneath, each line can be removed before anything is written, and
+   nothing at all is saved until the final button.
+
+   ⛔ WHAT IS ASKED ONCE, AND WHY. Set, day and LOT are the header. The mock-up left lot off
+   the line entirely, which would have quietly dropped it — and lot is required by
+   submitStockOut(), keys the per-lot figures in PROGRAMME COST, and drives the lot bars on
+   the dashboard. Losing it would have broken the very report this basket exists to feed. It
+   goes in the header because a crew sprays a lot at a time: one answer, keyed once, instead
+   of six times.
+   ⛔ IT SURVIVES A CLOSED APP. Persisted to the same kv store as IN_BASKET, because a
+   half-keyed basket is the one thing that does NOT survive a reload (v3.41.4's note), and a
+   Purchaser keying eight products off a WhatsApp message must not lose them to a phone lock.
+   ⛔ EVERY LINE STILL WRITES THE EVENT submitStockOut() ALWAYS WROTE. Same type, same fields,
+   same cost basis, one per product. Nothing downstream needs to know a basket existed. */
+let OUT_BASKET=[];
+async function persistOutBasket(){ if(db)await put('kv',{k:'outbasket',v:OUT_BASKET}); }
+function outHeaderDate(){const el=$('out-day');return el?el.value:'';}
+function outBasketHas(pid){return OUT_BASKET.some(l=>+l.pid===+pid);}
+async function outAddLine(){
+  const err=$('out-err'); err.textContent='';
+  const p=prodById($('out-prod').value); if(!p){err.textContent=tr('so_pickprod','Pick a product.');return;}
+  const q=+$('out-qty').value; if(!(q>0)){err.textContent=tr('so_keyqty','Enter the quantity used.');return;}
+  if(outBasketHas(p.id)){err.textContent=tr('ob_dupe','That product is already on this list — remove it first, or change its line.');return;}
+  const oh=onHand(p);
+  OUT_BASKET.push({pid:p.id,pname:p.name,ai:p.active_ingredient,qty:q,unit:p.unit,
+                   cost:+(q*(p.cpu||0)).toFixed(2),short:oh<q,onHandAt:oh});
+  await persistOutBasket();
+  $('out-qty').value='';
+  onOutCalc(); renderOutBasket();
+  toast('＋ '+esc(p.name)+' · '+nf(q)+' '+esc(p.unit));}
+async function outDropLine(i){OUT_BASKET.splice(i,1);await persistOutBasket();renderOutBasket();}
+async function outClearBasket(){
+  if(!OUT_BASKET.length)return;
+  /* the v3.37.4 rule — a worker's job never goes inside a browser dialog. The count at stake
+     is printed on the button itself and the second tap is the confirmation. */
+  const b=$('out-clear');
+  if(b&&!b.dataset.arm){b.dataset.arm='1';
+    b.textContent=tr('ob_clearsure','TAP AGAIN TO THROW AWAY ALL ')+OUT_BASKET.length;
+    setTimeout(()=>{if(b){delete b.dataset.arm;renderOutBasket();}},4000);return;}
+  OUT_BASKET=[]; await persistOutBasket(); renderOutBasket();}
+/** FILL THE WHOLE SET FROM THE PLAN — his ask, and the reason the basket is worth building:
+ *  when the crew followed the programme, six products become one tap and he edits the
+ *  exceptions instead of keying the rule. */
+async function outFillFromPlan(){
+  const err=$('out-err'); err.textContent='';
+  const set=$('sset')?$('sset').value:'';
+  const rows=(typeof programNeeds==='function')?programNeeds():[];
+  const want=rows.filter(n=>n.pid&&+n.req>0);
+  if(!want.length){err.textContent=tr('ob_noplan','No active programme phase to fill from — add the products by hand.');return;}
+  let added=0;
+  for(const n of want){
+    if(outBasketHas(n.pid))continue;
+    const p=prodById(n.pid); if(!p)continue;
+    const oh=onHand(p);
+    OUT_BASKET.push({pid:p.id,pname:p.name,ai:p.active_ingredient,qty:+n.req,unit:p.unit,
+                     cost:+((+n.req)*(p.cpu||0)).toFixed(2),short:oh<+n.req,onHandAt:oh,fromPlan:true});
+    added++;}
+  await persistOutBasket(); renderOutBasket();
+  toast(added?('＋ '+added+' '+tr('ob_fromplan','from the plan')):tr('ob_allthere','Everything in the plan is already on the list'));}
+function outBasketCost(){return OUT_BASKET.reduce((t,l)=>t+(+l.cost||0),0);}
+function renderOutBasket(){
+  const box=$('outbasket'); if(!box)return;
+  const note=$('out-bdnote');
+  if(note)note.textContent=backdateNote(outHeaderDate());
+  /* ⛔ THE CREW MUST NOT PAY A SECOND TAP FOR THE PURCHASER'S BASKET. This same card is the
+     worker's STOCK OUT screen, and he takes ONE drum: before this release that was pick,
+     key, SAVE. An empty basket therefore still shows the save button, and submitOutBasket()
+     pulls the line off the form when the basket is empty — so the one-product road is
+     unchanged at three taps, and the eight-product road is the one that got shorter. */
+  if(!OUT_BASKET.length){
+    box.innerHTML='<button class="bigbtn" onclick="submitOutBasket()">✓ '+
+      esc(tr('ob_saveone','SAVE STOCK OUT'))+'</button>';
+    return;}
+  /* ⛔ EVERY CLASS HERE IS ONE THE DELIVERY BASKET ALREADY USES — bskt / bh / bline / bn / bs /
+     bx / btot. Not one new class name is invented, because t_classes.js fails the build on a
+     class app.js writes that the stylesheet has no rule for, and because two baskets that look
+     different are two things to learn instead of one. */
+  const short=OUT_BASKET.filter(l=>l.short).length;
+  box.innerHTML='<div class="bskt"><div class="bh">'+esc(tr('ob_head','On this issue'))+' · '+OUT_BASKET.length+'</div>'+
+    OUT_BASKET.map((l,i)=>'<div class="bline"><div><div class="bn">'+esc(l.pname)+
+      (l.fromPlan?' <span class="minitag">'+esc(tr('ob_plantag','PLAN'))+'</span>':'')+
+      (l.short?' <span class="cstat r">'+esc(tr('ob_shorttag','SHORT'))+'</span>':'')+'</div>'+
+      '<div class="bs">'+nf(l.qty)+' '+esc(l.unit)+'</div></div>'+
+      '<div>'+(SHOW_VALUES?('<b>'+rm(l.cost)+'</b> '):'')+
+      '<span class="bx" onclick="outDropLine('+i+')">✕</span></div></div>').join('')+
+    (short?'<div class="alertbig" style="margin-top:8px">⚠ '+short+' '+esc(tr('ob_shortwarn','line(s) are more than the shelf shows'))+'</div>':'')+
+    (SHOW_VALUES?('<div class="btot">'+esc(tr('ob_total','Issue total'))+' '+rm(outBasketCost())+'</div>'):'')+
+    '<div style="height:9px"></div>'+
+    '<button class="bigbtn" onclick="submitOutBasket()">✓ '+esc(tr('ob_save','SAVE THIS ISSUE'))+
+      ' ('+OUT_BASKET.length+')</button>'+
+    '<div style="height:7px"></div>'+
+    '<button class="bigbtn ghost" id="out-clear" style="padding:10px;font-size:12px" onclick="outClearBasket()">'+
+      esc(tr('ob_clear','CLEAR THIS ISSUE'))+'</button>'+
+  '</div>';}
+let savingOutBasket=false;
+async function submitOutBasket(){
+  const err=$('out-err'); err.textContent='';
+  if(savingOutBasket)return;
+  /* the one-product road: nothing on the list, but a product and a quantity on the form.
+     Pull it in rather than making a worker in a shed tap ADD and then SAVE. */
+  if(!OUT_BASKET.length){await outAddLine(); if(!OUT_BASKET.length)return;}
+  if(!outLot){err.textContent=tr('so_picklot','Select the target lot the material was applied to.');return;}
+  const iso=outHeaderDate();
+  const stamp=stampFor(iso);
+  if(stamp===null){err.textContent=tr('bd_future','That day has not happened yet. Pick today or a day already past.');return;}
+  const set=$('sset')?$('sset').value:'';
+  /* the two warnings submitStockOut() has carried since v2.5, applied to the WHOLE basket
+     once rather than product by product — six dialogs in a row is how a person learns to tap
+     OK without reading. */
+  const shorts=OUT_BASKET.filter(l=>onHand(prodById(l.pid)||{})<l.qty);
+  if(shorts.length&&!confirm('⚠ '+shorts.length+' line(s) are more than the shelf shows:\n\n'+
+      shorts.map(l=>'• '+l.pname+' — taking '+nf(l.qty)+' '+l.unit+', shelf shows '+
+        nf(Math.max(0,onHand(prodById(l.pid)||{})))+' '+l.unit).join('\n')+'\n\nSave anyway?'))return;
+  const days=Math.ceil((PEAK_DATE-new Date())/86400000);
+  const phis=OUT_BASKET.map(l=>({l,phi:PHI_PRODUCTS[l.pname]})).filter(x=>x.phi&&days>=0&&days<x.phi);
+  if(phis.length&&!confirm('⚠ PHI WARNING\n\n'+phis.map(x=>'• '+x.l.pname+' — '+x.phi+'-day residue cut-off').join('\n')+
+      '\n\nProjected peak drop 21–22 Aug is in '+days+' day(s).\nOwner approval required. Log anyway?'))return;
+  savingOutBasket=true;
+  const n=OUT_BASKET.length, total=outBasketCost(), rid=uuid();
+  try{
+    for(const l of OUT_BASKET){
+      const p=prodById(l.pid)||{};
+      /* v3.49.1 — ALL is apportioned here, at the last possible moment, so the BASKET still
+         holds the honest total the Purchaser keyed and only the written rows are split. One
+         lot behaves exactly as it always did: a single row carrying the whole quantity. */
+      const parts=(outLot===LOT_ALL)?splitAcrossLots(l.qty):[{lot:outLot,qty:l.qty}];
+      for(const part of parts){
+        await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,ai:l.ai,
+          qty:part.qty,unit:l.unit,lot:part.lot,set:set,cost:+(part.qty*(p.cpu||0)).toFixed(2),
+          /* replyId groups the lines of one issue exactly as submitRun() groups one filing, so
+             PROGRAMME COST reads a hand-keyed set the same way it reads a crew filing — and it
+             is what ties the three split rows of one product back together. */
+          replyId:rid, backdated:(stamp.slice(0,10)!==todayISO()),
+          splitAll:(outLot===LOT_ALL)||undefined, lotsInReport:parts.length,
+          worker:CFG.worker,device:CFG.device,synced:false});}}
+  } finally { savingOutBasket=false; }
+  OUT_BASKET=[]; await persistOutBasket();
+  outLot='';LOT_KEYS.concat([LOT_ALL]).forEach(L=>{const el=$('ol-'+L);if(el)el.classList.remove('on');});
+  $('out-qty').value='';
+  outSplitNote(); renderOutBasket(); onOutCalc();
+  toast('✓ '+n+' '+tr('ob_saved','line(s) issued')+' · '+stamp.slice(0,10)+(SHOW_VALUES?(' · '+rm(total)):''));
+  refreshInventoryViews();}
+
 let savingStock=false;   // v2.5.1: rebuildLedgers() takes a moment on a cheap phone — one tap, one event
 /* ================= v3.19 PIECE 2 · ONE DELIVERY, MANY LINES =================
    A supplier invoice has one number and many products on it. The form had it the other
@@ -2813,17 +3613,45 @@ function renderBasket(){
       esc(tr('si_clear','CLEAR THIS DELIVERY'))+'</button>'+
   '</div>';}
 let savingBasket=false;
+/* ======================================================================================
+   v3.49.0 · A DELIVERY WITHOUT A DOCUMENT IS STILL A DELIVERY
+   ====================================================================================== */
+const IN_NOREASONS=['Transfer from Sandakan store','Free sample from the supplier',
+                    'Replacement for a damaged item','Invoice still to follow','Other'];
+let inRefMode='INV';
+function setInRefMode(m){
+  inRefMode=(m==='NONE')?'NONE':'INV';
+  const iw=$('in-refwrap'), nw=$('in-nowrap');
+  if(iw)iw.style.display=inRefMode==='INV'?'':'none';
+  if(nw)nw.style.display=inRefMode==='NONE'?'':'none';
+  ['inv','no'].forEach(k=>{const b=$('in-rm-'+k);
+    if(b)b.classList.toggle('on',(k==='inv')===(inRefMode==='INV'));});
+  const sel=$('in-noreason');
+  if(sel&&!sel.options.length)IN_NOREASONS.forEach(r=>{
+    const o=document.createElement('option');o.value=r;o.textContent=r;sel.appendChild(o);});}
+/** What goes in the `ref` column either way. ⛔ It is NEVER empty: a delivery with no
+ *  reference at all is a hole in the audit trail, so "NO INVOICE — <reason>" is written
+ *  instead, which reads honestly on the Sheet and cannot be mistaken for a real invoice. */
+function inRefValue(){
+  if(inRefMode==='NONE'){
+    const r=($('in-noreason')&&$('in-noreason').value)||'Other';
+    return 'NO INVOICE — '+r;}
+  return $('in-ref').value.trim();}
+function inDayNote(){const n=$('in-bdnote'); if(n)n.textContent=backdateNote(($('in-day')||{}).value||'');}
 async function receiveBasket(){
   const err=$('in-err'); err.textContent='';
   if(savingBasket||!IN_BASKET.length)return;
-  const ref=$('in-ref').value.trim();
-  if(!ref){err.textContent='Invoice / reference number is required.';return;}
-  const supplier=$('in-supplier').value.trim();
+  const ref=inRefValue();
+  if(inRefMode==='INV'&&!ref){err.textContent=tr('si_needref','Invoice number is required — or tap NO INVOICE and say why.');return;}
+  const supplier=inRefMode==='INV'?$('in-supplier').value.trim():'';
+  const inIso=($('in-day')||{}).value||'';
+  const inStamp=stampFor(inIso);
+  if(inStamp===null){err.textContent=tr('bd_future','That day has not happened yet. Pick today or a day already past.');return;}
   savingBasket=true;
   const n=IN_BASKET.length, total=inBasketTotal();
   try{
     // one stamp for the whole delivery, so every line of one invoice shares a timestamp
-    const stamp=now();
+    const stamp=inStamp;
     for(const l of IN_BASKET){
       await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:stamp,pid:l.pid,pname:l.pname,ai:l.ai,
         qty:l.qty,unit:l.unit,containers:l.containers,unitPrice:l.unitPrice,cost:l.value,
@@ -2840,14 +3668,22 @@ async function submitStockIn(){
   const p=prodById($('in-prod').value); if(!p){err.textContent='Pick a product.';return;}
   const ops=inOpsQty(); if(!(ops>0)){err.textContent='Enter the quantity received.';return;}
   const price=+$('in-price').value; if(!(price>0)){err.textContent='Enter the unit price in RM.';return;}
-  const ref=$('in-ref').value.trim(); if(!ref){err.textContent='Invoice / reference number is required.';return;}
+  /* v3.49.0 — the single-line road takes the same reference rule as the basket, or the two
+     would disagree about whether an invoice is compulsory depending on which button was used. */
+  const ref=inRefValue();
+  if(inRefMode==='INV'&&!ref){err.textContent=tr('si_needref','Invoice number is required — or tap NO INVOICE and say why.');return;}
+  const inIso1=($('in-day')||{}).value||'';
+  const inStamp1=stampFor(inIso1);
+  if(inStamp1===null){err.textContent=tr('bd_future','That day has not happened yet. Pick today or a day already past.');return;}
   const cont=toCont(p,ops);
   const value=+((inUnitMode==='C'?(+$('in-qty').value||0):cont)*price).toFixed(2);
   savingStock=true;
   try{
-    await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:now(),pid:p.id,pname:p.name,ai:p.active_ingredient,
+    await persistEvent({uuid:uuid(),type:'STOCK_IN',dt:inStamp1,pid:p.id,pname:p.name,ai:p.active_ingredient,
       qty:ops,unit:p.unit,containers:+cont.toFixed(4),unitPrice:price,cost:value,ref:ref,
-      supplier:$('in-supplier').value.trim(),lot:'',worker:CFG.worker,device:CFG.device,synced:false});
+      supplier:inRefMode==='INV'?$('in-supplier').value.trim():'',lot:'',
+      backdated:(inStamp1.slice(0,10)!==todayISO()),
+      worker:CFG.worker,device:CFG.device,synced:false});
   } finally { savingStock=false; }
   /* v3.19 PIECE 1 — the invoice number used to be WIPED here. One delivery of eight
      products therefore meant typing the same invoice number eight times. It stays now,
@@ -2859,6 +3695,11 @@ async function submitStockIn(){
 // ---- Farm Worker: Material Stock Out ----
 let outLot='';
 function renderOutOpts(){
+  /* v3.49.0 — the basket paints from HERE as well as from the store bar, because the CREW
+     reach this same card from Daily Ops ▸ STOCK OUT and never touch m8HubPick(). Hanging it
+     off the one function every road already calls is what stops the two roads drifting —
+     the same reasoning as renderProcure() painting the receive card (v3.23). */
+  try{ if(typeof renderOutBasket==='function')renderOutBasket(); }catch(e){}
   // v3.23 MODULE 4 — the picker is mounted FIRST now, because the search box it owns
   // has to exist before the v3.16 placeholder swap below can reach it. The swap itself
   // is untouched and still runs on every repaint, so a role change repaints it.
@@ -2905,7 +3746,42 @@ function onOutProd(){const p=prodById($('out-prod').value);
   $('out-unitlbl').textContent=p?p.unit:'ml/gm';
   $('out-onhand').innerHTML=p?(esc(tr('so_onhand'))+'<br><b>'+nf(onHand(p))+' '+esc(p.unit)+'</b>'):'—';
   onOutCalc();}
-function pickOutLot(l){outLot=l;LOT_KEYS.forEach(k=>$('ol-'+k).classList.toggle('on',k===l));}
+/* ======================================================================================
+   v3.49.1 · LOT "ALL" — AND IT IS A SPLIT, NOT A LABEL
+   ======================================================================================
+   The Owner: "for the issue it should have option A, B, C or all."
+
+   ⛔ THE OBVIOUS IMPLEMENTATION IS THE WRONG ONE. Writing lot:'ALL' onto the row would have
+   been one line and would have quietly broken three screens: LOT_KEYS is ['A','B','C'], so a
+   fourth value falls outside every per-lot grouping — the lot bars on the dashboard, the
+   per-lot disbursement in the ledger, and the per-lot figures PROGRAMME COST keys by lot. The
+   material would still leave the shelf but would belong to no lot at all, which is exactly the
+   kind of quiet hole this project keeps closing.
+   So ALL SPLITS. One row per lot per product, apportioned by TREE COUNT (A 65 · B 66 · C 40 of
+   171) — the same apportionment submitRun() has always used for a whole-farm filing, through
+   the same splitExact() including its rounding-drift correction, so the parts always add back
+   to exactly what left the shed. The crew's road and the Purchaser's road now agree about what
+   "the whole farm" means.
+   ⛔ AND IT IS SHOWN BEFORE IT IS SAVED. outSplitNote() prints the real figures under the
+   buttons, because an apportionment the Owner cannot see is an assumption, not a record. */
+const LOT_ALL='ALL';
+function lotWeights(){return LOT_KEYS.map(l=>treesInLot(l).length);}
+/** total -> [{lot, qty}] apportioned by trees. A zero-tree lot is dropped, not sent a zero. */
+function splitAcrossLots(total){
+  const w=lotWeights(), parts=splitExact(+total||0,w);
+  return LOT_KEYS.map((l,i)=>({lot:l,qty:parts[i]})).filter(x=>x.qty>0);}
+function pickOutLot(l){
+  outLot=l;
+  LOT_KEYS.concat([LOT_ALL]).forEach(k=>{const el=$('ol-'+k); if(el)el.classList.toggle('on',k===l);});
+  outSplitNote();}
+/** The sentence that stops the split being a hidden assumption. */
+function outSplitNote(){
+  const n=$('out-splitnote'); if(!n)return;
+  if(outLot!==LOT_ALL){n.textContent='';return;}
+  const w=lotWeights(), tot=w.reduce((a,b)=>a+b,0);
+  n.innerHTML=esc(tr('ob_splithead','Split across every lot by tree count'))+' — '+
+    LOT_KEYS.map((l,i)=>'<b>'+esc(l)+'</b> '+w[i]).join(' · ')+' = '+tot+' '+esc(tr('ob_trees','trees'))+
+    '. '+esc(tr('ob_splitrows','Each product becomes one row per lot.'));}
 function onOutCalc(){const p=prodById($('out-prod').value);if(!p){$('out-conv').textContent='—';return;}
   const q=+$('out-qty').value||0;
   $('out-conv').innerHTML='Using <b>'+nf(q)+' '+esc(p.unit)+'</b> = '+nf(toCont(p,q))+' '+esc(p.container)+
@@ -2929,8 +3805,8 @@ async function submitStockOut(){
   } finally { savingStock=false; }
   toast('✓ Stock out: '+nf(q)+' '+p.unit+' '+p.name+' → Lot '+outLot);
   $('out-qty').value='';                    // v2.5.1: clear the form so it cannot be sent twice
-  outLot='';LOT_KEYS.forEach(L=>{const el=$('ol-'+L);if(el)el.classList.remove('on');});
-  onOutCalc();
+  outLot='';LOT_KEYS.concat([LOT_ALL]).forEach(L=>{const el=$('ol-'+L);if(el)el.classList.remove('on');});
+  outSplitNote(); onOutCalc();
   refreshInventoryViews();}
 
 /* ================= v3.23 · LANE C · MODULE 4 · ONE STOCK LIST =================
@@ -2955,6 +3831,475 @@ async function submitStockOut(){
  *  values  — SHOW_VALUES. Every RM figure and the KPI tiles hang off this and only this.
  *  mode    — ccMode: ALL | BRAND | AI | GROUP. GROUP is never truncated, by design.
  *  cap     — 0 disables the collapse entirely (the on-hand list never had one). */
+/* ======================================================================================
+   v3.47.0 · THE COUNT SHEET — paper the estate can carry into the shed
+   ======================================================================================
+   "Shelf - have print out button for purchaser to ask estate to do stock check every month."
+
+   Everything it prints is derived; it stores nothing. What comes BACK is keyed through the
+   existing STOCK-TAKE screen, which already posts a signed adjustment — so this release adds
+   a piece of paper and no new write path at all.
+
+   ⛔ IT PRINTS THE APP'S OWN FIGURE. Owner's decision, 13 Aug: a blind count finds more
+   mistakes, but a visible one actually gets done. Do not "improve" this by hiding the column
+   without asking him again. */
+function csList(){
+  return activeProducts().slice().sort((a,b)=>String(a.name).localeCompare(String(b.name)));}
+function renderCountSheet(){
+  const box=$('countbox'); if(!box)return;
+  if(!roleAllows('onhandcard')){box.innerHTML='';return;}
+  const rows=csList();
+  const head='<div class="sec" style="margin:0 0 6px">'+esc(tr('cs_store','ESTATE STORE'))+' — '+
+    esc(monthName(todayStr().slice(0,7)))+'</div>'+
+    '<p class="small" style="margin:0 0 9px">'+esc(tr('cs_how',
+      'Count every product. Write the number of FULL containers, and what is left in the opened one.'))+'</p>';
+  let t='<div class="gridwrap"><table class="tbl"><tr>'+
+    '<th>'+esc(tr('cs_prod','Product'))+'</th>'+
+    '<th class="num">'+esc(tr('cs_appsays','App says'))+'</th>'+
+    '<th class="num">'+esc(tr('cs_full','Full'))+'</th>'+
+    '<th class="num">'+esc(tr('cs_open','Opened'))+'</th></tr>';
+  rows.forEach(p=>{
+    const x=packFullPart(p,onHand(p)), c=packSize(p);
+    t+='<tr class="csrow"><td><b>'+esc(p.name)+'</b>'+
+      (c?('<span class="cssub">1 '+esc(packWord(p,1))+' = '+nf(c)+' '+esc(p.unit)+'</span>'):'')+'</td>'+
+      '<td class="num">'+(c?(nf(x.f)+' '+esc(packWord(p,x.f))):nf(onHand(p)))+
+        '<span class="cssub">'+(c?(x.r?('+'+nf(x.r)+' '+esc(p.unit)):'—'):esc(p.unit))+'</span></td>'+
+      '<td class="num"><span class="csbox"></span><span class="cssub">'+esc(c?packWord(p,2):p.unit)+'</span></td>'+
+      '<td class="num"><span class="csbox"></span><span class="cssub">'+esc(p.unit)+'</span></td></tr>';});
+  t+='</table></div>';
+  const sign='<div class="cssign">'+esc(tr('cs_by','Counted by'))+
+    ' <span class="csbox" style="min-width:150px"></span>&nbsp;&nbsp;'+
+    esc(tr('cs_date','Date'))+' <span class="csbox" style="min-width:100px"></span><br>'+
+    esc(tr('cs_sign','Signature'))+' <span class="csbox" style="min-width:200px"></span></div>';
+  box.innerHTML=head+t+sign+
+    '<button class="bigbtn noprint" style="margin-top:14px" onclick="csPrint()">🖨️ '+
+      esc(tr('cs_print','PRINT THIS SHEET'))+'</button>'+
+    '<button class="bigbtn ghost noprint" style="margin-top:9px" onclick="csClose()">'+
+      esc(tr('cs_back','‹ BACK TO THE SHELF'))+'</button>'+
+    '<p class="small noprint" style="margin-top:9px">'+esc(tr('cs_note',
+      'Send it up with the lorry. What comes back is keyed through STOCK-TAKE, which posts a signed adjustment against the count — the shelf figure is never quietly overwritten.'))+'</p>';}
+/* ⛔ CS_OPEN exists because of a bug this release's own harness caught. csClose() is called
+   from m8HubPick() on every segment change, to stop the sheet leaking onto BUY — but it also
+   did `onhandcard.classList.remove('m3-hide')`, which UNDID the hide m8HubPick had just
+   applied one line earlier. The shelf list then showed on all four jobs. A tidy-up function
+   must know whether there was anything to tidy. */
+let CS_OPEN=false;
+function csOpen(){
+  const c=$('countsheet'), h=$('onhandcard'), bar=$('invhubseg');
+  if(!c)return;
+  CS_OPEN=true;
+  renderCountSheet();
+  c.style.display=''; c.classList.remove('m3-hide');
+  if(h)h.classList.add('m3-hide');
+  if(bar)bar.classList.add('m3-hide');
+  $('scr-stock').scrollTop=0;}
+function csClose(){
+  if(!CS_OPEN)return;                      // nothing was open — do not touch the bar or the list
+  CS_OPEN=false;
+  const c=$('countsheet'), h=$('onhandcard'), bar=$('invhubseg');
+  if(c){c.style.display='none';c.classList.add('m3-hide');}
+  if(h)h.classList.remove('m3-hide');
+  if(bar)bar.classList.remove('m3-hide');
+  $('scr-stock').scrollTop=0;}
+/* v3.48.0 — STOCK-TAKE STOPS BEING A MENU ROW AND BECOMES THE OTHER HALF OF THE PRINT.
+   The estate counts on the paper csPrint() produced; this is the only screen those numbers
+   can be keyed back into. Having it two taps away in a different menu meant printing and
+   posting were the same job done in two places, which is exactly what the Owner asked to
+   stop. Deliberately the SAME page pattern as the count sheet — including the ST_OPEN guard,
+   which exists because csClose() shipped without one and un-hid the shelf list on every
+   segment change, leaking it onto all four jobs. A tidy-up function must know whether there
+   was anything to tidy. */
+let ST_OPEN=false;
+function stOpen(){
+  const s=$('stocktake'), h=$('onhandcard'), bar=$('invhubseg');
+  if(!s)return;
+  if(typeof csClose==='function')csClose();   // never both pages at once
+  ST_OPEN=true;
+  try{ if(typeof renderStOpts==='function')renderStOpts();
+       if(typeof renderStRecent==='function')renderStRecent(); }catch(e){}
+  s.style.display=''; s.classList.remove('m3-hide');
+  if(h)h.classList.add('m3-hide');
+  if(bar)bar.classList.add('m3-hide');
+  $('scr-stock').scrollTop=0;}
+function stClose(){
+  if(!ST_OPEN)return;                      // nothing was open — do not touch the bar or the list
+  ST_OPEN=false;
+  const s=$('stocktake'), h=$('onhandcard'), bar=$('invhubseg');
+  if(s){s.style.display='none';s.classList.add('m3-hide');}
+  if(h)h.classList.remove('m3-hide');
+  if(bar)bar.classList.remove('m3-hide');
+  $('scr-stock').scrollTop=0;}
+
+/* ======================================================================================
+   v3.54.0 · THE MONTHLY STATEMENT — what he keyed, so he can correct it
+   ======================================================================================
+   The Owner: "for purchaser he need to have a statement that he already key in like
+   received, issue, by month, so he will correct it." Parked into SHELF at his instruction,
+   same screen for him and the Purchaser, grouped by product.
+
+   ⛔ BUILDING THE FIGURES BEFORE THE SCREEN IS WHAT MADE THIS WORTH SHIPPING. Totalling the
+   ledger by month returned 452 movements and EVERY ONE OF THEM GOING OUT — not one delivery
+   has ever been recorded, in six months. The opening quantities came from the workbook import
+   and the store has only ever been drawn down since. That is exactly why four products go
+   negative the moment July and August are keyed honestly, and it was invisible because nothing
+   in this app had ever put the two sides on one screen. So this is not a report. It is the
+   screen that would have caught it in March.
+
+   ⛔ IT EDITS NOTHING. This app has never changed a record and does not start here: a wrong
+   line is corrected by keying the correction, and both stay on the ledger. The statement's
+   whole job is that you cannot correct what you cannot see. */
+let STMT_OPEN=false, STMT_MONTH='', STMT_SIDE='out', STMT_EXPAND='';
+function stmtMonths(){
+  const m={};
+  EVENTS.forEach(e=>{if(e&&(e.type==='STOCK_IN'||e.type==='STOCK_OUT')){
+    const k=String(e.dt||'').slice(0,7); if(k)m[k]=1;}});
+  const ks=Object.keys(m).sort();
+  if(!ks.length)ks.push(String(todayISO()).slice(0,7));
+  return ks;}
+function stmtRows(mk,side){
+  const type=(side==='in')?'STOCK_IN':'STOCK_OUT';
+  const by={};
+  EVENTS.forEach(e=>{
+    if(!e||e.type!==type)return;
+    if(String(e.dt||'').slice(0,7)!==mk)return;
+    const k=+e.pid||0; if(!by[k])by[k]={pid:k,name:e.pname||'',ai:e.ai||'',unit:e.unit||'',qty:0,rm:0,n:0,lines:[]};
+    const r=by[k]; r.qty+=+e.qty||0; r.rm+=+e.cost||0; r.n++;
+    r.lines.push({dt:String(e.dt||'').slice(0,10),qty:+e.qty||0,rm:+e.cost||0,
+                  who:e.worker||'—',dev:e.device||'',ref:e.ref||e.set||e.progSet||'',lot:e.lot||''});});
+  return Object.keys(by).map(k=>by[k]).sort((a,b)=>b.rm-a.rm||b.qty-a.qty);}
+function stmtOpen(){
+  const c=$('stmtcard'); if(!c)return;
+  if(typeof csClose==='function')csClose();
+  if(typeof stClose==='function')stClose();
+  STMT_OPEN=true;
+  if(!STMT_MONTH){const ms=stmtMonths(); STMT_MONTH=ms[ms.length-1];}
+  const h=$('onhandcard'), bar=$('invhubseg');
+  c.style.display=''; c.classList.remove('m3-hide');
+  if(h)h.classList.add('m3-hide');
+  if(bar)bar.classList.add('m3-hide');
+  renderStatement(); $('scr-stock').scrollTop=0;}
+function stmtClose(){
+  if(!STMT_OPEN)return;                      // nothing was open — do not touch the bar
+  STMT_OPEN=false; STMT_EXPAND='';
+  const c=$('stmtcard'), h=$('onhandcard'), bar=$('invhubseg');
+  if(c){c.style.display='none';c.classList.add('m3-hide');}
+  if(h)h.classList.remove('m3-hide');
+  if(bar)bar.classList.remove('m3-hide');
+  $('scr-stock').scrollTop=0;}
+function stmtStep(d){
+  const ms=stmtMonths(); let i=ms.indexOf(STMT_MONTH);
+  if(i<0)i=ms.length-1;
+  i=Math.max(0,Math.min(ms.length-1,i+d));
+  STMT_MONTH=ms[i]; STMT_EXPAND=''; renderStatement();}
+function stmtSide(k){STMT_SIDE=(k==='in')?'in':'out';STMT_EXPAND='';renderStatement();}
+function stmtTap(pid){STMT_EXPAND=(STMT_EXPAND===String(pid))?'':String(pid);renderStatement();}
+function stmtPrint(){
+  document.body.classList.add('printing-stmt');
+  try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}
+  setTimeout(()=>document.body.classList.remove('printing-stmt'),1500);}
+function renderStatement(){
+  const box=$('stmtbox'); if(!box)return;
+  const mk=STMT_MONTH||stmtMonths().pop();
+  const ins=stmtRows(mk,'in'), outs=stmtRows(mk,'out');
+  const sum=a=>a.reduce((t,r)=>t+r.rm,0), cnt=a=>a.reduce((t,r)=>t+r.n,0);
+  const rows=(STMT_SIDE==='in')?ins:outs;
+  const money=(typeof SHOW_VALUES!=='undefined')&&SHOW_VALUES;
+  const ms=stmtMonths(), at=ms.indexOf(mk);
+  let h='<div class="sec">📄 '+esc(tr('sm_head','My month'))+' — '+esc(monthName(mk))+'</div>'+
+    '<div class="stmtstep">'+
+      '<button class="stmtar'+(at<=0?' off':'')+'" onclick="stmtStep(-1)">‹</button>'+
+      '<div class="stmtlab">'+esc(monthName(mk))+'</div>'+
+      '<button class="stmtar'+(at>=ms.length-1?' off':'')+'" onclick="stmtStep(1)">›</button></div>'+
+    '<div class="kpis">'+
+      '<div class="kpi"><div class="v'+(cnt(ins)?'':' lowq')+'">'+nf(cnt(ins))+'</div><div class="l">'+esc(tr('sm_dels','Deliveries keyed'))+'</div></div>'+
+      '<div class="kpi"><div class="v">'+nf(cnt(outs))+'</div><div class="l">'+esc(tr('sm_isss','Issues keyed'))+'</div></div>'+
+      (money?('<div class="kpi"><div class="v'+(sum(ins)?'':' lowq')+'">'+rm(sum(ins))+'</div><div class="l">'+esc(tr('sm_bought','Bought'))+'</div></div>'+
+              '<div class="kpi"><div class="v">'+rm(sum(outs))+'</div><div class="l">'+esc(tr('sm_used','Used'))+'</div></div>'):'')+
+    '</div>'+
+    '<div class="m3-seg noprint" style="margin-top:9px">'+
+      '<div class="m3-seg-btn'+(STMT_SIDE==='in'?' on':'')+'" onclick="stmtSide(\'in\')">📥 '+esc(tr('sm_recv','RECEIVED'))+'</div>'+
+      '<div class="m3-seg-btn'+(STMT_SIDE==='out'?' on':'')+'" onclick="stmtSide(\'out\')">📤 '+esc(tr('sm_iss','ISSUED'))+'</div></div>';
+  if(!rows.length){
+    h+='<div class="alertbig" style="margin-top:10px">'+
+       esc(STMT_SIDE==='in'?tr('sm_nodel','No deliveries were keyed this month.')
+                           :tr('sm_noiss','Nothing was issued this month.'))+'</div>';
+    if(STMT_SIDE==='in'&&!EVENTS.some(e=>e&&e.type==='STOCK_IN'))
+      h+='<div class="small" style="margin-top:7px">'+esc(tr('sm_neverin','Nothing has ever been received into this store.'))+'</div>';
+  }else{
+    h+='<div class="tblwrap" style="margin-top:8px"><table class="tbl">'+
+       '<tr><th>'+esc(tr('sm_prod','Product'))+'</th><th class="num">'+esc(tr('sm_qty','Quantity'))+'</th>'+
+       (money?('<th class="num">'+esc(tr('sm_rm','RM'))+'</th>'):'')+'</tr>'+
+      rows.map(r=>{
+        const p=prodById(r.pid);
+        const open=(STMT_EXPAND===String(r.pid));
+        let t='<tr class="stmtrow" onclick="stmtTap('+r.pid+')">'+
+          '<td><div class="pn">'+esc(r.name)+'</div><div class="pa">'+esc(r.ai||'—')+' · '+r.n+' '+esc(tr('sm_entries','entries'))+'</div></td>'+
+          '<td class="num">'+(p?packQty(p,r.qty):(nf(r.qty)+' '+esc(r.unit)))+'</td>'+
+          (money?('<td class="num"><b>'+rm(r.rm)+'</b></td>'):'')+'</tr>';
+        if(open)t+=r.lines.map(l=>'<tr class="stmtsub"><td colspan="'+(money?3:2)+'">'+
+          '<b>'+esc(l.dt)+'</b> · '+nf(l.qty)+' '+esc(r.unit)+
+          (l.lot?(' · Lot '+esc(l.lot)):'')+(money?(' · '+rm(l.rm)):'')+
+          '<br><span class="exphint">'+esc(l.ref||'—')+' · '+esc(l.who)+(l.dev?(' ('+esc(l.dev)+')'):'')+'</span>'+
+          '</td></tr>').join('');
+        return t;}).join('')+'</table></div>'+
+      '<div class="small" style="margin-top:7px">'+esc(tr('sm_taphint','Tap a product to see every entry behind it.'))+'</div>';
+  }
+  h+='<button class="bigbtn ghost noprint" style="margin-top:10px" onclick="stmtPrint()">🖨 '+esc(tr('sm_print','PRINT THIS STATEMENT'))+'</button>'+
+     '<button class="bigbtn ghost noprint" style="margin-top:7px;padding:10px;font-size:12px" onclick="stmtClose()">'+esc(tr('cs_back','‹ BACK TO THE SHELF'))+'</button>'+
+     '<div class="small" style="margin-top:8px">'+esc(tr('sm_note','Nothing here can be changed. If a line is wrong, key the correction the normal way — both stay on the record.'))+'</div>';
+  box.innerHTML=h;}
+
+/* ======================================================================================
+   v3.56.0 · REKOD SAYA — THE CREW'S DAY BOARD
+   ======================================================================================
+   The Owner: "the purpose of this task board is for workers to double check what he had key
+   in today, and he can also check the history mean yesterday or whatever specific date. so
+   he knw what had key in, sync to sheet or respond from gate."
+
+   THREE FACTS ON EVERY LINE, because he named three: what was keyed, whether it reached the
+   Sheet, and what the Gate said. And the TIME down the left, because the job is standing at
+   the end of a row asking "did that go in?" — two loads keyed four minutes apart, both four
+   baskets, both to Ah Seng, is the mistake a day shows and a month total hides.
+
+   ⛔ A DAY, NOT A MONTH. The first design was the Purchaser's MY MONTH with a crew filter.
+   Wrong screen for this job: "38 fruit in August" cannot answer whether the 14 he counted an
+   hour ago went in. The Owner corrected it and he is right.
+
+   ⛔ NOTHING NEW IS RECORDED. All eight record types a crew phone can write already carry the
+   worker and the device — checked one by one before this was designed. This is a window, not
+   a form: no new event type, no new field, nothing extra to tap in the field.
+
+   ⛔ AND IT REPLACES A SCREEN THAT LIED. DAILY OPS ▸ TODAY'S TASKS carried "Completion
+   replies sent from this phone", which (a) listed only work filed against a programme job —
+   of the 452 rows in this farm's ledger, ZERO qualify — and (b) filtered by neither the phone
+   nor the person despite its heading. It has never shown a single row to anybody.
+   ====================================================================================== */
+const MY_KINDS={
+  DROP:        {ic:'🍈',t:'my_k_drop', en:'fruit collected'},
+  ROTTEN:      {ic:'🍂',t:'my_k_rot',  en:'bad fruit'},
+  TIE:         {ic:'🎗️',t:'my_k_tie',  en:'tying'},
+  TIE_ADJUST:  {ic:'🎗️',t:'my_k_tieadj',en:'tying correction'},
+  DISPATCH_REQ:{ic:'⚖️',t:'my_k_load', en:'morning load'},
+  FOC_REQ:     {ic:'🎁',t:'my_k_foc',  en:'asked for fruit'},
+  STOCK_OUT:   {ic:'🧪',t:'my_k_mat',  en:'material taken'},
+  TASK_DONE:   {ic:'✓', t:'my_k_job',  en:'job done'}
+};
+/** ⛔ HIS OWN WORK, and the Owner chose the rule: "only what he keyed", matched on his name
+ *  and his phone. The staff id is used FIRST where both sides carry one, because a name can
+ *  be re-typed and an id cannot; DROP / ROTTEN / TIE / FOC_REQ all stamp workerId. The
+ *  name+device pair is the fallback for STOCK_OUT and TASK_DONE, which do not. */
+function mineIsMine(e){
+  if(!e||!CFG)return false;
+  const id=String(CFG.uid||''), eid=String(e.workerId||'');
+  if(id&&eid)return eid===id;
+  const me=String(CFG.worker||'').trim().toLowerCase();
+  if(!me)return false;
+  return String(e.worker||'').trim().toLowerCase()===me &&
+         String(e.device||'')===String(CFG.device||'');}
+/** ⛔ ONE LINE PER ACTION, NOT PER ROW. Collecting fruit writes one event PER TREE and a
+ *  material issue one PER PRODUCT, so an unGROUPED day would be a wall of forty lines and
+ *  useless for checking. Every writer already stamps a round id for exactly this reason —
+ *  pickId, roundId, reportId, replyId — so the grouping is the app's own, not invented here.
+ *  ROTTEN has none, so it falls back to the minute it was keyed. */
+function mineKey(e){
+  return String(e.pickId||e.roundId||e.reportId||e.replyId||
+                (e.type+'|'+(e.lot||'')+'|'+String(e.dt||'').slice(0,16)));}
+function mineDayRows(iso){
+  if(typeof EVENTS==='undefined')return [];
+  const day=String(iso||'').slice(0,10), by={}, out=[];
+  EVENTS.forEach(e=>{
+    if(!e||!MY_KINDS[e.type])return;
+    if(String(e.dt||'').slice(0,10)!==day)return;
+    if(!mineIsMine(e))return;
+    const k=e.type+'~'+mineKey(e);
+    if(!by[k]){by[k]={k:k,type:e.type,dt:String(e.dt||''),rows:[],pending:0,first:e};out.push(by[k]);}
+    const g=by[k]; g.rows.push(e);
+    if(!e.synced)g.pending++;
+    if(String(e.dt||'')<g.dt)g.dt=String(e.dt||'');});
+  return out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));}
+/** Every day this person has ever keyed anything, oldest first — the calendar's real range. */
+function mineDays(){
+  const d={};
+  if(typeof EVENTS!=='undefined')EVENTS.forEach(e=>{
+    if(!e||!MY_KINDS[e.type]||!mineIsMine(e))return;
+    const k=String(e.dt||'').slice(0,10); if(k)d[k]=1;});
+  return Object.keys(d).sort();}
+/** What the Gate said, on the two kinds that wait for an answer. '' when none is owed. */
+function mineAnswer(g){
+  const e=g.first;
+  if(g.type==='DISPATCH_REQ'&&typeof reqDecision==='function'){
+    const s=reqDecision(e.uuid).state;
+    if(s==='APPROVED')return {cls:'ok', t:tr('my_a_checked','CHECKED')};
+    if(s==='RETURNED')return {cls:'no', t:tr('my_a_back','SENT BACK')};
+    if(s==='CANCELLED')return {cls:'no',t:tr('my_a_cancelled','CANCELLED')};
+    return {cls:'wait',t:tr('my_a_waiting','WAITING FOR THE GATE')};}
+  if(g.type==='FOC_REQ'&&typeof focStatusOf==='function'){
+    const s=focStatusOf(e.uuid);
+    if(s===FOC_STATUS.APPROVED)return {cls:'ok',t:tr('my_a_yes','APPROVED')};
+    if(s===FOC_STATUS.REFUSED)return {cls:'no',t:tr('my_a_no','REFUSED')};
+    return {cls:'wait',t:tr('my_a_waiting','WAITING FOR THE GATE')};}
+  return null;}
+/** The words on the line, in the shape the crew keyed it. ⛔ NO RINGGIT ANYWHERE — this is a
+ *  crew screen and the money gate is not consulted, it is simply never asked. */
+function mineLine(g){
+  const e=g.first, n=g.rows.length, sum=f=>g.rows.reduce((t,x)=>t+(+x[f]||0),0);
+  const lot=e.lot?(' · '+tr('ow_lot','Lot')+' '+esc(e.lot)):'';
+  const trees=(()=>{const s={};g.rows.forEach(x=>{if(x.tree)s[x.tree]=1;});
+    const c=Object.keys(s).length; return c?(c+' '+tr('ow_trees','trees')):'';})();
+  switch(g.type){
+    case 'DROP':{
+      const gr={}; g.rows.forEach(x=>{if(x.grade)gr[x.grade]=(gr[x.grade]||0)+(+x.qty||0);});
+      const parts=Object.keys(gr).sort().map(k=>k+' '+nf(gr[k]));
+      return {w:nf(sum('qty'))+' '+tr('my_fruit','fruit')+lot,
+              s:[parts.join(' · '),trees].filter(Boolean).join(' · ')};}
+    case 'ROTTEN':
+      return {w:nf(sum('qty'))+' '+tr('my_badfruit','bad fruit')+lot,
+              s:[esc(e.causeLabel||''),trees].filter(Boolean).join(' · ')};
+    case 'TIE':
+      return {w:nf(sum('n'))+' '+tr('my_ties','ties')+lot, s:trees};
+    case 'TIE_ADJUST':
+      return {w:tr('my_tiefix','Tying corrected')+lot, s:trees};
+    case 'DISPATCH_REQ':
+      return {w:nf(+e.line_count||n)+' '+tr('my_baskets','baskets')+' · '+nkg(+e.total_kg||0)+' kg',
+              s:esc(e.retailer_name||e.contact||'')};
+    case 'FOC_REQ':
+      return {w:tr('my_asked','Asked for')+' '+nf(+e.fruit_n||0)+' '+tr('my_fruit','fruit')+
+                (e.clone?(' · '+esc(CLONE_NAME[e.clone]||e.clone)):''),
+              s:esc(e.reasonLabel||'')};
+    case 'TASK_DONE':
+      return {w:esc(e.kindLabel||tr('my_k_job','job done'))+lot, s:trees};
+    default:{  // STOCK_OUT
+      const names=[];g.rows.forEach(x=>{if(x.pname&&names.indexOf(x.pname)<0)names.push(x.pname);});
+      const w=(names.length===1)
+        ? esc(names[0])+' · '+nf(sum('qty'))+' '+esc(e.unit||'')
+        : names.length+' '+tr('my_products','products');
+      return {w:w, s:[(e.lot?tr('ow_lot','Lot')+' '+esc(e.lot):''),esc(e.set||e.progSet||''),
+                      (names.length>1?names.map(esc).join(' · '):'')].filter(Boolean).join(' · ')};}
+  }}
+const WEEKDAY_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEKDAY_MS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+/** "Friday 14 August" — the day written the way it is said, under the big word.
+ *  ⛔ Built from Date.UTC on the ISO parts, never from new Date(string): a bare
+ *  'YYYY-MM-DD' is parsed as UTC and then printed in local time, which on this farm's
+ *  clock (UTC+8) is the same date, but on a phone set west of Greenwich would print
+ *  yesterday. The whole screen is about which day a thing was keyed. */
+function longDay(iso){
+  const s=String(iso||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  const y=+s.slice(0,4), m=+s.slice(5,7), d=+s.slice(8,10);
+  const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay();
+  const W=(LANG==='ms')?WEEKDAY_MS:WEEKDAY_EN, M=(LANG==='ms')?MONTH_LONG_MS:MONTH_LONG_EN;
+  return W[wd]+' '+d+' '+M[m-1];}
+let MINE_DAY='';
+function mineOpenDay(iso){
+  const t=todayISO(), s=String(iso||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s)){MINE_DAY=t;}
+  else MINE_DAY=(s>t)?t:s;                       // ⛔ never a day that has not happened
+  renderMine();}
+function mineStep(d){
+  const t=todayISO();
+  const base=Date.parse((MINE_DAY||t)+'T00:00:00Z')+d*86400000;
+  const iso=new Date(base).toISOString().slice(0,10);
+  if(iso>t)return;                               // forward stops at today
+  MINE_DAY=iso; renderMine();}
+function mineJump(back){
+  const t=Date.parse(todayISO()+'T00:00:00Z')-(+back||0)*86400000;
+  MINE_DAY=new Date(t).toISOString().slice(0,10); renderMine();}
+async function mineSync(){
+  if(typeof doSync!=='function'){toast(tr('my_nosync','This phone cannot send right now.'),1);return;}
+  await doSync(); renderMine();}
+function renderMine(){
+  const box=$('minebox'); if(!box)return;
+  const t=todayISO();
+  if(!MINE_DAY)MINE_DAY=t;
+  const iso=MINE_DAY, groups=mineDayRows(iso);
+  const yest=new Date(Date.parse(t+'T00:00:00Z')-86400000).toISOString().slice(0,10);
+  const pend=groups.reduce((s,g)=>s+g.pending,0);
+  const days=mineDays(), oldest=days.length?days[0]:t;
+  const big=(iso===t)?tr('my_today','TODAY'):((iso===yest)?tr('my_yest','YESTERDAY'):iso);
+  let h='<div class="sec">📄 '+esc(tr('my_head','My record'))+' · '+esc(CFG.worker||'')+'</div>'+
+    '<div class="mnbar">'+
+      '<button class="mnar'+(iso<=oldest?' off':'')+'" onclick="mineStep(-1)">‹</button>'+
+      '<div class="mnlab"><b>'+esc(big)+'</b><span>'+esc(longDay(iso))+'</span></div>'+
+      '<button class="mnar'+(iso>=t?' off':'')+'" onclick="mineStep(1)">›</button></div>'+
+    '<div class="mnpick">'+
+      '<button class="'+(iso===t?'on':'')+'" onclick="mineJump(0)">'+esc(tr('my_today','TODAY'))+'</button>'+
+      '<button class="'+(iso===yest?'on':'')+'" onclick="mineJump(1)">'+esc(tr('my_yest','YESTERDAY'))+'</button>'+
+      '<input type="date" id="mn-date" max="'+esc(t)+'" value="'+esc(iso)+'" onchange="mineOpenDay(this.value)">'+
+    '</div>';
+  /* the sync line. ⛔ IT IS THE REASON THIS SCREEN EXISTS AS MUCH AS THE LIST IS: nothing in
+     this app has ever told a worker his entries are still sitting on his phone. */
+  h+='<div class="mnsync '+(pend?'wait':'ok')+'">'+
+      '<div class="t">'+esc(pend
+        ? tr('my_pending','{n} entries still on this phone').replace('{n}',String(pend))
+        : (groups.length?tr('my_allsent','Everything is in the Sheet.'):tr('my_nowait','Nothing waiting.')))+'</div>'+
+      (pend?('<button onclick="mineSync()">'+esc(tr('my_send','SEND NOW'))+'</button>'):'')+
+    '</div>';
+  if(groups.length){
+    const c={}; groups.forEach(g=>{const k=MY_KINDS[g.type].ic;c[k]=(c[k]||0)+1;});
+    h+='<div class="mncnt">'+Object.keys(c).map(k=>'<div>'+k+' <b>'+c[k]+'</b></div>').join('')+'</div>';
+    h+=groups.map(g=>{
+      const K=MY_KINDS[g.type], L=mineLine(g), A=mineAnswer(g);
+      return '<div class="mnrow"><div class="mntm">'+esc(String(g.dt).slice(11,16)||'—')+'</div>'+
+        '<div class="mnic">'+K.ic+'</div>'+
+        '<div class="mnbd"><div class="w">'+L.w+'</div>'+
+        (L.s?('<div class="s">'+L.s+'</div>'):'')+
+        '<div class="mntags">'+
+          (g.pending?('<span class="mntag local">'+esc(tr('my_onphone','ON THIS PHONE'))+'</span>')
+                    :('<span class="mntag sheet">'+esc(tr('my_insheet','IN THE SHEET'))+'</span>'))+
+          (A?('<span class="mntag '+A.cls+'">'+esc(A.t)+'</span>'):'')+
+        '</div></div></div>';}).join('');
+  }else{
+    h+='<div class="mnnone">'+esc(tr('my_none','Nothing keyed on this day.'))+
+       '<br><span>'+esc(tr('my_none2','If you worked, it never went in.'))+'</span></div>';}
+  h+='<div class="small" style="margin-top:10px">'+esc(tr('my_note',
+     'Nothing here can be changed. If a line is wrong, tell the Owner and key the correction — both stay on the record.'))+'</div>';
+  box.innerHTML=h;}
+
+/** The third screen in this app that prints, and the third to use a body class rather than
+ *  an id rule — the harvest sheet's print block is still byte-identical to the day it was
+ *  proved on real paper. */
+function csPrint(){
+  document.body.classList.add('printing-count');
+  try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}
+  setTimeout(()=>document.body.classList.remove('printing-count'),1500);}
+function monthName(mo){
+  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const p=String(mo).split('-'); return (M[(+p[1]||1)-1]||mo)+' '+p[0];}
+
+/* ======================================================================================
+   v3.47.0 · A SHED IS COUNTED IN CONTAINERS, NOT IN MILLILITRES
+   ======================================================================================
+   His words: "i know that programme set up sometime by gm or ml, but when u go to inventory
+   this unit will make thing difficult."
+
+   The rule, and it is worth stating once: **the programme speaks in ml and gm, the store
+   speaks in bottles, drums and bags.** Both are right; they are different jobs. A dose must
+   stay exact — 2.5 kg per 1,000 L is chemistry and cannot become "half a bag" — but nobody
+   buys, counts or stores in millilitres. `unit_multiplier` already holds the conversion, so
+   the app can speak both languages with nothing keyed twice.
+   ⛔ NOTHING BELOW CHANGES A STORED NUMBER. On-hand is still ml/gm everywhere it is
+   calculated; this is a way of PRINTING it. The programme screens are untouched.
+
+   And never a decimal on paper. "11.9 bags" is not something a person can find in a shed;
+   `packFullPart()` gives 11 bags + 7,000 gm, which is what they will actually count —
+   whole containers, then whatever is in the one that is open. */
+function packSize(p){const c=+(p&&p.unit_multiplier)||0;return c>1?c:0;}
+function packWord(p,n){
+  const w=String((p&&p.container)||'').trim()||'container';
+  return n===1?w:(w+(/s$/i.test(w)?'':'s'));}
+function packFullPart(p,q){
+  const c=packSize(p); q=+q||0;
+  if(!c)return {f:0,r:q,c:0};
+  return {f:Math.floor(q/c),r:+(q-Math.floor(q/c)*c).toFixed(3),c:c};}
+/** The on-hand cell: containers big, the exact figure small underneath. */
+function packQty(p,q){
+  q=+q||0; const c=packSize(p);
+  if(!c)return nf(q)+'<br><span class="exphint">'+esc(p.unit)+'</span>';
+  const x=packFullPart(p,q);
+  return '<b>'+nf(x.f)+' '+esc(packWord(p,x.f))+'</b>'+
+    '<br><span class="exphint">'+(x.r?('+ '+nf(x.r)+' '+esc(p.unit)):(nf(q)+' '+esc(p.unit)))+'</span>';}
+
 function m4StockList(mountId,o){
   const box=$(mountId); if(!box)return;
   o=o||{};
@@ -3001,7 +4346,7 @@ function m4StockList(mountId,o){
         (ret?(' <span class="cstat ret">RETIRED</span>'):'')+'</div>'+
       (subTxt?('<div class="pa">'+esc(subTxt)+'</div>'):'')+
       '<div class="exphint">'+esc(packLabel(p))+(values?(' · '+rm(p.unit_price)+'/'+esc(p.container)):'')+'</div></td>'+
-      '<td class="num '+(lw?'lowq':'')+'">'+nf(oh)+'<br><span class="exphint">'+esc(p.unit)+'</span></td>'+
+      '<td class="num '+(lw?'lowq':'')+'">'+packQty(p,oh)+'</td>'+
       '<td class="num">'+nf(p.min_stock_threshold)+'</td>'+
       (values?('<td class="num">'+rm(valueOf(p))+'</td>'):'')+'</tr>';};
   // GROUP BY AI exists to cross-compare the WHOLE catalogue — never truncate it.
@@ -3038,10 +4383,39 @@ function renderStock(){
   // active ingredient in blue under the brand. Same purge as the picker above it.
   if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
                                              :tr('so_search','Search brand or active ingredient…'));
+  /* v3.48.0 — SHELF ABSORBS STOCK LEVEL. The retired 'lvl' row mounted this very component;
+     the only things it had that this card did not were the money KPIs, edit-a-row (the sole
+     place a minimum stock level can be set) and the BRAND/AI/GROUP modes. They are switched
+     on HERE, by entitlement, so one list serves both readers instead of two routes drawing
+     the same table.
+     ⛔ THE CREW MUST NOT INHERIT ANY OF IT. This same card sits under the worker's STOCK OUT
+     form. `roleAllows('invcc')` is the gate the retired row used, so using it again means the
+     crew's view is byte-for-byte what it was before this release: no KPIs, no mode bar, no
+     editable rows, and — via SHOW_VALUES — no money. */
+  const deep=roleAllows('invcc');
+  const seg=$('oh-mode'); if(seg)seg.style.display=deep?'':'none';
+  const kp=$('oh-kpis');  if(kp) kp.style.display=(deep&&SHOW_VALUES)?'':'none';
+  const eh=$('oh-edithint'); if(eh)eh.style.display=deep?'':'none';
   // no cap here: the on-hand list has always scrolled inside its own box rather than
   // collapsing, and a worker looking for one drum should not have to tap SHOW ALL.
-  m4StockList('stocklist',{values:SHOW_VALUES,mode:'ALL',query:(b?b.value:''),
-    edit:false,cap:0,tableId:'m4-ohtbl'});}
+  m4StockList('stocklist',{values:SHOW_VALUES,mode:(deep?ccMode:'ALL'),query:(b?b.value:''),
+    edit:deep,cap:0,tableId:'m4-ohtbl',
+    kpis:(deep&&SHOW_VALUES)?'oh-kpis':'',alert:deep?'oh-alert':''});
+  /* v3.47.0 — the count-sheet button rides the STOCK-TAKE entitlement, not this list's.
+     The crew see this same list under their stock-out form and must not be offered a
+     store-wide count they cannot post. */
+  const cs=$('cs-open'); if(cs)cs.style.display=roleAllows('stocktake')?'':'none';
+  const st=$('st-open'); if(st)st.style.display=roleAllows('stocktake')?'':'none';
+  const sm=$('stmt-open'); if(sm)sm.style.display=roleAllows('invcc')?'':'none';}
+
+/* v3.48.0 — the mode bar moved onto SHELF with the list. setCCMode() is still the one
+   writer of ccMode so the retired card and this one can never disagree; this wrapper only
+   exists so the SHELF buttons have something to call that repaints SHELF. */
+function ohMode(m,el){
+  ccMode=m;
+  const bar=$('oh-mode');
+  if(bar)[...bar.children].forEach(c=>c.classList.toggle('on',c===el));
+  renderStock();}
 
 // ---- urgent reorder alert center ----
 /* ================= v3.28.0 · THE DATA-QUALITY NOTICE ================================
@@ -3132,6 +4506,11 @@ function m3PlanPick(which){
   if(readyCard)readyCard.classList.toggle('m3-hide',!next);
   if(typeof renderProgCheck==='function')renderProgCheck();
   if(typeof renderReady==='function')renderReady();
+  /* v3.55.0 — STOCK PRESSURE BY SET arrives here from the retired FARM ▸ SPRAY RECORD.
+     It ranks every set by whether the shelf can cover it, which is a buying question and
+     was sitting on an agronomy screen the Purchaser cannot open. Same table, same
+     drawdownRank(), one mount div. */
+  if(typeof renderDrawdown==='function')renderDrawdown('ddbox');
 }
 /* ======================================================================================
    v3.40.0 · TWO SEGMENTS, BOTH BUILT ON THE m3PlanPick() PRECEDENT (v3.19)
@@ -3141,6 +4520,91 @@ function m3PlanPick(which){
    `.m3-hide` class, which carries !important for exactly this reason. Same trick, same
    class, no new CSS.
    ====================================================================================== */
+
+/** THE STORE — four jobs, one bar. v3.41.0.
+ *  ⛔ .m3-hide, never style.display: openModule() writes an inline display on every panel
+ *  in the tab's list on entry, and inline beats a class. That is the whole reason the
+ *  class carries !important, and it is the mistake this codebase made once already. */
+/* v3.47.0 — THE FOUR JOBS HE APPROVED. Two changes from the v3.41.0 bar:
+   • BRANDS is folded into RECEIVE. Matching a brand to the ingredient the Owner asked for,
+     and onboarding a product the store never carried, are things you do WHILE receiving an
+     invoice — they were never a job of their own, and giving them a quarter of the bar cost
+     the Purchaser the slot he actually needed.
+   • ISSUE takes that slot. Until v3.46.0 he had no way to record material leaving at all;
+     that release gave him the panel through a menu row, and this one puts it where the eye
+     lands. ⛔ The v3.46.0 menu section is retired in the same breath — one door, not two. */
+/* ======================================================================================
+   v3.48.0 · THE TILE BECOMES ONE ROW. THREE MENU SECTIONS MOVE INTO THE FOUR JOBS.
+   ======================================================================================
+   Owner's decision, 13 Aug 2026, after I opened all three and reported back:
+     • STOCK LEVEL  — a true repeat. It mounted the SAME component as SHELF (m4StockList).
+                      Only three things were unique to it: the money KPIs, tap-a-row-to-set-
+                      the-minimum, and GROUP BY AI. All three move ONTO SHELF, which is why
+                      renderStock() below now widens its own options by role instead of a
+                      second card being routed anywhere. Nothing is lost, one list remains.
+     • STOCK-TAKE   — NOT a repeat. It is where the printed count sheet comes back IN. It
+                      becomes the second button under the print button, on the same screen,
+                      via the csOpen()/ST_OPEN page pattern rather than a menu row.
+     • ORDER PLANNER— NOT a repeat, but one tap from the thing it is confused with. BUY says
+                      "you already ordered this"; the planner says "the programme will eat
+                      this, have you got it". Same job, two questions, so it becomes a
+                      sub-toggle inside BUY.
+   ⛔ THE CARDS THEMSELVES ARE NOT MOVED OR DELETED. progcheck/progready/stocktake keep their
+   ids, their markup, their renderers and their places in HUB_PANELS. Only what ROUTES to
+   them changed. invcc likewise stays: renderInvCC() is still called by refreshEverything()
+   and returns harmlessly when its mount is off screen. Deleting markup to "tidy" is how a
+   routed panel ends up with nothing behind it — see the v3.30.0 dead-tile note.
+   Deep links to inv/plan, inv/lvl and inv/take fall through tabsFor() onto the hub, exactly
+   as the retired v3.19 and v3.46.0 keys do. Nobody's bookmark breaks. */
+const M8_GROUPS={buy:['procurecard','alertcenter','progcheck','progready'],
+                 recv:['m8recv','pnl-in','alloccard','onboardcard'],
+                 issue:['pnl-out'],
+                 hand:['onhandcard']};
+/* BUY holds two questions now, so it carries its own small toggle. The planner's OWN
+   THIS PHASE / NEXT PHASE switch (m3PlanPick, v3.19) is untouched underneath — this only
+   chooses whether the buy queue or the planner is the one on screen. */
+const M8_BUYVIEW={now:['procurecard','alertcenter'],plan:['progcheck','progready']};
+let M8_BUY='now';
+function m8BuyPick(which){
+  M8_BUY=M8_BUYVIEW[which]?which:'now';
+  Object.keys(M8_BUYVIEW).forEach(k=>{
+    const btn=$('m8-b-'+k); if(btn)btn.classList.toggle('on',k===M8_BUY);
+    M8_BUYVIEW[k].forEach(id=>{const el=$(id); if(el)el.classList.toggle('m3-hide',k!==M8_BUY);});});
+  try{
+    if(M8_BUY==='now'){renderProcure&&renderProcure();renderAlerts&&renderAlerts();}
+    else{
+      /* hand the planner back to its own switch so THIS PHASE / NEXT PHASE is in whatever
+         state the user last left it, rather than silently resetting to 'now'. */
+      if(typeof m3PlanPick==='function')m3PlanPick($('m3-pl-next')&&$('m3-pl-next').classList.contains('on')?'next':'now');
+    }
+  }catch(x){}}
+let M8_VIEW='buy';
+function m8HubPick(which){
+  M8_VIEW=M8_GROUPS[which]?which:'buy';
+  Object.keys(M8_GROUPS).forEach(k=>{
+    const btn=$('m8-s-'+k); if(btn)btn.classList.toggle('on',k===M8_VIEW);
+    M8_GROUPS[k].forEach(id=>{const el=$(id); if(el)el.classList.toggle('m3-hide',k!==M8_VIEW);});});
+  const bb=$('m8buyseg'); if(bb)bb.classList.toggle('m3-hide',M8_VIEW!=='buy');
+  /* repaint only what is now on the screen, wrapped: a role that cannot open one of these
+     cards has no box to write into, and a throw here would abort the rest of the entry. */
+  try{
+    /* BUY re-applies its own sub-toggle, because the loop above has just un-hidden BOTH of
+       its groups. Without this the buy queue and the planner would sit on screen together
+       — the mirror image of the leak the count sheet caused in v3.47.0. */
+    if(M8_VIEW==='buy'){m8BuyPick(M8_BUY);}
+    if(M8_VIEW==='recv'){renderInOpts&&renderInOpts();renderBasket&&renderBasket();
+                         setInRefMode&&setInRefMode(inRefMode);inDayNote&&inDayNote();}
+    if(M8_VIEW==='recv'){renderAllocCard&&renderAllocCard();renderOnboard&&renderOnboard();}
+    if(M8_VIEW==='issue'){renderOutOpts&&renderOutOpts();renderOutBasket&&renderOutBasket();renderStock&&renderStock();}
+    if(M8_VIEW==='hand'){renderStock&&renderStock();}
+    /* the count sheet and the stock-take form are pages hung off SHELF, so any other segment
+       must put them away — otherwise they sit on top of BUY for the rest of the session
+       (the v3.6 leak). Both guard on their own OPEN flag: a tidy-up function must know
+       whether there was anything to tidy, or it undoes the hide applied one line above. */
+    if(M8_VIEW!=='hand'&&typeof csClose==='function')csClose();
+    if(M8_VIEW!=='hand'&&typeof stClose==='function')stClose();
+    if(M8_VIEW!=='hand'&&typeof stmtClose==='function')stmtClose();
+  }catch(x){}}
 
 /** SPRAY RECORD — what was applied, or how it ran against the plan. */
 let M5_REC_PICK='applied';
@@ -3297,7 +4761,7 @@ function refreshInventoryViews(){
 // so what the Owner sees on screen is literally what lands in the audit trail.
 function describeEvent(e){
   if(!e)return '';
-  if(e.type==='DROP')        return '🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree+(e.grade?(' · Grade '+e.grade):'');
+  if(e.type==='DROP')        return IC_DUR+' '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree+(e.grade?(' · Grade '+e.grade):'');
   if(e.type==='ROTTEN')      return '🍂 '+e.qty+' rotten @ '+e.tree+(e.cause?(' · '+e.cause):'');
   // v3.30.2 - rations & gifts, readable at a glance in the clean-up list
   if(e.type==='FOC_REQ')     return '🎁 '+(e.reasonLabel||e.reason||'FOC')+' · '+nf(e.kg)+' kg'+
@@ -3449,7 +4913,7 @@ function renderSync(){
   const L=$('ledger');
   L.innerHTML=EVENTS.length?[...EVENTS].reverse().slice(0,60).map(e=>{
     let d=describeEvent(e);
-    if(e.type==='DROP') d='🥭 '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
+    if(e.type==='DROP') d=IC_DUR+' '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree;
     else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'')+(e.progSet?(' · '+e.progSet):'');
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
@@ -3494,7 +4958,9 @@ async function removeEvent(u){
   if(e.synced){toast('Synced records can never be removed. Request a correction.',1);return;}
   if(!canVoidEntry()){
     toast('Records cannot be deleted. Tap “Request correction” — the Owner decides.',1);return;}
-  const d=describeEvent(e);
+  /* v3.41.5 — plain(): askForm writes its title and sub with textContent, which cannot
+     draw the durian and would print its markup at the man about to void a record. */
+  const d=plain(describeEvent(e));
   const res=await askForm({
     title:'Void this queued entry',
     sub:'“'+d+'” has not reached the Google Sheet yet. Voiding writes a permanent audit row naming you, '+
@@ -3619,7 +5085,13 @@ async function doSync(auto){
       toast(left?('⚠ '+batch.length+' sent, but '+left+' '+tr(left>1?'sy_stuck_n':'sy_stuck_1'))
                 :(j.blocked>0?('✓ '+(batch.length-j.blocked)+' synced \u00b7 '+j.blocked+' duplicate blocked')
                              :('✓ '+batch.length+' events synced to Google Sheets')),!!left||j.blocked>0);
-      refreshMasters(); // hidden hotspot token validation runs after every sync
+      /* v3.41.2 — AWAITED. It was fire-and-forget, so doSync() resolved while the pull was
+         still in flight. Nothing depended on that until v3.41.0 put a "last synced" stamp on
+         the Gate's queue: she taps, doSync returns, the queue repaints from the OLD stamp,
+         and the pull lands a second later with nothing left to redraw it. The tap looked
+         dead every single morning, because a morning is exactly when she has rows to push.
+         Awaiting it costs nothing — doSync() is async and every caller already awaits it. */
+      await refreshMasters(); // hidden hotspot token validation runs after every sync
     }
     // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
     else throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
@@ -3666,10 +5138,498 @@ function renderDash(){
 let PROGRAMS=[];                       // activated programme records (IndexedDB 'programs')
 
 function monthLabel(m){return MONTH_LABEL[m]||m;}
-function phaseById(id){return PHASE_PROGRAM.find(p=>p.id===id)||
+/* ======================================================================================
+   v3.55.0 · STEP 4 · A SET THAT DID NOT HAPPEN, AND THE DAY IT MOVED TO
+   ======================================================================================
+   The Owner asked for "cancel & replace with a weather reason". Before this the app could
+   only REMOVE a set (progRemove, v3.21): a tombstone that travels to every phone and takes
+   the set with it — no reason, no trace, and a season later nobody can tell whether a set
+   was skipped for rain or was never real. Removing is for a plan that was WRONG. Cancelling
+   is for a plan that was RIGHT and did not happen, which is a different fact and deserves
+   to survive.
+
+   ⛔ THE REPLACEMENT IS DERIVED, NOT STORED. The first design planned the moved set as a
+   BLUEPRINT. That would have been silently local: BLUEPRINTS live in IndexedDB and are in
+   NO sync payload — pushPrograms/pushTasks/pushTaskLogs/pushRain, and nothing else. The
+   Owner would have moved a spray to the 8th and the crew's phones would never have heard of
+   it. So the new day rides INSIDE the cancellation record (`newPlan`), which is a PROGRAMS
+   row, which already syncs and already merges — and the moved set is computed from it by
+   progMoved() wherever phases are listed. Nothing new is stored, nothing new is pushed, and
+   the Apps Script is untouched, which is the one thing held back until after 22 August.
+   ====================================================================================== */
+/** Phases as AUTHORED — the workbook and the Owner's own built sets. ⛔ progMoved() must
+ *  look its source up here and NOT through allPhases(), or the derivation recurses. */
+function phaseSeedById(id){return PHASE_PROGRAM.find(p=>p.id===id)||
   (typeof BLUEPRINTS!=='undefined'?BLUEPRINTS.find(p=>p.id===id):null)||null;}
-function allPhases(){return PHASE_PROGRAM.concat(typeof BLUEPRINTS!=='undefined'?BLUEPRINTS:[]);}
+const MOVE_SUFFIX='|R';
+/** Every live cancellation. A record the Owner undid is marked VOID and is not one. */
+function progCancels(){
+  if(typeof PROGRAMS==='undefined')return [];
+  return PROGRAMS.filter(p=>p&&p.status==='CANCELLED'&&p.phaseId);}
+/** The moved sets: one derived phase per cancellation that names a new day.
+ *  Resolved in passes, so a moved set can itself be cancelled and moved again. */
+function progMoved(){
+  const cans=progCancels().filter(c=>/^\d{4}-\d{2}-\d{2}$/.test(String(c.newPlan||'').slice(0,10)));
+  if(!cans.length)return [];
+  const out=[], byId={};
+  const seed=id=>phaseSeedById(id)||byId[id]||null;
+  for(let pass=0;pass<5;pass++){
+    let grew=false;
+    cans.forEach(c=>{
+      const nid=String(c.phaseId)+MOVE_SUFFIX;
+      if(byId[nid])return;
+      const src=seed(String(c.phaseId)); if(!src)return;
+      const cl=JSON.parse(JSON.stringify(src));
+      cl.id=nid; cl.plan=String(c.newPlan).slice(0,10);
+      cl.done=''; cl.sheetDone='';                       // a moved set has not happened yet
+      cl.set=String(src.set||'')+' '+tr('cx_moved','(moved)');
+      cl.movedFrom=String(c.phaseId); cl.moveWhy=c.reason||''; cl.moved=true;
+      byId[nid]=cl; out.push(cl); grew=true;});
+    if(!grew)break;}
+  return out;}
+function phaseById(id){return phaseSeedById(id)||progMoved().find(p=>p.id===id)||null;}
+function allPhases(){return PHASE_PROGRAM
+  .concat(typeof BLUEPRINTS!=='undefined'?BLUEPRINTS:[])
+  .concat(progMoved());}
 function treesInScope(sc){return sc==='ALL'?TREE_MASTER.length:treesInLot(sc).length;}
+
+/* ======================================================================================
+   v3.50.0 · STEP 1 OF 4 · THE PROGRAMME STATUS ENGINE
+   ======================================================================================
+   The Owner's decisions, 14 Aug 2026: three days' grace, six status words, LATE not DELAYED,
+   and one screen for all three users. This release is the ENGINE ONLY — pure functions, no
+   screen moves, nothing new written. Nothing can break because nothing is displaced.
+
+   ⛔ THE FINDING THAT SHAPED IT. Before writing a line I ran the Owner's 3-day rule against
+   his own history. All 38 completed sets came back ON TIME by exactly zero days, which is
+   not ten perfect months — every one has done === plan, because the imported workbook had a
+   single date column and the plan was copied into the done. The real completion dates for
+   January–July DO NOT EXIST anywhere. So:
+     • the rule works FORWARD from today, and no historic set is ever recoloured;
+     • progImported() marks those rows so a screen can say so in grey, at the Owner's
+       instruction, rather than letting a reader mistake an import for real timing;
+     • ⛔ NO DATE IS EVER INVENTED for the old months. A guessed date inside a cost report is
+       worse than an honest gap, and this app has spent six releases removing quiet numbers.
+
+   WHERE EACH FACT COMES FROM, so nothing here can drift from the ledger:
+     done      — ph.done / ph.sheetDone (the workbook), or the earliest STOCK_OUT row carrying
+                 this phaseId, whichever exists. The store is the truth when it disagrees.
+     cancelled — a PROGRAMS record with status 'CANCELLED'. ⛔ Deliberately NOT a new event
+                 type: PROGRAMS already syncs, already carries phaseId and status, and
+                 mergePrograms() already merges status changes. A new type would have needed
+                 a new Sheet tab and the Owner's Apps Script re-deploy, which is the one thing
+                 held back until after 22 August.
+   ====================================================================================== */
+const PROG_GRACE_DAYS=3;                 // the Owner's window: on the day, or up to 3 days after
+const PROG_STATUS_ORDER=['over','due','come','late','on','can'];
+function progDayNo(iso){const s=String(iso||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;
+  return Math.round(Date.parse(s+'T00:00:00Z')/86400000);}
+/** The day the store says this phase was worked, or '' — the EARLIEST material row wins,
+ *  because a set sprayed over two days started on the first of them. */
+function progDoneFromStore(id){
+  if(typeof EVENTS==='undefined')return '';
+  let best='';
+  EVENTS.forEach(e=>{
+    if(!e||e.type!=='STOCK_OUT')return;
+    if(String(e.phaseId||'')!==String(id))return;
+    const d=String(e.dt||'').slice(0,10); if(!d)return;
+    if(!best||d<best)best=d;});
+  return best;}
+const PROG_IMPORT_DEVICE='sheet-import';
+/** True when EVERY completion date we hold for this phase traces back to the workbook, and
+ *  none to a day a person actually recorded on a phone.
+ *  ⛔ THIS IS MEASURED, NOT GUESSED. The first cut inferred it from "done === plan", which
+ *  would also have libelled a set genuinely finished on its planned day. It turns out every
+ *  one of the 452 seeded rows carries device 'sheet-import' and worker 'IMPORT 2026', so the
+ *  question can be answered exactly: is there a single row from a real phone? Printed in
+ *  grey; NEVER used to colour a status, because it is a note about provenance, not timing. */
+function progImported(ph){
+  if(!ph)return false;
+  let anyReal=false, anyRow=false;
+  if(typeof EVENTS!=='undefined')EVENTS.forEach(e=>{
+    if(!e||e.type!=='STOCK_OUT')return;
+    if(String(e.phaseId||'')!==String(ph.id))return;
+    anyRow=true;
+    if(String(e.device||'')!==PROG_IMPORT_DEVICE)anyReal=true;});
+  if(anyReal)return false;                            // a real phone recorded a real day
+  return anyRow || !!(ph.done||ph.sheetDone);}
+/** ⛔ TICKED DONE ON THE SHEET, BUT NOT ONE GRAM EVER LEFT THE STORE AGAINST IT.
+ *  Found while testing this engine: July Set 1 and July Fert Set 1 are both marked complete
+ *  in the workbook and carry NO material rows at all, so they cost exactly nothing in
+ *  PROGRAMME COST. That is the same silence as the August gap, three weeks older, and it
+ *  would have stayed invisible. A screen that reports completion must be able to say
+ *  "recorded, but nothing was drawn for it". */
+function progNoMaterial(ph){
+  if(!ph)return false;
+  const doneish=!!(ph.done||ph.sheetDone);
+  if(!doneish)return false;
+  if(typeof EVENTS==='undefined')return true;
+  return !EVENTS.some(e=>e&&e.type==='STOCK_OUT'&&String(e.phaseId||'')===String(ph.id));}
+/** ⛔ THE LATEST ONE WINS, not the first. A set cancelled, undone, and cancelled again for a
+ *  different reason has two rows in PROGRAMS; taking the first would print last week's
+ *  reason forever. Same shape of fault as the v3.9 RETURNED-before-CANCELLED test. */
+function progCancelled(id){
+  if(typeof PROGRAMS==='undefined')return null;
+  const hits=PROGRAMS.filter(p=>String(p.phaseId||'')===String(id)&&p.status==='CANCELLED');
+  if(!hits.length)return null;
+  return hits.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||'')))[hits.length-1];}
+/** THE ONE FUNCTION. Every screen asks this and nothing computes a status of its own.
+ *  Returns {code, done, plan, days, imported, cancelled}
+ *    on   — done on the plan day or within the grace window
+ *    late — done, but later than that. Completed, and the delay is on the record.
+ *    due  — not done, today is inside the window. The crew's job.
+ *    over — not done, the window has passed.
+ *    come — planned for a future day.
+ *    can  — cancelled, with a reason. */
+function progStatus(ph,todayIso){
+  const out={code:'come',done:'',plan:String((ph&&ph.plan)||'').slice(0,10),
+             days:null,imported:false,noMaterial:false,cancelled:null};
+  if(!ph)return out;
+  const c=progCancelled(ph.id);
+  if(c){out.code='can';out.cancelled=c;return out;}
+  out.done=progDoneFromStore(ph.id)||String(ph.done||ph.sheetDone||'').slice(0,10);
+  out.imported=progImported(ph);
+  out.noMaterial=progNoMaterial(ph);
+  const t=progDayNo(todayIso||(typeof todayISO==='function'?todayISO():''));
+  const pd=progDayNo(out.plan), dd=progDayNo(out.done);
+  if(out.done){
+    out.days=(pd!==null&&dd!==null)?(dd-pd):null;
+    /* ⛔ an IMPORTED date can never read LATE. Its gap is zero by construction, but saying so
+       explicitly means a future change to the import cannot silently start colouring the
+       Owner's history red. */
+    out.code=(out.imported||out.days===null||out.days<=PROG_GRACE_DAYS)?'on':'late';
+    return out;}
+  if(pd===null||t===null){out.code='come';return out;}
+  if(t<pd){out.code='come';return out;}
+  out.days=t-pd;
+  out.code=(out.days<=PROG_GRACE_DAYS)?'due':'over';
+  return out;}
+/** The six words, in both languages, from one place. */
+function progStatusLabel(code){
+  return tr('ps_'+code,{on:'ON TIME',late:'LATE',due:'DUE NOW',over:'OVERDUE',
+                        come:'TO COME',can:'CANCELLED'}[code]||code);}
+/** Every phase with its status, newest plan first — the list every screen is built from. */
+function progList(todayIso){
+  return allPhases().filter(p=>p&&p.id).map(p=>({ph:p,st:progStatus(p,todayIso)}))
+    .sort((a,b)=>String(b.st.plan).localeCompare(String(a.st.plan)));}
+/* ⛔ NAMED progTally, NOT progCounts. There is already a progCounts(monthKey) 2,000 lines
+   below counting DIRECTIVES for the monthly record, with two live callers. The first cut of
+   this engine used the obvious name and the later definition silently won — every figure
+   here came back as that other function's shape, and the test printed zeros that looked
+   plausible. This is the same fault as the v3.43.0 .wbtn rename in a different costume: the
+   blast radius of a name in this file is the whole file. */
+/* ======================================================================================
+   v3.51.0 · THE PROGRAMME SCREEN — the render
+   ====================================================================================== */
+/* v3.55.0 — the Owner gains a fourth word, ✎ PLAN, and nobody else does. It is the editing
+   screen: change a day or a dose, put a removed set back, build a set that is not on the
+   sheet. ⛔ IT IS NOT A NEW SCREEN — it shows #agromonth, the timeline card that FARM ▸ THIS
+   MONTH used to route to, which is why closing that row loses nothing. Same card, same
+   editor, same button; one door instead of two. */
+const PROG_TABS={OWNER:['done','coming','today','plan'],PURCHASER:['done','coming','today'],
+                 WORKER:['today','coming']};
+let PROG_VIEW='';
+function progTabsFor(){return PROG_TABS[myRole()]||['done','coming'];}
+function progPick(v){
+  const allowed=progTabsFor();
+  PROG_VIEW=allowed.indexOf(v)>=0?v:allowed[0];
+  renderProgScreen();}
+function progChip(st){
+  const cls={on:'pon',late:'plate',due:'pdue',over:'pover',come:'pcome',can:'pcan'}[st.code]||'pcome';
+  return '<span class="pchip '+cls+'">'+esc(progStatusLabel(st.code))+'</span>';}
+/** One row. The same markup for all three people — only what is APPENDED differs, so the
+ *  three views can never drift into three different-looking lists. */
+function progRow(x){
+  const ph=x.ph, st=x.st;
+  const label=(typeof monthLabel==='function'?monthLabel(ph.month):ph.month)+' · '+ph.set;
+  let sub;
+  if(st.done){
+    sub=tr('pg_doneon','Done')+' '+esc(st.done)+
+        (st.days>PROG_GRACE_DAYS?(' · '+st.days+' '+tr('pg_dayslate','days after the plan')):'');
+  }else{
+    sub=tr('pg_planned','Planned')+' '+esc(st.plan||'—')+
+        (st.code==='over'?(' · '+st.days+' '+tr('pg_dayspast','days past')):'');
+  }
+  const n=(ph.lines||[]).length;
+  let notes='';
+  if(st.imported)notes+='<div class="pnote">'+esc(tr('ps_imported'))+'</div>';
+  if(st.noMaterial)notes+='<div class="pnote warnish">'+esc(tr('pg_nomat','recorded done, but no material was ever drawn for it'))+'</div>';
+  /* v3.55.0 — a cancellation now carries WHY, and where the work went. The old line said
+     only "cancelled", which is the silence this release exists to remove. */
+  if(st.cancelled){
+    const c=st.cancelled;
+    notes+='<div class="pnote warnish">'+esc(tr('pg_cancelled','cancelled'))+
+      (c.reason?(' — '+esc(c.reason)):'')+
+      (c.newPlan?(' · '+esc(tr('cx_movedto','moved to'))+' '+esc(String(c.newPlan).slice(0,10)))
+                :(' · '+esc(tr('cx_dropped','cancelled, not replaced'))))+'</div>';}
+  if(ph.moved)notes+='<div class="pnote">'+esc(tr('cx_movedfrom','moved from'))+' '+
+    esc(String(ph.movedFrom||'').split('|').join(' · '))+
+    (ph.moveWhy?(' — '+esc(ph.moveWhy)):'')+'</div>';
+  if(ph.custom)notes+='<div class="pnote">'+esc(tr('cx_notsheet','not on the sheet'))+'</div>';
+  /* the button appears only where there is something to mark — never on a set already done
+     or cancelled, because a second filing is a double deduction. */
+  const markable=(st.code==='due'||st.code==='over'||st.code==='come')&&progCanMark()&&n>0;
+  const cancelable=(st.code==='due'||st.code==='over'||st.code==='come')&&progCanCancel()&&!progCancelBlock(ph.id);
+  const btns=[];
+  if(markable)btns.push('<button class="pgo" onclick="progMarkDone('+JSON.stringify(ph.id).replace(/"/g,'&quot;')+')">'+
+      esc(myRole()==='WORKER'?tr('md_workdone','WORK DONE'):tr('md_markdone','MARK DONE'))+'</button>');
+  if(cancelable)btns.push('<button class="pgo pno" onclick="cxOpen('+JSON.stringify(ph.id).replace(/"/g,'&quot;')+')">✖ '+
+      esc(tr('cx_btn','CANCEL'))+'</button>');
+  if(st.code==='can'&&progCanCancel())btns.push('<button class="pgo pgh" onclick="progUncancel('+
+      JSON.stringify(ph.id).replace(/"/g,'&quot;')+')">↺ '+esc(tr('cx_undo','UNDO'))+'</button>');
+  const right=btns.length
+    ? '<div class="pgostack">'+btns.join('')+'</div>'
+    : ('<div class="pr">'+(n?(n+' '+esc(tr('pg_items','items'))):'')+'</div>');
+  return '<div class="prow"><div class="pmain"><div class="pn">'+esc(label)+' '+progChip(st)+'</div>'+
+    '<div class="pd">'+sub+'</div>'+notes+'</div>'+right+'</div>';}
+function progKpis(c){
+  const money=(typeof SHOW_VALUES!=='undefined')&&SHOW_VALUES;
+  return '<div class="kpis">'+
+    '<div class="kpi"><div class="v">'+c.on+'</div><div class="l">'+esc(progStatusLabel('on'))+'</div></div>'+
+    '<div class="kpi"><div class="v">'+c.late+'</div><div class="l">'+esc(progStatusLabel('late'))+'</div></div>'+
+    '<div class="kpi"><div class="v">'+c.over+'</div><div class="l">'+esc(progStatusLabel('over'))+'</div></div>'+
+    '<div class="kpi"><div class="v">'+c.come+'</div><div class="l">'+esc(progStatusLabel('come'))+'</div></div>'+
+    '</div>';}
+/* ======================================================================================
+   v3.52.0 · THE DOOR — and ⛔ DELIBERATELY NOT A FOURTH ROAD
+   ======================================================================================
+   The Owner approved this shape: MARK DONE on the programme screen opens the completion
+   screen that ALREADY EXISTS, rather than becoming a fourth way to write the same record.
+   The reason is not tidiness — it is the fault he found in v3.51.0, where the crew and hours
+   boxes survived on two of three roads because I had changed one. A fourth road is a fourth
+   place to miss.
+
+   The only wrinkle is that openMarkDone() needs a PROGRAMS record, and a set that was planned
+   on the workbook but never ACTIVATED in the app has none — which is exactly the state August
+   Set 1 is in, and part of why it reads OVERDUE. So this ensures one first, built from the
+   phase itself. ⛔ NOTHING IS INVENTED: the trees, the products, the doses and the plan date
+   all come from the Owner's own imported sheet, and the record is marked madeFor so an audit
+   can tell a back-filled activation from one he made at the time. */
+function progEnsureRecord(ph){
+  if(!ph)return null;
+  const live=PROGRAMS.filter(p=>String(p.phaseId||'')===String(ph.id)&&p.status==='ACTIVE');
+  if(live.length)return live[live.length-1];
+  const lines=(ph.lines||[]).map(l=>{
+    const p=prodById(l.pid)||null;
+    return {pid:l.pid,pname:(p&&p.name)||l.raw||l.pname||'',ai:l.ai||(p?p.active_ingredient:''),
+            unit:l.unit||(p?p.unit:''),dose:+l.qty||+l.dose||0,required:+l.qty||+l.dose||0};
+  }).filter(l=>l.pid&&l.dose>0);
+  if(!lines.length)return null;
+  const rec={uuid:uuid(),phaseId:ph.id,month:ph.month,set:ph.set,kind:ph.kind||'FOLIAR',
+    mode:ph.mode||'SPRAY',header:ph.header||'',basis:ph.basis||'PER_1000L',plan:ph.plan||'',
+    scope:'ALL',trees:TREE_MASTER.length,litresPerTree:+ph.litresPerTree||0,
+    tanks:+ph.tanks||0,lines:lines,projCost:0,
+    by:CFG.worker,byId:CFG.uid||'',at:now(),status:'ACTIVE',
+    madeFor:'PROGRAMME_SCREEN',synced:false};
+  PROGRAMS.push(rec); if(db)put('programs',rec);
+  return rec;}
+/** The door. Ensure a record, then hand over to the proven screen. */
+function progMarkDone(id){
+  const ph=phaseById(id);
+  if(!ph){toast(tr('pg_notfound','That set is not on the programme.'),1);return;}
+  const rec=progEnsureRecord(ph);
+  if(!rec){toast(tr('pg_nolines','That set has no products on the sheet, so there is nothing to deduct.'),1);return;}
+  openMarkDone(rec.uuid);}
+function progCanMark(){const r=myRole();
+  return r==='OWNER'||r==='MARKETING'||r==='PURCHASER'||r==='WORKER';}
+
+/* ======================================================================================
+   v3.55.0 · CANCELLING A SET — THE PAGE, THE GUARDS AND THE WRITE
+   ======================================================================================
+   The Owner, asked who may cancel: "you only". A cancellation changes what the whole farm
+   is told to do; the Purchaser and the crew read it, they do not write it. Asked whether the
+   replacement is keyed in the same screen: "both above" — so the new day is offered on the
+   cancel screen and can be declined, and a set can also simply be dropped.
+
+   Built as a PAGE on the proven csOpen/stOpen/stmtOpen pattern — an open flag, its own card,
+   listed in HUB_PANELS, closed by every other road. ⛔ NOT a browser dialog: the v3.37.4 rule
+   is that a job never goes inside confirm(), and this one carries six choices and a date. */
+const SET_CANCEL_WHY=[
+  {k:'RAIN', t:'cx_r_rain', en:'Rain'},
+  {k:'WET',  t:'cx_r_wet',  en:'Ground too wet'},
+  {k:'WIND', t:'cx_r_wind', en:'Too windy'},
+  {k:'MAT',  t:'cx_r_mat',  en:'No material'},
+  {k:'CREW', t:'cx_r_crew', en:'No crew'},
+  {k:'PLAN', t:'cx_r_plan', en:'Plan changed'}
+];
+function cxWhyLabel(k){const r=SET_CANCEL_WHY.find(x=>x.k===k);return r?tr(r.t,r.en):'';}
+/** ⛔ THE OWNER ONLY. Both gates, the same as every other Owner-only road in this file. */
+function progCanCancel(){return myRole()==='OWNER';}
+/** Why this set may NOT be cancelled, or '' if it may.
+ *  ⛔ MATERIAL IS THE HARD ONE. A set with stock-out rows against it HAPPENED; cancelling it
+ *  would leave that spend belonging to a set the app says never ran, which is the exact
+ *  defect progLock() was written for in v3.21. Same rule, said again here rather than
+ *  assumed, because this is a second road to the same damage. */
+function progCancelBlock(id){
+  const ph=phaseById(id);
+  if(!ph)return tr('pg_notfound','That set is not on the programme.');
+  const st=progStatus(ph,todayISO());
+  if(st.code==='can')return tr('cx_already','That set is already cancelled.');
+  /* ⛔ SPEND IS TESTED BEFORE DONE, AND THE ORDER IS THE POINT. The first cut tested done
+     first, and the harness proved that branch swallowed every real case: progDoneFromStore()
+     derives "done" FROM the stock-out rows, so a set with material against it always reads
+     done and the Owner would have been told "already recorded as done" — true, but useless.
+     He needs to know WHAT is booked against it, because that is the thing he would have to
+     unpick. The figures come first; the bare sentence is the fallback. */
+  if(typeof phaseSpend==='function'){const sp=phaseSpend(id);
+    if(sp&&sp.n>0)return tr('cx_spent','{n} stock-out entries worth {rm} are already booked against this set, so it happened.')
+      .replace('{n}',String(sp.n)).replace('{rm}',rm(sp.rm));}
+  if(st.done)return tr('cx_done','That set is already recorded as done.');
+  return '';}
+let CX_OPEN=false, CX_ID='', CX_WHY='', CX_MOVE=true;
+function cxOpen(id){
+  const c=$('cxcard'); if(!c)return;
+  if(!progCanCancel()){toast(tr('cx_notyours','Only the Owner may cancel a set.'),1);return;}
+  const block=progCancelBlock(id);
+  if(block){toast(block,1);return;}
+  CX_OPEN=true; CX_ID=String(id); CX_WHY=''; CX_MOVE=true;
+  const p=$('progcard'), s=$('progseg');
+  c.style.display=''; c.classList.remove('m3-hide');
+  if(p)p.classList.add('m3-hide');
+  if(s)s.classList.add('m3-hide');
+  renderCancelSet(); $('scr-dash').scrollTop=0;}
+function cxClose(){
+  if(!CX_OPEN)return;                                  // nothing was open — do not touch the bar
+  CX_OPEN=false; CX_ID=''; CX_WHY='';
+  const c=$('cxcard'), p=$('progcard'), s=$('progseg');
+  if(c){c.style.display='none';c.classList.add('m3-hide');}
+  if(p)p.classList.remove('m3-hide');
+  if(s)s.classList.remove('m3-hide');}
+function cxWhy(k){CX_WHY=(CX_WHY===k)?'':k;renderCancelSet();}
+function cxMove(y){CX_MOVE=!!y;renderCancelSet();}
+/** The write. ONE PROGRAMS row carries the whole decision: the reason, the free line, and
+ *  the new day if there is one. progMoved() grows the replacement off `newPlan`. */
+async function cxSubmit(){
+  if(!progCanCancel()){toast(tr('cx_notyours','Only the Owner may cancel a set.'),1);return;}
+  const ph=phaseById(CX_ID); if(!ph)return;
+  const block=progCancelBlock(CX_ID);
+  if(block){toast(block,1);return;}
+  if(!CX_WHY){toast(tr('cx_needwhy','Pick a reason — that is the whole point of cancelling instead of removing.'),1);return;}
+  const free=String(($('cx-free')&&$('cx-free').value)||'').trim().slice(0,120);
+  let np='';
+  if(CX_MOVE){
+    np=String(($('cx-day')&&$('cx-day').value)||'').slice(0,10);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(np)){toast(tr('cx_needday','Key the new day, or choose NOT REPLACED.'),1);return;}
+    if(np<todayISO()){toast(tr('cx_pastday','The new day cannot be in the past.'),1);return;}}
+  const why=cxWhyLabel(CX_WHY)+(free?(' — '+free):'');
+  const rec={uuid:uuid(),phaseId:String(ph.id),month:ph.month,set:ph.set,kind:ph.kind||'FOLIAR',
+    mode:ph.mode||'SPRAY',basis:ph.basis||'PER_1000L',plan:ph.plan||'',scope:'ALL',
+    lines:[],projCost:0,
+    reason:why,whyCode:CX_WHY,newPlan:np,
+    by:CFG.worker,byId:CFG.uid||'',at:now(),status:'CANCELLED',
+    madeFor:'PROGRAMME_SCREEN',synced:false};
+  PROGRAMS.push(rec); if(db)await put('programs',rec);
+  cxClose();
+  if(typeof renderProgScreen==='function')renderProgScreen();
+  if(typeof renderTimeline==='function')renderTimeline();
+  if(typeof renderTaskNotice==='function')renderTaskNotice();
+  toast('✓ '+monthLabel(ph.month)+' · '+ph.set+' — '+
+    (np?tr('cx_movedto','moved to').concat(' ',np):tr('cx_dropped','cancelled, not replaced')));}
+/** The way back. ⛔ NOT a delete: the cancellation row is marked VOID and stays on the
+ *  ledger, so a phone that already learned of the cancellation learns of the undo too. */
+async function progUncancel(id){
+  if(!progCanCancel()){toast(tr('cx_notyours','Only the Owner may cancel a set.'),1);return;}
+  const rec=progCancelled(id); if(!rec)return;
+  rec.status='VOID'; rec.voidAt=now(); rec.voidBy=CFG.worker; rec.synced=false;
+  if(db)await put('programs',rec);
+  if(typeof renderProgScreen==='function')renderProgScreen();
+  if(typeof renderTimeline==='function')renderTimeline();
+  toast(tr('cx_undone','Back on the programme.'));}
+function renderCancelSet(){
+  const box=$('cxbox'); if(!box)return;
+  const ph=phaseById(CX_ID);
+  if(!ph){box.innerHTML='';return;}
+  const n=(ph.lines||[]).length;
+  const st=progStatus(ph,todayISO());
+  let h='<div class="sec">✖ '+esc(tr('cx_head','Cancel this set'))+'</div>'+
+    '<div class="cxset"><div class="pn">'+esc(monthLabel(ph.month)+' · '+ph.set)+'</div>'+
+    '<div class="pd">'+esc(tr('pg_planned','Planned'))+' '+esc(st.plan||'—')+' · '+n+' '+
+      esc(tr('pg_items','items'))+'</div></div>'+
+    '<div class="cxlbl">'+esc(tr('cx_whyq','WHY DID IT NOT HAPPEN?'))+'</div>'+
+    '<div class="cxchips">'+SET_CANCEL_WHY.map(r=>
+      '<div class="cxchip'+(CX_WHY===r.k?' on':'')+'" id="cx-w-'+r.k+'" onclick="cxWhy(\''+r.k+'\')">'+
+      esc(tr(r.t,r.en))+'</div>').join('')+'</div>'+
+    '<input id="cx-free" class="cxfld" maxlength="120" placeholder="'+
+      esc(tr('cx_freeph','Add a word or two (optional)'))+'" value="'+
+      esc(String(($('cx-free')&&$('cx-free').value)||''))+'">'+
+    '<div class="cxlbl">'+esc(tr('cx_moveq','DOES IT MOVE TO A NEW DAY?'))+'</div>'+
+    '<div class="cxchips">'+
+      '<div class="cxchip'+(CX_MOVE?' on':'')+'" id="cx-mv-yes" onclick="cxMove(1)">'+
+        esc(tr('cx_mvyes','YES — replace it'))+'</div>'+
+      '<div class="cxchip'+(CX_MOVE?'':' on')+'" id="cx-mv-no" onclick="cxMove(0)">'+
+        esc(tr('cx_mvno','NO — it is dropped'))+'</div></div>';
+  if(CX_MOVE){
+    const cur=String(($('cx-day')&&$('cx-day').value)||'');
+    h+='<div class="cxlbl">'+esc(tr('cx_newday','NEW DAY'))+'</div>'+
+       '<input id="cx-day" class="cxfld" type="date" min="'+esc(todayISO())+'" value="'+esc(cur)+'">'+
+       '<div class="cxnote">'+esc(tr('cx_movenote',
+         'A copy of this set — same products, same doses — is planned for the new day. The old one stays on the record marked CANCELLED, with your reason.'))+'</div>';
+  }else{
+    h+='<div class="cxnote warnish">'+esc(tr('cx_dropnote',
+      'The set stays on the record marked CANCELLED with your reason, and nothing replaces it.'))+'</div>';}
+  h+='<button class="bigbtn" style="margin-top:11px" onclick="cxSubmit()">✓ '+
+       esc(tr('cx_go','CANCEL THIS SET'))+'</button>'+
+     '<button class="bigbtn ghost" style="margin-top:7px;padding:10px;font-size:12px" onclick="cxClose()">'+
+       esc(tr('cx_back','‹ BACK TO THE PROGRAMME'))+'</button>'+
+     '<div class="small" style="margin-top:8px">'+esc(tr('cx_note',
+       'Nothing is deleted. The set keeps its place on the record so next season you can see what the weather cost.'))+'</div>';
+  box.innerHTML=h;}
+
+function renderProgScreen(){
+  const box=$('progcard'); if(!box)return;
+  if(!roleAllows('progcard')){box.innerHTML='';return;}
+  const allowed=progTabsFor();
+  if(allowed.indexOf(PROG_VIEW)<0)PROG_VIEW=allowed[0];
+  const bar=$('progseg');
+  if(bar)bar.innerHTML='<div class="m3-seg">'+allowed.map(function(k){
+    const lab={done:'✓ '+tr('pg_done','DONE'),coming:'📅 '+tr('pg_coming','COMING'),
+               today:'📋 '+tr('pg_today','TODAY'),plan:'✎ '+tr('pg_plan','PLAN')}[k];
+    return '<div class="m3-seg-btn'+(k===PROG_VIEW?' on':'')+'" id="pg-s-'+k+'" onclick="progPick(\''+k+'\')">'+esc(lab)+'</div>';
+  }).join('')+'</div>';
+  /* ⛔ THE TIMELINE IS A CARD, NOT MARKUP THIS FUNCTION OWNS. It is hidden and shown with
+     .m3-hide — never style.display — because openModule() writes an inline display on every
+     panel it routes, and an inline rule beats a class. That is the v3.19 lesson, and the
+     same reason m5RecPick() toggles its two halves this way. */
+  const tl=$('agromonth');
+  if(tl){
+    tl.classList.toggle('m3-hide',PROG_VIEW!=='plan');
+    if(PROG_VIEW==='plan'&&typeof renderTimeline==='function')renderTimeline();}
+  /* ⛔ AND THE CANCEL PAGE IS PUT BACK DOWN unless it is genuinely open. It is in this tab's
+     panels, so openModule() lifts its display:none on every entry; the class is the only
+     thing that holds it, and something has to re-apply the class after that lift. */
+  const cx=$('cxcard');
+  if(cx&&!CX_OPEN){cx.classList.add('m3-hide');cx.style.display='none';}
+  if(PROG_VIEW==='plan'){box.innerHTML='';box.classList.add('m3-hide');return;}
+  box.classList.remove('m3-hide');
+  const today=(typeof todayISO==='function')?todayISO():'';
+  const list=progList(today), c=progTally(today);
+  let rows=[], head='', note='';
+  if(PROG_VIEW==='done'){
+    rows=list.filter(function(x){return x.st.code==='on'||x.st.code==='late';});
+    head=tr('pg_hdone','COMPLETED');
+    if(c.imported)note=tr('pg_impnote','Dates for the imported months came from the workbook, not recorded on the day.');
+  }else if(PROG_VIEW==='coming'){
+    rows=list.filter(function(x){return x.st.code==='come'||x.st.code==='over'||x.st.code==='can';});
+    head=tr('pg_hcoming','NOT YET RECORDED');
+  }else{
+    rows=list.filter(function(x){return x.st.code==='due'||x.st.code==='over';});
+    head=tr('pg_htoday','DUE AND OVERDUE');
+  }
+  box.innerHTML=
+    (PROG_VIEW==='done'?('<div class="card2">'+progKpis(c)+'</div>'):'')+
+    '<div class="card2"><div class="sec">'+esc(head)+' · '+rows.length+'</div>'+
+    (rows.length?rows.map(progRow).join('')
+                :'<div class="alertnone">'+esc(tr('pg_none','Nothing here.'))+'</div>')+
+    (note?('<div class="pnote" style="margin-top:9px">'+esc(note)+'</div>'):'')+
+    '</div>'+
+    '';}
+
+function progTally(todayIso){
+  const c={on:0,late:0,due:0,over:0,come:0,can:0,total:0,imported:0,noMaterial:0};
+  progList(todayIso).forEach(x=>{c[x.st.code]=(c[x.st.code]||0)+1;c.total++;
+    if(x.st.imported)c.imported++; if(x.st.noMaterial)c.noMaterial=(c.noMaterial||0)+1;});
+  return c;}
 function progOf(uuid){return PROGRAMS.find(p=>p.uuid===uuid)||null;}
 function activePrograms(){return PROGRAMS.filter(p=>p.status==='ACTIVE');}
 
@@ -4473,6 +6433,7 @@ function openReply(u){
   $('rp-unitlbl').textContent=foliar?'Tanks sprayed (1000 L each)':'Trees treated';
   LOT_KEYS.forEach(L=>$('rl-'+L).classList.toggle('on',false));
   $('rp-crew').value='';$('rp-hours').value='';
+  const rw=$('rp-crewrow'); if(rw)rw.style.display=LABOUR_ON?'':'none';
   $('rp-err').textContent='';
   $('replymodal').classList.remove('hidden');
   rpFill();}
@@ -4502,8 +6463,8 @@ async function submitReply(){
   if(!(water>=0)||$('rp-water').value===''){err.textContent='Enter the water volume used in litres.';return;}
   if(!rpLotVal){err.textContent='Select the target lot the programme was applied to.';return;}
   const crew=Math.round(+$('rp-crew').value||0), hours=+$('rp-hours').value;
-  if(!(crew>0)){err.textContent='Enter how many workers were on the job.';return;}
-  if(!(hours>0)){err.textContent='Enter the hours worked per worker.';return;}
+  if(LABOUR_ON&&!(crew>0)){err.textContent='Enter how many workers were on the job.';return;}
+  if(LABOUR_ON&&!(hours>0)){err.textContent='Enter the hours worked per worker.';return;}
   if(lotsDone(rpProg.uuid).includes(rpLotVal)&&
      !confirm('Lot '+rpLotVal+' was already reported for this phase.\nSend another reply anyway?'))return;
   // PHI guard is kept on the programme path too
@@ -4516,7 +6477,7 @@ async function submitReply(){
   const stamp=now(), rid=uuid();
   try{
     for(const l of rpProg.lines){
-      const p=prodById(l.pid); const q=+(l.dose*m).toFixed(2); if(!(q>0))continue;
+      const p=prodById(l.pid); const q=mdQtyFor(l); if(!(q>0))continue;
       await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
         ai:l.ai||(p?p.active_ingredient:''),qty:q,unit:l.unit,lot:rpLotVal,
         set:monthLabel(rpProg.month)+' - '+rpProg.set,
@@ -5001,6 +6962,10 @@ async function submitGeneral(){
         worker:CFG.worker,device:CFG.device,synced:false});}
   } finally { genSaving=false; }
   LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
+  /* the implied rate is still worth remembering for the ACTIVATE screen, which does ask in
+     litres per tree — but it is derived here, never keyed. */
+  if(mdProg.basis==='PER_1000L'&&mdLpt()>0&&typeof LAST_LPT!=='undefined'){
+    LAST_LPT[mdProg.mode]=mdLpt(); if(db)await put('kv',{k:'lastlpt',v:LAST_LPT});}
   const tot=grTotal(), lots=act.map(r=>r.lot).join(', ');
   closeGeneral();
   toast('✓ '+kl+' · '+nf(tot)+' · Lot '+lots);
@@ -5385,16 +7350,106 @@ function comboCardHTML(r){
       '<div class="cmv">'+(ls.length?ls.map(l=>esc(l.pname)+' <b>'+nf(l.dose)+' '+esc(l.unit)+'</b>'+per).join('<br>')
         :'<span class="exphint">not in this set</span>')+'</div></div>';}).join('')+'</div>';
 }
-let mdProg=null, mdLotVal='';
+/* ======================================================================================
+   v3.52.0 · STEP 3 · LOTS ARE A MULTI-SELECT, NOT A CHOICE OF ONE
+   ======================================================================================
+   The Owner, on the crew's lot picker: "i think it can be press either 1 or 2 or 3 lots
+   depend on actual." He is describing the real morning — a crew does Lot A, or A and B, or
+   the whole farm, and only they know which.
+
+   So LOT_ALL stops being a fourth button and becomes what it always meant: all three ticked.
+   ⛔ AND THE QUANTITY FOLLOWS THE SELECTION. The programme's dose is per tree (or per tank
+   scaled by trees), so doing A and B is 131 of 171 trees and must deduct 131/171 of the plan
+   — not all of it, and not half. mdShare() answers exactly that, and the write loop then
+   apportions the result BETWEEN the selected lots by their own tree counts, so the parts
+   re-add to the whole and every per-lot report still balances.
+   mdLotVal is kept as the single-lot mirror of the set, because scope-locked programmes
+   (scope 'A') and several existing readers still speak in one lot. */
+let mdProg=null, mdLotVal='', MD_LOTS=[];
+/* ======================================================================================
+   v3.52.2 · THE AMOUNTS ARE EDITABLE — WHICH THE OWNER APPROVED AND I DID NOT BUILD
+   ======================================================================================
+   He asked for it in the step-3 mock ("editable — you are keying history, not today's job"),
+   I recommended it, he agreed, and then I shipped a read-only table. His words on finding it:
+   "the volume material cannot be change".
+
+   It matters more than a convenience. Every set he is back-filling was sprayed WEEKS ago at
+   whatever the field actually mixed, and a screen that can only write the plan turns a
+   catch-up into a second set of numbers that are tidy and wrong.
+
+   MD_QTY holds an override per product. ⛔ AN OVERRIDE IS NEVER SILENTLY DISCARDED: when the
+   lots or the litres change, the recomputed figure repopulates only the rows he has NOT
+   touched, because throwing away typing the moment he ticks another lot is the kind of
+   small betrayal that makes a person stop trusting a screen. */
+let MD_QTY={};
+function mdPlanQty(l){return +(((+l.dose||0)*mdMult())).toFixed(2);}
+function mdQtyFor(l){const v=MD_QTY[l.pid];return (v==null)?mdPlanQty(l):+v;}
+function mdEdited(l){return MD_QTY[l.pid]!=null;}
+function mdSetQty(pid,v){
+  const n=+v;
+  if(v===''||!isFinite(n)){delete MD_QTY[pid];} else {MD_QTY[pid]=Math.max(0,n);}
+  mdTotalsOnly();}
+function mdResetQty(){MD_QTY={};mdCalc();}
+function mdAnyEdited(){return Object.keys(MD_QTY).length>0;}
+/** Repaint only the parts that depend on the numbers, so typing is never interrupted. */
+function mdTotalsOnly(){
+  if(!mdProg)return;
+  const r=$('md-reset'); if(r)r.style.display=mdAnyEdited()?'':'none';
+  mdProg.lines.forEach(l=>{
+    const oh=(prodById(l.pid)?onHand(prodById(l.pid)):0), q=mdQtyFor(l);
+    const c=$('mdoh-'+l.pid); if(c){c.textContent=nf(oh);c.className='num'+(oh<q?' lowq':'');}
+    const t=$('mdtag-'+l.pid); if(t)t.style.display=mdEdited(l)?'':'none';});}
+function mdSelTrees(){
+  if(!mdProg)return 0;
+  if(mdProg.scope!=='ALL')return +mdProg.trees||0;
+  return MD_LOTS.reduce((n,L)=>n+treesInLot(L).length,0);}
+function mdAllTrees(){return (mdProg&&+mdProg.trees)||TREE_MASTER.length;}
+/* v3.51.1 — ALL means the whole scope, so the share is 1. Any single lot is still its own
+   tree fraction, exactly as before. */
 function mdShare(){
   if(!mdProg)return 1;
-  if(mdProg.scope!=='ALL'||!mdLotVal)return 1;
-  const t=+mdProg.trees||0; if(!t)return 1;
-  return treesInLot(mdLotVal).length/t;}
+  if(mdProg.scope!=='ALL')return 1;              // a lot-locked programme is already its lot
+  if(!MD_LOTS.length)return 0;                   // nothing ticked deducts nothing
+  const t=mdAllTrees(); if(!t)return 1;
+  return mdSelTrees()/t;}
+/* ⛔ v3.52.1 — CAUGHT BY A SCREENSHOT, NOT BY A TEST. Marking August Set 1 done showed
+   "0 tanks" and "0 ml" against every product: it is a PER_1000L set, mdMult() multiplied the
+   record's `tanks`, and progEnsureRecord() had built that record from a phase whose `tanks`
+   and `litresPerTree` are both empty on the imported sheet. So the sheet offered to deduct
+   NOTHING and the CONFIRM button would have written a completion with no material — the exact
+   silence this whole feature exists to end, produced by the feature itself.
+   The fix is to compute from the one number a person actually knows: litres of mix per tree.
+   tanks = litres/tree x trees ticked / 1000. It is asked for on the sheet when the set is
+   foliar, remembered between jobs (LAST_LPT), and when the record already carries a real
+   tanks figure from a proper activation that is used instead. A FERT set is unchanged: its
+   dose is per tree, so the multiplier is simply the trees ticked. */
+/* ⛔ v3.52.3 — HE KEYS TANKS, NOT LITRES PER TREE. The Owner, on the v3.52.1 fix:
+   "the material volume should base on how many ipc tanks."
+   He is right, and the first version asked the wrong question. Nobody on this farm measures
+   litres per tree — they fill the IPC tank, spray until it is empty, and count the tanks. The
+   litres-per-tree figure was something I derived from his usage log; asking him to key a
+   derived number so the app could re-derive the one he already had is backwards.
+   The programme's dose is written PER 1,000 L, so tanks IS the multiplier, with no arithmetic
+   in between: 2 tanks x 1,000 ml/tank = 2,000 ml. The implied rate is still printed underneath
+   as a sanity check, because 2 tanks over 40 trees and 2 tanks over 171 trees are very
+   different jobs and the number is worth seeing. */
+function mdTanks(){
+  const el=$('md-tanks'); const v=el?+el.value||0:0;
+  if(v>0)return v;
+  /* a properly activated record already carries its planned tanks — scale that to the lots
+     actually ticked rather than making him re-key what the app worked out. */
+  const r=(mdProg&&+mdProg.tanks)||0;
+  if(r>0)return +(r*mdShare()).toFixed(3);
+  const lpt=(mdProg&&+mdProg.litresPerTree)||0;
+  if(lpt>0)return +((lpt*mdSelTrees())/1000).toFixed(3);
+  return 0;}
+/** litres of mix each tree ends up with, given the tanks keyed — shown, never asked for. */
+function mdLpt(){const t=mdSelTrees(); if(!t)return 0;
+  return +((mdTanks()*TANK_L)/t).toFixed(2);}
 function mdMult(){
   if(!mdProg)return 0;
-  const sh=mdShare();
-  return mdProg.basis==='PER_1000L'?+((+mdProg.tanks||0)*sh).toFixed(3):Math.round((+mdProg.trees||0)*sh);}
+  if(mdProg.basis!=='PER_1000L')return Math.round(mdSelTrees());
+  return mdTanks();}          // the dose is per 1,000 L, so tanks IS the multiplier
 function openMarkDone(u){
   const r=progOf(u); if(!r){toast('Task not found',1);return;}
   mdProg=r;
@@ -5406,32 +7461,107 @@ function openMarkDone(u){
     el.classList.toggle('done',lotsDone(r.uuid).includes(L));});
   $('md-crew').value=LAST_CREW.crew||'';
   $('md-hours').value=LAST_CREW.hours||'';
+  /* v3.51.1 — the crew row disappears while labour is off. Hidden, not removed: the ids stay
+     and flipping LABOUR_ON brings it straight back. */
+  const cw=$('md-crewrow'); if(cw)cw.style.display=LABOUR_ON?'':'none';
+  const cn=$('md-crewnote'); if(cn)cn.style.display=LABOUR_ON?'':'none';
+  /* v3.52.0 — the day box belongs to the Owner and the Purchaser. For a worker it is ABSENT,
+     not greyed: a field he can see but cannot use is a field he will try to use and then ask
+     about. His filing is always today, which is the rule the Owner set. */
+  const dw=$('md-dayrow'); if(dw)dw.style.display=mdCanBackdate()?'':'none';
+  const dd=$('md-day'); if(dd)dd.value='';
+  const dn=$('md-bdnote'); if(dn)dn.textContent='';
+  MD_QTY={};
+  MD_LOTS=(r.scope!=='ALL')?[r.scope]:(need.length===1?need.slice():[]);
+  LOT_KEYS.forEach(k=>{const e=$('ml-'+k);if(e)e.classList.toggle('on',MD_LOTS.indexOf(k)>=0);});
+  const aa=$('ml-ALL'); if(aa)aa.classList.toggle('on',MD_LOTS.length===LOT_KEYS.length);
+  mdLotNote();
   $('md-err').textContent='';
   $('mdmodal').classList.remove('hidden');
   mdCalc();}
 function closeMarkDone(){$('mdmodal').classList.add('hidden');mdProg=null;}
-function mdLot(L){mdLotVal=L;LOT_KEYS.forEach(k=>$('ml-'+k).classList.toggle('on',k===L));mdCalc();}
+/** Tap a lot to tick or untick it. ALL ticks every lot, or clears them if they are all on. */
+function mdLot(L){
+  if(L===LOT_ALL){
+    MD_LOTS=(MD_LOTS.length===LOT_KEYS.length)?[]:LOT_KEYS.slice();
+  }else{
+    const i=MD_LOTS.indexOf(L);
+    if(i>=0)MD_LOTS.splice(i,1); else MD_LOTS.push(L);
+    MD_LOTS.sort();}
+  mdLotVal=MD_LOTS.length===1?MD_LOTS[0]:(MD_LOTS.length?LOT_ALL:'');
+  LOT_KEYS.forEach(k=>{const e=$('ml-'+k);if(e)e.classList.toggle('on',MD_LOTS.indexOf(k)>=0);});
+  const a=$('ml-ALL'); if(a)a.classList.toggle('on',MD_LOTS.length===LOT_KEYS.length);
+  mdLotNote(); mdCalc();}
+/** Only the Owner and the Purchaser may record a day other than today. */
+function mdCanBackdate(){const r=myRole();return r==='OWNER'||r==='MARKETING'||r==='PURCHASER';}
+function mdDayNote(){const n=$('md-bdnote'); if(n)n.textContent=backdateNote(($('md-day')||{}).value||'');}
+function mdLotNote(){
+  const n=$('md-splitnote'); if(!n)return;
+  if(!MD_LOTS.length){n.innerHTML='<b>'+esc(tr('md_picklots','Tick every lot that was done.'))+'</b>';return;}
+  const parts=MD_LOTS.map(L=>'<b>'+esc(L)+'</b> '+treesInLot(L).length).join(' · ');
+  const sel=mdSelTrees(), all=mdAllTrees();
+  n.innerHTML=parts+' = '+nf(sel)+' '+esc(tr('ob_trees','trees'))+
+    (sel<all?(' '+esc(tr('md_ofall','of'))+' '+nf(all)):'')+
+    '. '+esc(MD_LOTS.length>1?tr('ob_splitrows','Each product becomes one row per lot.')
+                              :tr('md_onerow','One row per product.'));}
 function mdCalc(){
   if(!mdProg)return;
   const m=mdMult(), foliar=mdProg.basis==='PER_1000L';
+  /* the litres row only exists for a foliar set, and only matters when nobody has said the
+     rate yet — but it stays visible so the Owner can correct it before he confirms. */
+  const lw=$('md-tanksrow'); if(lw)lw.style.display=foliar?'':'none';
+  const li=$('md-tanks'); if(li&&!li.value&&mdTanks()>0)li.value=mdTanks();
+  /* ⛔ NAME THE LOTS THAT WERE TICKED. It said "for Lot ALL" while only A and B were on,
+     because mdLotVal collapses any multi-selection to ALL for the older readers. */
+  const lots=(mdProg.scope!=='ALL')?mdProg.scope:MD_LOTS.join(' + ');
+  const where=MD_LOTS.length||mdProg.scope!=='ALL' ? (' — Lot '+esc(lots)) : (' — '+tr('md_picklots','Tick every lot that was done.'));
   $('md-plan').innerHTML=foliar
-    ?('<b>'+nf(m)+' tank'+(m===1?'':'s')+'</b> of 1000 L'+(mdLotVal?(' for Lot '+esc(mdLotVal)):' — pick the lot'))
-    :('<b>'+nf(m)+' tree'+(m===1?'':'s')+'</b>'+(mdLotVal?(' in Lot '+esc(mdLotVal)):' — pick the lot'));
-  $('md-tbl').innerHTML='<tr><th>Product</th><th class="num">Will deduct</th><th class="num">On hand</th></tr>'+
-    mdProg.lines.map(l=>{const p=prodById(l.pid),oh=p?onHand(p):0,q=+(l.dose*m).toFixed(2);
+    ?('<b>'+nf(m)+' tank'+(m===1?'':'s')+'</b> of 1000 L'+where+
+      (m>0&&mdSelTrees()>0
+        ?('<br><span class="exphint">'+nf(m*TANK_L)+' L '+esc(tr('md_over','over'))+' '+nf(mdSelTrees())+
+          ' '+esc(tr('ob_trees','trees'))+' = '+nf(mdLpt())+' L/'+esc(tr('md_tree','tree'))+'</span>')
+        :('<br><span class="exphint">'+esc(tr('md_needtanks','Key how many tanks were used.'))+'</span>')))
+    :('<b>'+nf(m)+' tree'+(m===1?'':'s')+'</b>'+where);
+  /* ⛔ THE INPUTS ARE ONLY REBUILT HERE, never on keystroke — mdSetQty() calls mdTotalsOnly()
+     instead. Rewriting the row a person is typing into is the v3.9.1 focus bug, and it was
+     caught then by a focus test. */
+  const canEdit=mdCanBackdate();
+  $('md-tbl').innerHTML='<tr><th>Product</th><th class="num">'+esc(tr('md_willdeduct','Will deduct'))+
+      '</th><th class="num">'+esc(tr('md_onhand','On hand'))+'</th></tr>'+
+    mdProg.lines.map(l=>{const p=prodById(l.pid),oh=p?onHand(p):0,q=mdQtyFor(l);
+      const cell=canEdit
+        ? ('<input type="number" class="mdq" id="mdq-'+l.pid+'" min="0" step="any" inputmode="decimal" '+
+           'value="'+nf2(q)+'" oninput="mdSetQty('+(+l.pid)+',this.value)"> '+esc(l.unit)+
+           '<span class="minitag" id="mdtag-'+l.pid+'" style="display:'+(mdEdited(l)?'':'none')+'">'+
+           esc(tr('md_changed','CHANGED'))+'</span>')
+        : ('<b>'+nf(q)+'</b> '+esc(l.unit));
       return '<tr><td><div class="pn">'+esc(l.pname)+'</div><div class="pa">'+esc(l.ai||'—')+'</div></td>'+
-        '<td class="num"><b>'+nf(q)+'</b> '+esc(l.unit)+'</td>'+
-        '<td class="num '+(oh<q?'lowq':'')+'">'+nf(oh)+'</td></tr>';}).join('');}
+        '<td class="num">'+cell+'</td>'+
+        '<td class="num'+(oh<q?' lowq':'')+'" id="mdoh-'+l.pid+'">'+nf(oh)+'</td></tr>';}).join('');
+  const rb=$('md-reset'); if(rb)rb.style.display=mdAnyEdited()?'':'none';}
+/** plain 2-dp for an input value — nf() groups with commas, which a number field rejects. */
+function nf2(v){const n=+v||0;return (Math.round(n*100)/100).toString();}
 let mdSaving=false;
 async function submitMarkDone(){
   const err=$('md-err'); err.textContent='';
   if(!mdProg||mdSaving)return;
-  if(!mdLotVal){err.textContent='Pick the lot that was done.';return;}
+  if(mdProg.scope==='ALL'&&!MD_LOTS.length){err.textContent=tr('md_picklots','Tick every lot that was done.');return;}
+  if(mdProg.scope!=='ALL'&&!mdLotVal){err.textContent=tr('md_picklots','Tick every lot that was done.');return;}
   const m=mdMult();
-  if(!(m>0)){err.textContent='This programme has no quantity to deduct.';return;}
+  /* an edited amount can stand on its own even when the computed multiplier is zero, so the
+     refusal below only fires when there is genuinely nothing to write. */
+  const anyQty=mdProg.lines.some(l=>mdQtyFor(l)>0);
+  if(!(m>0)&&!anyQty){err.textContent=(mdProg.basis==='PER_1000L')
+    ?tr('md_needtanks','Key how many tanks were used.')
+    :tr('md_noqty','This programme has no quantity to deduct.');return;}
+  /* v3.51.1 — labour is off, so these two no longer refuse the filing. THIS MODAL WAS MISSED
+     IN v3.51.0: only openRun/submitRun were changed, and the Owner reported the crew boxes
+     still on screen. There are THREE completion roads in this app — MARK WORK DONE (openRun),
+     CONFIRM COMPLETION (here) and MIXED A DIFFERENT AMOUNT (openReply) — and a switch that
+     only reaches one of them is not a switch. */
   const crew=Math.round(+$('md-crew').value||0), hours=+$('md-hours').value||0;
-  if(!(crew>0)){err.textContent='How many workers were on the job?';return;}
-  if(!(hours>0)){err.textContent='How many hours did each worker put in?';return;}
+  if(LABOUR_ON&&!(crew>0)){err.textContent='How many workers were on the job?';return;}
+  if(LABOUR_ON&&!(hours>0)){err.textContent='How many hours did each worker put in?';return;}
   if(lotsDone(mdProg.uuid).includes(mdLotVal)&&
      !confirm('Lot '+mdLotVal+' was already reported for this phase.\nMark it done again anyway?'))return;
   for(const l of mdProg.lines){
@@ -5444,20 +7574,53 @@ async function submitMarkDone(){
     mdProg.lines.map(l=>'· '+l.pname+'  '+nf(+(l.dose*m).toFixed(2))+' '+l.unit).join('\n')+
     '\n\nIf the field used a different amount, cancel and use SUBMIT COMPLETION REPLY instead.'))return;
   mdSaving=true;
-  const stamp=now(), rid=uuid();
+  /* v3.52.0 — the backdate reaches this road too, through the SAME stampFor() the issue
+     basket and the run filing use. Blank means today; a future day is refused before a single
+     row is written. The box is absent for a worker, so he cannot reach this branch at all. */
+  const mdIso=($('md-day')||{}).value||'';
+  const mdStamp=stampFor(mdIso);
+  if(mdStamp===null){err.textContent=tr('bd_future','That day has not happened yet. Pick today or a day already past.');return;}
+  const stamp=mdStamp, rid=uuid();
   try{
+    /* v3.51.1 — ⛔ ALL IS A SPLIT HERE TOO, for the same reason it is on the ISSUE basket:
+       LOT_KEYS is ['A','B','C'] and every per-lot report groups on it, so writing lot:'ALL'
+       would deduct the stock correctly and then hide it from the lot bars, the ledger and
+       PROGRAMME COST. Apportioned by tree count through the same splitAcrossLots(). */
     for(const l of mdProg.lines){
-      const p=prodById(l.pid); const q=+(l.dose*m).toFixed(2); if(!(q>0))continue;
-      await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
-        ai:l.ai||(p?p.active_ingredient:''),qty:q,unit:l.unit,lot:mdLotVal,
-        set:monthLabel(mdProg.month)+' - '+mdProg.set,
-        cost:+(q*(p?(p.cpu||0):0)).toFixed(2),
-        progId:mdProg.uuid,progSet:monthLabel(mdProg.month)+' · '+mdProg.set,replyId:rid,
-        tanks:mdProg.basis==='PER_1000L'?m:'',water:water,crew:crew,hours:hours,
-        via:'MARK_DONE',planned:true,
-        worker:CFG.worker,device:CFG.device,synced:false});}
+      const p=prodById(l.pid); const q=mdQtyFor(l); if(!(q>0))continue;
+      /* v3.52.0 — apportion between the lots that were actually ticked, by their own tree
+         counts, so the parts re-add to exactly what the selection asked for. One lot ticked is
+         the old single-row behaviour with no arithmetic at all. */
+      const sel=(mdProg.scope!=='ALL')?[mdProg.scope]:MD_LOTS.slice();
+      const w=sel.map(L=>treesInLot(L).length);
+      const parts=(sel.length>1)
+        ? splitExact(q,w).map((qq,i)=>({lot:sel[i],qty:qq})).filter(x=>x.qty>0)
+        : [{lot:sel[0]||mdLotVal,qty:q}];
+      const wshare=(sel.length>1)
+        ? splitExact(water,w).map((qq,i)=>({lot:sel[i],qty:qq}))
+        : null;
+      for(let pi=0;pi<parts.length;pi++){
+        const part=parts[pi];
+        await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
+          ai:l.ai||(p?p.active_ingredient:''),qty:part.qty,unit:l.unit,lot:part.lot,
+          set:monthLabel(mdProg.month)+' - '+mdProg.set,
+          cost:+(part.qty*(p?(p.cpu||0):0)).toFixed(2),
+          progId:mdProg.uuid,progSet:monthLabel(mdProg.month)+' · '+mdProg.set,replyId:rid,
+          phaseId:String(mdProg.phaseId||''),
+          /* tanks and water are stamped ONCE PER LOT and never repeated across the products of
+             the same lot — the v3.44.0 double-counting rule that PROGRAMME COST depends on. */
+          tanks:(mdProg.basis==='PER_1000L'&&pi===0)?m:'',
+          water:wshare?(wshare[pi]?wshare[pi].qty:0):water,
+          crew:crew,hours:hours,labourOff:(!LABOUR_ON)||undefined,
+          splitAll:(sel.length>1)||undefined, lotsInReport:sel.length,
+          via:'MARK_DONE',planned:true,
+          worker:CFG.worker,device:CFG.device,synced:false});}}
   } finally { mdSaving=false; }
   LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
+  /* the implied rate is still worth remembering for the ACTIVATE screen, which does ask in
+     litres per tree — but it is derived here, never keyed. */
+  if(mdProg.basis==='PER_1000L'&&mdLpt()>0&&typeof LAST_LPT!=='undefined'){
+    LAST_LPT[mdProg.mode]=mdLpt(); if(db)await put('kv',{k:'lastlpt',v:LAST_LPT});}
   const n=mdProg.lines.length, lot=mdLotVal;
   closeMarkDone();
   toast('✓ Marked done · '+n+' item(s) deducted from Lot '+lot);
@@ -5494,6 +7657,14 @@ function lastOutFor(u){
   return es.length?es[0].dt.slice(0,10):null;}
 // DONE · PART (started, some lots outstanding) · LATE · DUE · NEXT
 function setStatus(p){
+  /* v3.55.0 — ⛔ THE ONE PLACE THE TWO ENGINES MUST AGREE. setStatus() is the timeline's own
+     status (it knows about PART DONE and live directives, which progStatus does not), and it
+     is now the ✎ PLAN view of the same screen that prints progStatus above it. A set the
+     Owner cancelled reading DUE NOW here and CANCELLED there is exactly the disagreement
+     closing FARM ▸ THIS MONTH was meant to end, so cancellation is tested FIRST and both
+     screens take it from progCancelled(). */
+  if(typeof progCancelled==='function'&&progCancelled(p.id))
+    return {st:'CAN',on:null,rec:null,cancelled:progCancelled(p.id)};
   const recs=progsFor(p.id);
   const fin=recs.find(setDone);
   if(fin)return {st:'DONE',on:lastOutFor(fin.uuid),rec:fin};
@@ -5557,7 +7728,9 @@ function phaseRecordHTML(p){
   return h+'</div>';}
 
 const TL_PILL={DONE:['done','✓ DONE'],PART:['due','◐ PART DONE'],LATE:['late','⚠ LATE'],
-  DUE:['due','● DUE NOW'],NEXT:['next','UPCOMING']};
+  DUE:['due','● DUE NOW'],NEXT:['next','UPCOMING'],
+  // v3.55.0 — the sixth word, so a cancelled set cannot read DUE NOW on the timeline.
+  CAN:['next','✖ CANCELLED']};
 
 // ---- the fixed 1000 L tank ----------------------------------------------------------
 // Everything downstream reads this one function, so the tank size can never drift
@@ -5748,13 +7921,32 @@ function renderRecord(){
       '<td class="num"><b>'+r.done+'</b> / '+r.n+'</td>'+
       '<td class="num">'+(SHOW_VALUES?rm(r.cost):'—')+'</td></tr>').join('')+'</table></div>'+
     '<p class="small">Every month of the programme with what was actually applied against it. This is the '+
-    'record the monthly and yearly report is built from — the working screen is THIS MONTH.</p>'+
-    '<div class="sec" style="margin-top:14px">Stock pressure by set</div>'+
-    '<div class="tblwrap" style="max-height:280px"><table class="tbl"><tr><th>Set</th><th class="num">Cover</th></tr>'+
-    drawdownRank().slice(0,12).map(o=>'<tr><td><div class="pn">'+esc(monthLabel(o.p.month))+' · '+esc(o.p.set)+'</div>'+
-      '<div class="pa">'+(o.d.known?(o.d.short?(o.d.short+' line'+(o.d.short>1?'s':'')+' short of stock'):'every line covered')
+    'record the monthly and yearly report is built from — the working screen is THE PROGRAMME.</p>'+
+    renderDrawdown();}
+/* v3.55.0 — STOCK PRESSURE BY SET, lifted out of renderRecord() so it can be mounted where
+   the buying happens. Called with an id it writes into that element; called with none it
+   returns the markup, which is how its old home still gets it. ⛔ ONE renderer, two mounts —
+   the alternative was a second copy of this table, and two copies of one table is how the
+   two status engines this release closes came about in the first place. */
+function renderDrawdown(mountId){
+  /* ⛔ ONLY WHAT HAS NOT HAPPENED YET. On the agronomy screen this table ranked EVERY set,
+     which was harmless history beside a season timeline. On the Purchaser's BUYING screen it
+     is not: April · Fert Set 1 reading 0% COVERED is a sprayed-and-finished set with an
+     empty shelf behind it, and it sorted straight to the top telling him to order for April.
+     It now asks progStatus() the same question every other screen asks. */
+  const live=drawdownRank().filter(o=>{
+    const st=progStatus(o.p,todayISO());
+    return st.code==='come'||st.code==='due'||st.code==='over';});
+  const h='<div class="sec" style="margin-top:14px">'+esc(tr('dd_head','Stock pressure by set'))+'</div>'+
+    (live.length?'':'<div class="alertnone">'+esc(tr('dd_none','Nothing still to come is short — every coming set is covered by the shelf.'))+'</div>')+
+    '<div class="tblwrap" style="max-height:280px"><table class="tbl"><tr><th>'+esc(tr('dd_set','Set'))+
+    '</th><th class="num">'+esc(tr('dd_cover','Cover'))+'</th></tr>'+
+    live.slice(0,12).map(o=>'<tr><td><div class="pn">'+esc(monthLabel(o.p.month))+' · '+esc(o.p.set)+'</div>'+
+      '<div class="pa">'+(o.d.known?(o.d.short?(o.d.short+' '+esc(tr('dd_short','line(s) short of stock'))):esc(tr('dd_ok','every line covered')))
         :esc(o.d.why))+'</div></td>'+
-      '<td class="num">'+coverPill(o.d)+'</td></tr>').join('')+'</table></div>';}
+      '<td class="num">'+coverPill(o.d)+'</td></tr>').join('')+'</table></div>';
+  if(mountId){const b=$(mountId);if(b)b.innerHTML=h;return '';}
+  return h;}
 
 // ---- blueprint: create AND modify a set from the active-ingredient dropdown ---------
 // Editing a set the Owner built reopens the same AI-first builder. A set that came off
@@ -5838,6 +8030,7 @@ function rotBump(d){rotQty=Math.max(0,rotQty+d);if($('rot-n'))$('rot-n').textCon
 /** One tap on the brown button = one more lost fruit. It wakes from grey on the first tap,
  *  so a tree that lost nothing never asks the worker a single question. */
 function rotTap(){
+  if(typeof hDisarm==='function')hDisarm();   // v3.42.0 — counting again un-arms the leave warning
   const b=$('rotbtn'); if(b)b.classList.remove('gray');
   const r=$('rot-reveal'); if(r)r.classList.add('open');
   rotQty++;
@@ -5963,12 +8156,12 @@ async function decideCorrection(id,ok){
   const c=CORRECTIONS.find(x=>x.uuid===id); if(!c||c.status!=='PENDING')return;
   const isLog=(c.ctype==='LOGQTY');
   const t=treeById(c.tree);
-  if(ok){
-    if(!confirm('Approve this change?\n\n'+c.tree+'\n'+corrSummary(c)+'\n\n'+
-      (isLog?'This files a signed adjustment against that log. The original row is kept.'
-            :'This permanently updates the Tree Master across the whole app.')))return;
-  }else{
-    if(!confirm('Reject this request?\n\n'+c.tree+'\n'+corrSummary(c)))return;}
+  /* v3.41.1 — on-screen confirm, for the same reason as approveReq(): a browser dialog a
+     phone refuses to open returns FALSE, and the tap ends in silence that looks exactly
+     like a dead button. First tap arms and paints the change into the card; second writes. */
+  const armKey=id+'|'+(ok?'1':'0');
+  if(CORR_ARM!==armKey){ CORR_ARM=armKey; renderCorrections(); return; }
+  CORR_ARM='';
   c.status=ok?'APPROVED':'REJECTED'; c.decidedBy=CFG.worker; c.decidedAt=now(); c.synced=false;
   if(ok){ if(isLog)await applyLogCorrection(c); else if(t)await bakeApproved(c); }
   await persistCorrection(c);
@@ -6484,6 +8677,7 @@ function selectTree(id){
   $('t-meta').textContent='Lot '+t.lot+' · '+cloneLabel(t.clone)+(t.census!=null?' · Census Jul: '+t.census+' fruit':'');
   curLot=t.lot; if($('h-lot').options.length){$('h-lot').value=t.lot;}
   $('picker').classList.add('hidden');$('treezone').classList.remove('hidden');
+  HSTEP='tree'; hDisarm();                     // v3.42.0 — the third step of the collect road
   renderGradeRows(); gClearAll();
   renderRotCauses(); rotReset();
   if($('g-err'))$('g-err').textContent='';
@@ -8251,8 +10445,16 @@ function nrArm(l){
 /** The retained gatepasses. Every row re-opens its own read-only card — which is the
  *  whole point: the driver can ask for the tally again after the form has been reset. */
 function waitingListHTML(){
-  const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||''));
-  return '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
+  const mine=pendingDispatches().filter(isMyLoad);   // v3.41.3 — see isMyLoad()
+  /* v3.41.3 — THE MAN WAITING NEEDS THIS MOST OF ALL.
+     The Gate's queue and the ration queue got the "last synced" strip in v3.41.0. THIS
+     screen did not — and it is the one somebody stands and stares at. He weighs a load, it
+     says WAITING, and the answer is already on the Gate's phone: the app checks every five
+     minutes, but only while it is OPEN and the phone AWAKE, and a phone in a pocket
+     suspends that timer. From the shed floor "waiting" and "my phone has not looked" are
+     the same word. Now the strip says which, and the whole strip is a sync. */
+  return (mine.length?syncAgeHTML():'')+
+    '<div class="sec" style="margin-top:16px">'+esc(tr('sc_waiting'))+'</div>'+
     (mine.length
       ? '<div class="scfoot" style="margin:-2px 0 8px">'+esc(tr('gp_taphint'))+'</div>'+
         mine.map(e=>'<div class="reqrow tapp" onclick="openGatepass(\''+esc(e.uuid)+'\')">'+
@@ -8268,12 +10470,49 @@ function waitingListHTML(){
           '<span class="gpgo">›</span></div>').join('')
       :'<div class="alertnone">'+esc(tr('sc_nothingwaiting'))+'</div>');}
 
+/* ======================================================================================
+   v3.41.3 · WHOSE LOAD IS THIS?  — the bug the Owner reported as "the Gate approved it and
+   the worker's phone never got it"
+   ======================================================================================
+   Both lists on a worker's Morning Scale — what is WAITING, and what has been DECIDED —
+   filtered on `workerId === CFG.uid` alone. That looks safe and it is not, because
+   CFG.uid CAN CHANGE UNDER A ROW THAT IS ALREADY WRITTEN.
+
+   The registry is the Sheet's. A phone that logs in before it has ever pulled the WORKERS
+   tab gets its id from the local seed; the first successful sync then replaces it with the
+   id the Owner actually keyed. Measured on a real login: the phone wrote the load with
+   `workerId:'U-WKR1'`, synced, and CFG.uid became 'U3'. From that instant:
+
+       pendingDispatches()                       still said 1   (the load is real)
+       ...but his WAITING list                   said 0
+       ...and myRecentDecisions()                said nothing
+
+   So the load vanished off his screen while still perfectly pending, and when the Gate
+   approved it the answer had nowhere to land. From the shed floor that is exactly "the
+   approval never reached my phone".
+
+   The fix is the rule renderFocQueue() has used since v3.30.1 and these two never learned:
+   a row is MINE if the id matches OR the NAME matches. A false positive shows a man a load
+   he did not weigh — visible, harmless, and correctable. A false negative loses him the
+   answer entirely, which is what happened. The names come from the same registry that
+   issues the ids, so this is not a guess. */
+function isMyLoad(e){
+  if(!e)return false;
+  const uid=String((CFG&&CFG.uid)||''), me=String((CFG&&CFG.worker)||'').trim().toLowerCase();
+  const rid=String(e.workerId||''), rn=String(e.worker||'').trim().toLowerCase();
+  if(!uid&&!me)return true;                       // no identity on this phone yet — show it all
+  if(rid&&uid&&rid===uid)return true;
+  if(me&&rn&&rn===me)return true;                 // the id moved under the row; the name did not
+  if(!rid&&!rn)return true;                       // an old row that carries neither
+  return false;}
+
 /** Approved and returned loads, so a worker sees the outcome instead of a silence.
  *  v3.8 — these re-open their gatepass too; a returned load still has to be reconciled
  *  against whatever physically left the gate. */
 function myRecentDecisions(){
   const mineIds={};
-  EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&(!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')))mineIds[e.uuid]=e;});
+  /* v3.41.3 — isMyLoad(), not a bare uid test. See the note above it. */
+  EVENTS.forEach(e=>{if(e.type==='DISPATCH_REQ'&&isMyLoad(e))mineIds[e.uuid]=e;});
   const out=[], seen={};
   EVENTS.forEach(e=>{
     if(e.type==='DISPATCH'&&e.req_uuid&&mineIds[e.req_uuid]){
@@ -9818,13 +12057,42 @@ function closePhoto(){const b=$('lightbox');if(b)b.classList.add('hidden');const
 
 // ---- the Marketer's verification hub -------------------------------------------------
 let VERIFY_SEL='', vSaving=false;
-function openVerify(u){VERIFY_SEL=(VERIFY_SEL===u?'':u);renderVerify();}
+/* v3.41.1 — which card, if any, is ARMED. Held here beside VERIFY_SEL because it obeys the
+   same rules: opening another card, leaving the tab, or a sync bringing a new queue all
+   have to disarm, or a second tap lands on a load the person is no longer looking at. */
+let AP_ARM='';
+function apDisarm(){AP_ARM='';renderVerify();}
+function openVerify(u){AP_ARM='';VERIFY_SEL=(VERIFY_SEL===u?'':u);renderVerify();}
+
+/** The on-screen confirm for APPROVE & DISPATCH. Same four facts the browser dialog
+ *  carried, on the card, where nothing can refuse to draw it. */
+function verifyArmHtml(e,r,t,before,after,short){
+  const cashLoad=isCashRetailer(e.retailer_id);
+  return '<div class="armbox">'+
+    '<b>'+esc(tr('vf_armhead','CHECK IT, THEN TAP AGAIN'))+'</b>'+
+    '<div class="w">'+nf(t.total_kg)+' kg → '+esc(r.name)+'</div>'+
+    '<div class="v"><b>'+rm(t.total_value_rm)+'</b></div>'+
+    '<div class="k">'+esc(cashLoad
+        ? tr('vf_armcash','CASH SALE — collect it now')
+        : (tr('vf_armbal','Credit after this')+': '+rm(after)))+
+      (short?(' · '+esc(tr('vf_armover','OVERDRAWN — Owner override signed by'))+' '+esc(OVR_BY||'')):'')+
+    '</div>'+
+    '<div class="s">'+esc(tr('vf_armby','Weighed by'))+' '+esc(e.worker||'?')+' · '+
+      esc(tr('vf_armseen','photo checked by'))+' '+esc((CFG&&CFG.worker)||'')+'<br>'+
+      esc(tr('vf_armnote','Nothing is written until the second tap.'))+'</div>'+
+  '</div>';}
 
 function renderVerify(){
   const box=$('verifybox'); if(!box)return;
-  if(!canDispatch()){box.innerHTML='';VERIFY_SEL='';return;}
+  if(!canDispatch()){box.innerHTML='';VERIFY_SEL='';AP_ARM='';return;}
+  /* an armed card that is no longer in the queue — decided on another phone, or cleaned up —
+     must never stay armed, or the second tap lands on nothing. */
+  if(AP_ARM&&!pendingDispatches().some(x=>x.uuid===AP_ARM))AP_ARM='';
   const q=pendingDispatches();
   box.innerHTML=
+    /* v3.41.0 - the stamp. An empty queue and an unrefreshed queue used to be the same
+       screen, and the Owner lost an evening to that on 12 Aug. */
+    syncAgeHTML()+
     '<div class="cnote">Every load a worker weighed, waiting on you. <b>Open the photo</b> and read the '+
       'scale in the picture against the figures beside it. Approve writes the invoice, takes the credit '+
       'down and copies the WhatsApp receipt — so it is checked here or it is not checked at all.</div>'+
@@ -9995,7 +12263,12 @@ function verifyCardHtml(e){
          instead of sending the marketer to the retailer card where the invoice would be
          written with no req_uuid and this request would stay open to be approved twice. */
       (short&&seen&&!unpriced.length?verifyOverrideHtml(r,before,t.total_value_rm):'')+
-      '<button class="bigbtn" '+((!seen||unpriced.length||(short&&!OVR_OK))?'disabled ':'')+
+      /* v3.41.1 — the armed confirm. It carries the same four facts the browser dialog
+         carried (kilos, merchant, ringgit, resulting balance) plus who weighed it and who
+         checked the photo, and it lives ON THE CARD where a phone cannot refuse to draw it. */
+      (AP_ARM===e.uuid?verifyArmHtml(e,r,t,before,after,short):'')+
+      '<button class="bigbtn'+(AP_ARM===e.uuid?' danger':'')+'" '+
+        ((!seen||unpriced.length||(short&&!OVR_OK))?'disabled ':'')+
         'onclick="approveReq(\''+esc(e.uuid)+'\')">'+
         (!seen?'🔒 AUDIT THE PHOTO FIRST'
               :(unpriced.length?'🔒 MISSING PRICE'
@@ -10003,8 +12276,13 @@ function verifyCardHtml(e){
                  box that had just explained it in full. A phone-size screenshot showed the
                  same fact on screen FOUR times: the credit line, the CRITICAL box, the
                  override box and this button. Nothing is removed; the button stops shouting. */
+              :(AP_ARM===e.uuid?esc(tr('vf_armgo','TAP AGAIN TO WRITE THE INVOICE'))
               :(short?(OVR_OK?'✓ APPROVE &amp; DISPATCH (OVERRIDE)':'🔒 CREDIT EXCEEDED')
-              :'✓ APPROVE &amp; DISPATCH')))+'</button>'+
+              :'✓ APPROVE &amp; DISPATCH'))))+'</button>'+
+      (AP_ARM===e.uuid
+        ?('<button class="bigbtn ghost" style="margin-top:7px;padding:11px;font-size:12.5px" '+
+          'onclick="apDisarm()">'+esc(tr('vf_armno','NOT YET — GO BACK'))+'</button>')
+        :'')+
       '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
         'onclick="rejectReq(\''+esc(e.uuid)+'\')">↩ RETURN TO WORKER</button>'+
       '</div>'));}
@@ -10112,13 +12390,17 @@ async function approveReq(u){
   if(over&&!OVR_OK){
     toast('Credit exceeded — the Owner keys the 6-digit override on this card',1);
     renderVerify(); return;}
-  if(over&&!confirm('ADMIN OVERRIDE — authorised by '+OVR_BY+'.\n\n'+r.name+' holds '+rm(before)+
-    ' and this load is worth '+rm(t.total_value_rm)+'.\nApproving leaves the account at '+rm(after)+
-    ' (overdrawn).\n\nApprove it?'))return;
-  if(!over&&!confirm('Approve '+nf(t.total_kg)+' kg to '+r.name+' for '+rm(t.total_value_rm)+'?\n\n'+
-    'Weighed by '+(e.worker||'')+', photo checked by '+((CFG&&CFG.worker)||'')+'.\n'+
-    (cashLoad?'This writes the invoice. It is a CASH sale - collect '+rm(t.total_value_rm)+' now.'
-             :'This writes the invoice and takes the credit down to '+rm(after)+'.')))return;
+  /* v3.41.1 — THE CONFIRM IS ON THE SCREEN NOW, NOT IN A BROWSER DIALOG.
+     ⛔ THIS IS THE MOST-PRESSED BUTTON ON THE FARM and it was gated behind confirm().
+     v3.37.4 established that several of this farm's Android WebViews refuse to open a
+     browser dialog outright — and a refused confirm() returns FALSE, so the tap ended in
+     SILENCE that is indistinguishable from a button that does nothing. On the one control
+     that moves money that is not an acceptable failure mode.
+     So: the first tap ARMS and paints the figures into the card; the second tap writes.
+     Exactly the W_ARM pattern R2 built for the Gate's own scale confirm, for the same
+     reason and with the same class. Nothing is written on the arming tap. */
+  if(AP_ARM!==u){ AP_ARM=u; renderVerify(); return; }
+  AP_ARM='';
   vSaving=true;
   const du=uuid(), stamp=now(), serial=nextInvoiceSerial(stamp);
   try{
@@ -10671,7 +12953,7 @@ function renderMatrix(){
       '</div></div>').join('')+
 
     // ---- TABLE 1 — yield volume per clone ----
-    '<div class="sec" style="margin-top:14px">🥭 Monthly yield volume — net KG per clone</div>'+
+    '<div class="sec" style="margin-top:14px">'+IC_DUR+' Monthly yield volume — net KG per clone</div>'+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Month</th>'+clones.map(c=>'<th class="num">'+esc(c)+'</th>').join('')+
       '<th class="num">TOTAL</th></tr>'+
@@ -11010,6 +13292,30 @@ function setPriceSel(v){PRICE_SEL=v||'SPOT';renderPrices();}
 /** The id the price grid is currently editing, or '' when it is the spot matrix. */
 function priceSelId(){return PRICE_SEL==='SPOT'?'':PRICE_SEL;}
 
+/* ======================================================================================
+   v3.41.0 · PRICES — three jobs, one at a time, and a clone at a time inside the book
+   ======================================================================================
+   The key-in audit counted SEVENTEEN live boxes on this screen at once: a six-by-three
+   price matrix, a custom-percentage box, five basket tares and a tick. Four unrelated jobs
+   were mounted together - set a book, nudge the market, weigh the empty baskets, compare
+   the merchants - and the one the Gate opens this screen for every morning (move the spot
+   trend before the lorry leaves) was three screens of scrolling down.
+
+   Now: one segment picks the JOB, and inside the price book one tap picks the CLONE, so
+   the most boxes on the screen at any moment is THREE - the grades that clone actually
+   has. Black Thorn, B24, 101 and Udang Merah are two-grade, so usually it is two.
+
+   ⛔ EVERY INPUT IS STILL MOUNTED. savePrices(), trendNudge(), trendReset() and
+   saveBaskets() read the whole matrix and the whole basket list by id, in one pass. A
+   closed clone's boxes are HIDDEN, never absent - take one out of the DOM and saving would
+   silently write a zero over a rate somebody negotiated. This is the same reason
+   hideAllPanels() hides rather than removes, and it is the single thing to preserve if
+   this screen is ever touched again.                                                    */
+let PRC_VIEW='book';          // book · tare · compare
+let PRC_CLONE='';             // which clone's rates are open
+function prcPick(v){PRC_VIEW=v;renderPrices();}
+function prcClone(c){PRC_CLONE=(PRC_CLONE===c?'':c);renderPrices();}
+
 function renderPrices(){
   const box=$('pricebox'); if(!box)return;
   const own=canSetCredit();                // retailer master + credit — Owner or the Gate
@@ -11017,108 +13323,122 @@ function renderPrices(){
   const rid=priceSelId(), contract=!!rid&&isContractRetailer(rid);
   const r=rid?retailerById(rid):null;
   if(rid&&!r){PRICE_SEL='SPOT';return renderPrices();}
-  const cell=(c,g)=>{
-    if(!hasGrade(c,g))return '<td class="num nogrd">—</td>';
-    return '<td class="num">'+(shr
-      ?('<input type="number" id="pr-'+esc(c)+'-'+g+'" min="0" step="0.01" inputmode="decimal" value="'+
-        priceOf(c,g,rid)+'">')
-      :('<b>'+rm(priceOf(c,g,rid))+'</b>'))+
-      '<div class="exphint">'+esc(bandText(c,g))+'</div></td>';};
   const contractBuyers=listedRetailers().filter(x=>isContractRetailer(x.id));
   const spotBuyers=listedRetailers().filter(x=>!isContractRetailer(x.id));
+  const seg=[['book','\U0001f4b2 '+tr('pr_v_book','THE BOOK')],
+             ['tare','⚖️ '+tr('pr_v_tare','BASKET TARE')],
+             ['compare','\U0001f4ca '+tr('pr_v_cmp','COMPARE')]];
+  const hid=v=>(PRC_VIEW===v?'':' style="display:none"');
+
   box.innerHTML=
-    // ---- the merchant picker: whose book am I editing? ----
-    '<div class="sec">Which price book?</div>'+
-    '<select id="pr-who" onchange="setPriceSel(this.value)">'+
-      '<option value="SPOT"'+(PRICE_SEL==='SPOT'?' selected':'')+'>📈 Daily spot market — used by '+
-        (spotBuyers.length?esc(spotBuyers.map(x=>x.name).join(', ')):'no merchant yet')+'</option>'+
-      contractBuyers.map(x=>'<option value="'+esc(x.id)+'"'+(PRICE_SEL===x.id?' selected':'')+
-        '>📜 '+esc(x.name)+' — contract</option>').join('')+
-    '</select>'+
-    (contract
-      ? '<div class="cnote"><b>'+esc(r.name)+'</b>’s negotiated contract, per KG of <b>net</b> weight. '+
-        'These rates belong to this merchant alone — the daily market trend does not touch them, so a '+
-        'morning price move can never rewrite a signed contract.</div>'
-      : '<div class="cnote">The <b>daily spot market</b> matrix. Every merchant with no contract on file '+
-        'invoices from this table, and the trend buttons below move it. Prices are per KG of <b>net</b> '+
-        'weight. Black Thorn, B24, 101 and Udang Merah are two-grade clones — no Grade C anywhere.</div>')+
-    // v3.11 — a contract lives on this phone only (it is not in the shared channel yet),
-    // so only the SPOT matrix gets a share stamp. Saying otherwise would be a lie.
-    (contract?'':shareBox(['cloneprice','pricemeta']))+
-    // `full` — the 340px cap sliced the last clone's row in half, which reads as a broken
-    // screen. Six clones is a short table; it does not need an inner scroller.
-    '<div class="tblwrap full"><table class="tbl pmx">'+
-    '<tr><th>Clone</th><th class="num">Grade A</th><th class="num">Grade B</th><th class="num">Grade C</th></tr>'+
-    CLONE_SELL_ORDER.map(c=>'<tr><td><b>'+esc(CLONE_NAME[c]||c)+'</b><div class="exphint">'+esc(c)+
-      ' · '+gradesFor(c).length+'-grade</div></td>'+cell(c,'A')+cell(c,'B')+cell(c,'C')+'</tr>').join('')+
-    '</table></div>'+
-    (shr?(
-      // the trend modifier belongs to the SPOT book only — see the note above
-      (contract?'':(
-      '<div class="sec" style="margin-top:12px">📈 Daily market trend modifier</div>'+
-      '<div class="small">Nudge every spot price in the table above before the lorry leaves. '+
-        'Contract merchants are unaffected. Nothing is saved until you tap SAVE.</div>'+
-      '<div class="trendrow">'+
-        '<div class="trendbtn" onclick="trendNudge(-10)">−10%</div>'+
-        '<div class="trendbtn" onclick="trendNudge(-5)">−5%</div>'+
-        '<div class="trendbtn" onclick="trendNudge(5)">+5%</div>'+
-        '<div class="trendbtn" onclick="trendNudge(10)">+10%</div>'+
-      '</div>'+
-      '<div class="trendrow">'+
-        '<input type="number" id="pr-pct" step="0.5" inputmode="decimal" placeholder="custom %" style="flex:2">'+
-        '<div class="trendbtn" onclick="trendNudge(+($(\'pr-pct\').value||0))">APPLY %</div>'+
-      '</div>'))+
-      '<div class="trendrow"><div class="trendbtn" onclick="trendReset()">RESET TO AGREED BASE</div></div>'+
-      '<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE '+
-        (contract?('CONTRACT — '+esc(r.name).toUpperCase()):'SPOT PRICE MATRIX')+'</button>')
-      :'<div class="cnote">Only the Owner or Marketing can change a price. These are the figures '+
-       'every invoice is built from, and whichever of them changes one, it reaches every phone.</div>')+
+    '<div class="m3-seg">'+seg.map(([k,t])=>
+      '<div class="m3-seg-btn'+(PRC_VIEW===k?' on':'')+'" id="prc-s-'+k+'" onclick="prcPick(\''+k+'\')">'+
+      esc(t)+'</div>').join('')+'</div>'+
 
-    // ---- the whole book at a glance, so two contracts can be compared side by side ----
-    '<div class="sec" style="margin-top:16px">📊 All merchants — Grade A comparison</div>'+
-    '<div class="tblwrap"><table class="tbl">'+
-    '<tr><th>Merchant</th>'+CLONE_SELL_ORDER.filter(c=>c!=='TB')
-      .map(c=>'<th class="num">'+esc(c)+'</th>').join('')+'</tr>'+
-    listedRetailers().map(x=>'<tr><td><div class="pn">'+esc(x.name)+'</div>'+
-      '<div class="pa">'+(isContractRetailer(x.id)?'📜 contract':'📈 spot')+'</div></td>'+
-      CLONE_SELL_ORDER.filter(c=>c!=='TB').map(c=>{const p=priceOf(c,'A',x.id);
-        return '<td class="num'+(p>0?'':' lowq')+'">'+(p>0?nf(p):'—')+'</td>';}).join('')+
-      '</tr>').join('')+
-    '</table></div>'+
-    '<div class="exphint">Grade A, RM per net KG. A dash means no rate is on file for that clone — a '+
-      'basket of it cannot be invoiced to that merchant until the Owner sets one.</div>'+
+    /* ---- 1 · THE BOOK ------------------------------------------------------------- */
+    '<div id="prc-book"'+hid('book')+'>'+
+      '<div class="sec">'+esc(tr('pr_whichbook','Which price book?'))+'</div>'+
+      '<select id="pr-who" onchange="setPriceSel(this.value)">'+
+        '<option value="SPOT"'+(PRICE_SEL==='SPOT'?' selected':'')+'>\U0001f4c8 Daily spot market — used by '+
+          (spotBuyers.length?esc(spotBuyers.map(x=>x.name).join(', ')):'no merchant yet')+'</option>'+
+        contractBuyers.map(x=>'<option value="'+esc(x.id)+'"'+(PRICE_SEL===x.id?' selected':'')+
+          '>\U0001f4dc '+esc(x.name)+' — contract</option>').join('')+
+      '</select>'+
+      (contract
+        ? '<div class="cnote"><b>'+esc(r.name)+'</b>’s negotiated contract, per KG of <b>net</b> weight. '+
+          'These rates belong to this merchant alone — the daily market trend does not touch them, so a '+
+          'morning price move can never rewrite a signed contract.</div>'
+        : '<div class="cnote">The <b>daily spot market</b> book. Every merchant with no contract on file '+
+          'invoices from it, and the trend buttons below move it. Prices are per KG of <b>net</b> '+
+          'weight.</div>')+
+      // v3.11 — a contract lives on this phone only (it is not in the shared channel yet),
+      // so only the SPOT book gets a share stamp. Saying otherwise would be a lie.
+      (contract?'':shareBox(['cloneprice','pricemeta']))+
+      '<div class="sec" style="margin-top:12px">'+esc(tr('pr_tapclone','Tap a clone to set its rates'))+'</div>'+
+      CLONE_SELL_ORDER.map(c=>{
+        const open=(PRC_CLONE===c), gs=gradesFor(c);
+        return '<div class="prcc'+(open?' open':'')+'">'+
+          '<div class="h" onclick="prcClone(\''+esc(c)+'\')">'+
+            '<div class="nm"><b>'+esc(CLONE_NAME[c]||c)+'</b>'+
+              '<span>'+esc(c)+' · '+gs.length+'-'+esc(tr('pr_grade','grade'))+'</span></div>'+
+            '<div class="p">'+gs.map(g=>{const v=priceOf(c,g,rid);
+              return '<i'+(v>0?'':' class="lowq"')+'>'+esc(g)+' '+(v>0?nf(v):'—')+'</i>';}).join('')+'</div>'+
+            '<div class="go">'+(open?'▾':'›')+'</div>'+
+          '</div>'+
+          /* ⛔ rendered ALWAYS, hidden when closed — see the note at the top of this block */
+          '<div class="b"'+(open?'':' style="display:none"')+'>'+
+            gs.map(g=>'<div class="prcg"><label>'+esc(gLabel(g))+
+              (bandText(c,g)?(' <span>'+esc(bandText(c,g))+'</span>'):'')+'</label>'+
+              (shr?('<input type="number" id="pr-'+esc(c)+'-'+g+'" min="0" step="0.01" '+
+                    'inputmode="decimal" value="'+priceOf(c,g,rid)+'">')
+                  :('<b>'+rm(priceOf(c,g,rid))+'</b>'))+'</div>').join('')+
+          '</div></div>';}).join('')+
+      /* the two grades that do not exist on a clone are simply not offered any more — the
+         old matrix drew a "—" cell for each of them, six dead cells on a screen that was
+         already too full. */
+      (shr?(
+        (contract?'':(
+        '<div class="sec" style="margin-top:14px">\U0001f4c8 '+esc(tr('pr_trend','Daily market trend'))+'</div>'+
+        '<div class="small">Nudge every spot rate above before the lorry leaves. Contract merchants are '+
+          'unaffected. Nothing is saved until you tap SAVE.</div>'+
+        '<div class="trendrow">'+
+          '<div class="trendbtn" onclick="trendNudge(-10)">−10%</div>'+
+          '<div class="trendbtn" onclick="trendNudge(-5)">−5%</div>'+
+          '<div class="trendbtn" onclick="trendNudge(5)">+5%</div>'+
+          '<div class="trendbtn" onclick="trendNudge(10)">+10%</div>'+
+        '</div>'+
+        '<div class="trendrow">'+
+          '<input type="number" id="pr-pct" step="0.5" inputmode="decimal" placeholder="custom %" style="flex:2">'+
+          '<div class="trendbtn" onclick="trendNudge(+($(\'pr-pct\').value||0))">APPLY %</div>'+
+        '</div>'))+
+        '<div class="trendrow"><div class="trendbtn" onclick="trendReset()">RESET TO AGREED BASE</div></div>'+
+        '<button class="bigbtn" style="margin-top:9px" onclick="savePrices()">✓ SAVE '+
+          (contract?('CONTRACT — '+esc(r.name).toUpperCase()):'SPOT PRICE BOOK')+'</button>')
+        :'<div class="cnote">Only the Owner or Marketing can change a price. These are the figures '+
+         'every invoice is built from, and whichever of them changes one, it reaches every phone.</div>')+
+      '<p class="small">Merchants themselves — add, edit, credit — live on the MERCHANTS tab. '+
+      'This screen is only the book their invoices are priced from.</p>'+
+    '</div>'+
 
-    '<div class="sec" style="margin-top:16px">⚖️ Basket tare</div>'+
-    (TARE_VERIFIED?'':'<div class="critbox" style="margin-bottom:8px">These tare weights have NOT been '+
-      'verified yet. Put an EMPTY basket on the scale, key the reading here, then tick the box — until '+
-      'then every net weight may be wrong.</div>')+
-    shareBox(['baskets','tareok'])+
-    '<div class="tblwrap full"><table class="tbl"><tr><th>Basket</th><th class="num">Empty weight (kg)</th></tr>'+
-    BASKETS.map(b=>{
-      const extra=!BASKET_SEED.some(x=>String(x.id)===String(b.id));
-      return '<tr><td><b>'+(b.ic?b.ic+' ':'')+esc(b.name)+'</b><div class="exphint">'+esc(b.id)+
-        (extra&&shr?(' \u00b7 <a href="#" onclick="removeBasket(\''+esc(b.id)+'\');return false;">remove</a>'):'')+
-        '</div></td>'+
-      '<td class="num">'+(shr&&b.id!=='NONE'
-        ?('<input type="number" id="bt-'+esc(b.id)+'" min="0" step="0.01" inputmode="decimal" value="'+
-          (+b.tare_kg||0)+'" style="width:90px;text-align:right">')
-        :('<b>'+nf(b.tare_kg)+' kg</b>'))+'</td></tr>';}).join('')+'</table></div>'+
-    (shr?('<button class="bigbtn ghost" style="margin-top:7px;padding:11px;font-size:13px" '+
-      'onclick="addBasket()">\uff0b ADD A BASKET</button>'):'')+
-    (shr?('<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">'+
-      '<input type="checkbox" id="bt-ok" '+(TARE_VERIFIED?'checked':'')+' style="width:auto">'+
-      'I have weighed the empty baskets — these figures are real</label>'+
-      '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
-        'onclick="saveBaskets()">✓ SAVE BASKET TARE</button>'):'')+
+    /* ---- 2 · BASKET TARE ---------------------------------------------------------- */
+    '<div id="prc-tare"'+hid('tare')+'>'+
+      (TARE_VERIFIED?'':'<div class="critbox" style="margin-bottom:8px">These tare weights have NOT been '+
+        'verified yet. Put an EMPTY basket on the scale, key the reading here, then tick the box — until '+
+        'then every net weight may be wrong.</div>')+
+      shareBox(['baskets','tareok'])+
+      '<div class="tblwrap full"><table class="tbl"><tr><th>Basket</th><th class="num">Empty weight (kg)</th></tr>'+
+      BASKETS.map(b=>{
+        const extra=!BASKET_SEED.some(x=>String(x.id)===String(b.id));
+        return '<tr><td><b>'+(b.ic?b.ic+' ':'')+esc(b.name)+'</b><div class="exphint">'+esc(b.id)+
+          (extra&&shr?(' · <a href="#" onclick="removeBasket(\''+esc(b.id)+'\');return false;">remove</a>'):'')+
+          '</div></td>'+
+        '<td class="num">'+(shr&&b.id!=='NONE'
+          ?('<input type="number" id="bt-'+esc(b.id)+'" min="0" step="0.01" inputmode="decimal" value="'+
+            (+b.tare_kg||0)+'" style="width:90px;text-align:right">')
+          :('<b>'+nf(b.tare_kg)+' kg</b>'))+'</td></tr>';}).join('')+'</table></div>'+
+      (shr?('<button class="bigbtn ghost" style="margin-top:7px;padding:11px;font-size:13px" '+
+        'onclick="addBasket()">＋ ADD A BASKET</button>'):'')+
+      (shr?('<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">'+
+        '<input type="checkbox" id="bt-ok" '+(TARE_VERIFIED?'checked':'')+' style="width:auto">'+
+        'I have weighed the empty baskets — these figures are real</label>'+
+        '<button class="bigbtn ghost" style="margin-top:7px;padding:12px;font-size:13.5px" '+
+          'onclick="saveBaskets()">✓ SAVE BASKET TARE</button>'):'')+
+    '</div>'+
 
-    /* v3.36.0 — THE RETAILER MASTER HAS LEFT THIS SCREEN. It was the FOURTH merchant list
-       in one tile, with its own edit / + credit / ADD RETAILER doors — the duplicate-door
-       problem this reorganisation exists to close. Every one of those functions is still
-       reachable, from ONE place: the MERCHANTS tab (openRetForm / topUpRetailer on the
-       retailer card). Prices and tare only, from here on. `own` above is still read by the
-       credit checks inside the matrix and deliberately left untouched. */
-    '<p class="small">Merchants themselves — add, edit, credit — live on the MERCHANTS tab. '+
-    'This screen is only the book their invoices are priced from.</p>';}
+    /* ---- 3 · COMPARE -------------------------------------------------------------- */
+    '<div id="prc-compare"'+hid('compare')+'>'+
+      '<div class="cnote">Grade A, RM per net KG, every merchant side by side. A dash means no rate is '+
+        'on file for that clone — a basket of it cannot be invoiced to that merchant until one is set.</div>'+
+      '<div class="tblwrap"><table class="tbl">'+
+      '<tr><th>Merchant</th>'+CLONE_SELL_ORDER.filter(c=>c!=='TB')
+        .map(c=>'<th class="num">'+esc(c)+'</th>').join('')+'</tr>'+
+      listedRetailers().map(x=>'<tr><td><div class="pn">'+esc(x.name)+'</div>'+
+        '<div class="pa">'+(isContractRetailer(x.id)?'\U0001f4dc contract':'\U0001f4c8 spot')+'</div></td>'+
+        CLONE_SELL_ORDER.filter(c=>c!=='TB').map(c=>{const p=priceOf(c,'A',x.id);
+          return '<td class="num'+(p>0?'':' lowq')+'">'+(p>0?nf(p):'—')+'</td>';}).join('')+
+        '</tr>').join('')+
+      '</table></div>'+
+    '</div>';}
 
 /** Move every editable cell by a percentage — the daily market trend, applied in one tap.
  *  It only touches the INPUTS; nothing is committed until SAVE PRICE MATRIX. */
@@ -11856,7 +14176,7 @@ var QR=(function(){
 // ############################################################################
 
 function canMasterAdmin(){return myRole()==='OWNER';}
-let MDB_SEC='data', MDB_LOG='harvest', MDB_EDIT='';
+let MDB_LOG='harvest';   // v3.41.0 - MDB_SEC and MDB_EDIT retired with the old nav
 // the next tree number to offer. Held here, NOT in the input, because saving a tree
 // re-renders the whole section and would wipe anything written straight to the field.
 let MDB_NEXT_NO='', MDB_NEXT_LOT='A';
@@ -11935,7 +14255,7 @@ async function writeAdjust(e,newQty,reason,isVoid){
 
 // ---- the three log tables ------------------------------------------------------------
 const MDB_LOGS={
-  harvest  :{t:'harvest_log',   ic:'🥭', types:['DROP','ROTTEN'],       unit:'fruits'},
+  harvest  :{t:'harvest_log',   ic:IC_DUR, types:['DROP','ROTTEN'],       unit:'fruits'},
   tying    :{t:'tying_log',     ic:'🎗️', types:['TIE'],                 unit:'fruits'},
   inventory:{t:'inventory_ledger',ic:'📦',types:['STOCK_IN','STOCK_OUT'],unit:''}
 };
@@ -11944,7 +14264,7 @@ function mdbRows(kind){
   return EVENTS.filter(e=>def.types.indexOf(e.type)>=0)
     .slice().sort((a,b)=>String(a.dt)<String(b.dt)?1:(String(a.dt)>String(b.dt)?-1:0));}
 function mdbRowLabel(e){
-  if(e.type==='DROP')     return '🥭 '+(e.clone||'?')+' Grade '+(e.grade||'?')+' @ '+e.tree+
+  if(e.type==='DROP')     return IC_DUR+' '+(e.clone||'?')+' Grade '+(e.grade||'?')+' @ '+e.tree+
                                  (isSecuredDrop(e)?'':' · untied');
   if(e.type==='ROTTEN')   return '🍂 rotten @ '+e.tree+(e.causeLabel?(' · '+e.causeLabel):'');
   if(e.type==='TIE')      return '🎗️ tied @ '+e.tree+' · '+nf(e.ropeM||0)+' m rope';
@@ -11952,44 +14272,19 @@ function mdbRowLabel(e){
   if(e.type==='STOCK_OUT')return '📦→ '+(e.pname||'')+(e.lot?(' · Lot '+e.lot):'');
   return e.type;}
 
-function mdbSec(s){MDB_SEC=s;MDB_EDIT='';CLN.sel={};CLN.unlocked=false;renderMasterDB();}
-function mdbPickLog(k){MDB_LOG=k;MDB_EDIT='';renderMasterDB();}
-function mdbEditRow(u){if(!canMasterAdmin())return;MDB_EDIT=u;renderMasterDB();}
-function mdbCancelEdit(){MDB_EDIT='';renderMasterDB();}
-
-async function mdbSaveEdit(u){
-  if(!canMasterAdmin()){toast('Owner only',1);return;}
-  const e=EVENTS.find(x=>x.uuid===u); if(!e)return;
-  const el=$('mdb-q-'+u), rl=$('mdb-r-'+u);
-  const v=el?el.value:'', reason=rl?String(rl.value||'').trim():'';
-  if(v===''||isNaN(+v)||+v<0){toast('That is not a valid figure',1);return;}
-  if(!reason){toast('A reason is required — it travels with the correction',1);return;}
-  const changed=await writeAdjust(e,+v,reason,false);
-  MDB_EDIT='';
-  if(changed){rebuildLedgers();badge();refreshEverything();toast('✓ Row corrected to '+nf(+v));}
-  else {renderMasterDB();toast('Nothing changed');}}
-
-async function mdbDeleteRow(u){
-  if(!canMasterAdmin()){toast('Owner only',1);return;}
-  const e=EVENTS.find(x=>x.uuid===u); if(!e)return;
-  if(rowIsVoided(e)){toast('That row is already voided',1);return;}
-  const res=await askForm({
-    title:'Delete this row',
-    sub:mdbRowLabel(e)+' · '+nf(rowLiveQty(e))+' — recorded '+e.dt+' by '+(e.worker||'?')+
-        '. It will stop counting everywhere immediately. A signed reversal syncs to the Sheet and to '+
-        'every phone so no device is left disagreeing.',
-    f1:{label:'Reason for deleting',type:'text',value:'',placeholder:'e.g. keyed against the wrong tree'},
-    ok:'🗑️ DELETE THIS ROW'});
-  if(!res)return;
-  if(!res.v1.trim()){toast('A reason is required',1);return;}
-  await writeAdjust(e,0,res.v1.trim(),true);
-  rebuildLedgers();badge();refreshEverything();
-  toast('✓ Row deleted — it now counts as zero everywhere');}
+/* v3.41.0 - THE OLD CRUD PATH IS GONE, NOT PARKED.
+   mdbSec / mdbPickLog / mdbEditRow / mdbCancelEdit / mdbSaveEdit / mdbDeleteRow drove the
+   five-chip nav and the inline edit row inside the old MASTER DB table. Every one of them
+   is replaced by the four-step flow (fxFind -> fxReadBack -> fxChange -> fxSaveNum), which
+   calls the SAME writeAdjust() with the same signed shapes. They are deleted rather than
+   left behind on purpose: an unreachable second way to edit a harvest row is the exact
+   duplicate-route fault v3.39.0 and v3.40.0 spent two releases closing, and leaving it in
+   the source is how it comes back. writeAdjust() itself is untouched. */
 
 /** After any master edit, every screen that shows a total has to be redrawn. */
 function refreshEverything(){
   try{
-    renderMasterDB();renderDash&&renderDash();renderTying&&renderTying();
+    renderMasterDB();renderTrees&&renderTrees();renderDash&&renderDash();renderTying&&renderTying();
     renderStock&&renderStock();renderAlerts&&renderAlerts();renderMktLedger&&renderMktLedger();
     renderYieldAudit&&renderYieldAudit();renderWave&&renderWave();renderMyLogs&&renderMyLogs();
     refreshTreeBoard&&refreshTreeBoard();renderHub&&renderHub();renderSync&&renderSync();
@@ -12546,19 +14841,20 @@ async function cleanupDelete(){
   rebuildLedgers(); rebuildAllTreePickers(); refreshEverything(); badge();
   toast('✓ '+ex.ids.length+' record'+(ex.ids.length===1?'':'s')+' removed');}
 
-function mdbCleanHtml(){
-  const rows=cleanupRows(), n=clnSelCount();
-  const ex=n?cleanupExpand(Object.keys(CLN.sel)):{ids:[],added:0};
-  const im=n?cleanupImpact(ex.ids):null;
-  const people=clnPeople(), devs=clnDevices();
-  const shownSel=rows.filter(r=>CLN.sel[r.uuid]).length;
-  return '<div class="cnote">Filter the log down, tick the rows that were tests, and remove just those. '+
-      'Your imported data cannot be reached from here — the <b>959-fruit tying opening balance</b>, the '+
-      '<b>171-tree census</b> and the <b>opening stock</b> live in the app\u2019s own data file, not in this '+
-      'log, so no tick box can touch them.</div>'+
-
-    '<div class="sec" style="margin-top:12px">1 · Narrow it down</div>'+
-    '<div class="dl3">'+
+/* v3.41.0 — CLEAN UP, BROKEN INTO THE THREE QUESTIONS IT ACTUALLY ASKS.
+   It was one page: the filters, a 150-row table, the impact table and the unlock box all
+   mounted at once, so the first thing the Owner met was a wall of controls with no order
+   to them. Nothing underneath changes — cleanupRows(), cleanupExpand(), cleanupImpact()
+   and cleanupDelete() are untouched, and every cln* handler still repaints through
+   renderMasterDB(). Only the page breaks are new. These are steps 2, 3 and 4 of the
+   CLEAR OUT TRIAL ROWS road. */
+function fxCleanFind(){
+  const rows=cleanupRows(), people=clnPeople(), devs=clnDevices();
+  return '<div class="cnote">Narrow the log down to the rows you were practising on. Your imported '+
+      'data cannot be reached from here — the <b>959-fruit tying opening balance</b>, the '+
+      '<b>171-tree census</b> and the <b>opening stock</b> live in the app’s own data file, not in '+
+      'this log, so nothing on the next screen can touch them.</div>'+
+    '<div class="dl3" style="margin-top:12px">'+
       '<div><label>From date</label><input type="date" id="cln-from" value="'+esc(CLN.from)+
         '" onchange="clnSetFilter(\'from\',this.value)"></div>'+
       '<div><label>To date</label><input type="date" id="cln-to" value="'+esc(CLN.to)+
@@ -12576,15 +14872,22 @@ function mdbCleanHtml(){
         '<option value="">any</option>'+devs.map(d=>'<option value="'+esc(d)+'"'+
           (d===CLN.dev?' selected':'')+'>'+esc(d)+'</option>').join('')+'</select></div>'+
     '</div>'+
-    '<div style="display:flex;gap:7px;margin-top:8px">'+
-      '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="clnResetFilters()">RESET FILTERS</button>'+
-      '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="clnSelectShown()">TICK ALL '+rows.length+' SHOWN</button>'+
-    '</div>'+
+    '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px;margin-top:8px" '+
+      'onclick="clnResetFilters()">RESET FILTERS</button>'+
+    (rows.length
+      ? ('<div class="fxsum"><b>'+rows.length+'</b> row'+(rows.length===1?'':'s')+' match</div>'+
+         '<button class="bigbtn" onclick="fxGo(3)">NEXT — TICK THE ONES THAT WERE TESTS ›</button>')
+      : '<div class="alertnone" style="margin-top:10px">No rows match these filters.</div>');}
 
-    '<div class="sec" style="margin-top:14px">2 · Tick what was a test</div>'+
-    '<div class="clnbar"><b>'+rows.length+'</b> row'+(rows.length===1?'':'s')+' shown · <b>'+n+
-      '</b> ticked'+(n?(' <span class="linkish" onclick="clnClearSel()">clear</span>'):'')+'</div>'+
-    (rows.length?('<div class="tblwrap"><table class="tbl">'+
+function fxCleanPick(){
+  const rows=cleanupRows(), n=clnSelCount();
+  return '<div class="cnote">Tick only what was practice. Everything you leave unticked stays exactly '+
+      'as it is.</div>'+
+    '<div class="clnbar" style="margin-top:10px"><b>'+rows.length+'</b> shown · <b>'+n+'</b> ticked'+
+      (n?(' <span class="linkish" onclick="clnClearSel()">clear</span>'):'')+'</div>'+
+    '<button class="bigbtn ghost" style="padding:9px;font-size:12.5px" onclick="clnSelectShown()">'+
+      'TICK ALL '+rows.length+' SHOWN</button>'+
+    (rows.length?('<div class="tblwrap" style="margin-top:8px"><table class="tbl">'+
       rows.slice(0,150).map(r=>'<tr class="'+(CLN.sel[r.uuid]?'picked':'')+'" onclick="clnToggle(\''+
         esc(r.uuid)+'\')"><td style="width:34px" class="num">'+
         '<span class="clnbox'+(CLN.sel[r.uuid]?' on':'')+'">'+(CLN.sel[r.uuid]?'✓':'')+'</span></td>'+
@@ -12594,53 +14897,67 @@ function mdbCleanHtml(){
           (r.synced?' · <b>in the Sheet</b>':' · queued')+'</div></td>'+
         '<td class="num">'+(r.qty?nf(r.qty):'')+'</td></tr>').join('')+'</table></div>'+
       (rows.length>150?('<div class="exphint">Showing the newest 150 of '+rows.length+
-        ' — narrow the dates to see the rest.</div>'):''))
+        ' — go back and narrow the dates to see the rest.</div>'):''))
       :'<div class="alertnone">No rows match these filters.</div>')+
+    (n?('<button class="bigbtn" onclick="fxGo(4)">NEXT — SEE WHAT REMOVING THEM DOES ›</button>')
+       :'<div class="small" style="margin-top:10px">Tick at least one row to carry on.</div>')+
+    '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(2)">‹ BACK</button>';}
 
-    (n?('<div class="sec" style="margin-top:14px">3 · What removing them does</div>'+
-      (ex.added?('<div class="tarewarn">'+ex.added+' linked row'+(ex.added===1?'':'s')+
-        ' will go too — the rope a ticked tying round drew, and any signed correction pointing at a '+
-        'ticked row. Leaving those behind would skew the ledger.</div>'):'')+
-      '<div class="tblwrap full"><table class="tbl">'+
-      '<tr><td><b>Records removed</b></td><td class="num"><b>'+ex.ids.length+'</b></td></tr>'+
-      (im.tied?      '<tr><td>Tied balance falls by</td><td class="num">'+nf(im.tied)+' fruit</td></tr>':'')+
-      (im.collected? '<tr><td>Collected fruit removed</td><td class="num">'+nf(im.collected)+'</td></tr>':'')+
-      (im.rotten?    '<tr><td>Rotten fruit removed</td><td class="num">'+nf(im.rotten)+'</td></tr>':'')+
-      (im.stockIn+im.stockOut?'<tr><td>Stock movements reversed</td><td class="num">'+
-        (im.stockIn+im.stockOut)+'</td></tr>':'')+
-      (im.dispatchKg?'<tr><td>Dispatches removed</td><td class="num">'+nf(im.dispatchKg)+' kg · '+
-        rm(im.dispatchRM)+'</td></tr>':'')+
-      (im.reqN?      '<tr><td>Weighings removed</td><td class="num">'+im.reqN+' · '+nf(im.reqKg)+' kg</td></tr>':'')+
-      (im.topupRM?   '<tr><td>Credit top-ups removed</td><td class="num">'+rm(im.topupRM)+'</td></tr>':'')+
-      (im.corr?      '<tr><td>Correction requests removed</td><td class="num">'+im.corr+'</td></tr>':'')+
-      (im.treeCount? '<tr><td>Trees affected</td><td class="num">'+im.treeCount+'</td></tr>':'')+
-      '</table></div>'+
-      /* v3.36.1 - this text predated the v3.29.8 tombstone and told the Owner to go delete
-         Sheet rows by hand, which has been wrong for two days: the delete note travels on its
-         own. Saying the old thing sent him hunting through the Sheet for nothing. */
-      (im.synced?('<div class="critbox"><b>'+im.synced+'</b> of these already reached the Google Sheet. '+
-        'The delete note travels with the next sync, so they disappear from every phone by themselves. '+
-        'The rows stay in the Sheet as history and are ignored from now on.</div>'):
-        '<div class="okbox">None of these have reached the Google Sheet yet, so removing them here is the '+
-        'end of it — nothing to clean up in the Sheet.</div>')+
+function fxCleanGo(){
+  const n=clnSelCount();
+  if(!n)return '<div class="alertnone">Nothing is ticked.</div>'+
+    '<button class="bigbtn ghost" onclick="fxGo(3)">‹ BACK</button>';
+  const ex=cleanupExpand(Object.keys(CLN.sel)), im=cleanupImpact(ex.ids);
+  return '<div class="cnote">Read this before you unlock. This is what the farm’s figures look '+
+      'like after the removal.</div>'+
+    (ex.added?('<div class="tarewarn">'+ex.added+' linked row'+(ex.added===1?'':'s')+
+      ' will go too — the rope a ticked tying round drew, and any signed correction pointing at a '+
+      'ticked row. Leaving those behind would skew the ledger.</div>'):'')+
+    '<div class="tblwrap full"><table class="tbl">'+
+    '<tr><td><b>Records removed</b></td><td class="num"><b>'+ex.ids.length+'</b></td></tr>'+
+    (im.tied?      '<tr><td>Tied balance falls by</td><td class="num">'+nf(im.tied)+' fruit</td></tr>':'')+
+    (im.collected? '<tr><td>Collected fruit removed</td><td class="num">'+nf(im.collected)+'</td></tr>':'')+
+    (im.rotten?    '<tr><td>Rotten fruit removed</td><td class="num">'+nf(im.rotten)+'</td></tr>':'')+
+    (im.stockIn+im.stockOut?'<tr><td>Stock movements reversed</td><td class="num">'+
+      (im.stockIn+im.stockOut)+'</td></tr>':'')+
+    (im.dispatchKg?'<tr><td>Dispatches removed</td><td class="num">'+nf(im.dispatchKg)+' kg · '+
+      rm(im.dispatchRM)+'</td></tr>':'')+
+    (im.reqN?      '<tr><td>Weighings removed</td><td class="num">'+im.reqN+' · '+nf(im.reqKg)+' kg</td></tr>':'')+
+    (im.topupRM?   '<tr><td>Credit top-ups removed</td><td class="num">'+rm(im.topupRM)+'</td></tr>':'')+
+    (im.corr?      '<tr><td>Correction requests removed</td><td class="num">'+im.corr+'</td></tr>':'')+
+    (im.treeCount? '<tr><td>Trees affected</td><td class="num">'+im.treeCount+'</td></tr>':'')+
+    '</table></div>'+
+    /* v3.36.1 — this text predated the v3.29.8 tombstone and told the Owner to go delete
+       Sheet rows by hand, which had been wrong for two days: the delete note travels on
+       its own. Saying the old thing sent him hunting through the Sheet for nothing. */
+    (im.synced?('<div class="critbox"><b>'+im.synced+'</b> of these already reached the Google Sheet. '+
+      'The delete note travels with the next sync, so they disappear from every phone by themselves. '+
+      'The rows stay in the Sheet as history and are ignored from now on.</div>'):
+      '<div class="okbox">None of these have reached the Google Sheet yet, so removing them here is the '+
+      'end of it — nothing to clean up in the Sheet.</div>')+
+    (CLN.unlocked
+      ? ('<div class="ovrok" style="margin-top:10px">🔓 Unlocked — you can remove batches until you '+
+          'leave this screen.</div>'+
+         '<button class="bigbtn danger" onclick="fxCleanDelete()">🗑️ REMOVE THE '+ex.ids.length+
+          ' TICKED RECORD'+(ex.ids.length===1?'':'S')+'</button>')
+      : ('<label style="margin-top:10px">Owner 6-digit access key</label>'+
+         '<input id="cln-key" type="password" inputmode="numeric" maxlength="6" autocomplete="off" '+
+           'placeholder="••••••" style="letter-spacing:9px;font-size:19px;text-align:center;font-weight:800" '+
+           'oninput="if(this.value.length===6)clnUnlock()">'+
+         '<div class="pinerr" id="cln-keyerr"></div>'+
+         '<button class="bigbtn ghost" onclick="clnUnlock()">🔓 UNLOCK CLEAN-UP</button>'))+
+    '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(3)">‹ BACK</button>'+
+    '<p class="small">Ticked rows are removed outright — no strike-through, no leftover reversal rows. '+
+    'One summary line is recorded saying how many went, who removed them and what the filters were, so a '+
+    'clean-up is never invisible.</p>';}
 
-      '<div class="sec" style="margin-top:13px">4 · Confirm</div>'+
-      (CLN.unlocked
-        ? ('<div class="ovrok" style="margin-top:0">🔓 Unlocked — you can remove batches until you leave '+
-            'this screen.</div>'+
-           '<button class="bigbtn danger" onclick="cleanupDelete()">🗑️ REMOVE THE '+ex.ids.length+
-            ' TICKED RECORD'+(ex.ids.length===1?'':'S')+'</button>')
-        : ('<label>Owner 6-digit access key</label>'+
-           '<input id="cln-key" type="password" inputmode="numeric" maxlength="6" autocomplete="off" '+
-             'placeholder="••••••" style="letter-spacing:9px;font-size:19px;text-align:center;font-weight:800" '+
-             'oninput="if(this.value.length===6)clnUnlock()">'+
-           '<div class="pinerr" id="cln-keyerr"></div>'+
-           '<button class="bigbtn ghost" onclick="clnUnlock()">🔓 UNLOCK CLEAN-UP</button>'))+
-      '<p class="small">Ticked rows are removed outright — no strike-through, no leftover reversal rows. '+
-      'One summary line is recorded saying how many went, who removed them and what the filters were, so a '+
-      'clean-up is never invisible.</p>')
-     :'<div class="small" style="margin-top:12px">Tick at least one row to see what removing it would do.</div>');}
-
+/** cleanupDelete() ends in refreshEverything(), which repaints this panel at whatever step
+ *  it is standing on. Reset first so the Owner lands back on the question, not on an empty
+ *  impact table for a selection that no longer exists. */
+async function fxCleanDelete(){
+  const before=clnSelCount(); if(!before)return;
+  await cleanupDelete();
+  FIX.step=1; FIX.what=''; renderMasterDB();}
 // ---- 5. QR DISTRIBUTION --------------------------------------------------------------
 // The URL defaults to wherever this page is being served from, so it is right without
 // anybody configuring anything. The encoder is built in — no CDN — because the office
@@ -12657,7 +14974,7 @@ async function mdbSaveUrl(){
   const v=String(($('qr-url')||{}).value||'').trim();
   if(!v){toast('Key the address workers should open',1);return;}
   if(!/^https?:\/\//i.test(v)){toast('The address must start with http:// or https://',1);return;}
-  APP_URL=v; await persistAppUrl(); renderMasterDB(); toast('✓ App address saved');}
+  APP_URL=v; await persistAppUrl(); renderQr(); toast('✓ App address saved');}
 function mdbQrHtml(){
   const url=APP_URL||appUrlDefault();
   if(!url) return '<div class="critbox">No app address set yet. This page is open from a file, so there '+
@@ -12685,138 +15002,274 @@ function mdbPrintQr(){
     'choose <b>Add to Home screen</b></p>'+svg+'<p><code>'+esc(url)+'</code></p></body></html>');
   w.document.close();}
 
-// ---- THE PANEL -----------------------------------------------------------------------
-// SECURITY: for any role other than OWNER this writes an EMPTY STRING. No table, no form,
-// no button, no onclick handler for the CRUD, the purge, the tree form or the QR ever
-// enters the DOM. Every mutating function above independently re-checks canMasterAdmin(),
-// so reaching one from the console achieves nothing either.
-const MDB_SECTIONS=[['data','🗂️ DATA'],['back','🕓 BACKDATE'],['trees','🌳 TREES'],
-                    ['purge','🗳️ CLEAN UP'],['qr','📱 QR']];
-function renderMasterDB(){
-  const box=$('masterdbbox'); if(!box)return;
-  if(!canMasterAdmin()){ box.innerHTML=''; return; }        // stripped from the DOM entirely
-  box.innerHTML=
-    '<div class="mdbnav">'+MDB_SECTIONS.map(([k,t])=>
-      '<div class="'+(k===MDB_SEC?'on':'')+'" onclick="mdbSec(\''+k+'\')">'+t+'</div>').join('')+'</div>'+
-    (MDB_SEC==='data' ? mdbDataHtml()
-    :MDB_SEC==='back' ? mdbBackHtml()
-    :MDB_SEC==='trees'? mdbTreesHtml()
-    :MDB_SEC==='purge'? mdbCleanHtml()
-    :                   mdbQrSectionHtml());
-  if(MDB_SEC==='back'){ mdbBackLots('bk-tie-lot','bk-tie-tree');
-                        mdbBackLots('bk-dr-lot','bk-dr-tree');
-                        mdbBackLots('bk-rt-lot','bk-rt-tree'); }}
+/* ======================================================================================
+   v3.41.0 · FIX A RECORD — the Owner's override suite, keyed the way the scale is keyed
+   ======================================================================================
+   What this replaced: one panel with a five-chip nav across the top (DATA · BACKDATE ·
+   TREES · CLEAN UP · QR) where every chip opened a full page of controls at once. The
+   BACKDATE page alone mounted four separate forms and a bulk-paste box — about fifteen
+   live fields, none of them related to the one beside it, all visible before the Owner
+   had said what he was there to do. His words: "especially admin master DB is very
+   confuse", and the direction that came with them: key it in like the Morning Scale —
+   "weight to delivery, step by step".
 
-function mdbDataHtml(){
-  const def=MDB_LOGS[MDB_LOG], rows=mdbRows(MDB_LOG);
-  return '<div class="cnote">Full read / edit / delete across every local log. An edit or a delete '+
-      'writes a <b>signed reversal</b> that syncs to the Google Sheet and to every phone, so the row '+
-      'stops counting everywhere at once and no two devices are ever left disagreeing.</div>'+
-    '<div class="mdbtabs">'+Object.keys(MDB_LOGS).map(k=>
-      '<div class="'+(k===MDB_LOG?'on':'')+'" onclick="mdbPickLog(\''+k+'\')">'+
+   So this screen now asks ONE question at a time and checks the answer before offering
+   the next:
+
+       1  WHAT IS WRONG?      a number · work never keyed · rows that were a trial
+       2  FIND IT             which book, which day, which lot, who keyed it
+       3  WHAT IT SAYS NOW    read the record back BEFORE anything is typed over it
+       4  THE CHANGE & WHY    one confirm, and the reason travels with it
+
+   ⛔ NOTHING UNDERNEATH CHANGED. writeAdjust(), mdbBackTie(), mdbBackDrop(),
+   mdbBackRotten(), mdbBulkCheck()/mdbBulkSave() and cleanupDelete() are the same proven
+   writers, reached through the same DOM ids they have always read. That is deliberate:
+   this release rebuilds the ASKING, not the WRITING, and every ledger in the app already
+   accounts for the shapes those five functions emit.
+
+   TREES and QR LEFT this panel. Neither is a correction — one grows the census, the other
+   prints a poster — and sharing a screen with the delete tools was the reason the screen
+   read as "everything dangerous, in one place". They are their own sections on the Admin
+   tile now, behind the same OWNER-only gate at both the tab and roleAllows().
+   ====================================================================================== */
+
+let FIX={step:1, what:'', log:'harvest', day:'', lot:'', who:'', uuid:'',
+         kind:'', act:'', v:null, prev:''};
+
+const FIX_STEPS={
+  num :['WHAT IS WRONG','FIND THE RECORD','WHAT IT SAYS NOW','THE CHANGE & WHY'],
+  miss:['WHAT IS WRONG','WHAT KIND OF WORK','THE DETAILS','CHECK & SAVE'],
+  test:['WHAT IS WRONG','NARROW IT DOWN','TICK THE TEST ROWS','CHECK & REMOVE'],
+  ''  :['WHAT IS WRONG','FIND IT','READ IT BACK','THE CHANGE']};
+
+function fxReset(){FIX={step:1,what:'',log:'harvest',day:'',lot:'',who:'',uuid:'',
+  kind:'',act:'',v:null,prev:''};CLN.sel={};CLN.unlocked=false;renderMasterDB();}
+function fxGo(s){FIX.step=s;renderMasterDB();}
+function fxWhat(w){
+  FIX.what=w;FIX.step=2;FIX.uuid='';FIX.kind='';FIX.act='';FIX.v=null;FIX.prev='';
+  if(w==='test'){CLN.sel={};CLN.unlocked=false;}
+  renderMasterDB();}
+function fxSet(k,v){FIX[k]=v;FIX.uuid='';renderMasterDB();}
+function fxPick(u){FIX.uuid=u;FIX.step=3;renderMasterDB();}
+function fxAct(a){FIX.act=a;FIX.step=4;renderMasterDB();}
+function fxKindPick(k){FIX.kind=k;FIX.step=3;FIX.v=null;FIX.prev='';renderMasterDB();}
+
+function fxBar(){
+  const L=FIX_STEPS[FIX.what]||FIX_STEPS[''];
+  return '<div class="fxbar">'+L.map(function(t,i){
+    const n=i+1, st=(n<FIX.step?'done':(n===FIX.step?'on':''));
+    return '<div class="'+st+'"'+(n<FIX.step?(' onclick="fxGo('+n+')"'):'')+'>'+
+      '<b>'+(n<FIX.step?'✓':n)+'</b><span>'+t+'</span></div>';}).join('')+'</div>';}
+
+/* ---- step 1 · the only question that opens this screen ------------------------------ */
+function fxStep1(){
+  const card=(k,ic,t,d)=>'<div class="fxq" onclick="fxWhat(\''+k+'\')">'+
+    '<div class="ic">'+ic+'</div><div><div class="t">'+esc(t)+'</div>'+
+    '<div class="d">'+esc(d)+'</div></div><div class="go">›</div></div>';
+  return '<div class="cnote">Everything on this screen is written as a <b>signed correction</b> that '+
+      'syncs to the Google Sheet and to every phone, so a row stops counting everywhere at once and no '+
+      'two devices are left disagreeing. Nothing is ever quietly overwritten.</div>'+
+    '<div class="sec" style="margin-top:13px">What is wrong?</div>'+
+    card('num','✏️','A NUMBER IS WRONG','A count was keyed wrong, or the whole row should not be there')+
+    card('miss','🕓','WORK WAS NEVER KEYED','It happened in the field — before the app, or with the phone off')+
+    card('test','🗳️','ROWS THAT WERE A TRIAL','Practice records from testing the app, to be cleared out');}
+
+/* ---- road A · a number is wrong ----------------------------------------------------- */
+function fxRows(){
+  let r=mdbRows(FIX.log);
+  if(FIX.day)r=r.filter(e=>String(e.dt).slice(0,10)===FIX.day);
+  if(FIX.lot)r=r.filter(e=>String(e.lot||'')===FIX.lot);
+  if(FIX.who)r=r.filter(e=>String(e.worker||'')===FIX.who);
+  return r;}
+
+function fxFind(){
+  const rows=fxRows(), all=mdbRows(FIX.log);
+  const people={};all.forEach(e=>{if(e.worker)people[e.worker]=1;});
+  const days={};all.forEach(e=>{days[String(e.dt).slice(0,10)]=1;});
+  const isStock=(FIX.log==='inventory');
+  return '<div class="cnote">Which book is the wrong figure in?</div>'+
+    '<div class="mdbtabs" style="margin-top:8px">'+Object.keys(MDB_LOGS).map(k=>
+      '<div class="'+(k===FIX.log?'on':'')+'" onclick="fxSet(\'log\',\''+k+'\')">'+
       MDB_LOGS[k].ic+' '+MDB_LOGS[k].t+'</div>').join('')+'</div>'+
-    '<div class="exphint" style="margin:7px 0">'+rows.length+' row'+(rows.length===1?'':'s')+
-      ' · newest first · showing up to 80</div>'+
-    (rows.length?('<div class="tblwrap"><table class="tbl mdbt">'+
-      '<tr><th>Row</th><th class="num">Qty</th><th class="num">Actions</th></tr>'+
-      rows.slice(0,80).map(e=>{
+    '<div class="sec" style="margin-top:13px">Narrow it down</div>'+
+    '<div class="dl3">'+
+      '<div><label>Day it was keyed</label><select onchange="fxSet(\'day\',this.value)">'+
+        '<option value="">any day</option>'+Object.keys(days).sort().reverse().slice(0,60).map(d=>
+        '<option value="'+esc(d)+'"'+(d===FIX.day?' selected':'')+'>'+esc(d)+'</option>').join('')+
+        '</select></div>'+
+      (isStock?'<div><label>&nbsp;</label><div class="exphint">The store ledger has no lot column.</div></div>'
+        :'<div><label>Lot</label><select onchange="fxSet(\'lot\',this.value)">'+
+          '<option value="">any lot</option>'+LOTS.map(l=>'<option value="'+l+'"'+
+          (l===FIX.lot?' selected':'')+'>Lot '+l+'</option>').join('')+'</select></div>')+
+    '</div>'+
+    '<label>Who keyed it</label><select onchange="fxSet(\'who\',this.value)">'+
+      '<option value="">anyone</option>'+Object.keys(people).sort().map(p=>'<option value="'+esc(p)+'"'+
+      (p===FIX.who?' selected':'')+'>'+esc(p)+'</option>').join('')+'</select>'+
+    (FIX.day||FIX.lot||FIX.who
+      ?'<button class="bigbtn ghost" style="padding:9px;font-size:12.5px;margin-top:8px" '+
+        'onclick="FIX.day=\'\';FIX.lot=\'\';FIX.who=\'\';renderMasterDB()">CLEAR THE FILTERS</button>':'')+
+    '<div class="sec" style="margin-top:14px">Tap the record — '+rows.length+' match'+
+      (rows.length===1?'es':'')+'</div>'+
+    (rows.length?('<div class="tblwrap"><table class="tbl">'+
+      rows.slice(0,60).map(e=>{
         const voided=rowIsVoided(e), edited=rowWasEdited(e), live=rowLiveQty(e);
-        if(MDB_EDIT===e.uuid){
-          return '<tr class="edit"><td colspan="3">'+
-            '<div class="pn">'+esc(mdbRowLabel(e))+'</div>'+
-            '<div class="pa">'+esc(e.dt)+' · '+esc(e.worker||'?')+'</div>'+
-            '<div class="dl3" style="margin-top:8px">'+
-              '<div><label>Correct quantity ('+esc(def.unit||e.unit||'')+')</label>'+
-                '<input type="number" min="0" step="any" inputmode="decimal" id="mdb-q-'+esc(e.uuid)+
-                '" value="'+live+'"></div>'+
-              '<div><label>Reason</label><input id="mdb-r-'+esc(e.uuid)+
-                '" placeholder="e.g. miscounted"></div>'+
-            '</div>'+
-            '<div style="display:flex;gap:7px;margin-top:8px">'+
-              '<button class="bigbtn" style="padding:11px;font-size:13px" onclick="mdbSaveEdit(\''+esc(e.uuid)+
-                '\')">✓ SAVE CORRECTION</button>'+
-              '<button class="bigbtn ghost" style="padding:11px;font-size:13px" onclick="mdbCancelEdit()">CANCEL</button>'+
-            '</div></td></tr>';}
-        return '<tr'+(voided?' class="void"':'')+'><td>'+
-          '<div class="pn">'+esc(mdbRowLabel(e))+
+        return '<tr'+(voided?' class="void"':'')+' onclick="fxPick(\''+esc(e.uuid)+'\')">'+
+          '<td><div class="pn">'+esc(mdbRowLabel(e))+
             (voided?' <span class="cstat r">DELETED</span>':'')+
             (!voided&&edited?' <span class="cstat p">EDITED</span>':'')+
             (e.backdated?' <span class="cstat a">BACKDATED</span>':'')+'</div>'+
-          '<div class="pa">'+esc(e.dt)+' · '+esc(e.worker||'?')+(e.synced?'':' · queued')+
-            (e.backdated&&e.enteredAt?(' · keyed '+esc(e.enteredAt)):'')+'</div></td>'+
-          '<td class="num"><b>'+nf(live)+'</b>'+
-            (live!==logQtyOf(e)?('<div class="exphint">was '+nf(logQtyOf(e))+'</div>'):'')+'</td>'+
-          '<td class="num nowrap">'+
-            (voided?'<span class="exphint">voided</span>'
-              :('<span class="mdbbtn" onclick="mdbEditRow(\''+esc(e.uuid)+'\')">✏️ Edit</span>'+
-                '<span class="mdbbtn del" onclick="mdbDeleteRow(\''+esc(e.uuid)+'\')">🗑️ Delete</span>'))+
-          '</td></tr>';}).join('')+'</table></div>')
-      :'<div class="alertnone">No rows in this log yet.</div>')+
-    '<p class="small">A deleted row stays visible here, struck through and marked DELETED, and counts as '+
-    'zero in every total. That is what lets you prove later what was removed and why.</p>';}
+          '<div class="pa">'+esc(e.dt)+' · '+esc(e.worker||'?')+(e.synced?'':' · queued')+'</div></td>'+
+          '<td class="num"><b>'+nf(live)+'</b></td><td class="num">›</td></tr>';}).join('')+
+      '</table></div>'+
+      (rows.length>60?('<div class="exphint">Showing the newest 60 of '+rows.length+
+        ' — pick a day above to see the rest.</div>'):''))
+      :'<div class="alertnone">Nothing matches. Widen the filters above.</div>');}
 
-function mdbBackHtml(){
+function fxReadBack(){
+  const e=EVENTS.find(x=>x.uuid===FIX.uuid);
+  if(!e)return '<div class="alertnone">That record is no longer here.</div>'+
+    '<button class="bigbtn ghost" onclick="fxGo(2)">‹ PICK ANOTHER</button>';
+  const voided=rowIsVoided(e), edited=rowWasEdited(e), live=rowLiveQty(e), keyed=logQtyOf(e);
+  const unit=(MDB_LOGS[FIX.log]||{}).unit||e.unit||'';
+  return '<div class="cnote">Read it back before you change it. This is the record exactly as every '+
+      'phone on the farm currently holds it.</div>'+
+    '<div class="fxrec">'+
+      '<div class="w">'+esc(mdbRowLabel(e))+'</div>'+
+      '<div class="n">'+nf(live)+' <span>'+esc(unit)+'</span></div>'+
+      (live!==keyed?('<div class="k">keyed as '+nf(keyed)+', already corrected to '+nf(live)+'</div>'):'')+
+      '<div class="s">'+esc(e.dt)+' · keyed by '+esc(e.worker||'?')+' on '+esc(e.device||'?')+
+        (e.backdated&&e.enteredAt?('<br>backdated — actually entered '+esc(e.enteredAt)):'')+
+        '<br>'+(e.synced?'already in the Google Sheet':'still queued on this phone')+'</div>'+
+    '</div>'+
+    (voided?'<div class="critbox">This row is already deleted. It counts as zero everywhere and cannot '+
+      'be changed again.</div>'
+     :((edited?'<div class="tarewarn">This row has been corrected before. A second correction is signed '+
+        'the same way and stacks on top of the first.</div>':'')+
+       '<div class="sec" style="margin-top:13px">What do you want to do?</div>'+
+       '<button class="bigbtn" onclick="fxAct(\'edit\')">✏️ THE NUMBER IS WRONG — CORRECT IT</button>'+
+       '<button class="bigbtn danger" onclick="fxAct(\'void\')">🗑️ THIS ROW SHOULD NOT BE THERE</button>'))+
+    '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(2)">‹ PICK ANOTHER</button>';}
+
+function fxChange(){
+  const e=EVENTS.find(x=>x.uuid===FIX.uuid);
+  if(!e)return '<div class="alertnone">That record is no longer here.</div>'+
+    '<button class="bigbtn ghost" onclick="fxGo(2)">‹ PICK ANOTHER</button>';
+  const live=rowLiveQty(e), unit=(MDB_LOGS[FIX.log]||{}).unit||e.unit||'';
+  const head='<div class="fxone">'+esc(mdbRowLabel(e))+' · <b>'+nf(live)+'</b> '+esc(unit)+
+    ' · '+esc(String(e.dt).slice(0,16))+'</div>';
+  if(FIX.act==='void')
+    return head+
+      '<div class="critbox">Removing this writes a signed reversal. The row stays visible as history and '+
+      'counts as <b>zero</b> in every total, on every phone, from the next sync.</div>'+
+      '<label>Why is this row being removed?</label>'+
+      '<input id="fx-r" placeholder="e.g. keyed against the wrong tree" autocomplete="off">'+
+      '<div class="pinerr" id="fx-err"></div>'+
+      '<button class="bigbtn danger" onclick="fxSaveNum()">🗑️ REMOVE IT</button>'+
+      '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(3)">‹ BACK</button>';
+  return head+
+    '<label>It says '+nf(live)+'. What should it say?</label>'+
+    '<input type="number" min="0" step="any" inputmode="decimal" id="fx-q" value="'+esc(String(live))+'">'+
+    '<label>Why? — this travels with the correction to every phone</label>'+
+    '<input id="fx-r" placeholder="e.g. miscounted, the basket was double-tallied" autocomplete="off">'+
+    '<div class="pinerr" id="fx-err"></div>'+
+    '<button class="bigbtn" onclick="fxSaveNum()">✓ SAVE THE CORRECTION</button>'+
+    '<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(3)">‹ BACK</button>';}
+
+/** The one writer for road A. writeAdjust() is untouched — it emits the same signed shapes
+ *  the approved-correction path has always emitted. FIX is reset BEFORE refreshEverything()
+ *  because that call repaints this very panel. */
+async function fxSaveNum(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const e=EVENTS.find(x=>x.uuid===FIX.uuid); if(!e){toast('That record is gone',1);return;}
+  const err=$('fx-err'); if(err)err.textContent='';
+  const reason=String((($('fx-r')||{}).value)||'').trim();
+  if(!reason){if(err)err.textContent='Say why. The reason travels with the correction to every phone.';return;}
+  if(FIX.act==='void'){
+    if(rowIsVoided(e)){if(err)err.textContent='That row is already deleted.';return;}
+    await writeAdjust(e,0,reason,true);
+    rebuildLedgers();badge();
+    fxReset(); refreshEverything();
+    toast('✓ Removed — it counts as zero everywhere now');return;}
+  const raw=(($('fx-q')||{}).value);
+  if(raw===''||raw===undefined||isNaN(+raw)||+raw<0){
+    if(err)err.textContent='That is not a valid figure.';return;}
+  if(Math.round(+raw)===Math.round(rowLiveQty(e))){
+    if(err)err.textContent='That is the same figure it already says — nothing to correct.';return;}
+  const changed=await writeAdjust(e,+raw,reason,false);
+  if(!changed){if(err)err.textContent='Nothing changed.';return;}
+  rebuildLedgers();badge();
+  fxReset(); refreshEverything();
+  toast('✓ Corrected to '+nf(+raw));}
+
+/* ---- road B · work that was never keyed --------------------------------------------- */
+function fxKind(){
+  const card=(k,ic,t,d)=>'<div class="fxq" onclick="fxKindPick(\''+k+'\')">'+
+    '<div class="ic">'+ic+'</div><div><div class="t">'+esc(t)+'</div>'+
+    '<div class="d">'+esc(d)+'</div></div><div class="go">›</div></div>';
+  return '<div class="cnote">Every row keyed here carries the day the work actually happened <b>and</b> '+
+      'the moment you keyed it, so a late entry can never be mistaken for one logged live in the '+
+      'field.</div>'+
+    '<div class="sec" style="margin-top:13px">What kind of work?</div>'+
+    card('tie','🎗️','A TYING ROUND','One tree, one day — rope comes off the store on that same day')+
+    card('bulk','📋','A WHOLE PAGE OF THE FIELD BOOK','Paste many rounds at once, checked before anything is written')+
+    card('drop',IC_DUR,'A COLLECTION','Fruit picked up and graded')+
+    card('rot','🍂','A FRUIT LOSS','Rotten or damaged fruit, with its cause');}
+
+function fxForm(){
   const today=todayStr();
-  return '<div class="cnote">For work finished <b>before</b> the app was in use. The row carries the date '+
-      'the work actually happened, plus the moment you keyed it, so a late entry can never be mistaken '+
-      'for one logged live in the field.</div>'+
+  const back='<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(2)">'+
+    '‹ A DIFFERENT KIND OF WORK</button>';
+  if(FIX.kind==='tie')
+    return '<div class="cnote">One tying round: which tree, how many fruits, and when.</div>'+
+      '<div class="dl3" style="margin-top:11px">'+
+        '<div><label>Lot</label><select id="bk-tie-lot" onchange="mdbBackTrees(\'bk-tie-lot\',\'bk-tie-tree\')"></select></div>'+
+        '<div><label>Fruits tied</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-tie-n" placeholder="0"></div>'+
+      '</div>'+
+      '<label>Tree</label><select id="bk-tie-tree"></select>'+
+      '<label>Date &amp; time the tying was done</label>'+
+      '<input type="datetime-local" id="bk-tie-dt" value="'+esc(today)+'T08:00" max="'+esc(today)+'T23:59">'+
+      '<label>Note (optional)</label><input id="bk-tie-note" placeholder="e.g. from the 21 July field book">'+
+      '<div class="pinerr" id="fx-err"></div><div class="pinerr" id="bk-tie-err"></div>'+
+      '<button class="bigbtn tie" onclick="fxMissNext()">NEXT — CHECK IT ›</button>'+back+
+      (ROPE_TRACKING?('<p class="small">Rope is deducted at '+nf(ROPE_M_PER_FRUIT)+' m a fruit and dated '+
+        'to the same day, so the store balance follows the history instead of jumping today.</p>'):'');
 
-    '<div class="sec" style="margin-top:13px">🎗️ Backdate a tying round</div>'+
-    '<div class="dl3">'+
-      '<div><label>Lot</label><select id="bk-tie-lot" onchange="mdbBackTrees(\'bk-tie-lot\',\'bk-tie-tree\')"></select></div>'+
-      '<div><label>Fruits tied</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-tie-n" placeholder="0"></div>'+
-    '</div>'+
-    '<label>Tree</label><select id="bk-tie-tree"></select>'+
-    '<label>Date &amp; time the tying was done</label>'+
-    '<input type="datetime-local" id="bk-tie-dt" value="'+esc(today)+'T08:00" max="'+esc(today)+'T23:59">'+
-    '<label>Note (optional)</label><input id="bk-tie-note" placeholder="e.g. from the 21 July field book">'+
-    '<div class="pinerr" id="bk-tie-err"></div>'+
-    '<button class="bigbtn tie" onclick="mdbBackTie()">🕓 LOG THIS HISTORICAL TYING ROUND</button>'+
-    '<p class="small">Rope is deducted at '+nf(ROPE_M_PER_FRUIT)+' m a fruit and dated to the same day, '+
-      'so the store balance follows the history instead of jumping today.</p>'+
+  if(FIX.kind==='bulk')
+    return '<div class="cnote">One line per round: <b>tree, date, fruit</b>. Separate with a space, '+
+        'comma or tab. Date can be <code>5/8</code>, <code>5/8/26</code> or <code>2026-08-05</code>. '+
+        'A count of <b>0</b> is skipped — a date with no number on the paper means nobody tied anything '+
+        'that day, and there is no round to record.</div>'+
+      '<textarea id="bk-bulk" rows="8" placeholder="B-002  20/7  17&#10;B-002  26/7  15&#10;C-005  4/8  8">'+
+        esc((FIX.v&&FIX.v.txt)||'')+'</textarea>'+
+      '<label>Note put on every row (optional)</label>'+
+      '<input id="bk-bulk-note" value="'+esc((FIX.v&&FIX.v.note)||'')+'" placeholder="e.g. field book pages 1-6">'+
+      '<div class="pinerr" id="bk-bulk-err"></div><div id="bk-bulk-prev"></div>'+
+      '<button class="bigbtn ghost" id="bk-bulk-go" disabled style="display:none"></button>'+
+      '<button class="bigbtn ghost" onclick="fxBulkCheck()">🔍 CHECK THE PASTE ›</button>'+back+
+      '<p class="small">Nothing is written until the paste has been checked and you confirm on the next '+
+        'screen. Checking twice is free.</p>';
 
-    /* v3.29.0 — BULK PASTE. The single form above is right for a round or two. The farm's
-       field book holds 263 rounds across 86 trees and six pages; at fifteen seconds each that
-       is over an hour of clicking and a certainty of mistakes near the end. This takes the
-       whole book in one paste, checks every line BEFORE writing anything, and shows what it
-       is about to do. Same event shape as mdbBackTie() — one TIE row per line, backdated,
-       carrying both the day the work happened and the moment it was keyed. */
-    '<div class="sec" style="margin-top:17px">📋 Bulk backdate — paste from the field book</div>'+
-    '<div class="cnote">One line per round: <b>tree, date, fruit</b>. Separate with a space, '+
-      'comma or tab. Date can be <code>5/8</code>, <code>5/8/26</code> or <code>2026-08-05</code>. '+
-      'A count of <b>0</b> is skipped — a date with no number on the paper means nobody tied '+
-      'anything that day, and there is no round to record.</div>'+
-    '<textarea id="bk-bulk" rows="7" placeholder="B-002  20/7  17&#10;B-002  26/7  15&#10;C-005  4/8  8"></textarea>'+
-    '<label>Note put on every row (optional)</label>'+
-    '<input id="bk-bulk-note" placeholder="e.g. field book pages 1-6">'+
-    '<div class="pinerr" id="bk-bulk-err"></div>'+
-    '<div id="bk-bulk-prev"></div>'+
-    '<div style="display:flex;gap:7px;margin-top:9px">'+
-      '<button class="bigbtn ghost" onclick="mdbBulkCheck()">🔍 CHECK THE PASTE</button>'+
-      '<button class="bigbtn tie" id="bk-bulk-go" disabled onclick="mdbBulkSave()">🕓 LOG THEM ALL</button>'+
-    '</div>'+
-    '<p class="small">Nothing is written until you press CHECK and then LOG. Checking twice is free.</p>'+
+  if(FIX.kind==='drop')
+    return '<div class="cnote">One collection: which tree, how many fruits, which grade, and when.</div>'+
+      '<div class="dl3" style="margin-top:11px">'+
+        '<div><label>Lot</label><select id="bk-dr-lot" onchange="mdbBackTrees(\'bk-dr-lot\',\'bk-dr-tree\')"></select></div>'+
+        '<div><label>Fruits collected</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-dr-n" placeholder="0"></div>'+
+      '</div>'+
+      '<label>Tree</label><select id="bk-dr-tree"></select>'+
+      '<div class="dl3">'+
+        '<div><label>Grade</label><select id="bk-dr-grade">'+
+          GRADE_ORDER.map(g=>'<option value="'+g+'">'+esc(gLabel(g))+'</option>').join('')+'</select></div>'+
+        '<div><label>Was it tied?</label><select id="bk-dr-kind">'+
+          '<option value="SECURED">🪢 Secured — string still on</option>'+
+          '<option value="UNSECURED">🍃 Unsecured — early drop</option></select></div>'+
+      '</div>'+
+      '<label>Date &amp; time of the collection</label>'+
+      '<input type="datetime-local" id="bk-dr-dt" value="'+esc(today)+'T07:00" max="'+esc(today)+'T23:59">'+
+      '<div class="pinerr" id="fx-err"></div><div class="pinerr" id="bk-dr-err"></div>'+
+      '<button class="bigbtn" onclick="fxMissNext()">NEXT — CHECK IT ›</button>'+back;
 
-    '<div class="sec" style="margin-top:17px">🥭 Backdate a collection</div>'+
-    '<div class="dl3">'+
-      '<div><label>Lot</label><select id="bk-dr-lot" onchange="mdbBackTrees(\'bk-dr-lot\',\'bk-dr-tree\')"></select></div>'+
-      '<div><label>Fruits collected</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-dr-n" placeholder="0"></div>'+
-    '</div>'+
-    '<label>Tree</label><select id="bk-dr-tree"></select>'+
-    '<div class="dl3">'+
-      '<div><label>Grade</label><select id="bk-dr-grade">'+
-        GRADE_ORDER.map(g=>'<option value="'+g+'">'+esc(gLabel(g))+'</option>').join('')+'</select></div>'+
-      '<div><label>Was it tied?</label><select id="bk-dr-kind">'+
-        '<option value="SECURED">🪢 Secured — string still on</option>'+
-        '<option value="UNSECURED">🍃 Unsecured — early drop</option></select></div>'+
-    '</div>'+
-    '<label>Date &amp; time of the collection</label>'+
-    '<input type="datetime-local" id="bk-dr-dt" value="'+esc(today)+'T07:00" max="'+esc(today)+'T23:59">'+
-    '<div class="pinerr" id="bk-dr-err"></div>'+
-    '<button class="bigbtn" onclick="mdbBackDrop()">🕓 LOG THIS HISTORICAL COLLECTION</button>'+
-
-    '<div class="sec" style="margin-top:17px">🍂 Backdate a fruit loss</div>'+
-    '<div class="dl3">'+
+  return '<div class="cnote">One fruit loss: which tree, how many, what caused it, and when.</div>'+
+    '<div class="dl3" style="margin-top:11px">'+
       '<div><label>Lot</label><select id="bk-rt-lot" onchange="mdbBackTrees(\'bk-rt-lot\',\'bk-rt-tree\')"></select></div>'+
       '<div><label>Fruits lost</label><input type="number" min="1" step="1" inputmode="numeric" id="bk-rt-n" placeholder="0"></div>'+
     '</div>'+
@@ -12829,12 +15282,156 @@ function mdbBackHtml(){
       '<option value="UNTIED">🍃 Untied — an early loss, never on a string</option></select>'+
     '<label>Date &amp; time the rotten fruit was found</label>'+
     '<input type="datetime-local" id="bk-rt-dt" value="'+esc(today)+'T07:00" max="'+esc(today)+'T23:59">'+
-    '<div class="pinerr" id="bk-rt-err"></div>'+
-    '<button class="bigbtn rot" onclick="mdbBackRotten()">🕓 LOG THIS HISTORICAL ROTTEN LOSS</button>'+
-    '<p class="small">A tied rotten fruit comes off that tree\u2019s tied balance; an untied one never was on '+
+    '<div class="pinerr" id="fx-err"></div><div class="pinerr" id="bk-rt-err"></div>'+
+    '<button class="bigbtn rot" onclick="fxMissNext()">NEXT — CHECK IT ›</button>'+back+
+    '<p class="small">A tied rotten fruit comes off that tree’s tied balance; an untied one never was on '+
       'a string, so it only reduces the hanging estimate. The check against the tied balance is made '+
-      'against the balance as it stood <b>on that date</b>, not today\u2019s.</p>';}
+      'against the balance as it stood <b>on that date</b>, not today’s.</p>';}
 
+/** Step 3 → 4. Harvests the form, validates it HERE, and only then lets the Owner see the
+ *  confirm screen. Step 4 re-mounts the very same input ids as hidden fields carrying these
+ *  values, so mdbBackTie / mdbBackDrop / mdbBackRotten run verbatim against the DOM they
+ *  have always read. Not one line of those three writers changed. */
+function fxMissNext(){
+  const err=$('fx-err'); if(err)err.textContent='';
+  const say=m=>{if(err)err.textContent=m;return false;};
+  const P={tie:'bk-tie',drop:'bk-dr',rot:'bk-rt'}[FIX.kind];
+  if(!P)return false;
+  const tree=(($(P+'-tree')||{}).value)||'', n=Math.floor(+(($(P+'-n')||{}).value)||0),
+        dt=mdbDtValue(P+'-dt');
+  if(!tree)   return say('Choose the tree this work was done on.');
+  if(!(n>0))  return say('How many fruits? It must be more than zero.');
+  if(!dt)     return say('Choose the date and time the work was actually done.');
+  if(dt>now())return say('That is in the future. This is for work already done.');
+  const t=treeById(tree); if(!t)return say('That tree is not in the census.');
+  FIX.v={tree:tree,n:n,dt:dt,lot:t.lot,clone:t.clone||'',
+    note:(($('bk-tie-note')||{}).value)||'',
+    grade:(($('bk-dr-grade')||{}).value)||'',
+    dkind:(($('bk-dr-kind')||{}).value)||'',
+    cause:(($('bk-rt-cause')||{}).value)||'',
+    tied :(($('bk-rt-tied')||{}).value)||''};
+  FIX.step=4; renderMasterDB(); return true;}
+
+/** The bulk road's own check. mdbBulkCheck() already refuses to write and paints its
+ *  verdict into #bk-bulk-prev, so the check IS the step break — capture what it painted
+ *  and carry it to the confirm screen. */
+function fxBulkCheck(){
+  const txt=(($('bk-bulk')||{}).value)||'', note=(($('bk-bulk-note')||{}).value)||'';
+  FIX.v={txt:txt,note:note};
+  mdbBulkCheck();
+  if(!BULK||!BULK.rows.length)return false;            // the errors are on the screen already
+  FIX.prev=(($('bk-bulk-prev')||{}).innerHTML)||'';
+  FIX.step=4; renderMasterDB(); return true;}
+
+function fxMissConfirm(){
+  const back='<button class="bigbtn ghost" style="padding:10px;font-size:12.5px" onclick="fxGo(3)">'+
+    '‹ BACK — CHANGE SOMETHING</button>';
+  if(FIX.kind==='bulk'){
+    if(!BULK||!BULK.rows.length)return '<div class="alertnone">Nothing checked yet.</div>'+back;
+    const v=FIX.v||{};
+    return '<div class="cnote">This is what the paste says. Nothing has been written yet.</div>'+
+      FIX.prev+
+      '<textarea id="bk-bulk" style="display:none">'+esc(v.txt||'')+'</textarea>'+
+      '<input id="bk-bulk-note" type="hidden" value="'+esc(v.note||'')+'">'+
+      '<div class="pinerr" id="bk-bulk-err"></div><div id="bk-bulk-prev" style="display:none"></div>'+
+      '<button class="bigbtn tie" id="bk-bulk-go" onclick="fxMissSave()">🕓 LOG ALL '+
+        BULK.rows.length+' ROUNDS</button>'+back;}
+
+  const v=FIX.v; if(!v)return '<div class="alertnone">Nothing to confirm.</div>'+back;
+  const t=treeById(v.tree)||{};
+  const what=FIX.kind==='tie' ? nf(v.n)+' fruits tied'
+           :FIX.kind==='drop'? nf(v.n)+' fruits collected · Grade '+esc(v.grade)+
+                               (v.dkind==='SECURED'?' · was tied':' · untied, early drop')
+           : nf(v.n)+' fruits lost · '+esc((ROT_CAUSE[v.cause]||{}).label||v.cause)+
+             (v.tied==='TIED'?' · was tied':' · never tied');
+  /* v3.26.1 turned ROPE_TRACKING off for this farm. The old backdate form still printed
+     "rope is deducted at 0.6 m a fruit" underneath itself, which had been untrue for
+     fifteen releases. A read-back that promises a deduction that will not happen is worse
+     than no read-back, so this asks the flag rather than assuming. */
+  const extra=FIX.kind==='tie'
+    ? (ROPE_TRACKING?(nf(ropeNeeded(v.n))+' m of rope comes off the store, dated to that same day')
+                    :'It goes onto that tree\u2019s tied balance for that day')
+    :(FIX.kind==='drop'?'It joins the harvest count for that tree and that lot'
+      :(v.tied==='TIED'?'It comes off that tree’s tied balance as it stood on that date'
+                       :'It reduces the hanging estimate only — it was never on a string'));
+  return '<div class="cnote">Read it back. Nothing is written until you tap the button below.</div>'+
+    '<div class="fxrec">'+
+      '<div class="w">'+esc(v.tree)+' · Lot '+esc(v.lot)+' · '+esc(CLONE_NAME[v.clone]||v.clone||'?')+'</div>'+
+      '<div class="n">'+esc(what)+'</div>'+
+      '<div class="k">on '+esc(v.dt)+'</div>'+
+      '<div class="s">'+esc(extra)+'<br>Marked BACKDATED, and stamped with this moment as when it was '+
+        'keyed. It stays on this phone until you press SYNC.'+
+        (v.note?('<br>Note: '+esc(v.note)):'')+'</div>'+
+    '</div>'+
+    /* the same ids the three writers have always read, carrying the values checked above */
+    '<input type="hidden" id="bk-tie-tree" value="'+(FIX.kind==='tie'?esc(v.tree):'')+'">'+
+    '<input type="hidden" id="bk-tie-n" value="'+(FIX.kind==='tie'?esc(String(v.n)):'')+'">'+
+    '<input type="hidden" id="bk-tie-dt" value="'+(FIX.kind==='tie'?esc(v.dt.replace(' ','T')):'')+'">'+
+    '<input type="hidden" id="bk-tie-note" value="'+(FIX.kind==='tie'?esc(v.note||''):'')+'">'+
+    '<input type="hidden" id="bk-dr-tree" value="'+(FIX.kind==='drop'?esc(v.tree):'')+'">'+
+    '<input type="hidden" id="bk-dr-n" value="'+(FIX.kind==='drop'?esc(String(v.n)):'')+'">'+
+    '<input type="hidden" id="bk-dr-dt" value="'+(FIX.kind==='drop'?esc(v.dt.replace(' ','T')):'')+'">'+
+    '<input type="hidden" id="bk-dr-grade" value="'+esc(v.grade||'')+'">'+
+    '<input type="hidden" id="bk-dr-kind" value="'+esc(v.dkind||'')+'">'+
+    '<input type="hidden" id="bk-rt-tree" value="'+(FIX.kind==='rot'?esc(v.tree):'')+'">'+
+    '<input type="hidden" id="bk-rt-n" value="'+(FIX.kind==='rot'?esc(String(v.n)):'')+'">'+
+    '<input type="hidden" id="bk-rt-dt" value="'+(FIX.kind==='rot'?esc(v.dt.replace(' ','T')):'')+'">'+
+    '<input type="hidden" id="bk-rt-cause" value="'+esc(v.cause||'')+'">'+
+    '<input type="hidden" id="bk-rt-tied" value="'+esc(v.tied||'')+'">'+
+    '<div class="pinerr" id="bk-tie-err"></div><div class="pinerr" id="bk-dr-err"></div>'+
+    '<div class="pinerr" id="bk-rt-err"></div>'+
+    '<button class="bigbtn'+(FIX.kind==='tie'?' tie':(FIX.kind==='rot'?' rot':''))+
+      '" onclick="fxMissSave()">✓ SAVE IT</button>'+back;}
+
+/** One confirm, one writer. The three backdate writers end in refreshEverything(), which
+ *  repaints this panel — so the reset happens after they return, and lands the Owner back
+ *  on the opening question rather than on a form he has already submitted. */
+async function fxMissSave(){
+  if(!canMasterAdmin()){toast('Owner only',1);return;}
+  const before=EVENTS.length;
+  if(FIX.kind==='tie')       await mdbBackTie();
+  else if(FIX.kind==='drop') await mdbBackDrop();
+  else if(FIX.kind==='rot')  await mdbBackRotten();
+  else if(FIX.kind==='bulk') await mdbBulkSave();
+  if(EVENTS.length>before)fxReset();}
+
+/* ---- THE PANEL ----------------------------------------------------------------------
+   SECURITY, unchanged from v3.3: for any role other than OWNER this writes an EMPTY
+   STRING. No table, no form, no button, no onclick handler for the corrections, the
+   removals or the backdate engine ever enters the DOM. Every mutating function above
+   independently re-checks canMasterAdmin(), so reaching one from the console achieves
+   nothing either. */
+function renderMasterDB(){
+  const box=$('masterdbbox'); if(!box)return;
+  if(!canMasterAdmin()){ box.innerHTML=''; return; }        // stripped from the DOM entirely
+  const s=FIX.step, w=FIX.what;
+  const body=
+    s===1 ? fxStep1()
+   :w==='num'  ? (s===2?fxFind()     :s===3?fxReadBack()  :fxChange())
+   :w==='miss' ? (s===2?fxKind()     :s===3?fxForm()      :fxMissConfirm())
+   :w==='test' ? (s===2?fxCleanFind():s===3?fxCleanPick() :fxCleanGo())
+   :             fxStep1();
+  box.innerHTML=fxBar()+body+
+    (s>1?'<div class="fxstart" onclick="fxReset()">↺ START OVER</div>':'');
+  /* the lot/tree pickers are built by script, not by markup — and only for the one form
+     that is actually on the screen. */
+  if(w==='miss'&&s===3){
+    if(FIX.kind==='tie') mdbBackLots('bk-tie-lot','bk-tie-tree');
+    if(FIX.kind==='drop')mdbBackLots('bk-dr-lot','bk-dr-tree');
+    if(FIX.kind==='rot') mdbBackLots('bk-rt-lot','bk-rt-tree');}}
+
+/* ---- TREES and QR, now sections of their own ---------------------------------------
+   They were chips 3 and 5 of the old MASTER DB nav. Neither is a correction: one grows
+   the census, the other prints a poster for a new worker's phone. Sharing a screen with
+   the delete tools is what made that screen read as "everything dangerous, in one place".
+   Same OWNER-only gate, at the tab AND again in roleAllows(); the two builders below are
+   the v3.3 ones, unchanged, simply pointed at their own boxes. */
+function renderTrees(){
+  const box=$('treesbox'); if(!box)return;
+  box.innerHTML=canMasterAdmin()?mdbTreesHtml():'';}
+function renderQr(){
+  const box=$('qrsecbox'); if(!box)return;
+  box.innerHTML=canMasterAdmin()?mdbQrSectionHtml():'';}
 function mdbTreesHtml(){
   const byLot={};LOTS.forEach(l=>byLot[l]=treesInLot(l).length);
   return '<div class="cnote">A tree added here goes straight into the same census array every screen '+
@@ -13139,7 +15736,10 @@ function slotAIs(slotK){
        prescribing. Carry the brand names and the categories behind an entry so the picker
        can spell them out, and so a placeholder can be recognised as one on sight. */
     seen[ai].cats[p.cat]=1;
-    if(seen[ai].brands.length<6)seen[ai].brands.push(p.name);});
+    /* v3.53.0 — the cap of six is gone. The Owner asked for ALL the brands, and with 68
+       products the longest list is two; a cap that never fires is a cap that will surprise
+       somebody the day the catalogue grows. */
+    seen[ai].brands.push(p.name);});
   /* v3.18.1 — THE REASON A DRUM COULD NOT BE FOUND.
      This picker lists ACTIVE INGREDIENTS. The Owner thinks in the word painted on the
      drum — Madell, Stunza, Fetto 480 — and 13 of the farm's 68 products have never had
@@ -13238,6 +15838,31 @@ function amAddLine(i){
   setTimeout(function(){const el=$('ams-dose-'+k);if(el)el.focus();},60);}
 function amDelLine(k){delete AM.slots[k];renderAgroMatrix();}
 function amLineUnit(k){const s=AM.slots[k];if(!s)return;s.unit=$('ams-unit-'+k).value;renderAgroMatrix();}
+/* ⛔ v3.53.0 · THE THOUSAND-FOLD DOSE. Litre and kilogram are now offered, and the programme
+   sheet doses in ml and gm — so a dose of 1000 against an ml product is one litre, and the
+   SAME 1000 against an L product is a thousand litres, a whole IBC tank. Nothing in this app
+   stopped that, because until today every dosed product was in ml or gm and the question could
+   not arise. This is not a validation nicety: it is a keystroke that would empty a shed on
+   paper and put a five-figure hole in the cost report.
+   The guard is deliberately a WARNING and not a refusal — the Owner may genuinely prescribe
+   200 kg of fertiliser across the farm — and it fires once per line, on the way out of the
+   box, never while he is still typing. */
+const BIG_UNITS={L:1,kg:1};
+const BIG_DOSE_WARN=100;
+function amDoseGuard(k){
+  const s=AM.slots[k]; if(!s)return;
+  if(!BIG_UNITS[s.unit])return;
+  const d=+s.dose||0; if(!(d>BIG_DOSE_WARN))return;
+  if(s.doseOK===d)return;                       // already answered for this exact figure
+  const small=(s.unit==='L')?'ml':'gm';
+  if(confirm(tr('ag_bigdose','⚠ '+nf(d)+' '+s.unit+' is a very large dose.')+'\n\n'+
+     nf(d)+' '+s.unit+' = '+nf(d*1000)+' '+small+'.\n'+
+     tr('ag_bigdose2','Did you mean')+' '+nf(d)+' '+small+'?\n\n'+
+     tr('ag_bigdose3','Tap Cancel to keep')+' '+nf(d)+' '+s.unit+'.')){
+    s.dose=+(d/1000).toFixed(4); s.unit=small;
+  }
+  s.doseOK=+s.dose||0;
+  renderAgroMatrix();}
 function amLineDose(k){const s=AM.slots[k];if(!s)return;s.dose=+$('ams-dose-'+k).value||0;
   $('am-count').textContent=String(draftLines({slots:AM.slots}).length);
   amDrawTankNote();}
@@ -13281,10 +15906,18 @@ function amDrawPickList(){
     const cls=rainClass(a.ai);
     // a pinned row is titled by the BRAND, because that is what the Owner was looking for
     const title=a.brand||a.ai;
+    /* v3.53.0 — THE BRAND IN GREY, for every ingredient and not only the unconfirmed ones.
+       His words: "that AI option should come with brand name in the grey wording."
+       The picker already CARRIED the brand names — it printed a COUNT instead ("1 brand"),
+       which tells the Owner a number when the thing standing in his shed has a name painted
+       on it. ⛔ The brand does NOT become the title: the programme prescribes a CHEMICAL and
+       the Purchaser chooses which brand carries it, and that separation is what lets him buy
+       Pengasus when Agus is out of stock. Title stays the ingredient, brand goes underneath. */
+    const brandTxt=(a.brands||[]).join(' · ');
     const sub=a.brand
       ?(a.cat+' · '+tr('ag_unconfirmed','ingredient not confirmed on the label'))
-      :(Object.keys(a.cats||{}).join(', ')||a.cat)+' · '+a.n+' brand'+(a.n>1?'s':'')+
-        (vague?('<br>'+esc((a.brands||[]).join(' · '))):'');
+      :(Object.keys(a.cats||{}).join(', ')||a.cat)+
+        (brandTxt?(' · <b class="pk-brand">'+esc(brandTxt)+'</b>'):'');
     return '<div class="pickrow'+(zero?' zero':'')+'" onclick="amAddLine('+i+')">'+
       '<div class="pk-l"><div class="pk-n">'+esc(title)+
           (a.brand?(' <span class="minitag">'+esc(tr('ag_bybrand','BY BRAND'))+'</span>'):'')+'</div>'+
@@ -13337,7 +15970,11 @@ function amSlotsHTML(){
     return '<div class="slotbox'+(+l.dose>0?' filled':'')+'">'+
       '<div class="slothead"><span>'+s.ic+' <b>'+esc(title)+'</b></span>'+
         '<span class="linekill" onclick="amDelLine(\''+l.slot+'\')">✕</span></div>'+
+      /* v3.53.0 — and it follows the choice. Naming the brand only while he is choosing
+         helps him pick and then takes it away again. */
       '<div class="linemeta">'+esc(slotLabelT(l.slot))+
+        (function(){const bl=pinned?[pinned.name]:((info&&info.brands)||[]);
+          return bl.length?(' · <b class="pk-brand">'+esc(bl.join(' · '))+'</b>'):'';})()+
         (oh>0?(' · '+nf(oh)+' '+esc(l.unit)+' '+esc(tr('ag_instore','in store')))
              :(' · <b class="lowq">'+esc(tr('ag_zerostock','ZERO STOCK'))+'</b>'))+'</div>'+
       '<div class="small" style="margin-top:5px">'+aiTagHTML(cls)+
@@ -13345,7 +15982,7 @@ function amSlotsHTML(){
       '<div class="slotrow">'+
         '<div><label>'+esc(tr('ag_doselbl'))+' <span class="minitag">'+esc(amUnitLabel())+'</span></label>'+
           '<input type="number" id="ams-dose-'+l.slot+'" min="0" step="any" inputmode="decimal" '+
-            'value="'+(l.dose||'')+'" oninput="amLineDose(\''+l.slot+'\')"></div>'+
+            'value="'+(l.dose||'')+'" oninput="amLineDose(\''+l.slot+'\')" onblur="amDoseGuard(\''+l.slot+'\')"></div>'+
         '<div><label>'+esc(tr('ag_unitlbl'))+'</label><select id="ams-unit-'+l.slot+'" '+
           'onchange="amLineUnit(\''+l.slot+'\')">'+
           units.map(u=>'<option'+(u===l.unit?' selected':'')+'>'+esc(u)+'</option>').join('')+
@@ -13899,11 +16536,36 @@ function hideChem(){return myRole()==='WORKER';}
        not finished" button to remember, because the tree count already answers it.
    ====================================================================================== */
 
+/* ======================================================================================
+   v3.51.0 · LABOUR IS SWITCHED OFF — ON PURPOSE, AND SAYING SO
+   ======================================================================================
+   The Owner, 14 Aug: "deleted workers on the job and hour in the time being. we focus on the
+   task first, no labour."
+
+   ⛔ THE FIELDS ARE HIDDEN, NOT DELETED, AND THE READERS ARE NOT TOUCHED. Ten months of
+   filings carry real crew, hours and manHours, and the monthly matrix, the duplicate-finder
+   and the run-cost table all read them. Ripping the fields out would have rewritten history's
+   shape to save one modal two inputs. LABOUR_ON is a single switch: flip it back and the
+   block returns exactly as it was.
+
+   ⛔ AND THE HONEST PART. A row filed with labour off has manHours 0. Left alone, every
+   labour figure for those jobs would print RM 0 — which does not read as "not recorded", it
+   reads as "the work was free". That is precisely the quiet number this project has spent six
+   releases removing. So such rows are STAMPED labourOff:true, and labourMissing() lets any
+   screen that prints man-hours say "not recorded" instead of a confident zero. */
+let LABOUR_ON=false;                        // Owner's decision, 14 Aug 2026 — task first, labour later
 /** Man-hours for one row. Rows written before v3.14 have no `manHours` and carry the
  *  whole crew x hours, which for them is correct - so nothing historical moves. */
 function mhOf(e){
   if(e&&e.manHours!=null)return +e.manHours||0;
   return (+((e||{}).crew)||0)*(+((e||{}).hours)||0);}
+/** True when a set of rows has NO labour on it because it was never asked for — as opposed to
+ *  a genuine zero. Callers print a word, never a ringgit. */
+function labourMissing(rows){
+  const a=[].concat(rows||[]).filter(Boolean);
+  if(!a.length)return false;
+  return a.every(r=>r.labourOff===true||(mhOf(r)===0&&!(+r.crew>0)&&!(+r.hours>0)));}
+function labourNote(){return tr('lb_off','Labour was not recorded for this work.');}
 
 /** Split a total across weights so the parts ALWAYS re-add to the total. The last
  *  weighted part carries the rounding remainder - otherwise three 2-decimal shares of
@@ -14103,6 +16765,14 @@ function directiveCardsHTML(){
                 '<span class="pgl">LOT '+L+'</span>'+
                 '<span class="pgbar"><i style="width:'+pct+'%"></i></span>'+
                 '<span class="pgn">'+n+'/'+t+'</span></div>';}).join('')+'</div>'+
+          /* ⛔ v3.43.1 — THIS CLASS IS `wbtn`, THE WORKER'S FULL-WIDTH GREEN BUTTON, AND
+             v3.43.0 RENAMED IT BY ACCIDENT. Namespacing the new WHO'S ON classes did a
+             blanket replace of the string `class="wbtn"`, and this call site — the crew's
+             MARK WORK DONE button on the programme card — was collateral. It kept working
+             (the onclick is untouched) but it stopped LOOKING like a button: no green, no
+             width, no padding. Nobody was going to press it. A blanket rename must be
+             scoped to the block it belongs to; there is now a guard test for exactly this
+             string in t_classes.js. */
           '<button class="wbtn" onclick="openRun(\''+d.uuid+'\')">'+esc(tr('w13_markdone'))+'</button>')
         /* v3.18 — the card used to grey out and say only "waiting". It now says WHY and
            HOW MANY, because a crew that can see the reason stops walking to the office to
@@ -14177,6 +16847,14 @@ function openRun(u){
   $('run-crew').value=(LAST_CREW&&LAST_CREW.crew)||'';
   $('run-hours').value=(LAST_CREW&&LAST_CREW.hours)||'';
   $('run-err').textContent='';
+  /* v3.49.2 — ⛔ CLEAR THE BACKDATE ON EVERY OPEN. v3.49.0 added the day box and did not reset
+     it here, so a person who backdated one filing to the 6th and then opened the NEXT directive
+     found the 6th still sitting in the box — and would have filed today's work on a week-old
+     date without noticing, because nothing on the screen had changed. A field that carries the
+     previous job's answer into a new job is worse than no field. Blank means today, which is
+     the only safe default for a form that is opened once per job. */
+  const rd=$('run-day'); if(rd)rd.value='';
+  if(typeof runDayNote==='function')runDayNote();
   $('runmodal').classList.remove('hidden');
   runCalc();}
 function closeRun(){$('runmodal').classList.add('hidden');RUN=null;RUN_TREES={};RUN_CREWOPEN=false;}
@@ -14288,8 +16966,11 @@ function runCalc(skipRender){
       '<span class="rn">'+esc(it.alloc.pname)+'</span>'+
       '<span class="rq"><b>'+nf(it.qty)+'</b> '+esc(it.alloc.unit)+'</span></div>').join('');
   // labour: keyed once, split by trees, and the parts always re-add to the whole
-  $('run-crewwrap').style.display=RUN_CREWOPEN?'':'none';
-  $('run-crewline').style.display=RUN_CREWOPEN?'none':'';
+  /* v3.51.0 — the whole crew block disappears while labour is off. Hidden, not removed: the
+     ids stay, runCalc() still reads them, and flipping LABOUR_ON brings it straight back. */
+  $('run-crewwrap').style.display=(LABOUR_ON&&RUN_CREWOPEN)?'':'none';
+  $('run-crewline').style.display=(LABOUR_ON&&!RUN_CREWOPEN)?'':'none';
+  const mhb=$('run-mh'); if(mhb)mhb.style.display=LABOUR_ON?'':'none';
   const c=+$('run-crew').value||0, h=+$('run-hours').value||0;
   const shares=splitExact(c*h,pl.active.map(x=>x.trees));
   $('run-crewline').innerHTML=(c&&h)
@@ -14311,8 +16992,11 @@ async function submitRun(){
   const over=pl.lots.find(x=>(+RUN_TREES[x.lot]||0)>x.left);
   if(over)return err.textContent='Lot '+over.lot+' — '+tr('t14_toomany')+' ('+over.left+')';
   if(!draftReady(d))return err.textContent='A brand has been removed from this directive. Ask Sandakan to re-allocate.';
+  /* v3.51.0 — labour is off, so the crew/hours gate no longer stops a filing. The values are
+     still read (they are zero while the block is hidden) and still written, so flipping
+     LABOUR_ON back needs no change here. */
   const crew=Math.round(+$('run-crew').value||0), hours=+$('run-hours').value||0;
-  if(!(crew>0&&hours>0)){RUN_CREWOPEN=true;runRender();return err.textContent=tr('w13_keycrew');}
+  if(LABOUR_ON&&!(crew>0&&hours>0)){RUN_CREWOPEN=true;runRender();return err.textContent=tr('w13_keycrew');}
 
   /* v3.25.0 FIX (audit D-09) — this path wrote every STOCK_OUT row with NO on-hand check at
      all, while submitStockOut() one screen over has warned since v2.5. A directive against an
@@ -14334,8 +17018,14 @@ async function submitRun(){
     if(days>=0&&days<phi&&!confirm('⚠ '+tr('w13_nospray')+'\n\n'+it.alloc.pname+' · '+phi+' days\n'+
       'Peak drop 21-22 Aug is in '+days+' day(s).\n\nSave anyway?'))return;}
 
+  /* v3.49.0 — the backdate. Was `now()`, unconditionally. A blank box still means now(), so a
+     crew filing at the end of their own day is byte-for-byte unaffected; only a keyed past
+     date changes anything, and a future date is refused rather than saved. */
+  const runIso=($('run-day')||{}).value||'';
+  const runStamp=stampFor(runIso);
+  if(runStamp===null)return err.textContent=tr('bd_future','That day has not happened yet. Pick today or a day already past.');
   runSaving=true;
-  const stamp=now(), rid=uuid();
+  const stamp=runStamp, rid=uuid();
   // ONE filing, one man-hour figure, split across the lots it covered
   const shares=splitExact(crew*hours,pl.active.map(x=>x.trees));
   try{
@@ -14359,7 +17049,7 @@ async function submitRun(){
           lotFinished:x.finished, lotsInReport:pl.active.length,
           // crew and hours stay TRUE on every row; only the man-hour SHARE differs, so
           // the record never lies about how many people were actually on the job
-          crew:crew, hours:hours, manHours:shares[i],
+          crew:crew, hours:hours, manHours:shares[i], labourOff:(!LABOUR_ON)||undefined,
           worker:CFG.worker, device:CFG.device, synced:false});}}
   /* v3.25.0 FIX (audit D-18) — `finally{runSaving=false}` used to sit HERE, above the
      awaited kv write and above closeRun(). The save button is never disabled, so a second
@@ -14377,6 +17067,10 @@ async function submitRun(){
     return;}
   try{
     LAST_CREW={crew:crew,hours:hours}; if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});
+  /* the implied rate is still worth remembering for the ACTIVATE screen, which does ask in
+     litres per tree — but it is derived here, never keyed. */
+  if(mdProg.basis==='PER_1000L'&&mdLpt()>0&&typeof LAST_LPT!=='undefined'){
+    LAST_LPT[mdProg.mode]=mdLpt(); if(db)await put('kv',{k:'lastlpt',v:LAST_LPT});}
     const n=pl.trees, lots=pl.active.map(x=>x.lot).join(', ');
     closeRun();
     toast(tr('t14_saved')+' · '+n+' '+tr('t14_trees')+' · Lot '+lots);
@@ -15149,7 +17843,7 @@ function progCounts(monthKey){
    ===================================================================================== */
 let CMP_PER='7', CMP_MET='fruit', CMP_NUM=false, CMP_PICK=null;
 const CMP_MEASURES={
-  fruit:{lab:'cb_l_fruit',chip:'cb_fruit',ic:'🥭',money:0,good:'up',unit:''},
+  fruit:{lab:'cb_l_fruit',chip:'cb_fruit',ic:IC_DUR,money:0,good:'up',unit:''},
   kg   :{lab:'cb_l_kg',   chip:'cb_kg',   ic:'⚖️',money:0,good:'up',unit:' kg'},
   rm_in:{lab:'cb_l_in',   chip:'cb_in',   ic:'💰',money:1,good:'up',unit:''},
   rm_out:{lab:'cb_l_mat', chip:'cb_mat',  ic:'🧪',money:1,good:'dn',unit:''}
@@ -15730,7 +18424,19 @@ async function pushFoc(){
     m=>{if(!focWarned){focWarned=true;toast(m,1);}},
     'FOC records are staying on this phone — update the Apps Script to add the FOC_LOG tab',
     tr('sy_l_foc','Rations & gifts'),
-    e=>{const {photo_b64,layers,...bare}=e;return bare;});}
+    /* v3.41.0 - THE 'ASKED BY' COLUMN HAS BEEN BLANK SINCE THE DAY FOC SHIPPED.
+       FOC_HEAD in the Apps Script names those two columns `by` and `byId`. focRequest()
+       and focDecide() both write `worker` and `workerId`, which is the name every OTHER
+       tab in this app uses - so the row went up complete and landed in the Sheet with an
+       empty asked-by. Every ration in the farm's archive reads as asked by nobody.
+       Mapped HERE, on the wire, rather than by renaming the field on the event: `worker`
+       is read by ~40 screens and by the crew's own MY RECORD filter, and renaming it to
+       satisfy one column would have been a far larger blast radius than the bug. No Apps
+       Script change - the columns have been waiting for this data all along. */
+    e=>{const {photo_b64,layers,...bare}=e;
+        bare.by  =bare.by  ||bare.worker  ||'';
+        bare.byId=bare.byId||bare.workerId||'';
+        return bare;});}
 /** The down-leg. Without it the Gate's answer never reaches the phone that asked, and the
  *  Owner's fruit balance would only ever be right on one device — the one-way-information
  *  bug, which this codebase has now found five times. */
@@ -15754,6 +18460,13 @@ async function mergeFoc(list){
     if(t!=='FOC_REQ'&&t!=='FOC_APPROVE'&&t!=='FOC_REFUSE')continue;
     const e={...x,type:t,kg:+x.kg||0,fruit_n:+x.fruit_n||0,
       value_rm:+x.value_rm||0,rate_rm_kg:+x.rate_rm_kg||0,
+      /* v3.41.0 - the other half of the by/byId fix in pushFoc(). This app reads `worker`
+         everywhere; the Sheet's column is `by`. A row coming DOWN carries both from now on,
+         but an archived row carries only whichever one it was written with, so accept
+         either and normalise here rather than leaving MY RECORD unable to recognise its
+         owner's own request. */
+      worker  :x.worker  ||x.by  ||'',
+      workerId:x.workerId||x.byId||'',
       fromSheet:true,synced:true,syncedAt:now()};
     EVENTS.push(e); if(db)await put('events',e); n++;}
   if(n&&typeof rebuildLedgers==='function')rebuildLedgers();
@@ -15770,51 +18483,147 @@ async function mergeFoc(list){
 /** The reason as the reader's language says it. The row's stored `reasonLabel` is left in
  *  English on purpose — the Google Sheet must read the same whoever filed the record. */
 function focReasonName(r){return tr('foc_r_'+r,(FOC_REASONS[r]||{}).label||r);}
-function focReasonOpts(sel){
-  return FOC_REASON_ORDER.map(r=>'<option value="'+r+'"'+(r===sel?' selected':'')+'>'+
-    esc((FOC_REASONS[r].ic||'')+' '+focReasonName(r))+'</option>').join('');}
-function focCloneOpts(){
-  return CLONE_SELL_ORDER.map(c=>'<option value="'+c+'">'+esc(CLONE_NAME[c]||c)+'</option>').join('');}
-function focGradeOpts(clone){
-  return gradesFor(clone||'MK').map(g=>'<option value="'+g+'">'+esc(gLabel(g))+'</option>').join('');}
+/* ======================================================================================
+   v3.41.0 · ASK FOR FRUIT — three taps and one number
+   ======================================================================================
+   The crew's own door onto the rations screen. It used to be seven controls mounted at
+   once: reason, receiver, clone, grade, fruit count, WEIGHT and a note. Two of those the
+   worker had no way of answering honestly - he was asked for the WEIGHT of fruit that is
+   not in his hands yet, and for the clone and grade of fruit he has not been handed. Both
+   are things the SHED already knows, so the shed answers them:
 
-/** Re-price the live estimate as the form is filled. The Gate must see the value of what
- *  she is about to give away BEFORE she taps, not after. */
-function focQuote(){
-  const c=$('foc-clone'),g=$('foc-grade'),k=$('foc-kg'),out=$('foc-quote');
-  if(!c||!g||!k||!out)return;
-  const gs=gradesFor(c.value); const keep=g.value;
-  g.innerHTML=focGradeOpts(c.value);
-  if(gs.indexOf(keep)>=0)g.value=keep;
-  const rate=focRate(c.value,g.value), kg=+k.value||0;
-  /* v3.30.1 — THE CREW NEVER SEE MONEY. SHOW_VALUES is false for WORKER and PURCHASER and
-     74 other places in this app already obey it; this screen shipped ignoring it, which put
-     a price in front of the one role that is deliberately kept blind to price. The value is
-     still STAMPED on the record either way — the worker just is not shown it. */
-  if(!SHOW_VALUES){
-    out.innerHTML=kg>0
-      ? ('<b>'+nf(kg)+' kg</b> <span class="small">'+esc(tr('foc_willask','— this is what you are asking for'))+'</span>')
-      : '';
-    return;}
-  out.innerHTML=rate>0
-    ? ('<b>'+rm(kg*rate)+'</b> <span class="small">at '+rm(rate)+'/kg — what this would have sold for</span>')
-    : '<span class="small" style="color:#8c1d18">No price set for '+esc(gLabel(g.value))+
-      ' on this clone — set it in PRICES first, or the gift cannot be valued.</span>';}
+       1  WHAT IS IT FOR   ration · gift · sample                    (tap)
+       2  WHO GETS IT      me, or somebody else                      (tap)
+       3  WHICH FRUIT      the shed's own cards - clone and grade     (tap)
+       4  HOW MANY FRUIT   one number, with thumb steppers           (key)
 
-async function focSubmit(){
-  const reason=($('foc-reason')||{}).value, clone=($('foc-clone')||{}).value,
-        grade=($('foc-grade')||{}).value, kg=+(($('foc-kg')||{}).value)||0,
-        n=+(($('foc-n')||{}).value)||0, who=(($('foc-who')||{}).value)||'',
-        note=(($('foc-note')||{}).value)||'';
-  if(!(kg>0)){toast(tr('foc_needkg','Key the weight first'),1);return;}
-  if(!who.trim()&&reason!=='DUMP'){toast(tr('foc_needwho','Who is it for?'),1);return;}
-  const r=await focRequest({reason:reason,receiver:who,clone:clone,grade:grade,fruit_n:n,kg:kg,note:note});
-  if(!r.ok){toast(tr('foc_bad','Could not file that'),1);return;}
-  ['foc-kg','foc-n','foc-who','foc-note'].forEach(id=>{const el=$(id);if(el)el.value='';});
-  renderFocQueue();badge();
-  toast(focMayDecide()
-    ? ('✓ '+nf(kg)+' kg recorded — approve it below')
-    : ('✓ '+nf(kg)+' kg sent to the Gate for approval'));}
+   The weight is ESTIMATED from the count at that clone's average, and said out loud as an
+   estimate on the read-back - the Gate weighs it for real when she hands it over. Nothing
+   underneath changed: focRequest() takes the same object and writes the same FOC_REQ row,
+   so the Gate's queue, the batch approve, the allowance meter and the sync are untouched.
+
+   ⛔ NO MONEY ANYWHERE ON THIS ROAD. SHOW_VALUES is false for a WORKER, and this branch is
+   only ever reached by a role that cannot decide - the Gate and the Owner are sent to the
+   Morning Scale instead. The value is still stamped on the record by focRequest(); the man
+   asking simply is not shown it. That is the v3.30.1 rule and it is why focQuote() was
+   retired with the form it priced.                                                      */
+let ASK={step:1, reason:'', who:'', clone:'', grade:'', n:0, other:false};
+
+function askReset(){ASK={step:1,reason:'',who:'',clone:'',grade:'',n:0,other:false};renderFocQueue();}
+function askGo(s){ASK.step=s;renderFocQueue();}
+function askReason(r){ASK.reason=r;ASK.step=2;renderFocQueue();}
+function askMe(){ASK.who=String((CFG&&CFG.worker)||'');ASK.other=false;ASK.step=3;renderFocQueue();}
+function askOther(){ASK.other=true;renderFocQueue();}
+function askOtherGo(){
+  const v=String((($('ask-who')||{}).value)||'').trim();
+  const e=$('ask-err');
+  if(!v){if(e)e.textContent=tr('ask_needwho','Key the name of the person receiving it.');return;}
+  ASK.who=v;ASK.step=3;renderFocQueue();}
+function askFruit(clone,grade){ASK.clone=clone;ASK.grade=grade;ASK.step=4;renderFocQueue();}
+function askBump(d){
+  const el=$('ask-n'); if(!el)return;
+  const v=Math.max(0,Math.floor((+el.value||0)+d));
+  el.value=String(v); ASK.n=v; askEstimate();}
+function askKg(n){return +((Math.max(0,Math.floor(+n||0)))*(AVG_KG[ASK.clone]||1.6)).toFixed(1);}
+/** Repaints ONLY the estimate line, so the number keypad on the phone survives a tap. */
+function askEstimate(){
+  const el=$('ask-n'), out=$('ask-est'); if(!out)return;
+  const n=Math.max(0,Math.floor(+((el||{}).value)||0)); ASK.n=n;
+  out.innerHTML=n>0
+    ? ('<b>'+nf(n)+'</b> '+esc(tr('foc_fruit','fruit'))+' · '+esc(tr('ask_about','about'))+
+       ' <b>'+nf(askKg(n))+' kg</b><div class="s">'+
+       esc(tr('ask_estnote','An estimate at this clone’s average. The Gate weighs it for real when she hands it over.'))+'</div>')
+    : '';}
+
+function askFormHTML(){
+  const L=[tr('ask_s1','WHAT FOR'),tr('ask_s2','WHO'),tr('ask_s3','WHICH FRUIT'),tr('ask_s4','HOW MANY')];
+  const bar='<div class="fxbar" style="margin-top:14px">'+L.map(function(t,i){
+    const n=i+1, st=(n<ASK.step?'done':(n===ASK.step?'on':''));
+    return '<div class="'+st+'"'+(n<ASK.step?(' onclick="askGo('+n+')"'):'')+'>'+
+      '<b>'+(n<ASK.step?'✓':n)+'</b><span>'+esc(t)+'</span></div>';}).join('')+'</div>';
+  const sec='<div class="sec" style="margin-top:14px">\U0001f381 '+
+    esc(tr('foc_askfruit','Ask for fruit'))+'</div>';
+  const q=(fn,ic,t,d)=>'<div class="fxq" onclick="'+fn+'"><div class="ic">'+ic+'</div>'+
+    '<div><div class="t">'+esc(t)+'</div>'+(d?('<div class="d">'+esc(d)+'</div>'):'')+
+    '</div><div class="go">›</div></div>';
+  const back=s=>'<div class="fxstart" onclick="askGo('+s+')">‹ '+esc(tr('ask_back','BACK'))+'</div>';
+
+  /* ---- 1 · what is it for ---- */
+  if(ASK.step===1)
+    return sec+bar+
+      /* DUMP is deliberately absent: a dumped basket is not a request, it is fruit already
+         in somebody's hands, and it goes across the Morning Scale where it is weighed and
+         photographed. Offering it here would give the crew a way to write off fruit with a
+         typed number and no scale behind it. */
+      ['RATION','GIFT','SAMPLE'].map(r=>q('askReason(\''+r+'\')',(FOC_REASONS[r]||{}).ic||'\U0001f381',
+        focReasonName(r),tr('foc_r_'+r+'_d',(FOC_REASONS[r]||{}).note||''))).join('');
+
+  /* ---- 2 · who gets it ---- */
+  if(ASK.step===2){
+    const me=String((CFG&&CFG.worker)||'');
+    return sec+bar+
+      q('askMe()','\U0001f464',tr('ask_me','FOR ME')+(me?(' — '+me):''),
+        tr('ask_medesc','It goes on your own record and your own allowance'))+
+      (ASK.other
+        ? ('<div class="fxq" style="display:block;cursor:default">'+
+           '<label>'+esc(tr('foc_receiver','Who gets it'))+'</label>'+
+           '<input id="ask-who" autocomplete="off" placeholder="'+esc(tr('foc_name','name'))+'">'+
+           '<div class="pinerr" id="ask-err"></div>'+
+           '<button class="bigbtn" onclick="askOtherGo()">'+esc(tr('ask_next','NEXT'))+' ›</button></div>')
+        : q('askOther()','\U0001f465',tr('ask_other','SOMEBODY ELSE'),
+            tr('ask_otherdesc','Key their name on the next line')))+
+      back(1);}
+
+  /* ---- 3 · which fruit — the shed answers, not the worker ---- */
+  if(ASK.step===3){
+    const cards=shedNow().cards;
+    if(!cards.length)
+      return sec+bar+
+        '<div class="alertnone">'+esc(tr('ask_shedempty','The shed is empty right now — there is no fruit standing to ask for. Try again after the morning collection.'))+'</div>'+
+        back(2);
+    return sec+bar+
+      '<div class="nr-note">'+esc(tr('ask_pickshed','Tap what is standing in the shed. That is where your fruit will come from, so the clone and the grade are already answered.'))+'</div>'+
+      cards.map(c=>'<div class="fxq" onclick="askFruit(\''+esc(c.clone)+'\',\''+esc(c.grade)+'\')">'+
+        '<div class="ic">\U0001f96d</div><div><div class="t">'+esc(c.clone_name)+' · '+
+        esc(gLabel(c.grade))+'</div><div class="d">'+nf(c.n)+' '+esc(tr('foc_fruit','fruit'))+
+        ' '+esc(tr('ask_instock','in the shed'))+'</div></div><div class="go">›</div></div>').join('')+
+      back(2);}
+
+  /* ---- 4 · how many, and one confirm ---- */
+  const card=shedNow().cards.filter(c=>c.clone===ASK.clone&&c.grade===ASK.grade)[0];
+  const have=card?card.n:0;
+  return sec+bar+
+    '<div class="fxone">'+esc((FOC_REASONS[ASK.reason]||{}).ic||'')+' '+esc(focReasonName(ASK.reason))+
+      ' · '+esc(tr('foc_to','to'))+' '+esc(ASK.who)+' · '+
+      esc(CLONE_NAME[ASK.clone]||ASK.clone)+' '+esc(gLabel(ASK.grade))+'</div>'+
+    '<label>'+esc(tr('ask_howmany','How many fruit?'))+'</label>'+
+    '<div class="askn">'+
+      '<button onclick="askBump(-1)">−</button>'+
+      '<input id="ask-n" type="number" min="0" step="1" inputmode="numeric" value="'+
+        esc(ASK.n?String(ASK.n):'')+'" placeholder="0" oninput="askEstimate()">'+
+      '<button onclick="askBump(1)">+</button>'+
+      '<button onclick="askBump(5)">+5</button>'+
+    '</div>'+
+    '<div id="ask-est" class="fr-quote"></div>'+
+    (have?('<div class="exphint">'+nf(have)+' '+esc(tr('foc_fruit','fruit'))+' '+
+      esc(tr('ask_instock','in the shed'))+'</div>'):'')+
+    '<div class="pinerr" id="ask-err"></div>'+
+    '<button class="bigbtn" onclick="askSend()">'+esc(tr('foc_ask','ASK THE GATE'))+'</button>'+
+    back(3);}
+
+async function askSend(){
+  const e=$('ask-err'); if(e)e.textContent='';
+  const n=Math.max(0,Math.floor(+((($('ask-n')||{}).value))||0));
+  if(!(n>0)){if(e)e.textContent=tr('ask_needn','How many fruit? It must be more than zero.');return;}
+  if(!ASK.who){ASK.step=2;renderFocQueue();return;}
+  if(!ASK.clone){ASK.step=3;renderFocQueue();return;}
+  const kg=askKg(n);
+  const r=await focRequest({reason:ASK.reason,receiver:ASK.who,clone:ASK.clone,grade:ASK.grade,
+    fruit_n:n,kg:kg,note:tr('ask_notetag','asked by the count — weight estimated')});
+  if(!r.ok){if(e)e.textContent=tr('foc_bad','Could not file that');return;}
+  askReset(); badge();
+  toast('✓ '+nf(n)+' '+tr('foc_fruit','fruit')+' · ~'+nf(kg)+' kg '+
+        tr('ask_sent','sent to the Gate'));}
 
 /* v3.38.0 - THE WEIGHED STRIP. A ration that crossed the scale carries three things a
    typed one never did, and all three belong on the card the Gate decides from. */
@@ -15864,12 +18673,15 @@ function renderFocQueue(){
      Owner's family gifts by name, which is nobody's business but the Owner's, and it is not
      what the tile promises ("ASK FOR FRUIT"). Scoped by workerId, falling back to the name
      for rows filed before uid was stamped. */
-  const mine=e=>String(e.workerId||'')===String((CFG&&CFG.uid)||'')||
-                (!e.workerId&&String(e.worker||'')===String(CFG.worker||''));
+  /* v3.41.3 — folded into the shared isMyLoad(). This screen already matched on the name
+     when the row carried NO id, but not when the row carried an id that had since moved,
+     which is the case that lost a worker his own request. One rule, both screens. */
+  const mine=isMyLoad;
   const pend=may?focPending():focPending().filter(mine);
   let h='';
 
   /* ---- 1. the queue — the reason this screen exists ---- */
+  h+=syncAgeHTML();      // v3.41.0 - this is the queue the 12 Aug confusion happened on
   h+='<div class="sec">⏳ '+esc(tr('foc_waiting','Waiting for a decision'))+
      ' <span class="pill'+(pend.length?' hot':'')+'">'+pend.length+'</span></div>';
   if(!pend.length){
@@ -15974,34 +18786,20 @@ function renderFocQueue(){
          esc(tr('rc_openscale','OPEN THE MORNING SCALE'))+' →</button>';
     if(!SHOW_VALUES){box.innerHTML=h;return;}
   } else {
-  h+='<div class="sec" style="margin-top:12px">🎁 '+esc(tr('foc_give','Record fruit going out free'))+'</div>'+
-     '<div class="dl2">'+
-       '<div><label>'+esc(tr('foc_reason','Reason'))+'</label>'+
-         '<select id="foc-reason" onchange="focQuote()">'+focReasonOpts('RATION')+'</select></div>'+
-       '<div><label>'+esc(tr('foc_receiver','Who gets it'))+'</label>'+
-         '<input id="foc-who" placeholder="'+esc(tr('foc_name','name'))+'"></div>'+
-     '</div>'+
-     '<div class="dl3">'+
-       '<div><label>'+esc(tr('foc_clone','Clone'))+'</label>'+
-         '<select id="foc-clone" onchange="focQuote()">'+focCloneOpts()+'</select></div>'+
-       '<div><label>'+esc(tr('foc_grade','Grade'))+'</label>'+
-         '<select id="foc-grade" onchange="focQuote()">'+focGradeOpts('MK')+'</select></div>'+
-       '<div><label>'+esc(tr('foc_fruitn','Fruit'))+'</label>'+
-         '<input id="foc-n" type="number" min="0" step="1" inputmode="numeric"></div>'+
-     '</div>'+
-     '<div class="dl2">'+
-       '<div><label>'+esc(tr('foc_kg','Weight kg'))+'</label>'+
-         '<input id="foc-kg" type="number" min="0" step="0.1" inputmode="decimal" oninput="focQuote()"></div>'+
-       '<div><label>'+esc(tr('foc_note','Note'))+'</label><input id="foc-note"></div>'+
-     '</div>'+
-     '<div id="foc-quote" class="fr-quote"></div>'+
-     '<button class="bigbtn" onclick="focSubmit()">'+
-       esc(tr('foc_ask','ASK THE GATE'))+'</button>';
+    /* v3.41.0 - THE ASK IS FOUR ANSWERS NOW, NOT SEVEN BOXES.
+       What this replaced: reason, receiver, clone, grade, fruit count, weight and a note,
+       all on the screen at once - seven controls for a man standing under a tree who wants
+       his ration. Two of them he had no business answering at all: he was asked to key the
+       WEIGHT of fruit he has not been given yet, and to name a clone and a grade that the
+       shed already knows. So the shed answers those, the weight is estimated from the count
+       he actually can give, and what is left is three taps and one number. Nothing behind
+       it changed - focRequest() takes the same object and writes the same FOC_REQ row. */
+    h+=askFormHTML();
   }
 
 
   /* the FARM's book and the balance stay management-only — see the note on MY RECORD above */
-  if(!SHOW_VALUES){box.innerHTML=h;focQuote();return;}
+  if(!SHOW_VALUES){box.innerHTML=h;askEstimate();return;}
   const bal=fruitBalance(ym+'-01',ym+'-31');
   h+='<div class="sec" style="margin-top:14px">📗 '+esc(tr('foc_book','The book — this month'))+'</div>'+
      '<table class="tbl"><tr><th>'+esc(tr('foc_reason','Reason'))+'</th><th>kg</th><th>'+
@@ -16032,8 +18830,7 @@ function renderFocQueue(){
           esc(tr('foc_negshed','More fruit has left the shed than the scale ever recorded arriving. Either a weigh-in was never keyed, or a load went out twice.'))+'</div>')
        : '');
 
-  box.innerHTML=h;
-  focQuote();}
+  box.innerHTML=h;}
 
 /* ======================================================================================
    v3.30.0 · THE OWNER'S LANDING — one door, three windows
@@ -16300,6 +19097,429 @@ function ownSeasonChart(){
         esc(tr('ow_censusof','of'))+' '+cen.total+' '+esc(tr('ow_censustrees','trees'))+'.'))+
     '</div>';}
 
+/* ======================================================================================
+   v3.44.0 · PROGRAMME COST — REPORTS ▸ door 4
+   ======================================================================================
+   The Owner, 13 Aug: "i would like to have each set of detail volume usage, and rm."
+   REPORTS ▸ MONEY already totals material by month and by lot, and PROGRAM RUNS counts
+   runs and tanks — but nothing in the app has ever shown ONE SET's product lines. That is
+   the question he actually asks: what did the 6 August spray cost me, drum by drum.
+
+   ⛔ IT STORES NOTHING. Every figure is re-read from the STOCK_OUT rows the store already
+   writes, grouped by the filing that produced them, so it can never disagree with the
+   store — the same rule REPORTS ▸ MONEY has followed since v3.6. A round that was never
+   marked done has no rows, therefore no cost, and the screen SAYS SO rather than printing
+   a quiet zero. That is the whole point: on 13 Aug the 11 August round was missing from
+   both the app and the farm's old spreadsheet, and a report that hides an absence would
+   have hidden exactly the thing he needed to see.
+
+   SCOPE: programme sets only — his choice. A STOCK_OUT row with no `set` is material drawn
+   by hand and belongs to the store screens, not here.
+
+   TWO SHAPES, ONE PANEL. On screen: month → set → products, because that is the only shape
+   that fits a phone without sideways scrolling. On paper: the programme sheet — sets across
+   the top, products down the side — because that is the shape his Excel already uses and
+   the one he takes into a meeting. `.pcscreen` and `.pcprint` swap under @media print. ==*/
+let PC_MO='', PC_OPEN='';
+function pcRm(v){return 'RM '+nf(+v||0);}
+/* v3.45.0 — HIS RULE: "the programme cost should only for spraying and fertilizer."
+   An ALLOW list, not a deny list. A deny list lets the next category the Purchaser invents
+   — fuel, packaging, tools — walk straight into a chemical cost report; an allow list keeps
+   it out on the day it is created. The trade is that a genuinely new INPUT category would be
+   dropped silently, so it is not silent: whatever this rejects is counted and printed at the
+   foot of the screen. Today it rejects exactly one thing, `Consumable`, which is the tying
+   rope — string is neither a spray nor a fertilizer. */
+const PC_CATS=['Fungicide','Pesticide','Fertiliser','Foliar','Powder','Growth Reg','Herbicide'];
+function pcIsInput(e){
+  const p=(typeof prodById==='function')?prodById(e.pid):null;
+  const cat=String((p&&p.cat)||'').trim();
+  if(!cat)return true;                       // an imported row with no product still counts
+  return PC_CATS.indexOf(cat)>=0;}
+/* ---- the label. His words: "certain month repeated like may 1 and 2, please help to merge."
+   The set name carries the name of the EXCEL TAB it came from — "May 2 - Set 3 (flower) rnd2"
+   — so under a heading that already reads MAY 2026 it printed the month twice and looked like
+   two Mays. The calendar month was never the problem; the app has always grouped by the DATE.
+   The prefix is stripped, and the date on the left of the row is what separates two sets that
+   end up with the same name (May had a Fert Set 1 on the 5th and another on the 20th).
+   ⛔ IT IS ONLY STRIPPED WHEN THE PREFIX REALLY IS A MONTH. "Boosting (Feb)" is a tab name
+   too, so it is named here explicitly. */
+const PC_MONTH_WORDS=['jan','january','feb','february','mar','march','apr','april','may','jun','june',
+  'jul','july','aug','august','sep','sept','september','oct','october','nov','november','dec','december','boosting'];
+function pcMonthIx(w){
+  const k=String(w||'').toLowerCase().replace(/\s*\(.*$/,'').trim();
+  const M=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  for(let i=0;i<12;i++)if(k.indexOf(M[i])===0)return i;
+  return -1;}
+function pcSplitSet(set){
+  const s=String(set||'').trim();
+  /* the trailing digit belongs to the SHEET NAME, not to nothing: his tabs are "May" and
+     "May 2", and remembering only "May" would lose which of the two a set came from. */
+  const m=/^([A-Za-z]+(?:\s*\([^)]*\))?(?:\s*\d+)?)\s*-\s*(.+)$/.exec(s);
+  if(!m)return {label:s,sheet:''};
+  const head=m[1].toLowerCase().replace(/\s*\(.*$/,'').replace(/\s*\d+$/,'').trim();
+  if(PC_MONTH_WORDS.indexOf(head)<0)return {label:s,sheet:''};
+  return {label:m[2].trim(),sheet:m[1].trim()};}
+/* Spray or fertilizer, so a month can be read apart at a glance. The app's own runs carry
+   dirProgram; the imported history does not, so its own naming answers instead. */
+function pcKind(r){
+  if(r.prog)return String(r.prog).toUpperCase()==='MANURE'?'fert':'spray';
+  return /fert|soil|manure|baja|drench/i.test(r.set)?'fert':'spray';}
+/** One entry per SET RUN. The grouping key is the filing (`replyId`), which submitRun(),
+ *  the programme reply and MARK DONE all stamp once per job — so a five-product job across
+ *  three lots is ONE run here, not fifteen. */
+let PC_SKIPPED=0, PC_SKIPRM=0;
+function pcRuns(){
+  const by={}; PC_SKIPPED=0; PC_SKIPRM=0;
+  for(const e of EVENTS){
+    if(!e||e.type!=='STOCK_OUT')continue;
+    const set=String(e.set||'').trim(); if(!set)continue;      // programme sets only
+    const day=String(e.dt||'').slice(0,10); if(day.length!==10)continue;
+    // v3.45.0 — spraying and fertilizer only. What is turned away is counted, not hidden.
+    if(!pcIsInput(e)){PC_SKIPPED++;PC_SKIPRM+=+e.cost||0;continue;}
+    const key=String(e.replyId||e.progId||'')+'|'+day+'|'+set;
+    const sp=pcSplitSet(set);
+    const r=by[key]||(by[key]={key:key,day:day,mo:day.slice(0,7),set:set,
+      label:sp.label,sheet:sp.sheet,prog:'',rm:0,
+      prods:{},order:[],lots:{},crew:0,hours:0,who:''});
+    if(e.dirProgram&&!r.prog)r.prog=e.dirProgram;
+    /* tanks / trees / man-hours are written onto EVERY row of a filing, once per LOT.
+       Summing them would multiply by the number of products. Keyed by lot and overwritten. */
+    const lot=String(e.lot||'—');
+    r.lots[lot]={tanks:+e.tanks||0,trees:+e.treesDone||+e.trees||0,
+                 litres:+e.litres||+e.water||0,mh:+e.manHours||0};
+    if(+e.crew)r.crew=+e.crew;
+    if(+e.hours)r.hours=+e.hours;
+    if(!r.who&&e.worker)r.who=e.worker;
+    const pk=String(e.pname||e.pid||'?');
+    if(!r.prods[pk]){r.prods[pk]={name:pk,unit:e.unit||'',qty:0,rm:0};r.order.push(pk);}
+    r.prods[pk].qty+=+e.qty||0;
+    r.prods[pk].rm +=+e.cost||0;
+    r.rm+=+e.cost||0;
+    by[key]=r;}
+  return Object.keys(by).map(k=>by[k]).sort((a,b)=>a.day<b.day?1:-1);}
+function pcLotSum(r,f){return Object.keys(r.lots).reduce((s,L)=>s+(+r.lots[L][f]||0),0);}
+function pcMonths(){
+  const m={},out=[];
+  pcRuns().forEach(r=>{if(!m[r.mo]){m[r.mo]=1;out.push(r.mo);}});
+  return out.sort().reverse();}
+function pcOfMonth(mo){return pcRuns().filter(r=>r.mo===mo);}
+function pcMoTotal(mo){return pcOfMonth(mo).reduce((s,r)=>s+r.rm,0);}
+function pcMoLabel(mo){
+  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const p=String(mo).split('-'); return (M[(+p[1]||1)-1]||mo)+' '+p[0];}
+function pcOpenMo(mo){PC_MO=mo;PC_OPEN='';renderProgCost();$('scr-dash').scrollTop=0;}
+function pcBack(){PC_MO='';PC_OPEN='';renderProgCost();$('scr-dash').scrollTop=0;}
+function pcTog(k){PC_OPEN=(PC_OPEN===k?'':k);renderProgCost();}
+/** The second screen in this app that prints. A body class, not an id rule, so the harvest
+ *  sheet's own print block is left exactly as it was. */
+function pcPrint(){
+  document.body.classList.add('printing-pcost');
+  const done=()=>document.body.classList.remove('printing-pcost');
+  try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}
+  setTimeout(done,1500);}
+
+function renderProgCost(){
+  const box=$('pcostbox'); if(!box)return;
+  if(!roleAllows('pcostcard')||!SHOW_SPEND){box.innerHTML='';return;}
+  const runs=pcRuns();
+  if(!runs.length){
+    box.innerHTML='<p class="small">'+esc(tr('pc_none',
+      'No programme set has drawn material yet. The moment a job is marked done, its products and cost land here.'))+'</p>';
+    return;}
+  let h='', screen='', print='';
+
+  /* ---------- ON SCREEN: month, then set, then products ---------- */
+  if(!PC_MO){
+    const total=pcMonths().reduce((s,m)=>s+pcMoTotal(m),0);
+    screen+='<div class="kpis"><div class="kpi"><div class="v">'+pcRm(total)+'</div>'+
+      '<div class="l">'+esc(tr('pc_allmat','material, all sets'))+'</div></div>'+
+      '<div class="kpi"><div class="v">'+runs.length+'</div>'+
+      '<div class="l">'+esc(tr('pc_setsrun','sets run'))+'</div></div></div>';
+    screen+='<div class="sec" style="margin-top:12px">'+esc(tr('pc_tapmo','Tap a month'))+'</div>';
+    pcMonths().forEach(mo=>{
+      const rs=pcOfMonth(mo);
+      const sp=rs.filter(r=>pcKind(r)==='spray'), fe=rs.filter(r=>pcKind(r)==='fert');
+      const bits=[];
+      if(sp.length)bits.push('💦 '+sp.length);
+      if(fe.length)bits.push('🪣 '+fe.length);
+      screen+='<div class="pcrow" onclick="pcOpenMo(\''+esc(mo)+'\')">'+
+        '<div class="pcm"><div class="pcn">'+esc(pcMoLabel(mo))+'</div>'+
+        '<div class="pcs">'+rs.length+' '+esc(rs.length===1?tr('pc_set','set'):tr('pc_sets','sets'))+
+          (bits.length?(' · '+bits.join(' · ')):'')+'</div></div>'+
+        '<div class="pcv">'+pcRm(pcMoTotal(mo))+'</div><div class="pcg">›</div></div>';});
+  }else{
+    const rs=pcOfMonth(PC_MO);
+    const spRM=rs.filter(r=>pcKind(r)==='spray').reduce((s2,r)=>s2+r.rm,0);
+    const feRM=rs.filter(r=>pcKind(r)==='fert').reduce((s2,r)=>s2+r.rm,0);
+    screen+='<div class="pcback" onclick="pcBack()">‹ '+esc(tr('pc_allmonths','all months'))+'</div>'+
+      '<div class="sec">'+esc(pcMoLabel(PC_MO))+' · '+rs.length+' '+
+      esc(rs.length===1?tr('pc_set','set'):tr('pc_sets','sets'))+' · '+pcRm(pcMoTotal(PC_MO))+'</div>'+
+      ((spRM&&feRM)?('<div class="pcsplit"><span>💦 '+esc(tr('pc_spray','spray'))+' '+pcRm(spRM)+
+        '</span><span>🪣 '+esc(tr('pc_fert','fertilizer'))+' '+pcRm(feRM)+'</span></div>'):'');
+    rs.forEach(r=>{
+      const open=(PC_OPEN===r.key);
+      const tanks=pcLotSum(r,'tanks'), trees=pcLotSum(r,'trees'), mh=pcLotSum(r,'mh');
+      /* ⛔ the SHEET month, only when it disagrees with the calendar month. "May - Set 1"
+         was done on 30 April and "January - Fert Set 3" on 3 March; stripping the prefix
+         without saying so would quietly lose a real mismatch between the plan and the day. */
+      const smIx=pcMonthIx(r.sheet), moIx=(+r.mo.slice(5,7))-1;
+      const note=(r.sheet&&smIx>=0&&smIx!==moIx)?(' · '+esc(r.sheet)+' '+esc(tr('pc_sheet','sheet'))):'';
+      screen+='<div class="pcrow" onclick="pcTog(\''+esc(r.key)+'\')">'+
+        '<div class="pcd">'+esc(r.day.slice(8)+'/'+r.day.slice(5,7))+'</div>'+
+        '<div class="pcm"><div class="pcn" style="font-size:13px">'+
+          (pcKind(r)==='fert'?'🪣 ':'💦 ')+esc(r.label||r.set)+'</div>'+
+        '<div class="pcs">'+r.order.length+' '+esc(tr('pc_products','products'))+
+          (tanks?(' · '+nf(tanks)+' '+esc(tr('pc_tanks','tanks'))):'')+
+          (trees?(' · '+trees+' '+esc(tr('pc_trees','trees'))):'')+note+'</div></div>'+
+        '<div class="pcv">'+pcRm(r.rm)+'</div><div class="pcg">'+(open?'⌄':'›')+'</div></div>'+
+        '<div class="pcdet'+(open?' open':'')+'">'+(open?pcLineTable(r,mh):'')+'</div>';});}
+
+  /* ---------- ON PAPER: the programme sheet, one block per month ----------
+     It follows the SCREEN. Standing inside August, the sheet that comes out is August —
+     printing all eight months because he wanted one is how a person stops using a print
+     button. On the month list it prints everything, which is the year-end read. */
+  (PC_MO?[PC_MO]:pcMonths()).forEach(mo=>{
+    const rs=pcOfMonth(mo).slice().reverse(), names=[], seen={};
+    rs.forEach(r=>r.order.forEach(k=>{if(!seen[k]){seen[k]=r.prods[k].unit;names.push(k);}}));
+    print+='<div class="pcsheet"><div class="sec">'+esc(pcMoLabel(mo))+' · '+pcRm(pcMoTotal(mo))+'</div>'+
+      '<div class="gridwrap"><table class="tbl pcgrid"><tr><th>'+esc(tr('pc_product','Product'))+'</th>'+
+      rs.map(r=>'<th class="num">'+(pcKind(r)==='fert'?'🪣 ':'💦 ')+esc(r.label||r.set)+
+        '<br><small>'+esc(r.day.slice(8)+'/'+r.day.slice(5,7))+'</small></th>').join('')+
+      '<th class="num">'+esc(tr('ow_tot','TOT'))+'</th></tr>';
+    names.forEach(n=>{
+      let t=0;
+      print+='<tr><td>'+esc(n)+'</td>'+rs.map(r=>{
+        const p=r.prods[n]; if(p)t+=p.rm;
+        return '<td class="num">'+(p?('<b>'+nf(p.qty)+' '+esc(p.unit)+'</b><br>'+nf(p.rm)):'·')+'</td>';}).join('')+
+        '<td class="num"><b>'+nf(t)+'</b></td></tr>';});
+    print+='<tr class="totline"><td><b>'+esc(tr('pc_total','Total'))+'</b></td>'+
+      rs.map(r=>'<td class="num"><b>'+nf(r.rm)+'</b></td>').join('')+
+      '<td class="num"><b>'+nf(pcMoTotal(mo))+'</b></td></tr></table></div></div>';});
+
+  h='<div class="pcscreen">'+screen+
+    '<button class="bigbtn noprint" style="margin-top:14px" onclick="pcPrint()">🖨️ '+
+      esc(tr('pc_print','PRINT — EVERY SET, EVERY PRODUCT'))+'</button>'+
+    (PC_SKIPPED?('<p class="small noprint" style="margin-top:9px">⚖ '+PC_SKIPPED+' '+
+       esc(tr('pc_skipped','store rows are left out of this report because they are neither a spray nor a fertilizer — tying rope and the like.'))+
+       ' ('+pcRm(PC_SKIPRM)+')</p>'):'')+
+    '<p class="small noprint" style="margin-top:9px">'+esc(tr('pc_note',
+      'Every figure is re-read from the store each time this screen opens — it is derived, never stored, so it cannot drift from the material that actually left the shed. A set that was never marked done has no rows here at all.'))+
+    '</p></div><div class="pcprint">'+
+      '<div class="hfoot onlyprint" style="margin-bottom:10px">S.H.A. HUP AIK PLANTATION · SUGUT DURIAN FARM — programme material, set by set. Derived from the store ledger at the moment of printing.</div>'+
+      print+'</div>';
+  box.innerHTML=h;}
+/** One set's products: what went in, and what it cost. */
+function pcLineTable(r,mh){
+  let h='<table class="tbl"><tr><th>'+esc(tr('pc_product','Product'))+'</th>'+
+    '<th class="num">'+esc(tr('pc_volume','Volume'))+'</th><th class="num">RM</th></tr>';
+  r.order.forEach(k=>{const p=r.prods[k];
+    h+='<tr><td>'+esc(p.name)+'</td><td class="num"><b>'+nf(p.qty)+' '+esc(p.unit)+'</b></td>'+
+       '<td class="num">'+nf(p.rm)+'</td></tr>';});
+  h+='<tr class="totline"><td><b>'+r.order.length+' '+esc(tr('pc_products','products'))+'</b></td>'+
+     '<td></td><td class="num"><b>'+pcRm(r.rm)+'</b></td></tr></table>';
+  const lots=Object.keys(r.lots).filter(L=>L!=='—').sort();
+  const bits=[];
+  if(lots.length)bits.push(esc(tr('pc_lots','Lots'))+' '+lots.join(', '));
+  if(r.crew&&r.hours)bits.push(r.crew+' '+esc(tr('pc_crew','crew'))+' × '+nf(r.hours)+' '+esc(tr('pc_hrs','h')));
+  if(mh)bits.push(nf(mh)+' '+esc(tr('pc_mh','man-hours')));
+  if(r.who)bits.push(esc(tr('pc_by','keyed by'))+' '+esc(r.who));
+  if(bits.length)h+='<div class="small" style="margin-top:7px">'+bits.join(' · ')+'</div>';
+  return h;}
+
+/* ======================================================================================
+   v3.43.0 · WHO'S ON — COMMAND ▸ door 2
+   ======================================================================================
+   The Owner, on the first trial morning: "for owner view we can't see or monitor when the
+   other user login and what they do."
+
+   ⛔ READ THIS BEFORE ADDING A "LOGGED IN AT" LINE. THERE IS NO LOGIN RECORD.
+   Grepped app.js and AppsScript_code.gs for LOGIN / lastSeen / heartbeat / deviceSeen:
+   ZERO hits. tryLogin() assigns CFG and calls applyRole() — it writes no event. doPost has
+   no session branch. There is no device tab in the workbook. A phone that logs in and does
+   nothing leaves NO trace anywhere, so this screen may only ever say FIRST RECORD and LAST
+   RECORD. Saying "logged in" would be inventing a number, and the whole point of the screen
+   is that the Owner can trust it. The login stamp is a separate release (new event + new
+   sheet tab + HIS Apps Script re-deploy) and until it ships the gap is PRINTED on screen.
+
+   Everything else needs no new data whatsoever. Every writer in this app already stamps
+   `worker`, `workerId`, `device` and a timestamp on the row it saves — about twenty call
+   sites, all identical — so this is an aggregation of records that are already on the
+   Sheet, done in the render. No new event type, no .gs change, no sync change. Same rule
+   the daily audit follows. ==================================================== */
+let WHO_TAB='people';                 // 'people' | 'feed'
+let WHO_DAY='';                       // '' = today; otherwise an ISO day
+let WHO_OPEN=-1;
+/** Every timestamp shape this codebase writes, in the order they were introduced. */
+function whoWhen(e){return String(e&&(e.dt||e.at||e.ts||e.enteredAt)||'');}
+function whoDay(){return WHO_DAY||todayStr();}
+function whoShift(n){
+  const d=new Date(whoDay()+'T12:00:00'); d.setDate(d.getDate()+n);
+  const iso=ymd(d); if(iso>todayStr())return;          // never step into tomorrow
+  WHO_DAY=(iso===todayStr())?'':iso; WHO_OPEN=-1; renderWho();}
+function whoTab(t){WHO_TAB=t;WHO_OPEN=-1;renderWho();}
+function whoOpen(i){WHO_OPEN=(WHO_OPEN===i?-1:i);renderWho();}
+/** Who wrote a row. The id is the identity; the name is what a person reads. A row written
+ *  before v3.27's name tag has no workerId, so the name is the fallback key — never the
+ *  other way round, or two phones sharing a name would merge into one person. */
+function whoKey(e){return String(e&&(e.workerId||e.worker||'')).trim();}
+function whoName(e){return String(e&&(e.worker||e.workerId||'')).trim()||'—';}
+/** One line of plain language per record. A type this does not know still prints, with its
+ *  own name in lower case — an unknown record must never vanish from an audit screen. */
+function whoLine(e){
+  const q=+e.qty||0, money=(typeof SHOW_VALUES!=='undefined'&&SHOW_VALUES);
+  const rm=v=>money?(' · RM '+nf(v||0)):'';
+  switch(e.type){
+    case 'DROP':    return (e.tree||'')+' · '+q+' '+(e.grade?('grade '+e.grade):'fruit')+
+                           (e.secured?' (secured)':' (unsecured)')+(e.backdated?' — backdated':'');
+    case 'ROTTEN':  return (e.tree||'')+' · '+q+' lost'+(e.cause?(' — '+e.cause):'');
+    case 'TIE':     return (e.tree||'')+' · '+q+' fruit tied';
+    case 'TIE_ADJUST': return 'tying corrected on '+(e.tree||'');
+    case 'TASK_DONE':  return 'finished a task'+(e.kind?(' — '+e.kind):'');
+    case 'DISPATCH_REQ':    return 'weighed a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
+                                   (e.merchant?(' · '+e.merchant):'');
+    case 'DISPATCH':        return 'APPROVED a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
+                                   (e.merchant?(' · '+e.merchant):'')+rm(e.rm);
+    case 'DISPATCH_REJECT': return 'RETURNED a load'+(e.note?(' — '+e.note):'');
+    case 'DISPATCH_CANCEL': return 'cancelled a load';
+    case 'SALE':            return 'a sale'+(e.merchant?(' · '+e.merchant):'')+rm(e.rm);
+    case 'CREDIT_TOPUP':    return 'merchant payment received'+rm(e.rm);
+    case 'FOC_REQ':         return 'fruit out with no invoice'+(e.reason?(' — '+e.reason):'');
+    case 'STOCK_IN':        return 'stock received'+(e.product?(' · '+e.product):'');
+    case 'STOCK_OUT':       return 'stock taken out'+(e.product?(' · '+e.product):'');
+    case 'STOCK_ADJUST':    return 'stock-take adjustment'+(e.product?(' · '+e.product):'');
+    case 'PRICE_EDIT':      return 'changed a price';
+    case 'CORR':            return 'asked for a correction';
+    case 'LOG_VOID':        return 'voided a record';
+    case 'ADMIN_CLEANUP':   return 'cleaned up trial rows';
+    case 'YIELD_ACK':       return 'signed off the yield audit';
+    case 'PRODUCT_RETIRE':  return 'retired a product';
+    case 'BRAND_SWAP':      return 'swapped a brand';
+    default: return String(e.type||'record').toLowerCase().replace(/_/g,' ');}}
+/** Everything one day holds, newest first. */
+function whoEvents(day){
+  return EVENTS.filter(e=>whoWhen(e).slice(0,10)===day)
+    .sort((a,b)=>whoWhen(a)<whoWhen(b)?1:-1);}
+/** One row per PERSON, plus every registered person who wrote nothing that day — the empty
+ *  rows are the whole point of the screen, so they are built from the registry, not from
+ *  the records. A person with records but no registry row still appears. */
+function whoPeople(day){
+  const evs=whoEvents(day), byKey={};
+  const seed=k=>byKey[k]||(byKey[k]={key:k,name:'',role:'',devices:{},first:'',last:'',n:0,
+    trees:{},good:0,lost:0,tied:0,weighed:0,approved:0,returned:0,kg:0,other:0});
+  (typeof KEYS!=='undefined'?KEYS:[]).forEach(k=>{
+    if(!isActive(k))return;
+    const p=seed(String(k.id||k.name||'').trim()); p.name=k.name||p.name; p.role=k.role||'';});
+  evs.forEach(e=>{
+    const k=whoKey(e); if(!k)return;
+    /* A row written before the v3.27 name tag has no workerId, so it keys on the NAME and
+       would sit beside the same person's id-keyed rows. Fold it in when the name matches a
+       registry row already seeded — one person, one line. */
+    let key=k;
+    if(!byKey[key]){
+      const hit=Object.keys(byKey).find(x=>byKey[x].name&&byKey[x].name===whoName(e));
+      key=hit||k;}
+    const p=seed(key); if(!p.name)p.name=whoName(e);
+    const t=whoWhen(e);
+    if(!p.first||t<p.first)p.first=t;
+    if(t>p.last)p.last=t;
+    p.n++; if(e.device)p.devices[e.device]=(p.devices[e.device]||0)+1;
+    switch(e.type){
+      case 'DROP':   p.good+=+e.qty||0; if(e.tree)p.trees[e.tree]=1; break;
+      case 'ROTTEN': p.lost+=+e.qty||0; if(e.tree)p.trees[e.tree]=1; break;
+      case 'TIE':    p.tied+=+e.qty||0; if(e.tree)p.trees[e.tree]=1; break;
+      case 'DISPATCH_REQ': p.weighed++; p.kg+=+e.kg||0; break;
+      case 'DISPATCH':        p.approved++; break;
+      case 'DISPATCH_REJECT': p.returned++; break;
+      default: p.other++;}});
+  return Object.keys(byKey).map(k=>byKey[k])
+    .sort((a,b)=>(b.n-a.n)||String(a.name).localeCompare(String(b.name)));}
+/** Minutes between two 'YYYY-MM-DD HH:MM' stamps. */
+function whoMins(a,b){
+  const P=s=>{const m=/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)/.exec(String(s));
+    return m?Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5]):null;};
+  const x=P(a),y=P(b); return (x==null||y==null)?null:Math.round((y-x)/60000);}
+function whoAgo(m){
+  if(m==null)return '';
+  if(m<1)return 'just now';
+  if(m<60)return m+' min ago';
+  const h=Math.floor(m/60), r=m%60; return h+' h'+(r?(' '+r+' min'):'')+' ago';}
+/* QUIET is 90 minutes. A tree visit, a tying round and a weighing all take well under that,
+   and a crew walking between lots can easily be an hour between saves — a tighter window
+   would cry wolf on an honest morning, which is the fastest way to make a warning ignored. */
+const WHO_QUIET_MIN=90;
+function renderWho(){
+  const box=$('whobox'); if(!box)return;
+  if(!roleAllows('whocard')){box.innerHTML='';return;}
+  const day=whoDay(), isToday=(day===todayStr()), stamp=now();
+  const people=whoPeople(day), evs=whoEvents(day);
+  let h='<div class="whonav"><span class="whostep" onclick="whoShift(-1)">◀</span>'+
+    '<b>'+(isToday?(esc(tr('wo_today','Today'))+' · '):'')+esc(day)+'</b>'+
+    '<span class="whostep'+(isToday?' off':'')+'" onclick="whoShift(1)">▶</span></div>';
+  h+='<div class="whotabs">'+
+     '<div class="'+(WHO_TAB==='people'?'on':'')+'" onclick="whoTab(\'people\')">'+
+       esc(tr('wo_tpeople','THE PHONES'))+'</div>'+
+     '<div class="'+(WHO_TAB==='feed'?'on':'')+'" onclick="whoTab(\'feed\')">'+
+       esc(tr('wo_tfeed','MINUTE BY MINUTE'))+' ('+evs.length+')</div></div>';
+
+  if(WHO_TAB==='people'){
+    // the warning first, and only when it is TRUE — a quiet phone on a past day is not news
+    const quiet=isToday?people.filter(p=>p.n>0&&whoMins(p.last,stamp)>WHO_QUIET_MIN):[];
+    if(quiet.length)h+='<div class="whoalert">⚠ <b>'+quiet.map(p=>esc(p.name)).join(', ')+
+      '</b> '+esc(tr('wo_quietmsg','has recorded nothing for over an hour and a half.'))+'</div>';
+    h+='<div>';
+    people.forEach((p,i)=>{
+      const mins=p.last?whoMins(p.last,stamp):null;
+      const st=(p.n===0)?'off':((isToday&&mins!=null&&mins>WHO_QUIET_MIN)?'idle':'on');
+      const stl=(p.n===0)?tr('wo_none','NO RECORD'):(st==='idle'?tr('wo_quiet','QUIET'):tr('wo_working','WORKING'));
+      const chips=[];
+      if(Object.keys(p.trees).length)chips.push(Object.keys(p.trees).length+' '+tr('wo_trees','trees'));
+      if(p.good)chips.push(p.good+' '+tr('wo_good','fruit'));
+      if(p.lost)chips.push(p.lost+' '+tr('wo_lost','lost'));
+      if(p.tied)chips.push(p.tied+' '+tr('wo_tied','tied'));
+      if(p.weighed)chips.push(p.weighed+' '+tr('wo_weighed','weighed')+' · '+nkg(p.kg)+' kg');
+      if(p.approved)chips.push(p.approved+' '+tr('wo_approved','approved'));
+      if(p.returned)chips.push(p.returned+' '+tr('wo_returned','returned'));
+      if(p.other)chips.push(p.other+' '+tr('wo_otherrec','other'));
+      const dev=Object.keys(p.devices).sort((a,b)=>p.devices[b]-p.devices[a]);
+      h+='<div class="whorow" onclick="whoOpen('+i+')"><div class="whodot '+st+'"></div>'+
+        '<div class="whomain"><div class="whoname">'+esc(p.name)+'</div>'+
+        '<div class="whometa">'+esc(p.role||tr('wo_norole','not in the staff list'))+
+          (dev.length?(' · '+esc(dev.join(', '))):'')+'</div>'+
+        '<div class="whochips">'+(chips.length
+            ? chips.map(c=>'<span>'+esc(c)+'</span>').join('')
+            : '<span class="none">'+esc(tr('wo_nothing','nothing recorded'))+'</span>')+'</div></div>'+
+        '<div class="whoright"><div class="whost '+st+'">'+esc(stl)+'</div>'+
+          (p.first?('<div>'+esc(tr('wo_first','first'))+' '+esc(p.first.slice(11,16))+'</div>'+
+                    '<div>'+esc(tr('wo_last','last'))+' '+esc(p.last.slice(11,16))+'</div>'+
+                    (isToday&&mins!=null?('<div class="whoago">'+esc(whoAgo(mins))+'</div>'):''))
+                  :'<div class="whoago">—</div>')+
+        '</div></div>';
+      h+='<div class="whodet'+(WHO_OPEN===i?' open':'')+'" id="whodet-'+i+'">'+
+         (WHO_OPEN===i?whoDetail(p,day):'')+'</div>';});
+    h+='</div>';
+    if(people.some(p=>p.n===0))h+='<p class="small">'+esc(tr('wo_silentnote',
+      'A person with no record may simply not have worked. The app does not record a login, so a phone that was opened and never used looks exactly like a phone that was never opened.'))+'</p>';
+  }else{
+    if(!evs.length)h+='<p class="small">'+esc(tr('wo_noev','Nothing was recorded on this day.'))+'</p>';
+    else{h+='<div class="whofeed">';
+      evs.forEach(e=>{h+='<div class="whof"><div class="whoft">'+esc(whoWhen(e).slice(11,16))+'</div>'+
+        '<div class="whofw"><span class="whofn">'+esc(whoName(e))+'</span> — '+esc(whoLine(e))+
+        (e.device?('<span class="whofd">'+esc(e.device)+'</span>'):'')+'</div></div>';});
+      h+='</div>';}}
+
+  /* THE GAP, PRINTED. Never let this screen imply it knows something it does not. */
+  h+='<div class="whogap">'+esc(tr('wo_gap',
+    'This screen reads records that were saved. It cannot show a login — nothing in the app or in the Google Sheet records one yet, so a phone that was opened and never used leaves no trace at all.'))+'</div>';
+  box.innerHTML=h;}
+/** One person's own day, in their own words. Built only when the row is open. */
+function whoDetail(p,day){
+  const mine=whoEvents(day).filter(e=>{
+    const k=whoKey(e); return k===p.key||whoName(e)===p.name;});
+  if(!mine.length)return '<div class="small">'+esc(tr('wo_nothingday','This phone saved nothing on this day.'))+'</div>';
+  return '<div class="whofeed">'+mine.map(e=>
+    '<div class="whof"><div class="whoft">'+esc(whoWhen(e).slice(11,16))+'</div>'+
+    '<div class="whofw">'+esc(whoLine(e))+'</div></div>').join('')+'</div>';}
+
 /** THE LANDING ITSELF. One panel; the chips re-render it in place. */
 function renderOwnerHome(){
   const box=$('ownerbox'); if(!box)return;
@@ -16310,7 +19530,7 @@ function renderOwnerHome(){
          so a row of stage buttons would be furniture the Owner has to read past. ---- */
   const f=(typeof dropForecast==='function')?dropForecast():null;
   h+='<div class="seasonline">'+
-       '<span class="sl-ic">🥭</span>'+
+       '<span class="sl-ic">'+IC_DUR+'</span>'+
        '<span class="sl-t"><b>'+esc(tr('ow_harvest','HARVEST'))+' · '+
          esc(tr('ow_day','day'))+' '+seasonDay()+'</b>'+
          '<span>'+(f&&f.hanging>0
