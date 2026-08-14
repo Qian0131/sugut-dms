@@ -2541,6 +2541,20 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
   </div>
 
+  <!-- ===== v3.48.0 · BUY HOLDS TWO QUESTIONS =====
+       ORDER PLANNER retired as a menu row and landed here, because it is one tap from the
+       thing it was being confused with and answers the opposite half of the same question:
+         TO BUY NOW      — what an issued directive still needs bought  (procureNeeds)
+         PROGRAMME CHECK — what the programme itself will consume, this phase and next,
+                           whether or not an order was ever raised     (programNeeds)
+       Its own THIS PHASE / NEXT PHASE switch lives inside #progcheck and is untouched. -->
+  <div class="card" id="m8buyseg" style="display:none">
+    <div class="m3-seg">
+      <div class="m3-seg-btn on" id="m8-b-now"  onclick="m8BuyPick('now')"  data-t="m8_buynow">🛒 TO BUY NOW</div>
+      <div class="m3-seg-btn"    id="m8-b-plan" onclick="m8BuyPick('plan')" data-t="m8_progchk">📅 PROGRAMME CHECK</div>
+    </div>
+  </div>
+
   <!-- ===== v3.47.0 · THE COUNT SHEET =====
        His ask: "Shelf - have print out button for purchaser to ask estate to do stock check
        every month." It is a PRINT, not a job — it is not something he does daily, so it is
@@ -2697,14 +2711,90 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        search box and its own "WITH VALUATION" tag because HUB_PANELS lists 'onhandcard'
        and MODULES.inv routes it into both SUPPLY HUB and STOCK OUT — deleting the card
        would leave a routed panel with nothing behind it. #stocklist is the mount. -->
+
+  <!-- ===== v3.48.0 · THREE CARDS PHYSICALLY MOVED INTO THE STOCK SCREEN =====
+       Retiring the 'plan', 'lvl' and 'take' ROUTES was not enough on its own, and the reach
+       harness is what said so: #progcheck, #progready and #stocktake were authored inside
+       <div id="scr-dash">, because their old tabs all declared scr:'dash'. The hub tab
+       declares scr:'stock', so routing them without moving them left three cards correctly
+       un-hidden inside a screen container that was itself hidden — display:'' on a child of
+       a display:none parent paints nothing.
+       Exactly the move v3.16 made for #alloccard and #onboardcard for exactly this reason.
+       ⛔ THE MARKUP IS COPIED BYTE-FOR-BYTE. Same ids, same classes, same inline styles, same
+       onclick handlers, same ⓘ note ids — every renderer, every roleAllows() gate and every
+       HUB_PANELS entry resolves as before. Only the parent element changed. -->
+  <div class="card" id="progcheck" style="display:none">
+    <div class="sec">📅 <span data-t="m3_orderplanner">Order Planner</span></div>
+    <div class="m3-seg">
+      <div class="m3-seg-btn on" id="m3-pl-now" onclick="m3PlanPick('now')" data-t="m3_thisphase">THIS PHASE</div>
+      <div class="m3-seg-btn" id="m3-pl-next" onclick="m3PlanPick('next')" data-t="m3_nextphase">NEXT PHASE</div>
+    </div>
+    <div id="m3-pl-nowbox">
+      <div class="sec" style="margin-top:10px">🔍 <span data-t="m3_chkhead">Upcoming programme stock check</span> <span class="m5-iq" onclick="m5Tog('m5-p12')">ⓘ</span></div>
+      <div id="chkbox"></div>
+      <p class="small hidden" id="m5-p12" style="margin-top:9px" data-t="m3_chknote">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
+    </div>
+  </div>
+  <div class="card m3-hide" id="progready" style="display:none">
+    <div class="sec">📅 <span data-t="m3_readyhead">Next phase material readiness</span> <span class="m5-iq" onclick="m5Tog('m5-p13')">ⓘ</span></div>
+    <div id="readybox"></div>
+    <p class="small hidden" id="m5-p13" style="margin-top:9px" data-t="m3_readynote">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
+  </div>
+  <div class="card" id="stocktake" style="display:none">
+    <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment <span class="m5-iq" onclick="m5Tog('m5-p11')">ⓘ</span></div>
+    <label>Product counted</label>
+    <!-- v3.23 MODULE 4 — mount for the ONE product picker. #st-search / #st-prod are
+         written here by renderStOpts(); submitStockTake() still reads both by id. -->
+    <div class="m4-pick" id="m4-pick-st"></div>
+    <div class="aibox">
+      <div><div class="cl">System says <span class="ro">LIVE</span></div><div class="av" id="st-sys">—</div></div>
+      <div class="cr" id="st-ai">—</div>
+    </div>
+    <label>Physical count (<span id="st-unitlbl">ml/gm</span>)</label>
+    <input type="number" id="st-count" min="0" step="any" inputmode="decimal" oninput="onStCalc()">
+    <div class="varbox" id="st-var">Enter the counted quantity to see the variance.</div>
+    <label>Reason / note</label>
+    <input id="st-note" placeholder="e.g. spillage in store, damaged bag" autocomplete="off">
+    <div class="pinerr" id="st-err"></div>
+    <button class="bigbtn" onclick="submitStockTake()">✓ POST STOCK-TAKE ADJUSTMENT</button>
+    <!-- v3.48.0 — the way back. This card is now a PAGE hung off SHELF, and the v3.37.3 reach
+         lesson applies: a control you cannot reach is a control that does not exist. Without
+         this the only exit from the form is the hardware back button. -->
+    <button class="bigbtn ghost" id="st-back" onclick="stClose()" style="margin-top:8px" data-t="st_back">← BACK TO THE SHELF</button>
+    <div style="height:8px"></div>
+    <div id="st-recent"></div>
+    <p class="small hidden" id="m5-p11" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
+  </div>
+
   <div class="card" id="onhandcard">
     <div class="sec">Stock on hand <span id="oh-valnote" class="minitag" style="display:none">WITH VALUATION</span></div>
+    <!-- v3.48.0 — STOCK LEVEL retired INTO this card. These three blocks are the only things
+         the old row had that this one did not. renderStock() shows or hides each by role, so
+         the crew reading this same list under their STOCK OUT form see none of them. -->
+    <div id="oh-alert"></div>
+    <div class="kpis" id="oh-kpis" style="display:none;margin-bottom:6px">
+      <div class="kpi"><div class="v" id="i-val">RM 0</div><div class="l">Live stock valuation</div></div>
+      <div class="kpi"><div class="v" id="i-low">0</div><div class="l">Below minimum</div></div>
+      <div class="kpi"><div class="v" id="i-items">0</div><div class="l">Products tracked</div></div>
+      <div class="kpi"><div class="v" id="i-zero">0</div><div class="l">Out of stock</div></div>
+    </div>
     <input id="stocksearch" placeholder="Search brand or active ingredient…" oninput="renderStock()">
+    <div class="segs" id="oh-mode" style="display:none">
+      <div class="on" onclick="ohMode('ALL',this)">BRAND + AI</div>
+      <div onclick="ohMode('BRAND',this)">BRAND ONLY</div>
+      <div onclick="ohMode('AI',this)">AI ONLY</div>
+      <div onclick="ohMode('GROUP',this)">GROUP BY AI</div>
+    </div>
     <div id="stocklist" style="margin-top:6px;max-height:300px;overflow-y:auto"></div>
+    <p class="small" id="oh-edithint" style="margin-top:7px;display:none">Tap a row to set that product's minimum stock level or correct its active ingredient.</p>
     <!-- v3.47.0 — the count sheet. Only the roles that may run a stock-take are offered it;
          a worker reading the shelf under his stock-out form has no business printing one. -->
     <button class="bigbtn ghost noprint" id="cs-open" style="margin-top:11px;display:none"
             onclick="csOpen()" data-t="cs_openbtn">🧾 PRINT A COUNT SHEET FOR THE ESTATE</button>
+    <!-- v3.48.0 — and the other half of that job: where the counted paper is keyed back in.
+         Same entitlement as the print button; they are one job, so they are one pair. -->
+    <button class="bigbtn noprint" id="st-open" style="margin-top:8px;display:none"
+            onclick="stOpen()" data-t="st_openbtn">✓ KEY IN THE COUNTED SHEET</button>
   </div>
 </div>
 
@@ -3164,23 +3254,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        changes. #progready starts with class m3-hide baked in below so the very first paint
        matches the old PROGRAM CHECK default (THIS PHASE first); m3PlanPick() in app.js
        swaps it. -->
-  <div class="card" id="progcheck" style="display:none">
-    <div class="sec">📅 <span data-t="m3_orderplanner">Order Planner</span></div>
-    <div class="m3-seg">
-      <div class="m3-seg-btn on" id="m3-pl-now" onclick="m3PlanPick('now')" data-t="m3_thisphase">THIS PHASE</div>
-      <div class="m3-seg-btn" id="m3-pl-next" onclick="m3PlanPick('next')" data-t="m3_nextphase">NEXT PHASE</div>
-    </div>
-    <div id="m3-pl-nowbox">
-      <div class="sec" style="margin-top:10px">🔍 <span data-t="m3_chkhead">Upcoming programme stock check</span> <span class="m5-iq" onclick="m5Tog('m5-p12')">ⓘ</span></div>
-      <div id="chkbox"></div>
-      <p class="small hidden" id="m5-p12" style="margin-top:9px" data-t="m3_chknote">Compares what the Owner's active programme will consume against the stock standing in the store right now. Anything short is flagged so it can be ordered before the spray date.</p>
-    </div>
-  </div>
-  <div class="card m3-hide" id="progready" style="display:none">
-    <div class="sec">📅 <span data-t="m3_readyhead">Next phase material readiness</span> <span class="m5-iq" onclick="m5Tog('m5-p13')">ⓘ</span></div>
-    <div id="readybox"></div>
-    <p class="small hidden" id="m5-p13" style="margin-top:9px" data-t="m3_readynote">Looks past the phase running today at what the programme calls for next, grouped by <b>active ingredient</b> so one order can cover several brands. Order lead time is what this view exists to protect.</p>
-  </div>
 
   <!-- INVENTORY CONTROL CENTER (v2.3) — Owner / Marketing only
        v3.23 MODULE 4 — same one stock list component #onhandcard mounts, given
@@ -3217,27 +3290,6 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
 
   <!-- INVENTORY AUDIT / STOCK-TAKE ADJUSTMENT (v2.3) -->
-  <div class="card" id="stocktake" style="display:none">
-    <div class="sec">🧾 Inventory Audit / Stock-Take Adjustment <span class="m5-iq" onclick="m5Tog('m5-p11')">ⓘ</span></div>
-    <label>Product counted</label>
-    <!-- v3.23 MODULE 4 — mount for the ONE product picker. #st-search / #st-prod are
-         written here by renderStOpts(); submitStockTake() still reads both by id. -->
-    <div class="m4-pick" id="m4-pick-st"></div>
-    <div class="aibox">
-      <div><div class="cl">System says <span class="ro">LIVE</span></div><div class="av" id="st-sys">—</div></div>
-      <div class="cr" id="st-ai">—</div>
-    </div>
-    <label>Physical count (<span id="st-unitlbl">ml/gm</span>)</label>
-    <input type="number" id="st-count" min="0" step="any" inputmode="decimal" oninput="onStCalc()">
-    <div class="varbox" id="st-var">Enter the counted quantity to see the variance.</div>
-    <label>Reason / note</label>
-    <input id="st-note" placeholder="e.g. spillage in store, damaged bag" autocomplete="off">
-    <div class="pinerr" id="st-err"></div>
-    <button class="bigbtn" onclick="submitStockTake()">✓ POST STOCK-TAKE ADJUSTMENT</button>
-    <div style="height:8px"></div>
-    <div id="st-recent"></div>
-    <p class="small hidden" id="m5-p11" style="margin-top:8px">Posting writes an adjustment entry into the permanent ledger — the original stock-in and stock-out records are never edited or deleted. The variance value flows straight into the summary ledger above.</p>
-  </div>
   <div class="lock" id="phibox" style="display:none"></div>
   <div class="card" id="lotcard">
     <div class="sec">Harvest vs July census · by lot (this phone + synced baseline at last sync)</div>
@@ -3654,7 +3706,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.47.0"></script>
-<script src="app.js?v=3.47.0"></script>
+<script src="database.js?v=3.48.0"></script>
+<script src="app.js?v=3.48.0"></script>
 </body>
 </html>

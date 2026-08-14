@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.47.0';   // v3.47.0 - THE STORE BECOMES THE FOUR JOBS HE APPROVED, AND A SHED IS COUNTED IN CONTAINERS. His instruction after approving the mock-up: 'i wan purchase in DMS store complete sample as the mock up.' Less was needed than it looked: v3.41.0 had already put four jobs behind one bar, so this release re-cuts them rather than inventing them. BRANDS is FOLDED INTO RECEIVE - matching a brand to the ingredient the Owner asked for, and onboarding a product the store never carried, are things you do WHILE receiving an invoice; they were never a job of their own, and giving them a quarter of the bar cost the Purchaser the slot he actually needed. ISSUE takes that slot, and the v3.46.0 menu row is RETIRED after a single release - it existed only to give him a route at all, and leaving both would be the duplicate-door fault this project keeps closing; a deep link to inv/out falls through tabsFor() to the hub exactly as the retired v3.19 keys do, and roleAllows() keeps his pnl-out grant, which is what v3.46.0 was really about. THE UNIT RULE, his sharpest observation of the day: 'i know that programme set up sometime by gm or ml, but when u go to inventory this unit will make thing difficult.' The programme speaks in ml and gm, the store speaks in bottles, drums and bags - both right, different jobs. A dose must stay exact because 2.5 kg per 1,000 L is chemistry, but nobody buys, counts or stores in millilitres. unit_multiplier already held the conversion, so packQty() prints the container big and the exact ml/gm small underneath, and ⛔ NOT ONE STORED NUMBER CHANGES - on-hand is still computed in ml/gm everywhere, this is a way of printing it, and the programme screens are untouched. packFullPart() never yields a decimal: 95,000 gm is 11 bags + 7,000 gm, because '11.9 bags' is not something a person can find in a shed. THE COUNT SHEET answers 'Shelf - have print out button for purchaser to ask estate to do stock check every month'. It is a PRINT, not a job, so it is a page hung off SHELF with a back button rather than a fifth segment, and leaving SHELF puts it away - a card left in the wrong group leaks onto every other screen for the session, which this codebase shipped twice (v3.6, v3.12). Two blank boxes a line, FULL and OPENED, because that is how a store is actually counted. It prints the app's own figure by the Owner's decision: a blind count finds more mistakes, a visible one actually gets done. The button rides the STOCK-TAKE entitlement, not the shelf list's, so the crew - who see the same list under their stock-out form - are not offered a store-wide count they cannot post. Third screen in the app to print, third to use a body class rather than an id rule, so the harvest sheet's print block is still byte-identical to the day it was proved on paper. It stores nothing: what comes back is keyed through the existing STOCK-TAKE, which already posts a signed adjustment. PREVIOUS: v3.46.0 - THE PURCHASER CAN FINALLY RECORD MATERIAL LEAVING. Two edits, and they close the fault behind the Owner's complaint that his workers 'are still no able to key the stock but they will whatssap to purchase and he will help to update'. Driving the app as all four roles showed the Purchaser could receive stock, read the shelf and run a stock-take but had NO WAY AT ALL to record an issue: his tile list is ['inv'], STOCK OUT was retired from that tile in v3.39.0 as a duplicate of DAILY OPS STOCK OUT, and he has no Ops tile - so a retirement that was correct for everyone else left him with no route to the panel, and roleAllows() refused him a second time. What that cost is not cosmetic: a worker WhatsApps 'I took 2 litres of Xilca' and the only thing the Purchaser could do was a STOCK-TAKE adjustment, which records a counting correction - no set, no cost, invisible to PROGRAMME COST. So the store drifted and the programme under-reported, by design of one gate. The section returns to the Inventory tile with roles:['PURCHASER'] ALONE, which is what keeps the v3.39.0 promise intact: Owner and Marketing still reach the identical panel from Daily Ops and gain NO second door, and the crew are untouched. `pnl-out` is widened by one role and opstasks / opshistory / opsgeneral deliberately are NOT - those are the crew's job list, not his desk. No new render path was needed: renderForTab still carries the inv/out line from before the retirement. ⛔ THE LESSON: when a screen is retired as a DUPLICATE, check it is a duplicate FOR EVERY ROLE - it is only a duplicate for someone who owns the other door. PREVIOUS: v3.45.0 - PROGRAMME COST, NARROWED AND DE-DUPLICATED. Two corrections the Owner asked for within an hour of v3.44.0 going live. ONE, 'the programme cost should only for spraying and fertilizer': the screen took every STOCK_OUT row that carried a `set`, which would have let tying rope - a Consumable - sit in a chemical cost report the moment a tying round was ever filed against a set. PC_CATS is an ALLOW list (Fungicide, Pesticide, Fertiliser, Foliar, Powder, Growth Reg, Herbicide), not a deny list, because a deny list lets the next category the Purchaser invents - fuel, packaging, tools - walk straight in on the day it is created. The trade is that a genuinely new INPUT category would be dropped, so it is not silent: whatever is turned away is counted and printed at the foot of the screen with its ringgit. TWO, 'certain month repeated like may 1 and 2, please help to merge to month': the calendar grouping was never wrong - the app has always grouped by the DATE - it was the LABEL. Every set name carries the name of the Excel tab it came from, so under a heading already reading MAY 2026 the rows said 'May 2 - Set 3 (flower) rnd2' and looked like a second May. pcSplitSet() strips the prefix, and ONLY when it really is a month: 'Boosting (Feb)' is named as a tab too, and a set called 'Merchant Tan - special mix' is left entirely alone. The date on the left of each row is what still separates two sets that end up sharing a name - May had a Fert Set 1 on the 5th and another on the 20th. ⛔ THE STRIPPED PREFIX IS NOT THROWN AWAY. It is kept and PRINTED when it disagrees with the calendar month, because that disagreement is real and was invisible before: 'May - Set 1' was done on 30 April, and four January sets were done in February. Silently removing the word would have destroyed the only evidence that the plan and the day did not match. Each row now also carries 💦 or 🪣 - the app's own runs answer from dirProgram, the imported history from its naming - and a month showing both prints the two subtotals. PREVIOUS: v3.44.0 - PROGRAMME COST, set by set. His words: 'i would like to have each set of detail volume usage, and rm.' REPORTS already totalled material by month and by lot, and PROGRAM RUNS counted runs and tanks, but nothing in this app had ever shown ONE SET's product lines - which is the question he actually asks: what did the 6 August spray cost me, drum by drum. It is REPORTS door 4 and deliberately NOT a fifth toggle inside MONEY, because MONEY is a once-a-month read already carrying four detail cards and this is a screen he opens whenever a set is sprayed; burying it would cost a tap every time. Also NOT in FARM beside SPRAY RECORD, which answers 'was it done on time' and is open to roles that must never see RM. OWNER alone, gated at the tab, again in roleAllows(), and a third time on SHOW_SPEND before a single ringgit is painted. TWO SHAPES, ONE PANEL, his pick: on screen month -> set -> products, the only shape that fits a phone without sideways scrolling; on paper the programme sheet with sets across the top and products down the side, because that is what his own Excel looks like and what he carries into a meeting. The print swap is keyed on a BODY CLASS, not an id rule, so the harvest sheet's print block - the one screen ever proved on real paper - is left byte-identical. Scope is programme sets only, also his pick: a STOCK_OUT row with no `set` was drawn by hand and belongs to the store screens. ⛔ THE WHOLE RISK IS DOUBLE COUNTING. submitRun() stamps tanks, trees, crew, hours and manHours onto EVERY row of a filing, once per LOT, so a 3-product job over 2 lots writes them six times; summing naively reports 9 tanks and 48 man-hours for a job that used 3 and 16. Rows are grouped by `replyId` - the one id all three writers stamp per job - and the per-lot figures are keyed by lot and OVERWRITTEN, never added. The harness asserts those exact wrong numbers cannot appear. It stores nothing: every figure is re-read from the store, so it cannot drift from the material that actually left the shed, and a set that was never marked done has no rows and therefore no cost - the screen says so instead of printing a quiet zero, which is the whole point, because on 13 August the 11 August round was missing from the app AND from the farm's old spreadsheet. t_classes.js, added one release earlier, caught this release's own orphan class on its first run: a `k2` that never existed in the stylesheet. PREVIOUS: v3.43.1 - THE BUTTON THE CREW COULD NOT SEE. A one-line repair of damage v3.43.0 did to a screen it never meant to touch. Namespacing the new WHO'S ON classes away from the existing .wbtn was done as a blanket replace of the string class="wbtn", and it silently renamed a call site 2,400 lines away: the crew's MARK WORK DONE button on the programme card. The onclick was untouched so the button still WORKED - it simply stopped looking like a button, losing its green, its full width and its padding, which on a phone in a shed means nobody presses it. 46 assertions were green at the time, because every one of them was about WHO'S ON. The lesson is not 'be careful with sed': it is that a rename is only safe when it is SCOPED to the block it belongs to, and that the blast radius of a string replace is the whole file. t_classes.js is the guard: it reads every class name app.js writes into markup and fails if one has no rule in the stylesheet (731 checked, 7 legacy orphans baselined and listed for clearing), and it holds an ANCHORS table of specific elements that must keep their exact class - the MARK DONE button is the first entry. One orphan of this release's own making, an unstyled `wholist` wrapper, is removed. Nothing else in v3.43.0 changed. PREVIOUS: v3.43.0 - WHO'S ON. The Owner, on the first trial morning: 'for owner view we can't see or monitor when the other user login and what they do.' COMMAND gains a second door, directly under TODAY because that is the order the two questions get asked every morning - what happened, then who did it. It needs NO NEW DATA: every writer in this app already stamps worker / workerId / device and a timestamp on the row it saves, about twenty call sites all identical, so the whole screen is an aggregation of records already on the Sheet done in the render - no new event type, no .gs change, no sync change, the same rule the daily audit follows. THE PHONES lists one row per registered person INCLUDING the ones who saved nothing, because the empty rows are the entire point, and each row carries a status word beside its dot (WORKING / QUIET / NO RECORD) since amber-and-green is a red-green pair this app has already failed a colour-blind check on. QUIET is 90 minutes: a crew walking between lots is easily an hour between saves, and a warning that cries wolf on an honest morning is a warning nobody reads. MINUTE BY MINUTE is the same day as one feed, every record turned into a plain sentence, and a record type the describer does not know still prints under its own name rather than vanishing - an audit screen may not silently drop a row. A day stepper walks backwards and refuses to step into tomorrow. OWNER ALONE, gated at the tab AND again in roleAllows(), and deliberately NOT `return full`: FULL_ROLES is Owner and Marketing, and the Gate is the person who approves the crew's loads - an approver reading the minute log of the people she checks is the same independence problem that closed the staff registry to her in v3.27.1. ⛔ WHAT IT REFUSES TO SAY IS A LOGIN. Grepping app.js and AppsScript_code.gs for LOGIN, lastSeen, heartbeat and deviceSeen returns ZERO hits: tryLogin() assigns CFG and writes no event, doPost has no session branch, and there is no device tab in the workbook. So a phone that is opened and never used leaves no trace anywhere, and this screen says FIRST RECORD and LAST RECORD, never 'logged in'. The gap is PRINTED at the foot of the screen instead of being hidden, because a monitor the Owner cannot trust is worse than no monitor. The login stamp is its own release - new event, new sheet tab, and his own Apps Script re-deploy. PREVIOUS: v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
+const APP_VERSION = 'v3.48.0';   // v3.48.0 - THE TILE BECOMES ONE ROW, AND THE MAN WHO BUYS THE STOCK MAY SEE WHAT IT COST. The Owner, looking at his own Inventory menu: 'old planner, stock lv and stock check consider repeated right? can we deleted to avoid confuse.' He was right about ONE of the three, and the other two would have cost him something, so all three were opened and read before any was touched. STOCK LEVEL was a true duplicate - #invcc mounted the SAME component as #onhandcard (m4StockList), so one table had two routes; its three unique features (money KPIs, tap-a-row-to-set-the-minimum, BRAND/AI/GROUP modes) are switched on inside renderStock() under roleAllows('invcc'), the very gate the retired row used, so the crew - who read this same list under their STOCK OUT form - see byte-for-byte what they saw before. STOCK-TAKE was NOT a duplicate and I argued against deleting it: it is where the count sheet v3.47.0 prints comes back IN, the only screen that turns the estate's paper into a ledger adjustment, so printing and posting stop being one job split across two menus and become two buttons on one screen. ORDER PLANNER was NOT a duplicate either, though it is the one that LOOKS doubled: BUY is procureNeeds() - what an issued directive still needs bought - while the planner is programNeeds() - what the programme will consume whether or not an order was ever raised, a phase AHEAD, which is the whole point when a chemical takes three weeks to arrive; it becomes a toggle inside BUY. ⛔ NOT ONE CARD IS DELETED OR MOVED. progcheck, progready, stocktake and invcc keep their ids, markup, renderers and places in HUB_PANELS; only what ROUTES to them changed, and deep links to inv/plan, inv/lvl and inv/take fall through tabsFor() onto the hub exactly as the retired v3.19 and v3.46.0 keys do. THE TILE IS RENAMED to THE STORE ('remove inventory and its main tab as the store') - name, sub and tn only. ⛔ THE KEY STAYS 'inv', because that is what openModule(), every deep link, LEGACY_GO.stock, HUB_ORDER, HOME_TILES and all seven harnesses are measured against; renaming a key is a rename with the blast radius of the whole file, which is what renamed the crew's MARK WORK DONE button in v3.43.0. THE PURCHASER SEES RM ON MATERIALS - his words, 'yes let him see RM on all the purchase, not a fruit'. He already keys the price of every line he receives, so hiding the shelf total from the man buying the stock was the inconsistency, not the disclosure. The fruit side is kept off his phone by ENTITLEMENT and not by this flag: he holds exactly one tile, so the five screens he can reach are HOME plus the four store jobs, and that walk was RUN with the flag forced on before the flag shipped - RM appears only on the buy queue and the valuation, and nothing matching revenue/retailer/merchant/credit/payout/per-kg renders anywhere. reach_v3480.js pins that walk so a future tile grant to PURCHASER fails the suite instead of quietly handing him the fruit money. SHOW_SPEND is deliberately NOT widened. AND A FAULT OF MY OWN, found while answering his 'any technical impact?': v3.47.0 made ISSUE a segment on the store bar, which handed OWNER and MARKETING a SECOND route to the stock-out form, because the bar does not consult the tab list and roleAllows('pnl-out') is true for them - the exact duplicate-door the v3.39.0 note closed. My v3.47.0 harness missed it because it only checked the old MENU ROW was gone. Resolved the v3.39.0 way, by asking who has no alternative: DAILY OPS - STOCK OUT is now roles:['WORKER'] because the crew have no store tile and it is their only door; Owner, Marketing and Purchaser all use ISSUE on the bar. The GATE is untouched - narrowing roleAllows() instead of the ROUTE would have taken the form away from the people who use it every day. PREVIOUS: v3.47.0 - THE STORE BECOMES THE FOUR JOBS HE APPROVED, AND A SHED IS COUNTED IN CONTAINERS. His instruction after approving the mock-up: 'i wan purchase in DMS store complete sample as the mock up.' Less was needed than it looked: v3.41.0 had already put four jobs behind one bar, so this release re-cuts them rather than inventing them. BRANDS is FOLDED INTO RECEIVE - matching a brand to the ingredient the Owner asked for, and onboarding a product the store never carried, are things you do WHILE receiving an invoice; they were never a job of their own, and giving them a quarter of the bar cost the Purchaser the slot he actually needed. ISSUE takes that slot, and the v3.46.0 menu row is RETIRED after a single release - it existed only to give him a route at all, and leaving both would be the duplicate-door fault this project keeps closing; a deep link to inv/out falls through tabsFor() to the hub exactly as the retired v3.19 keys do, and roleAllows() keeps his pnl-out grant, which is what v3.46.0 was really about. THE UNIT RULE, his sharpest observation of the day: 'i know that programme set up sometime by gm or ml, but when u go to inventory this unit will make thing difficult.' The programme speaks in ml and gm, the store speaks in bottles, drums and bags - both right, different jobs. A dose must stay exact because 2.5 kg per 1,000 L is chemistry, but nobody buys, counts or stores in millilitres. unit_multiplier already held the conversion, so packQty() prints the container big and the exact ml/gm small underneath, and ⛔ NOT ONE STORED NUMBER CHANGES - on-hand is still computed in ml/gm everywhere, this is a way of printing it, and the programme screens are untouched. packFullPart() never yields a decimal: 95,000 gm is 11 bags + 7,000 gm, because '11.9 bags' is not something a person can find in a shed. THE COUNT SHEET answers 'Shelf - have print out button for purchaser to ask estate to do stock check every month'. It is a PRINT, not a job, so it is a page hung off SHELF with a back button rather than a fifth segment, and leaving SHELF puts it away - a card left in the wrong group leaks onto every other screen for the session, which this codebase shipped twice (v3.6, v3.12). Two blank boxes a line, FULL and OPENED, because that is how a store is actually counted. It prints the app's own figure by the Owner's decision: a blind count finds more mistakes, a visible one actually gets done. The button rides the STOCK-TAKE entitlement, not the shelf list's, so the crew - who see the same list under their stock-out form - are not offered a store-wide count they cannot post. Third screen in the app to print, third to use a body class rather than an id rule, so the harvest sheet's print block is still byte-identical to the day it was proved on paper. It stores nothing: what comes back is keyed through the existing STOCK-TAKE, which already posts a signed adjustment. PREVIOUS: v3.46.0 - THE PURCHASER CAN FINALLY RECORD MATERIAL LEAVING. Two edits, and they close the fault behind the Owner's complaint that his workers 'are still no able to key the stock but they will whatssap to purchase and he will help to update'. Driving the app as all four roles showed the Purchaser could receive stock, read the shelf and run a stock-take but had NO WAY AT ALL to record an issue: his tile list is ['inv'], STOCK OUT was retired from that tile in v3.39.0 as a duplicate of DAILY OPS STOCK OUT, and he has no Ops tile - so a retirement that was correct for everyone else left him with no route to the panel, and roleAllows() refused him a second time. What that cost is not cosmetic: a worker WhatsApps 'I took 2 litres of Xilca' and the only thing the Purchaser could do was a STOCK-TAKE adjustment, which records a counting correction - no set, no cost, invisible to PROGRAMME COST. So the store drifted and the programme under-reported, by design of one gate. The section returns to the Inventory tile with roles:['PURCHASER'] ALONE, which is what keeps the v3.39.0 promise intact: Owner and Marketing still reach the identical panel from Daily Ops and gain NO second door, and the crew are untouched. `pnl-out` is widened by one role and opstasks / opshistory / opsgeneral deliberately are NOT - those are the crew's job list, not his desk. No new render path was needed: renderForTab still carries the inv/out line from before the retirement. ⛔ THE LESSON: when a screen is retired as a DUPLICATE, check it is a duplicate FOR EVERY ROLE - it is only a duplicate for someone who owns the other door. PREVIOUS: v3.45.0 - PROGRAMME COST, NARROWED AND DE-DUPLICATED. Two corrections the Owner asked for within an hour of v3.44.0 going live. ONE, 'the programme cost should only for spraying and fertilizer': the screen took every STOCK_OUT row that carried a `set`, which would have let tying rope - a Consumable - sit in a chemical cost report the moment a tying round was ever filed against a set. PC_CATS is an ALLOW list (Fungicide, Pesticide, Fertiliser, Foliar, Powder, Growth Reg, Herbicide), not a deny list, because a deny list lets the next category the Purchaser invents - fuel, packaging, tools - walk straight in on the day it is created. The trade is that a genuinely new INPUT category would be dropped, so it is not silent: whatever is turned away is counted and printed at the foot of the screen with its ringgit. TWO, 'certain month repeated like may 1 and 2, please help to merge to month': the calendar grouping was never wrong - the app has always grouped by the DATE - it was the LABEL. Every set name carries the name of the Excel tab it came from, so under a heading already reading MAY 2026 the rows said 'May 2 - Set 3 (flower) rnd2' and looked like a second May. pcSplitSet() strips the prefix, and ONLY when it really is a month: 'Boosting (Feb)' is named as a tab too, and a set called 'Merchant Tan - special mix' is left entirely alone. The date on the left of each row is what still separates two sets that end up sharing a name - May had a Fert Set 1 on the 5th and another on the 20th. ⛔ THE STRIPPED PREFIX IS NOT THROWN AWAY. It is kept and PRINTED when it disagrees with the calendar month, because that disagreement is real and was invisible before: 'May - Set 1' was done on 30 April, and four January sets were done in February. Silently removing the word would have destroyed the only evidence that the plan and the day did not match. Each row now also carries 💦 or 🪣 - the app's own runs answer from dirProgram, the imported history from its naming - and a month showing both prints the two subtotals. PREVIOUS: v3.44.0 - PROGRAMME COST, set by set. His words: 'i would like to have each set of detail volume usage, and rm.' REPORTS already totalled material by month and by lot, and PROGRAM RUNS counted runs and tanks, but nothing in this app had ever shown ONE SET's product lines - which is the question he actually asks: what did the 6 August spray cost me, drum by drum. It is REPORTS door 4 and deliberately NOT a fifth toggle inside MONEY, because MONEY is a once-a-month read already carrying four detail cards and this is a screen he opens whenever a set is sprayed; burying it would cost a tap every time. Also NOT in FARM beside SPRAY RECORD, which answers 'was it done on time' and is open to roles that must never see RM. OWNER alone, gated at the tab, again in roleAllows(), and a third time on SHOW_SPEND before a single ringgit is painted. TWO SHAPES, ONE PANEL, his pick: on screen month -> set -> products, the only shape that fits a phone without sideways scrolling; on paper the programme sheet with sets across the top and products down the side, because that is what his own Excel looks like and what he carries into a meeting. The print swap is keyed on a BODY CLASS, not an id rule, so the harvest sheet's print block - the one screen ever proved on real paper - is left byte-identical. Scope is programme sets only, also his pick: a STOCK_OUT row with no `set` was drawn by hand and belongs to the store screens. ⛔ THE WHOLE RISK IS DOUBLE COUNTING. submitRun() stamps tanks, trees, crew, hours and manHours onto EVERY row of a filing, once per LOT, so a 3-product job over 2 lots writes them six times; summing naively reports 9 tanks and 48 man-hours for a job that used 3 and 16. Rows are grouped by `replyId` - the one id all three writers stamp per job - and the per-lot figures are keyed by lot and OVERWRITTEN, never added. The harness asserts those exact wrong numbers cannot appear. It stores nothing: every figure is re-read from the store, so it cannot drift from the material that actually left the shed, and a set that was never marked done has no rows and therefore no cost - the screen says so instead of printing a quiet zero, which is the whole point, because on 13 August the 11 August round was missing from the app AND from the farm's old spreadsheet. t_classes.js, added one release earlier, caught this release's own orphan class on its first run: a `k2` that never existed in the stylesheet. PREVIOUS: v3.43.1 - THE BUTTON THE CREW COULD NOT SEE. A one-line repair of damage v3.43.0 did to a screen it never meant to touch. Namespacing the new WHO'S ON classes away from the existing .wbtn was done as a blanket replace of the string class="wbtn", and it silently renamed a call site 2,400 lines away: the crew's MARK WORK DONE button on the programme card. The onclick was untouched so the button still WORKED - it simply stopped looking like a button, losing its green, its full width and its padding, which on a phone in a shed means nobody presses it. 46 assertions were green at the time, because every one of them was about WHO'S ON. The lesson is not 'be careful with sed': it is that a rename is only safe when it is SCOPED to the block it belongs to, and that the blast radius of a string replace is the whole file. t_classes.js is the guard: it reads every class name app.js writes into markup and fails if one has no rule in the stylesheet (731 checked, 7 legacy orphans baselined and listed for clearing), and it holds an ANCHORS table of specific elements that must keep their exact class - the MARK DONE button is the first entry. One orphan of this release's own making, an unstyled `wholist` wrapper, is removed. Nothing else in v3.43.0 changed. PREVIOUS: v3.43.0 - WHO'S ON. The Owner, on the first trial morning: 'for owner view we can't see or monitor when the other user login and what they do.' COMMAND gains a second door, directly under TODAY because that is the order the two questions get asked every morning - what happened, then who did it. It needs NO NEW DATA: every writer in this app already stamps worker / workerId / device and a timestamp on the row it saves, about twenty call sites all identical, so the whole screen is an aggregation of records already on the Sheet done in the render - no new event type, no .gs change, no sync change, the same rule the daily audit follows. THE PHONES lists one row per registered person INCLUDING the ones who saved nothing, because the empty rows are the entire point, and each row carries a status word beside its dot (WORKING / QUIET / NO RECORD) since amber-and-green is a red-green pair this app has already failed a colour-blind check on. QUIET is 90 minutes: a crew walking between lots is easily an hour between saves, and a warning that cries wolf on an honest morning is a warning nobody reads. MINUTE BY MINUTE is the same day as one feed, every record turned into a plain sentence, and a record type the describer does not know still prints under its own name rather than vanishing - an audit screen may not silently drop a row. A day stepper walks backwards and refuses to step into tomorrow. OWNER ALONE, gated at the tab AND again in roleAllows(), and deliberately NOT `return full`: FULL_ROLES is Owner and Marketing, and the Gate is the person who approves the crew's loads - an approver reading the minute log of the people she checks is the same independence problem that closed the staff registry to her in v3.27.1. ⛔ WHAT IT REFUSES TO SAY IS A LOGIN. Grepping app.js and AppsScript_code.gs for LOGIN, lastSeen, heartbeat and deviceSeen returns ZERO hits: tryLogin() assigns CFG and writes no event, doPost has no session branch, and there is no device tab in the workbook. So a phone that is opened and never used leaves no trace anywhere, and this screen says FIRST RECORD and LAST RECORD, never 'logged in'. The gap is PRINTED at the foot of the screen instead of being hidden, because a monitor the Owner cannot trust is worse than no monitor. The login stamp is its own release - new event, new sheet tab, and his own Apps Script re-deploy. PREVIOUS: v3.42.0 - THE COLLECT ROAD IS A ROAD. Found on the first trial morning of 13 Aug, and it is the same fault v3.37.3 fixed for the Morning Scale - that release taught the header arrow about the scale's four steps and stopped there, so the OTHER screen with steps kept the dead end. COLLECT is three steps - scan box, then camera or tree list, then the tree card - and the arrow knew none of them: from the tree card it threw the worker out to the section list, and walking back in landed on the scan box with the counted fruit already cleared. The camera was worse than a dead end, it was a trap: startScan() hides the scan box AND the picker, so the 'pick tree from list' link a worker needs when a tag is too dirty to read is behind the very screen they are stuck on, and the only two exits in the code were a QR that read and a camera that failed. The Owner's words were 'cannot backward to choose manual'. HSTEP ('pick'|'cam'|'tree') is the whole of the new state and nothing that is COUNTED or SAVED is touched - GCOUNT/GKIND, rotQty and logTreeVisit() are byte-identical. The arrow now walks tree card -> tree list -> out, and from a live camera it closes the camera. Two buttons sit under the viewfinder, CLOSE CAMERA and PICK TREE FROM LIST INSTEAD, because a control that only exists in the header is a control a thumb reaching for the screen does not find. The bottom button said CANCEL, which reads as 'cancel the whole job'; it says CHOOSE A DIFFERENT TREE, which is what it does. Leaving a tree card that has fruit on it ARMS on the first tap and discards on the second, with the number of fruit at stake printed on the screen and never in a browser pop-up - the v3.37.4 rule. And showScreen() now stops the scanner on ANY way off this screen: stopScan() was reachable only from a good scan or a camera failure, so the home tab, a tile or the sync tab all left the viewfinder live, draining the phone and holding the camera against the next app that asked for it. PREVIOUS: v3.41.5 - THE DURIAN. Every screen that means "fruit off our own trees" was drawn with a MANGO, because Unicode has no durian and never has had one - the farm's own crop was being advertised with somebody else's fruit on the Harvest tile, the COLLECT tab, the harvest report, the ledger lines, the Master DB, COMPARE and the season line. IC_DUR replaces it in all sixteen places at once: not a font character and not a downloaded picture, but a small DRAWING carried inside database.js, so it renders identically on every phone, needs no network, cannot go missing and never blurs. It lives in database.js because that file loads first and both files need it at parse time. The catch is that a drawing is HTML and about half the icon sites run through esc() first - the ALL TOOLS drawer, the Master DB row, the FOC table - so escaping it blindly would have printed raw markup as visible text on exactly those screens. Rather than patch each call site and miss the next one, esc() itself now splits the icon out, escapes the real text either side exactly as before, and puts the icon back untouched; IC_DUR is an app constant so nothing a person typed can ride through. What a drawing still cannot survive is an <option>, a title="" or a textContent, and there are two: SEASON_STAGES 'Fruit Setting' sits in a dropdown and KEEPS its emoji, and the void-this-entry dialog writes with textContent, so it takes plain() which strips the drawing back out. Proven by driving the real app in a phone-sized browser as OWNER and as WORKER through eleven screens, asserting on each that no screen prints '<svg' as text and that the durian is actually on the tile. 20 assertions, all green. PREVIOUS: v3.41.4 - THE PHONE THAT IS BEHIND SAYS SO. Four phones in three places, and after every release the Owner had to ask each person to read a version number off their screen; on 12 Aug one phone was a day behind and nobody knew. The cause is not carelessness: a phone with the app on its home screen keeps its OWN saved copy of index.html, that copy still carries the OLD ?v=, so it loads the old app.js out of cache and never once asks the server whether anything changed. Closing the app does not help. Nothing on the phone had any way to notice. Now it asks: after every successful pull (and once, six seconds after boot, so a phone that never syncs still finds out) it fetches index.html from its own address with a cache-buster - the one request the saved copy cannot answer - and reads the ?v= the SERVER is serving. If that differs from APP_VERSION, an amber bar appears UNDER THE HEADER ON EVERY SCREEN, because a phone that is behind may be sitting on any tile, and tapping it reloads through a fresh address so the phone must fetch the new files. location.replace with a new query, NOT location.reload(), which on a home-screen app can be served straight back out of the very cache that caused the problem. ⛔ IT NEVER RELOADS BY ITSELF - that could happen mid weigh-in, and an unsent queue survives in IndexedDB but a half-keyed basket does not; the person taps it when their hands are free. Silent in the two cases where it would be lying: opened from a file (every harness), and any reply whose two script tags disagree, which is a half-finished publish. Throttled to one small GET every ten minutes and never awaited, so a slow answer cannot hold up the sync somebody is waiting on. 679 assertions, all green.
 // PREVIOUS: v3.14.0 - COUNT TREES, NOT TANKS.
 // PREVIOUS: v3.13.0 - INTERFACE SHARPENING.
 // PREVIOUS: v3.12.0 - SEASONAL AGRONOMY MATRIX + BRAND ALLOCATION + CLOSED-LOOP RUN COSTING.
@@ -689,7 +689,19 @@ const MODULES={
            d:'Weigh the baskets and photograph the scale display'}]},
   ops:{ic:'📋',name:'Daily Ops',sub:'tasks, stock out',tn:'m_ops',
     tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral','opshistory'],ic:'📋',tn:'s_tasks',d:'The jobs assigned to you, with one-tap completion'},
-          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],ic:'📤',tn:'s_stockout',d:'Draw material from the store, against a lot'},
+          /* v3.48.0 — ⛔ THE CREW'S DOOR, AND ONLY THE CREW'S. A fault I shipped in v3.47.0
+             and found while answering the Owner's "any technical impact?": making ISSUE a
+             segment on the store bar handed OWNER and MARKETING a SECOND route to this exact
+             form, because roleAllows('pnl-out') is true for them and the bar does not consult
+             the tab list. Two doors to one form is the duplicate the v3.39.0 note closed and
+             the v3.46.0 note re-opened for one release on purpose.
+             Resolved the same way v3.39.0 resolved it — by asking who has no alternative. The
+             WORKER has no store tile, so this is his only door and it stays his. Owner and
+             Marketing hold the store, so they use ISSUE on the bar like the Purchaser does.
+             `roleAllows('pnl-out')` is deliberately NOT narrowed: the crew still need the
+             panel, and narrowing the gate rather than the ROUTE would have taken the form
+             away from the people who use it every day. */
+          {k:'out',  t:'STOCK OUT',    scr:'stock',panels:['pnl-out','onhandcard'],roles:['WORKER'],ic:'📤',tn:'s_stockout',d:'Draw material from the store, against a lot'},
           /* v3.30.0 — the WORKER's door to the same rations screen. It is scoped to
              ['WORKER'] on purpose and NOT given to the Owner: he already reaches foccard
              from Review & Credit, and a second door for one person is exactly the
@@ -745,7 +757,14 @@ const MODULES={
   // Purchaser's six, so touching them would be removing a route nobody asked to collapse.
   // Net effect: Purchaser sees hub + plan (2, was 6). Owner/Marketing see hub + plan + out +
   // lvl + take (5, was 9) — same reduction, zero panels lost either direction.
-  inv:{ic:'📦',name:'Inventory',sub:'stock in/out, levels, alerts',tn:'m_inv',
+  /* v3.48.0 — THE TILE IS RENAMED, THE KEY IS NOT. Owner, 13 Aug 2026: "remove inventory and
+     [make] its main tab THE STORE". Only `name`/`sub`/`tn` change here; the key stays 'inv'
+     because that is what openModule(), every deep link, LEGACY_GO.stock, HUB_ORDER, HOME_TILES,
+     MODULE_ALIAS and all seven reach harnesses are measured against. Renaming a key is a
+     rename with the blast radius of the whole file — the exact class of fault that renamed the
+     crew's MARK WORK DONE button in v3.43.0. The label is the only thing the Owner can see, so
+     the label is the only thing that moves. */
+  inv:{ic:'🛒',name:'The Store',sub:'buy · receive · issue · shelf',tn:'m_inv',
     // v3.16 — TILE D · the Purchaser's SUPPLY HUB. Receiving an invoice, matching a brand
     // to the ingredient the Owner asked for, and onboarding a product the store has never
     // carried are one continuous job done at one desk, and splitting them across three
@@ -769,12 +788,33 @@ const MODULES={
        still listed here and still hidden by hideAllPanels(); 'invhubseg' leads because it
        is the bar itself and must never be hidden while the tab is open. The name changes
        to THE STORE because SUPPLY HUB described the page, not the job. */
-    tabs:[{k:'hub', t:'THE STORE',    scr:'stock',panels:['invhubseg','procurecard','m8recv','alertcenter','pnl-in','alloccard','onboardcard','pnl-out','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'What to buy, what arrived, which brand carries it, and what is on the shelf'},
+    /* v3.48.0 — ONE ROW. 'plan', 'lvl' and 'take' are retired as routes and their panels
+       joined this list, so every one of them is still hidden by hideAllPanels() and still
+       opened by openModule() — they are simply reached from the job bar now instead of a
+       menu. progcheck/progready ride the BUY toggle, stocktake is a page off SHELF, and
+       invcc is deliberately NOT here: its three unique features moved onto #onhandcard,
+       so routing the card as well would put two copies of the same table on one screen. */
+    /* ⛔ 'stocktake' and 'countsheet' are deliberately ABSENT from this list, and the reason is
+       the difference between a JOB and a PAGE. openModule() sets display:'' on everything it
+       routes, so a page listed here would be on screen the moment the store opens — which is
+       exactly what a screenshot caught: the stock-take form sitting under the job bar on
+       SHELF, on first entry, before anybody asked for it. Pages are opened by their own
+       button (stOpen/csOpen) and closed by their own guard. They are hidden on the way OUT by
+       HUB_PANELS, which lists both. */
+    tabs:[{k:'hub', t:'THE STORE',    scr:'stock',panels:['invhubseg','m8buyseg','procurecard','m8recv','alertcenter','progcheck','progready','pnl-in','alloccard','onboardcard','pnl-out','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy, receive, issue and count — the whole store on one bar'},
           // v3.19 — ORDER PLANNER merges the old PROGRAM CHECK ('chk') and NEXT PHASE
           // ('next') tabs. Both panels ship exactly as before — progcheck and progready are
           // still separate cards in index.html, still both listed in HUB_PANELS, still both
           // gated by roleAllows() — only the segment toggle between them is new.
-          {k:'plan',t:'ORDER PLANNER',scr:'dash', panels:['progcheck','progready'],           roles:['OWNER','MARKETING','PURCHASER'],ic:'📅',tn:'m3_orderplanner',d:'Program check for the phase running now, and what to order for the one after — one screen, one toggle'},
+          /* v3.48.0 — 'plan' RETIRED as a route. Owner, 13 Aug 2026, on the whole tile:
+             "remove inventory and [make] its main tab the store". I checked this one against
+             BUY before agreeing it could move: they are NOT the same table. BUY is
+             procureNeeds() — what an issued directive still needs bought. The planner is
+             programNeeds() — what the programme will consume whether or not an order exists,
+             and it looks a phase AHEAD, which is the whole point when a chemical takes three
+             weeks to arrive. So it is not deleted, it is a toggle inside BUY (M8_BUYVIEW).
+             Both cards keep their ids, their renderers and their gates; a deep link to
+             inv/plan falls through tabsFor() onto the hub. */
           /* v3.39.0 — 'out' RETIRED FROM INVENTORY. It is the identical pair of panels as
              DAILY OPS ▸ STOCK OUT. ⛔ THE CREW'S COPY IS THE ONE THAT STAYS: a WORKER has
              no Inventory tile at all, so retiring the Ops copy instead would have taken
@@ -799,8 +839,22 @@ const MODULES={
              A deep link to inv/out falls through tabsFor() to the hub, exactly as the retired
              v3.19 keys do. `pnl-out` stays in roleAllows() for him — that gate is what v3.46.0
              was really about. */
-          {k:'lvl', t:'STOCK LEVEL',  scr:'dash', panels:['invcc'],                            roles:['OWNER','MARKETING','PURCHASER'],ic:'📦',tn:'s_stocklvl',d:'Live valuation, reorder alerts, active ingredients'},
-          {k:'take',t:'STOCK-TAKE',   scr:'dash', panels:['stocktake'],                        roles:['OWNER','MARKETING','PURCHASER'],ic:'🧾',d:'Physical count vs system, posted as an adjustment'}]},
+          /* v3.48.0 — 'lvl' RETIRED, and this one really was a duplicate: #invcc mounted the
+             SAME component as #onhandcard (m4StockList), so the Owner had two routes drawing
+             one table. Its three unique features — the money KPIs, tap-a-row-to-set-the-
+             minimum, and the BRAND/AI/GROUP modes — are switched on inside renderStock()
+             under `roleAllows('invcc')`, the very gate this row used. The crew's copy of that
+             same list is unchanged because the gate says no for them.
+             The #invcc card and renderInvCC() STAY in the build, unrouted: refreshEverything()
+             still calls the renderer, it returns harmlessly with no mount on screen, and
+             deleting markup to tidy is how a routed panel ends up with nothing behind it. */
+          /* v3.48.0 — 'take' RETIRED as a route, but NOT as a feature, and this is the one I
+             argued against deleting. It is where the printed count sheet comes back IN. The
+             estate counts on paper; this form is the only thing that can turn that paper into
+             a ledger adjustment. Printing and posting were one job split across two menus, so
+             it is now the second button under the print button, on the same screen, via the
+             stOpen()/ST_OPEN page pattern. */
+          ]},
   // v3.0 — Marketing is the morning dispatch desk: weigh the baskets, invoice the
   // retailer, watch the credit come down. Owner and Marketing only.
   // v3.16 — TILE E · REVIEW & CREDIT. The Marketer's morning is auditing what the field
@@ -1033,6 +1087,16 @@ const MKT_DENY=new Set([
    Reports rather than bouncing the person to Home with no explanation. */
 const MODULE_ALIAS={costadmin:'reports'};
 const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
+  // v3.48.0 — BUY's own sub-toggle. In this array for the same reason every other panel is:
+  // a card that hideAllPanels() cannot see stays on screen over the next module.
+  'm8buyseg',
+  /* v3.48.0 — 'countsheet' JOINS THE LIST. It shipped in v3.47.0 outside it, relying on
+     csClose() alone, which covers a segment change but NOT walking off the tile entirely —
+     precisely the hole the note below describes and this codebase has shipped through twice.
+     Being listed here does NOT put it on screen: it is a page, so no tab routes to it, and
+     hideAllPanels() only ever HIDES. Same for 'stocktake', listed at the top of this array
+     since v2.3 and no longer routed by any tab as of this release. */
+  'countsheet',
   'corrpanel','keyspanel','alertcenter','pnl-in','pnl-out','onhandcard',
   'opstasks','opshistory','agrophases','agroproj','progcheck',
   'opsgeneral','opsassign','labourcard','agroweather','progready',
@@ -1498,8 +1562,19 @@ function openModule(k,tabKey){
   if(!tab)tab=tabs[0];                                              // retired/unknown key
   curModule=k;curTab=tab.k;inMenu=false;
   hideAllPanels();
+  /* v3.48.0 — ⛔ CLEAR .m3-hide ON THE WAY IN. Found by the reach harness: the crew's
+     STOCK OUT form was INVISIBLE on a phone where somebody had previously used the store,
+     and this farm shares phones. The cause is that .m3-hide carries !important and is
+     applied by the segment bars (m8HubPick, m8BuyPick, m3PlanPick, m5RecPick) — but it was
+     only ever removed by those same bars. #pnl-out belongs to the store's ISSUE job AND to
+     Daily Ops ▸ STOCK OUT, so picking SHELF stamped the class on it and nothing on the Ops
+     road ever took it off: display:'' below is set, and loses to the !important class.
+     hideAllPanels() manages style.display, so the class needed the same treatment. Every
+     bar re-applies its own state on entry (renderForTab calls m8HubPick, which now also
+     re-applies m8BuyPick), so clearing here cannot strip a hide that is still wanted. */
   (tab.panels||[]).forEach(id=>{const el=$(id);if(!el||!roleAllows(id))return;
     if(id==='phibox'){el.dataset.dashhide='';return;}
+    el.classList.remove('m3-hide');
     el.style.display='';});
   showScreen(tab.scr);
   $('backbtn').classList.remove('hidden');
@@ -1758,7 +1833,20 @@ function applyRole(){
   if(typeof renderCmdExec==='function')renderCmdExec();
   const r=myRole();
   const full=FULL_ROLES.indexOf(r)>=0;
-  SHOW_VALUES=full;                                   // gates every RM figure in the app
+  /* v3.48.0 — THE PURCHASER SEES RM ON MATERIALS. Owner's decision, 13 Aug 2026, in his own
+     words: "yes let him see RM on all the purchase, not a fruit." He already keys the price of
+     every line he receives — the invoice is in his hand — so hiding the shelf total from the
+     man buying the stock was the inconsistency, not the disclosure.
+     ⛔ WHY THIS IS SAFE, AND WHY IT IS NOT A GENERAL WIDENING: this flag is app-wide (~30 call
+     sites), so the fruit side is kept off his phone by ENTITLEMENT, not by this flag. He holds
+     exactly one tile — 'inv' — so the five screens he can reach are HOME plus the four store
+     sections. Verified by walking every one of them with the flag forced on: RM appears only on
+     the buy queue and the stock valuation, and NOTHING matching revenue/retailer/merchant/
+     credit/payout/per-kg renders anywhere. reach_v3480.js pins that walk, so a future tile grant
+     to PURCHASER fails the suite instead of quietly handing him the fruit money.
+     SHOW_SPEND is deliberately NOT widened below — it gates the cost REPORTS, a different
+     question, on a tile he does not hold. */
+  SHOW_VALUES=full||r==='PURCHASER';                  // gates every RM figure in the app
   /* v3.24 — a SECOND, NARROWER money gate, for the cost side only.
      SHOW_VALUES answers "may this person see money at all". It cannot answer the question
      the Owner actually asked on 6 Aug: the marketer may see what the farm EARNED but not
@@ -3429,6 +3517,35 @@ function csClose(){
   if(h)h.classList.remove('m3-hide');
   if(bar)bar.classList.remove('m3-hide');
   $('scr-stock').scrollTop=0;}
+/* v3.48.0 — STOCK-TAKE STOPS BEING A MENU ROW AND BECOMES THE OTHER HALF OF THE PRINT.
+   The estate counts on the paper csPrint() produced; this is the only screen those numbers
+   can be keyed back into. Having it two taps away in a different menu meant printing and
+   posting were the same job done in two places, which is exactly what the Owner asked to
+   stop. Deliberately the SAME page pattern as the count sheet — including the ST_OPEN guard,
+   which exists because csClose() shipped without one and un-hid the shelf list on every
+   segment change, leaking it onto all four jobs. A tidy-up function must know whether there
+   was anything to tidy. */
+let ST_OPEN=false;
+function stOpen(){
+  const s=$('stocktake'), h=$('onhandcard'), bar=$('invhubseg');
+  if(!s)return;
+  if(typeof csClose==='function')csClose();   // never both pages at once
+  ST_OPEN=true;
+  try{ if(typeof renderStOpts==='function')renderStOpts();
+       if(typeof renderStRecent==='function')renderStRecent(); }catch(e){}
+  s.style.display=''; s.classList.remove('m3-hide');
+  if(h)h.classList.add('m3-hide');
+  if(bar)bar.classList.add('m3-hide');
+  $('scr-stock').scrollTop=0;}
+function stClose(){
+  if(!ST_OPEN)return;                      // nothing was open — do not touch the bar or the list
+  ST_OPEN=false;
+  const s=$('stocktake'), h=$('onhandcard'), bar=$('invhubseg');
+  if(s){s.style.display='none';s.classList.add('m3-hide');}
+  if(h)h.classList.remove('m3-hide');
+  if(bar)bar.classList.remove('m3-hide');
+  $('scr-stock').scrollTop=0;}
+
 /** The third screen in this app that prints, and the third to use a body class rather than
  *  an id rule — the harvest sheet's print block is still byte-identical to the day it was
  *  proved on real paper. */
@@ -3556,14 +3673,38 @@ function renderStock(){
   // active ingredient in blue under the brand. Same purge as the picker above it.
   if(b)b.setAttribute('placeholder',hideChem()?tr('so_searchw','Search the drum name…')
                                              :tr('so_search','Search brand or active ingredient…'));
+  /* v3.48.0 — SHELF ABSORBS STOCK LEVEL. The retired 'lvl' row mounted this very component;
+     the only things it had that this card did not were the money KPIs, edit-a-row (the sole
+     place a minimum stock level can be set) and the BRAND/AI/GROUP modes. They are switched
+     on HERE, by entitlement, so one list serves both readers instead of two routes drawing
+     the same table.
+     ⛔ THE CREW MUST NOT INHERIT ANY OF IT. This same card sits under the worker's STOCK OUT
+     form. `roleAllows('invcc')` is the gate the retired row used, so using it again means the
+     crew's view is byte-for-byte what it was before this release: no KPIs, no mode bar, no
+     editable rows, and — via SHOW_VALUES — no money. */
+  const deep=roleAllows('invcc');
+  const seg=$('oh-mode'); if(seg)seg.style.display=deep?'':'none';
+  const kp=$('oh-kpis');  if(kp) kp.style.display=(deep&&SHOW_VALUES)?'':'none';
+  const eh=$('oh-edithint'); if(eh)eh.style.display=deep?'':'none';
   // no cap here: the on-hand list has always scrolled inside its own box rather than
   // collapsing, and a worker looking for one drum should not have to tap SHOW ALL.
-  m4StockList('stocklist',{values:SHOW_VALUES,mode:'ALL',query:(b?b.value:''),
-    edit:false,cap:0,tableId:'m4-ohtbl'});
+  m4StockList('stocklist',{values:SHOW_VALUES,mode:(deep?ccMode:'ALL'),query:(b?b.value:''),
+    edit:deep,cap:0,tableId:'m4-ohtbl',
+    kpis:(deep&&SHOW_VALUES)?'oh-kpis':'',alert:deep?'oh-alert':''});
   /* v3.47.0 — the count-sheet button rides the STOCK-TAKE entitlement, not this list's.
      The crew see this same list under their stock-out form and must not be offered a
      store-wide count they cannot post. */
-  const cs=$('cs-open'); if(cs)cs.style.display=roleAllows('stocktake')?'':'none';}
+  const cs=$('cs-open'); if(cs)cs.style.display=roleAllows('stocktake')?'':'none';
+  const st=$('st-open'); if(st)st.style.display=roleAllows('stocktake')?'':'none';}
+
+/* v3.48.0 — the mode bar moved onto SHELF with the list. setCCMode() is still the one
+   writer of ccMode so the retired card and this one can never disagree; this wrapper only
+   exists so the SHELF buttons have something to call that repaints SHELF. */
+function ohMode(m,el){
+  ccMode=m;
+  const bar=$('oh-mode');
+  if(bar)[...bar.children].forEach(c=>c.classList.toggle('on',c===el));
+  renderStock();}
 
 // ---- urgent reorder alert center ----
 /* ================= v3.28.0 · THE DATA-QUALITY NOTICE ================================
@@ -3676,27 +3817,75 @@ function m3PlanPick(which){
    • ISSUE takes that slot. Until v3.46.0 he had no way to record material leaving at all;
      that release gave him the panel through a menu row, and this one puts it where the eye
      lands. ⛔ The v3.46.0 menu section is retired in the same breath — one door, not two. */
-const M8_GROUPS={buy:['procurecard','alertcenter'],
+/* ======================================================================================
+   v3.48.0 · THE TILE BECOMES ONE ROW. THREE MENU SECTIONS MOVE INTO THE FOUR JOBS.
+   ======================================================================================
+   Owner's decision, 13 Aug 2026, after I opened all three and reported back:
+     • STOCK LEVEL  — a true repeat. It mounted the SAME component as SHELF (m4StockList).
+                      Only three things were unique to it: the money KPIs, tap-a-row-to-set-
+                      the-minimum, and GROUP BY AI. All three move ONTO SHELF, which is why
+                      renderStock() below now widens its own options by role instead of a
+                      second card being routed anywhere. Nothing is lost, one list remains.
+     • STOCK-TAKE   — NOT a repeat. It is where the printed count sheet comes back IN. It
+                      becomes the second button under the print button, on the same screen,
+                      via the csOpen()/ST_OPEN page pattern rather than a menu row.
+     • ORDER PLANNER— NOT a repeat, but one tap from the thing it is confused with. BUY says
+                      "you already ordered this"; the planner says "the programme will eat
+                      this, have you got it". Same job, two questions, so it becomes a
+                      sub-toggle inside BUY.
+   ⛔ THE CARDS THEMSELVES ARE NOT MOVED OR DELETED. progcheck/progready/stocktake keep their
+   ids, their markup, their renderers and their places in HUB_PANELS. Only what ROUTES to
+   them changed. invcc likewise stays: renderInvCC() is still called by refreshEverything()
+   and returns harmlessly when its mount is off screen. Deleting markup to "tidy" is how a
+   routed panel ends up with nothing behind it — see the v3.30.0 dead-tile note.
+   Deep links to inv/plan, inv/lvl and inv/take fall through tabsFor() onto the hub, exactly
+   as the retired v3.19 and v3.46.0 keys do. Nobody's bookmark breaks. */
+const M8_GROUPS={buy:['procurecard','alertcenter','progcheck','progready'],
                  recv:['m8recv','pnl-in','alloccard','onboardcard'],
                  issue:['pnl-out'],
                  hand:['onhandcard']};
+/* BUY holds two questions now, so it carries its own small toggle. The planner's OWN
+   THIS PHASE / NEXT PHASE switch (m3PlanPick, v3.19) is untouched underneath — this only
+   chooses whether the buy queue or the planner is the one on screen. */
+const M8_BUYVIEW={now:['procurecard','alertcenter'],plan:['progcheck','progready']};
+let M8_BUY='now';
+function m8BuyPick(which){
+  M8_BUY=M8_BUYVIEW[which]?which:'now';
+  Object.keys(M8_BUYVIEW).forEach(k=>{
+    const btn=$('m8-b-'+k); if(btn)btn.classList.toggle('on',k===M8_BUY);
+    M8_BUYVIEW[k].forEach(id=>{const el=$(id); if(el)el.classList.toggle('m3-hide',k!==M8_BUY);});});
+  try{
+    if(M8_BUY==='now'){renderProcure&&renderProcure();renderAlerts&&renderAlerts();}
+    else{
+      /* hand the planner back to its own switch so THIS PHASE / NEXT PHASE is in whatever
+         state the user last left it, rather than silently resetting to 'now'. */
+      if(typeof m3PlanPick==='function')m3PlanPick($('m3-pl-next')&&$('m3-pl-next').classList.contains('on')?'next':'now');
+    }
+  }catch(x){}}
 let M8_VIEW='buy';
 function m8HubPick(which){
   M8_VIEW=M8_GROUPS[which]?which:'buy';
   Object.keys(M8_GROUPS).forEach(k=>{
     const btn=$('m8-s-'+k); if(btn)btn.classList.toggle('on',k===M8_VIEW);
     M8_GROUPS[k].forEach(id=>{const el=$(id); if(el)el.classList.toggle('m3-hide',k!==M8_VIEW);});});
+  const bb=$('m8buyseg'); if(bb)bb.classList.toggle('m3-hide',M8_VIEW!=='buy');
   /* repaint only what is now on the screen, wrapped: a role that cannot open one of these
      cards has no box to write into, and a throw here would abort the rest of the entry. */
   try{
-    if(M8_VIEW==='buy'){renderProcure&&renderProcure();renderAlerts&&renderAlerts();}
+    /* BUY re-applies its own sub-toggle, because the loop above has just un-hidden BOTH of
+       its groups. Without this the buy queue and the planner would sit on screen together
+       — the mirror image of the leak the count sheet caused in v3.47.0. */
+    if(M8_VIEW==='buy'){m8BuyPick(M8_BUY);}
     if(M8_VIEW==='recv'){renderInOpts&&renderInOpts();renderBasket&&renderBasket();}
     if(M8_VIEW==='recv'){renderAllocCard&&renderAllocCard();renderOnboard&&renderOnboard();}
     if(M8_VIEW==='issue'){renderOutOpts&&renderOutOpts();renderStock&&renderStock();}
     if(M8_VIEW==='hand'){renderStock&&renderStock();}
-    /* the count sheet is a page hung off SHELF, so any other segment must put it away —
-       otherwise it sits on top of BUY for the rest of the session (the v3.6 leak). */
+    /* the count sheet and the stock-take form are pages hung off SHELF, so any other segment
+       must put them away — otherwise they sit on top of BUY for the rest of the session
+       (the v3.6 leak). Both guard on their own OPEN flag: a tidy-up function must know
+       whether there was anything to tidy, or it undoes the hide applied one line above. */
     if(M8_VIEW!=='hand'&&typeof csClose==='function')csClose();
+    if(M8_VIEW!=='hand'&&typeof stClose==='function')stClose();
   }catch(x){}}
 
 /** SPRAY RECORD — what was applied, or how it ran against the plan. */
