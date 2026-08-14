@@ -295,7 +295,14 @@ const ONBOARD_UNITS = [
   {k:'gm',      t:'gm — powder / granule',    containers:[['packet',1000],['bag',25000],['sack',50000],['tub',5000]]},
   {k:'bags',    t:'bags — counted whole',     containers:[['bag',1]]},
   {k:'tablets', t:'tablets — counted whole',  containers:[['box',100],['strip',10]]},
-  {k:'m',       t:'m — measured length',      containers:[['roll',1000]]}
+  {k:'m',       t:'m — measured length',      containers:[['roll',1000]]},
+  /* v3.53.0 — the Owner asked for litre and kilogram, for every product not just new ones.
+     ⛔ THE CONTAINER SIZES ARE IN THE UNIT ITSELF, which is the whole point and the whole
+     danger: a 20 L drum is 20 here, where the same drum under 'ml' is 20000. Mixing the two
+     inside one product would be off by a thousand, so the pair is offered as its own unit
+     with its own containers rather than as a label on the old one. */
+  {k:'L',       t:'L — litre, bought big',    containers:[['bottle',1],['jerrycan',5],['pail',18],['drum',20],['IBC tank',1000]]},
+  {k:'kg',      t:'kg — kilogram, bought big',containers:[['pack',1],['bag',25],['sack',50],['tote',500]]}
 ];
 
 /* Stage x weather guidance. Purely advisory text shown above the builder — the app
@@ -1217,6 +1224,7 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   ob_fromplan:'from the plan', ob_allthere:'Everything in the plan is already on the list',
   /* v3.50.0 — the six programme status words. LATE, not DELAYED: the Owner's word. */
   m_prog:'The Programme',
+  ag_bigdose2:'Did you mean', ag_bigdose3:'Tap Cancel to keep',
   md_willdeduct:'Will deduct', md_onhand:'On hand', md_changed:'CHANGED',
   md_backtoplan:'↺ BACK TO THE PLANNED AMOUNTS',
   md_needtanks:'Key how many tanks were used.', md_howmanytanks:'How many tanks were used',
@@ -2159,6 +2167,7 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   ob_noplan:'Tiada fasa program aktif untuk diisi — tambah produk secara manual.',
   ob_fromplan:'dari pelan', ob_allthere:'Semua dalam pelan sudah ada dalam senarai',
   m_prog:'Program',
+  ag_bigdose2:'Adakah anda maksudkan', ag_bigdose3:'Tekan Batal untuk kekalkan',
   md_willdeduct:'Akan tolak', md_onhand:'Ada', md_changed:'DIUBAH',
   md_backtoplan:'↺ KEMBALI KE JUMLAH ASAL',
   md_needtanks:'Masukkan berapa tangki telah digunakan.', md_howmanytanks:'Berapa tangki digunakan',
