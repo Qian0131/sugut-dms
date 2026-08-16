@@ -636,6 +636,30 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 textarea{width:100%;padding:10px 11px;border:1px solid var(--line,#dfe3da);border-radius:9px;
   font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical;background:#fff;color:inherit;}
 .alertbig{background:var(--warn);color:#fff;border-radius:11px;padding:8px 11px;font-weight:900;font-size:13px;text-align:center;margin-bottom:9px;animation:flashred2 1.1s infinite;}
+/* ===== v3.57.0 · THE STORE ▸ BUY STOPS SHOUTING ==========================================
+   Owner, 15 Aug 2026: "many tab alert was show and confuse." Measured on the live build the
+   BUY screen carried THREE red headlines and six-to-ten boxes pulsing red forever — and the
+   same product could appear in two of the lists at once. Red that never stops is read as
+   wallpaper, so the one thing with a date on it (the buy queue) keeps the flash and
+   everything else goes still. `.calm` kills the animation without touching the shape, the
+   colours or a single gate, so a screenshot of any other screen is byte-identical.
+   ⛔ NOT a new colour scheme and NOT a deletion: every product still listed, one tap away,
+   with its count printed on the closed line. */
+.alertbig.calm{animation:none;}
+.alertrow.calm{animation:none;background:#fff;border-color:#e6dcc2;}
+.alertrow.calm .an{color:#5a4a1e;}
+.alertrow.calm .aq{color:#6b7a6e;}
+/* the closed line. A whole list behind one row: icon · what it is · how many · chevron. */
+.qstrip{display:flex;align-items:center;gap:9px;border:2px solid #dfe4dd;background:#fff;
+  border-radius:12px;padding:11px 12px;margin-bottom:7px;cursor:pointer;min-height:46px;}
+.qstrip .qi{font-size:16px;}
+.qstrip .qt{flex:1;font-size:12.5px;font-weight:800;color:#3f4a3e;line-height:1.35;}
+.qstrip .qn{background:#fff3cd;color:#7a5b00;font-weight:900;font-size:12px;border-radius:9px;padding:3px 9px;}
+.qstrip .qc{font-size:14px;color:var(--muted);font-weight:900;}
+.qstrip.open{border-color:#c8dcc9;}
+.qbody{border:2px solid #eef1ed;border-top:none;border-radius:0 0 12px 12px;
+  padding:9px;margin:-9px 0 8px;background:#fbfcfb;}
+.inbuy{font-size:11px;font-weight:900;color:var(--green2,#2e7d32);margin-top:3px;}
 /* ===== v3.28.0 ===== the data-quality notice. AMBER and still, not red and flashing:
    an unread label is a job for this week, not an emergency this minute, and a second
    flashing red bar directly above the stock alarm would teach people to ignore both. */
@@ -2692,13 +2716,18 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- URGENT REORDER ALERT CENTER — Purchaser + Owner/Marketing -->
   <div class="card" id="alertcenter" style="display:none">
-    <div class="sec">🚨 <span data-t="m3_alerthead">Urgent Reorder Alert Center</span> <span class="m5-iq" onclick="m5Tog('m5-p14')">ⓘ</span></div>
+    <!-- v3.57.0 — 🚨 becomes 📋 and "Urgent Reorder Alert Center" becomes "Also worth
+         knowing". Nothing on this card has a date on it; the dated work is the buy queue
+         above. The two mounts below are unchanged ids, still painted by the same two
+         renderers — each now writes a CLOSED line plus a body, instead of a red headline
+         plus an open list. -->
+    <div class="sec">📋 <span data-t="m3_alerthead">Also worth knowing</span> <span class="m5-iq" onclick="m5Tog('m5-p14')">ⓘ</span></div>
     <!-- v3.28.0 - products whose label has never been read. Above the low-stock list on
          purpose: a product with no price makes every job that uses it cost nothing, which
          is a worse silence than an empty drum. -->
     <div id="datagaps"></div>
     <div id="alertlist"></div>
-    <p class="small hidden" id="m5-p14" data-t="m3_alertnote" style="margin-top:8px">A product flashes red the moment its live quantity drops below its minimum stock level. Live quantity = opening stock − used + received (including entries still queued on this phone).</p>
+    <p class="small hidden" id="m5-p14" data-t="m3_alertnote" style="margin-top:8px">Nothing on this card is due today. A product is listed below its minimum when its live quantity drops under the minimum stock level. Live quantity = opening stock − used + received (including entries still queued on this phone).</p>
   </div>
 
   <!-- STOCK IN LOG — Sandakan Purchaser (Owner/Marketing may also use it) -->
@@ -3922,7 +3951,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.56.0"></script>
-<script src="app.js?v=3.56.0"></script>
+<script src="database.js?v=3.57.0"></script>
+<script src="app.js?v=3.57.0"></script>
 </body>
 </html>
