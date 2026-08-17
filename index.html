@@ -1040,6 +1040,11 @@ textarea{width:100%;padding:10px 11px;border:1px solid var(--line,#dfe3da);borde
 .tbl tr.edit td{background:var(--lite);}
 .bigbtn.danger{background:var(--warn);}
 .bigbtn.danger:active{background:#8c1d18;}
+/* v3.58.0 — RECLASSIFY sits between "correct the number" (green, ordinary) and "remove the
+   row" (red, destructive), and it is neither: nothing is lost, the fruit is moved. Amber
+   says "this is a different kind of change" without borrowing the delete button's alarm. */
+.bigbtn.reclass{background:#fff8e1;color:#7a5b00;border:2px solid #f9a825;}
+.bigbtn.reclass:active{background:#ffecb3;}
 .qrbox{background:#fff;border:1.6px solid #dfe6df;border-radius:14px;padding:12px;margin-top:12px;
        text-align:center;}
 .qrbox svg{max-width:100%;height:auto;}
@@ -2129,6 +2134,32 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   font-weight:800;color:var(--green);}
 .fxstart{text-align:center;font-size:11px;font-weight:900;letter-spacing:.6px;color:#9aa398;
   padding:14px 0 2px;cursor:pointer;}
+/* ===== v3.58.0 · RECLASSIFY — "it was not this KIND" ======================================
+   The Owner walked FIX A RECORD with 2 Grade A fruit that were really rotten, typed 2 into
+   "what should it say?" and was told, correctly, that 2 is already what it says. The count
+   never changed — the KIND did — and step 4 could only ask for a number. These are the
+   chips and the two-row preview for the third action that can. ⛔ 44px minimum on every
+   chip: this is a thumb on a phone in a shed, not a mouse. */
+.fxpick{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.fxpick div{flex:1;min-width:80px;min-height:46px;display:flex;align-items:center;
+  justify-content:center;text-align:center;border:2px solid #c8dcc9;border-radius:12px;
+  padding:9px 5px;font-weight:900;font-size:12.5px;color:var(--green2);background:#fff;
+  cursor:pointer;user-select:none;line-height:1.25;}
+.fxpick div.on{background:var(--green2);color:#fff;border-color:var(--green2);}
+/* what the one confirm will write — both halves, before it is written */
+.fxtwo{border:2px solid #c8dcc9;border-radius:13px;overflow:hidden;margin-top:11px;}
+.fxtwo .h{background:#eef4ee;padding:7px 10px;font-size:9.5px;font-weight:900;letter-spacing:.6px;
+  text-transform:uppercase;color:#3f5a41;}
+.fxtwo .r{display:flex;align-items:center;gap:9px;padding:10px;border-top:1px solid #eef1ed;}
+.fxtwo .r .ic{font-size:17px;}
+.fxtwo .r .t{flex:1;font-size:12.5px;font-weight:800;line-height:1.4;}
+.fxtwo .r .v{font-weight:900;font-size:15px;}
+.fxtwo .r.minus .v{color:var(--warn);}
+.fxtwo .r.plus  .v{color:var(--green2);}
+/* the two answers the app fills in for him, and the reason each one matters */
+.fxlock{background:#eef4ee;border:2px dashed #b6c9b7;border-radius:11px;padding:9px 11px;
+  font-size:11.5px;font-weight:800;color:#3f5a41;margin-top:9px;line-height:1.5;}
+.fxlock b{color:var(--green);}
 /* ---- v3.41.0 · ASK FOR FRUIT — the count, with thumb steppers ----
    Same reasoning as the scale's basket count: a number a man keys standing under a tree
    gets buttons his thumb can hit, not a spinner arrow 9px tall. */
@@ -3951,7 +3982,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.57.0"></script>
-<script src="app.js?v=3.57.0"></script>
+<script src="database.js?v=3.58.0"></script>
+<script src="app.js?v=3.58.0"></script>
 </body>
 </html>
