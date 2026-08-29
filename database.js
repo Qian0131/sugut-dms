@@ -625,7 +625,7 @@ const RETAILER_SEED=[
   {id:'RT-02',   name:'Seng Kee',     contact:'',  opening_credit_rm:15000,
    current_credit_balance_rm:15000, status:'Active', pricing:'CONTRACT'},
   {id:'RT-CASH', name:'Default Cash', contact:'',  opening_credit_rm:0,
-   current_credit_balance_rm:0,     status:'Active', pricing:'SPOT'}
+   current_credit_balance_rm:0,     status:'Active', pricing:'SPOT', pay_type:'CASH'}
 ];
 
 /* The contract book, one matrix per merchant, keyed by retailer id.

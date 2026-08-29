@@ -3563,8 +3563,20 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <input id="rf-name" placeholder="e.g. Roll" autocomplete="off">
     <label>Contact number</label>
     <input id="rf-con" placeholder="e.g. 013-000 0001" inputmode="tel" autocomplete="off">
-    <label>Opening credit (RM)</label>
-    <input id="rf-open" inputmode="decimal" placeholder="15000.00">
+    <label>Pay type</label>
+    <div class="lotbtns" id="rf-pay">
+      <div class="on" id="rf-credit" onclick="pickRetPay('CREDIT')">💳 CREDIT</div>
+      <div id="rf-cash" onclick="pickRetPay('CASH')">💵 CASH</div>
+    </div>
+    <div class="exphint" id="rf-paynote"></div>
+    <div id="rf-openwrap">
+      <label>Opening credit (RM)</label>
+      <input id="rf-open" inputmode="decimal" placeholder="15000.00">
+    </div>
+    <div id="rf-warnwrap" class="hidden">
+      <label>Warn me when unpaid passes (RM)</label>
+      <input id="rf-warn" inputmode="decimal" placeholder="5000.00">
+    </div>
     <label>Pricing</label>
     <div class="lotbtns" id="rf-pricing">
       <div class="on" id="rf-spot" onclick="pickRetPricing('SPOT')">📈 DAILY SPOT</div>
@@ -3987,7 +3999,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.67.0"></script>
-<script src="app.js?v=3.67.0"></script>
+<script src="database.js?v=3.68.0"></script>
+<script src="app.js?v=3.68.0"></script>
 </body>
 </html>
