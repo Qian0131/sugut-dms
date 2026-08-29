@@ -2288,6 +2288,11 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 /* v3.37.3 — a decimal point in the wrong place, named out loud. Warns, never blocks. */
 .nr-odd{background:#fff3cd;border-left:4px solid #d0a000;border-radius:0 10px 10px 0;
   padding:10px 12px;font-size:12px;color:#6b5200;margin-top:10px;line-height:1.5;font-weight:700;}
+/* v3.67.0 - what the scale says this fruit is. Same shape as .nr-odd so the two stack
+   without a seam; green when the weight agrees with the letter the worker chose. */
+.nr-band{background:#fdecea;border-left:4px solid #9a3412;border-radius:0 10px 10px 0;
+  padding:10px 12px;font-size:12px;color:#7c2d12;margin-top:10px;line-height:1.5;font-weight:700;}
+.nr-band.ok{background:#eaf6ee;border-left-color:#166534;color:#14532d;}
 #nr-needs{margin-top:10px;}
 /* v3.37.4 — the cancel panel, and the clone locked on a correction */
 .nr-cx{margin-top:4px;}
@@ -3982,7 +3987,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.66.0"></script>
-<script src="app.js?v=3.66.0"></script>
+<script src="database.js?v=3.67.0"></script>
+<script src="app.js?v=3.67.0"></script>
 </body>
 </html>

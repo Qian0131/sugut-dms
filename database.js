@@ -734,7 +734,12 @@ const BAND_TOP={min:1.5,max:null};      // >= 1.5 kg
    SHAPE grade judged by eye; giving it a weight window would re-arm the
    grade-versus-weight drift warning on every banana fruit. */
 const GRADE_BAND={
-  MK   :{A:{min:1.5,max:null}, B:{min:1.0,max:1.5}, C:{min:0,max:1.0}},
+  /* v3.67.0 (29 Aug 2026) - THE OWNER MOVED THE C LINE FROM 1.0 kg TO 1.2 kg.
+     His words, after finding a 0.99 kg/fruit load invoiced as Grade A:
+     "i found one average fruits weight less that 1.2kg. please change to grade c".
+     So B now starts at 1.2, not 1.0, and anything under 1.2 kg is Grade C.
+     Only MK has three weighed letters; the other clones keep A/B at 1.5. */
+  MK   :{A:{min:1.5,max:null}, B:{min:1.2,max:1.5}, C:{min:0,max:1.2}},
   BT   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
   B24  :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
   '101':{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
@@ -926,6 +931,12 @@ const EN={"ow_censuscount":"Counted on","ow_projnote3":"The amber line is your o
   nr_need_p:'a photograph of the scale display',
   nr_odd:'That is one basket of',
   nr_odd2:'Check the decimal point — you can still send it if it is right.',
+  /* v3.67.0 — the weight-versus-grade line on the weigh step */
+  nr_avg:'Average',
+  nr_afruit:'a fruit',
+  nr_thatweight:'that weight is',
+  nr_youchose:'You have chosen',
+  nr_gradematch:'matches the weight.',
   /* --- v3.37.0 · THE NEW ROAD · the scale as four steps --- */
   nr_onlorry:'ON THE LORRY',
   nr_noweight:'not weighed',
@@ -1940,6 +1951,12 @@ const MS={"ow_censuscount":"Dikira pada","ow_projnote3":"Garis kuning ialah banc
   nr_need_p:'gambar paparan penimbang',
   nr_odd:'Itu satu bakul seberat',
   nr_odd2:'Semak tanda perpuluhan — jika betul, anda tetap boleh hantar.',
+  /* v3.67.0 — baris berat lawan gred di langkah timbang */
+  nr_avg:'Purata',
+  nr_afruit:'sebiji',
+  nr_thatweight:'berat itu',
+  nr_youchose:'Anda pilih',
+  nr_gradematch:'sepadan dengan berat.',
   /* --- v3.37.0 · JALAN BARU · penimbang jadi empat langkah --- */
   nr_onlorry:'ATAS LORI',
   nr_noweight:'belum ditimbang',
