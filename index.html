@@ -2310,6 +2310,15 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   margin:2px 0 7px;}
 .nr-shhead b{font-size:12.5px;font-weight:900;letter-spacing:.5px;}
 .nr-shhead span{margin-left:auto;font-size:11.5px;font-weight:900;color:var(--muted);}
+/* v3.69.0 — the shed header now carries three figures, not one: NET is the big number in
+   .nr-shhead, and the gross plus the shortfall sit under it. Muted on purpose — a crew
+   member reads the net and moves on; the counted figure is only there so the two can be
+   reconciled when someone asks why they differ. */
+.nr-subhead{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.2px;
+  margin:-4px 0 7px;}
+.shd-red{color:var(--warn);}
+.nr-shortbox{margin:0 0 7px;}
+.nr-shortbox .shd-over{margin-top:0;margin-bottom:4px;}
 </style>
 </head>
 <body>
