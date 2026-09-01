@@ -38,9 +38,30 @@ const TREE_MASTER=[{"id":"A-001","lot":"A","no":1,"clone":"MK","census":null},{"
 // point at the SAME array, so an Owner-approved correction updates the whole app.
 const TREES=TREE_MASTER;
 
-const CLONES=['MK','BT','B24','101','UM','TB'];
+/* v3.70.0 - ONE LIST, NOT TWO. This was a hand-kept duplicate of CLONE_SELL_ORDER
+   (line ~719) and it was used in exactly one place: the tree-correction clone picker.
+   Adding a clone to one list and not the other gave you a clone the crew could pick at
+   the tree but that was invisible at the scale, or the reverse. Derived now, so that
+   cannot happen again. Add a clone in CLONE_SELL_ORDER and it appears in both. */
+var CLONES;   // assigned from CLONE_SELL_ORDER below - see the note there (var, not const: it is filled in later in this file)
 
-const CLONE_NAME={MK:'Musang King',BT:'Black Thorn',B24:'B24','101':'101',UM:'Udang Merah',TB:'TB (unverified)','':'Not recorded'};
+/* v3.70.0 (1 Sep 2026) - THE TRADE NAMES, ON THE OWNER'S LIST.
+   NAMES ONLY. Not one CODE changed, and that is the whole point: the clone code is
+   stamped into every drop, tying, rotten, dispatch and FOC row ever written, into the
+   lines_json of every invoice, and into the contract books of RT-01, RT-02 and RT-05.
+   Rename a CODE and every one of those rows stops matching CLONE_GRADES, hasGrade()
+   returns false, priceOf() returns RM 0 and the tally splits into two columns. Rename
+   the LABEL and nothing detaches.
+     B24  is the farm's Sultan. Owner confirmed 1 Sep 2026 that B24 and D24 are the same
+          clone, so it keeps the code B24 and simply reads D24 Sultan from here on.
+     UM   Udang Merah IS Red Prawn - one clone, two languages, never two rows.
+     TB   still means UNIDENTIFIED (B-050, C-028). It does NOT mean Tenom Beauty; Tenom
+          Beauty is TNB below. If those two trees turn out to be Tenom Beauty, move them
+          with a tree correction - do not repoint this code. */
+const CLONE_NAME={MK:'Musang King (D197)',BT:'Black Thorn (D200)',B24:'D24 Sultan',
+  '101':'D101',UM:'Red Prawn / Udang Merah (D175)',TB:'TB (unverified)',
+  GP:'Golden Phoenix (D198)',XO:'XO (D168)',D99:'D99',TNB:'Tenom Beauty (D236)',
+  '':'Not recorded'};
 
 const LOTS=['A','B','C'];
 
@@ -83,7 +104,13 @@ const PEAK_DATE = new Date('2026-08-21T00:00:00');
    not from the Malaysian Pesticides Board registry, which could not be reached. */
 const PHI_PRODUCTS = {'Fetto 480':14,'Pictor':14,'Pengasus 47.17sc':14,'Agus 24SC':14}; // days before harvest
 
-const AVG_KG = {MK:1.7,BT:1.9,B24:1.6,'101':1.5,UM:1.4,TB:1.9};
+/* v3.70.0 - the four new clones carry 1.5 as a PLACEHOLDER, the same figure as D101,
+   because this farm has never weighed one. AVG_KG drives the shed estimate on a ration
+   request and the "about N kg" a worker sees before the Gate weighs it for real, so a
+   wrong number here is a wrong expectation, not a wrong invoice. Replace each one with
+   the farm's own average as soon as a full basket of that clone crosses the scale. */
+const AVG_KG = {MK:1.7,BT:1.9,B24:1.6,'101':1.5,UM:1.4,TB:1.9,
+  GP:1.5,XO:1.5,D99:1.5,TNB:1.5};
 
 const SPRAY_SETS = ['Aug - Set 1 (fruit+leaf)','Aug - Set 2 (soil drench)','Aug - Set 3 (leaf only)','Aug - Set 4 (leaf only)','Aug - Set 5 (soil drench)','Aug - Fert 1','Aug - Fert 2','General / other'];
 
@@ -629,9 +656,11 @@ const RETAILER_SEED=[
 ];
 
 /* The contract book, one matrix per merchant, keyed by retailer id.
-   B24 and TB are NOT in either negotiated brief. B24 was agreed on 3 Aug to
-   follow 101 / UM, and TB is the unidentified clone sold on the same
-   2-grade ladder — both mirror the 101 / UM line in each contract so a
+   B24, TB and the four clones added on 1 Sep 2026 (GP, XO, D99, TNB) are
+   NOT in either negotiated brief. B24 was agreed on 3 Aug to follow 101 /
+   UM, TB is the unidentified clone sold on the same 2-grade ladder, and
+   the Owner's instruction on the new four was "the rate are the same as
+   101" - so all of them mirror the 101 / UM line — both mirror the 101 / UM line in each contract so a
    basket of them can never invoice at RM 0. Correct them in
    Marketing -> PRICES & RETAILERS when the buyer confirms a rate. */
 const RETAILER_CONTRACT_SEED={
@@ -641,6 +670,10 @@ const RETAILER_CONTRACT_SEED={
     B24  :{A:25, B:20},
     '101':{A:25, B:20},
     UM   :{A:25, B:20},
+    GP   :{A:25, B:20},          // v3.70.0 - added on the 101/UM line, 1 Sep 2026
+    XO   :{A:25, B:20},
+    D99  :{A:25, B:20},
+    TNB  :{A:25, B:20},
     TB   :{A:25, B:20}
   },
   'RT-02':{                        // Seng Kee — RM 1-2 above Roll across the book
@@ -649,6 +682,10 @@ const RETAILER_CONTRACT_SEED={
     B24  :{A:26, B:21},
     '101':{A:26, B:21},
     UM   :{A:26, B:21},
+    GP   :{A:26, B:21},          // v3.70.0 - RM 1 above Roll, same as the rest of his book
+    XO   :{A:26, B:21},
+    D99  :{A:26, B:21},
+    TNB  :{A:26, B:21},
     TB   :{A:26, B:21}
   }
 };
@@ -716,7 +753,14 @@ const ALLIANCE_RETAILER='Roll';
                    from. Never read a price off this constant at runtime,
                    read it off CLONE_PRICE.
    ===================================================================== */
-const CLONE_SELL_ORDER=['MK','BT','B24','101','UM','TB'];
+/* v3.70.0 - THE ONE LIST. Sell order, display order, and (via CLONES at the top of this
+   file) the tree-correction picker. The four added on 1 Sep 2026 sit after the farm's
+   established clones and before TB, because TB is the "not identified yet" bucket and
+   belongs last. Adding a clone here is step 1 of 7 - it also needs a CLONE_NAME, an
+   AVG_KG, a CLONE_GRADES ladder, a GRADE_BAND, a CLONE_PRICE_SEED row and a line in
+   each merchant's RETAILER_CONTRACT_SEED, or it prices at RM 0. */
+const CLONE_SELL_ORDER=['MK','BT','B24','101','UM','GP','XO','D99','TNB','TB'];
+CLONES=CLONE_SELL_ORDER.slice();   // see the note at the top of this file
 /* v3.30.0 — BN is on EVERY clone's ladder. Any clone can set a badly
    pollinated fruit, so every clone must be able to record one. It is last
    in each list on purpose: the scale card offers the letters in this
@@ -727,6 +771,13 @@ const CLONE_GRADES={
   B24  :['A','B','BN'],
   '101':['A','B','BN'],
   UM   :['A','B','BN'],
+  /* v3.70.0 - the four added 1 Sep 2026. Two weighed letters plus BN, exactly like
+     BT / B24 / 101 / UM. Only Musang King has ever earned a third letter here, and a
+     clone gets one when the FARM starts sorting it three ways, not before. */
+  GP   :['A','B','BN'],
+  XO   :['A','B','BN'],
+  D99  :['A','B','BN'],
+  TNB  :['A','B','BN'],
   TB   :['A','B','BN']   // unverified clone — sold on the 2-grade ladder until identified
 };
 const BAND_TOP={min:1.5,max:null};      // >= 1.5 kg
@@ -744,6 +795,10 @@ const GRADE_BAND={
   B24  :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
   '101':{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
   UM   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  GP   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  XO   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  D99  :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
+  TNB  :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}},
   TB   :{A:{min:1.5,max:null}, B:{min:0,  max:1.5}}
 };
 /* BN carries a real price, not zero. A banana fruit that is GIVEN away is
@@ -756,7 +811,14 @@ const CLONE_PRICE_SEED={
   BT   :{A:45, B:35,       BN:12},  // Black Thorn  — top of the book
   B24  :{A:25, B:20,       BN:8 },  // B24          — priced with 101 / UM
   '101':{A:25, B:20,       BN:8 },
-  UM   :{A:25, B:20,       BN:8 },  // Udang Merah
+  UM   :{A:25, B:20,       BN:8 },  // Udang Merah / Red Prawn
+  /* v3.70.0 - the Owner's instruction on 1 Sep 2026 was "the rate are the same as 101",
+     so all four open on the D101 line. SEED ONLY, like every row above it: the moment
+     the Owner sets a rate in Marketing -> PRICES & RETAILERS the live matrix wins. */
+  GP   :{A:25, B:20,       BN:8 },  // Golden Phoenix
+  XO   :{A:25, B:20,       BN:8 },  // XO
+  D99  :{A:25, B:20,       BN:8 },  // D99
+  TNB  :{A:25, B:20,       BN:8 },  // Tenom Beauty
   TB   :{A:25, B:20,       BN:8 }
 };
 
