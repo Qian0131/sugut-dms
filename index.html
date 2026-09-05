@@ -1243,11 +1243,14 @@ input[type=datetime-local]{font-family:inherit;}
 .selrow.grades .selbtn,.selrow.baskets .selbtn{min-width:0;}
 .selrow.baskets .selbtn{font-size:11.5px;padding:7px 4px;}
 .selrow.baskets .selbtn .sb{font-size:9.5px;}
-/* the clone row is the one genuinely long list: it scrolls, and the soft right edge is
-   the affordance that says there is more to the right */
-.selrow.clones{-webkit-mask-image:linear-gradient(90deg,#000 89%,rgba(0,0,0,.3) 100%);
-  mask-image:linear-gradient(90deg,#000 89%,rgba(0,0,0,.3) 100%);}
-.selrow.clones .selbtn{min-width:72px;}
+/* v3.70.1 — the clone row is a GRID, three to a row, and never scrolls sideways. It was a
+   strip with the scrollbar hidden and a faint fade as the only hint; v3.70.0's longer
+   names made three buttons fill a 360 px phone and the crew reported "only 3 clones can
+   be chosen" — 101 and Golden Phoenix were off the right edge for four mornings.
+   Nothing important may sit off the edge of the phone: same rule as grades and baskets. */
+.selrow.clones{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow:visible;
+  -webkit-mask-image:none;mask-image:none;}
+.selrow.clones .selbtn{min-width:0;padding:7px 6px;}
 
 /* ---- the two big numeric fields ---- */
 .numgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px;}
@@ -4008,7 +4011,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.70.0"></script>
-<script src="app.js?v=3.70.0"></script>
+<script src="database.js?v=3.70.1"></script>
+<script src="app.js?v=3.70.1"></script>
 </body>
 </html>
