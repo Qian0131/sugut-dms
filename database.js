@@ -2963,3 +2963,25 @@ const SYNC_EVENTS_FROM='2026-08-09';
    (v3.29.8) whatever this date says, so a clean-up can never be undone by a backfill.
    =================================================================================== */
 const SYNC_HISTORY_FROM='2026-07-01';
+
+/* ===================================================================================
+   v3.74.0 · WORDS FOR THE SEASON DOOR AND THE OPENING COUNT
+   English falls back to the string written beside each tr() call in app.js; Bahasa
+   Malaysia lives here so the crew's count screen reads in their language.
+   =================================================================================== */
+Object.assign(EN,{
+  s_season:'SEASON', st_season:'Season', st_opencount:'Opening count',
+  oc_openbtn:'🧾 OPENING COUNT — COUNT THE WHOLE SHELF'});
+Object.assign(MS,{
+  s_season:'MUSIM', st_season:'Musim', st_opencount:'Kiraan pembukaan',
+  oc_openbtn:'🧾 KIRAAN PEMBUKAAN — KIRA SELURUH STOR',
+  oc_head:'KIRAAN PEMBUKAAN', oc_how:'Kira setiap kad: bekas penuh, kemudian baki dalam bekas yang sudah dibuka. Tiada langsung di rak — tekan 0. Simpan bila-bila masa dan sambung kemudian; Tuan akan sahkan.',
+  oc_counted:'dikira', oc_sent:'dihantar', oc_draft:'masih mengira', oc_by:'oleh', oc_date:'Tarikh kiraan',
+  oc_appsays:'Sistem kata', oc_full:'Penuh', oc_loose:'Baki', oc_countedin:'Dikira', oc_notyet:'belum dikira',
+  oc_matches:'sama', oc_short:'kurang', oc_surplus:'lebih', oc_save:'SIMPAN — SAMBUNG KEMUDIAN',
+  oc_send:'HANTAR KIRAAN KEPADA TUAN', oc_sendnote:'HANTAR berkongsi dengan Tuan pada sync seterusnya. Tiada apa berubah dalam stor sehingga Tuan sahkan.',
+  oc_sentmsg:'Kiraan dihantar — Tuan akan sahkan', oc_savedmsg:'Disimpan dalam telefon ini', oc_pressync:'tekan SYNC untuk kongsi',
+  oc_needseason:'Buka musim dahulu — kiraan ditulis sebagai stok pembukaan musim itu.',
+  oc_confirmed:'Kiraan pembukaan disahkan', oc_products:'produk', oc_donenote:'Stor kini bermula daripada apa yang dikira. Baris yang salah dibetulkan dengan stock-take biasa.',
+  oc_zero:'0 · tiada', oc_confirmedw:'disahkan',
+  cs_back:'KEMBALI KE RAK'});

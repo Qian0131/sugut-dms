@@ -3000,6 +3000,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        progcheck/progready/stocktake. A panel is only as visible as its screen. -->
   <div class="card" id="stmtcard" style="display:none"><div id="stmtbox"></div></div>
 
+  <!-- v3.74.0 · THE OPENING COUNT. A PAGE off SHELF on the csOpen/stOpen pattern: it MUST
+       live inside <div id="scr-stock"> (the v3.54.0 lesson — a panel is only as visible as
+       its screen) and is deliberately NOT routed by MODULES.inv.tabs (the v3.48.0 lesson —
+       a page listed there is on screen the moment the store opens). ocOpen() shows it,
+       ocClose() puts it away, HUB_PANELS hides it on the way out. -->
+  <div class="card" id="opencount" style="display:none"><div id="ocbox"></div></div>
+
   <div class="card" id="onhandcard">
     <div class="sec">Stock on hand <span id="oh-valnote" class="minitag" style="display:none">WITH VALUATION</span></div>
     <!-- v3.48.0 — STOCK LEVEL retired INTO this card. These three blocks are the only things
@@ -3029,6 +3036,11 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
          Same entitlement as the print button; they are one job, so they are one pair. -->
     <button class="bigbtn noprint" id="st-open" style="margin-top:8px;display:none"
             onclick="stOpen()" data-t="st_openbtn">✓ KEY IN THE COUNTED SHEET</button>
+    <!-- v3.74.0 — the season's opening count: the whole shelf on one page, keyed by whoever
+         stands in the store, confirmed by the Owner under ADMIN ▸ SEASON. renderStock()
+         shows it only while a season is open and its count is not yet confirmed. -->
+    <button class="bigbtn noprint" id="oc-open" style="margin-top:8px;display:none"
+            onclick="ocOpen()" data-t="oc_openbtn">🧾 OPENING COUNT — COUNT THE WHOLE SHELF</button>
     <!-- v3.54.0 — the monthly statement, parked into SHELF at the Owner's instruction. -->
     <button class="bigbtn ghost noprint" id="stmt-open" style="margin-top:8px;display:none"
             onclick="stmtOpen()" data-t="sm_openbtn">📄 MY MONTH — WHAT I KEYED</button>
@@ -3111,6 +3123,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <div class="card" id="qrcard" style="display:none">
     <div class="sec">📱 Scan to install the app</div>
     <div id="qrsecbox"></div>
+  </div>
+
+  <!-- ===== v3.74.0 · THE SEASON DOOR (Owner only) ======================================
+       Listed in HUB_PANELS like treescard/qrcard, or it floats over every other screen. -->
+  <div class="card" id="seasoncard" style="display:none">
+    <div class="sec">🌱 <span data-t="ss_head">The season</span></div>
+    <div id="seasonbox"></div>
   </div>
 
   <!-- ===== v3.2 · DUAL-SIGNATURE YIELD AUDIT (Owner only) ===== -->
@@ -4011,7 +4030,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.73.0"></script>
-<script src="app.js?v=3.73.0"></script>
+<script src="database.js?v=3.74.0"></script>
+<script src="app.js?v=3.74.0"></script>
 </body>
 </html>
