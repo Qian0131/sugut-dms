@@ -771,6 +771,73 @@ textarea{width:100%;padding:10px 11px;border:1px solid var(--line,#dfe3da);borde
 .rainrow>div{flex:1}
 .rainbar{background:#e8eef3;border-radius:5px;height:14px;overflow:hidden;min-width:60px}
 .rainfill{background:linear-gradient(90deg,#4a90d9,#123a71);height:100%;border-radius:5px}
+/* ===== v3.75.0 · THE RAIN RECORD =====
+   The form is thumb-sized and reads in the crew's language; the month sheet is the estate's
+   own table and scrolls sideways INSIDE its box, so the page itself never does. */
+.rn-miss{margin:0 0 4px;font-size:12px;line-height:2}
+.rn-pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:9px}
+.rn-pill.amb{background:var(--amberbg);color:#7a5b00}
+.rn-pill.ok{background:var(--lite);color:var(--green)}
+.rn-day{display:inline-block;font-size:12px;font-weight:800;color:#7a5b00;border:1.5px solid #e7cf86;
+  border-radius:9px;padding:3px 9px;margin:0 2px;cursor:pointer;background:#fff}
+.rn-q{font-weight:800;font-size:15.5px;margin:14px 0 3px}
+.rn-g{font-size:11.5px;color:var(--muted);line-height:1.45;margin:0 0 6px}
+.rn-opts{display:flex;gap:8px;flex-wrap:wrap}
+.rn-opt{flex:1 1 0;min-width:92px;text-align:center;border:2px solid #c8dcc9;border-radius:12px;padding:12px 4px;
+  font-weight:800;font-size:15px;color:#33691e;cursor:pointer;user-select:none;background:#fff;line-height:1.25}
+.rn-opt small{display:block;font-weight:600;font-size:10.5px;color:var(--muted);margin-top:2px}
+.rn-opt.on{background:var(--green2);color:#fff;border-color:var(--green2)}
+.rn-opt.on small{color:#fff;opacity:.9}
+.rn-opt.big{padding:17px 4px;font-size:16px}
+.rn-band{border:1.5px dashed #c8dcc9;border-radius:12px;padding:8px 10px 10px;margin-top:8px}
+.rn-band b{font-size:13px}
+.rn-note{background:var(--amberbg);border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.5;margin-top:10px;color:#4e3b00}
+.bigbtn.rn-warn{background:#b26a00}
+.rn-ok{font-size:21px;font-weight:900;color:var(--green);margin:2px 0 8px}
+.rn-rcpt{background:#f4f6f2;border-radius:12px;padding:10px 12px;font-size:13px}
+.rn-rcpt div{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed #dfe5dd}
+.rn-rcpt div:last-child{border-bottom:none}
+.rn-rcpt span{color:var(--muted);font-size:10.5px;letter-spacing:.5px;padding-top:2px}
+.rn-rcpt b{text-align:right}
+.rn-nav{display:flex;align-items:center;justify-content:space-between;background:var(--lite);border-radius:11px;
+  padding:5px 6px;margin-bottom:9px;font-size:15px}
+.rn-nav span{font-size:24px;font-weight:800;color:var(--green);padding:0 16px;cursor:pointer;user-select:none}
+.rn-nav span.off{opacity:.25}
+.rn-head{text-align:center;font-weight:800;font-size:12.5px;line-height:1.45;margin:8px 0}
+.rn-head small{display:block;font-weight:700;color:var(--muted);font-size:11px}
+.rn-scroll{overflow-x:auto;border:1px solid #dfe5dd;border-radius:10px}
+.rn-tbl{border-collapse:collapse;font-size:11.5px;width:100%;min-width:660px}
+.rn-tbl th,.rn-tbl td{padding:5px 6px;border-bottom:1px solid #e8ece6;border-right:1px solid #e8ece6;text-align:center;white-space:nowrap}
+.rn-tbl th{font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);background:#f7f9f6}
+.rn-tbl th small{display:block;text-transform:none;letter-spacing:0;font-weight:500}
+.rn-tbl .l{text-align:left}
+.rn-tbl td.num{text-align:right;font-variant-numeric:tabular-nums}
+/* ⛔ every row class carries the rn- prefix. The first build used .today and .tot, which this
+   stylesheet already owns (the Owner's timeline marker and the invoice total box): today's row
+   was dragged 64px sideways with a red line through it. Caught in the screenshot, not the test.
+   A keyed row is rn-key, NOT rn-ok (.rn-ok is the 21px Saved heading above), and a row
+   nobody keyed is rn-nk, NOT rn-miss (.rn-miss is the form's own pill row). */
+.rn-tbl tr.rn-nk td{background:#fdecea;color:var(--warn);font-weight:700}
+.rn-tbl tr.rn-today td{background:var(--amberbg);color:#7a5b00;font-weight:700}
+.rn-tbl tr.rn-pre td{color:var(--muted)}
+.rn-tbl tr.rn-fut td{color:#b9c1b8}
+.rn-tbl tr.rn-tap{cursor:pointer}
+.rn-tbl tr.rn-tot td{font-weight:800;background:#f7f9f6}
+/* THE FIFTH SCREEN THAT PRINTS. A body class, like the three after the harvest sheet, so that
+   sheet's own print block stays byte-identical to the day it was proved on paper. */
+@media print{
+  body.printing-rain #harvestrep{display:none!important;}
+  body.printing-rain #agrorain{display:block!important;}
+  body.printing-rain .noprint{display:none!important;}
+  body.printing-rain .rn-scroll{overflow:visible!important;border:0!important;}
+  /* the phone layout is 520px wide; on paper the sheet takes the page, or the last columns
+     (TODATE and JPS) fall off the right edge - seen on the first proof. */
+  body.printing-rain{max-width:none!important;}
+  body.printing-rain .rn-tbl{min-width:0!important;font-size:8.5pt;}
+  body.printing-rain .rn-tbl th,body.printing-rain .rn-tbl td{padding:3px 4px;}
+  body.printing-rain .rn-tbl tr.rn-nk td,body.printing-rain .rn-tbl tr.rn-today td{background:#fff!important;color:#000!important;}
+  body.printing-rain .rn-tbl tr.rn-fut td{color:#000!important;}
+}
 .combohead{border-bottom:2px solid var(--lite);padding-bottom:8px;margin-bottom:10px}
 .cbtitle{font-size:17px;font-weight:800;color:var(--green)}
 .cbsub{font-size:12.5px;color:var(--muted);margin-top:2px}
@@ -3314,23 +3381,22 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     </div>
     <div id="wxnote" class="small"></div>
   </div>
+  <!-- ===== v3.75.0 · THE RAIN FORM =====
+       ONE card, two doors: the crew's HUJAN tile, and the top of the Owner's WEATHER tab. It
+       is painted whole by rnRender() so it reads in whichever language the phone is in. -->
+  <div class="card noprint" id="hujancard" style="display:none">
+    <div id="hujanbox"></div>
+  </div>
+  <!-- ===== v3.75.0 · THE MONTH SHEET, in the estate's own columns, and the chart ===== -->
   <div class="card" id="agrorain" style="display:none">
-    <div class="sec">🌧️ Daily rainfall — from the farm cage <span class="m5-iq" onclick="m5Tog('m5-p8')">ⓘ</span></div>
-    <p class="small hidden" id="m5-p8">Read the gauge in the cage each morning and key the millimetres here. One reading per date —
-      saving the same date again corrects that day rather than adding a second row. More than
-      <b>30 mm over 3 days</b> raises the high-moisture badge on the month timeline.</p>
-    <div class="kpis" id="rain-kpis" style="margin-bottom:8px"></div>
-    <div class="rainrow">
-      <div><label>Date read</label><input type="date" id="rain-date"></div>
-      <div><label>Millimetres</label><input type="number" id="rain-mm" min="0" step="0.1" inputmode="decimal" placeholder="0.0"></div>
-    </div>
-    <label>Note (optional)</label>
-    <input id="rain-note" placeholder="e.g. heavy from 3pm, overflowed the drain">
-    <div class="pinerr" id="rain-err"></div>
-    <button class="bigbtn" onclick="saveRain()">＋ SAVE RAINFALL READING</button>
-    <div style="height:12px"></div>
-    <div class="sec">Last 30 readings</div>
-    <div id="rainlist"></div>
+    <div class="sec noprint">🌧️ Rainfall record — the month sheet</div>
+    <div class="noprint" id="rn-nav"></div>
+    <div class="kpis noprint" id="rain-kpis" style="margin-bottom:8px"></div>
+    <div id="rn-sheet"></div>
+    <div class="noprint" style="height:10px"></div>
+    <button class="bigbtn ghost noprint" onclick="rnPrint()">🖨 PRINT THIS MONTH</button>
+    <div class="noprint" id="rn-jps"></div>
+    <div class="noprint" id="rn-chart"></div>
   </div>
 
   <!-- ===== DAILY OPS · GENERAL FIELD TASKS (v2.6) ===== -->
@@ -4030,7 +4096,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.74.0"></script>
-<script src="app.js?v=3.74.0"></script>
+<script src="database.js?v=3.75.0"></script>
+<script src="app.js?v=3.75.0"></script>
 </body>
 </html>

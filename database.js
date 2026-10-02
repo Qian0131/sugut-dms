@@ -2985,3 +2985,39 @@ Object.assign(MS,{
   oc_confirmed:'Kiraan pembukaan disahkan', oc_products:'produk', oc_donenote:'Stor kini bermula daripada apa yang dikira. Baris yang salah dibetulkan dengan stock-take biasa.',
   oc_zero:'0 · tiada', oc_confirmedw:'disahkan',
   cs_back:'KEMBALI KE RAK'});
+/* ===================================================================================
+   v3.75.0 · THE RAIN RECORD
+   RAIN_FROM is the first day the farm is expected to key the gauge. A past day from here
+   on with no reading shows red on the month sheet; nothing before it is ever called
+   missing. English falls back to the string written beside each tr() call in app.js;
+   Bahasa Malaysia lives here so the crew's HUJAN screen reads in their language.
+   =================================================================================== */
+const RAIN_FROM='2026-10-01';
+Object.assign(EN,{
+  m_rain:'Rain', m_rain_d:'Key the rain gauge: which day, how many mm, and when it fell',
+  ts_rain:'key the rain gauge each morning', bg_rainmiss:'NOT KEYED'});
+Object.assign(MS,{
+  m_rain:'Hujan', m_rain_d:'Rekod tolok hujan: hari mana, berapa mm, dan bila hujan turun',
+  ts_rain:'rekod hujan setiap pagi', bg_rainmiss:'BELUM',
+  rn_head:'Hujan — tolok ladang', rn_notyet:'BELUM', rn_alldone:'semua hari direkod',
+  rn_q_day:'Hujan hari mana?',
+  rn_hint_day:'Hujan petang atau malam semalam → Semalam. Hujan selepas tengah malam → Hari ini.',
+  rn_yest:'Semalam', rn_today:'Hari ini', rn_other:'Tarikh lain', rn_pick:'pilih', rn_date:'Tarikh',
+  rn_exists_a:'sudah ada rekod:', rn_exists_b:'Simpan semula akan menggantikannya.', rn_norain_s:'tiada hujan',
+  rn_q_kind:'Ada hujan?', rn_dry:'TIADA HUJAN', rn_wet:'ADA HUJAN',
+  rn_q_mm:'Bacaan tolok hujan (mm)', rn_q_when:'Bila hujan turun?', rn_when_h:'Boleh pilih lebih dari satu.',
+  rn_b_em:'Awal pagi', rn_bh_em:'12 mlm – 6 pagi', rn_b_m:'Pagi', rn_bh_m:'6 pagi – 12 tgh hari',
+  rn_b_a:'Petang', rn_bh_a:'12 tgh hari – 6 ptg', rn_b_n:'Malam', rn_bh_n:'6 ptg – 12 mlm',
+  rn_times:'jam mula dan berhenti, jika tahu', rn_start:'Mula', rn_stop:'Berhenti',
+  rn_note:'Catatan (jika ada)', rn_note_ph:'cth. lebat, parit melimpah',
+  rn_save:'SIMPAN', rn_again_rep:'TEKAN SEKALI LAGI UNTUK GANTI',
+  rn_again_big_a:'BETUL', rn_again_big_b:'MM? TEKAN SEKALI LAGI',
+  rn_e_date:'Pilih tarikh.', rn_e_future:'Tarikh itu belum tiba.', rn_e_kind:'Pilih TIADA HUJAN atau ADA HUJAN.',
+  rn_e_mm:'Masukkan bacaan mm dari tolok.', rn_e_band:'Pilih bila hujan turun.',
+  rn_e_early:'Tarikh itu sebelum rekod hujan bermula.', rn_e_far:'Terlalu lama untuk telefon ini. Minta Tuan betulkan.',
+  rn_refused:'Tidak disimpan — Sheet sudah ada bacaan lebih baru untuk',
+  rn_saved:'✓ Disimpan', rn_r_date:'TARIKH', rn_r_rain:'HUJAN', rn_r_none:'TIADA (0 mm)',
+  rn_r_notime:'jam tidak direkod', rn_r_note:'CATATAN', rn_r_by:'OLEH',
+  rn_syncnote:'Rekod dihantar bila telefon SYNC.', rn_next:'REKOD', rn_another:'Rekod hari lain',
+  rn_backhome:'Kembali ke menu'});
+
