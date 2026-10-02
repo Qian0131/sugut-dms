@@ -10,7 +10,8 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.75.0';   // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
+const APP_VERSION = 'v3.76.0';   // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
+// v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
 // v3.74.0 - THE SEASON DOOR AND THE STORE'S OPENING COUNT. Season 2025/26 closed on 18 Sep with final figures, and the app had no way to know: seasonStart() was the first fruit ever logged and never moved, the shed kept 92 fruit standing, the tree ledger handed back 2,227 dropped and 762 on the tree every sync, and the first drop of 2027 would have been added to last year's 2,227. *** THE SEASON IS NOW A SHARED SETTING (`season`): ADMIN > SEASON closes the old season with a snapshot read from the log and the hand-counted shed, and opens the next from ONE date (21 Sep 2026 on the Owner's instruction). inSeason(e) guards every reader of fruit: seasonStart, the shed (layers and consumers), the backlog, the tree ledger (statOf() is silenced and countsLocally() answers by date, so the undated Sheet aggregate cannot hand back last season), the tying migration, the July census (no census until the fruit census is keyed), and the sync floor (syncFloor() = the open date). A phone that has not yet received the setting behaves exactly as v3.73.0. Nothing is deleted; Season history lists every closed season with the figures at the moment the door was pressed. *** THE STORE STARTS FROM A COUNT. onHand() was a constant baked into database.js minus every stock-out since, and stock-in was never keyed properly in 2025/26. THE STORE > SHELF > OPENING COUNT lets the worker or the Purchaser count every card as a person counts (full containers + loose), saves the draft as the `opencount` setting, and SEND hands it to the Owner; ADMIN > SEASON > CONFIRM writes one signed STOCK_ADJUST per product carrying `counted` and the note 'OPENING 2026/27' (the mark that survives the Sheet). onHand() and the moving average restart from the newest opening row and count only rows dated after it; a product with no opening row keeps the old rule. usedOf/recvOf/adjOf and the monthly ledger are untouched, so the write-off shows where it belongs. *** APPS SCRIPT v3.74.0 (one line): SETTINGS_ALLOWED gains 'season' and 'opencount' - and 'invover' and 'progover', which the app has pushed since v3.21/v3.28 and every backend to date has REFUSED ('not a shared setting'): the Owner's retired products, minimum levels, prices and programme edits never left his phone. Until the .gs is redeployed the season and the count stay on the phone that wrote them; the CHECK page says whether the backend accepts them. Original v3.73.0 note follows. // v3.73.0 - THE SHED DRAWS ACROSS GRADES. Every pick is keyed Grade A at collection because the grade is the weight on the scale; the scale then sells it as B or C, and a C sale could only draw from the C box, which is always empty. So on 17 Sep one shed read MK A +254 standing and MK C -224 short at the same time, and every MK C invoice since August was filed under lot '?'. shedDraw() now covers the requested grade first, then the other grades of the same clone (nearest first, oldest layer first), stamps `g` on a layer taken across so the basket row, the trace and the money ledger say 'from Grade A', and reports short ONLY what no box of that clone could cover. The shed is rebuilt from the log on every paint, so every past draw is repaired the moment this loads - nothing keyed, nothing edited on the Sheet. The basket chip at the scale now also names the clone's other boxes. Original v3.72.0 note follows. // v3.72.0 - ONE SHED, ONE LOSS FIGURE. Two screens, two answers, both in the app on 17 Sep. (1) Harvest > THE SHED said 390 fruit while the Morning Scale, one tap away, said 76 for the same shed: renderShed() printed shedNow().total (the boxes still above zero) where the scale has printed .net since v3.69.0, and its red alarm box came from fruitBacklog() - invoices only, blind to rations and to the load at the gate - so it also listed MK C 217 against the scale's 224. The hero now quotes NET with 'counted / short' under it, the alarm reads shedNow().short, and shedCount() and fruitBalance().shed_fruit - the home bar and the FOC balance table - quote net too. (2) The HARVEST REPORT header printed harvestMatrix() counts (1,800 good / 422 loss) beside lossByCause()'s 18.4%, while the lot table under it said 19%: the five matrix walkers added raw ROTTEN.qty and never saw a ROTTEN_ADJUST, and lossByCause() walked the adjust rows themselves - unclamped, dated by the correction, and counting -9 against six trial rows cleaned up in early August - then dropped the uncaused OTHER row while leaving it in the denominator, so the cause shares summed to 104.1%. rottenQty() is dropQty()'s twin - per row, by evUuid, clamped at zero - and every walker AND lossByCause() now read it: one basis, shares that sum to 100, one percentage. (3) Section 5 printed a tick beside '14.79 kg more has left than was weighed in' because fruitBalance().balances tested the residual against itself; it now means unaccounted === 0. Original v3.71.0 note follows. // v3.71.0 - THE PRICE THAT WOULD NOT STAY. A setting saved today could lose to one saved days earlier, because mergeSettings compared the two date stamps as TEXT and both begin with the weekday name, so it sorted Fri < Mon < Sat < Sun < Thu < Tue < Wed instead of by time. Saved on a Thursday, a price was thrown away on the next sync against the Tuesday copy - no message, no log entry. That is the whole story behind Musang King snapping back to RM 28, Black Thorn refusing to hold RM 45, and the gate billing Grade C at the Grade A rate off a table nobody could update. Both stamps are now parsed and compared as numbers, with the old string test kept only for a stamp no Date can read. One comparison changed; the rest of the merge is untouched. Original v3.70.1 note follows. // v3.70.1 - THE CLONE ROW IS A GRID, AND IT ONLY OFFERS CLONES THAT GROW HERE. 5 Sep, from the crew: 'only 3 clone can be choose in weight in the morning' - no 101, no Golden Phoenix. The picker code drew all ten; the SCREEN did not. .selrow.clones was a sideways strip with the scrollbar hidden and a faint fade as the only hint, and v3.70.0's longer names (Musang King (D197), Black Thorn (D200), D24 Sultan) made three buttons fill a 360 px phone: rendered right edges MK 131 - BT 262 - B24 364 - 101 466 - UM 672 - GP 823 against a 336 px row. So for four mornings the two clones after MK did not exist to a worker, and the 12 + 29 'B24' fruit invoiced on 3 and 5 Sep are almost certainly Golden Phoenix keyed under the one button that WAS on screen, nine of the ten B24 trees having become GP on 2 Sep. *** TWO CHANGES. (1) The row WRAPS: a 3-per-row grid in index.html, nothing off the right edge, ever. (2) scaleCloneChoices() offers only clones with at least one tree on the farm today - read off TREE_MASTER after the corrections are applied, so it follows the crew's own re-tagging without a release - biggest clone first: MK - 101 - GP - BT - TB - B24 - XO - D99 as of 5 Sep; UM and TNB have no tree and are not offered. The line's CURRENT clone is always kept in the list so a basket already keyed cannot be orphaned by a later correction. cloneShort() prints the name without the D-code under the button; the code IS the big label. *** NOTHING ELSE MOVED: CLONE_SELL_ORDER, CLONE_NAME, prices, the shed cards, the tree-correction picker and every stored row are untouched - this is a picker on one screen. *** STILL OPEN: RT-05's contract book has no GP / XO / D99 rate, so a GP line for him prices at RM 0 by the contract-hole rule until the Owner keys it in Marketing -> PRICES & RETAILERS. Original v3.70.0 note follows. // v3.70.0 - FOUR NEW CLONES, AND FIVE THAT ONLY CHANGED THEIR NAME. The Owner's clone list, 1 Sep: Musang King D197, Black Thorn D200, D24 Sultan, Red Prawn D175, D101, plus Golden Phoenix D198, XO D168, D99 and Tenom Beauty D236 - and 'we just found that certain trees are wrong', so the clones go in FIRST and the crew move the trees themselves with the correction they already know. *** NOT ONE CODE CHANGED ON AN EXISTING CLONE, and that is the whole release. The clone code is stamped into every drop, tying, rotten, dispatch and FOC row ever written, into the lines_json of every invoice, and into the contract books of RT-01, RT-02 and RT-05. Rename a CODE and every one of those rows stops matching CLONE_GRADES, hasGrade() goes false, priceOf() returns RM 0 and the season tally splits into two columns. So B24 IS D24 Sultan - the Owner confirmed they are one clone - and it keeps the code B24 and only reads D24 Sultan; UM keeps its code and reads Red Prawn / Udang Merah, because Udang Merah IS Red Prawn and two rows for one clone is how a farm double-counts itself. *** THE FOUR NEW ONES are GP, XO, D99 and TNB, on the two-letter ladder A/B plus BN with the A line at 1.5 kg, and priced at the D101 line on the Owner's instruction ('the rate are the same as 101') - RM 25 / 20 / 8 spot, mirrored into RT-01 at 25/20 and RT-02 at 26/21 so a basket of them can never invoice at RM 0. AVG_KG for all four is 1.5 as a PLACEHOLDER: it only drives the 'about N kg' a worker sees on a ration request, never an invoice, and it is replaced the first time a full basket crosses the scale. *** TNB IS NOT TB. TB still means UNIDENTIFIED (B-050, C-028). If those two turn out to be Tenom Beauty they move with a tree correction like any other tree - the TB code is never repointed, because rows already written against it would follow. *** AND THE TRAP THAT MADE THIS DANGEROUS IS GONE: CLONES was a hand-kept duplicate of CLONE_SELL_ORDER used in exactly one place, the tree-correction picker, so adding a clone to one list and not the other gave you a clone the crew could pick at the tree but that was invisible at the scale. CLONES is now derived from CLONE_SELL_ORDER. *** RT-05 NEEDS FOUR RATES KEYED BY HAND: his book is stored, not seeded, so the new clones read RM 0 there and the scale will refuse the line by design until the Owner sets them in Marketing -> PRICES & RETAILERS.
 // v3.67.0 - THE WORKER CAN SAY GRADE C AT THE SCALE. The Owner, 29 Aug, after a 0.99 kg/fruit load went out invoiced as Grade A: 'can we can apps here from grade a to c cause workers are busy and no option to choose as c'. He was right and the reason was exact: when a basket is picked FROM THE SHED the weigh step drew the clone and grade as fixed TEXT with only a 'change' link, and the only grade the shed can ever offer is A, because every pick is logged A. So there was no way to say C without unpicking the basket and losing its shed link. Now the shed-picked basket keeps its clone LOCKED (it came off a real layer) and draws the GRADE PICKER underneath - the same shape the correction road has used since v3.37.4. Alongside it the screen now prints the MEASURED average kg per fruit and the grade that weight actually falls in, so the man holding the fruit sees the mismatch before the load is sent, not the Owner on the invoice a day later. GRADE_BAND for MK also moved: C is now under 1.2 kg, not under 1.0. // v3.65.0 - ONE DAY OUT OF THE SEVEN. The Owner, within an hour of v3.64.0 landing: 'the total show in 7 days. i need a option to show a single particular date.' He is right and it is the difference between a report and a working screen - the seven-day total answers 'how was the week', and what he actually asks at the gate every evening is 'what went out TODAY, and to whom'. A day picker now sits BEFORE the customer picker, each option carrying that date's own takings so a day is chosen by money rather than by counting back dates, with 'All 7 days' first and the dates newest-first under it. Choosing one narrows the rows, every tile, the photo count, the gift line and the header - and it does NOT move the week window under the table above, which keeps its own arrows: narrowing what is on screen and re-fetching a different week are two different acts and a screen that confuses them makes the two halves disagree. If the week is stepped past the chosen date the picker falls back to all seven rather than showing an empty day, the same rule the customer picker already follows when a merchant is not in the new window. // v3.64.0 - THE OTHER HALF OF THE DAY. DAILY RECORD answered the fruit question and never the money question on the same page, and the two only mean something together: on 22 Aug RM 6,331.60 was invoiced while RM 7,416.40 of fruit was GIVEN AWAY, and no screen on this farm put those two figures side by side. This release appends a sales-and-gifts half under the SAME seven-day window - a customer picker, a free-gift tick, the account position, and every load with its photo - and writes nothing: every figure is a read. THREE RULES, each a bug before it was a rule. ONE MAN IS ONE NAME: the picker groups on the name with brackets stripped so 'Samsir', 'Samsir (gred B)' and 'Samsir (buah balance lama)' are one person in the list while the rows still print what was keyed - the picker groups, it never rewrites the record. A GIFT IS COUNTED ONCE: focApproved() returns APPROVED FOC_REQ only, so the FOC_APPROVE twin riding the same payload can never be added twice - anything walking focRows() directly must filter or every free figure on this farm doubles. A MERCHANT WHO NEVER BOUGHT IS NOT A DEBT: the account line skips cash rows, skips any retailer not Active and, on everyone, skips anyone with nothing invoiced - without those three it read RM 46,000 of credit, being the opening balances of a suspended merchant, a deleted one and one that has never taken a basket. PROVEN ON THE LIVE DATABASE before it was written into the file: 33 sold rows in the 18-24 Aug window matching a raw DISPATCH count day for day, RM 9,001.60, and 0 of 33 loads able to produce a photograph - which the screen prints honestly rather than trusting has_photo, true on all 43 invoices and fetchable on none. index.html is NOT touched: the block paints into #dailybox under renderDailyAudit()'s own output and injects its stylesheet once. // v3.63.2 - THE PROGRAMME COULD NEVER SEE ITS OWN WORK. The Owner, 21 Aug: 'i still see fetto in short'. The store was not the problem - 69 products audited, ZERO mismatches, Fetto sitting on 2,000 ml against a 500 ml threshold. It was the PURCHASER'S SHORTAGE LIST, telling him to buy Fetto and Pictor for `Aug|Set 1` - a round sprayed on 6 AUGUST - and 5-25-25 for a MAY fertiliser set. Both read 100% outstanding because usedForProgram() subtracts only rows whose `progId` matches, and progId is not a Sheet column: of his 577 STOCK_OUT rows it is on ZERO, while `phaseId` is on 452 and comes back intact. So no activated programme could ever close itself from synced data, and the buy queue went on ordering chemical for work already done - which for Fetto and Pictor means ordering a PESTICIDE the 6 Aug residue cut-off forbids before the harvest. Same root as v3.63.0, in the seven readers that release did not grep: lotsDone, usedForProgram, the recent-runs list, one programme's own history, its cost roll-up, the duplicate-task finder (blind for the same reason, so the app's own repeat-catcher was switched off), and - worst - the guard that refuses to DELETE a programme with work logged against it, which had been letting a completed programme be deleted. All seven now go through isProgRow() and progRowMatches(), which prefer progId and fall back to the phase label. THE LESSON, FOURTH TIME: grep every reader of a field, not the ones you happen to be looking at. // v3.63.1 - A WRONG PACK SIZE COULD NOT BE CORRECTED FROM ANY SCREEN. applyInvOverrides() is the one door for a product correction and it applied `unit_price` while ignoring `unit_multiplier` altogether. cpu is unit_price/unit_multiplier - the figure every cost report is built on - so a register holding the wrong container size costed every gram of that product wrong, for ever, with no way to fix it. Caught on 21 Aug by reading the supplier invoices against the register: YARA REGA 13-4-25 is billed as a 50 KG bag at RM 285 and the register held 25 kg at the same price, so it has been costed at DOUBLE - about RM 958 too much on June alone; PEGASUS 47.17SC is billed as a 250 ML bottle at RM 75 and was held as 500 ml, so it has been costed at HALF. Neither could be reached: the only correction road refused to look at the field that was wrong. cpu is now derived from whichever of price or multiplier the correction supplies, falling back to what the product already carries, so either one alone still lands right. THE LESSON: a correction road is only as good as the fields it will accept. // v3.63.0 - PROGRAMME COST HAS BEEN READING RM 0.00 ALL YEAR. Found the same hour v3.62.1 shipped, by asking the Owner's own laptop what its report actually says: day RM 0.00, month RM 0.00, YEAR RM 0.00, against 493 stock-out rows and about RM 33,000 of real 2026 material. THE CAUSE is the fault v3.62.1 had just fixed in the duplicate guard, sitting unfixed in FIVE more readers: runCostRollup(), workDone(), dirProgress(), dirDoneDate() and dirCostOf() all decide 'is this a programme run' by asking for `e.dirRun` - a field submitRun() writes and the Google Sheet has no column for. Every row loses it on the way back down, so all five could only ever see what this one phone had not yet synced. Of 493 rows, ZERO carry dirRun, progId or replyId. WORSE THAN A BLANK REPORT: dirProgress() could not see another phone's filing either, so a round already done on Phone 2 read 'not done' on the laptop and invited the crew to file it again - a second duplicate road, same root as the RM 10,610.54 of repeats voided on 20 Aug. THE FIX: one helper, isRunRow(), testing what actually survives a round trip - a STOCK_OUT carrying a `set` that is not the tying road's rope - plus runRowOfDir() which prefers progId and falls back to the SET LABEL, and runKeyOf() because `runs[e.replyId]` was collapsing every synced row into ONE run, so even a report that saw the rows would have counted one job a month. All five readers now share the three helpers and cannot drift apart again. THE LESSON, THIRD TIME IN TWO RELEASES: a field the WRITER sets is not a field the ROW still carries. Grep every reader of it, not the one you noticed. // v3.62.1 - THE GUARD WAS READING A COLUMN THE SHEET DOES NOT HAVE. v3.62.0's duplicate guard scanned `EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dirRun)`. Checked against the Owner's own laptop within the hour: of 117 August STOCK_OUT rows, ZERO carry dirRun, progId or replyId. The Sheet has no such columns, so every row that has been through a sync comes back stripped - which is every row written on another device and every row this device wrote before its last sync. The guard was therefore blind to the whole five-device August story and could only ever have caught a double press inside one unsynced session. Scoped on `set` instead, which does survive the trip. PROVEN ON THE REAL DATA, not a seed: the corrected filter groups August into 11 paying filings and finds the five identical RM 908.44 fertiliser rounds (three different devices, two different set names) and the two identical RM 1,179.90 May sets - RM 4,813.66 that would never have been charged. It also surfaced a SIXTH RM 908.44 filing on 19 Aug that the 18 Aug audit had not seen. THE LESSON, AGAIN: assert the far end. A filter that reads a field the WRITER sets is not the same as a filter that reads a field the ROW still carries after a round trip. // v3.62.0 - THE FILING THAT COULD BE MADE FIVE TIMES. The Owner, 18 Aug: 'check program cost on augst. it looks like charge repeated.' He was right and it was bigger than a double-count. Read from the live Sheet: August programme cost RM 12,298.69 against a real spend of about RM 1,690 - the SAME 85,500 gm fertiliser round booked FIVE times at RM 908.44 to the cent, on five devices, under TWO different set names; August Set 1 filed three times, twice inside one minute; a MAY set filed twice into August; MSolumax 3-16-36 driven to MINUS 485 kg. THE CAUSE: submitRun() wrote a fresh block of STOCK_OUT rows on every press of MARK WORK DONE and nothing asked whether that set had already been filed, so a re-test, a second phone and a corrected recipe were indistinguishable from a second real spray - and each one wrote real money into the cost report and real material off the store. THE FIX: two checks before the write. SAME SET SAME MONTH, matched on progId first (it travels with the directive) then on the set LABEL (a directive re-made on another phone has a new uuid but the same name); and SAME DRAW ANY NAME, the sorted pid:qty fingerprint of what is about to come off the store - the second check is the one that catches August, because those five filings wore two different names and no label test could ever have seen them. Prior filings are grouped by replyId falling back to dt-to-the-minute + set + device, which is how one press is reconstructed from Sheet-sourced rows that have no replyId column. It WARNS and never BLOCKS: a farm can spray the same set twice in a month, and a guard that refuses sends the crew back to paper. ALSO CONFIRMED THIS RELEASE, by reading rather than assuming: the backdate on MARK WORK DONE already shipped in v3.49.0 and the Purchaser's stock-out gate already shipped in v3.46.0 - both were still on the open list from 13 Aug and neither needed a line. AND THE ROOT CAUSE UNDERNEATH IT, found by driving the real modal rather than reading it: submitRun()'s tail block read mdProg.basis, and mdProg belongs to the OTHER modal (openMarkDone/#mdmodal). openRun() is reached from ONE button, the crew's MARK WORK DONE, which never touches mdProg - so it was null on every crew filing and threw a TypeError AFTER the rows were written and OUTSIDE the catch above. closeRun() never ran, the saved toast never appeared, nothing refreshed: the crew saw the confirm box unchanged and pressed again, runSaving was already cleared and RUN was still set, and the second press wrote the whole filing a second time. The v3.25.0 comment six lines above describes this exact failure and that fix's own tail block reintroduced it. The rate is now read from the DIRECTIVE, and the whole remember-a-default block is wrapped so nothing added there can ever strand the modal again. THE LESSON: an append-only log makes a correction safe and a REPEAT invisible; every writer of money needs to be asked 'have I seen this before' at the moment of writing, not in a report a fortnight later. // v3.61.0 - THE OTHER LEG OF THE BALANCE: THE EXITS. The Owner counted his shed by hand on 18 Aug - 5 Musang King, 3 Black Thorn - and the app gave him THREE answers: the two shed tabs said 2, and the home screen's IN THE SHED bar said 72. The bar was shedCount(): sum every DROP.qty, add every DROP_ADJUST.delta, subtract every DISPATCH.fruit_count. *** fruit_count IS NOT A COLUMN ON THE SHEET'S DISPATCH TAB. Proven against the live database that night: 27 invoices, 27 nulls, the key not even present on the row - the counts live inside lines_json and always have. So `out` was ALWAYS ZERO and that bar had never subtracted a single sale since the day it was written; it also never saw a ration or a gift, never saw the load standing at the gate, and carried no clone or grade. It was not a shed count, it was a running total of everything ever picked. *** AND IT WAS NOT ALONE. The same empty field is read in two more places, and both have been silently printing zero on every phone that received the invoice by sync rather than keying it: buildMonthMatrix() - the FRUIT SOLD figure on the month band and every report built off it - and yieldAudit() - the DECLARED count that the whole dual-signature audit divides kilos by. *** v3.60.0 routed twenty-three hand-rolled 'sum the drops' sites through dropQty() and missed all three of these, because they are not on the drops leg - they are on the EXITS leg. THE RULE, written down so the next sweep is whole: A BALANCE HAS TWO LEGS. When you unify one, walk the other in the same release. *** THE CURE IS AGAIN ONE DOOR: dispFruitN(e) = 'how many fruit this invoice actually carried', read off reqLines() which always travel, falling back to the old field only when a row has no lines at all. shedCount() stops calculating anything and returns shedNow().total - the very queue the Morning Scale enforces and THE SHED tab prints - so the home screen can no longer tell a third story. NEVER READ e.fruit_count OFF A STORED DISPATCH ROW AGAIN. Call dispFruitN(e).
 // v3.60.0 - EVERY REPORT NOW READS THE SAME COLLECTED FIGURE. The Owner, 18 Aug, after the shed said 2 Black Thorn and the shed floor said 3: 'everytime when i fix something you should check all the related tab and function. it should do it one time together.' He is right, and the trace proves it. rowLiveQty() - 'what this row counts as NOW, after every signed correction' - was called in FOUR places, ALL of them inside the fix-a-record wizard. Not one report, ledger, dashboard, alert or badge called it; twenty-three other screens each re-implemented 'sum the drops' by hand off raw e.qty. So a correction reached the tree ledger, the wave, the tying screen, the Record, the month matrix, the command deck and the Google Sheet, and did NOT reach the yield audit, the harvest report (matrix, per-clone, wet-vs-dry, worst-trees, by-day), per-lot earnings, the drop forecast, the unsecured-drop banner, the 'n KG READY' badge, the phones-agree fingerprint, the backdate guard, the season start or the old dashboard. Two answers to 'how much did we collect', and which one you got depended on which screen you opened. *** THE CURE IS ONE DOOR, NOT TWENTY-THREE PATCHES: dropQty(e) applies DROP_ADJUST to the drop it corrects, matched by evUuid - the v3.59.0 shed rule, now shared - and every one of those twenty-three call sites goes through it. Migrated in ONE release on purpose: half-migrated is worse than not migrated, because two screens on two bases IS the 'four different answers to one question' fault the shed rewrite existed to kill. *** AND THE KILOS FINALLY FOLLOW THE COUNT. writeAdjust() has stamped estkg onto every DROP_ADJUST row since v3.3 and NOTHING HAS EVER READ IT - so even the screens that fixed the fruit count left the kilos standing. dropKg(e) scales the row's own estimate by the proportion the count moved. *** THE RULE, for whoever builds the next ledger: NEVER SUM e.qty OFF A DROP ROW AGAIN. Call dropQty(e). Writing .reduce((s,e)=>s+(+e.qty||0),0) over DROP rows is re-opening this bug. NOT touched on purpose: shedLayersAll() already carries the v3.59.0 fix and works - it keeps its own layer walk, because a rewrite of working code on the one screen the scale depends on buys nothing. Still open, deliberately left for v3.61.0 so this release stays one idea: the backend's cross-device duplicate-serial check readDupSerials_ (AppsScript 1994) has never been called from app.js.
@@ -91,7 +92,10 @@ const SETTINGS_KEYS=['cloneprice','pricemeta','baskets','tareok','addtrees',
   'progover',
   /* v3.74.0 — the season boundary and the store's opening-count draft. Both are farm-wide
      dial positions, newest-wins, signed: see THE SEASON DOOR below. */
-  'season','opencount'];
+  'season','opencount',
+  /* v3.76.0 — what the Owner has asked the Purchaser to buy for rounds that are still only
+     planned. A collection keyed by product; merges per key, newest `at` wins. */
+  'buyask'];
 /* ======================================================================================
    v3.74.0 · THE SEASON DOOR
    ======================================================================================
@@ -335,6 +339,7 @@ async function initStore(){
     const al=kv.find(x=>x.k==='aialloc');    if(al&&al.v&&typeof al.v==='object') AI_ALLOC=al.v;
     const np=kv.find(x=>x.k==='newprods');   if(np&&Array.isArray(np.v)) NEW_PRODS=np.v;
     const pv=kv.find(x=>x.k==='progover'); if(pv&&pv.v&&typeof pv.v==='object') PROG_OVER=pv.v;
+    const ba=kv.find(x=>x.k==='buyask'); if(ba&&ba.v&&typeof ba.v==='object'&&!Array.isArray(ba.v)) BUYASK=ba.v;   // v3.76.0
     // v3.19 — a phone that slept mid-delivery must not lose eight keyed lines
     const ib=kv.find(x=>x.k==='inbasket');   if(ib&&Array.isArray(ib.v)) IN_BASKET=ib.v;
     // v3.49.0 — the issue basket survives a locked phone for the same reason the delivery
@@ -740,7 +745,7 @@ function tileSub(k,m){
  *  added to ROT_CAUSE only needs two more dictionary lines, no code. */
 function causeLabel(k){return tr('c_'+k,(ROT_CAUSE[k]||{}).label||k);}
 function causeNote(k){return tr('c_'+k+'_n',(ROT_CAUSE[k]||{}).note||'');}
-const MS_TILE_SUB={harvest:'ts_harvest',tying:'ts_tying',scale:'ts_scale',ops:'ts_ops',inv:'ts_inv',rain:'ts_rain'};
+const MS_TILE_SUB={harvest:'ts_harvest',tying:'ts_tying',scale:'ts_scale',ops:'ts_ops',inv:'ts_inv',rain:'ts_rain',prog:'ts_prog'};
 function tabLabel(x){return x?(x.tn?tr(x.tn,x.t):x.t):'';}
 function sectionDesc(x){return x?(x.tn?tr(x.tn+'_d',x.d||''):(x.d||'')):'';}
 
@@ -933,15 +938,20 @@ const MODULES={
     tabs:[{k:'key',t:'RAIN',scr:'dash',panels:['hujancard'],
            roles:['WORKER'],ic:'🌧️',tn:'m_rain',
            d:'Key the rain gauge: which day, how many mm, and when it fell'}]},
-  prog:{ic:'📅',name:'The Programme',sub:'done · coming · today',tn:'m_prog',
+  /* v3.76.0 — ONE PANEL. The whole screen is drawn into #progcard by ppRender(): the Owner's
+     TODAY · COMING · DONE · MONTH, the Purchaser's TO BUY · COMING · DONE, the crew's list of
+     issued sets. #progseg, #agromonth (the old ✎ PLAN editor) and #cxcard (the old cancel
+     page) are no longer routed from here; the cards stay in index.html and in the
+     hideAllPanels list, exactly as every retired route before them. */
+  prog:{ic:'📅',name:'The Programme',sub:'today · coming · done · month',tn:'m_prog',
     /* v3.55.0 — 'agromonth' and 'cxcard' JOIN THIS TAB'S PANELS. openModule() only ever
        shows the panels its tab names, so a card the screen means to reveal later has to be
        routed here even though it starts hidden: #agromonth is the ✎ PLAN view and #cxcard is
        the cancel page. Both are held down by .m3-hide, which renderProgScreen()/cxOpen()
        lift — the display:none they carry in the markup is only the FIRST paint. */
-    tabs:[{k:'hub',t:'THE PROGRAMME',scr:'dash',panels:['progseg','progcard','agromonth','cxcard'],
+    tabs:[{k:'hub',t:'THE PROGRAMME',scr:'dash',panels:['progcard'],
            roles:['OWNER','PURCHASER','WORKER'],ic:'📅',tn:'m_prog',
-           d:'What is done, what is coming, what is due now, and the plan'}]},
+           d:'What is due now, what is issued, what is done, and the month'}]},
   agro:{ic:'🌱',name:'Agronomist',sub:'program builder, timeline, weather',
     // v3.12 — the seasonal matrix is the Agronomist's main tool now and therefore sits
     // first. The v2.6 "My sets" AI->brand builder is untouched and still lives under the
@@ -1622,7 +1632,8 @@ function tileBadge(k){
     // product still lets the crew work, an unallocated slot stops them dead.
     // v3.18 — an ingredient with nothing on the shelf outranks one merely waiting for a
     // brand to be picked: the second is a decision, the first is a purchase order.
-    const buy=(typeof procureCount==='function')?procureCount():0;
+    const buy=((typeof procureCount==='function')?procureCount():0)+
+              ((typeof ppBuyCount==='function'&&ppOn())?ppBuyCount():0);   // v3.76.0 — and what the programme is short of
     if(buy)return {t:buy+' TO BUY'};
     const u=(typeof unallocatedSlots==='function')?unallocatedSlots():0;
     if(u)return {t:u+' TO MATCH'};
@@ -1638,10 +1649,12 @@ function tileBadge(k){
     if(back)return {t:back+' '+tr('rl_tofix')};
     const mine=pendingDispatches().filter(e=>!CFG||!CFG.uid||String(e.workerId||'')===String(CFG.uid||'')).length;
     return mine?{t:mine+' '+tr('sc_pending'),amber:1}:null;}
+  if(k==='prog')return (typeof ppTileBadge==='function')?ppTileBadge():null;   // v3.76.0
   if(k==='ops'){
     // v3.12 — a directive waiting on a brand still counts as work the crew is carrying.
     // It is the thing they need to see, and hiding it is what made them ring the office.
     const n=myTasks().length+myGeneralTasks().length+
+      ((typeof ppCrewDue==='function'&&ppOn()&&hubTiles().indexOf('prog')>=0)?ppCrewDue().length:0)+   // v3.76.0
       ((typeof myDirectives==='function')?myDirectives().length:0);
     return n?{t:n+' '+tr('bg_tasks')}:null;}
   if(k==='agro'){
@@ -1754,6 +1767,7 @@ function renderTaskNotice(){
       '<div class="tn-brand">'+esc(tr(n.k))+'</div>'+
       '<div class="tn-dose">'+esc(n.s)+(n.d?(' \u00b7 '+esc(dateShort(n.d))):'')+'</div>'+
       '<div class="tn-hint">'+esc(tr('pc_hint'))+'</div></div>';});
+  if(typeof ppHomeNoticeHTML==='function'){try{pre=ppHomeNoticeHTML()+pre;}catch(e){}}   // v3.76.0 — an issued set that is due
   box.innerHTML=pre;
   const live=issuedDrafts().filter(function(d){
     if(d.deleted)return false;
@@ -1970,7 +1984,7 @@ function renderForTab(k,t){
      Tuesday would answer the wrong question the moment he taps it, which is the same
      determinism rule m5RecPick() and progPick() follow. */
   if(k==='mine'){MINE_DAY=todayISO();renderMine();}
-  if(k==='prog'){if(typeof cxClose==='function')cxClose();progPick(PROG_VIEW||progTabsFor()[0]);}
+  if(k==='prog'){if(typeof cxClose==='function')cxClose();ppOpen();}   // v3.76.0 — always the first tab and the list
   if(k!=='prog'&&typeof cxClose==='function')cxClose();
   /* v3.55.0 — PLAN vs DONE back in REPORTS. The m3-hide class is a leftover from its life as
      the hidden half of the SPRAY RECORD segment; without lifting it the row would route to a
@@ -2332,6 +2346,7 @@ async function realWipe(){
     tx.objectStore('blueprints').clear();tx.objectStore('rain').clear();}catch(e){}}
   PROGRAMS=[];TASKS=[];BLUEPRINTS=[];RAINFALL=[];
   JPS_RAIN=[];JPS_META=null;RAIN_SIG='';RAIN_SERVED=false;RF=null;   // v3.75.0
+  BUYASK={};PP_CACHE=null;PP_SHELF=null;PP_OPEN=null;PPE=PPM=PPR=PPA=PPCD=PPCN=PPCL=null;   // v3.76.0
   // 1. wipe events + config + keys from IndexedDB
   await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv','corrections'],'readwrite');
     tx.objectStore('events').clear();tx.objectStore('kv').clear();
@@ -2516,7 +2531,7 @@ async function mergeEvents(rows){
     EVENTS.push(e); have[String(r.uuid)]=1;
     if(db)await put('events',e);
     n++;}
-  if(n){rebuildLedgers();badge();}
+  if(n){rebuildLedgers();badge();if(typeof ppRefresh==='function')ppRefresh();}   // v3.76.0 — a set done on another phone reads done here
   return n;}
 
 async function refreshMasters(){
@@ -3325,6 +3340,9 @@ function progEditHTML(p){
  *  flagged. Capped at two so the home screen never becomes a wall of notices. */
 function progChangeNotices(){
   const out=[];
+  /* v3.76.0 — these are notices about LAST season's sets. Once that programme is closed they
+     describe nothing the crew can act on. */
+  if(typeof ppLastClose==='function'&&ppLastClose())return out;
   Object.keys(PROG_OVER).forEach(id=>{
     const o=PROG_OVER[id]; if(!o)return;
     const seed=(PROG_SEED||[]).find(x=>x.id===id); if(!seed)return;
@@ -3780,7 +3798,7 @@ async function outClearBasket(){
 async function outFillFromPlan(){
   const err=$('out-err'); err.textContent='';
   const set=$('sset')?$('sset').value:'';
-  const rows=(typeof programNeeds==='function')?programNeeds():[];
+  const rows=(typeof programNeedsOld==='function')?programNeedsOld():[];   // v3.76.0 — never an issued set
   const want=rows.filter(n=>n.pid&&+n.req>0);
   if(!want.length){err.textContent=tr('ob_noplan','No active programme phase to fill from — add the products by hand.');return;}
   let added=0;
@@ -5448,6 +5466,16 @@ async function doSync(auto){
          exact job. This is the 85 kg MSolumax case being caught. It must NOT be a toast that
          fades in two seconds: somebody has just done work the farm already has, and they need
          to stop and check rather than key it again. */
+      /* v3.76.0 — a second filing of an issued set is not a pop-up and does not stay on this
+         phone: the rows are taken out of its log (the other phone's rows are the real ones and
+         arrive on the pull) and one line on the screen says so. Needs the v3.76.0 Apps
+         Script, which names the blocked rows; with an older one this falls through to the
+         old message below, exactly as before. */
+      const ppBlk=(j.blockedRows||[]).filter(b=>b&&b.uuid&&/^P2\|/.test(String(b.natkey||'')));
+      if(ppBlk.length&&typeof ppDropBlocked==='function'){
+        await ppDropBlocked(ppBlk);
+        j.blockedRows=(j.blockedRows||[]).filter(b=>ppBlk.indexOf(b)<0);
+        j.blocked=Math.max(0,(+j.blocked||0)-ppBlk.length);}
       if(j.blocked>0){
         const rows=(j.blockedRows||[]).map(b=>'\u2022 '+(b.product||'?')+' \u2014 '+(b.qty||'')+' '+(b.unit||'')+
           (b.lot?(' \u00b7 Lot '+b.lot):'')+(b.set?('\n   '+b.set):'')).join('\n');
@@ -5951,6 +5979,8 @@ function renderCancelSet(){
   box.innerHTML=h;}
 
 function renderProgScreen(){
+  /* v3.76.0 — every caller that used to repaint the old screen now repaints the new one. */
+  if(typeof ppOn==='function'&&ppOn()){ppRefresh();return;}
   const box=$('progcard'); if(!box)return;
   if(!roleAllows('progcard')){box.innerHTML='';return;}
   const allowed=progTabsFor();
@@ -6005,7 +6035,11 @@ function progTally(todayIso){
     if(x.st.imported)c.imported++; if(x.st.noMaterial)c.noMaterial=(c.noMaterial||0)+1;});
   return c;}
 function progOf(uuid){return PROGRAMS.find(p=>p.uuid===uuid)||null;}
-function activePrograms(){return PROGRAMS.filter(p=>p.status==='ACTIVE');}
+/* v3.76.0 — ⛔ AN ISSUED SET (x.iss) IS NOT ONE OF THESE. Every caller of this function is the
+   OLD engine: the crew's CONFIRM COMPLETION list, the phase clock, the weather advice, the
+   order planner. Letting it see the new records would put one set in front of the crew twice,
+   with two different buttons that each draw the store. */
+function activePrograms(){return PROGRAMS.filter(p=>p.status==='ACTIVE'&&!(typeof ppIsIss==='function'&&ppIsIss(p)));}
 
 // ---- projection: how much of each product a phase will consume ----
 // FOLIAR: tanks = litresPerTree x trees / 1000 ; required = dose x tanks
@@ -6178,8 +6212,15 @@ function usedForProgram(pu,pid){return EVENTS.filter(e=>progRowMatches(e,pu)&&+e
   .reduce((s,e)=>s+(+e.qty||0),0);}
 
 // ================= Purchaser: upcoming programme stock check =================
-function programNeeds(){                       // product -> outstanding requirement
+/* v3.76.0 — programNeeds() now also carries what the ISSUED sets still have to draw, so the
+   store tile, the command deck and the stock check all see them. programNeedsOld() is last
+   season's records alone: the STOCK OUT basket's "fill from the plan" reads that one, because
+   an issued set is drawn by TANDA SIAP / RECORD AS DONE and must not be drawn a second time
+   from the basket. */
+function programNeedsOld(){return programNeeds(true);}
+function programNeeds(oldOnly){                // product -> outstanding requirement
   const need={};
+  if(!oldOnly&&typeof ppIssuedNeed==='function'){try{ppIssuedNeed(need);}catch(e){}}
   activePrograms().forEach(r=>r.lines.forEach(l=>{
     const outstanding=Math.max(0,l.required-usedForProgram(r.uuid,l.pid));
     if(outstanding<=0)return;
@@ -6285,6 +6326,7 @@ function renderProcure(){
      is how a panel ends up on screen showing what it showed at boot. Wrapped so a fault in
      the newer card can never take down the queue that shipped in v3.18. */
   try{ if(typeof m8RecvRender==='function')m8RecvRender(); }catch(e){}
+  try{ if(typeof ppBuyStoreRender==='function')ppBuyStoreRender(); }catch(e){}   // v3.76.0 — the programme's own BUY list
   const box=$('procurebox'); if(!box)return;
   if(!roleAllows('procurecard')){box.innerHTML='';return;}
   const rows=procureNeeds();
@@ -6742,10 +6784,14 @@ async function m8RecvAdd(){
 
 function renderProgCheck(){
   const box=$('chkbox');if(!box)return;
+  /* v3.76.0 — the programme's own BUY list leads: what the issued sets are short of, and
+     what the Owner has sent from the plan. Last season's table follows only while one of
+     its records is still ACTIVE, which ends when the Owner closes programme 2025/26. */
+  const pp=(typeof ppBuyStoreHTML==='function')?ppBuyStoreHTML('pp-chk-'):'';
   const live=activePrograms();
-  if(!live.length){box.innerHTML='<div class="alertnone">'+tr('m3_noplan','No programme phase is active. Nothing to order ahead for.')+'</div>';return;}
-  const needs=programNeeds(), short=needs.filter(n=>n.short);
-  box.innerHTML=(short.length
+  if(!live.length){box.innerHTML=pp||('<div class="alertnone">'+tr('m3_noplan','No programme phase is active. Nothing to order ahead for.')+'</div>');return;}
+  const needs=programNeedsOld(), short=needs.filter(n=>n.short);
+  box.innerHTML=pp+(short.length
       ?'<div class="alertbig">⚠ INSUFFICIENT STOCK FOR ACTIVE PHASE — '+short.length+' PRODUCT'+(short.length>1?'S':'')+'</div>'
       :'<div class="alertnone">✓ Every product in the active phase is covered by current stock.</div>')+
     '<div class="small" style="margin:8px 0 4px">Active: '+live.map(r=>esc(monthLabel(r.month)+' '+r.set)+' ('+r.trees+' trees)').join(' · ')+'</div>'+
@@ -6794,6 +6840,11 @@ function readyNeeds(){
     return b;}).sort((a,b)=>b.gap-a.gap);}
 function renderReady(){
   const box=$('readybox'); if(!box)return;
+  /* v3.76.0 — "the next phase" was the next sheet of LAST season's workbook. With the
+     2026/27 plan in the app the look-ahead is the Owner's TO BUY box, and what he has sent
+     from it is on the BUY list. */
+  if(typeof ppOn==='function'&&ppOn()&&(typeof ppLastClose==='function')&&(ppLastClose()||!activePrograms().length)){
+    box.innerHTML='<div class="alertnone">What the '+esc((typeof PP_SEASON!=='undefined')?PP_SEASON:'')+' plan needs in the next 30 days is checked against the shelf on the Owner\u2019s Programme ▸ TODAY. What he has sent is on the BUY list.</div>';return;}
   const nx=nextPhases(3);
   if(!nx.length){box.innerHTML='<div class="alertnone">Nothing further in the programme after the active phase.</div>';return;}
   const needs=readyNeeds(), short=needs.filter(x=>x.short);
@@ -6927,14 +6978,49 @@ async function submitReply(){
 // ---- programme sync: activation records travel in their own payload key, so an
 //      Apps Script that predates v2.5 cannot silently swallow them ----
 let progWarned=false;
+/* v3.76.0 — AN ISSUED SET IS ONLY MARKED SENT WHEN THE SHEET CAN HOLD ALL OF IT. `issued:true`
+   is how a v3.76.0 Apps Script signs its answer; an older one would take the set, drop rev
+   and x (it has no column for them) and still reply ok. `refused` lists the sets the Sheet
+   turned away because it already holds a newer change: those are marked stale here so the
+   pull that follows brings the Sheet's copy down, and the person is told. */
 async function pushPrograms(){
   const batch=PROGRAMS.filter(p=>!p.synced);
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({programs:batch}),
+    const sent=batch.map(p=>({p:p,rev:p.rev,at:p.at}));
+    /* `tried` = the change this phone sent LAST time, whether or not it heard the answer. If
+       the Sheet took it and the reply was lost, the Sheet now holds a rev this phone thinks it
+       never delivered; the next change would be refused as built on the wrong rev. Sending
+       what was tried lets the Sheet recognise its own row and take the change. The payload is
+       fixed first, with the previous attempt in it; then THIS attempt is noted and stored
+       before anything goes on the air. */
+    const body=JSON.stringify({programs:batch});
+    for(const s of sent){ if((typeof ppIsIss==='function')&&ppIsIss(s.p)){s.p.tried={rev:s.rev,at:s.at}; if(db)await put('programs',s.p);} }
+    const r=await fetch(CFG.url,{method:'POST',body:body,
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
-    if(j&&j.ok&&j.programs){for(const p of batch){p.synced=true;if(db)await put('programs',p);}badge();return true;}
+    if(j&&j.ok&&j.programs){
+      const signed=(j.issued===true), refused=Array.isArray(j.refused)?j.refused.map(String):[];
+      let held=0; const lost=[];
+      for(const s of sent){
+        const p=s.p, iss=(typeof ppIsIss==='function')&&ppIsIss(p);
+        if(iss&&!signed){held++;continue;}
+        if(refused.indexOf(String(p.uuid))>=0){
+          /* the Sheet holds a change this copy was not built on: whatever was done here since
+             was done on a version that no longer exists. The Sheet's copy replaces it. */
+          p.synced=true;p.stale=true;lost.push(p);if(db)await put('programs',p);continue;}
+        if(p.rev!==s.rev||p.at!==s.at){
+          /* changed again while this was in the air: it stays queued, and its next push is
+             built on the rev that has just been accepted */
+          if(iss){p.base=s.rev;if(db)await put('programs',p);}
+          continue;}
+        p.synced=true;
+        if(db)await put('programs',p);}
+      if(held&&!progWarned){progWarned=true;
+        toast('Programme sets kept on this phone — the Google Sheet side must be v3.76.0',1);}
+      if(lost.length)toast('⚠ '+(typeof ppT==='function'?ppT('Another phone changed this set first. Its version is kept:','Telefon lain sudah ubah set ini dahulu. Versi itu dikekalkan:'):'Not saved:')+' '+
+        lost.map(p=>String(p.month||'')+' · '+String(p.set||'')).join(', '),1);
+      badge();return !held;}
     if(!progWarned){progWarned=true;
       toast('Programme kept on this phone — update the Apps Script to send it to the workers',1);}
     return false;
@@ -6946,21 +7032,1514 @@ async function mergePrograms(rows){
     let lines=raw.lines;
     if(typeof lines==='string'){try{lines=JSON.parse(lines);}catch(e){lines=[];}}
     if(!Array.isArray(lines))continue;
+    let x=raw.x;
+    if(typeof x==='string'){ if(x){try{x=JSON.parse(x);}catch(e){x=null;}}else x=null; }
+    if(!x||typeof x!=='object')x=null;
     const sp={uuid:u,phaseId:String(raw.phaseId||''),month:String(raw.month||''),set:String(raw.set||''),
       kind:String(raw.kind||'FOLIAR'),mode:String(raw.mode||'SPRAY'),header:String(raw.header||''),
       basis:String(raw.basis||'PER_1000L'),plan:String(raw.plan||''),scope:String(raw.scope||'ALL'),
       trees:+raw.trees||0,litresPerTree:+raw.litresPerTree||0,tanks:+raw.tanks||0,
       lines:lines,projCost:+raw.projCost||0,by:String(raw.by||''),byId:String(raw.byId||''),
       at:String(raw.at||''),status:String(raw.status||'ACTIVE').toUpperCase(),synced:true};
+    const iss=!!(x&&x.iss);
+    if(iss){sp.x=x; sp.rev=+raw.rev||0; sp.plan=String(raw.plan||'').slice(0,10);}
     const lc=PROGRAMS.find(x=>x.uuid===u);
     if(!lc){PROGRAMS.push(sp);if(db)await put('programs',sp);changed=true;
-      if(sp.status==='ACTIVE')fresh++;continue;}
-    if(!lc.synced)continue;                                  // our unpushed edit wins
+      if(sp.status==='ACTIVE'||(iss&&sp.status==='ISSUED'))fresh++;continue;}
+    if(!lc.synced&&!lc.stale)continue;                       // our unpushed edit wins - unless the Sheet already refused this copy
+    if(iss){
+      /* v3.76.0 — a copy this phone has already sent is replaced by whatever the Sheet now
+         holds at the same or a later rev: the Sheet only ever keeps the newest change. A
+         copy the Sheet REFUSED (stale) is replaced whatever its rev says. */
+      const lr=+lc.rev||0;
+      if(!lc.stale){
+        if(sp.rev<lr)continue;
+        if(sp.rev===lr&&String(sp.at)===String(lc.at||'')&&sp.status===lc.status)continue;}
+      PROGRAMS[PROGRAMS.indexOf(lc)]=sp; if(db)await put('programs',sp); changed=true; continue;}
     if(lc.status===sp.status)continue;
     Object.assign(lc,sp);if(db)await put('programs',lc);changed=true;}
-  if(changed){renderOpsTasks();renderTimeline();renderProgCheck();renderTimeline();renderHub();badge();}
+  if(changed){renderOpsTasks();renderTimeline();renderProgCheck();renderTimeline();renderHub();badge();
+    if(typeof ppRefresh==='function')ppRefresh();}
   return fresh;}
 function progUnsynced(){return PROGRAMS.filter(p=>!p.synced).length;}
+
+// ================= v3.76.0 · THE PROGRAMME: THE PLAN, THE ISSUED SET, DONE, AND WHAT TO BUY =================
+/* The Owner, 2 Oct 2026, with last season's workbook (Programme 26) and the new one (2026/27
+   Monthly Sheets) side by side: 'i have no idea what is the code on the set ... the past
+   season still no yet close and the new programme are planing in the sheet but the material
+   will be change due to weather.' Approved from the tappable sample v3 the same day.
+
+   THE IDEA. The workbook stays the PLAN (PLAN_2627 in database.js): grey, no number, never
+   overdue, the Owner's eyes only. A round becomes WORK when the Owner ISSUES it, after his
+   own check of the field and the weather - with the mix, the day, the tanks and the lots as
+   he wants them THAT day, and a reason when they differ from the plan. Issuing is when the
+   set takes its name: the next number in that month, by type - October · Set 1, October ·
+   Fert 1. So the last number in a month is how many sets that month really had.
+
+   WHAT IS STORED. One PROGRAMS record per issued set, flagged x.iss. It is CHANGED IN PLACE
+   (move, change the mix, the crew's TAK JADI, skip, done) and every change adds 1 to `rev`;
+   the Apps Script keeps the higher rev, so the phone that syncs last can no longer win with
+   an older copy. Everything this release adds rides in the record's `x` cell:
+     x = { iss:1, mon:'2026-10', grp:'set|fert|trunk|weed', num:1, code, k, stage, tgtbm,
+           planDay, lots:['A','B','C'], why, extra, ver, direct, bm:{...}, notice:{...},
+           skip:{...}, done:{...}, log:[...] }
+   month / set / header / basis / plan / tanks / trees / lines keep the meaning the PROGRAMS
+   tab has always given them, so the Sheet reads the same to a person.
+   status: ISSUED (open) · CLOSED (done) · SKIPPED · VOID (a skipped planned round put back).
+   ⛔ NEVER 'ACTIVE'. A phone still on v3.75.0 pulls these rows too, and its engine hands
+   every ACTIVE record to the crew as an old task with CONFIRM COMPLETION, which would draw
+   the store a second time with no duplicate guard. ISSUED is a word that engine ignores.
+   `base` (sent with a change, not stored on the Sheet) is the rev the change was made ON.
+   The Apps Script takes a change only when the Sheet still holds that rev: two phones that
+   both changed rev 1 cannot both win, the second is refused, told, and takes the first.
+
+   ⛔ THE OLD ENGINE NEVER SEES AN ISSUED SET. activePrograms() skips x.iss records, so
+   myTasks(), the old CONFIRM COMPLETION modal, the phase clock and the weather advice go on
+   reading last season's records only. Two engines must never both offer to draw the same
+   set from the store.
+
+   ⛔ DONE IS READ FROM THE STORE, NOT FROM A FLAG. A set is done when a STOCK_OUT row
+   carrying its id exists for every lot it was issued for. The record's CLOSED status is a
+   convenience written by the phone that filed it; if that write loses a rev race the rows
+   still stand and every phone still reads the set as done. (Needs Apps Script v3.76.0: the
+   STOCK_OUT tab now carries SetId / PhaseId / ReplyId back down.)
+
+   ⛔ NOTHING HERE POPS A DIALOG. A second tap or a reason button stands in for confirm(). */
+let BUYASK={};                         // the `buyask` setting: {'p:<pid>'|'n:<name>': {at,by,upto}}
+let PP_CACHE=null, PP_SHELF=null, PP_OPEN=null;   // all three live for one synchronous render and no longer
+const PP_GRACE=3;                      // days an issued set may run past its day before it reads OVERDUE
+const PP_CREW_BACK=7;                  // the crew may mark done for a day up to this far back
+const PP_CREW_FWD=14;                  // the crew's TAK JADI must pick a new day within this
+const PP_CREW_SEE=7;                   // the crew sees an issued set from this many days ahead
+const PP_BUY_DAYS=30;                  // how far ahead the plan is checked against the shelf
+const PP_URGENT=7;                     // a shortage needed within this many days reads URGENT
+const PP_LAST='2025/26';               // the season whose programme this release closes
+const PP_WHY=[['RAIN','Rain','Hujan'],['DRY','Dry spell','Kemarau'],['FIELD','Field not ready','Ladang belum sedia'],
+  ['TREE','Tree condition','Keadaan pokok'],['PEST','Pest or disease','Perosak atau penyakit'],
+  ['STOCK','No stock','Tiada stok'],['OTHER','Other','Lain-lain']];
+const PP_MWHY=[['RAIN','Rain','Hujan'],['WET','Ground too wet','Tanah basah'],['WIND','Too windy','Angin kuat'],
+  ['FIELD','Field not ready','Rumput tebal'],['MAT','No material','Tiada bahan'],['CREW','No crew','Tiada pekerja'],
+  ['PLAN','Plan changed','Pelan berubah']];
+const PP_MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const PP_MONLBM=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+const PP_MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PP_MONSBM=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+const PP_DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PP_DOWBM=['Ahd','Isn','Sel','Rab','Kha','Jum','Sab'];
+const PP_GRPW={set:['Set','Set'],fert:['Fert','Baja'],trunk:['Trunk','Batang'],weed:['Weeding','Racun rumput']};
+
+/* ---------- small helpers ---------- */
+function ppOn(){return typeof PLAN_2627!=='undefined'&&Array.isArray(PLAN_2627);}
+function ppT(en,ms){return (LANG==='ms'&&ms)?ms:en;}
+function ppOkDay(iso){return /^\d{4}-\d{2}-\d{2}$/.test(String(iso||''));}
+function ppD(iso){const a=String(iso||'').slice(0,10).split('-');return new Date(Date.UTC(+a[0],+a[1]-1,+a[2]));}
+function ppAdd(iso,n){const d=ppD(iso);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function ppDiff(a,b){return Math.round((ppD(a)-ppD(b))/864e5);}
+function ppFmt(iso){if(!ppOkDay(String(iso||'').slice(0,10)))return '—';const d=ppD(iso);
+  return ppT(PP_DOW,PP_DOWBM)[d.getUTCDay()]+' '+d.getUTCDate()+' '+ppT(PP_MONS,PP_MONSBM)[d.getUTCMonth()];}
+function ppFmtS(iso){if(!ppOkDay(String(iso||'').slice(0,10)))return '—';const d=ppD(iso);
+  return d.getUTCDate()+' '+ppT(PP_MONS,PP_MONSBM)[d.getUTCMonth()];}
+function ppMonName(mon){const i=+String(mon||'').slice(5,7)-1;return ppT(PP_MONL,PP_MONLBM)[i]||String(mon||'');}
+function ppMonEN(mon){return PP_MONL[+String(mon||'').slice(5,7)-1]||String(mon||'');}
+function ppWhy(k){const w=PP_WHY.concat(PP_MWHY).find(x=>x[0]===k);return w?ppT(w[1],w[2]):String(k||'');}
+function ppWhyM(k){const w=PP_MWHY.concat(PP_WHY).find(x=>x[0]===k);return w?ppT(w[1],w[2]):String(k||'');}
+function ppCss(s){return String(s).replace(/[^A-Za-z0-9]/g,'_');}
+/** A value on its way into an inline handler, and back out of it. Quotes never survive raw. */
+function ppArg(s){return encodeURIComponent(String(s)).replace(/'/g,'%27');}
+function ppUnArg(s){try{return decodeURIComponent(String(s));}catch(e){return String(s);}}
+function ppMe(){return (CFG&&CFG.worker)||'';}
+function ppIsOwner(){return myRole()==='OWNER';}
+function ppStockFrom(){const c=seasonCur();return (c&&c.stock_from)?String(c.stock_from).slice(0,10):'';}
+function ppSeasonFrom(){return seasonFrom()||((typeof PP_FROM!=='undefined')?PP_FROM:'');}
+
+/* ---------- units: the workbook writes gm / ml / tab, a store card may count in kg or L ---------- */
+function ppUnitKind(u){u=String(u||'').toLowerCase().trim();
+  if(/^(gm|g|gram|grams)$/.test(u))return ['w',1];
+  if(u==='kg')return ['w',1000];
+  if(u==='ml')return ['v',1];
+  if(/^(l|lt|ltr|liter|litre|liters|litres)$/.test(u))return ['v',1000];
+  if(/^tab/.test(u))return ['t',1];
+  return ['?',1];}
+function ppConv(q,from,to){const a=ppUnitKind(from),b=ppUnitKind(to);
+  if(a[0]==='?'||a[0]!==b[0])return +q||0;
+  return +(((+q||0)*a[1])/b[1]).toFixed(4);}
+function ppQty(q,u){q=+q||0;const k=ppUnitKind(u), base=q*k[1];
+  if(k[0]==='t')return nf(q)+' '+ppT(q===1?'tablet':'tablets','biji');
+  if(k[0]==='w')return (base>=1000||(!base&&k[1]===1000))?(nf(base/1000)+' kg'):(nf(base)+' gm');
+  if(k[0]==='v')return (base>=1000||(!base&&k[1]===1000))?(nf(base/1000)+' L'):(nf(base)+' ml');
+  return nf(q)+' '+String(u||'').replace(/[<>&"']/g,'');}
+/** Can a quantity written in unit `from` be counted on a card kept in unit `to`? */
+function ppUnitFits(from,to){
+  if(String(from||'').toLowerCase().trim()===String(to||'').toLowerCase().trim())return true;
+  const a=ppUnitKind(from), b=ppUnitKind(to);
+  return a[0]!=='?'&&a[0]===b[0];}
+
+/* ---------- which store card a line draws from ----------
+   A line with a pid draws from that card. A line without one (the workbook names Urea,
+   15-15-30, K-sulphate, Calcium-Boron and Dolomite, and the store had no seed card for
+   them) is matched BY NAME through PP_ALIAS, so the day the Purchaser makes the card the
+   plan finds it by itself. ⛔ No card is invented here: a pack size or a price the farm
+   never set would put a made-up number into the valuation. */
+function ppCard(pid,name){
+  if(+pid>0){const p=prodById(+pid); if(p)return p;}
+  const pat=(typeof PP_ALIAS!=='undefined')?PP_ALIAS[String(name||'')]:null;
+  if(!pat)return null;
+  let re; try{re=new RegExp(pat,'i');}catch(e){return null;}
+  const hit=activeProducts().filter(p=>re.test(String(p.name||'')));
+  return hit.length?hit[0]:null;}
+/** One line, whatever it came from (the plan: {pid,n,q,u}; a record: {pid,pname,dose,unit}),
+ *  in the unit of its store card. key is what two lines are compared by. */
+function ppLine(l){
+  const raw=String(l.n||l.pname||''), q=+(l.q!=null?l.q:l.dose)||0, u=String(l.u||l.unit||'');
+  const p=ppCard(l.pid,raw);
+  if(!p)return {pid:0,n:raw,q:q,u:u,ai:'',card:false,key:'n:'+raw.toLowerCase()};
+  /* ⛔ A CARD KEPT IN ANOTHER KIND OF UNIT IS NOT THIS LINE'S CARD. The workbook says 1 L of
+     15-15-30 per tank; a card someone opens in kg, or in whole bags, cannot be drawn in
+     litres, and reading the 1,000 ml as 1,000 kg would order two tonnes. Such a line stays
+     uncounted and undrawn, and says which card it could not use. */
+  if(!ppUnitFits(u,p.unit))return {pid:0,n:raw,q:q,u:u,ai:'',card:false,key:'n:'+raw.toLowerCase(),odd:p.name+' ('+p.unit+')'};
+  return {pid:p.id,n:p.name,q:ppConv(q,u,p.unit),u:p.unit,ai:p.active_ingredient||'',card:true,key:'p:'+p.id,nk:'n:'+raw.toLowerCase()};}
+function ppLots(){return LOT_KEYS.slice();}
+function ppTrees(lots){return (lots||[]).reduce((n,L)=>n+treesInLot(L).length,0);}
+/** How many trees a set is FOR. A spray covers every tree standing in the lots. A per-tree
+ *  round (fertiliser, Aliette) feeds the trees in the programme: the workbook's 162, which
+ *  is the 171 less the 9 top-worked - when it covers all three lots. For fewer lots the app
+ *  cannot know where the nine are, so it offers the lots' own count and the Owner corrects
+ *  the figure when he issues. */
+function ppTreesFor(basis,lots){
+  if(basis==='P'&&lots&&lots.length===LOT_KEYS.length&&typeof PP_TREES!=='undefined'&&+PP_TREES>0)return +PP_TREES;
+  return ppTrees(lots);}
+function ppBasisCode(b){return b==='PER_1000L'?'T':b==='PER_TREE'?'P':b==='PER_ROUND'?'R':(b||'T');}
+function ppBasisLong(b){return b==='T'?'PER_1000L':b==='P'?'PER_TREE':'PER_ROUND';}
+function ppBasisTxt(b){return b==='T'?ppT('per 1,000 L tank','setiap tangki 1,000 L'):b==='P'?ppT('per tree','setiap pokok'):ppT('per round','setiap pusingan');}
+function ppGrp(k){return k==='fert'?'fert':k==='trunk'?'trunk':k==='weed'?'weed':'set';}
+function ppTypeW(k){return k==='fert'?'fertiliser':k==='trunk'?'Aliette round':k==='weed'?'weeding':k==='drench'?'drench':'spray';}
+
+/* ---------- the records ---------- */
+function ppX(p){ if(!p)return null; let x=p.x;
+  if(typeof x==='string'){ if(!x){p.x=null;return null;} try{x=JSON.parse(x);}catch(e){x=null;} p.x=x; }
+  return (x&&typeof x==='object')?x:null;}
+function ppIsIss(p){const x=ppX(p);return !!(x&&x.iss);}
+/** Every issued set this season. VOID = a skipped planned round the Owner put back. */
+function ppRecs(){return (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).filter(p=>p&&ppIsIss(p)&&String(p.status)!=='VOID');}
+function ppTouch(){PP_CACHE=null;PP_SHELF=null;PP_OPEN=null;}
+function ppShelf(pid){
+  if(!PP_SHELF){PP_SHELF={};Promise.resolve().then(()=>{PP_SHELF=null;});}
+  if(PP_SHELF[pid]===undefined){const p=prodById(pid);PP_SHELF[pid]=p?Math.max(0,onHand(p)):0;}
+  return PP_SHELF[pid];}
+
+/* ---------- the sets: the plan, the issued records and the adopted rows, as one list ----------
+   st: plan (grey) · iss (work in front of the crew) · done · skip. */
+function ppSets(){
+  if(PP_CACHE)return PP_CACHE;
+  const out=ppBuild();
+  PP_CACHE=out; Promise.resolve().then(()=>{PP_CACHE=null;});
+  return out;}
+function ppBuild(){
+  if(!ppOn())return [];
+  const byProg={}, byPhase={}, plain=[];
+  (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(e=>{
+    if(!e||e.type!=='STOCK_OUT')return;
+    if(e.progId)(byProg[e.progId]=byProg[e.progId]||[]).push(e);
+    else if(e.phaseId)(byPhase[e.phaseId]=byPhase[e.phaseId]||[]).push(e);
+    else plain.push(e);});
+  const recs=ppRecs(), recOf={};
+  recs.forEach(r=>{const c=recOf[r.phaseId];
+    if(!c||(+r.rev||0)>(+c.rev||0)||((+r.rev||0)===(+c.rev||0)&&String(r.at||'')>String(c.at||'')))recOf[r.phaseId]=r;});
+  const out=[], seen={};
+  PLAN_2627.forEach(p=>{const r=recOf[p.id]||null; if(r)seen[r.uuid]=1;
+    out.push(ppView(p,r,r?(byProg[r.uuid]||[]).concat(byPhase[r.phaseId]||[]):[]));});
+  recs.forEach(r=>{ if(seen[r.uuid])return;
+    if(PLAN_2627.some(p=>p.id===r.phaseId))return;        // an older copy of a planned round: the newest one is already in
+    out.push(ppView(null,r,(byProg[r.uuid]||[]).concat(byPhase[r.phaseId]||[])));});
+  ((typeof PP_ADOPT!=='undefined')?PP_ADOPT:[]).forEach(a=>{
+    const rows=plain.filter(e=>String(e.dt||'').slice(0,10)===a.day&&a.pids.indexOf(+e.pid)>=0);
+    out.push(ppAdoptView(a,rows));});
+  return out;}
+function ppView(p,rec,rows){
+  const x=rec?ppX(rec):null, fix=(p&&typeof PP_FIX!=='undefined'&&PP_FIX[p.id])||null;
+  const k=(x&&x.k)||(p?p.k:'spray');
+  const v={key:rec?rec.uuid:p.id, planId:p?p.id:'', plan:p, rec:rec, k:k, grp:(x&&x.grp)||ppGrp(k),
+    basis:rec?ppBasisCode(rec.basis):p.basis, code:p?p.code:((x&&x.code)||''),
+    stage:p?p.stage:((x&&x.stage)||'Extra'),
+    tgt:rec?(String(rec.header||'')||(p?p.tgt:'')):p.tgt, tgtbm:(x&&x.tgtbm)||(p?p.tgtbm:'')||'',
+    extra:!p, fix:fix, noPlanDay:!p||!!(fix&&fix.nodate), planDay:p?p.plan:'', planTanks:p?(+p.tanks||0):0,
+    planLines:p?p.lines.map(ppLine):[], num:0, ver:1, why:'', log:[], notice:null, bm:null, direct:false,
+    nodate:false, done:null, skip:null};
+  if(!rec){
+    v.st='plan'; v.nodate=!!(fix&&fix.nodate);
+    v.mon=(fix&&fix.mon)||String(p.plan).slice(0,7);
+    v.date=v.nodate?'':p.plan; v.tanks=v.planTanks; v.lots=ppLots(); v.lines=v.planLines;
+    v.trees=ppTreesFor(v.basis,v.lots);
+    return v;}
+  v.num=+x.num||0; v.mon=x.mon||String(rec.plan||'').slice(0,7);
+  v.date=String(rec.plan||'').slice(0,10); v.tanks=+rec.tanks||0;
+  v.lots=(Array.isArray(x.lots)&&x.lots.length)?x.lots.slice():ppLots();
+  v.lines=(Array.isArray(rec.lines)?rec.lines:[]).map(ppLine);
+  v.trees=+rec.trees||ppTreesFor(v.basis,v.lots);
+  v.ver=+x.ver||1; v.why=x.why||''; v.log=Array.isArray(x.log)?x.log:[]; v.notice=x.notice||null;
+  v.bm=x.bm||null; v.direct=!!x.direct; v.skip=x.skip||null;
+  v.done=ppDoneOf(rows,x.done||null,v.tanks);
+  const all=v.done&&v.lots.every(L=>v.done.lots.indexOf(L)>=0);
+  v.st=(String(rec.status)==='SKIPPED')?'skip':((String(rec.status)==='CLOSED'||all)?'done':'iss');
+  if(v.st==='done'&&!v.done)v.done=ppDoneOf([],{date:v.date,tanks:v.tanks,lots:v.lots},v.tanks);
+  return v;}
+function ppAdoptView(a,rows){
+  const v={key:a.id, planId:'', plan:null, rec:null, adopt:a, k:a.k, grp:ppGrp(a.k), basis:'T', code:'',
+    stage:a.stage||'', tgt:a.tgt, tgtbm:a.tgtbm||'', extra:true, fix:null, noPlanDay:true, planDay:'',
+    planTanks:0, planLines:[], num:a.num, ver:1, why:'', log:[], notice:null, bm:null, direct:true,
+    nodate:false, skip:null, mon:a.mon, date:a.day, tanks:+a.tanks||0, lots:ppLots(),
+    lines:a.lines.map(ppLine)};
+  v.trees=ppTrees(v.lots);
+  v.done=ppDoneOf(rows,{date:a.day,tanks:a.tanks,lots:ppLots()},+a.tanks||0);
+  v.st='done';
+  return v;}
+/** What the store says was done for a set: the days, the lots, the tanks, the people, the cost.
+ *  `xd` is the note the filing phone left on the record, used only where the rows say nothing
+ *  (a set whose products have no store card draws no rows at all). */
+function ppDoneOf(rows,xd,tanksIssued){
+  xd=xd||null;
+  if(!(rows&&rows.length)&&!xd)return null;
+  const lots=[], reps={}, qty={}; let first='', last='', cost=0, by='';
+  (rows||[]).forEach(e=>{
+    const d=String(e.dt||'').slice(0,10);
+    if(d){ if(!first||d<first)first=d; if(!last||d>last)last=d; }
+    if(e.lot&&lots.indexOf(e.lot)<0)lots.push(e.lot);
+    const rk=String(e.replyId||(d+'|'+(e.device||'')));
+    const r=reps[rk]||(reps[rk]={tanks:0,crew:0,hours:0});
+    r.tanks=Math.max(r.tanks,+e.tanks||0);
+    if(+e.crew>0){r.crew=+e.crew;r.hours=+e.hours||0;}
+    cost+=+e.cost||0; qty[+e.pid]=(qty[+e.pid]||0)+(+e.qty||0);
+    if(!by&&e.worker)by=e.worker;});
+  let tanks=0, mh=0, crew=0, hours=0;
+  Object.keys(reps).forEach(kk=>{const r=reps[kk];tanks+=r.tanks;mh+=r.crew*r.hours;
+    if(r.crew&&!crew){crew=r.crew;hours=r.hours;}});
+  if(xd&&Array.isArray(xd.lots))xd.lots.forEach(L=>{if(lots.indexOf(L)<0)lots.push(L);});
+  const date=last||(xd&&xd.date)||'';
+  const sf=ppStockFrom();
+  return {date:date, first:first||date, tanks:tanks||(xd?+xd.tanks||0:0), crew:crew||(xd?+xd.crew||0:0),
+    hours:hours||(xd?+xd.hours||0:0), mh:mh||((xd?(+xd.crew||0)*(+xd.hours||0):0)), lots:lots.sort(),
+    cost:cost, by:by||(xd&&xd.by)||'', via:(xd&&xd.via)||'', qty:qty, n:(rows||[]).length,
+    pre:!!(sf&&date&&date<sf)&&(rows||[]).length>0&&(rows||[]).every(e=>!ppCounts(e.pid,e.dt)),
+    live:(rows||[]).filter(e=>sf&&String(e.dt||'').slice(0,10)<sf&&ppCounts(e.pid,e.dt)).map(e=>e.pname)
+      .filter((n,i,a)=>a.indexOf(n)===i)};}
+/** Does a draw stamped `dt` move today's shelf for this card? A card that was counted at the
+ *  opening count starts from that count, so anything stamped on or before it does not. A card
+ *  with NO opening row (one made after the count) still runs on the old rule and every row
+ *  moves it, whatever its date. */
+function ppCounts(pid,dt){
+  /* the newest opening row per card, found in ONE pass over the log and kept for this
+     redraw only - asked row by row through openingOf() it would walk the whole log for
+     every stock row of every done set */
+  if(!PP_OPEN){PP_OPEN={};
+    (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(e=>{ if(!e||!isOpening(e))return;
+      const c=PP_OPEN[e.pid]; if(!c||String(e.dt||'')>c)PP_OPEN[e.pid]=String(e.dt||'');});
+    Promise.resolve().then(()=>{PP_OPEN=null;});}
+  const cut=PP_OPEN[+pid];
+  if(cut===undefined)return true;
+  return String(dt||'')>cut;}
+
+/* ---------- names ---------- */
+function ppName(v){
+  if(!v.num)return 'Planned '+ppTypeW(v.k);
+  return ppMonEN(v.mon)+' · '+PP_GRPW[v.grp][0]+' '+v.num;}
+function ppNameBM(v){
+  if(!v.num)return '';
+  return ppMonName(v.mon)+' · '+ppT(PP_GRPW[v.grp][0],PP_GRPW[v.grp][1])+' '+v.num;}
+function ppTgt(v){return ppT(v.tgt,v.tgtbm)||v.tgt||'';}
+/** The next number in a month, by type. Skipped sets keep theirs; adopted rows hold theirs. */
+function ppNextNum(mon,grp){
+  let top=0;
+  ppRecs().forEach(r=>{const x=ppX(r); if(x&&x.mon===mon&&(x.grp||ppGrp(x.k))===grp)top=Math.max(top,+x.num||0);});
+  ((typeof PP_ADOPT!=='undefined')?PP_ADOPT:[]).forEach(a=>{if(a.mon===mon&&ppGrp(a.k)===grp)top=Math.max(top,+a.num||0);});
+  return top+1;}
+function ppCodeTag(v){return (ppIsOwner()&&v.code)?'<span class="pp-code">'+esc(v.code)+'</span>':'';}
+function ppFind(key){return ppSets().find(v=>v.key===key)||null;}
+
+/* ---------- quantities ---------- */
+function ppReq(basis,l,tanks,lots,trees){
+  return basis==='T'?l.q*(+tanks||0):basis==='P'?l.q*((+trees>0)?+trees:ppTreesFor('P',lots)):l.q;}
+function ppLotsLeft(v){
+  if(v.st!=='iss'||!v.done)return v.lots.slice();
+  return v.lots.filter(L=>v.done.lots.indexOf(L)<0);}
+/** What a set still has to draw: the whole of it, or the share of the lots not yet reported. */
+function ppReqLeft(v,l){
+  const left=ppLotsLeft(v);
+  if(left.length===v.lots.length)return ppReq(v.basis,l,v.tanks,v.lots,v.trees);
+  const all=ppTrees(v.lots)||1;
+  return ppReq(v.basis,l,v.tanks,v.lots,v.trees)*ppTrees(left)/all;}
+/** The tree count to print for a set, or for some of its lots. */
+function ppTreesShown(v,lots){
+  if(v.basis!=='P')return ppTrees(lots);
+  if(lots.length===v.lots.length)return +v.trees||ppTreesFor('P',lots);
+  return Math.round((+v.trees||0)*ppTrees(lots)/(ppTrees(v.lots)||1));}
+/** What the shelf can still give THIS set: on hand, less what the other issued sets will take. */
+function ppAvail(pid,exceptKey){
+  let a=ppShelf(pid);
+  ppSets().forEach(s=>{ if(s.key===exceptKey||s.st!=='iss')return;
+    s.lines.forEach(l=>{if(l.card&&l.pid===pid)a-=ppReqLeft(s,l);});});
+  return a;}
+function ppCpu(pid){const p=prodById(pid);return p?(+p.cpu||0):0;}
+function ppCost(basis,lines,tanks,lots,trees){
+  return lines.reduce((t,l)=>t+(l.card?ppReq(basis,l,tanks,lots,trees)*ppCpu(l.pid):0),0);}
+function ppShortN(v){
+  if(v.st!=='plan'&&v.st!=='iss')return 0;
+  return v.lines.filter(l=>l.card&&ppAvail(l.pid,v.key)<ppReqLeft(v,l)-1e-9).length;}
+
+/* ---------- status ---------- */
+function ppSt(v){
+  const today=todayISO();
+  if(v.st==='done'){
+    const late=!v.direct&&ppOkDay(v.date)&&v.done&&ppOkDay(v.done.date)&&ppDiff(v.done.date,v.date)>PP_GRACE;
+    return {c:'ok',t:late?ppT('DONE · LATE','SIAP · LEWAT'):ppT('DONE','SIAP'),k:'done'};}
+  if(v.st==='skip')return {c:'mut',t:ppT('SKIPPED','DILANGKAU'),k:'skip'};
+  if(v.st==='iss'){
+    if(!ppOkDay(v.date))return {c:'new',t:ppT('ISSUED','DIKELUARKAN'),k:'come'};
+    const d=ppDiff(today,v.date);
+    if(d<0)return {c:'new',t:ppT('ISSUED','AKAN DATANG'),k:'come'};
+    if(d<=PP_GRACE)return {c:'amb',t:ppT('DUE NOW','HARI INI'),k:'due'};
+    return {c:'red',t:ppT('OVERDUE','LEWAT'),k:'over'};}
+  if(v.nodate)return {c:'mut',t:'DAY NOT SET',k:'plan'};
+  return {c:'mut',t:ppDiff(today,v.date)>0?'DATE PASSED':'ON THE PLAN',k:'plan'};}
+/** How a set, as it stands or as it is being edited (`o`), differs from the workbook. */
+function ppChanges(v,o){
+  const out=[]; if(v.extra)return out;
+  if(!v.noPlanDay&&ppOkDay(o.date)&&o.date!==v.planDay)out.push('Day: '+ppFmtS(v.planDay)+' → '+ppFmtS(o.date));
+  if(v.basis==='T'&&+o.tanks!==+v.planTanks)out.push('Tanks: '+nf(v.planTanks)+' → '+nf(+o.tanks));
+  if(o.lots.length<LOT_KEYS.length)out.push('Lots: '+o.lots.join(', ')+' only');
+  if(v.basis==='P'&&+o.trees>0&&+o.trees!==ppTreesFor('P',ppLots()))out.push('Trees: '+ppTreesFor('P',ppLots())+' → '+(+o.trees));
+  v.planLines.forEach(p=>{const n=o.lines.find(l=>l.key===p.key);
+    if(!n)out.push('Taken out: '+p.n);
+    else if(Math.abs(n.q-p.q)>1e-9)out.push(p.n+': '+ppQty(p.q,p.u)+' → '+ppQty(n.q,n.u));});
+  o.lines.forEach(n=>{if(!v.planLines.find(p=>p.key===n.key))out.push('Added: '+n.n+' '+ppQty(n.q,n.u));});
+  return out;}
+function ppWhys(v){const u=[];(v.log||[]).forEach(x=>{if(x.why&&u.indexOf(x.why)<0)u.push(x.why);});
+  if(v.fix&&v.fix.why&&u.indexOf(v.fix.why)<0)u.push(v.fix.why);
+  return u.length?(' — '+u.map(k=>esc(ppWhy(k))).join(', ')):'';}
+function ppLogText(e){
+  const d=ppFmtS(String(e.at||'').slice(0,10)), who=e.by?(' · '+e.by):'';
+  const why=e.why?(' — '+ppWhy(e.why)):'';
+  let t='';
+  if(e.k==='issue')t='issued as '+(e.name||'')+' for '+ppFmtS(e.d)+(e.why?why:' as planned')+((e.ch&&e.ch.length)?(': '+e.ch.join('; ')):'');
+  else if(e.k==='mix')t='mix changed (version '+(e.ver||'')+')'+why+((e.ch&&e.ch.length)?(': '+e.ch.join('; ')):'');
+  else if(e.k==='move')t='moved by the Owner '+ppFmtS(e.from)+' → '+ppFmtS(e.to)+why;
+  else if(e.k==='crewmove')t='crew: not done — '+ppWhyM(e.why)+'; the crew moved it '+ppFmtS(e.from)+' → '+ppFmtS(e.to);
+  else if(e.k==='skip')t='skipped'+why;
+  else if(e.k==='back')t='put back';
+  else if(e.k==='seen')t='the crew’s move seen by the Owner';
+  else if(e.k==='done'||e.k==='rec')t=(e.k==='rec'?'recorded by the Owner: ':'')+'done '+ppFmtS(e.d)+
+    (e.lots?(' · Lot '+e.lots.join(' ')):'')+(e.tanks?(' · '+nf(e.tanks)+' tanks'):'')+
+    (e.crew?(' · '+e.crew+' crew × '+nf(e.hours)+' h'):'');
+  else t=String(e.k||'');
+  return d+' · '+t+who;}
+
+/* ---------- writing a record ----------
+   ONE writer. Every change to an issued set goes through ppSave(): rev + 1, stamped, queued,
+   stored, and the screens repainted. A phone that is online sends it at once. */
+function ppLog(x,entry){
+  entry.at=now(); entry.by=ppMe();
+  x.log=(Array.isArray(x.log)?x.log:[]).concat([entry]).slice(-30);}
+/** Mark a record as changed here. `base` is the rev the Sheet is believed to hold: it is
+ *  taken once, when a synced copy is first touched, and kept through every further local
+ *  change until that change has gone up. Called BEFORE anything is awaited, so a pull that
+ *  lands mid-way cannot swap the record for the Sheet's copy underneath the change. */
+function ppDirty(rec){
+  /* ⛔ A STALE COPY IS NEVER RE-BASED. The Sheet refused it because it was built on a rev
+     that is gone; calling its present rev the base would let the next push through and wipe
+     the very change it lost to. It keeps its old base and its stale mark until the pull
+     replaces it. */
+  if(!rec.stale&&(rec.synced||rec.base===undefined))rec.base=+rec.rev||0;
+  rec.synced=false;}
+/** A copy the Sheet refused is on its way out. Nothing more is done to it: say so, and ask
+ *  for the Sheet's version now. */
+function ppStale(rec){
+  if(!rec||!rec.stale)return false;
+  toast(ppT('Another phone changed this set first. Getting its version now — open the set again in a moment.',
+            'Telefon lain sudah ubah set ini dahulu. Sedang ambil versi itu — buka set ini semula sebentar lagi.'),1);
+  ppSyncSoon(); return true;}
+async function ppSave(rec,isNew){
+  ppDirty(rec);
+  /* the stamp carries a short tag of its own, so two changes made in the same second on two
+     phones can never be mistaken for one and the same */
+  rec.rev=(+rec.rev||0)+1; rec.at=nowSec()+' #'+uuid().replace(/-/g,'').slice(0,4);
+  const i=PROGRAMS.findIndex(p=>p&&p.uuid===rec.uuid);
+  if(i<0)PROGRAMS.push(rec); else if(PROGRAMS[i]!==rec)PROGRAMS[i]=rec;
+  if(db)await put('programs',rec);
+  ppTouch(); badge();}
+function ppSyncSoon(){
+  if(CFG&&CFG.url&&navigator.onLine){try{doSync(true);}catch(e){}}}
+/** Record lines from editor lines: the store card's own name and unit, the dose in that unit. */
+function ppRecLines(basis,lines,tanks,lots,trees){
+  return lines.map(l=>({pid:l.card?l.pid:0,pname:l.n,ai:l.ai||'',unit:l.u,dose:+l.q||0,
+    required:+ppReq(basis,l,tanks,lots,trees).toFixed(2)}));}
+function ppScope(lots){return lots.length===LOT_KEYS.length?'ALL':lots.join('+');}
+/** A new record for a planned round (v.plan) or an extra set. `o` = {date,tanks,lots,lines,trees}. */
+function ppNewRec(v,o,status){
+  const mon=String(o.date).slice(0,7), grp=v.grp;
+  const trees=v.basis==='P'?((+o.trees>0)?+o.trees:ppTreesFor('P',o.lots)):ppTrees(o.lots);
+  const num=(status==='SKIPPED')?0:ppNextNum(mon,grp);
+  const x={iss:1,mon:mon,grp:grp,num:num,code:v.code||'',k:v.k,stage:v.stage||'',tgtbm:v.tgtbm||'',
+    planDay:v.noPlanDay?'':v.planDay,lots:o.lots.slice(),why:'',extra:!!v.extra,ver:1,log:[]};
+  return {uuid:uuid(),phaseId:v.planId||('P27|X'+uuid().replace(/-/g,'').slice(0,8)),
+    month:ppMonEN(mon),set:num?(PP_GRPW[grp][0]+' '+num):'',
+    kind:v.k==='fert'?'FERT':'FOLIAR',
+    mode:v.k==='fert'?'SOIL':v.k==='drench'?'DRENCH':v.k==='trunk'?'TRUNK':v.k==='weed'?'WEED':'SPRAY',
+    header:v.tgt||'',basis:ppBasisLong(v.basis),plan:o.date,scope:ppScope(o.lots),trees:trees,
+    litresPerTree:0,tanks:v.basis==='T'?(+o.tanks||0):0,
+    lines:ppRecLines(v.basis,o.lines,o.tanks,o.lots,trees),
+    projCost:+ppCost(v.basis,o.lines,o.tanks,o.lots,trees).toFixed(2),
+    by:ppMe(),byId:(CFG&&CFG.uid)||'',at:nowSec(),status:status||'ISSUED',rev:0,base:0,synced:false,x:x};}
+
+/* ---------- drawing the store for a set that was done ----------
+   The same row the old CONFIRM COMPLETION wrote, field for field, so every report that
+   reads a programme draw (PROGRAMME COST, the run-cost rollup, the lot bars, MY MONTH)
+   reads these without knowing they are new. One row per product per lot; the tanks ride
+   on the first lot's rows only, the way they always have, so no report multiplies them.
+   natkey: one draw per set, lot and product from one phone - a second phone filing the
+   same lot of the same set is turned away by the Apps Script and logged, not booked twice.
+   Returns the number of rows written, or -1 when the day is refused. */
+async function ppDraw(rec,o){
+  const x=ppX(rec), basis=ppBasisCode(rec.basis);
+  const stamp=stampFor(o.date); if(stamp===null)return -1;
+  const rid=uuid(), sel=o.lots.slice().sort(), w=sel.map(L=>treesInLot(L).length);
+  const issuedLots=(x.lots&&x.lots.length)?x.lots:ppLots(), allT=ppTrees(issuedLots)||1, selT=ppTrees(sel);
+  const water=basis==='T'?(+o.tanks||0)*TANK_L:0;
+  const wsh=sel.length>1?splitExact(water,w):[water];
+  const crew=Math.round(+o.crew||0), hours=+o.hours||0;
+  const name=String(rec.month||'')+' · '+String(rec.set||'');
+  let n=0;
+  for(const raw of (rec.lines||[])){
+    const l=ppLine(raw); if(!l.card)continue;
+    const p=prodById(l.pid); if(!p)continue;
+    const total=basis==='T'?l.q*(+o.tanks||0):basis==='P'?l.q*(+rec.trees||ppTreesFor('P',issuedLots))*selT/allT:l.q*selT/allT;
+    const q=+total.toFixed(2); if(!(q>0))continue;
+    const parts=sel.length>1?splitExact(q,w):[q];
+    for(let i=0;i<sel.length;i++){
+      if(!(parts[i]>0))continue;
+      await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:p.id,pname:p.name,
+        ai:p.active_ingredient||'',qty:parts[i],unit:p.unit,lot:sel[i],
+        set:String(rec.month||'')+' - '+String(rec.set||''),
+        cost:+(parts[i]*(+p.cpu||0)).toFixed(2),
+        progId:rec.uuid,progSet:name,replyId:rid,phaseId:String(rec.phaseId||''),
+        tanks:(basis==='T'&&i===0)?(+o.tanks||0):'',
+        water:+(wsh[i]||0),
+        crew:crew,hours:hours,labourOff:(crew>0&&hours>0)?undefined:true,
+        splitAll:(sel.length>1)||undefined,lotsInReport:sel.length,
+        via:o.via||'PP_DONE',planned:true,
+        natkey:'P2|'+rec.uuid+'|'+sel[i]+'|'+p.id,
+        worker:ppMe(),device:(CFG&&CFG.device)||'',synced:false});
+      n++;}}
+  ppTouch();
+  return n;}
+/** File a set (or some of its lots) as done: the rows, then the note on the record. */
+async function ppFileDone(rec,o,logKind){
+  const x=ppX(rec);
+  if(stampFor(o.date)===null)return false;
+  ppDirty(rec);
+  const n=await ppDraw(rec,o); if(n<0)return false;
+  const prev=x.done||{};
+  const lots=(Array.isArray(prev.lots)?prev.lots:[]).slice();
+  o.lots.forEach(L=>{if(lots.indexOf(L)<0)lots.push(L);});
+  /* and the lots the store already holds for this set, whichever phone filed them */
+  EVENTS.forEach(e=>{if(e&&e.lot&&progRowMatches(e,rec.uuid)&&lots.indexOf(e.lot)<0)lots.push(e.lot);});
+  x.done={date:o.date,tanks:(+prev.tanks||0)+(+o.tanks||0),crew:Math.round(+o.crew||0),hours:+o.hours||0,
+    by:ppMe(),via:o.via||'',lots:lots.sort()};
+  const issued=(x.lots&&x.lots.length)?x.lots:ppLots();
+  if(issued.every(L=>lots.indexOf(L)>=0))rec.status='CLOSED';
+  if(x.notice)x.notice.seen=true;
+  ppLog(x,{k:logKind||'done',d:o.date,lots:o.lots.slice(),tanks:+o.tanks||0,crew:Math.round(+o.crew||0),hours:+o.hours||0});
+  await ppSave(rec,false);
+  if(typeof LAST_CREW!=='undefined'&&+o.crew>0){LAST_CREW={crew:Math.round(+o.crew),hours:+o.hours||0};
+    if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});}
+  return true;}
+
+/* ---------- what to buy ----------
+   Every need still ahead is laid against the shelf in date order: an issued set is FIRM
+   (the crew is going to do it), a planned round inside the next PP_BUY_DAYS days is only
+   a forecast. A product goes short at the need where the shelf runs out.
+     the Owner sees every row;
+     the Purchaser sees a row when the shortage is firm, or when the Owner pressed SEND
+     for it (BUYASK), and then only for the rounds that were on the Owner's box that day. */
+function ppNeeds(){
+  const today=todayISO(), out=[];
+  ppSets().forEach(v=>{
+    let firm=false, date=null;
+    if(v.st==='iss'){firm=true;date=ppOkDay(v.date)?v.date:'';}
+    else if(v.st==='plan'&&v.nodate)date='';
+    else if(v.st==='plan'&&ppDiff(v.date,today)<=PP_BUY_DAYS)date=v.date;
+    else return;
+    v.lines.forEach(l=>{const q=ppReqLeft(v,l); if(q>0)out.push({v:v,firm:firm,date:date,l:l,q:q});});});
+  out.sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999')));
+  return out;}
+/** Has the Owner sent this line's product to the Purchaser, for a round on `date`?
+ *  An ask made while the product had no store card is kept under its plan name, and still
+ *  counts after the Purchaser makes the card - making the card must not un-send it. */
+function ppAsked(l,date){
+  const hit=k=>{const a=k&&BUYASK&&BUYASK[k]; return !!a&&(!date||!a.upto||String(date)<=String(a.upto));};
+  return hit(l.key)||hit(l.nk);}
+/** Lay a set of needs against the shelf in date order; return what runs short. */
+function ppAlloc(pick){
+  const by={}, nc={};
+  ppNeeds().forEach(n=>{
+    if(!pick(n))return;
+    const key=n.l.key;
+    if(!n.l.card){
+      const r=nc[key]||(nc[key]={key:key,nocard:true,name:n.l.n,u:n.l.u,need:0,v:n.v,date:n.date,last:n.date,odd:n.l.odd||''});
+      r.need+=n.q; r.last=n.date; return;}
+    const r=by[key]||(by[key]={key:key,pid:n.l.pid,name:n.l.n,u:n.l.u,shelf:ppShelf(n.l.pid),bal:ppShelf(n.l.pid),first:null,last:''});
+    r.bal-=n.q;
+    if(r.bal<-1e-9){ if(!r.first)r.first=n; r.last=n.date; }});
+  const rows=Object.keys(by).map(k=>by[k]).filter(r=>r.bal<-1e-9).map(r=>({key:r.key,pid:r.pid,name:r.name,u:r.u,
+    short:-r.bal,shelf:r.shelf,v:r.first.v,date:r.first.date,last:r.last}));
+  rows.sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999')));
+  return {rows:rows,nocard:Object.keys(nc).map(k=>nc[k])};}
+/** forPurchaser: the issued sets, and the planned rounds the Owner has sent.
+ *  Otherwise the Owner's list: everything in the window, each row marked
+ *    firm - the issued sets ALONE already run the shelf short, so the Purchaser has it;
+ *    sent - not firm, but the Owner pressed SEND and it is on the Purchaser's list;
+ *    neither - only the Owner knows. ⛔ The marks are read off the Purchaser's own
+ *    arithmetic, never guessed from which need happened to tip the balance: a row that
+ *    says WITH PURCHASER while his list is empty is a product nobody buys. */
+function ppBuyList(forPurchaser){
+  const firm=ppAlloc(n=>n.firm), fk={};
+  firm.rows.concat(firm.nocard).forEach(r=>{fk[r.key]=1;});
+  const pur=ppAlloc(n=>n.firm||ppAsked(n.l,n.date));
+  if(forPurchaser){pur.rows.concat(pur.nocard).forEach(r=>{r.firm=!!fk[r.key];}); return pur;}
+  const pk={}; pur.rows.forEach(r=>{pk[r.key]=r.short;}); pur.nocard.forEach(r=>{pk[r.key]=r.need;});
+  const all=ppAlloc(n=>true);
+  /* `has` is how much of the shortage the Purchaser's own list shows. Only when it shows ALL
+     of it does the row read WITH PURCHASER or SENT; otherwise SEND comes back - a round that
+     has since moved into the 30 days was never sent, whatever was sent before it. */
+  all.rows.concat(all.nocard).forEach(r=>{
+    const want=r.nocard?r.need:r.short;
+    r.has=Math.min(want,+pk[r.key]||0);
+    r.covered=r.has>=want-1e-6;
+    r.firm=r.covered&&!!fk[r.key]; r.sent=r.covered&&!r.firm;});
+  return all;}
+function ppBuyCount(){const b=ppBuyList(true);return b.rows.length+b.nocard.length;}
+function ppForTxt(r){
+  return (r.v.num?ppName(r.v):('the planned '+ppTypeW(r.v.k)))+(r.date?(' · '+ppFmt(r.date)):' · day not set');}
+function ppPack(pid,q){
+  const p=prodById(pid); if(!p||!(+p.unit_multiplier>0))return '';
+  const n=Math.ceil(q/(+p.unit_multiplier)-1e-9);
+  return ' = '+n+' '+String(p.container||'pack')+(n===1?'':'s')+' of '+ppQty(+p.unit_multiplier,p.unit);}
+async function ppBuySend(key){
+  if(!ppIsOwner())return;
+  key=ppUnArg(key);
+  BUYASK=Object.assign({},BUYASK);
+  BUYASK[key]={at:nowSec(),by:ppMe(),upto:ppAdd(todayISO(),PP_BUY_DAYS)};
+  if(db)await put('kv',{k:'buyask',v:BUYASK});
+  await markSetting('buyask');
+  ppTouch(); ppRefresh(true); ppSyncSoon();}
+async function ppBuySendAll(){
+  if(!ppIsOwner())return;
+  const b=ppBuyList(false); BUYASK=Object.assign({},BUYASK); let n=0;
+  b.rows.concat(b.nocard).forEach(r=>{ if(r.firm||r.sent)return;
+    BUYASK[r.key]={at:nowSec(),by:ppMe(),upto:ppAdd(todayISO(),PP_BUY_DAYS)}; n++;});
+  if(!n)return;
+  if(db)await put('kv',{k:'buyask',v:BUYASK});
+  await markSetting('buyask');
+  toast('✓ '+n+' sent to the Purchaser');
+  ppTouch(); ppRefresh(true); ppSyncSoon();}
+/** The Owner's red box. */
+function ppBuyHTML(){
+  const b=ppBuyList(false);
+  if(!b.rows.length&&!b.nocard.length)return '<div class="pp-mon">To buy · 0</div><div class="pp-g" style="padding:4px 2px 8px">'+
+    'The shelf covers every issued set and the plan for the next '+PP_BUY_DAYS+' days.</div>';
+  const tag=r=>r.firm?'<span class="pp-pill red">WITH PURCHASER</span>'
+    :r.sent?'<span class="pp-pill ok">SENT</span>'
+    :'<button id="pp-buy-'+ppCss(r.key)+'" onclick="ppBuySend(\''+ppArg(r.key)+'\')">SEND</button>';
+  const wait=b.rows.concat(b.nocard).filter(r=>!r.firm&&!r.sent).length;
+  let h='<div class="pp-buy" id="pp-o-buy"><h4>⚠ TO BUY · '+b.rows.length+' product'+(b.rows.length===1?'':'s')+' short'+
+    (b.nocard.length?(' · '+b.nocard.length+' with no store card'):'')+'</h4>'+
+    '<div class="pp-g">Issued sets, and the plan for the next '+PP_BUY_DAYS+' days.</div>';
+  const part=r=>(!r.covered&&r.has>1e-6)?(' · the Purchaser has '+ppQty(r.has,r.u)+' of this'):'';
+  b.rows.forEach(r=>{h+='<div class="pp-it"><div><b>'+esc(r.name)+'</b> — buy '+ppQty(r.short,r.u)+
+    '<small>first needed for '+esc(ppForTxt(r))+' · shelf '+ppQty(r.shelf,r.u)+part(r)+'</small></div>'+tag(r)+'</div>';});
+  b.nocard.forEach(r=>{h+='<div class="pp-it"><div><b>'+esc(r.name)+'</b> — '+ppQty(r.need,r.u)+
+    '<small>'+(r.odd?('the card '+esc(r.odd)+' counts in another unit'):'no store card')+', so the app cannot count it · needed for '+esc(ppForTxt(r))+'</small></div>'+tag(r)+'</div>';});
+  if(wait)h+='<button class="pp-act red" id="pp-buy-all" style="margin-top:8px;padding:11px" onclick="ppBuySendAll()">SEND ALL TO THE PURCHASER</button>';
+  return h+'</div>';}
+/** The Purchaser's list - on his Programme screen and at the top of THE STORE ▸ BUY. */
+function ppPurHTML(idp){
+  const b=ppBuyList(true), today=todayISO();
+  if(!b.rows.length&&!b.nocard.length)return '<div class="pp-note grn">'+ppT('Nothing to buy for the programme.','Tiada apa perlu dibeli untuk program.')+'</div>';
+  let h='';
+  const when=r=>{ if(!r.date)return ppT(' · day not set',' · hari belum ditetapkan');
+    const d=ppDiff(r.date,today);
+    return ' '+ppT('on','pada')+' '+ppFmt(r.date)+(d>=0?(' · '+ppT('in','dalam')+' '+d+' '+ppT(d===1?'day':'days','hari')):(' · '+(-d)+' '+ppT('days ago','hari lepas')));};
+  b.rows.forEach(r=>{
+    const urgent=r.date&&ppDiff(r.date,today)<=PP_URGENT;
+    h+='<div class="pp-row'+(urgent?' st-flag':'')+'" id="'+idp+ppCss(r.key)+'"><div class="pp-top"><b class="pp-nm">'+esc(r.name)+'</b>'+
+      '<span class="pp-pill '+(urgent?'red':'amb')+'">'+(urgent?ppT('URGENT','SEGERA'):ppT('TO BUY','BELI'))+'</span></div>'+
+      '<div class="pp-pur">'+ppT('Buy at least','Beli sekurang-kurangnya')+' <b>'+ppQty(r.short,r.u)+'</b>'+esc(ppPack(r.pid,r.short))+
+      ' · '+ppT('shelf has','stor ada')+' '+ppQty(r.shelf,r.u)+'</div>'+
+      '<div class="pp-dt">'+ppT('needed for','untuk')+' '+esc(r.v.num?ppName(r.v):('a planned '+ppTypeW(r.v.k)))+when(r)+
+      (r.firm?'':(' · '+ppT('asked by the Owner','diminta oleh Pengurus')))+'</div></div>';});
+  b.nocard.forEach(r=>{
+    const urgent=r.date&&ppDiff(r.date,today)<=PP_URGENT;
+    h+='<div class="pp-row'+(urgent?' st-flag':'')+'" id="'+idp+ppCss(r.key)+'"><div class="pp-top"><b class="pp-nm">'+esc(r.name)+'</b>'+
+      '<span class="pp-pill amb">'+ppT('NO STORE CARD','TIADA KAD STOR')+'</span></div>'+
+      '<div class="pp-pur">'+ppT('The plan needs','Pelan perlukan')+' <b>'+ppQty(r.need,r.u)+'</b>. '+
+      ppT('Make the store card when it arrives (THE STORE ▸ RECEIVE ▸ new product) and the programme will find it by its name.',
+          'Buat kad stor bila barang sampai dan program akan jumpa ikut nama.')+'</div>'+
+      '<div class="pp-dt">'+ppT('needed for','untuk')+' '+esc(r.v.num?ppName(r.v):('a planned '+ppTypeW(r.v.k)))+when(r)+'</div></div>';});
+  return h;}
+/** The same list inside THE STORE: above the buy queue, and in the ORDER PLANNER check. */
+function ppBuyStoreHTML(idp){
+  if(!ppOn())return '';
+  const n=ppBuyCount();
+  return '<div class="pp" style="margin-bottom:10px"><div class="pp-mon" style="margin-top:0">📅 '+
+    ppT('Programme ','Program ')+esc((typeof PP_SEASON!=='undefined')?PP_SEASON:'')+' · '+n+'</div>'+ppPurHTML(idp||'pp-st-')+'</div>';}
+function ppBuyStoreRender(){
+  const box=$('ppbuystore'); if(!box)return;
+  if(!roleAllows('procurecard')){box.innerHTML='';return;}
+  box.innerHTML=ppBuyStoreHTML('pp-st-');}
+/** For programNeeds(): what the issued sets still have to draw, product by product. */
+function ppIssuedNeed(need){
+  ppSets().forEach(v=>{ if(v.st!=='iss')return;
+    v.lines.forEach(l=>{ if(!l.card)return;
+      const q=ppReqLeft(v,l); if(!(q>0))return;
+      if(!need[l.pid])need[l.pid]={pid:l.pid,pname:l.n,ai:l.ai,unit:l.u,req:0,phases:[]};
+      need[l.pid].req+=q; need[l.pid].phases.push(ppName(v));});});}
+/** The Sheet turned these rows away: another phone had already filed that lot of that set.
+ *  They are taken off THIS phone too. Left here they would stay in its event log for good,
+ *  and once the other phone's rows came down this phone alone would count the draw twice. */
+async function ppDropBlocked(list){
+  const dead={}; (list||[]).forEach(b=>{if(b&&b.uuid)dead[String(b.uuid)]=1;});
+  const gone=EVENTS.filter(e=>e&&dead[e.uuid]&&/^P2\|/.test(String(e.natkey||'')));
+  if(!gone.length)return 0;
+  EVENTS=EVENTS.filter(e=>gone.indexOf(e)<0);
+  if(db)for(const e of gone){try{await del('events',e.uuid);}catch(x){}}
+  try{rebuildLedgers();}catch(x){}
+  ppTouch(); badge();
+  toast('⚠ '+ppT('Already marked done on another phone. The store was not drawn twice.',
+                  'Sudah ditanda siap di telefon lain. Stor tidak ditolak dua kali.'),1);
+  try{refreshInventoryViews();}catch(x){}
+  ppRefresh(true);
+  return gone.length;}
+
+/* ---------- the screen ----------
+   One box (#progcard), three shapes: the Owner's four tabs, the Purchaser's three (read
+   only), and the crew's list of issued sets in their own language. */
+let PPO={v:'',s:'list',key:'',pg:null};       // tab · screen · the set that is open · the month page
+let PPE=null, PPM=null, PPR=null, PPA=null;   // the editor, move/skip, record-as-done, add-a-set forms
+let PPC={s:'list',key:''}, PPCD=null, PPCN=null;   // the crew's screen and its two forms
+function ppTabs(){return ppIsOwner()?['today','coming','done','month']:['buy','coming','done'];}
+function ppInForm(){return ['edit','move','skip','rec','add'].indexOf(PPO.s)>=0||['done','not'].indexOf(PPC.s)>=0;}
+function ppTop(){const s=$('scr-dash'); if(s)s.scrollTop=0;}
+/** Entering the tile: always the first tab and the list, never a half-filled form. */
+function ppOpen(){
+  PPO={v:ppTabs()[0],s:'list',key:'',pg:null}; PPE=PPM=PPR=PPA=null;
+  PPC={s:'list',key:''}; PPCD=PPCN=null;
+  ppRender();}
+function ppRender(){
+  const box=$('progcard'); if(!box)return;
+  if(!roleAllows('progcard')||!ppOn()){box.innerHTML='';return;}
+  ppTouch();
+  if(ppTabs().indexOf(PPO.v)<0)PPO.v=ppTabs()[0];
+  box.classList.remove('m3-hide');
+  box.innerHTML='<div class="card pp" id="pp-root">'+(myRole()==='WORKER'?ppCrewHTML():ppOwnHTML())+'</div>';}
+/** Something changed (a sync, a save on another screen). A form in progress keeps its typing. */
+function ppRefresh(force){
+  ppTouch();
+  try{ if(typeof curModule!=='undefined'&&curModule==='prog'&&(force||!ppInForm()))ppRender(); }catch(e){}
+  try{ ppBuyStoreRender(); }catch(e){}}
+function ppAfter(){
+  ppTouch(); ppRender(); ppTop();
+  try{ ppBuyStoreRender(); if(typeof renderProgCheck==='function')renderProgCheck(); }catch(e){}
+  try{ if(typeof renderOpsTasks==='function')renderOpsTasks(); renderHub(); }catch(e){}
+  ppSyncSoon();}
+function ppTab(v){PPO.v=v;PPO.s='list';ppRender();ppTop();}
+function ppOpenSet(k){PPO.key=ppUnArg(k);PPO.s='detail';ppRender();ppTop();}
+function ppBack(){PPO.s='list';ppRender();ppTop();}
+function ppToDetail(){PPO.s='detail';ppRender();ppTop();}
+function ppActList(){
+  return ppSets().filter(v=>{const k=ppSt(v).k;
+    return (v.st==='iss'&&(k==='due'||k==='over'))||(v.st==='iss'&&v.notice&&!v.notice.seen);});}
+
+function ppSegHTML(){
+  const sets=ppSets();
+  const n={today:ppActList().length,coming:sets.filter(v=>v.st==='iss').length,
+    done:sets.filter(v=>v.st==='done').length,month:'',buy:ppBuyCount()};
+  const lab={today:'<i>📋</i>TODAY',coming:'<i>📅</i>COMING',done:'<i>✓</i>DONE',month:'<i>🗓</i>MONTH',buy:'<i>🛒</i>TO BUY'};
+  const tabs=ppTabs();
+  return '<div class="pp-seg" style="grid-template-columns:repeat('+tabs.length+',1fr)">'+tabs.map(k=>
+    '<button id="pp-ov-'+k+'" class="'+(PPO.v===k?'on':'')+'" onclick="ppTab(\''+k+'\')">'+lab[k]+
+    '<b>'+(n[k]===''?'&nbsp;':n[k])+'</b></button>').join('')+'</div>';}
+function ppSizeTxt(v,tanks,lots){
+  return (v.basis==='T'?(nf(+tanks)+' '+ppT(+tanks===1?'tank':'tanks','tangki')+' · '):'')+ppTreesShown(v,lots)+' '+ppT('trees','pokok')+' · Lot '+lots.join(' ');}
+function ppRowHTML(v,cls){
+  const st=ppSt(v), sh=ppShortN(v);
+  let when;
+  if(v.st==='done')when='done '+ppFmt(v.done.date);
+  else if(v.st==='iss'){
+    const left=ppLotsLeft(v);
+    when=ppFmt(v.date)+((!v.noPlanDay&&v.date!==v.planDay)?(' · planned '+ppFmtS(v.planDay)):'')+
+      (left.length<v.lots.length?(' · Lot '+left.join(' ')+' still to do'):'');}
+  else if(v.st==='skip')when=v.num?('was set for '+ppFmtS(v.date)):(v.planDay?('planned '+ppFmtS(v.planDay)):'');
+  else if(v.nodate)when='postponed from '+ppFmtS(v.fix.was)+' · day not set';
+  else when='planned '+ppFmt(v.date);
+  const note=(v.notice&&!v.notice.seen&&v.st==='iss')?('<div class="pp-dt" style="color:#b26a00;font-weight:700">Crew moved it: '+
+    ppFmtS(v.notice.from)+' → '+ppFmtS(v.notice.to)+' — '+esc(ppWhyM(v.notice.why))+'</div>'):'';
+  return '<button class="pp-row st-'+v.st+(cls?(' '+cls):'')+'" id="pp-row-'+ppCss(v.key)+'" onclick="ppOpenSet(\''+ppArg(v.key)+'\')">'+
+    '<div class="pp-top"><div><b class="pp-nm">'+esc(ppName(v))+'</b>'+ppCodeTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
+    '<div class="pp-pur">'+esc(v.tgt)+'</div><div class="pp-dt">'+when+' · '+v.lines.length+' product'+(v.lines.length===1?'':'s')+
+    (v.ver>1?' · changed':'')+(sh?(' · <span class="pp-short">'+sh+' short</span>'):'')+'</div>'+note+'</button>';}
+
+/* ----- the MONTH tab: last season's sheets, then this season's months, one per page ----- */
+function ppOldPhases(){return (typeof PHASE_PROGRAM!=='undefined')?PHASE_PROGRAM:[];}
+function ppLastClose(){return (SEASON&&SEASON.progclose&&SEASON.progclose[PP_LAST])||null;}
+/** Last season's sets the app never saw finished. */
+function ppOldOpen(){
+  return ppOldPhases().filter(ph=>{const c=progStatus(ph).code;return c==='due'||c==='over'||c==='come';});}
+function ppPages(){
+  const out=[];
+  ((typeof PROG_MONTH_ORDER!=='undefined')?PROG_MONTH_ORDER:[]).forEach(m=>{
+    if(ppOldPhases().some(p=>p.month===m))out.push({last:m});});
+  const ms=[]; ppSets().forEach(v=>{if(v.mon&&ms.indexOf(v.mon)<0)ms.push(v.mon);});
+  ms.sort().forEach(k=>out.push({mon:k}));
+  return out;}
+function ppPgIdx(){
+  const p=ppPages();
+  if(PPO.pg===null){const i=p.findIndex(x=>x.mon===todayISO().slice(0,7));PPO.pg=i<0?p.length-1:i;}
+  return Math.max(0,Math.min(PPO.pg,p.length-1));}
+function ppPgGo(n){PPO.pg=ppPgIdx()+n;ppRender();}
+function ppOldMix(ph){
+  return (ph.lines||[]).map(l=>{const p=prodById(l.pid);return (p?p.name:l.raw)+' '+ppQty(l.qty,l.unit);}).join(', ')+
+    ' · '+(ph.basis==='PER_1000L'?'per 1,000 L':'per tree');}
+function ppMonthHTML(){
+  const p=ppPages(); if(!p.length)return '<div class="pp-note">Nothing here yet.</div>';
+  const i=ppPgIdx(), pg=p[i], today=todayISO(), cl=ppLastClose();
+  const label=pg.last?monthLabel(pg.last):(ppMonEN(pg.mon)+' '+pg.mon.slice(0,4));
+  let h='<div class="pp-pager"><button id="pp-pg-prev" '+(i===0?'disabled':'')+' onclick="ppPgGo(-1)">‹</button><div class="c"><b>'+esc(label)+'</b><small>'+
+    (pg.last?('season '+PP_LAST+' · '+(cl?'closed, read only':'not closed yet')):('season '+esc(seasonName()||PP_SEASON)))+
+    '</small></div><button id="pp-pg-next" '+(i===p.length-1?'disabled':'')+' onclick="ppPgGo(1)">›</button></div>';
+  if(pg.last){
+    const list=ppOldPhases().filter(x=>x.month===pg.last).slice().sort((a,b)=>String(a.plan||'').localeCompare(String(b.plan||'')));
+    const stOf=list.map(x=>progStatus(x));
+    h+='<div class="pp-g">'+stOf.filter(s=>s.code==='on'||s.code==='late').length+' of '+list.length+' sets recorded done · from Programme 26</div><div class="pp-tl">';
+    list.forEach((x,ix)=>{
+      const s=stOf[ix], nm=monthLabel(x.month)+' · '+x.set; let pill, cls='st-done', when;
+      if(s.code==='on'||s.code==='late'){pill='<span class="pp-pill ok">DONE</span>';when='planned '+ppFmtS(x.plan)+' · done '+ppFmtS(s.done);}
+      else if(s.code==='can'){cls='st-skip';pill='<span class="pp-pill mut">CANCELLED</span>';when='planned '+ppFmtS(x.plan);}
+      else if(cl&&cl.ans&&cl.ans[x.id]){const a=cl.ans[x.id];cls=a.a==='done'?'st-done':'st-skip';
+        pill='<span class="pp-pill '+(a.a==='done'?'ok':'mut')+'">'+(a.a==='done'?'DONE':a.a==='dup'?'SAME AS ANOTHER SET':'NOT DONE')+'</span>';
+        when='planned '+ppFmtS(x.plan)+(a.a==='done'?(' · done '+ppFmtS(a.d)):'');}
+      else{cls='st-flag';pill='<span class="pp-pill red">OVERDUE</span>';when='planned '+ppFmtS(x.plan)+' · never closed';}
+      h+='<div class="pp-row '+cls+'"><div class="pp-top"><b class="pp-nm">'+esc(nm)+'</b>'+pill+'</div>'+
+        (x.header?('<div class="pp-pur">'+esc(x.header)+'</div>'):'')+'<div class="pp-dt">'+when+'</div><div class="pp-dt">'+esc(ppOldMix(x))+'</div></div>';});
+    h+='</div>';
+    if(!cl&&ppOldOpen().length)h+='<button class="pp-ghost blu" id="pp-toclose" onclick="openModule(\'admin\',\'season\')">CLOSE PROGRAMME '+PP_LAST+' ›</button>';
+    return h;}
+  const key=v=>(v.st==='done'?v.done.date:v.date)||(today+'~');     // a round with no day yet sits just after today
+  const list=ppSets().filter(v=>v.mon===pg.mon).sort((a,b)=>String(key(a)).localeCompare(String(key(b))));
+  const stages=[]; list.forEach(v=>{if(v.stage&&v.stage!=='Extra'&&stages.indexOf(v.stage)<0)stages.push(v.stage);});
+  const cnt=g=>list.filter(v=>v.st==='done'&&v.grp===g).length;
+  h+='<div class="pp-g"><b>Stage:</b> '+esc(stages.join(' → ')||'—')+'</div>'+
+    '<div class="pp-kpis k3"><div class="pp-kpi"><div class="v">'+cnt('set')+'</div><div class="l">sets done</div></div>'+
+    '<div class="pp-kpi"><div class="v">'+cnt('fert')+'</div><div class="l">fert done</div></div>'+
+    '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='plan').length+'</div><div class="l">still on the plan</div></div></div>';
+  if(!list.length)return h+'<div class="pp-note">Nothing in this month.</div>';
+  /* the current one: the first issued set still open, else the next planned round */
+  const curSet=list.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
+  const nextp=curSet?null:list.filter(v=>v.st==='plan'&&(v.nodate||ppDiff(v.date,today)>=0))[0];
+  let line=pg.mon!==today.slice(0,7); h+='<div class="pp-tl">';
+  list.forEach(v=>{
+    if(!line&&String(key(v))>today){h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';line=true;}
+    h+=ppRowHTML(v,v===curSet?'now':v===nextp?'nextp':'');});
+  if(!line)h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';
+  h+='</div>';
+  if(ppIsOwner())h+='<button class="pp-ghost blu" id="pp-o-add" onclick="ppAddOpen()">＋ ADD A SET THAT IS NOT ON THE PLAN</button>';
+  return h;}
+
+function ppOwnHTML(){
+  const today=todayISO(), sets=ppSets(), own=ppIsOwner();
+  let h='';
+  if(PPO.s==='detail')return ppDetailHTML();
+  if(PPO.s==='edit')return ppEditHTML();
+  if(PPO.s==='move')return ppMoveHTML();
+  if(PPO.s==='skip')return ppSkipHTML();
+  if(PPO.s==='rec')return ppRecHTML();
+  if(PPO.s==='add')return ppAddHTML();
+  h=ppSegHTML();
+  if(PPO.v==='month'){
+    h+='<div class="pp-note" style="margin:0 0 8px"><b>Only you see the dashed grey rows.</b> Green = done. Amber border = the current set. Blue dashed = next on the plan.</div>'+ppMonthHTML();
+  }else if(PPO.v==='buy'){
+    h+='<div class="pp-g">What the Owner needs bought for the programme. Today '+ppFmt(today)+'.</div>'+ppPurHTML('pp-pur-');
+  }else if(PPO.v==='coming'){
+    const list=sets.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    h+='<div class="pp-g">'+(own?'Issued and not yet done. This is what the crew and the Purchaser can see.':'Issued by the Owner and not yet done.')+'</div>';
+    h+=list.length?list.map(v=>ppRowHTML(v)).join(''):'<div class="pp-note">'+(own?'Nothing is issued. Open TODAY and issue the next set after your check.':'Nothing is issued.')+'</div>';
+  }else if(PPO.v==='today'){
+    const act=ppActList().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    const past=sets.filter(v=>v.st==='plan'&&!v.nodate&&ppDiff(today,v.date)>0).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    const next=sets.filter(v=>v.st==='plan'&&(v.nodate||ppDiff(today,v.date)<=0)).sort((a,b)=>String(a.date||today).localeCompare(String(b.date||today))).slice(0,3);
+    h+='<div class="pp-g">Today is '+ppFmt(today)+'.</div>';
+    const open=ppOldOpen();
+    if(!ppLastClose()&&open.length)h+='<div class="pp-note amb" id="pp-oldnote"><b>Last season’s programme is still open.</b> '+open.length+' set'+(open.length===1?'':'s')+
+      ' from '+PP_LAST+' were never closed.<button class="pp-ghost" id="pp-oldgo" style="margin-top:8px" onclick="openModule(\'admin\',\'season\')">CLOSE PROGRAMME '+PP_LAST+' ›</button></div>';
+    h+='<div class="pp-mon">Needs you · '+act.length+'</div>';
+    h+=act.length?act.map(v=>ppRowHTML(v)).join(''):'<div class="pp-g" style="padding:4px 2px 8px">Nothing is due and the crew has moved nothing.</div>';
+    h+=ppBuyHTML();
+    h+='<div class="pp-mon">Next on the plan · only you see this</div>';
+    h+=next.length?next.map(v=>ppRowHTML(v)).join(''):'<div class="pp-g" style="padding:4px 2px 8px">Nothing more on the plan.</div>';
+    if(past.length)h+='<div class="pp-mon">Passed on the plan, nothing recorded · '+past.length+'</div>'+
+      '<div class="pp-g">Was it done? Open it and record the day, or skip it. These never turn red.</div>'+past.map(v=>ppRowHTML(v)).join('');
+  }else{
+    const list=sets.filter(v=>v.st==='done').sort((a,b)=>String(b.done.date).localeCompare(String(a.done.date)));
+    const chg=sets.filter(v=>v.rec&&v.st!=='skip'&&(ppChanges(v,v).length||(v.log||[]).some(x=>x.why))).length;
+    const mat=list.reduce((t,v)=>t+(+v.done.cost||0),0);
+    const md=list.reduce((t,v)=>t+(+v.done.mh||0)/8,0);
+    h+='<div class="pp-kpis"><div class="pp-kpi"><div class="v">'+list.length+'</div><div class="l">sets done</div></div>'+
+      '<div class="pp-kpi"><div class="v">'+chg+'</div><div class="l">changed from plan</div></div>'+
+      ((own&&SHOW_VALUES)?('<div class="pp-kpi"><div class="v">'+rm(mat)+'</div><div class="l">material drawn</div></div>'):'')+
+      '<div class="pp-kpi"><div class="v">'+nf(md)+'</div><div class="l">man-days (8 h)</div></div></div>';
+    const by={}; sets.forEach(v=>(v.log||[]).forEach(x=>{if(x.why)by[x.why]=(by[x.why]||0)+1;}));
+    if(own&&Object.keys(by).length)h+='<div class="pp-chg"><b>Why the plan changed this season</b>'+
+      Object.keys(by).map(k=>esc(ppWhy(k))+' × '+by[k]).join(' · ')+'</div>';
+    h+=list.length?list.map(v=>ppRowHTML(v)).join(''):'<div class="pp-note">No set is marked done yet this season.</div>';
+  }
+  return h;}
+
+/* ----- one set ----- */
+function ppChip(v,l,need,key){
+  if(!l.card)return '<span class="pp-pill amb">'+(l.odd?'CARD IN ANOTHER UNIT':'NO STORE CARD')+'</span>';
+  const a=Math.max(0,ppAvail(l.pid,key));
+  return a<need-1e-9?('<span class="pp-pill red">SHORT '+ppQty(need-a,l.u)+'</span>'):'<span class="pp-pill ok">ON SHELF</span>';}
+function ppMixHTML(v,o,showShelf){
+  return '<table class="pp-mix">'+o.lines.map(l=>{const r=ppReq(v.basis,l,o.tanks,o.lots,o.trees);
+    return '<tr><td>'+esc(l.n)+'<br><span class="pp-g">'+ppQty(l.q,l.u)+' '+ppBasisTxt(v.basis)+'</span></td><td class="r">'+ppQty(r,l.u)+
+      (showShelf?('<br>'+ppChip(v,l,r,v.key)):'')+'</td></tr>';}).join('')+'</table>';}
+function ppBuyBox(v,o,editing){
+  const row=l=>({l:l,r:ppReq(v.basis,l,o.tanks,o.lots,o.trees),a:l.card?Math.max(0,ppAvail(l.pid,v.key)):0});
+  const sh=o.lines.filter(l=>l.card).map(row).filter(x=>x.a<x.r-1e-9), nc=o.lines.filter(l=>!l.card);
+  if(!sh.length&&!nc.length)return '';
+  return '<div class="pp-buy"><h4>⚠ TO BUY before this set</h4>'+
+    sh.map(x=>'<div class="pp-it"><div><b>'+esc(x.l.n)+'</b> — buy '+ppQty(x.r-x.a,x.l.u)+'<small>needs '+ppQty(x.r,x.l.u)+' · shelf '+ppQty(x.a,x.l.u)+'</small></div></div>').join('')+
+    nc.map(l=>'<div class="pp-it"><div><b>'+esc(l.n)+'</b><small>'+(l.odd?('the card '+esc(l.odd)+' counts in another unit'):'no store card')+', so the app cannot count it or draw it</small></div></div>').join('')+
+    '<div class="pp-g" style="margin-top:4px">'+((v.st==='iss'&&!editing)?'These are on the Purchaser’s BUY list.':'When you issue, these go to the Purchaser’s BUY list.')+'</div></div>';}
+function ppHistHTML(v){
+  const t=[];
+  if(v.fix&&v.fix.was)t.push('postponed from '+ppFmtS(v.fix.was)+' to '+ppMonEN(v.fix.mon)+' — '+ppWhy(v.fix.why));
+  if(v.adopt){t.push(ppFmtS(v.adopt.day)+' · keyed on the store phone as a plain stock-out, no set name');
+    t.push('2 Oct · named by the Owner: the first set of the recovery');}
+  (v.log||[]).forEach(e=>t.push(ppLogText(e)));
+  return t.length?('<div class="pp-q">What happened</div><div class="pp-g">'+t.map(esc).join('<br>')+'</div>'):'';}
+function ppChgBox(v,ch){return ch.length?('<div class="pp-chg"><b>Changed from the plan'+ppWhys(v)+'</b><ul>'+ch.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul></div>'):'';}
+function ppDetailHTML(){
+  const v=ppFind(PPO.key);
+  if(!v)return '<button class="pp-back" onclick="ppBack()">‹ back</button><div class="pp-note">This set is no longer here.</div>';
+  const st=ppSt(v), own=ppIsOwner(), o={date:v.date,tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees};
+  if(!own&&v.st==='plan')return '<button class="pp-back" onclick="ppBack()">‹ back</button><div class="pp-note">This set is no longer here.</div>';
+  let h='<button class="pp-back" id="pp-back" onclick="ppBack()">‹ back</button><div class="pp-ttl">'+esc(ppName(v))+ppCodeTag(v)+'</div>'+
+    '<div class="pp-g">'+(own?(esc(v.stage)+' · '):'')+esc(v.tgt)+(v.extra&&!v.adopt?' · not on the plan':'')+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span>';
+  if(v.st==='plan'){
+    if(v.nodate)h+='<div class="pp-note" style="margin-top:10px">'+esc(v.fix.note||'The day is not set; you set it when you issue.')+'</div>';
+    h+='<div class="pp-q">'+(v.nodate?'The planned mix':('Planned for '+ppFmt(v.date)))+'</div><div class="pp-g">'+ppSizeTxt(v,o.tanks,o.lots)+' · from the workbook</div>'+
+      ppMixHTML(v,o,true)+ppBuyBox(v,o)+
+      (SHOW_VALUES?('<div class="pp-g">Material about '+rm(ppCost(v.basis,o.lines,o.tanks,o.lots,o.trees))+' at the store’s cost.</div>'):'');
+    if(own)h+='<button class="pp-act" id="pp-o-issue" onclick="ppEditOpen(\'issue\')">ISSUE THIS SET</button>'+
+      '<button class="pp-ghost blu" id="pp-o-rec" onclick="ppRecOpen()">ALREADY DONE — RECORD IT</button>'+
+      '<button class="pp-ghost" id="pp-o-skip" onclick="ppSkipOpen()">SKIP — NOT NEEDED THIS SEASON</button>';
+  }else if(v.st==='iss'){
+    if(own&&v.notice&&!v.notice.seen)h+='<div class="pp-note amb" style="margin-top:10px"><b>The crew moved it:</b> not done on '+ppFmt(v.notice.from)+' — '+esc(ppWhyM(v.notice.why))+
+      '. New day chosen by the crew: <b>'+ppFmt(v.notice.to)+'</b>.'+(v.notice.by?(' ('+esc(v.notice.by)+')'):'')+
+      '<button class="pp-ghost" id="pp-o-seen" style="margin-top:8px" onclick="ppSeen()">OK, SEEN</button></div>';
+    const left=ppLotsLeft(v);
+    h+='<div class="pp-q">Issued for '+ppFmt(v.date)+'</div><div class="pp-g">'+ppSizeTxt(v,o.tanks,o.lots)+(v.ver>1?(' · version '+v.ver):'')+'</div>';
+    if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' reported done on '+ppFmtS(v.done.date)+'. Still to do: <b>Lot '+esc(left.join(' '))+'</b>.</div>';
+    h+=ppMixHTML(v,o,true)+ppBuyBox(v,o)+ppChgBox(v,ppChanges(v,o));
+    if(own)h+='<button class="pp-act" id="pp-o-move" onclick="ppMoveOpen()">MOVE TO ANOTHER DAY</button>'+
+      '<button class="pp-ghost blu" id="pp-o-rec" onclick="ppRecOpen()">MARK IT DONE MYSELF</button>'+
+      '<button class="pp-ghost blu" id="pp-o-change" onclick="ppEditOpen(\'change\')">CHANGE THE MIX</button>'+
+      '<button class="pp-ghost rd" id="pp-o-skip" onclick="ppSkipOpen()">SKIP THIS SET</button>';
+  }else if(v.st==='done'){
+    const d=v.done, direct=v.direct;
+    h+='<div class="pp-q">Done on '+ppFmt(d.date)+((d.first&&d.first!==d.date)?(' (started '+ppFmtS(d.first)+')'):'')+'</div><div class="pp-g">'+
+      (v.basis==='T'?(nf(d.tanks)+' tanks used · '):'')+(d.crew?(d.crew+' crew × '+nf(d.hours)+' h'):'crew and hours not recorded')+
+      (d.by?(' · '+esc(d.by)):'')+'</div>';
+    h+='<div class="pp-scroll"><table class="pp-t"><tr><th>&nbsp;</th><th>Planned</th><th>Issued</th><th>Done</th></tr>'+
+      '<tr><td><b>Day</b></td><td>'+(v.extra?'—':ppFmtS(v.fix&&v.fix.was?v.fix.was:v.planDay))+'</td><td>'+(direct?'—':ppFmtS(v.date))+'</td><td>'+ppFmtS(d.date)+'</td></tr>'+
+      (v.basis==='T'?('<tr><td><b>Tanks</b></td><td>'+(v.extra?'—':nf(v.planTanks))+'</td><td>'+(direct?'—':nf(v.tanks))+'</td><td>'+nf(d.tanks)+'</td></tr>'):'')+
+      '<tr><td><b>Products</b></td><td>'+(v.extra?'—':v.planLines.length)+'</td><td>'+(direct?'—':v.lines.length)+'</td><td>'+(d.n?Object.keys(d.qty).length:v.lines.length)+'</td></tr></table></div>';
+    h+=ppChgBox(v,ppChanges(v,o));
+    h+='<div class="pp-q">What left the store</div>';
+    if(d.n){const order=v.lines.filter(l=>l.card&&d.qty[l.pid]!=null).map(l=>String(l.pid));
+      Object.keys(d.qty).forEach(k=>{if(order.indexOf(k)<0)order.push(k);});
+      h+='<table class="pp-mix">'+order.map(pid=>{const p=prodById(+pid);
+        return '<tr><td>'+esc(p?p.name:('#'+pid))+'</td><td class="r">'+ppQty(d.qty[pid],p?p.unit:'')+'</td></tr>';}).join('')+'</table>'+
+        ((own&&SHOW_VALUES)?('<div class="pp-g">Material '+rm(d.cost)+'.</div>'):'');}
+    else h+='<div class="pp-g">Nothing was drawn: none of its products has a store card.</div>';
+    const nc=v.lines.filter(l=>!l.card);
+    if(d.n&&nc.length)h+='<div class="pp-g">Not drawn, no store card: '+esc(nc.map(l=>l.n).join(', '))+'.</div>';
+    if(d.pre)h+='<div class="pp-note">This day is before the store’s opening count of '+ppFmtS(ppStockFrom())+', so it is on the record and in the cost but does not change today’s shelf.</div>';
+    else if(d.live&&d.live.length)h+='<div class="pp-note amb">This day is before the store’s opening count of '+ppFmtS(ppStockFrom())+', but <b>'+esc(d.live.join(', '))+'</b> had no card at that count, so this draw DID come off '+(d.live.length===1?'its':'their')+' shelf.</div>';
+  }else if(v.st==='skip'){
+    h+='<div class="pp-note" style="margin-top:10px">Skipped'+(v.skip&&v.skip.why?(' — '+esc(ppWhy(v.skip.why))):'')+'. '+
+      ((v.done&&v.done.n)?('Lot '+esc(v.done.lots.join(' '))+' was done on '+ppFmtS(v.done.date)+' before it was skipped; that draw stays on the record. Nothing more leaves the store.'):'Nothing left the store.')+'</div>';
+    if(own)h+='<button class="pp-ghost" id="pp-o-unskip" onclick="ppUnskip()">PUT IT BACK</button>';
+  }
+  return h+(own?ppHistHTML(v):'');}
+async function ppSeen(){
+  const v=ppFind(PPO.key); if(!v||!v.rec||!ppIsOwner())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec); if(!x.notice)return;
+  x.notice.seen=true; ppLog(x,{k:'seen'});
+  await ppSave(v.rec,false); ppAfter();}
+async function ppUnskip(){
+  const v=ppFind(PPO.key); if(!v||!v.rec||!ppIsOwner())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec);
+  v.rec.status=(+x.num>0)?'ISSUED':'VOID'; x.skip=null; ppLog(x,{k:'back'});
+  await ppSave(v.rec,false);
+  if(v.rec.status==='VOID'){PPO.key=v.planId;}
+  ppAfter();}
+
+/* ----- issue / change the mix -----
+   The editor works on a copy (PPE). A field that changes re-reads every field first
+   (ppESync) and then redraws, so nothing typed is lost to a redraw. */
+function ppEBase(){return (PPE&&PPE.base)||ppFind(PPO.key);}
+function ppELine(l){const k=ppUnitKind(l.u);
+  return Object.assign({},l,{big:(k[0]==='w'||k[0]==='v')&&k[1]===1&&l.q>=1000});}
+function ppEditOpen(mode){
+  if(!ppIsOwner())return;
+  const v=ppFind(PPO.key); if(!v)return;
+  if(ppStale(v.rec))return;
+  const today=todayISO();
+  PPE={mode:mode,base:null,date:(mode==='issue'&&(!ppOkDay(v.date)||v.date<today))?today:v.date,tanks:v.tanks,
+    lots:v.lots.slice(),trees:v.trees,lines:v.lines.map(ppELine),why:'',err:'',adding:false,busy:false};
+  PPO.s='edit'; ppRender(); ppTop();}
+function ppESync(){
+  if(!PPE)return;
+  const d=$('pp-e-date'); if(d&&d.value)PPE.date=d.value;
+  const t=$('pp-e-tanks'); if(t)PPE.tanks=Math.max(0,+t.value||0);
+  const tr2=$('pp-e-trees'); if(tr2&&!tr2.disabled)PPE.trees=Math.max(0,Math.round(+tr2.value||0));
+  PPE.lines.forEach((l,i)=>{const el=$('pp-e-q-'+i); if(!el)return;
+    const val=Math.max(0,+el.value||0); l.q=l.big?val*1000:val;});}
+/* ⛔ TYPING NEVER REDRAWS THE FORM. A redraw replaces the box the thumb is in: the keyboard
+   closes, and a tap that lands while the redraw is under way is lost (the v3.9.1 focus bug).
+   So a keystroke re-reads the fields and repaints only the figures that depend on them - the
+   title, each line's need and shelf, the TO BUY box, what differs from the plan, the cost.
+   Only a TAP (a lot, a reason, add, take out) redraws, and it reads the fields first. */
+function ppELive(){
+  if(!PPE)return; ppESync();
+  const v=ppEBase(); if(!v)return;
+  const put=(id,h)=>{const e=$(id); if(e)e.innerHTML=h;};
+  put('pp-e-ttl',ppETitle(v));
+  PPE.lines.forEach((l,i)=>{put('pp-e-u-'+i,ppELineU(v,l));put('pp-e-chip-'+i,ppELineChip(v,l));});
+  put('pp-e-live',ppELiveHTML(v));}
+function ppELot(k){ppESync();const i=PPE.lots.indexOf(k);
+  if(i>=0){if(PPE.lots.length>1)PPE.lots.splice(i,1);}else PPE.lots.push(k);
+  PPE.lots.sort();PPE.trees=ppTreesFor(ppEBase().basis,PPE.lots);ppRender();}
+function ppEDrop(i){ppESync();PPE.lines.splice(i,1);ppRender();}
+function ppEAdd(){ppESync();PPE.adding=true;ppRender();}
+function ppEAddOk(){
+  const pid=+(($('pp-e-new')||{}).value||0), v=ppEBase();
+  ppESync();
+  PPE.adding=false;
+  const p=pid?prodById(pid):null;
+  if(p&&!PPE.lines.find(l=>l.card&&l.pid===pid)){
+    const k=ppUnitKind(p.unit);
+    /* a first figure to correct, never a blank: 1 kg or 1 L a tank, 500 g a tree, 5 tablets -
+       and 1 of anything counted whole (bags, metres), never a thousand of them */
+    const base=k[0]==='t'?5:k[0]==='?'?1:(v.basis==='P'?500:1000);
+    PPE.lines.push(ppELine({pid:p.id,n:p.name,q:(k[0]==='t'||k[0]==='?')?base:+(base/k[1]).toFixed(4),u:p.unit,
+      ai:p.active_ingredient||'',card:true,key:'p:'+p.id}));}
+  ppRender();}
+function ppEWhy(k){ppESync();PPE.why=k;ppRender();}
+function ppEBack(){ if(PPE&&PPE.base){PPE=null;ppBack();return;} PPE=null;ppToDetail();}
+function ppRainLine(){
+  if(typeof rainDay!=='function')return '';
+  const today=todayISO(), bits=[];
+  for(let i=2;i>=0;i--){const d=ppAdd(today,-i), r=rainDay(d);
+    bits.push(ppFmtS(d)+' '+(r.src==='farm'?(r.wet?(nf(r.mm)+' mm'):'no rain'):r.src==='jps'?('JPS '+nf(r.mm)+' mm'):'not keyed'));}
+  return '<div class="pp-note" style="margin:8px 0">🌧️ <b>Rain at the farm:</b> '+esc(bits.join(' · '))+'</div>';}
+function ppETitle(v){
+  const o=PPE, mon=String(o.date).slice(0,7);
+  const will=v.num?ppName(v):(ppMonEN(mon)+' · '+PP_GRPW[v.grp][0]+' '+ppNextNum(mon,v.grp));
+  return (o.mode==='issue'?'Issue as ':'Change ')+esc(will)+ppCodeTag(v);}
+function ppELineChip(v,l){return ppChip(v,l,ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),v.key);}
+function ppELineU(v,l){
+  const kd=ppUnitKind(l.u), ulab=kd[0]==='t'?'tablets':l.big?(kd[0]==='w'?'kg':'L'):l.u;
+  return esc(ulab)+' '+ppBasisTxt(v.basis)+'<br>needs <b>'+ppQty(ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),l.u)+'</b>'+
+    (l.card?(' · shelf '+ppQty(Math.max(0,ppAvail(l.pid,v.key)),l.u)):'');}
+function ppELiveHTML(v){
+  const o=PPE, ch=ppChanges(v,o), need=ch.length||(v.extra&&!v.rec);
+  let h=ppBuyBox(v,o,true);
+  if(need){
+    h+=(ch.length?('<div class="pp-chg"><b>Different from the plan</b><ul>'+ch.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul></div>')
+                 :'<div class="pp-chg"><b>A set that is not on the plan</b>Say why it is needed.</div>')+
+      '<div class="pp-q">Why? <span class="pp-g">(kept on the record)</span></div><div class="pp-opts">'+PP_WHY.map(w=>
+        '<button class="pp-opt'+(o.why===w[0]?' sel':'')+'" id="pp-e-why-'+w[0]+'" onclick="ppEWhy(\''+w[0]+'\')">'+w[1]+'</button>').join('')+'</div>';}
+  if(SHOW_VALUES)h+='<div class="pp-g" style="margin-top:10px">Material about '+rm(ppCost(v.basis,o.lines,o.tanks,o.lots,o.trees))+'.</div>';
+  return h;}
+function ppEditHTML(){
+  const v=ppEBase(); if(!v||!PPE)return '<button class="pp-back" onclick="ppBack()">‹ back</button>';
+  const o=PPE, today=todayISO();
+  let h='<button class="pp-back" id="pp-e-back" onclick="ppEBack()">‹ back</button><div class="pp-ttl" id="pp-e-ttl">'+ppETitle(v)+'</div>'+
+    '<div class="pp-g">'+esc(v.tgt)+'</div>'+ppRainLine();
+  h+='<div class="pp-two"><div><label>Day to do it</label><input type="date" id="pp-e-date" value="'+esc(o.date)+'"'+(o.mode==='issue'?(' min="'+today+'"'):'')+' oninput="ppELive()" onchange="ppELive()"></div>'+
+    (v.basis==='T'?('<div><label>Tanks of 1,000 L</label><input type="number" id="pp-e-tanks" inputmode="decimal" step="0.5" min="0" value="'+(+o.tanks||0)+'" oninput="ppELive()"></div>')
+                  :v.basis==='P'?('<div><label>Trees to feed</label><input type="number" id="pp-e-trees" inputmode="numeric" step="1" min="0" value="'+(+o.trees||0)+'" oninput="ppELive()"></div>')
+                  :('<div><label>Trees</label><input value="'+ppTrees(o.lots)+'" disabled></div>'))+'</div>';
+  h+='<label>Lots</label><div class="pp-opts">'+LOT_KEYS.map(k=>'<button class="pp-opt'+(o.lots.indexOf(k)>=0?' sel':'')+'" id="pp-e-lot-'+k+'" onclick="ppELot(\''+k+'\')">Lot '+k+
+    '<small>'+treesInLot(k).length+' trees</small></button>').join('')+'</div>';
+  h+='<div class="pp-q">The mix — '+ppBasisTxt(v.basis)+'</div>';
+  o.lines.forEach((l,i)=>{
+    const isNew=!v.extra&&!v.planLines.find(p=>p.key===l.key);
+    h+='<div class="pp-ln'+(isNew?' added':'')+'" id="pp-e-ln-'+i+'"><div class="a"><b>'+esc(l.n)+(isNew?' <span class="pp-pill new">ADDED</span>':'')+'</b><span id="pp-e-chip-'+i+'">'+ppELineChip(v,l)+'</span></div>'+
+      '<div class="b"><input type="number" id="pp-e-q-'+i+'" inputmode="decimal" step="any" min="0" value="'+(l.big?+(l.q/1000).toFixed(4):l.q)+'" oninput="ppELive()">'+
+      '<div class="u" id="pp-e-u-'+i+'">'+ppELineU(v,l)+'</div>'+
+      '<button class="x" id="pp-e-x-'+i+'" onclick="ppEDrop('+i+')" title="take out">✕</button></div></div>';});
+  if(o.adding){
+    const opts=activeProducts().filter(p=>String(p.cat||'')!=='Consumable'&&!o.lines.find(l=>l.card&&l.pid===p.id))
+      .sort((a,b)=>String(a.name).localeCompare(String(b.name)))
+      .map(p=>'<option value="'+p.id+'">'+esc(p.name)+' — shelf '+ppQty(Math.max(0,ppAvail(p.id,v.key)),p.unit)+'</option>').join('');
+    h+='<div class="pp-ln added"><label style="margin-top:0">Product from the store</label><select id="pp-e-new"><option value="">choose…</option>'+opts+'</select>'+
+      '<button class="pp-ghost blu" id="pp-e-addok" onclick="ppEAddOk()">ADD IT TO THE MIX</button></div>';
+  }else h+='<button class="pp-ghost blu" id="pp-e-add" onclick="ppEAdd()">＋ ADD A PRODUCT</button>';
+  h+='<div id="pp-e-live">'+ppELiveHTML(v)+'</div>';
+  h+='<div class="pp-err" id="pp-e-err">'+esc(o.err||'')+'</div>';
+  h+='<button class="pp-act" id="pp-e-go" onclick="ppEGo()">'+(o.mode==='issue'?'ISSUE TO THE CREW':'SEND THE CHANGE TO THE CREW')+'</button>';
+  return h;}
+async function ppEGo(){
+  if(!PPE||PPE.busy||!ppIsOwner())return;
+  ppESync();
+  const v=ppEBase(); if(!v)return;
+  if(ppStale(v.rec)){PPE=null;PPO.s='detail';ppRender();return;}
+  const fail=m=>{PPE.err=m;ppRender();};
+  PPE.lines=PPE.lines.filter(l=>l.q>0);
+  if(!PPE.lines.length)return fail('A set needs at least one product.');
+  if(!ppOkDay(PPE.date))return fail('Pick the day.');
+  if(PPE.mode==='issue'&&PPE.date<todayISO())return fail('That day has passed. To put a finished set on the record use ALREADY DONE — RECORD IT.');
+  if(PPE.mode==='change'&&PPE.date<todayISO()&&PPE.date!==v.date)return fail('That day has passed. Pick today or a later day.');
+  if(v.basis==='T'&&!(PPE.tanks>0))return fail('Enter how many tanks.');
+  if(v.basis==='P'&&!(PPE.trees>0))return fail('Enter how many trees.');
+  if(!PPE.lots.length)return fail('Pick at least one lot.');
+  const ch=ppChanges(v,PPE), need=ch.length||(v.extra&&!v.rec);
+  if(need&&!PPE.why)return fail('Pick the reason.');
+  PPE.busy=true;
+  try{
+    if(!v.rec){
+      const rec=ppNewRec(v,PPE,'ISSUED'), x=rec.x;
+      x.why=need?PPE.why:'';
+      ppLog(x,{k:'issue',name:rec.month+' · '+rec.set,d:PPE.date,why:need?PPE.why:'',ch:ch});
+      await ppSave(rec,true);
+      PPO.key=rec.uuid;
+      toast('✓ Issued as '+rec.month+' · '+rec.set);
+    }else{
+      const rec=v.rec, x=ppX(rec), basis=v.basis;
+      rec.plan=PPE.date; rec.tanks=basis==='T'?(+PPE.tanks||0):0; x.lots=PPE.lots.slice();
+      rec.scope=ppScope(PPE.lots); rec.trees=basis==='P'?(+PPE.trees||ppTreesFor('P',PPE.lots)):ppTrees(PPE.lots);
+      rec.lines=ppRecLines(basis,PPE.lines,PPE.tanks,PPE.lots,rec.trees);
+      rec.projCost=+ppCost(basis,PPE.lines,PPE.tanks,PPE.lots,rec.trees).toFixed(2);
+      x.ver=(+x.ver||1)+1; if(need)x.why=PPE.why;
+      x.bm={k:'mix',at:now()}; if(x.notice)x.notice.seen=true;
+      ppLog(x,{k:'mix',ver:x.ver,why:need?PPE.why:'',ch:ch});
+      await ppSave(rec,false);
+      toast('✓ Change sent · version '+x.ver);}
+  }finally{ if(PPE)PPE.busy=false; }
+  PPE=null; PPO.s='detail'; ppAfter();}
+
+/* ----- move to another day · skip ----- */
+function ppMoveOpen(){
+  const v=ppFind(PPO.key); if(!v||!v.rec||!ppIsOwner())return;
+  if(ppStale(v.rec))return;
+  const today=todayISO();
+  PPM={date:ppAdd((ppOkDay(v.date)&&v.date>today)?v.date:today,1),why:'',err:''};
+  PPO.s='move'; ppRender(); ppTop();}
+function ppMWhy(k){const d=$('pp-m-date'); if(d&&d.value)PPM.date=d.value; PPM.why=k; ppRender();}
+function ppMoveHTML(){
+  const v=ppFind(PPO.key); if(!v||!PPM)return '<button class="pp-back" onclick="ppBack()">‹ back</button>';
+  return '<button class="pp-back" onclick="ppToDetail()">‹ back</button><div class="pp-ttl">Move '+esc(ppName(v))+'</div>'+
+    '<div class="pp-g">Now set for '+ppFmt(v.date)+'. The mix and the name stay the same.</div>'+
+    '<label>New day</label><input type="date" id="pp-m-date" value="'+esc(PPM.date)+'" min="'+todayISO()+'" onchange="if(PPM)PPM.date=this.value">'+
+    '<div class="pp-q">Why?</div><div class="pp-opts">'+PP_MWHY.map(w=>'<button class="pp-opt'+(PPM.why===w[0]?' sel':'')+'" id="pp-m-why-'+w[0]+'" onclick="ppMWhy(\''+w[0]+'\')">'+w[1]+'</button>').join('')+'</div>'+
+    '<div class="pp-err" id="pp-m-err">'+esc(PPM.err||'')+'</div><button class="pp-act" id="pp-m-go" onclick="ppMoveGo()">MOVE IT</button>';}
+async function ppMoveGo(){
+  const v=ppFind(PPO.key); if(!v||!v.rec||!PPM||PPM.busy||!ppIsOwner())return;
+  if(ppStale(v.rec)){PPM=null;PPO.s='detail';ppRender();return;}
+  const d=$('pp-m-date'); if(d&&d.value)PPM.date=d.value;
+  const fail=m=>{PPM.err=m;ppRender();};
+  if(!ppOkDay(PPM.date))return fail('Pick the new day.');
+  if(!PPM.why)return fail('Pick the reason.');
+  if(PPM.date===v.date)return fail('That is the same day.');
+  if(PPM.date<todayISO())return fail('That day has passed.');
+  PPM.busy=true;
+  const rec=v.rec, x=ppX(rec);
+  ppLog(x,{k:'move',from:v.date,to:PPM.date,why:PPM.why});
+  rec.plan=PPM.date; x.bm={k:'move',d:PPM.date,why:PPM.why,at:now()}; if(x.notice)x.notice.seen=true;
+  await ppSave(rec,false);
+  toast('✓ Moved to '+ppFmt(PPM.date));
+  PPM=null; PPO.s='detail'; ppAfter();}
+function ppSkipOpen(){ if(!ppIsOwner())return; PPM={why:'',err:''}; PPO.s='skip'; ppRender(); ppTop();}
+function ppSWhy(k){PPM.why=k;ppRender();}
+function ppSkipHTML(){
+  const v=ppFind(PPO.key); if(!v||!PPM)return '<button class="pp-back" onclick="ppBack()">‹ back</button>';
+  return '<button class="pp-back" onclick="ppToDetail()">‹ back</button><div class="pp-ttl">Skip '+esc(ppName(v))+ppCodeTag(v)+'</div>'+
+    '<div class="pp-g">'+esc(v.tgt)+'. It stays on the record as skipped, with the reason. Nothing leaves the store.</div>'+
+    '<div class="pp-q">Why?</div><div class="pp-opts">'+PP_WHY.map(w=>'<button class="pp-opt'+(PPM.why===w[0]?' sel':'')+'" id="pp-s-why-'+w[0]+'" onclick="ppSWhy(\''+w[0]+'\')">'+w[1]+'</button>').join('')+'</div>'+
+    '<div class="pp-err" id="pp-s-err">'+esc(PPM.err||'')+'</div><button class="pp-act red" id="pp-s-go" onclick="ppSkipGo()">SKIP THIS SET</button>';}
+async function ppSkipGo(){
+  const v=ppFind(PPO.key); if(!v||!PPM||PPM.busy||!ppIsOwner())return;
+  if(ppStale(v.rec)){PPM=null;PPO.s='detail';ppRender();return;}
+  if(!PPM.why){PPM.err='Pick the reason.';ppRender();return;}
+  PPM.busy=true;
+  let rec=v.rec, isNew=false;
+  if(!rec){
+    rec=ppNewRec(v,{date:v.date||todayISO(),tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},'SKIPPED');
+    rec.x.mon=v.mon; isNew=true;}
+  const x=ppX(rec);
+  rec.status='SKIPPED'; x.skip={why:PPM.why,at:now(),by:ppMe()}; x.notice=null;
+  ppLog(x,{k:'skip',why:PPM.why});
+  await ppSave(rec,isNew);
+  PPO.key=rec.uuid; PPM=null; PPO.s='detail'; ppAfter();}
+
+/* ----- the Owner records a set as done, for any day this season ----- */
+function ppRecOpen(){
+  const v=ppFind(PPO.key); if(!v||!ppIsOwner())return;
+  if(ppStale(v.rec))return;
+  const today=todayISO();
+  PPR={date:(ppOkDay(v.date)&&v.date<=today)?v.date:today,tanks:v.tanks,lots:ppLotsLeft(v),crew:'',hours:'',err:''};
+  PPO.s='rec'; ppRender(); ppTop();}
+function ppRSync(){
+  if(!PPR)return;
+  const g=id=>$(id); const d=g('pp-r-date'); if(d&&d.value)PPR.date=d.value;
+  const t=g('pp-r-tanks'); if(t)PPR.tanks=+t.value||0;
+  const c=g('pp-r-crew'); if(c)PPR.crew=c.value; const hh=g('pp-r-hours'); if(hh)PPR.hours=hh.value;}
+function ppRLot(k){ppRSync();const v=ppFind(PPO.key), ok=ppLotsLeft(v); if(ok.indexOf(k)<0)return;
+  const i=PPR.lots.indexOf(k); if(i>=0){if(PPR.lots.length>1)PPR.lots.splice(i,1);}else PPR.lots.push(k);
+  PPR.lots.sort();ppRender();}
+function ppRecHTML(){
+  const v=ppFind(PPO.key); if(!v||!PPR)return '<button class="pp-back" onclick="ppBack()">‹ back</button>';
+  const left=ppLotsLeft(v), sf=ppSeasonFrom(), today=todayISO();
+  return '<button class="pp-back" onclick="ppToDetail()">‹ back</button><div class="pp-ttl">Record '+esc(v.num?ppName(v):('the '+ppTypeW(v.k)))+ppCodeTag(v)+' as done</div>'+
+    '<div class="pp-g">'+esc(v.tgt)+' · the mix '+(v.rec?'as issued':'as planned')+'. If the mix was different, issue it with the change first.</div>'+
+    '<label>Day it was done (any day this season)</label><input type="date" id="pp-r-date" value="'+esc(PPR.date)+'" min="'+esc(sf)+'" max="'+today+'" oninput="ppRLive()" onchange="ppRLive()">'+
+    (v.basis==='T'?('<label>Tanks used</label><input type="number" id="pp-r-tanks" inputmode="decimal" step="0.5" min="0" value="'+(+PPR.tanks||0)+'" oninput="ppRLive()">'):'')+
+    '<label>Lots done</label><div class="pp-opts">'+v.lots.map(k=>'<button class="pp-opt'+(PPR.lots.indexOf(k)>=0?' sel':'')+'" id="pp-r-lot-'+k+'"'+(left.indexOf(k)<0?' disabled':'')+' onclick="ppRLot(\''+k+'\')">Lot '+k+
+      '<small>'+(left.indexOf(k)<0?'already reported':(treesInLot(k).length+' trees'))+'</small></button>').join('')+'</div>'+
+    '<div class="pp-two"><div><label>Crew (if known)</label><input type="number" id="pp-r-crew" inputmode="numeric" min="0" value="'+esc(PPR.crew)+'"></div>'+
+    '<div><label>Hours each (if known)</label><input type="number" id="pp-r-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPR.hours)+'"></div></div>'+
+    ppMixHTML(v,{tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},false)+
+    ((ppStockFrom()&&sf<ppStockFrom())?('<div class="pp-g">A day before the store’s opening count of '+ppFmtS(ppStockFrom())+' goes on the record and in the cost. It does not change today’s shelf, except for a product whose card was made after that count.</div>'):'')+
+    '<div id="pp-r-warn">'+ppRecWarn(v)+'</div>'+
+    '<div class="pp-err" id="pp-r-err">'+esc(PPR.err||'')+'</div><button class="pp-act" id="pp-r-go" onclick="ppRecGo()">RECORD AS DONE</button>';}
+/** What RECORD AS DONE would take below zero, said before it is pressed. */
+function ppRecWarn(v){
+  if(!PPR)return '';
+  const stamp=stampFor(PPR.date)||'', lots=PPR.lots, all=ppTrees(v.lots)||1, share=ppTrees(lots)/all;
+  const low=v.lines.filter(l=>l.card&&ppCounts(l.pid,stamp)).map(l=>{
+    const q=v.basis==='T'?l.q*(+PPR.tanks||0):v.basis==='P'?l.q*(+v.trees||0)*share:l.q*share;
+    return {l:l,q:q,a:ppShelf(l.pid)};}).filter(x=>x.q>x.a+1e-9);
+  if(!low.length)return '';
+  return '<div class="pp-note amb"><b>The shelf does not hold this.</b> '+low.map(x=>esc(x.l.n)+': needs '+ppQty(x.q,x.l.u)+', the card holds '+ppQty(x.a,x.l.u)).join(' · ')+
+    '. Recording takes the card below zero. If the delivery was never keyed, receive it in THE STORE first.</div>';}
+function ppRLive(){ppRSync();const v=ppFind(PPO.key),e=$('pp-r-warn');if(v&&e)e.innerHTML=ppRecWarn(v);}
+async function ppRecGo(){
+  const v=ppFind(PPO.key); if(!v||!PPR||PPR.busy||!ppIsOwner())return;
+  if(ppStale(v.rec)){PPR=null;PPO.s='detail';ppRender();return;}
+  ppRSync();
+  const fail=m=>{PPR.err=m;ppRender();};
+  const sf=ppSeasonFrom(), today=todayISO();
+  if(!ppOkDay(PPR.date)||PPR.date>today||(sf&&PPR.date<sf))return fail('Pick a day between '+ppFmtS(sf)+' and today.');
+  if(v.basis==='T'&&!(PPR.tanks>0))return fail('Enter how many tanks were used.');
+  if(!PPR.lots.length)return fail('Pick the lots that were done.');
+  if(stampFor(PPR.date)===null)return fail('That day has not happened yet.');
+  /* ⛔ ASK THE STORE AGAIN, NOW. The form may have stood open while another phone reported a
+     lot; filing it a second time would draw it a second time. */
+  const left=ppLotsLeft(v), dup=PPR.lots.filter(L=>left.indexOf(L)<0);
+  if(v.st==='done'||!left.length){PPR=null;PPO.s='detail';toast('This set is already done',1);ppRender();return;}
+  if(dup.length){PPR.lots=PPR.lots.filter(L=>left.indexOf(L)>=0);
+    return fail('Lot '+dup.join(' ')+' was reported by another phone while this form was open. Check the lots and press again.');}
+  PPR.busy=true;
+  let rec=v.rec;
+  if(!rec){
+    rec=ppNewRec(v,{date:PPR.date,tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},'ISSUED');
+    rec.x.direct=true; PROGRAMS.push(rec);}
+  const ok=await ppFileDone(rec,{date:PPR.date,tanks:v.basis==='T'?PPR.tanks:0,lots:PPR.lots.slice(),
+    crew:+PPR.crew||0,hours:+PPR.hours||0,via:'OWNER'},'rec');
+  if(!ok){PPR.busy=false;return fail('That day has not happened yet.');}
+  toast('✓ Recorded · '+rec.month+' · '+rec.set);
+  PPO.key=rec.uuid; PPR=null; PPO.s='detail';
+  try{refreshInventoryViews();}catch(e){}
+  ppAfter();}
+
+/* ----- a set that is not on the plan ----- */
+function ppAddOpen(){ if(!ppIsOwner())return; PPA={from:'',tgt:'',kind:'T'}; PPO.s='add'; ppRender(); ppTop();}
+function ppAKeep(){const f=$('pp-a-from'), t=$('pp-a-tgt'); if(f)PPA.from=f.value; if(t)PPA.tgt=t.value;}
+function ppAKind(k){ppAKeep();PPA.kind=k;ppRender();}
+function ppAddHTML(){
+  if(!PPA)return '<button class="pp-back" onclick="ppBack()">‹ back</button>';
+  const key=v=>(v.st==='done'?v.done.date:v.date)||'9999';
+  const opts=ppSets().filter(v=>v.lines.length&&v.st!=='skip').sort((a,b)=>String(key(a)).localeCompare(String(key(b))))
+    .map(v=>'<option value="'+esc(v.key)+'"'+(PPA.from===v.key?' selected':'')+'>'+esc(v.num?ppName(v):('Planned '+ppTypeW(v.k)+' '+(v.code||'')))+' — '+esc(v.tgt)+'</option>').join('');
+  return '<button class="pp-back" onclick="ppBack()">‹ back</button><div class="pp-ttl">A set that is not on the plan</div>'+
+    '<div class="pp-g">For the round the weather asks for: an extra fungicide after a wet week, a repeat on one lot. It takes the next number in its month.</div>'+
+    '<label>Start from</label><select id="pp-a-from" onchange="ppAKeep()"><option value="">an empty set</option>'+opts+'</select>'+
+    '<label>What is it for</label><input id="pp-a-tgt" value="'+esc(PPA.tgt)+'" placeholder="e.g. extra fungicide after rain" autocomplete="off">'+
+    '<label>Dose basis (only for an empty set)</label><div class="pp-opts">'+
+    '<button class="pp-opt'+(PPA.kind==='T'?' sel':'')+'" id="pp-a-T" onclick="ppAKind(\'T\')">Spray or drench<small>per 1,000 L</small></button>'+
+    '<button class="pp-opt'+(PPA.kind==='P'?' sel':'')+'" id="pp-a-P" onclick="ppAKind(\'P\')">Fertiliser<small>per tree</small></button></div>'+
+    '<button class="pp-act" id="pp-a-go" onclick="ppAddGo()">NEXT — SET THE MIX</button>';}
+function ppAddGo(){
+  if(!PPA||!ppIsOwner())return;
+  ppAKeep();
+  const src=PPA.from?ppFind(PPA.from):null, t=String(PPA.tgt||'').trim(), today=todayISO();
+  const k=src?src.k:(PPA.kind==='T'?'spray':'fert');
+  const base={key:'',planId:'',plan:null,rec:null,k:k,grp:ppGrp(k),basis:src?src.basis:PPA.kind,code:'',stage:'Extra',
+    tgt:t||(src?src.tgt:'Extra set'),tgtbm:t?'':(src?src.tgtbm:''),extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,
+    planLines:[],num:0,ver:1,log:[],st:'new',date:today,tanks:src?src.tanks:(PPA.kind==='T'?2:0),lots:ppLots(),lines:[]};
+  base.trees=ppTreesFor(base.basis,base.lots);
+  PPE={mode:'issue',base:base,date:today,tanks:base.tanks,lots:ppLots(),trees:base.trees,lines:src?src.lines.map(ppELine):[],
+    why:'',err:'',adding:!src,busy:false};
+  PPA=null; PPO.s='edit'; ppRender(); ppTop();}
+
+/* ---------- the crew's screen ----------
+   Only what the Owner has issued, from PP_CREW_SEE days ahead. Never the plan, never a
+   code, never a price. Two buttons: TANDA SIAP (done: which day, how many tanks, which
+   lots, how many people, how many hours - the store is drawn for the tanks actually
+   used) and TAK JADI HARI INI (not done: a reason AND the new day, which the crew must
+   choose; the set moves at once and the Owner is told). */
+function ppCrewList(){
+  const today=todayISO();
+  return ppSets().filter(v=>v.st==='iss'&&(!ppOkDay(v.date)||ppDiff(v.date,today)<=PP_CREW_SEE))
+    .sort((a,b)=>String(a.date).localeCompare(String(b.date)));}
+function ppCrewDue(){return ppCrewList().filter(v=>{const k=ppSt(v).k;return k==='due'||k==='over';});}
+function ppCrewSet(){const v=ppFind(PPC.key);return (v&&v.st==='iss')?v:null;}
+function ppCOpen(k){PPC={s:'card',key:ppUnArg(k)};ppRender();ppTop();}
+function ppCList(){PPC={s:'list',key:''};PPCD=PPCN=null;ppRender();ppTop();}
+function ppCCard(){PPC.s='card';PPCD=PPCN=null;ppRender();ppTop();}
+function ppBanner(v){
+  const b=v.bm; if(!b)return '';
+  if(b.k==='mix')return ppT('The mix was changed on ','Bancuhan diubah pada ')+ppFmtS(String(b.at||'').slice(0,10))+ppT('. Follow the list below.','. Ikut senarai di bawah.');
+  if(b.k==='move')return ppT('Moved by the Owner to ','Dipindah oleh Pengurus ke ')+ppFmt(b.d)+' — '+ppWhyM(b.why)+'.';
+  return '';}
+function ppCrewHTML(){
+  const today=todayISO(); let h='';
+  if(PPC.s!=='list'&&PPC.s!=='saved'&&PPC.s!=='told'&&!ppCrewSet())PPC={s:'list',key:''};
+  if(PPC.s==='list'){
+    const list=ppCrewList();
+    h='<div class="pp-g">'+ppT('Only the sets the Owner has issued. Today ','Hanya set yang telah dikeluarkan oleh Pengurus. Hari ini ')+ppFmt(today)+'.</div>';
+    if(!list.length)h+='<div class="pp-note">'+ppT('No programme work for the next 7 days.','Tiada kerja program untuk 7 hari ini.')+'</div>';
+    list.forEach(v=>{const st=ppSt(v), left=ppLotsLeft(v);
+      h+='<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
+        '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
+        (v.bm?(' · <b style="color:#b26a00">'+ppT('CHANGED','DIUBAH')+'</b>'):'')+'</div></button>';});
+    const dn=ppSets().filter(v=>v.st==='done'&&v.done&&ppOkDay(v.done.date)&&ppDiff(today,v.done.date)<=PP_CREW_BACK&&ppDiff(today,v.done.date)>=0)
+      .sort((a,b)=>String(b.done.date).localeCompare(String(a.done.date)));
+    if(dn.length)h+='<div class="pp-mon">'+ppT('Done','Siap')+'</div>'+dn.map(v=>'<div class="pp-row st-done"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+
+      '</b><span class="pp-pill ok">'+ppT('DONE','SIAP')+'</span></div><div class="pp-dt">'+ppFmt(v.done.date)+'</div></div>').join('');
+    return h;}
+  if(PPC.s==='saved'){
+    const d=PPC.info||{};
+    return '<div class="pp-okbig">✔ '+ppT('Saved','Disimpan')+'</div><div class="pp-g">'+esc(d.name||'')+' · '+ppFmt(d.date)+(d.tanks?(' · '+nf(d.tanks)+' '+ppT('tanks','tangki')):'')+
+      ' · Lot '+esc((d.lots||[]).join(' '))+' · '+d.crew+' '+ppT('people','orang')+' × '+nf(d.hours)+' '+ppT('h','jam')+'</div>'+
+      '<div class="pp-note">'+(d.rows?ppT('The material was taken off the store for the tanks used.','Bahan ditolak dari stor mengikut tangki yang digunakan.')
+                                   :ppT('Nothing was taken off the store: these products have no store card yet.','Tiada bahan ditolak dari stor: produk ini belum ada kad stor.'))+
+      (d.left&&d.left.length?(' '+ppT('Still to do: Lot ','Belum siap: Lot ')+esc(d.left.join(' '))+'.'):'')+'</div>'+
+      '<button class="pp-ghost" id="pp-c-back" onclick="ppCList()">'+ppT('Back to the list','Kembali ke senarai')+'</button>';}
+  if(PPC.s==='told'){
+    const d=PPC.info||{};
+    return '<div class="pp-okbig" style="color:#b26a00">'+ppT('Moved','Dipindah')+'</div><div class="pp-g">'+esc(d.name||'')+' '+ppT('was not done on','tak jadi pada')+' '+ppFmt(d.from)+' — '+
+      esc(ppWhyM(d.why))+'. '+ppT('New day','Hari baru')+': <b>'+ppFmt(d.to)+'</b>. '+ppT('The Owner has been told.','Pengurus akan dimaklumkan.')+'</div>'+
+      '<button class="pp-ghost" id="pp-c-back" onclick="ppCList()">'+ppT('Back to the list','Kembali ke senarai')+'</button>';}
+  const v=ppCrewSet(), left=ppLotsLeft(v);
+  if(PPC.s==='card'){
+    const bn=ppBanner(v);
+    h='<button class="pp-back" id="pp-c-up" onclick="ppCList()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+esc(ppNameBM(v))+'</div>'+
+      '<div class="pp-g">'+esc(ppTgt(v))+' · '+ppFmt(v.date)+'</div>';
+    if(bn)h+='<div class="pp-chg"><b>⚠ '+ppT('CHANGED','DIUBAH')+'</b>'+esc(bn)+'</div>';
+    if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' '+ppT('is done. Still to do: Lot ','sudah siap. Belum siap: Lot ')+'<b>'+esc(left.join(' '))+'</b>.</div>';
+    h+='<div class="pp-q">'+(v.basis==='T'?ppT('The mix for each 1,000 L tank','Bancuhan setiap tangki 1,000 L'):v.basis==='P'?ppT('For each tree','Setiap pokok'):ppT('For the round','Setiap pusingan'))+'</div>'+
+      '<table class="pp-mix">'+v.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>').join('')+'</table>'+
+      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+
+      '<button class="pp-act" id="pp-c-done" onclick="ppCDoneOpen()">✓ '+ppT('MARK DONE','TANDA SIAP')+'</button>'+
+      '<button class="pp-ghost rd" id="pp-c-not" onclick="ppCNotOpen()">✗ '+ppT('NOT DONE TODAY','TAK JADI HARI INI')+'</button>';
+    return h;}
+  if(PPC.s==='done'){
+    return '<button class="pp-back" onclick="ppCCard()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+ppT('Done','Siap')+' — '+esc(ppNameBM(v))+'</div>'+
+      '<label>'+ppT('Day the work was done (up to 7 days back)','Tarikh kerja dibuat (paling awal 7 hari lepas)')+'</label>'+
+      '<input type="date" id="pp-c-date" value="'+esc(PPCD.date)+'" min="'+ppCrewMin()+'" max="'+today+'">'+
+      (v.basis==='T'?('<label>'+ppT('How many tanks were used','Berapa tangki digunakan')+'</label><input type="number" id="pp-c-tanks" inputmode="decimal" step="0.5" min="0" value="'+esc(PPCD.tanks)+'">'):'')+
+      '<label>'+ppT('Lots done','Lot yang siap')+'</label><div class="pp-opts">'+left.map(k=>'<button class="pp-opt'+(PPCD.lots.indexOf(k)>=0?' sel':'')+'" id="pp-c-lot-'+k+'" onclick="ppCLot(\''+k+'\')">Lot '+k+
+        '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+
+      '<div class="pp-two"><div><label>'+ppT('How many people','Berapa orang')+'</label><input type="number" id="pp-c-crew" inputmode="numeric" min="0" value="'+esc(PPCD.crew)+'"></div>'+
+      '<div><label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'"></div></div>'+
+      '<div class="pp-err" id="pp-c-err">'+esc(PPCD.err||'')+'</div><button class="pp-act" id="pp-c-save" onclick="ppCSave()">'+ppT('SAVE','SIMPAN')+'</button>';}
+  /* PPC.s==='not' */
+  return '<button class="pp-back" onclick="ppCCard()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+ppT('Not done','Tak jadi')+' — '+esc(ppNameBM(v))+'</div>'+
+    '<div class="pp-q">1 · '+ppT('Why?','Kenapa?')+'</div><div class="pp-opts">'+PP_MWHY.slice(0,6).map(w=>'<button class="pp-opt big'+(PPCN.why===w[0]?' sel':'')+'" id="pp-c-why-'+w[0]+'" onclick="ppCWhy(\''+w[0]+'\')">'+ppT(w[1],w[2])+'</button>').join('')+'</div>'+
+    '<div class="pp-q">2 · '+ppT('The new day','Hari baru')+'</div><div class="pp-g">'+ppT('Choose the day this work will be done (within 14 days).','Pilih hari untuk buat kerja ini (dalam 14 hari).')+'</div>'+
+    '<input type="date" id="pp-c-new" value="'+esc(PPCN.date)+'" min="'+ppAdd(today,1)+'" max="'+ppAdd(today,PP_CREW_FWD)+'" onchange="if(PPCN)PPCN.date=this.value">'+
+    '<div class="pp-err" id="pp-c-err">'+esc(PPCN.err||'')+'</div><button class="pp-act warn" id="pp-c-send" onclick="ppCNotGo()">'+ppT('SEND','HANTAR')+'</button>';}
+/** The earliest day the crew may file for: 7 days back, and never before the store was counted. */
+function ppCrewMin(){
+  let m=ppAdd(todayISO(),-PP_CREW_BACK);
+  [ppSeasonFrom(),ppStockFrom()].forEach(d=>{if(d&&d>m)m=d;});
+  return m;}
+function ppCDoneOpen(){
+  const v=ppCrewSet(); if(!v)return;
+  if(ppStale(v.rec))return;
+  PPCD={date:todayISO(),tanks:v.tanks,lots:ppLotsLeft(v),crew:(typeof LAST_CREW!=='undefined'&&+LAST_CREW.crew)||'',hours:'',err:''};
+  PPC.s='done'; ppRender(); ppTop();}
+function ppCSync(){
+  if(!PPCD)return;
+  const d=$('pp-c-date'); if(d&&d.value)PPCD.date=d.value;
+  const t=$('pp-c-tanks'); if(t)PPCD.tanks=t.value;
+  const c=$('pp-c-crew'); if(c)PPCD.crew=c.value; const hh=$('pp-c-hours'); if(hh)PPCD.hours=hh.value;}
+function ppCLot(k){ppCSync();const i=PPCD.lots.indexOf(k);
+  if(i>=0){if(PPCD.lots.length>1)PPCD.lots.splice(i,1);}else PPCD.lots.push(k);
+  PPCD.lots.sort();ppRender();}
+async function ppCSave(){
+  if(!PPCD||PPCD.busy)return;
+  const v=ppCrewSet();
+  if(!v){PPCD=null;toast(ppT('This set is no longer open.','Set ini sudah tidak dibuka.'),1);ppCList();return;}
+  if(ppStale(v.rec)){PPCD=null;ppCCard();return;}
+  ppCSync();
+  const today=todayISO(), fail=m=>{PPCD.err=m;ppRender();};
+  if(!ppOkDay(PPCD.date)||PPCD.date>today||PPCD.date<ppCrewMin())return fail(ppT('The day must be within the last 7 days.','Tarikh mesti dalam 7 hari yang lepas.'));
+  /* ⛔ ASK THE STORE AGAIN, NOW: a lot another phone reported while this form stood open
+     must not be filed, and drawn, a second time. */
+  const open=ppLotsLeft(v), dup=PPCD.lots.filter(L=>open.indexOf(L)<0);
+  if(dup.length){PPCD.lots=PPCD.lots.filter(L=>open.indexOf(L)>=0); if(!PPCD.lots.length)PPCD.lots=open.slice();
+    return fail('Lot '+dup.join(' ')+' '+ppT('was already reported from another phone. Check the lots and press again.','sudah dilaporkan dari telefon lain. Semak lot dan tekan sekali lagi.'));}
+  const tanks=v.basis==='T'?(+PPCD.tanks||0):0, crew=Math.round(+PPCD.crew||0), hours=+PPCD.hours||0;
+  if(v.basis==='T'&&!(tanks>0))return fail(ppT('Enter how many tanks.','Masukkan bilangan tangki.'));
+  if(!PPCD.lots.length)return fail(ppT('Pick the lots that were done.','Pilih lot yang siap.'));
+  if(!(crew>0)||!(hours>0))return fail(ppT('Enter how many people and how many hours.','Masukkan bilangan orang dan jam.'));
+  PPCD.busy=true;
+  const before=EVENTS.length, lots=PPCD.lots.slice();
+  const ok=await ppFileDone(v.rec,{date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,via:'CREW'},'done');
+  if(!ok){PPCD.busy=false;return fail(ppT('That day has not happened yet.','Tarikh itu belum tiba.'));}
+  PPC={s:'saved',key:'',info:{name:ppNameBM(v),date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,
+    rows:EVENTS.length-before,left:ppLotsLeft(v).filter(L=>lots.indexOf(L)<0)}};
+  PPCD=null;
+  try{refreshInventoryViews();}catch(e){}
+  ppAfter();}
+function ppCNotOpen(){
+  const v=ppCrewSet(); if(!v)return;
+  if(ppStale(v.rec))return;
+  PPCN={why:'',date:ppAdd(todayISO(),1),err:''}; PPC.s='not'; ppRender(); ppTop();}
+function ppCWhy(k){const d=$('pp-c-new'); if(d&&d.value)PPCN.date=d.value; PPCN.why=k; ppRender();}
+async function ppCNotGo(){
+  if(!PPCN||PPCN.busy)return;
+  const v=ppCrewSet();
+  if(!v){PPCN=null;toast(ppT('This set is no longer open.','Set ini sudah tidak dibuka.'),1);ppCList();return;}
+  if(ppStale(v.rec)){PPCN=null;ppCCard();return;}
+  const d=$('pp-c-new'); if(d&&d.value)PPCN.date=d.value;
+  const today=todayISO(), fail=m=>{PPCN.err=m;ppRender();};
+  if(!PPCN.why)return fail(ppT('Pick the reason first.','Pilih sebab dahulu.'));
+  if(!ppOkDay(PPCN.date)||PPCN.date<=today||PPCN.date>ppAdd(today,PP_CREW_FWD))
+    return fail(ppT('Pick the new day: after today and within 14 days.','Pilih hari baru, selepas hari ini dan dalam 14 hari.'));
+  PPCN.busy=true;
+  const rec=v.rec, x=ppX(rec), from=v.date;
+  x.notice={from:from,to:PPCN.date,why:PPCN.why,at:now(),by:ppMe(),seen:false};
+  ppLog(x,{k:'crewmove',from:from,to:PPCN.date,why:PPCN.why});
+  rec.plan=PPCN.date; x.bm=null;
+  await ppSave(rec,false);
+  PPC={s:'told',key:'',info:{name:ppNameBM(v),from:from,to:PPCN.date,why:PPCN.why}};
+  PPCN=null; ppAfter();}
+
+/* ---------- the same sets on the crew's home screen and in TODAY'S TASKS ---------- */
+function ppGoSet(k){
+  openModule('prog');
+  if(myRole()==='WORKER'){PPC={s:'card',key:ppUnArg(k)};}
+  else{PPO.key=ppUnArg(k);PPO.s='detail';}
+  ppRender();ppTop();}
+function ppHomeNoticeHTML(){
+  if(!ppOn()||myRole()!=='WORKER'||hubTiles().indexOf('prog')<0)return '';
+  return ppCrewDue().slice(0,2).map(v=>{const st=ppSt(v);
+    return '<div class="tasknote" onclick="ppGoSet(\''+ppArg(v.key)+'\')"><span class="tn-tag'+(st.k==='over'?' late':'')+'">📅 '+esc(st.t)+'</span>'+
+      '<div class="tn-brand">'+esc(ppNameBM(v))+'</div><div class="tn-dose">'+esc(ppTgt(v))+' · '+ppFmt(v.date)+'</div>'+
+      '<div class="tn-hint">'+ppT('Tap to open the set','Tekan untuk buka set')+'</div></div>';}).join('');}
+function ppOpsHTML(){
+  if(!ppOn()||hubTiles().indexOf('prog')<0)return '';
+  const list=ppCrewList(); if(!list.length)return '';
+  return '<div class="pp" id="pp-ops" style="margin-bottom:10px"><div class="pp-mon" style="margin-top:0">📅 '+ppT('The Programme','Program')+' · '+list.length+'</div>'+
+    list.map(v=>{const st=ppSt(v);
+      return '<button class="pp-row" id="pp-ops-'+ppCss(v.key)+'" onclick="ppGoSet(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
+        '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,ppLotsLeft(v))+'</div></button>';}).join('')+'</div>';}
+function ppTileBadge(){
+  if(!ppOn())return null;
+  const r=myRole();
+  if(r==='OWNER'){const n=ppActList().length; if(n)return {t:n+' DUE'};
+    const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' ISSUED',amber:1}:null;}
+  if(r==='PURCHASER'){const n=ppBuyCount();return n?{t:n+' TO BUY'}:null;}
+  const due=ppCrewDue().length; if(due)return {t:due+' '+ppT('DUE','HARI INI')};
+  const c=ppCrewList().length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
+
+/* ---------- closing last season's programme ----------
+   The three sets the app held open on 2 Oct 2026, answered the way Programme 26 shows them.
+   The Owner confirms, or changes an answer where the sheet is wrong. ⛔ CLOSING WRITES NO
+   STOCK ROW AND CHANGES NO COST: the answers ride inside the `season` setting, and the
+   old ACTIVE records are marked CLOSED so nothing goes on ordering for last season. */
+let PPCL=null;
+function ppCloseInit(){
+  const cl=ppLastClose();
+  PPCL={ans:{},arm:false,edit:false,busy:false};
+  ppOldOpen().forEach(ph=>{
+    const s=(typeof PP_CLOSE_2526!=='undefined')?PP_CLOSE_2526[ph.id]:null, prev=cl&&cl.ans&&cl.ans[ph.id];
+    PPCL.ans[ph.id]=prev?{a:prev.a,d:prev.d||(s?s.date:'')}:{a:s?s.sug:'not',d:s?s.date:String(ph.plan||'').slice(0,10)};});}
+function ppCloseSync(){
+  if(!PPCL)return;
+  Object.keys(PPCL.ans).forEach(id=>{const el=$('pp-cl-d-'+ppCss(id)); if(el&&el.value)PPCL.ans[id].d=el.value;});}
+function ppCloseAns(id,k){id=ppUnArg(id);ppCloseSync();if(PPCL.ans[id])PPCL.ans[id].a=k;PPCL.arm=false;renderSeason();}
+function ppCloseEdit(){ppCloseInit();PPCL.edit=true;renderSeason();}
+function ppCloseHTML(){
+  if(!ppOn()||!ppIsOwner())return '';
+  const open=ppOldOpen(), cl=ppLastClose();
+  if(!open.length&&!cl)return '';
+  if(!PPCL)ppCloseInit();
+  const nDone=ppOldPhases().filter(ph=>{const c=progStatus(ph).code;return c==='on'||c==='late';}).length;
+  const nm=ph=>monthLabel(ph.month)+' · '+ph.set;
+  const say=a=>a.a==='done'?('done '+ppFmtS(a.d)):a.a==='dup'?'same round as another set':'not done';
+  let h='<div class="sec" style="margin-top:14px">📅 Programme '+PP_LAST+'</div><div class="pp" id="pp-close">';
+  if(cl&&!PPCL.edit){
+    h+='<div class="pp-okbig">✔ Programme '+PP_LAST+' closed</div>'+
+      '<div class="pp-g">'+ppOldPhases().length+' sets kept as history on the Programme’s MONTH tab, read only: '+nDone+' recorded done'+(open.length?', and':'')+'</div>'+
+      (open.length?('<ul style="font-size:13.5px;margin:4px 0 8px;padding-left:18px">'+open.map(ph=>'<li><b>'+esc(nm(ph))+'</b> — '+esc(say((cl.ans&&cl.ans[ph.id])||{a:'not'}))+'</li>').join('')+'</ul>'):'')+
+      '<div class="pp-note grn">The Programme now shows '+esc(seasonName()||PP_SEASON)+' only, and the BUY list no longer asks for last season’s materials. No stock row was written and no cost changed. '+
+      'Closed by '+esc(cl.by||'—')+' · '+esc(String(cl.at||'').slice(0,16))+'</div>'+
+      (open.length?'<button class="pp-ghost" id="pp-cl-again" onclick="ppCloseEdit()">CHANGE AN ANSWER</button>':'')+'</div>';
+    return h;}
+  if(!SEASON||!seasonCur())return h+'<div class="pp-note">Open the season first: the close is kept with the season.</div></div>';
+  h+='<div class="pp-g">Closed the way Programme 26 shows each set. You only confirm, or change an answer if the sheet is wrong. <b>Closing writes nothing to the store and changes no cost.</b></div>'+
+    '<div class="pp-kpis"><div class="pp-kpi"><div class="v">'+nDone+'</div><div class="l">recorded done</div></div>'+
+    '<div class="pp-kpi"><div class="v" style="color:#c62828">'+open.length+'</div><div class="l">still open</div></div></div>';
+  const maxDay=ppAdd(ppSeasonFrom()||todayISO(),-1);
+  open.forEach(ph=>{
+    const st=progStatus(ph), a=PPCL.ans[ph.id]||{a:'not',d:''}, s=(typeof PP_CLOSE_2526!=='undefined')?PP_CLOSE_2526[ph.id]:null, c=ppCss(ph.id);
+    h+='<div class="pp-ln"><div class="a"><b>'+esc(nm(ph))+'</b><span class="pp-pill red">OVERDUE'+(st.days?(' '+st.days+' d'):'')+'</span></div>'+
+      '<div class="pp-g" style="margin:4px 0">Planned '+ppFmtS(ph.plan)+' · '+esc(ppOldMix(ph))+'</div>'+(s?('<div class="pp-g" style="color:var(--ink)">'+esc(s.ev)+'</div>'):'')+
+      '<div class="pp-opts" style="margin-top:6px">'+[['done','Was done'],['not','Not done'],['dup','Same as another set']].map(o=>
+        '<button class="pp-opt'+(a.a===o[0]?' sel':'')+'" id="pp-cl-'+c+'-'+o[0]+'" onclick="ppCloseAns(\''+ppArg(ph.id)+'\',\''+o[0]+'\')">'+o[1]+((s&&s.sug===o[0])?'<small>Programme 26</small>':'')+'</button>').join('')+'</div>'+
+      (a.a==='done'?('<label>Done on</label><input type="date" id="pp-cl-d-'+c+'" value="'+esc(a.d)+'" max="'+maxDay+'">'):'')+'</div>';});
+  if(typeof PP_CLOSE_NOTE!=='undefined'&&open.some(ph=>ph.id==='May 2|Fert Set 2'||ph.id==='Aug|Fert Set 2'))
+    h+='<div class="pp-note amb"><b>One thing Programme 26 does not show.</b> '+esc(PP_CLOSE_NOTE)+'</div>';
+  h+='<button class="pp-act'+(PPCL.arm?' warn':'')+'" id="pp-cl-go" onclick="ppCloseGo()">'+(PPCL.arm?'PRESS AGAIN TO CLOSE':('CONFIRM AND CLOSE PROGRAMME '+PP_LAST))+'</button></div>';
+  return h;}
+async function ppCloseGo(){
+  if(!ppIsOwner()||!PPCL||PPCL.busy||!SEASON||!seasonCur())return;
+  ppCloseSync();
+  const bad=Object.keys(PPCL.ans).filter(id=>PPCL.ans[id].a==='done'&&!ppOkDay(PPCL.ans[id].d));
+  if(bad.length){toast('Pick the day it was done',1);return;}
+  if(!PPCL.arm){PPCL.arm=true;renderSeason();return;}
+  PPCL.busy=true;
+  const ans={}; Object.keys(PPCL.ans).forEach(id=>{const a=PPCL.ans[id];ans[id]=a.a==='done'?{a:'done',d:a.d}:{a:a.a};});
+  SEASON=Object.assign({},SEASON);
+  SEASON.progclose=Object.assign({},SEASON.progclose||{});
+  SEASON.progclose[PP_LAST]={at:nowSec(),by:ppMe(),device:(CFG&&CFG.device)||'',ans:ans};
+  if(db)await put('kv',{k:'season',v:SEASON});
+  await markSetting('season');
+  /* the records last season left ACTIVE: closed, so no screen goes on ordering for them */
+  for(const r of activePrograms()){r.status='CLOSED';r.synced=false;if(db)await put('programs',r);}
+  PPCL=null;
+  toast('✓ Programme '+PP_LAST+' closed');
+  ppTouch(); badge();
+  try{renderSeason();renderHub();if(typeof renderProgCheck==='function')renderProgCheck();if(typeof renderOpsTasks==='function')renderOpsTasks();}catch(e){}
+  ppSyncSoon();}
 
 // ================= v2.6 PHASE CLOCK · WEATHER · AI BLUEPRINT · GENERAL TASKS · LABOUR =================
 let TASKS=[], BLUEPRINTS=[], WEATHER='SUNNY';
@@ -9115,8 +10694,11 @@ function renderOpsTasks(){
   // v3.13 — the directive note is DELETED. It was six lines of prose, and worse, it told
   // the crew to press "REKOD KERJA YANG DIBUAT" — a button this release renamed. A note
   // that describes a control by a name it no longer has is worse than no note at all.
-  box.innerHTML=dir+box.innerHTML+
-    ((dir||t.length)?'':'<div class="alertnone">'+esc(tr('op_notask'))+'</div>');
+  /* v3.76.0 — the sets the Owner has issued lead the list; a tap opens the set on the
+     Programme screen, where TANDA SIAP and TAK JADI HARI INI live. */
+  const pp=(typeof ppOpsHTML==='function')?ppOpsHTML():'';
+  box.innerHTML=pp+dir+box.innerHTML+
+    ((pp||dir||t.length)?'':'<div class="alertnone">'+esc(tr('op_notask'))+'</div>');
   // v3.12 FIX (screenshot, not test) — the standing note under this list explains
   // CONFIRM COMPLETION and MIXED A DIFFERENT AMOUNT. A directive card has neither
   // button, so with only directives on screen that note described controls that were
@@ -12844,6 +14426,7 @@ function settingValue(k){
   if(k==='invover')   return INV_OVERRIDE;   // v3.28.0
   if(k==='season')    return SEASON;         // v3.74.0
   if(k==='opencount') return OPEN_COUNT;     // v3.74.0
+  if(k==='buyask')    return BUYASK;         // v3.76.0
   return null;}
 
 /** Mark a setting as changed here and remember who did it. Called by every saver. */
@@ -13054,11 +14637,25 @@ async function applySetting(k,v){
     if(k==='season'){
       if(!v||typeof v!=='object'||!v.cur||!v.cur.from)return false;
       SEASON=v; if(db)await put('kv',{k:'season',v:SEASON});
+      if(typeof ppRefresh==='function'){PPCL=null;ppRefresh();}   // v3.76.0 — the programme close rides in here
       return true;}
     /* v3.74.0 — the opening-count draft. One phone counts; newest-wins whole-object. */
     if(k==='opencount'){
       if(!v||typeof v!=='object'||!v.rows)return false;
       OPEN_COUNT=v; if(db)await put('kv',{k:'opencount',v:OPEN_COUNT});
+      return true;}
+    /* v3.76.0 — per product, newest `at` wins. An ask is never deleted: it simply stops
+       mattering once the shelf covers the round it was sent for. */
+    if(k==='buyask'){
+      if(!v||typeof v!=='object'||Array.isArray(v))return false;
+      const next=Object.assign({},BUYASK);
+      Object.keys(v).forEach(key=>{
+        const inc=v[key]; if(!inc||typeof inc!=='object')return;
+        const mine=next[key];
+        if(!mine||String(inc.at||'')>String(mine.at||''))next[key]=inc;});
+      BUYASK=next; if(db)await put('kv',{k:'buyask',v:BUYASK});
+      if(typeof ppRefresh==='function')ppRefresh();
+      if(typeof renderProcure==='function')renderProcure();
       return true;}
   }catch(e){return false;}
   return false;}
@@ -16989,6 +18586,8 @@ function renderSeason(){
          nf(s.dropped||0)+' '+esc(tr('ow_dropped','dropped'))+' · '+nf(s.good||0)+' '+esc(tr('ow_good','good'))+' · '+nf(s.rejected||0)+' '+esc(tr('ss_rej','rejected'))+' · '+nf(s.invoices||0)+' '+esc(tr('ss_inv','inv'))+' · '+nf(s.kg||0)+' kg · RM '+nf(Math.round(s.rm||0))+'<br>'+
          esc(tr('ss_shedoff','shed written off'))+' '+nf(s.shed_count||0)+(s.shed_app!=null?(' ('+esc(tr('ss_appsays','app says'))+' '+nf(s.shed_app)+')'):'')+' · '+esc(s.by||'')+' · '+esc(String(s.at||'').slice(0,10))+'</div>').join('')+
        '<p class="small">'+esc(tr('ss_histnote','These are the figures at the moment the door was pressed. The season review is the document of record; the app never recounts a closed season.'))+'</p>';}
+  /* ---- v3.76.0 · last season's programme: closed as Programme 26 shows it ---- */
+  if(typeof ppCloseHTML==='function'){try{h+=ppCloseHTML();}catch(e){}}
   /* ---- 2 · the opening count ---- */
   h+='<div class="sec" style="margin-top:14px">🧾 '+esc(tr('ss_ochead','The store’s opening count'))+'</div>'+ocOwnerHtml();
   /* ---- 3 · the switch ---- */
