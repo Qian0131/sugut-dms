@@ -3066,3 +3066,18 @@ Object.assign(EN,{
   m_prog:'The Programme', ts_prog:'today · coming · done · month', st_buyask:'what to buy for the programme'});
 Object.assign(MS,{
   m_prog:'Program', ts_prog:'kerja program yang dikeluarkan', st_buyask:'senarai beli untuk program'});
+/* v3.77.0 - the Programme opens on the month; the old doors are closed. */
+Object.assign(EN,{
+  ts_prog:'by month · to buy · record', ts_prog_pur:'coming · done', ts_prog_w:'programme work issued to you',
+  m_wx:'Weather', ts_wx:'rain gauge, month sheet',
+  ow_prog:'PROGRAMME', bg_over:'OVERDUE',
+  op_head:"📋 Today's tasks — the sets the Owner has issued",
+  op_notask:'No task waiting. The Owner has not issued a set, or every lot has already been reported.',
+  so_notset:'A programme set is not keyed here. When the set is marked done in THE PROGRAMME, its materials come off the store count by themselves. Use this form for anything else that leaves the store.'});
+Object.assign(MS,{
+  ts_prog:'ikut bulan · beli · rekod', ts_prog_pur:'akan datang · siap', ts_prog_w:'kerja program yang dikeluarkan',
+  m_wx:'Cuaca', ts_wx:'tolok hujan, helaian bulan',
+  ow_prog:'PROGRAM', bg_over:'LEWAT',
+  op_head:'📋 Kerja hari ini — set yang dikeluarkan oleh tuan ladang',
+  op_notask:'Tiada kerja menunggu. Tuan ladang belum keluarkan set, atau semua lot sudah dilaporkan.',
+  so_notset:'Set program tidak dimasukkan di sini. Bila set ditanda siap di PROGRAM, bahannya ditolak daripada kiraan stor dengan sendiri. Guna borang ini untuk bahan lain yang keluar dari stor.'});

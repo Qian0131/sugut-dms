@@ -2486,6 +2486,58 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pp-t{border-collapse:collapse;font-size:13px;width:100%;min-width:300px}
 .pp-t th,.pp-t td{padding:7px 9px;border-bottom:1px solid #dfe5dd;text-align:left;vertical-align:top}
 .pp-t th{font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);background:#f7f9f6}
+/* ----- v3.77.0 · the month page ----- */
+.pp-kpis.k4{grid-template-columns:repeat(4,1fr)}
+.pp-need{border:2px solid #b26a00;background:#fdf0e2;border-radius:12px;padding:9px 10px 5px;margin:0 0 10px}
+.pp-need h4{margin:0 0 2px;font-size:13.5px;color:#b26a00}
+.pp-strip{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 0 4px;scrollbar-width:thin}
+.pp .pp-mchip{flex:0 0 auto;min-width:62px;padding:7px 8px;border-radius:10px;border:2px solid #dfe5dd;background:#fff;font-weight:800;font-size:13px;text-align:center}
+.pp-mchip small{display:block;font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap}
+.pp-mchip.cur{border-color:#b26a00}
+.pp-mchip.on{background:var(--green2);border-color:var(--green2);color:#fff !important}
+.pp-mchip.on small{color:#fff;opacity:.9}
+.pp-mchip.old{color:var(--muted) !important}
+.pp-mchip.old.on{color:#fff !important}
+.pp-vsw{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:6px 0 8px}
+.pp-vsw button{padding:8px 2px;min-height:42px;border-radius:9px;border:1px solid #dfe5dd;background:#fff;font-size:12px;font-weight:800;color:var(--muted) !important}
+.pp-vsw button.on{border:2px solid #1f5f8b;color:#1f5f8b !important;background:#e9f2f8}
+.pp-sh{display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:start}
+/* the pill drops under a long name instead of squeezing it onto two lines */
+.pp-sh .pp-top{flex-wrap:wrap;row-gap:3px}
+.pp-sh>div{min-width:0}
+.pp-day{text-align:center;border-radius:9px;background:#f7f9f6;border:1px solid #dfe5dd;padding:5px 2px;line-height:1.15}
+.pp-day b{display:block;font-size:19px}
+.pp-day small{display:block;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.4px}
+.pp-row.st-done .pp-day{background:#fff;border-color:var(--green2)}
+.pp-row.now .pp-day{background:#fdf0e2;border-color:#b26a00}
+.pp-mx{width:100%;border-collapse:collapse;font-size:12.5px;margin:5px 0 1px}
+.pp-mx td{padding:2.5px 0;border-top:1px dashed #dfe5dd;vertical-align:top}
+.pp-mx td.r{text-align:right;font-weight:700;white-space:nowrap;padding-left:8px}
+.pp-mxh{font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--muted);margin-top:6px;text-transform:uppercase}
+.pp-oldmix{color:var(--ink)}
+.pp .pp-yr{display:block;width:100%;text-align:left;border:1px solid #dfe5dd;border-radius:11px;background:#fff;padding:9px 11px;margin:6px 0}
+.pp-yr.cur{border:2px solid #b26a00}
+.pp-yr b{font-size:15px}
+.pp-ys{font-size:12px;color:var(--muted)}
+.pp-yc{font-size:12.5px;margin-top:2px}
+.pp-bar{height:6px;border-radius:99px;background:#dfe5dd;margin-top:6px;overflow:hidden;display:flex}
+.pp-bar i{display:block;height:100%}
+.pp-bar .d{background:var(--green2)}
+.pp-bar .i{background:#b26a00}
+/* THE SIXTH SCREEN THAT PRINTS: the programme of one month. A body class, like the rain sheet. */
+#ppprint .pp-ph{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:#555}
+#ppprint .pp-pt{font-size:17px;font-weight:800;margin:2px 0}
+#ppprint .pp-ps{font-size:11px;margin-bottom:8px}
+#ppprint .pp-ptbl{width:100%;border-collapse:collapse;font-size:9.5pt}
+#ppprint .pp-ptbl th,#ppprint .pp-ptbl td{border:1px solid #777;padding:4px 6px;text-align:left;vertical-align:top}
+#ppprint .pp-ptbl th{background:#eee;font-size:8.5pt;text-transform:uppercase}
+#ppprint .pp-ptbl tr{page-break-inside:avoid}
+#ppprint .pp-ptbl thead{display:table-header-group}
+@media print{
+  body.printing-pp #harvestrep{display:none!important;}
+  body.printing-pp #ppprint{display:block!important;}
+  body.printing-pp{max-width:none!important;}
+}
 </style>
 </head>
 <body>
@@ -3003,15 +3055,18 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <!-- MATERIAL STOCK OUT — Farm Worker (Owner/Marketing may also use it) -->
   <div class="card" id="pnl-out" style="display:none">
     <div class="sec"><span data-t="so_head">📤 Material Stock Out — issued to the field</span> <span class="m5-iq" onclick="m5Tog('m5-p15')">ⓘ</span></div>
+    <p id="out-notset" style="margin:0 0 9px;font-size:12.5px;line-height:1.4" data-t="so_notset">A programme set is not keyed here. When the set is marked done in THE PROGRAMME, its materials come off the store count by themselves. Use this form for anything else that leaves the store.</p>
     <!-- ===== v3.49.0 · ONE ANSWER FOR THE WHOLE ISSUE =====
          Set, day and lot are asked ONCE at the top. Lot is here rather than on each line
          because a crew sprays a lot at a time, and because dropping it (as the sample did)
          would have broken the per-lot figures in PROGRAMME COST and the lot bars on the
          dashboard. The DAY is the backdate: blank means today, exactly as before. -->
     <div class="onbrow">
-      <div><label data-t="so_set">What was it for</label>
+      <!-- v3.77.0 — the set list is closed: a programme set is drawn by TANDA SIAP. The
+           select stays, hidden, with its one value, because the save reads it. -->
+      <div style="display:none"><label data-t="so_set">What was it for</label>
         <select id="sset"></select></div>
-      <div><label data-t="ob_day">Day it left the shed</label>
+      <div style="grid-column:1/-1"><label data-t="ob_day">Day it left the shed</label>
         <input type="date" id="out-day" onchange="renderOutBasket()"></div>
     </div>
     <div class="convnote" id="out-bdnote" style="display:block"></div>
@@ -3047,8 +3102,8 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
     <!-- FILL is deliberately SMALLER than ADD. Both were full-width ghosts in the first cut and
          a screenshot showed two identical buttons with no hierarchy: adding one product is the
          every-time action, filling from the plan is the shortcut. -->
-    <button class="bigbtn ghost" onclick="outFillFromPlan()" style="margin-top:7px;padding:10px;font-size:12px" data-t="ob_fill">📋 FILL THE WHOLE SET FROM THE PLAN</button>
-    <p class="small" style="margin-top:6px" data-t="ob_fillnote">When the crew followed the programme this fills every product in one tap. Then change or remove whatever was different.</p>
+    <!-- v3.77.0 — FILL THE WHOLE SET FROM THE PLAN is gone: it loaded last season's set into
+         the basket, a second way to draw what TANDA SIAP draws. outFillFromPlan() is unrouted. -->
     <div id="outbasket" style="margin-top:10px"></div>
     <p class="small hidden" id="m5-p15" style="margin-top:8px" data-t="so_note">Saving reduces the farm stock straight away on this phone and queues the entry for the next sync.</p>
   </div>
@@ -3335,7 +3390,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   </div>
   <!-- ===== DAILY OPS · TODAY'S TASKS (v2.5) ===== -->
   <div class="card" id="opstasks" style="display:none">
-    <div class="sec" data-t="op_head">📋 Today's tasks — from the Owner's active programme</div>
+    <div class="sec" data-t="op_head">📋 Today's tasks — the sets the Owner has issued</div>
     <div id="opslist"></div>
     <p class="small" style="margin-top:9px" data-t="op_note">Tasks are set by the Owner and cannot be edited here.
       <b>CONFIRM COMPLETION</b> deducts exactly what the Owner planned for that lot — use it when the tank was
@@ -3432,6 +3487,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        three times (v3.6, v3.12, and the v3.51 stock-take page caught in testing). -->
   <div class="card" id="progseg" style="display:none"></div>
   <div id="progcard" style="display:none"></div>
+  <!-- v3.77.0 — the month's programme on paper. Filled by ppPrintMonth() and shown only by
+       body.printing-pp in the print stylesheet; never on screen. -->
+  <div class="card" id="ppprint" style="display:none"></div>
 
   <!-- v3.55.0 · THE CANCEL PAGE. A PAGE off THE PROGRAMME, on the proven csOpen / stOpen /
        stmtOpen pattern. ⛔ IT MUST LIVE INSIDE <div id="scr-dash">, beside #progcard — the
@@ -4195,7 +4253,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.76.0"></script>
-<script src="app.js?v=3.76.0"></script>
+<script src="database.js?v=3.77.0"></script>
+<script src="app.js?v=3.77.0"></script>
 </body>
 </html>

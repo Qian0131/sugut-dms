@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.76.0';   // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
+const APP_VERSION = 'v3.77.0';   // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
 // v3.74.0 - THE SEASON DOOR AND THE STORE'S OPENING COUNT. Season 2025/26 closed on 18 Sep with final figures, and the app had no way to know: seasonStart() was the first fruit ever logged and never moved, the shed kept 92 fruit standing, the tree ledger handed back 2,227 dropped and 762 on the tree every sync, and the first drop of 2027 would have been added to last year's 2,227. *** THE SEASON IS NOW A SHARED SETTING (`season`): ADMIN > SEASON closes the old season with a snapshot read from the log and the hand-counted shed, and opens the next from ONE date (21 Sep 2026 on the Owner's instruction). inSeason(e) guards every reader of fruit: seasonStart, the shed (layers and consumers), the backlog, the tree ledger (statOf() is silenced and countsLocally() answers by date, so the undated Sheet aggregate cannot hand back last season), the tying migration, the July census (no census until the fruit census is keyed), and the sync floor (syncFloor() = the open date). A phone that has not yet received the setting behaves exactly as v3.73.0. Nothing is deleted; Season history lists every closed season with the figures at the moment the door was pressed. *** THE STORE STARTS FROM A COUNT. onHand() was a constant baked into database.js minus every stock-out since, and stock-in was never keyed properly in 2025/26. THE STORE > SHELF > OPENING COUNT lets the worker or the Purchaser count every card as a person counts (full containers + loose), saves the draft as the `opencount` setting, and SEND hands it to the Owner; ADMIN > SEASON > CONFIRM writes one signed STOCK_ADJUST per product carrying `counted` and the note 'OPENING 2026/27' (the mark that survives the Sheet). onHand() and the moving average restart from the newest opening row and count only rows dated after it; a product with no opening row keeps the old rule. usedOf/recvOf/adjOf and the monthly ledger are untouched, so the write-off shows where it belongs. *** APPS SCRIPT v3.74.0 (one line): SETTINGS_ALLOWED gains 'season' and 'opencount' - and 'invover' and 'progover', which the app has pushed since v3.21/v3.28 and every backend to date has REFUSED ('not a shared setting'): the Owner's retired products, minimum levels, prices and programme edits never left his phone. Until the .gs is redeployed the season and the count stay on the phone that wrote them; the CHECK page says whether the backend accepts them. Original v3.73.0 note follows. // v3.73.0 - THE SHED DRAWS ACROSS GRADES. Every pick is keyed Grade A at collection because the grade is the weight on the scale; the scale then sells it as B or C, and a C sale could only draw from the C box, which is always empty. So on 17 Sep one shed read MK A +254 standing and MK C -224 short at the same time, and every MK C invoice since August was filed under lot '?'. shedDraw() now covers the requested grade first, then the other grades of the same clone (nearest first, oldest layer first), stamps `g` on a layer taken across so the basket row, the trace and the money ledger say 'from Grade A', and reports short ONLY what no box of that clone could cover. The shed is rebuilt from the log on every paint, so every past draw is repaired the moment this loads - nothing keyed, nothing edited on the Sheet. The basket chip at the scale now also names the clone's other boxes. Original v3.72.0 note follows. // v3.72.0 - ONE SHED, ONE LOSS FIGURE. Two screens, two answers, both in the app on 17 Sep. (1) Harvest > THE SHED said 390 fruit while the Morning Scale, one tap away, said 76 for the same shed: renderShed() printed shedNow().total (the boxes still above zero) where the scale has printed .net since v3.69.0, and its red alarm box came from fruitBacklog() - invoices only, blind to rations and to the load at the gate - so it also listed MK C 217 against the scale's 224. The hero now quotes NET with 'counted / short' under it, the alarm reads shedNow().short, and shedCount() and fruitBalance().shed_fruit - the home bar and the FOC balance table - quote net too. (2) The HARVEST REPORT header printed harvestMatrix() counts (1,800 good / 422 loss) beside lossByCause()'s 18.4%, while the lot table under it said 19%: the five matrix walkers added raw ROTTEN.qty and never saw a ROTTEN_ADJUST, and lossByCause() walked the adjust rows themselves - unclamped, dated by the correction, and counting -9 against six trial rows cleaned up in early August - then dropped the uncaused OTHER row while leaving it in the denominator, so the cause shares summed to 104.1%. rottenQty() is dropQty()'s twin - per row, by evUuid, clamped at zero - and every walker AND lossByCause() now read it: one basis, shares that sum to 100, one percentage. (3) Section 5 printed a tick beside '14.79 kg more has left than was weighed in' because fruitBalance().balances tested the residual against itself; it now means unaccounted === 0. Original v3.71.0 note follows. // v3.71.0 - THE PRICE THAT WOULD NOT STAY. A setting saved today could lose to one saved days earlier, because mergeSettings compared the two date stamps as TEXT and both begin with the weekday name, so it sorted Fri < Mon < Sat < Sun < Thu < Tue < Wed instead of by time. Saved on a Thursday, a price was thrown away on the next sync against the Tuesday copy - no message, no log entry. That is the whole story behind Musang King snapping back to RM 28, Black Thorn refusing to hold RM 45, and the gate billing Grade C at the Grade A rate off a table nobody could update. Both stamps are now parsed and compared as numbers, with the old string test kept only for a stamp no Date can read. One comparison changed; the rest of the merge is untouched. Original v3.70.1 note follows. // v3.70.1 - THE CLONE ROW IS A GRID, AND IT ONLY OFFERS CLONES THAT GROW HERE. 5 Sep, from the crew: 'only 3 clone can be choose in weight in the morning' - no 101, no Golden Phoenix. The picker code drew all ten; the SCREEN did not. .selrow.clones was a sideways strip with the scrollbar hidden and a faint fade as the only hint, and v3.70.0's longer names (Musang King (D197), Black Thorn (D200), D24 Sultan) made three buttons fill a 360 px phone: rendered right edges MK 131 - BT 262 - B24 364 - 101 466 - UM 672 - GP 823 against a 336 px row. So for four mornings the two clones after MK did not exist to a worker, and the 12 + 29 'B24' fruit invoiced on 3 and 5 Sep are almost certainly Golden Phoenix keyed under the one button that WAS on screen, nine of the ten B24 trees having become GP on 2 Sep. *** TWO CHANGES. (1) The row WRAPS: a 3-per-row grid in index.html, nothing off the right edge, ever. (2) scaleCloneChoices() offers only clones with at least one tree on the farm today - read off TREE_MASTER after the corrections are applied, so it follows the crew's own re-tagging without a release - biggest clone first: MK - 101 - GP - BT - TB - B24 - XO - D99 as of 5 Sep; UM and TNB have no tree and are not offered. The line's CURRENT clone is always kept in the list so a basket already keyed cannot be orphaned by a later correction. cloneShort() prints the name without the D-code under the button; the code IS the big label. *** NOTHING ELSE MOVED: CLONE_SELL_ORDER, CLONE_NAME, prices, the shed cards, the tree-correction picker and every stored row are untouched - this is a picker on one screen. *** STILL OPEN: RT-05's contract book has no GP / XO / D99 rate, so a GP line for him prices at RM 0 by the contract-hole rule until the Owner keys it in Marketing -> PRICES & RETAILERS. Original v3.70.0 note follows. // v3.70.0 - FOUR NEW CLONES, AND FIVE THAT ONLY CHANGED THEIR NAME. The Owner's clone list, 1 Sep: Musang King D197, Black Thorn D200, D24 Sultan, Red Prawn D175, D101, plus Golden Phoenix D198, XO D168, D99 and Tenom Beauty D236 - and 'we just found that certain trees are wrong', so the clones go in FIRST and the crew move the trees themselves with the correction they already know. *** NOT ONE CODE CHANGED ON AN EXISTING CLONE, and that is the whole release. The clone code is stamped into every drop, tying, rotten, dispatch and FOC row ever written, into the lines_json of every invoice, and into the contract books of RT-01, RT-02 and RT-05. Rename a CODE and every one of those rows stops matching CLONE_GRADES, hasGrade() goes false, priceOf() returns RM 0 and the season tally splits into two columns. So B24 IS D24 Sultan - the Owner confirmed they are one clone - and it keeps the code B24 and only reads D24 Sultan; UM keeps its code and reads Red Prawn / Udang Merah, because Udang Merah IS Red Prawn and two rows for one clone is how a farm double-counts itself. *** THE FOUR NEW ONES are GP, XO, D99 and TNB, on the two-letter ladder A/B plus BN with the A line at 1.5 kg, and priced at the D101 line on the Owner's instruction ('the rate are the same as 101') - RM 25 / 20 / 8 spot, mirrored into RT-01 at 25/20 and RT-02 at 26/21 so a basket of them can never invoice at RM 0. AVG_KG for all four is 1.5 as a PLACEHOLDER: it only drives the 'about N kg' a worker sees on a ration request, never an invoice, and it is replaced the first time a full basket crosses the scale. *** TNB IS NOT TB. TB still means UNIDENTIFIED (B-050, C-028). If those two turn out to be Tenom Beauty they move with a tree correction like any other tree - the TB code is never repointed, because rows already written against it would follow. *** AND THE TRAP THAT MADE THIS DANGEROUS IS GONE: CLONES was a hand-kept duplicate of CLONE_SELL_ORDER used in exactly one place, the tree-correction picker, so adding a clone to one list and not the other gave you a clone the crew could pick at the tree but that was invisible at the scale. CLONES is now derived from CLONE_SELL_ORDER. *** RT-05 NEEDS FOUR RATES KEYED BY HAND: his book is stored, not seeded, so the new clones read RM 0 there and the scale will refuse the line by design until the Owner sets them in Marketing -> PRICES & RETAILERS.
 // v3.67.0 - THE WORKER CAN SAY GRADE C AT THE SCALE. The Owner, 29 Aug, after a 0.99 kg/fruit load went out invoiced as Grade A: 'can we can apps here from grade a to c cause workers are busy and no option to choose as c'. He was right and the reason was exact: when a basket is picked FROM THE SHED the weigh step drew the clone and grade as fixed TEXT with only a 'change' link, and the only grade the shed can ever offer is A, because every pick is logged A. So there was no way to say C without unpicking the basket and losing its shed link. Now the shed-picked basket keeps its clone LOCKED (it came off a real layer) and draws the GRADE PICKER underneath - the same shape the correction road has used since v3.37.4. Alongside it the screen now prints the MEASURED average kg per fruit and the grade that weight actually falls in, so the man holding the fruit sees the mismatch before the load is sent, not the Owner on the invoice a day later. GRADE_BAND for MK also moved: C is now under 1.2 kg, not under 1.0. // v3.65.0 - ONE DAY OUT OF THE SEVEN. The Owner, within an hour of v3.64.0 landing: 'the total show in 7 days. i need a option to show a single particular date.' He is right and it is the difference between a report and a working screen - the seven-day total answers 'how was the week', and what he actually asks at the gate every evening is 'what went out TODAY, and to whom'. A day picker now sits BEFORE the customer picker, each option carrying that date's own takings so a day is chosen by money rather than by counting back dates, with 'All 7 days' first and the dates newest-first under it. Choosing one narrows the rows, every tile, the photo count, the gift line and the header - and it does NOT move the week window under the table above, which keeps its own arrows: narrowing what is on screen and re-fetching a different week are two different acts and a screen that confuses them makes the two halves disagree. If the week is stepped past the chosen date the picker falls back to all seven rather than showing an empty day, the same rule the customer picker already follows when a merchant is not in the new window. // v3.64.0 - THE OTHER HALF OF THE DAY. DAILY RECORD answered the fruit question and never the money question on the same page, and the two only mean something together: on 22 Aug RM 6,331.60 was invoiced while RM 7,416.40 of fruit was GIVEN AWAY, and no screen on this farm put those two figures side by side. This release appends a sales-and-gifts half under the SAME seven-day window - a customer picker, a free-gift tick, the account position, and every load with its photo - and writes nothing: every figure is a read. THREE RULES, each a bug before it was a rule. ONE MAN IS ONE NAME: the picker groups on the name with brackets stripped so 'Samsir', 'Samsir (gred B)' and 'Samsir (buah balance lama)' are one person in the list while the rows still print what was keyed - the picker groups, it never rewrites the record. A GIFT IS COUNTED ONCE: focApproved() returns APPROVED FOC_REQ only, so the FOC_APPROVE twin riding the same payload can never be added twice - anything walking focRows() directly must filter or every free figure on this farm doubles. A MERCHANT WHO NEVER BOUGHT IS NOT A DEBT: the account line skips cash rows, skips any retailer not Active and, on everyone, skips anyone with nothing invoiced - without those three it read RM 46,000 of credit, being the opening balances of a suspended merchant, a deleted one and one that has never taken a basket. PROVEN ON THE LIVE DATABASE before it was written into the file: 33 sold rows in the 18-24 Aug window matching a raw DISPATCH count day for day, RM 9,001.60, and 0 of 33 loads able to produce a photograph - which the screen prints honestly rather than trusting has_photo, true on all 43 invoices and fetchable on none. index.html is NOT touched: the block paints into #dailybox under renderDailyAudit()'s own output and injects its stylesheet once. // v3.63.2 - THE PROGRAMME COULD NEVER SEE ITS OWN WORK. The Owner, 21 Aug: 'i still see fetto in short'. The store was not the problem - 69 products audited, ZERO mismatches, Fetto sitting on 2,000 ml against a 500 ml threshold. It was the PURCHASER'S SHORTAGE LIST, telling him to buy Fetto and Pictor for `Aug|Set 1` - a round sprayed on 6 AUGUST - and 5-25-25 for a MAY fertiliser set. Both read 100% outstanding because usedForProgram() subtracts only rows whose `progId` matches, and progId is not a Sheet column: of his 577 STOCK_OUT rows it is on ZERO, while `phaseId` is on 452 and comes back intact. So no activated programme could ever close itself from synced data, and the buy queue went on ordering chemical for work already done - which for Fetto and Pictor means ordering a PESTICIDE the 6 Aug residue cut-off forbids before the harvest. Same root as v3.63.0, in the seven readers that release did not grep: lotsDone, usedForProgram, the recent-runs list, one programme's own history, its cost roll-up, the duplicate-task finder (blind for the same reason, so the app's own repeat-catcher was switched off), and - worst - the guard that refuses to DELETE a programme with work logged against it, which had been letting a completed programme be deleted. All seven now go through isProgRow() and progRowMatches(), which prefer progId and fall back to the phase label. THE LESSON, FOURTH TIME: grep every reader of a field, not the ones you happen to be looking at. // v3.63.1 - A WRONG PACK SIZE COULD NOT BE CORRECTED FROM ANY SCREEN. applyInvOverrides() is the one door for a product correction and it applied `unit_price` while ignoring `unit_multiplier` altogether. cpu is unit_price/unit_multiplier - the figure every cost report is built on - so a register holding the wrong container size costed every gram of that product wrong, for ever, with no way to fix it. Caught on 21 Aug by reading the supplier invoices against the register: YARA REGA 13-4-25 is billed as a 50 KG bag at RM 285 and the register held 25 kg at the same price, so it has been costed at DOUBLE - about RM 958 too much on June alone; PEGASUS 47.17SC is billed as a 250 ML bottle at RM 75 and was held as 500 ml, so it has been costed at HALF. Neither could be reached: the only correction road refused to look at the field that was wrong. cpu is now derived from whichever of price or multiplier the correction supplies, falling back to what the product already carries, so either one alone still lands right. THE LESSON: a correction road is only as good as the fields it will accept. // v3.63.0 - PROGRAMME COST HAS BEEN READING RM 0.00 ALL YEAR. Found the same hour v3.62.1 shipped, by asking the Owner's own laptop what its report actually says: day RM 0.00, month RM 0.00, YEAR RM 0.00, against 493 stock-out rows and about RM 33,000 of real 2026 material. THE CAUSE is the fault v3.62.1 had just fixed in the duplicate guard, sitting unfixed in FIVE more readers: runCostRollup(), workDone(), dirProgress(), dirDoneDate() and dirCostOf() all decide 'is this a programme run' by asking for `e.dirRun` - a field submitRun() writes and the Google Sheet has no column for. Every row loses it on the way back down, so all five could only ever see what this one phone had not yet synced. Of 493 rows, ZERO carry dirRun, progId or replyId. WORSE THAN A BLANK REPORT: dirProgress() could not see another phone's filing either, so a round already done on Phone 2 read 'not done' on the laptop and invited the crew to file it again - a second duplicate road, same root as the RM 10,610.54 of repeats voided on 20 Aug. THE FIX: one helper, isRunRow(), testing what actually survives a round trip - a STOCK_OUT carrying a `set` that is not the tying road's rope - plus runRowOfDir() which prefers progId and falls back to the SET LABEL, and runKeyOf() because `runs[e.replyId]` was collapsing every synced row into ONE run, so even a report that saw the rows would have counted one job a month. All five readers now share the three helpers and cannot drift apart again. THE LESSON, THIRD TIME IN TWO RELEASES: a field the WRITER sets is not a field the ROW still carries. Grep every reader of it, not the one you noticed. // v3.62.1 - THE GUARD WAS READING A COLUMN THE SHEET DOES NOT HAVE. v3.62.0's duplicate guard scanned `EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dirRun)`. Checked against the Owner's own laptop within the hour: of 117 August STOCK_OUT rows, ZERO carry dirRun, progId or replyId. The Sheet has no such columns, so every row that has been through a sync comes back stripped - which is every row written on another device and every row this device wrote before its last sync. The guard was therefore blind to the whole five-device August story and could only ever have caught a double press inside one unsynced session. Scoped on `set` instead, which does survive the trip. PROVEN ON THE REAL DATA, not a seed: the corrected filter groups August into 11 paying filings and finds the five identical RM 908.44 fertiliser rounds (three different devices, two different set names) and the two identical RM 1,179.90 May sets - RM 4,813.66 that would never have been charged. It also surfaced a SIXTH RM 908.44 filing on 19 Aug that the 18 Aug audit had not seen. THE LESSON, AGAIN: assert the far end. A filter that reads a field the WRITER sets is not the same as a filter that reads a field the ROW still carries after a round trip. // v3.62.0 - THE FILING THAT COULD BE MADE FIVE TIMES. The Owner, 18 Aug: 'check program cost on augst. it looks like charge repeated.' He was right and it was bigger than a double-count. Read from the live Sheet: August programme cost RM 12,298.69 against a real spend of about RM 1,690 - the SAME 85,500 gm fertiliser round booked FIVE times at RM 908.44 to the cent, on five devices, under TWO different set names; August Set 1 filed three times, twice inside one minute; a MAY set filed twice into August; MSolumax 3-16-36 driven to MINUS 485 kg. THE CAUSE: submitRun() wrote a fresh block of STOCK_OUT rows on every press of MARK WORK DONE and nothing asked whether that set had already been filed, so a re-test, a second phone and a corrected recipe were indistinguishable from a second real spray - and each one wrote real money into the cost report and real material off the store. THE FIX: two checks before the write. SAME SET SAME MONTH, matched on progId first (it travels with the directive) then on the set LABEL (a directive re-made on another phone has a new uuid but the same name); and SAME DRAW ANY NAME, the sorted pid:qty fingerprint of what is about to come off the store - the second check is the one that catches August, because those five filings wore two different names and no label test could ever have seen them. Prior filings are grouped by replyId falling back to dt-to-the-minute + set + device, which is how one press is reconstructed from Sheet-sourced rows that have no replyId column. It WARNS and never BLOCKS: a farm can spray the same set twice in a month, and a guard that refuses sends the crew back to paper. ALSO CONFIRMED THIS RELEASE, by reading rather than assuming: the backdate on MARK WORK DONE already shipped in v3.49.0 and the Purchaser's stock-out gate already shipped in v3.46.0 - both were still on the open list from 13 Aug and neither needed a line. AND THE ROOT CAUSE UNDERNEATH IT, found by driving the real modal rather than reading it: submitRun()'s tail block read mdProg.basis, and mdProg belongs to the OTHER modal (openMarkDone/#mdmodal). openRun() is reached from ONE button, the crew's MARK WORK DONE, which never touches mdProg - so it was null on every crew filing and threw a TypeError AFTER the rows were written and OUTSIDE the catch above. closeRun() never ran, the saved toast never appeared, nothing refreshed: the crew saw the confirm box unchanged and pressed again, runSaving was already cleared and RUN was still set, and the second press wrote the whole filing a second time. The v3.25.0 comment six lines above describes this exact failure and that fix's own tail block reintroduced it. The rate is now read from the DIRECTIVE, and the whole remember-a-default block is wrapped so nothing added there can ever strand the modal again. THE LESSON: an append-only log makes a correction safe and a REPEAT invisible; every writer of money needs to be asked 'have I seen this before' at the moment of writing, not in a report a fortnight later. // v3.61.0 - THE OTHER LEG OF THE BALANCE: THE EXITS. The Owner counted his shed by hand on 18 Aug - 5 Musang King, 3 Black Thorn - and the app gave him THREE answers: the two shed tabs said 2, and the home screen's IN THE SHED bar said 72. The bar was shedCount(): sum every DROP.qty, add every DROP_ADJUST.delta, subtract every DISPATCH.fruit_count. *** fruit_count IS NOT A COLUMN ON THE SHEET'S DISPATCH TAB. Proven against the live database that night: 27 invoices, 27 nulls, the key not even present on the row - the counts live inside lines_json and always have. So `out` was ALWAYS ZERO and that bar had never subtracted a single sale since the day it was written; it also never saw a ration or a gift, never saw the load standing at the gate, and carried no clone or grade. It was not a shed count, it was a running total of everything ever picked. *** AND IT WAS NOT ALONE. The same empty field is read in two more places, and both have been silently printing zero on every phone that received the invoice by sync rather than keying it: buildMonthMatrix() - the FRUIT SOLD figure on the month band and every report built off it - and yieldAudit() - the DECLARED count that the whole dual-signature audit divides kilos by. *** v3.60.0 routed twenty-three hand-rolled 'sum the drops' sites through dropQty() and missed all three of these, because they are not on the drops leg - they are on the EXITS leg. THE RULE, written down so the next sweep is whole: A BALANCE HAS TWO LEGS. When you unify one, walk the other in the same release. *** THE CURE IS AGAIN ONE DOOR: dispFruitN(e) = 'how many fruit this invoice actually carried', read off reqLines() which always travel, falling back to the old field only when a row has no lines at all. shedCount() stops calculating anything and returns shedNow().total - the very queue the Morning Scale enforces and THE SHED tab prints - so the home screen can no longer tell a third story. NEVER READ e.fruit_count OFF A STORED DISPATCH ROW AGAIN. Call dispFruitN(e).
@@ -735,7 +735,9 @@ function moduleLabel(m){return m?(m.tn?tr(m.tn,m.name):m.name):'';}
    The values are dictionary keys, not text, so tr() gives BM the same treatment the
    MS_TILE_SUB line below has always given the worker's tiles. */
 const ROLE_TILE_SUB={
-  MARKETING:{harvest:'ts_mkt_harvest',reports:'ts_mkt_reports',admin:'ts_mkt_admin'}};
+  MARKETING:{harvest:'ts_mkt_harvest',reports:'ts_mkt_reports',admin:'ts_mkt_admin'},
+  /* v3.77.0 — the Programme tile says what THIS role finds behind it */
+  PURCHASER:{prog:'ts_prog_pur'}, WORKER:{prog:'ts_prog_w'}};
 function tileSub(k,m){
   const byRole=ROLE_TILE_SUB[myRole()];
   if(byRole&&byRole[k])return tr(byRole[k],m.sub);
@@ -745,7 +747,7 @@ function tileSub(k,m){
  *  added to ROT_CAUSE only needs two more dictionary lines, no code. */
 function causeLabel(k){return tr('c_'+k,(ROT_CAUSE[k]||{}).label||k);}
 function causeNote(k){return tr('c_'+k+'_n',(ROT_CAUSE[k]||{}).note||'');}
-const MS_TILE_SUB={harvest:'ts_harvest',tying:'ts_tying',scale:'ts_scale',ops:'ts_ops',inv:'ts_inv',rain:'ts_rain',prog:'ts_prog'};
+const MS_TILE_SUB={harvest:'ts_harvest',tying:'ts_tying',scale:'ts_scale',ops:'ts_ops',inv:'ts_inv',rain:'ts_rain',prog:'ts_prog',agro:'ts_wx'};
 function tabLabel(x){return x?(x.tn?tr(x.tn,x.t):x.t):'';}
 function sectionDesc(x){return x?(x.tn?tr(x.tn+'_d',x.d||''):(x.d||'')):'';}
 
@@ -943,7 +945,7 @@ const MODULES={
      issued sets. #progseg, #agromonth (the old ✎ PLAN editor) and #cxcard (the old cancel
      page) are no longer routed from here; the cards stay in index.html and in the
      hideAllPanels list, exactly as every retired route before them. */
-  prog:{ic:'📅',name:'The Programme',sub:'today · coming · done · month',tn:'m_prog',
+  prog:{ic:'📅',name:'The Programme',sub:'by month · to buy · record',tn:'m_prog',
     /* v3.55.0 — 'agromonth' and 'cxcard' JOIN THIS TAB'S PANELS. openModule() only ever
        shows the panels its tab names, so a card the screen means to reveal later has to be
        routed here even though it starts hidden: #agromonth is the ✎ PLAN view and #cxcard is
@@ -951,12 +953,18 @@ const MODULES={
        lift — the display:none they carry in the markup is only the FIRST paint. */
     tabs:[{k:'hub',t:'THE PROGRAMME',scr:'dash',panels:['progcard'],
            roles:['OWNER','PURCHASER','WORKER'],ic:'📅',tn:'m_prog',
-           d:'What is due now, what is issued, what is done, and the month'}]},
-  agro:{ic:'🌱',name:'Agronomist',sub:'program builder, timeline, weather',
+           d:'The programme by month, what to buy for it, and the record'}]},
+  /* v3.77.0 — THE AGRONOMIST TILE IS WEATHER. PROGRAM BUILDER was a second door that issued
+     a set to the crew (the Owner found it the evening v3.76.0 went live). Its route is gone;
+     #agromatrix, AGRO_DRAFTS and the shared `agrodrafts` setting are untouched, so every
+     directive ever built is still in the Sheet. With the builder gone the tile holds the
+     rain gauge, the month sheet and the spray-window advice, and its name says so. A deep
+     link to agro/build falls through tabsFor() to WEATHER. */
+  agro:{ic:'🌦️',name:'Weather',sub:'rain gauge, month sheet',tn:'m_wx',
     // v3.12 — the seasonal matrix is the Agronomist's main tool now and therefore sits
     // first. The v2.6 "My sets" AI->brand builder is untouched and still lives under the
     // month timeline: every set the Owner has already built keeps its edit path.
-    tabs:[{k:'build',t:'PROGRAM BUILDER',scr:'dash',panels:['agromatrix'],roles:FULL_ROLES,ic:'🧬',tn:'s_builder',d:'Build a five-part combo by active ingredient, per 1,000 L tank'},
+    tabs:[
           /* v3.55.0 · STEP 4 — 'month' RETIRED AS A ROUTE. The Owner, on THIS MONTH and
              SPRAY RECORD: "close both". THE PROGRAMME ▸ ✎ PLAN now shows #agromonth — the
              same card, the same editor, the same ＋ BUILD A SET button — so this row was a
@@ -1053,7 +1061,7 @@ const MODULES={
        SHELF, on first entry, before anybody asked for it. Pages are opened by their own
        button (stOpen/csOpen) and closed by their own guard. They are hidden on the way OUT by
        HUB_PANELS, which lists both. */
-    tabs:[{k:'hub', t:'THE STORE',    scr:'stock',panels:['invhubseg','m8buyseg','procurecard','m8recv','alertcenter','progcheck','progready','pnl-in','alloccard','onboardcard','pnl-out','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy, receive, issue and count — the whole store on one bar'},
+    tabs:[{k:'hub', t:'THE STORE',    scr:'stock',panels:['invhubseg','procurecard','alertcenter','pnl-in','onboardcard','pnl-out','onhandcard'],roles:['OWNER','MARKETING','PURCHASER'],ic:'🛒',tn:'s_supplyhub',d:'Buy, receive, issue and count — the whole store on one bar'},
           // v3.19 — ORDER PLANNER merges the old PROGRAM CHECK ('chk') and NEXT PHASE
           // ('next') tabs. Both panels ship exactly as before — progcheck and progready are
           // still separate cards in index.html, still both listed in HUB_PANELS, still both
@@ -1203,9 +1211,16 @@ const MODULES={
              not widened. ⛔ #progrecord carries class m3-hide in the markup from the days it
              was the hidden half of a segment; renderForTab() lifts it, or this row would
              route to a card that paints nothing. */
-          {k:'progrec',t:'PLAN vs DONE',scr:'dash',ic:'🏁',tn:'s_plandone',
-             panels:['progrecord'],roles:['OWNER'],
-             d:'What the programme asked for against what was actually filed'},
+          /* v3.77.0 — THIS ROW IS CLOSED: PLAN vs DONE and, behind its switch, WHAT WAS
+             APPLIED. The first scored only the old Program Builder's directives, so it could
+             never see October · Set 1 and went on listing two cancelled sets as late. The
+             second is last season's programme record (PHASE_PROGRAM: 41 sets, Jan–Aug) with
+             the stock-pressure ranking of August sets; this season it would never change.
+             Last season is on THE PROGRAMME ▸ MONTH ▸ ‹ 2025/26, read only, and this season's
+             planned / issued / done is THE PROGRAMME ▸ RECORD. ⛔ ROUTE ONLY: #progrecord,
+             #agrorecord, renderProgRecord() and renderRecord() are untouched. A saved link
+             to reports/progrec falls through tabsFor() to the Reports menu. To bring either
+             back, restore the row. */
           {k:'harvest',t:'HARVEST REPORT',scr:'dash',ic:IC_DUR,tn:'s_harv',
              panels:['harvestrep'],roles:FULL_ROLES,
              d:'The season’s quality, and the one sheet you print for the meeting'}]},
@@ -1618,8 +1633,8 @@ function tileBadge(k){
   if(k==='cmd'){
     const v=(typeof varianceAlerts==='function')?varianceAlerts().length:0;
     if(v)return {t:v+' '+tr('bg_variance')};
-    const od=(typeof overdueDirectives==='function')?overdueDirectives().length:0;
-    if(od)return {t:od+' '+tr('bg_late')};
+    const od=(typeof ppOverdue==='function')?ppOverdue().length:0;   // v3.77.0 — issued sets past their day
+    if(od)return {t:od+' '+tr('bg_over','OVERDUE')};
     const cr=(typeof creditAdvice==='function')?creditAdvice().filter(c=>c.raise).length:0;
     if(cr)return {t:cr+' '+tr('bg_credit'),amber:1};
     // v3.17 — everything else the TODAY tab is holding: a load waiting on the Owner's
@@ -1635,8 +1650,6 @@ function tileBadge(k){
     const buy=((typeof procureCount==='function')?procureCount():0)+
               ((typeof ppBuyCount==='function'&&ppOn())?ppBuyCount():0);   // v3.76.0 — and what the programme is short of
     if(buy)return {t:buy+' TO BUY'};
-    const u=(typeof unallocatedSlots==='function')?unallocatedSlots():0;
-    if(u)return {t:u+' TO MATCH'};
     const n=programShortages().length||lowStock().length;
     return n?{t:(programShortages().length?programShortages().length+' SHORT':n+' LOW')}:null;}
   // v3.7 — the returned-load badge sits on the Morning Scale tile, which is the tile the
@@ -1657,14 +1670,7 @@ function tileBadge(k){
       ((typeof ppCrewDue==='function'&&ppOn()&&hubTiles().indexOf('prog')>=0)?ppCrewDue().length:0)+   // v3.76.0
       ((typeof myDirectives==='function')?myDirectives().length:0);
     return n?{t:n+' '+tr('bg_tasks')}:null;}
-  if(k==='agro'){
-    // v3.15 — a programme past its date with work outstanding outranks everything else
-    // on this tile. It is the one thing the Owner has to act on rather than read about.
-    const od=(typeof overdueDirectives==='function')?overdueDirectives().length:0;
-    if(od)return {t:od+' '+tr('bg_late')};
-    if(WEATHER==='RAINY'){const risky=activePrograms().filter(r=>{const a=weatherAdvice(r,r.lines);return a&&!a.ok;});
-      if(risky.length)return {t:'🌧️ '+risky.length+' AT RISK'};}
-    const n=activePrograms().length;return n?{t:n+' ACTIVE',amber:1}:null;}
+  if(k==='agro')return null;   // v3.77.0 — the tile is WEATHER; the Program Builder's badges went with it
   // v3.7 — costadmin was split; the yield alert and the pending queue follow the section
   // they belong to, so a badge always names a tile that can actually resolve it.
   if(k==='admin'){
@@ -1769,7 +1775,9 @@ function renderTaskNotice(){
       '<div class="tn-hint">'+esc(tr('pc_hint'))+'</div></div>';});
   if(typeof ppHomeNoticeHTML==='function'){try{pre=ppHomeNoticeHTML()+pre;}catch(e){}}   // v3.76.0 — an issued set that is due
   box.innerHTML=pre;
-  const live=issuedDrafts().filter(function(d){
+  /* v3.77.0 — the bar is the issued set that is due (ppHomeNoticeHTML above). The Program
+     Builder's directive no longer reaches it. */
+  const live=((typeof ppOn==='function'&&ppOn())?[]:issuedDrafts()).filter(function(d){
     if(d.deleted)return false;
     if(typeof dirAllDone==='function'&&dirAllDone(d))return false;
     return d.due&&String(d.due).slice(0,10)<=today;});
@@ -1985,12 +1993,14 @@ function renderForTab(k,t){
      determinism rule m5RecPick() and progPick() follow. */
   if(k==='mine'){MINE_DAY=todayISO();renderMine();}
   if(k==='prog'){if(typeof cxClose==='function')cxClose();ppOpen();}   // v3.76.0 — always the first tab and the list
+  /* v3.77.0 — the programme's list on THE STORE is drawn for whoever is looking now: it was
+     only redrawn when a set changed, so a shared phone could show the last person's copy. */
+  if(k==='inv'&&typeof ppBuyStoreRender==='function'){try{ppBuyStoreRender();}catch(e){}}
   if(k!=='prog'&&typeof cxClose==='function')cxClose();
   /* v3.55.0 — PLAN vs DONE back in REPORTS. The m3-hide class is a leftover from its life as
      the hidden half of the SPRAY RECORD segment; without lifting it the row would route to a
      card the stylesheet keeps at display:none !important. */
-  if(k==='reports'&&t==='progrec'){const e=$('progrecord');if(e)e.classList.remove('m3-hide');
-    if(typeof renderProgRecord==='function')renderProgRecord();}
+  /* v3.77.0 — reports/progrec is closed (see MODULES): nothing to paint. */
   /* v3.75.0 — the form opens on the oldest morning not yet keyed, every time. A form that
      remembered a half-keyed day from another person's turn is the shared-phone fault again. */
   if(k==='rain'){rnOpen();}
@@ -2508,14 +2518,21 @@ async function applyTombstones(){
   rebuildLedgers(); badge();
   return goneEv.length+goneCo.length+goneRd.length;}
 
+let ME_HAVE=null, ME_N=0;   // v3.77.0 — the snapshot shared by every merge in flight
 async function mergeEvents(rows){
   if(!Array.isArray(rows)||!rows.length)return 0;
-  const have={}; EVENTS.forEach(e=>{if(e&&e.uuid)have[String(e.uuid)]=1;});
+  /* v3.77.0 — TWO PULLS AT ONCE. Each call took its own snapshot of what is here, and the
+     loop below waits on the disk after every row; a second pull that landed in between added
+     the same rows again (in memory only - the disk is keyed by uuid - so the shelf read
+     double until the app was reopened). Every merge in flight now shares ONE snapshot, so
+     whichever call reaches a row first keeps it and the other passes over it. */
+  const have=ME_HAVE||(ME_HAVE=(()=>{const h={};EVENTS.forEach(e=>{if(e&&e.uuid)h[String(e.uuid)]=1;});return h;})());
   /* v3.29.8 - build the tombstone list from what is here AND from what is arriving, so a
      clean-up made on another device takes effect on the very same sync that carries it,
      not the one after. */
   const dead=deadWith(rows);
-  let n=0;
+  let n=0; ME_N++;
+  try{
   for(const r of rows){
     if(!r||!r.uuid||!r.type)continue;
     if(dead[String(r.uuid)]&&!r.dead)continue;     // killed by a clean-up - refuse it at the door
@@ -2531,6 +2548,7 @@ async function mergeEvents(rows){
     EVENTS.push(e); have[String(r.uuid)]=1;
     if(db)await put('events',e);
     n++;}
+  }finally{ if(--ME_N<=0){ME_N=0;ME_HAVE=null;} }
   if(n){rebuildLedgers();badge();if(typeof ppRefresh==='function')ppRefresh();}   // v3.76.0 — a set done on another phone reads done here
   return n;}
 
@@ -3426,7 +3444,9 @@ async function retireProduct(pid){
   if(used.length){
     alert('\u26d4 Cannot retire '+p.name+' yet.\n\nIt is still on '+used.length+' live directive'+
       (used.length>1?'s':'')+':\n'+used.map(d=>'  \u2022 '+d.code+' \u00b7 '+(d.name||'')).join('\n')+
-      '\n\nRe-allocate '+(used.length>1?'them':'it')+' to another brand first, then retire this one.');
+      ((typeof ppOn==='function'&&ppOn())
+        ?('\n\n'+(used.length>1?'They were':'It was')+' issued through the old Program Builder. '+(myRole()==='OWNER'?'Close ':'Ask the Owner to close ')+(used.length>1?'them':'it')+' in THE PROGRAMME (the amber box at the top), then retire this one.')
+        :('\n\nRe-allocate '+(used.length>1?'them':'it')+' to another brand first, then retire this one.')));
     return;}
   /* RULE 2 — stock on the shelf WARNS, it never blocks. You retire things because they are
      obsolete, and the drum is usually still standing there. Retiring writes nothing off. */
@@ -4947,14 +4967,17 @@ function m3PlanPick(which){
    routed panel ends up with nothing behind it — see the v3.30.0 dead-tile note.
    Deep links to inv/plan, inv/lvl and inv/take fall through tabsFor() onto the hub, exactly
    as the retired v3.19 and v3.46.0 keys do. Nobody's bookmark breaks. */
-const M8_GROUPS={buy:['procurecard','alertcenter','progcheck','progready'],
-                 recv:['m8recv','pnl-in','alloccard','onboardcard'],
+/* v3.77.0 — BUY is one list. PROGRAMME CHECK (#progcheck, #progready), AI ➔ BRAND
+   (#alloccard) and RECEIVE AGAINST THE BUY LIST (#m8recv) served the old Program Builder
+   and the old plan; they are out of the tab's panels, so openModule() never shows them. */
+const M8_GROUPS={buy:['procurecard','alertcenter'],
+                 recv:['pnl-in','onboardcard'],
                  issue:['pnl-out'],
                  hand:['onhandcard']};
 /* BUY holds two questions now, so it carries its own small toggle. The planner's OWN
    THIS PHASE / NEXT PHASE switch (m3PlanPick, v3.19) is untouched underneath — this only
    chooses whether the buy queue or the planner is the one on screen. */
-const M8_BUYVIEW={now:['procurecard','alertcenter'],plan:['progcheck','progready']};
+const M8_BUYVIEW={now:['procurecard','alertcenter']};
 let M8_BUY='now';
 function m8BuyPick(which){
   M8_BUY=M8_BUYVIEW[which]?which:'now';
@@ -4975,7 +4998,7 @@ function m8HubPick(which){
   Object.keys(M8_GROUPS).forEach(k=>{
     const btn=$('m8-s-'+k); if(btn)btn.classList.toggle('on',k===M8_VIEW);
     M8_GROUPS[k].forEach(id=>{const el=$(id); if(el)el.classList.toggle('m3-hide',k!==M8_VIEW);});});
-  const bb=$('m8buyseg'); if(bb)bb.classList.toggle('m3-hide',M8_VIEW!=='buy');
+  const bb=$('m8buyseg'); if(bb)bb.classList.add('m3-hide');   // v3.77.0 — one BUY view, no switch
   /* repaint only what is now on the screen, wrapped: a role that cannot open one of these
      cards has no box to write into, and a throw here would abort the rest of the entry. */
   try{
@@ -5310,7 +5333,7 @@ function renderSync(){
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
     else if(e.type==='TASK_DONE') d='🛠️ '+esc(e.kindLabel||e.kind||'task')+' · Lot '+esc(e.lot||'')+
-      (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(e.hours*e.crew)+' man-h';
+      (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(mhOf(e))+' man-h';
     // v3.5.1 — this used to end `else d=e.type`, which threw away describeEvent()'s wording
     // and showed a bare "TIE" / "DISPATCH" for every row it did not name explicitly.
     // v3.2 — the delete control is gone for everyone except the Owner, and even then it
@@ -6255,6 +6278,10 @@ function directiveNeed(d,l){
 /** Every ingredient an ISSUED directive still needs, with what the store can cover.
  *  One row per ingredient — several directives asking for the same one are added up. */
 function procureNeeds(){
+  /* v3.77.0 — THE OLD BUY QUEUE IS CLOSED. It listed what the Program Builder's directives
+     were short of; on 2 Oct it was telling the Purchaser to order for August sets. What to
+     buy is ppBuyList() now: the issued sets, and what the Owner has sent from the plan. */
+  if(typeof ppOn==='function'&&ppOn())return [];
   const need={};
   issuedDrafts().filter(d=>!d.deleted).forEach(d=>{
     draftLines(d).forEach(l=>{
@@ -6329,6 +6356,9 @@ function renderProcure(){
   try{ if(typeof ppBuyStoreRender==='function')ppBuyStoreRender(); }catch(e){}   // v3.76.0 — the programme's own BUY list
   const box=$('procurebox'); if(!box)return;
   if(!roleAllows('procurecard')){box.innerHTML='';return;}
+  /* v3.77.0 — ONE LIST. The programme's BUY list above (#ppbuystore) is the whole of this
+     card; the old queue under it, and "what is coming" from the old plan, are not painted. */
+  if(typeof ppOn==='function'&&ppOn()){box.innerHTML='';return;}
   const rows=procureNeeds();
   if(!rows.length){
     /* v3.23 M8 — an empty COMMITTED queue is not an empty screen any more: there may still
@@ -7279,7 +7309,10 @@ function ppView(p,rec,rows){
   v.trees=+rec.trees||ppTreesFor(v.basis,v.lots);
   v.ver=+x.ver||1; v.why=x.why||''; v.log=Array.isArray(x.log)?x.log:[]; v.notice=x.notice||null;
   v.bm=x.bm||null; v.direct=!!x.direct; v.skip=x.skip||null;
-  v.done=ppDoneOf(rows,x.done||null,v.tanks);
+  /* the replies on the set's own log: for a set that drew nothing from the store they are the
+     only record of its people and hours, and x.done alone holds just the LAST reply */
+  v.reps=ppLogReplies(x);
+  v.done=ppDoneOf(rows,x.done?Object.assign({},x.done,v.reps.length?{mh:v.reps.reduce((s,r)=>s+r.crew*r.hours,0)}:{}):null,v.tanks);
   const all=v.done&&v.lots.every(L=>v.done.lots.indexOf(L)>=0);
   v.st=(String(rec.status)==='SKIPPED')?'skip':((String(rec.status)==='CLOSED'||all)?'done':'iss');
   if(v.st==='done'&&!v.done)v.done=ppDoneOf([],{date:v.date,tanks:v.tanks,lots:v.lots},v.tanks);
@@ -7297,6 +7330,10 @@ function ppAdoptView(a,rows){
 /** What the store says was done for a set: the days, the lots, the tanks, the people, the cost.
  *  `xd` is the note the filing phone left on the record, used only where the rows say nothing
  *  (a set whose products have no store card draws no rows at all). */
+/** Every reply filed against a set, from its log: the day, the lots, the people, the hours. */
+function ppLogReplies(x){
+  return (Array.isArray(x&&x.log)?x.log:[]).filter(e=>e&&(e.k==='done'||e.k==='rec')&&+e.crew>0&&+e.hours>0)
+    .map(e=>({d:String(e.d||'').slice(0,10),lots:Array.isArray(e.lots)?e.lots.slice():[],crew:+e.crew,hours:+e.hours}));}
 function ppDoneOf(rows,xd,tanksIssued){
   xd=xd||null;
   if(!(rows&&rows.length)&&!xd)return null;
@@ -7318,7 +7355,7 @@ function ppDoneOf(rows,xd,tanksIssued){
   const date=last||(xd&&xd.date)||'';
   const sf=ppStockFrom();
   return {date:date, first:first||date, tanks:tanks||(xd?+xd.tanks||0:0), crew:crew||(xd?+xd.crew||0:0),
-    hours:hours||(xd?+xd.hours||0:0), mh:mh||((xd?(+xd.crew||0)*(+xd.hours||0):0)), lots:lots.sort(),
+    hours:hours||(xd?+xd.hours||0:0), mh:mh||((xd?(+xd.mh||(+xd.crew||0)*(+xd.hours||0)):0)), lots:lots.sort(),
     cost:cost, by:by||(xd&&xd.by)||'', via:(xd&&xd.via)||'', qty:qty, n:(rows||[]).length,
     pre:!!(sf&&date&&date<sf)&&(rows||[]).length>0&&(rows||[]).every(e=>!ppCounts(e.pid,e.dt)),
     live:(rows||[]).filter(e=>sf&&String(e.dt||'').slice(0,10)<sf&&ppCounts(e.pid,e.dt)).map(e=>e.pname)
@@ -7387,10 +7424,14 @@ function ppShortN(v){
   return v.lines.filter(l=>l.card&&ppAvail(l.pid,v.key)<ppReqLeft(v,l)-1e-9).length;}
 
 /* ---------- status ---------- */
+/** Done more than PP_GRACE days after the day it was issued for. A set recorded straight
+ *  from the plan (never issued) has no issued day to be late against. */
+function ppIsLate(v){
+  return !!(v&&v.st==='done'&&!v.direct&&ppOkDay(v.date)&&v.done&&ppOkDay(v.done.date)&&ppDiff(v.done.date,v.date)>PP_GRACE);}
 function ppSt(v){
   const today=todayISO();
   if(v.st==='done'){
-    const late=!v.direct&&ppOkDay(v.date)&&v.done&&ppOkDay(v.done.date)&&ppDiff(v.done.date,v.date)>PP_GRACE;
+    const late=ppIsLate(v);
     return {c:'ok',t:late?ppT('DONE · LATE','SIAP · LEWAT'):ppT('DONE','SIAP'),k:'done'};}
   if(v.st==='skip')return {c:'mut',t:ppT('SKIPPED','DILANGKAU'),k:'skip'};
   if(v.st==='iss'){
@@ -7667,7 +7708,7 @@ function ppPurHTML(idp){
   let h='';
   const when=r=>{ if(!r.date)return ppT(' · day not set',' · hari belum ditetapkan');
     const d=ppDiff(r.date,today);
-    return ' '+ppT('on','pada')+' '+ppFmt(r.date)+(d>=0?(' · '+ppT('in','dalam')+' '+d+' '+ppT(d===1?'day':'days','hari')):(' · '+(-d)+' '+ppT('days ago','hari lepas')));};
+    return ' '+ppT('on','pada')+' '+ppFmt(r.date)+(d>=0?(' · '+ppT('in','dalam')+' '+d+' '+ppT(d===1?'day':'days','hari')):(' · '+(-d)+' '+ppT(d===-1?'day ago':'days ago','hari lepas')));};
   b.rows.forEach(r=>{
     const urgent=r.date&&ppDiff(r.date,today)<=PP_URGENT;
     h+='<div class="pp-row'+(urgent?' st-flag':'')+'" id="'+idp+ppCss(r.key)+'"><div class="pp-top"><b class="pp-nm">'+esc(r.name)+'</b>'+
@@ -7686,15 +7727,23 @@ function ppPurHTML(idp){
       '<div class="pp-dt">'+ppT('needed for','untuk')+' '+esc(r.v.num?ppName(r.v):('a planned '+ppTypeW(r.v.k)))+when(r)+'</div></div>';});
   return h;}
 /** The same list inside THE STORE: above the buy queue, and in the ORDER PLANNER check. */
-function ppBuyStoreHTML(idp){
+function ppBuyStoreHTML(idp,more_){
   if(!ppOn())return '';
   const n=ppBuyCount();
+  /* v3.77.0 - this card is the Purchaser's list: what was SENT to him and what an issued set
+     is short of. The Owner's own list also counts the plan ahead, so the two could read
+     "nothing to buy" here and "8" on The Programme. The Owner is told, and sent there. */
+  let more='';
+  if(more_&&ppIsOwner()){const m=((a)=>a.rows.concat(a.nocard).filter(r=>!r.firm&&!r.sent).length)(ppBuyList(false));
+    if(m>0)more='<div class="pp-note amb" id="pp-st-more"><b>'+m+' more</b> short on the plan and not sent to the Purchaser yet.'+
+      '<button class="pp-ghost" id="pp-st-more-go" style="margin-top:8px" onclick="ppGoBuy()">THE PROGRAMME ▸ TO BUY ›</button></div>';}
   return '<div class="pp" style="margin-bottom:10px"><div class="pp-mon" style="margin-top:0">📅 '+
-    ppT('Programme ','Program ')+esc((typeof PP_SEASON!=='undefined')?PP_SEASON:'')+' · '+n+'</div>'+ppPurHTML(idp||'pp-st-')+'</div>';}
+    ppT('Programme ','Program ')+esc((typeof PP_SEASON!=='undefined')?PP_SEASON:'')+' · '+n+'</div>'+ppPurHTML(idp||'pp-st-')+more+'</div>';}
+function ppGoBuy(){openModule('prog');ppTab('buy');}
 function ppBuyStoreRender(){
   const box=$('ppbuystore'); if(!box)return;
   if(!roleAllows('procurecard')){box.innerHTML='';return;}
-  box.innerHTML=ppBuyStoreHTML('pp-st-');}
+  box.innerHTML=ppBuyStoreHTML('pp-st-',true);}
 /** For programNeeds(): what the issued sets still have to draw, product by product. */
 function ppIssuedNeed(need){
   ppSets().forEach(v=>{ if(v.st!=='iss')return;
@@ -7720,17 +7769,23 @@ async function ppDropBlocked(list){
   return gone.length;}
 
 /* ---------- the screen ----------
-   One box (#progcard), three shapes: the Owner's four tabs, the Purchaser's three (read
-   only), and the crew's list of issued sets in their own language. */
-let PPO={v:'',s:'list',key:'',pg:null};       // tab · screen · the set that is open · the month page
+   One box (#progcard), three shapes: the Owner's three tabs, the Purchaser's two (read
+   only), and the crew's list of issued sets in their own language.
+   v3.77.0 - THE OWNER OPENS ON THE MONTH. He could not see what the programme was, month by
+   month: MONTH was the fourth tab and a row said "6 products", the mix one tap deeper. Now
+   the month page is the first screen and every set shows its mix on it; TODAY and COMING
+   are folded in (what is waiting sits in an amber box above the tabs, issued sets and the
+   plan sit in date order); TO BUY has a tab of its own; DONE is RECORD. The Purchaser keeps
+   COMING and DONE: his buy list is in THE STORE ▸ BUY and nowhere else. */
+let PPO={v:'',s:'list',key:'',pg:null,mix:true,year:false,need:false};   // tab · screen · the set that is open · the month page · the mix on the page · ALL MONTHS · the whole NEEDS YOU list
 let PPE=null, PPM=null, PPR=null, PPA=null;   // the editor, move/skip, record-as-done, add-a-set forms
 let PPC={s:'list',key:''}, PPCD=null, PPCN=null;   // the crew's screen and its two forms
-function ppTabs(){return ppIsOwner()?['today','coming','done','month']:['buy','coming','done'];}
+function ppTabs(){return ppIsOwner()?['month','buy','rec']:['coming','done'];}
 function ppInForm(){return ['edit','move','skip','rec','add'].indexOf(PPO.s)>=0||['done','not'].indexOf(PPC.s)>=0;}
 function ppTop(){const s=$('scr-dash'); if(s)s.scrollTop=0;}
 /** Entering the tile: always the first tab and the list, never a half-filled form. */
 function ppOpen(){
-  PPO={v:ppTabs()[0],s:'list',key:'',pg:null}; PPE=PPM=PPR=PPA=null;
+  PPO={v:ppTabs()[0],s:'list',key:'',pg:null,mix:true,year:false,need:false}; PPE=PPM=PPR=PPA=null;
   PPC={s:'list',key:''}; PPCD=PPCN=null;
   ppRender();}
 function ppRender(){
@@ -7739,7 +7794,10 @@ function ppRender(){
   ppTouch();
   if(ppTabs().indexOf(PPO.v)<0)PPO.v=ppTabs()[0];
   box.classList.remove('m3-hide');
-  box.innerHTML='<div class="card pp" id="pp-root">'+(myRole()==='WORKER'?ppCrewHTML():ppOwnHTML())+'</div>';}
+  box.innerHTML='<div class="card pp" id="pp-root">'+(myRole()==='WORKER'?ppCrewHTML():ppOwnHTML())+'</div>';
+  /* the month that is open stays in view in the row of month buttons */
+  const st=$('pp-strip'), on=st&&(st.querySelector('.pp-mchip.on')||st.querySelector('.pp-mchip.cur'));
+  if(st&&on)st.scrollLeft=Math.max(0,on.offsetLeft-st.offsetLeft-70);}
 /** Something changed (a sync, a save on another screen). A form in progress keeps its typing. */
 function ppRefresh(force){
   ppTouch();
@@ -7750,7 +7808,7 @@ function ppAfter(){
   try{ ppBuyStoreRender(); if(typeof renderProgCheck==='function')renderProgCheck(); }catch(e){}
   try{ if(typeof renderOpsTasks==='function')renderOpsTasks(); renderHub(); }catch(e){}
   ppSyncSoon();}
-function ppTab(v){PPO.v=v;PPO.s='list';ppRender();ppTop();}
+function ppTab(v){PPO.v=v;PPO.s='list';PPO.year=false;ppRender();ppTop();}
 function ppOpenSet(k){PPO.key=ppUnArg(k);PPO.s='detail';ppRender();ppTop();}
 function ppBack(){PPO.s='list';ppRender();ppTop();}
 function ppToDetail(){PPO.s='detail';ppRender();ppTop();}
@@ -7759,33 +7817,107 @@ function ppActList(){
     return (v.st==='iss'&&(k==='due'||k==='over'))||(v.st==='iss'&&v.notice&&!v.notice.seen);});}
 
 function ppSegHTML(){
-  const sets=ppSets();
-  const n={today:ppActList().length,coming:sets.filter(v=>v.st==='iss').length,
-    done:sets.filter(v=>v.st==='done').length,month:'',buy:ppBuyCount()};
-  const lab={today:'<i>📋</i>TODAY',coming:'<i>📅</i>COMING',done:'<i>✓</i>DONE',month:'<i>🗓</i>MONTH',buy:'<i>🛒</i>TO BUY'};
+  const sets=ppSets(), own=ppIsOwner();
+  const ob=own?ppBuyList(false):null;
+  const n={month:'',coming:sets.filter(v=>v.st==='iss').length,
+    done:sets.filter(v=>v.st==='done').length,rec:sets.filter(v=>v.st==='done').length,
+    buy:ob?(ob.rows.length+ob.nocard.length):0};
+  const lab={month:'<i>🗓</i>MONTH',buy:'<i>🛒</i>TO BUY',rec:'<i>✓</i>RECORD',coming:'<i>📅</i>'+ppT('COMING','AKAN DATANG'),done:'<i>✓</i>'+ppT('DONE','SIAP')};
   const tabs=ppTabs();
   return '<div class="pp-seg" style="grid-template-columns:repeat('+tabs.length+',1fr)">'+tabs.map(k=>
     '<button id="pp-ov-'+k+'" class="'+(PPO.v===k?'on':'')+'" onclick="ppTab(\''+k+'\')">'+lab[k]+
     '<b>'+(n[k]===''?'&nbsp;':n[k])+'</b></button>').join('')+'</div>';}
+/** What is waiting for the Owner, above the tabs on every list: a set that is due or
+ *  overdue, a set the crew moved and he has not seen, and last season's programme if it
+ *  was never closed. Its rows carry their own ids: the same set is also on the month page. */
+function ppNeedHTML(){
+  if(!ppIsOwner())return '';
+  let h='';
+  const open=ppOldOpen();
+  if(!ppLastClose()&&open.length)h+='<div class="pp-note amb" id="pp-oldnote" style="margin-top:0"><b>Last season’s programme is still open.</b> '+open.length+' set'+(open.length===1?'':'s')+
+    ' from '+PP_LAST+' were never closed.<button class="pp-ghost" id="pp-oldgo" style="margin-top:8px" onclick="openModule(\'admin\',\'season\')">CLOSE PROGRAMME '+PP_LAST+' ›</button></div>';
+  /* v3.77.0 - a set issued through the old Program Builder that is still open. No crew phone
+     shows it any more, so it is said here, where the Owner can close it. Nothing is deleted.
+     It sits INSIDE the box and in its count, so the tile and the box say the same number. */
+  const od=ppOldDrafts();
+  const note=od.length?('<div class="pp-note amb" id="pp-olddir" style="margin:4px 0 8px"><b>'+od.length+' set'+(od.length===1?'':'s')+' from the old Program Builder '+(od.length===1?'is':'are')+' still open:</b> '+
+    esc(od.map(d=>String(d.code||'')+(d.name?(' · '+d.name):'')).join(', '))+'. The crew can no longer see '+(od.length===1?'it':'them')+'. Close '+(od.length===1?'it':'them')+
+    ' here and issue the work from this page.<button class="pp-ghost" id="pp-olddir-go" style="margin-top:8px" '+(PP_ODB?'disabled ':'')+'onclick="ppOldDraftsClose()">'+
+    (PP_ODB?'CLOSING…':('CLOSE '+(od.length===1?'IT':'THEM')))+'</button></div>'):'';
+  const act=ppActList().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  /* the box never pushes the month off the first screen: two rows, the rest one tap away */
+  const show=(PPO.need||act.length<=PP_NEED_MAX+1)?act:act.slice(0,PP_NEED_MAX);
+  if(act.length||od.length)h+='<div class="pp-need" id="pp-o-need"><h4>⚠ NEEDS YOU · '+(act.length+od.length)+'</h4>'+note+show.map(v=>ppRowHTML(v,'','pp-need-')).join('')+
+    (show.length<act.length?('<button class="pp-ghost" id="pp-need-more" onclick="ppNeedAll(1)">＋ '+(act.length-show.length)+' MORE</button>')
+      :(PPO.need&&act.length>PP_NEED_MAX+1?'<button class="pp-ghost" id="pp-need-less" onclick="ppNeedAll(0)">SHOW FEWER</button>':''))+'</div>';
+  return h;}
+const PP_NEED_MAX=2;
+function ppNeedAll(on){PPO.need=!!on;ppRender();}
+/** Directives the old Program Builder issued that nobody closed. */
+function ppOldDrafts(){
+  return (typeof AGRO_DRAFTS!=='undefined'&&Array.isArray(AGRO_DRAFTS))?AGRO_DRAFTS.filter(d=>d&&!d.deleted&&d.status==='ISSUED'):[];}
+let PP_ODB=false;
+async function ppOldDraftsClose(){
+  if(!ppIsOwner()||PP_ODB)return; PP_ODB=true;
+  if(!ppInForm())ppRender();                       // the button says CLOSING… while the farm's copy is fetched
+  let n=0, bad=false;
+  try{
+    /* the list is ONE shared setting and the last writer wins: take the farm's copy first, so
+       a directive this phone has not seen yet is not written over by this save */
+    if(CFG&&CFG.url&&navigator.onLine&&typeof refreshMasters==='function'&&!(typeof SET_DIRTY!=='undefined'&&SET_DIRTY.agrodrafts)){
+      try{await refreshMasters();}catch(e){}}
+    n=await ppCloseDrafts();
+  }catch(e){bad=true;}
+  finally{PP_ODB=false;}
+  toast(bad?'Could not close it — try again':(n?('✓ '+n+' closed'):'Nothing left to close'),bad?1:0);
+  /* a form opened while it was fetching keeps its typing */
+  ppTouch(); ppRefresh();
+  try{ if(typeof renderOpsTasks==='function')renderOpsTasks(); renderHub(); }catch(e){}
+  ppSyncSoon();}
 function ppSizeTxt(v,tanks,lots){
   return (v.basis==='T'?(nf(+tanks)+' '+ppT(+tanks===1?'tank':'tanks','tangki')+' · '):'')+ppTreesShown(v,lots)+' '+ppT('trees','pokok')+' · Lot '+lots.join(' ');}
-function ppRowHTML(v,cls){
-  const st=ppSt(v), sh=ppShortN(v);
-  let when;
-  if(v.st==='done')when='done '+ppFmt(v.done.date);
-  else if(v.st==='iss'){
+function ppWhenTxt(v){
+  if(v.st==='done')return 'done '+ppFmt(v.done.date);
+  if(v.st==='iss'){
     const left=ppLotsLeft(v);
-    when=ppFmt(v.date)+((!v.noPlanDay&&v.date!==v.planDay)?(' · planned '+ppFmtS(v.planDay)):'')+
+    return ppFmt(v.date)+((!v.noPlanDay&&v.date!==v.planDay)?(' · planned '+ppFmtS(v.planDay)):'')+
       (left.length<v.lots.length?(' · Lot '+left.join(' ')+' still to do'):'');}
-  else if(v.st==='skip')when=v.num?('was set for '+ppFmtS(v.date)):(v.planDay?('planned '+ppFmtS(v.planDay)):'');
-  else if(v.nodate)when='postponed from '+ppFmtS(v.fix.was)+' · day not set';
-  else when='planned '+ppFmt(v.date);
-  const note=(v.notice&&!v.notice.seen&&v.st==='iss')?('<div class="pp-dt" style="color:#b26a00;font-weight:700">Crew moved it: '+
-    ppFmtS(v.notice.from)+' → '+ppFmtS(v.notice.to)+' — '+esc(ppWhyM(v.notice.why))+'</div>'):'';
-  return '<button class="pp-row st-'+v.st+(cls?(' '+cls):'')+'" id="pp-row-'+ppCss(v.key)+'" onclick="ppOpenSet(\''+ppArg(v.key)+'\')">'+
+  if(v.st==='skip')return v.num?('was set for '+ppFmtS(v.date)):(v.planDay?('planned '+ppFmtS(v.planDay)):'');
+  if(v.nodate)return 'postponed from '+ppFmtS(v.fix.was)+' · day not set';
+  return 'planned '+ppFmt(v.date);}
+function ppMovedHTML(v){
+  return (v.notice&&!v.notice.seen&&v.st==='iss')?('<div class="pp-dt" style="color:#b26a00;font-weight:700">Crew moved it: '+
+    ppFmtS(v.notice.from)+' → '+ppFmtS(v.notice.to)+' — '+esc(ppWhyM(v.notice.why))+'</div>'):'';}
+function ppRowHTML(v,cls,idp){
+  const st=ppSt(v), sh=ppShortN(v);
+  return '<button class="pp-row st-'+v.st+(cls?(' '+cls):'')+'" id="'+(idp||'pp-row-')+ppCss(v.key)+'" onclick="ppOpenSet(\''+ppArg(v.key)+'\')">'+
     '<div class="pp-top"><div><b class="pp-nm">'+esc(ppName(v))+'</b>'+ppCodeTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
-    '<div class="pp-pur">'+esc(v.tgt)+'</div><div class="pp-dt">'+when+' · '+v.lines.length+' product'+(v.lines.length===1?'':'s')+
-    (v.ver>1?' · changed':'')+(sh?(' · <span class="pp-short">'+sh+' short</span>'):'')+'</div>'+note+'</button>';}
+    '<div class="pp-pur">'+esc(v.tgt)+'</div><div class="pp-dt">'+ppWhenTxt(v)+' · '+v.lines.length+' product'+(v.lines.length===1?'':'s')+
+    (v.ver>1?' · changed':'')+(sh?(' · <span class="pp-short">'+sh+' short</span>'):'')+'</div>'+ppMovedHTML(v)+'</button>';}
+/** The day a set sits on in its month: the day it was done, else the day it is set for. */
+function ppDayOf(v){return (v.st==='done'&&v.done)?v.done.date:v.date;}
+/** "2 tanks" for a mix, "162 trees" for a per-tree round, nothing for a per-round job. */
+function ppSizeShort(v){
+  if(v.basis==='T'){const t=(v.st==='done'&&v.done&&+v.done.tanks>0)?+v.done.tanks:+v.tanks;
+    return t>0?(nf(t)+' '+ppT(t===1?'tank':'tanks','tangki')):'';}
+  if(v.basis==='P')return ppTreesShown(v,v.lots)+' '+ppT('trees','pokok');
+  return '';}
+/** The same set with its mix on the page: the day, the name, what it is for, and every
+ *  product with its dose. Short and no-card products are flagged while the set is still
+ *  ahead; a done set shows the mix it was issued with. */
+function ppSheetHTML(v,cls){
+  const st=ppSt(v), d=ppDayOf(v), ok=ppOkDay(String(d||'').slice(0,10)), dd=ok?ppD(d):null;
+  const day=dd?('<small>'+PP_DOW[dd.getUTCDay()].toUpperCase()+'</small><b>'+dd.getUTCDate()+'</b><small>'+PP_MONS[dd.getUTCMonth()].toUpperCase()+'</small>')
+    :'<small>DAY</small><b>—</b><small>NOT SET</small>';
+  const live=(v.st==='plan'||v.st==='iss'), size=ppSizeShort(v);
+  const mix=v.lines.length?('<div class="pp-mxh">'+esc(ppBasisTxt(v.basis))+(size?(' · '+esc(size)):'')+'</div><table class="pp-mx">'+v.lines.map(l=>{
+    let flag='';
+    if(live){ if(!l.card)flag=' <span class="pp-short">· '+(l.odd?'card in another unit':'no store card')+'</span>';
+      else if(ppAvail(l.pid,v.key)<ppReqLeft(v,l)-1e-9)flag=' <span class="pp-short">· short</span>'; }
+    return '<tr><td>'+esc(l.n)+flag+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>';}).join('')+'</table>'):'';
+  return '<button class="pp-row st-'+v.st+(cls?(' '+cls):'')+'" id="pp-row-'+ppCss(v.key)+'" onclick="ppOpenSet(\''+ppArg(v.key)+'\')"><div class="pp-sh"><div class="pp-day">'+day+'</div><div>'+
+    '<div class="pp-top"><div><b class="pp-nm">'+esc(ppName(v))+'</b>'+ppCodeTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
+    '<div class="pp-pur">'+esc(v.tgt)+'</div><div class="pp-dt">'+ppWhenTxt(v)+(v.ver>1?' · changed':'')+'</div>'+ppMovedHTML(v)+mix+'</div></div></button>';}
 
 /* ----- the MONTH tab: last season's sheets, then this season's months, one per page ----- */
 function ppOldPhases(){return (typeof PHASE_PROGRAM!=='undefined')?PHASE_PROGRAM:[];}
@@ -7793,18 +7925,83 @@ function ppLastClose(){return (SEASON&&SEASON.progclose&&SEASON.progclose[PP_LAS
 /** Last season's sets the app never saw finished. */
 function ppOldOpen(){
   return ppOldPhases().filter(ph=>{const c=progStatus(ph).code;return c==='due'||c==='over'||c==='come';});}
+/** The twelve months of this season, from the month it opened. */
+function ppSeasonMonths(){
+  const f=String(ppSeasonFrom()||todayISO()).slice(0,7), y=+f.slice(0,4), m=+f.slice(5,7), out=[];
+  if(!(y>2000&&m>=1&&m<=12))return out;
+  for(let i=0;i<12;i++){const d=new Date(Date.UTC(y,m-1+i,1));out.push(d.toISOString().slice(0,7));}
+  return out;}
 function ppPages(){
   const out=[];
   ((typeof PROG_MONTH_ORDER!=='undefined')?PROG_MONTH_ORDER:[]).forEach(m=>{
     if(ppOldPhases().some(p=>p.month===m))out.push({last:m});});
-  const ms=[]; ppSets().forEach(v=>{if(v.mon&&ms.indexOf(v.mon)<0)ms.push(v.mon);});
+  const ms=ppSeasonMonths(); ppSets().forEach(v=>{if(v.mon&&ms.indexOf(v.mon)<0)ms.push(v.mon);});
   ms.sort().forEach(k=>out.push({mon:k}));
   return out;}
 function ppPgIdx(){
   const p=ppPages();
   if(PPO.pg===null){const i=p.findIndex(x=>x.mon===todayISO().slice(0,7));PPO.pg=i<0?p.length-1:i;}
   return Math.max(0,Math.min(PPO.pg,p.length-1));}
-function ppPgGo(n){PPO.pg=ppPgIdx()+n;ppRender();}
+function ppPgGo(n){PPO.pg=ppPgIdx()+n;PPO.year=false;ppRender();}
+function ppPgTo(i){PPO.pg=+i||0;PPO.year=false;PPO.v=ppTabs()[0];PPO.s='list';ppRender();ppTop();}
+function ppMixOn(on){PPO.mix=!!on;PPO.year=false;ppRender();}
+function ppYear(){PPO.year=true;ppRender();ppTop();}
+/** Every set of one month, in the order of its days; a round with no day yet sits just after today. */
+function ppMonList(mon){
+  const today=todayISO(), key=v=>ppDayOf(v)||(today+'~');
+  return ppSets().filter(v=>v.mon===mon).sort((a,b)=>String(key(a)).localeCompare(String(key(b))));}
+function ppMonCount(mon){
+  const l=ppMonList(mon).filter(v=>v.st!=='skip');
+  return {n:l.length,done:l.filter(v=>v.st==='done').length,iss:l.filter(v=>v.st==='iss').length,plan:l.filter(v=>v.st==='plan').length};}
+function ppMonStages(mon){
+  const st=[]; ppMonList(mon).forEach(v=>{if(v.stage&&v.stage!=='Extra'&&st.indexOf(v.stage)<0)st.push(v.stage);}); return st;}
+/** The month buttons across the top: last season, then the twelve months with how many are done. */
+function ppStripHTML(){
+  const p=ppPages(), i=ppPgIdx(), cur=todayISO().slice(0,7);
+  const li=p.map((x,j)=>x.last?j:-1).filter(j=>j>=0);
+  let h='<div class="pp-strip" id="pp-strip">';
+  if(li.length)h+='<button class="pp-mchip old'+(p[i].last&&!PPO.year?' on':'')+'" id="pp-mc-last" onclick="ppPgTo('+li[li.length-1]+')">‹ '+esc(PP_LAST)+'<small>last season</small></button>';
+  p.forEach((x,j)=>{ if(x.last)return; const c=ppMonCount(x.mon);
+    h+='<button class="pp-mchip'+(j===i&&!PPO.year?' on':'')+(x.mon===cur?' cur':'')+'" id="pp-mc-'+x.mon+'" onclick="ppPgTo('+j+')">'+
+      PP_MONS[+x.mon.slice(5,7)-1].toUpperCase()+'<small>'+(c.n?(c.done+' of '+c.n+' done'):'nothing')+'</small></button>';});
+  return h+'</div>';}
+function ppViewSwHTML(){
+  return '<div class="pp-vsw"><button id="pp-v-mix" class="'+(PPO.mix&&!PPO.year?'on':'')+'" onclick="ppMixOn(1)">WITH THE MIX</button>'+
+    '<button id="pp-v-names" class="'+(!PPO.mix&&!PPO.year?'on':'')+'" onclick="ppMixOn(0)">NAMES ONLY</button>'+
+    '<button id="pp-v-year" class="'+(PPO.year?'on':'')+'" onclick="ppYear()">ALL MONTHS</button></div>';}
+/** The whole season on one page: each month with its stage, what kinds of round it holds
+ *  and how far it has got. */
+function ppYearHTML(){
+  const p=ppPages(), cur=todayISO().slice(0,7), W={set:'set',fert:'fert',trunk:'trunk',weed:'weeding'};
+  const ms=ppSeasonMonths();
+  let h='<div class="pp-g">Season '+esc(seasonName()||PP_SEASON)+(ms.length?(', '+ppMonEN(ms[0])+' to '+ppMonEN(ms[ms.length-1])):'')+'. Tap a month to open it.</div>';
+  p.forEach((x,j)=>{ if(x.last)return;
+    const l=ppMonList(x.mon).filter(v=>v.st!=='skip'), c=ppMonCount(x.mon), st=ppMonStages(x.mon);
+    const typ=['set','fert','trunk','weed'].map(g=>[l.filter(v=>v.grp===g).length,W[g]]).filter(a=>a[0]).map(a=>a[0]+' '+a[1]).join(' · ');
+    h+='<button class="pp-yr'+(x.mon===cur?' cur':'')+'" id="pp-yr-'+x.mon+'" onclick="ppPgTo('+j+')"><div class="pp-top"><b>'+esc(ppMonEN(x.mon)+' '+x.mon.slice(0,4))+'</b>'+
+      '<span class="pp-ys">'+(c.n?(c.done+' done · '+c.iss+' issued · '+c.plan+' on the plan'):'nothing on the programme')+'</span></div>'+
+      (st.length?('<div class="pp-ys">'+esc(st.join(' → '))+'</div>'):'')+
+      (c.n?('<div class="pp-yc">'+esc(typ)+'</div><div class="pp-bar"><i class="d" style="width:'+(100*c.done/c.n)+'%"></i><i class="i" style="width:'+(100*c.iss/c.n)+'%"></i></div>'):'')+'</button>';});
+  const li=p.map((x,j)=>x.last?j:-1).filter(j=>j>=0);
+  if(li.length)h+='<button class="pp-ghost" id="pp-yr-last" onclick="ppPgTo('+li[li.length-1]+')">‹ LAST SEASON '+esc(PP_LAST)+' · read only</button>';
+  return h;}
+/** One sheet of paper for the month on screen: a line for each round, with its mix. */
+function ppPrintMonth(){
+  const p=ppPages(), pg=p[ppPgIdx()], box=$('ppprint');
+  if(!pg||pg.last||!box||!ppIsOwner())return;
+  const list=ppMonList(pg.mon);
+  let h='<div class="pp-ph">S.H.A. Hup Aik Plantation · Sugut durian farm</div><div class="pp-pt">Programme — '+esc(ppMonEN(pg.mon)+' '+pg.mon.slice(0,4))+'</div>'+
+    '<div class="pp-ps">Season '+esc(seasonName()||PP_SEASON)+' · stage: '+esc(ppMonStages(pg.mon).join(' → ')||'—')+' · printed '+esc(ppFmt(todayISO()))+' '+todayISO().slice(0,4)+'</div>'+
+    '<table class="pp-ptbl"><thead><tr><th>Day</th><th>Set</th><th>What for</th><th>The mix</th><th>Status</th><th>Done on</th></tr></thead><tbody>';
+  list.forEach(v=>{const st=ppSt(v), d=ppDayOf(v), size=ppSizeShort(v);
+    h+='<tr><td>'+(ppOkDay(String(d||'').slice(0,10))?esc(ppFmt(d)):'day not set')+'</td><td><b>'+esc(ppName(v))+'</b>'+(v.code?(' ('+esc(v.code)+')'):'')+'</td>'+
+      '<td>'+esc(v.tgt)+'<br>'+esc(ppBasisTxt(v.basis))+(size?(' · '+esc(size)):'')+'</td>'+
+      '<td>'+v.lines.map(l=>esc(l.n)+' '+ppQty(l.q,l.u)).join('<br>')+'</td><td>'+esc(st.t)+'</td><td>'+((v.st==='done'&&v.done)?esc(ppFmt(v.done.date)):'')+'</td></tr>';});
+  if(!list.length)h+='<tr><td colspan="6">Nothing on the programme this month.</td></tr>';
+  box.innerHTML=h+'</tbody></table>';
+  document.body.classList.add('printing-pp');
+  try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}
+  setTimeout(()=>document.body.classList.remove('printing-pp'),1500);}
 function ppOldMix(ph){
   return (ph.lines||[]).map(l=>{const p=prodById(l.pid);return (p?p.name:l.raw)+' '+ppQty(l.qty,l.unit);}).join(', ')+
     ' · '+(ph.basis==='PER_1000L'?'per 1,000 L':'per tree');}
@@ -7812,7 +8009,7 @@ function ppMonthHTML(){
   const p=ppPages(); if(!p.length)return '<div class="pp-note">Nothing here yet.</div>';
   const i=ppPgIdx(), pg=p[i], today=todayISO(), cl=ppLastClose();
   const label=pg.last?monthLabel(pg.last):(ppMonEN(pg.mon)+' '+pg.mon.slice(0,4));
-  let h='<div class="pp-pager"><button id="pp-pg-prev" '+(i===0?'disabled':'')+' onclick="ppPgGo(-1)">‹</button><div class="c"><b>'+esc(label)+'</b><small>'+
+  let h='<div class="pp-pager"><button id="pp-pg-prev" '+(i===0?'disabled':'')+' onclick="ppPgGo(-1)">‹</button><div class="c"><b id="pp-pg-title">'+esc(label)+'</b><small>'+
     (pg.last?('season '+PP_LAST+' · '+(cl?'closed, read only':'not closed yet')):('season '+esc(seasonName()||PP_SEASON)))+
     '</small></div><button id="pp-pg-next" '+(i===p.length-1?'disabled':'')+' onclick="ppPgGo(1)">›</button></div>';
   if(pg.last){
@@ -7828,29 +8025,34 @@ function ppMonthHTML(){
         when='planned '+ppFmtS(x.plan)+(a.a==='done'?(' · done '+ppFmtS(a.d)):'');}
       else{cls='st-flag';pill='<span class="pp-pill red">OVERDUE</span>';when='planned '+ppFmtS(x.plan)+' · never closed';}
       h+='<div class="pp-row '+cls+'"><div class="pp-top"><b class="pp-nm">'+esc(nm)+'</b>'+pill+'</div>'+
-        (x.header?('<div class="pp-pur">'+esc(x.header)+'</div>'):'')+'<div class="pp-dt">'+when+'</div><div class="pp-dt">'+esc(ppOldMix(x))+'</div></div>';});
+        (x.header?('<div class="pp-pur">'+esc(x.header)+'</div>'):'')+'<div class="pp-dt">'+when+'</div>'+
+        (PPO.mix?('<div class="pp-dt pp-oldmix">'+esc(ppOldMix(x))+'</div>'):'')+'</div>';});
     h+='</div>';
     if(!cl&&ppOldOpen().length)h+='<button class="pp-ghost blu" id="pp-toclose" onclick="openModule(\'admin\',\'season\')">CLOSE PROGRAMME '+PP_LAST+' ›</button>';
     return h;}
-  const key=v=>(v.st==='done'?v.done.date:v.date)||(today+'~');     // a round with no day yet sits just after today
-  const list=ppSets().filter(v=>v.mon===pg.mon).sort((a,b)=>String(key(a)).localeCompare(String(key(b))));
-  const stages=[]; list.forEach(v=>{if(v.stage&&v.stage!=='Extra'&&stages.indexOf(v.stage)<0)stages.push(v.stage);});
+  const key=v=>ppDayOf(v)||(today+'~');     // a round with no day yet sits just after today
+  const list=ppMonList(pg.mon), stages=ppMonStages(pg.mon);
   const cnt=g=>list.filter(v=>v.st==='done'&&v.grp===g).length;
-  h+='<div class="pp-g"><b>Stage:</b> '+esc(stages.join(' → ')||'—')+'</div>'+
-    '<div class="pp-kpis k3"><div class="pp-kpi"><div class="v">'+cnt('set')+'</div><div class="l">sets done</div></div>'+
+  h+=(stages.length?('<div class="pp-g"><b>Stage:</b> '+esc(stages.join(' → '))+'</div>'):'')+
+    '<div class="pp-kpis k4"><div class="pp-kpi"><div class="v">'+cnt('set')+'</div><div class="l">sets done</div></div>'+
     '<div class="pp-kpi"><div class="v">'+cnt('fert')+'</div><div class="l">fert done</div></div>'+
-    '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='plan').length+'</div><div class="l">still on the plan</div></div></div>';
-  if(!list.length)return h+'<div class="pp-note">Nothing in this month.</div>';
+    '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='iss').length+'</div><div class="l">issued now</div></div>'+
+    '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='plan').length+'</div><div class="l">on the plan</div></div></div>';
+  /* a set that is added is ISSUED, for today or for a day in the month on screen: a month
+     that has gone has no such button (a round done back then is recorded from its own row) */
+  const add=(ppIsOwner()&&pg.mon>=today.slice(0,7))?'<button class="pp-ghost blu" id="pp-o-add" onclick="ppAddOpen(\''+(/^\d{4}-\d{2}$/.test(pg.mon)?pg.mon:'')+'\')">＋ ADD A SET THAT IS NOT ON THE PLAN</button>':'';
+  if(!list.length)return h+'<div class="pp-note">Nothing on the programme this month.</div>'+add;
   /* the current one: the first issued set still open, else the next planned round */
   const curSet=list.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
   const nextp=curSet?null:list.filter(v=>v.st==='plan'&&(v.nodate||ppDiff(v.date,today)>=0))[0];
   let line=pg.mon!==today.slice(0,7); h+='<div class="pp-tl">';
   list.forEach(v=>{
     if(!line&&String(key(v))>today){h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';line=true;}
-    h+=ppRowHTML(v,v===curSet?'now':v===nextp?'nextp':'');});
+    const c=v===curSet?'now':v===nextp?'nextp':'';
+    h+=PPO.mix?ppSheetHTML(v,c):ppRowHTML(v,c);});
   if(!line)h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';
-  h+='</div>';
-  if(ppIsOwner())h+='<button class="pp-ghost blu" id="pp-o-add" onclick="ppAddOpen()">＋ ADD A SET THAT IS NOT ON THE PLAN</button>';
+  h+='</div>'+add;
+  if(ppIsOwner())h+='<button class="pp-ghost" id="pp-o-print" onclick="ppPrintMonth()">🖨 PRINT THIS MONTH</button>';
   return h;}
 
 function ppOwnHTML(){
@@ -7862,43 +8064,32 @@ function ppOwnHTML(){
   if(PPO.s==='skip')return ppSkipHTML();
   if(PPO.s==='rec')return ppRecHTML();
   if(PPO.s==='add')return ppAddHTML();
-  h=ppSegHTML();
+  h=ppNeedHTML()+ppSegHTML();
   if(PPO.v==='month'){
-    h+='<div class="pp-note" style="margin:0 0 8px"><b>Only you see the dashed grey rows.</b> Green = done. Amber border = the current set. Blue dashed = next on the plan.</div>'+ppMonthHTML();
+    h+=ppStripHTML()+ppViewSwHTML()+(PPO.year?ppYearHTML():ppMonthHTML());
   }else if(PPO.v==='buy'){
-    h+='<div class="pp-g">What the Owner needs bought for the programme. Today '+ppFmt(today)+'.</div>'+ppPurHTML('pp-pur-');
+    h+='<div class="pp-g">What the shelf is short of for issued sets and for the plan in the next '+PP_BUY_DAYS+' days. Today is '+ppFmt(today)+'.</div>'+ppBuyHTML();
   }else if(PPO.v==='coming'){
     const list=sets.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-    h+='<div class="pp-g">'+(own?'Issued and not yet done. This is what the crew and the Purchaser can see.':'Issued by the Owner and not yet done.')+'</div>';
-    h+=list.length?list.map(v=>ppRowHTML(v)).join(''):'<div class="pp-note">'+(own?'Nothing is issued. Open TODAY and issue the next set after your check.':'Nothing is issued.')+'</div>';
-  }else if(PPO.v==='today'){
-    const act=ppActList().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-    const past=sets.filter(v=>v.st==='plan'&&!v.nodate&&ppDiff(today,v.date)>0).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-    const next=sets.filter(v=>v.st==='plan'&&(v.nodate||ppDiff(today,v.date)<=0)).sort((a,b)=>String(a.date||today).localeCompare(String(b.date||today))).slice(0,3);
-    h+='<div class="pp-g">Today is '+ppFmt(today)+'.</div>';
-    const open=ppOldOpen();
-    if(!ppLastClose()&&open.length)h+='<div class="pp-note amb" id="pp-oldnote"><b>Last season’s programme is still open.</b> '+open.length+' set'+(open.length===1?'':'s')+
-      ' from '+PP_LAST+' were never closed.<button class="pp-ghost" id="pp-oldgo" style="margin-top:8px" onclick="openModule(\'admin\',\'season\')">CLOSE PROGRAMME '+PP_LAST+' ›</button></div>';
-    h+='<div class="pp-mon">Needs you · '+act.length+'</div>';
-    h+=act.length?act.map(v=>ppRowHTML(v)).join(''):'<div class="pp-g" style="padding:4px 2px 8px">Nothing is due and the crew has moved nothing.</div>';
-    h+=ppBuyHTML();
-    h+='<div class="pp-mon">Next on the plan · only you see this</div>';
-    h+=next.length?next.map(v=>ppRowHTML(v)).join(''):'<div class="pp-g" style="padding:4px 2px 8px">Nothing more on the plan.</div>';
-    if(past.length)h+='<div class="pp-mon">Passed on the plan, nothing recorded · '+past.length+'</div>'+
-      '<div class="pp-g">Was it done? Open it and record the day, or skip it. These never turn red.</div>'+past.map(v=>ppRowHTML(v)).join('');
+    h+='<div class="pp-g">'+ppT('Issued by the Owner and not yet done. What to buy for them is in THE STORE ▸ BUY.','Dikeluarkan oleh Pengurus dan belum siap. Senarai beli ada di STOR ▸ BELI.')+'</div>';
+    h+=list.length?list.map(v=>ppRowHTML(v)).join(''):'<div class="pp-note">'+ppT('Nothing is issued.','Tiada set dikeluarkan.')+'</div>';
   }else{
     const list=sets.filter(v=>v.st==='done').sort((a,b)=>String(b.done.date).localeCompare(String(a.done.date)));
     const chg=sets.filter(v=>v.rec&&v.st!=='skip'&&(ppChanges(v,v).length||(v.log||[]).some(x=>x.why))).length;
     const mat=list.reduce((t,v)=>t+(+v.done.cost||0),0);
     const md=list.reduce((t,v)=>t+(+v.done.mh||0)/8,0);
+    const late=list.filter(ppIsLate).length;
     h+='<div class="pp-kpis"><div class="pp-kpi"><div class="v">'+list.length+'</div><div class="l">sets done</div></div>'+
       '<div class="pp-kpi"><div class="v">'+chg+'</div><div class="l">changed from plan</div></div>'+
       ((own&&SHOW_VALUES)?('<div class="pp-kpi"><div class="v">'+rm(mat)+'</div><div class="l">material drawn</div></div>'):'')+
       '<div class="pp-kpi"><div class="v">'+nf(md)+'</div><div class="l">man-days (8 h)</div></div></div>';
+    if(list.length)h+='<div class="pp-g" id="pp-o-ontime">On the day or within '+PP_GRACE+' days: <b>'+(list.length-late)+'</b> · late: <b>'+late+'</b></div>';
     const by={}; sets.forEach(v=>(v.log||[]).forEach(x=>{if(x.why)by[x.why]=(by[x.why]||0)+1;}));
     if(own&&Object.keys(by).length)h+='<div class="pp-chg"><b>Why the plan changed this season</b>'+
       Object.keys(by).map(k=>esc(ppWhy(k))+' × '+by[k]).join(' · ')+'</div>';
     h+=list.length?list.map(v=>ppRowHTML(v)).join(''):'<div class="pp-note">No set is marked done yet this season.</div>';
+    const sk=own?sets.filter(v=>v.st==='skip'):[];
+    if(sk.length)h+='<div class="pp-mon">Skipped · '+sk.length+'</div>'+sk.map(v=>ppRowHTML(v)).join('');
   }
   return h;}
 
@@ -8267,7 +8458,7 @@ async function ppRecGo(){
   ppAfter();}
 
 /* ----- a set that is not on the plan ----- */
-function ppAddOpen(){ if(!ppIsOwner())return; PPA={from:'',tgt:'',kind:'T'}; PPO.s='add'; ppRender(); ppTop();}
+function ppAddOpen(mon){ if(!ppIsOwner())return; PPA={from:'',tgt:'',kind:'T',mon:/^\d{4}-\d{2}$/.test(String(mon||''))?String(mon):''}; PPO.s='add'; ppRender(); ppTop();}
 function ppAKeep(){const f=$('pp-a-from'), t=$('pp-a-tgt'); if(f)PPA.from=f.value; if(t)PPA.tgt=t.value;}
 function ppAKind(k){ppAKeep();PPA.kind=k;ppRender();}
 function ppAddHTML(){
@@ -8286,7 +8477,9 @@ function ppAddHTML(){
 function ppAddGo(){
   if(!PPA||!ppIsOwner())return;
   ppAKeep();
-  const src=PPA.from?ppFind(PPA.from):null, t=String(PPA.tgt||'').trim(), today=todayISO();
+  const src=PPA.from?ppFind(PPA.from):null, t=String(PPA.tgt||'').trim();
+  /* opened from a month that is still ahead: the day starts in THAT month, never today */
+  const today=(PPA.mon&&PPA.mon>todayISO().slice(0,7))?(PPA.mon+'-01'):todayISO();
   const k=src?src.k:(PPA.kind==='T'?'spray':'fert');
   const base={key:'',planId:'',plan:null,rec:null,k:k,grp:ppGrp(k),basis:src?src.basis:PPA.kind,code:'',stage:'Extra',
     tgt:t||(src?src.tgt:'Extra set'),tgtbm:t?'':(src?src.tgtbm:''),extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,
@@ -8461,12 +8654,18 @@ function ppOpsHTML(){
     list.map(v=>{const st=ppSt(v);
       return '<button class="pp-row" id="pp-ops-'+ppCss(v.key)+'" onclick="ppGoSet(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
         '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,ppLotsLeft(v))+'</div></button>';}).join('')+'</div>';}
+/** Issued sets that have run past their day. v3.77.0 - this is what the Command tile's LATE
+ *  counts now; it used to count the old Program Builder's directives. */
+function ppOverdue(){
+  if(!ppOn())return [];
+  return ppSets().filter(v=>v.st==='iss'&&ppSt(v).k==='over');}
 function ppTileBadge(){
   if(!ppOn())return null;
   const r=myRole();
-  if(r==='OWNER'){const n=ppActList().length; if(n)return {t:n+' DUE'};
+  if(r==='OWNER'){const n=ppActList().length+ppOldDrafts().length; if(n)return {t:n+' NEED YOU'};   // the same words as the amber box
     const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' ISSUED',amber:1}:null;}
-  if(r==='PURCHASER'){const n=ppBuyCount();return n?{t:n+' TO BUY'}:null;}
+  /* v3.77.0 - his buy list is in THE STORE ▸ BUY only; this tile shows what is coming */
+  if(r==='PURCHASER'){const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
   const due=ppCrewDue().length; if(due)return {t:due+' '+ppT('DUE','HARI INI')};
   const c=ppCrewList().length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
 
@@ -8520,6 +8719,16 @@ function ppCloseHTML(){
     h+='<div class="pp-note amb"><b>One thing Programme 26 does not show.</b> '+esc(PP_CLOSE_NOTE)+'</div>';
   h+='<button class="pp-act'+(PPCL.arm?' warn':'')+'" id="pp-cl-go" onclick="ppCloseGo()">'+(PPCL.arm?'PRESS AGAIN TO CLOSE':('CONFIRM AND CLOSE PROGRAMME '+PP_LAST))+'</button></div>';
   return h;}
+/** v3.77.0 - anything the old Program Builder left open is closed with the programme, so a
+ *  set issued through that door can never come back as work in a later season. Nothing is
+ *  deleted: the directive stays in the shared `agrodrafts` setting, marked CLOSED. */
+async function ppCloseDrafts(){
+  if(typeof AGRO_DRAFTS==='undefined'||!Array.isArray(AGRO_DRAFTS))return 0;
+  const open=AGRO_DRAFTS.filter(d=>d&&!d.deleted&&d.status==='ISSUED');   // a DRAFT was never work for anyone: it is left as it is
+  if(!open.length)return 0;
+  open.forEach(d=>{d.status='CLOSED';d.at=nowSec();});
+  if(typeof persistDrafts==='function')await persistDrafts();
+  return open.length;}
 async function ppCloseGo(){
   if(!ppIsOwner()||!PPCL||PPCL.busy||!SEASON||!seasonCur())return;
   ppCloseSync();
@@ -8535,6 +8744,7 @@ async function ppCloseGo(){
   await markSetting('season');
   /* the records last season left ACTIVE: closed, so no screen goes on ordering for them */
   for(const r of activePrograms()){r.status='CLOSED';r.synced=false;if(db)await put('programs',r);}
+  try{await ppCloseDrafts();}catch(e){}   // the season close above is already saved; anything left open is said in NEEDS YOU
   PPCL=null;
   toast('✓ Programme '+PP_LAST+' closed');
   ppTouch(); badge();
@@ -8692,6 +8902,11 @@ function renderWeather(){
                     :'✓ Every active phase holds through rain.')
       :'No phase is active. The check runs the moment you activate one.';
   } else note='Spray as the programme states. Switch to Rainy when the sky turns and the app re-checks every active phase.';
+  /* v3.77.0 — the wash-off check reads the OLD phases. It does not read a set issued in THE
+     PROGRAMME, and the card must not sound as if it did. */
+  if(typeof ppOn==='function'&&ppOn()&&!live.length)
+    note=WEATHER==='RAINY'?'Rainy mode is on. The wash-off check does not read the sets issued in THE PROGRAMME yet: check the mix yourself before the crew sprays in the wet.'
+                          :'Spray as the programme states.';
   $('wxnote').innerHTML=esc(note);}
 
 // ---- 3. programme blueprint, built from the ACTIVE INGREDIENT out ------------------
@@ -8845,7 +9060,7 @@ function renderAssign(){
     const done=tasksDoneLots(t.uuid);
     const logs=EVENTS.filter(e=>e.type==='TASK_DONE'&&e.taskId===t.uuid);
     const cnt=logs.reduce((s,e)=>s+(+e.count||0),0);
-    const mh=logs.reduce((s,e)=>s+((+e.hours||0)*(+e.crew||0)),0);
+    const mh=logs.reduce((s,e)=>s+mhOf(e),0);   // v3.77.0 — the share on the row, not crew x hours once per lot
     return '<div class="crow"><div class="ch"><div><div class="ctree">'+esc(t.kindLabel)+
       (t.status==='OPEN'?' <span class="cstat a">OPEN</span>':' <span class="cstat r">CLOSED</span>')+'</div>'+
       '<div class="cwho">'+(t.scope==='ALL'?'whole farm':'Lot '+esc(t.scope))+' · '+t.trees+' trees'+
@@ -8990,13 +9205,40 @@ function labourRows(){
   // readers go through here, so this one change fixes the month matrix too.
   EVENTS.filter(e=>e.type==='TASK_DONE').forEach(e=>out.push({dt:e.dt,what:e.kindLabel,lot:e.lot,
     crew:+e.crew||0,hours:+e.hours||0,mh:mhOf(e),worker:e.worker}));
-  const seen={};
-  EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId&&e.hours).forEach(e=>{
-    // one filing can now cover several lots, so the key must include the lot or the
-    // second lot's man-hours are dropped on the floor
-    const k=(e.replyId||(e.progId+'|'+e.dt))+'|'+e.lot; if(seen[k])return; seen[k]=1;
+  /* v3.77.0 — ONE REPLY, ONE CREW. A completion that covers three lots writes crew and hours
+     on every lot's rows, and the Sheet has no man-hours column for STOCK_OUT, so a row that
+     comes back down can only say "2 people, 5 hours". Read lot by lot that was 30 man-hours
+     for a 10 man-hour job. The rows of one reply are taken together: where a row carries
+     its own manHours (the old builder's split) it is used as written; where none does, crew
+     x hours is shared across the lots of that reply by their tree counts. A reply for one
+     lot reads exactly as it always did. */
+  const seen={}, rep={};
+  const rows=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.progId&&e.hours);
+  /* rows are pooled only where they SAY they are one reply (replyId, on every row written
+     since v3.14). A row without one is its own reply, lot by lot, exactly as before. */
+  const rk=e=>e.replyId?String(e.replyId):(e.progId+'|'+e.dt+'|'+e.lot);
+  rows.forEach(e=>{const r=rep[rk(e)]||(rep[rk(e)]={lots:[],own:false});
+    if(r.lots.indexOf(e.lot)<0)r.lots.push(e.lot);
+    if(e.manHours!=null)r.own=true;});
+  Object.keys(rep).forEach(k=>{rep[k].w=rep[k].lots.map(L=>(LOT_KEYS.indexOf(L)>=0?treesInLot(L).length:0)||1);});
+  rows.forEach(e=>{
+    const R=rk(e), k=R+'|'+e.lot; if(seen[k])return; seen[k]=1;
+    const r=rep[R]; let mh=mhOf(e);
+    if(!r.own&&r.lots.length>1){
+      if(!r.share)r.share=splitExact((+e.crew||0)*(+e.hours||0),r.w);
+      mh=r.share[r.lots.indexOf(e.lot)];}
     out.push({dt:e.dt,what:e.progSet||'programme',lot:e.lot,crew:+e.crew||0,hours:+e.hours||0,
-      mh:mhOf(e),worker:e.worker});});
+      mh:mh,worker:e.worker});});
+  /* a set none of whose products has a store card writes NO store row, so its people and
+     hours were on the Programme's RECORD and nowhere else. They are read from the set. */
+  if(typeof ppOn==='function'&&ppOn())ppSets().forEach(v=>{
+    const d=v.done; if(!v.rec||!d||d.n)return;
+    /* one entry per reply, from the set's own log; an older record with no log has only its last reply */
+    const reps=(v.reps&&v.reps.length)?v.reps:((+d.crew>0&&+d.hours>0)?[{d:d.date,lots:d.lots||[],crew:+d.crew,hours:+d.hours}]:[]);
+    reps.forEach(r=>{
+      const lots=(r.lots&&r.lots.length)?r.lots:v.lots, w=lots.map(L=>(LOT_KEYS.indexOf(L)>=0?treesInLot(L).length:0)||1);
+      const sh=lots.length>1?splitExact(r.crew*r.hours,w):[r.crew*r.hours];
+      lots.forEach((L,i)=>out.push({dt:String(r.d||d.date||'')+' 12:00',what:ppName(v),lot:L,crew:r.crew,hours:r.hours,mh:sh[i],worker:d.by||''}));});});
   return out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));}
 function labourByMonth(){
   const m={};
@@ -19137,6 +19379,7 @@ function pruneAlloc(rec){
 function issuedDrafts(){return AGRO_DRAFTS.filter(d=>d.status==='ISSUED');}
 /** Slots waiting on the Purchaser, farm-wide — this is the number on the tile. */
 function unallocatedSlots(){
+  if(typeof ppOn==='function'&&ppOn())return 0;   // v3.77.0 — no brand is matched any more: the plan names the store card
   let n=0; issuedDrafts().forEach(d=>{const c=draftAllocCount(d);n+=(c.of-c.n);});
   return n;}
 /** The active ingredients a slot may offer, ranked so unconfirmed chemistry sorts last.
@@ -19918,6 +20161,7 @@ async function obSave(){
  *  it is still SHOWN — with the reason — because a blank task list is what made the crew
  *  ring the office. They can see it is coming and see who they are waiting for. */
 function myDirectives(){
+  if(typeof ppOn==='function'&&ppOn())return [];   // v3.77.0 — the crew's work is the issued sets (ppCrewList), nothing else
   // v3.14 — a lot leaves the list when every TREE in it is done, not when the first
   // gram of chemical is logged against it. That single change is what makes "I did
   // half of Lot C, I will finish tomorrow" expressible at all.
@@ -20146,6 +20390,7 @@ function dirRecord(d){
 
 /** Issued programmes past their date with work still outstanding — the badge number. */
 function overdueDirectives(){
+  if(typeof ppOn==='function'&&ppOn())return [];   // v3.77.0 — see ppOverdue()
   return issuedDrafts().filter(d=>!d.deleted&&!dirAllDone(d)&&dueState(d).k==='late');}
 function dirLotsLeft(d){return lotsOfDirective(d).filter(L=>!lotFinished(d.uuid,L));}
 
@@ -20166,6 +20411,7 @@ function dateShort(iso){
 function physMethodT(prog,k){return tr('pm_'+k,methodLabelT(prog,k));}
 
 function directiveCardsHTML(){
+  if(typeof ppOn==='function'&&ppOn())return '';   // v3.77.0 — the Program Builder's crew cards are closed
   // v3.15 — the most overdue job first, the furthest away last. The crew should never
   // have to work out which of four cards to do today.
   const ds=myDirectives().slice().sort((a,b)=>dueState(a).rank-dueState(b).rank);
@@ -21166,10 +21412,10 @@ function needsYou(){
   push('crit','⚠',va.length,tr('cd_a_trees'),tr('cd_s_trees'),tr('cd_w_trees'),'cmd','exec');
 
   // 2. a programme past its date with work still outstanding
-  const od=(typeof overdueDirectives==='function')?overdueDirectives():[];
+  const od=(typeof ppOverdue==='function')?ppOverdue():[];   // v3.77.0 — issued sets past their day
   push('crit','⏰',od.length,tr('cd_a_late'),
-    od.slice(0,3).map(d=>String(d.set||d.name||'')).filter(Boolean).join(' · ')||tr('cd_s_late'),
-    tr('cd_w_late'),'reports','record');
+    od.slice(0,3).map(v=>ppName(v)).filter(Boolean).join(' · ')||tr('cd_s_late'),
+    tr('cd_w_late'),'prog','hub');
 
   // 3. a weighed load whose credit cannot move until the Owner has looked at the photo
   const pd=(typeof pendingDispatches==='function')?pendingDispatches():[];
@@ -21390,6 +21636,16 @@ function shedCount(){ return shedNow().net; }   // v3.72.0 — net, like every o
 /** Issued / on time / late / open for one YYYY-MM, straight off the programme record. */
 function progCounts(monthKey){
   const out={issued:0,ontime:0,late:0,open:0};
+  /* v3.77.0 — from the month this season's programme starts, the count is of the sets issued
+     in THE PROGRAMME. The old Program Builder's directives are counted only for the months
+     before it, which is where they are history. */
+  const pp0=(typeof ppOn==='function'&&ppOn())?String((typeof PP_FROM!=='undefined'&&PP_FROM)||ppSeasonFrom()||'').slice(0,7):'';
+  if(pp0&&String(monthKey)>=pp0){
+    ppSets().forEach(v=>{ if(v.mon!==monthKey||!v.num||(v.st!=='iss'&&v.st!=='done'))return;
+      out.issued++;
+      if(v.st==='iss'){out.open++;return;}
+      if(ppIsLate(v))out.late++; else out.ontime++;});
+    return out;}
   if(typeof recordDirectives!=='function')return out;
   recordDirectives().forEach(d=>{
     if(typeof dirMonth==='function'&&dirMonth(d)!==monthKey)return;
@@ -21700,7 +21956,10 @@ async function repairPhantomBakes(){
   const repaired=await repairPhantomBakes();
   if(repaired)setTimeout(()=>toast('🧹 '+repaired+' duplicate correction rows cleared from this phone',0),1200);
   // spray set options
-  const ss=$('sset');SPRAY_SETS.forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
+  /* v3.77.0 — STOCK OUT IS FOR WHAT IS NOT A SET. The list offered last August's set names
+     and a second way to draw a set's material; TANDA SIAP draws it now. One value is left,
+     and its field is hidden in the markup. SPRAY_SETS itself is untouched in database.js. */
+  const ss=$('sset');[SPRAY_SETS[SPRAY_SETS.length-1]].forEach(s=>{const o=document.createElement('option');o.textContent=s;ss.appendChild(o);});
   renderInOpts();renderOutOpts();renderStOpts();renderAlerts();   // inventory master ready before first paint
   if(typeof renderBasket==='function')renderBasket();
   renderTimeline();renderOpsTasks();renderProgCheck();          // v2.5 programme views
@@ -23165,7 +23424,7 @@ function renderOwnerHome(){
 
   /* ---- the doors ---- */
   h+='<div class="owntiles">'+
-     '<button onclick="openModule(\'agro\',\'build\')"><i>🌱</i>'+esc(tr('ow_farm2','FARM'))+'</button>'+
+     '<button id="own-prog" onclick="openModule(\'prog\')"><i>📅</i>'+esc(tr('ow_prog','PROGRAMME'))+'</button>'+
      '<button onclick="openModule(\'reports\',\'matrix\')"><i>💵</i>'+esc(tr('ow_money','MONEY'))+'</button>'+
      '<button onclick="openModule(\'admin\',\'corr\')"><i>🔐</i>'+esc(tr('ow_admin','ADMIN'))+'</button>'+
      '</div>'+
