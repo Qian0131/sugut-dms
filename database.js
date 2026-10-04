@@ -3081,3 +3081,42 @@ Object.assign(MS,{
   op_head:'📋 Kerja hari ini — set yang dikeluarkan oleh tuan ladang',
   op_notask:'Tiada kerja menunggu. Tuan ladang belum keluarkan set, atau semua lot sudah dilaporkan.',
   so_notset:'Set program tidak dimasukkan di sini. Bila set ditanda siap di PROGRAM, bahannya ditolak daripada kiraan stor dengan sendiri. Guna borang ini untuk bahan lain yang keluar dari stor.'});
+/* v3.78.0 - the watering call: the numbers the Owner approved on 3 Oct 2026, and the season plan's water line by stage. */
+const WATER_WET_MM=8;        // rain in one day that cancels watering
+const WATER_SOAK_MM=25;      // rain over WATER_SOAK_DAYS that still counts as wet
+const WATER_SOAK_DAYS=3;
+const WATER_HOT_DAY=3;       // the dry alert turns red from this dry morning in a row
+const WATER_TELL_DAY=5;      // the Owner is told at this one
+const WATER_L_DEFAULT=200, WATER_L_MIN=50, WATER_L_MAX=400, WATER_L_STEP=50;   // litres per tree on a dry day
+const WATER_GRAFT_L=100;     // the grafted trees, every dry day, also during a hold
+const WATER_HOLD_DAYS=7;     // a new hold runs this many days unless the Owner picks another day
+const WATER_HOLD_MAX=60;
+const WATER_STRIP_DAYS=21;   // mornings shown on the Owner's page
+const WATER_MISS_DAYS=7;     // how far back "watering not reported" looks
+const WATER_LATE_HOUR=9;     // yesterday's rain keyed at or after this hour reached the crew late
+const WATER_PAST_MAX=12;     // holds and OFFs that have ended, kept so their mornings stay what they were
+const WATER_SYNC_MS=1500;    // one sync for a burst of taps on the order
+const WATER_PULL_MS=60000;   // opening the Weather page takes the farm's copy first, at most this often
+const WATER_FRESH_WAIT_MS=6000; // a tap on the order waits this long, at most, for that copy to land
+const WATER_RETRY_MS=1000, WATER_RETRY_MAX=120;   // the order's own sync waits behind an upload that is running
+const WATER_OWN_MAX=200;     // this phone's own stamps sent with the order (a reply can be lost after the Sheet stored it)
+const WATER_PLAN=[
+  {from:'2026-09-15',to:'2026-10-15',stage:'Recovery',when:'15 Sep – 15 Oct',txt:'none until it turns dry; 200 L from about 12 Oct'},
+  {from:'2026-10-16',to:'2026-11-09',stage:'Leaf layer 1 → pre-boost',when:'16 Oct – 9 Nov',txt:'200 L (100 + 100) on days under 8 mm'},
+  {from:'2026-11-10',to:'2026-11-17',stage:'Boost / PBZ',when:'10 – 17 Nov',txt:'HOLD 7 days'},
+  {from:'2026-11-18',to:'2026-12-14',stage:'Bud induction',when:'18 Nov – 14 Dec',txt:'100 L on dry days (deficit)'},
+  {from:'2026-12-15',to:'2027-01-31',stage:'Flowering',when:'15 Dec – 5 Feb',txt:'200 L once buds show; do not flood before bloom'},
+  {from:'2027-02-01',to:'2027-02-28',stage:'Bloom and set',when:'February',txt:'100 L at bloom, 200 L after set'},
+  {from:'2027-03-01',to:'2027-04-02',stage:'Fruit development 1',when:'March',txt:'200 → 300 L, skip days over 8 mm'},
+  {from:'2027-04-03',to:'2027-05-19',stage:'Fruit development 2',when:'3 Apr – 19 May',txt:'300 L on dry days, 150 L in wet weeks'},
+  {from:'2027-05-20',to:'2027-06-30',stage:'Harvest',when:'20 May – 30 Jun',txt:'300 / 150 L by the rain'}];
+Object.assign(EN,{st_waterorder:'Water order',
+  cd_a_dry:'Dry days in a row', cd_s_dry:'no real rain on the farm gauge — check the spring and the tank', cd_w_dry:'WATER',
+  ow_dry:'dry days in a row — check the spring and the tank',
+  st_oldgs:'kept on this phone: the Google Sheet side is older than this app',
+  ts_wx:'watering call, rain gauge, month sheet'});
+Object.assign(MS,{st_waterorder:'Arahan siram air',
+  cd_a_dry:'Hari kering berturut-turut', cd_s_dry:'tiada hujan sebenar pada tolok ladang — periksa mata air dan tangki', cd_w_dry:'AIR',
+  ow_dry:'hari kering berturut-turut — periksa mata air dan tangki',
+  st_oldgs:'disimpan di telefon ini: bahagian Google Sheet lebih lama daripada aplikasi ini',
+  ts_wx:'arahan siram air, tolok hujan, helaian bulan'});

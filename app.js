@@ -10,7 +10,8 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.77.0';   // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
+const APP_VERSION = 'v3.78.0';   // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
+// v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
 // v3.74.0 - THE SEASON DOOR AND THE STORE'S OPENING COUNT. Season 2025/26 closed on 18 Sep with final figures, and the app had no way to know: seasonStart() was the first fruit ever logged and never moved, the shed kept 92 fruit standing, the tree ledger handed back 2,227 dropped and 762 on the tree every sync, and the first drop of 2027 would have been added to last year's 2,227. *** THE SEASON IS NOW A SHARED SETTING (`season`): ADMIN > SEASON closes the old season with a snapshot read from the log and the hand-counted shed, and opens the next from ONE date (21 Sep 2026 on the Owner's instruction). inSeason(e) guards every reader of fruit: seasonStart, the shed (layers and consumers), the backlog, the tree ledger (statOf() is silenced and countsLocally() answers by date, so the undated Sheet aggregate cannot hand back last season), the tying migration, the July census (no census until the fruit census is keyed), and the sync floor (syncFloor() = the open date). A phone that has not yet received the setting behaves exactly as v3.73.0. Nothing is deleted; Season history lists every closed season with the figures at the moment the door was pressed. *** THE STORE STARTS FROM A COUNT. onHand() was a constant baked into database.js minus every stock-out since, and stock-in was never keyed properly in 2025/26. THE STORE > SHELF > OPENING COUNT lets the worker or the Purchaser count every card as a person counts (full containers + loose), saves the draft as the `opencount` setting, and SEND hands it to the Owner; ADMIN > SEASON > CONFIRM writes one signed STOCK_ADJUST per product carrying `counted` and the note 'OPENING 2026/27' (the mark that survives the Sheet). onHand() and the moving average restart from the newest opening row and count only rows dated after it; a product with no opening row keeps the old rule. usedOf/recvOf/adjOf and the monthly ledger are untouched, so the write-off shows where it belongs. *** APPS SCRIPT v3.74.0 (one line): SETTINGS_ALLOWED gains 'season' and 'opencount' - and 'invover' and 'progover', which the app has pushed since v3.21/v3.28 and every backend to date has REFUSED ('not a shared setting'): the Owner's retired products, minimum levels, prices and programme edits never left his phone. Until the .gs is redeployed the season and the count stay on the phone that wrote them; the CHECK page says whether the backend accepts them. Original v3.73.0 note follows. // v3.73.0 - THE SHED DRAWS ACROSS GRADES. Every pick is keyed Grade A at collection because the grade is the weight on the scale; the scale then sells it as B or C, and a C sale could only draw from the C box, which is always empty. So on 17 Sep one shed read MK A +254 standing and MK C -224 short at the same time, and every MK C invoice since August was filed under lot '?'. shedDraw() now covers the requested grade first, then the other grades of the same clone (nearest first, oldest layer first), stamps `g` on a layer taken across so the basket row, the trace and the money ledger say 'from Grade A', and reports short ONLY what no box of that clone could cover. The shed is rebuilt from the log on every paint, so every past draw is repaired the moment this loads - nothing keyed, nothing edited on the Sheet. The basket chip at the scale now also names the clone's other boxes. Original v3.72.0 note follows. // v3.72.0 - ONE SHED, ONE LOSS FIGURE. Two screens, two answers, both in the app on 17 Sep. (1) Harvest > THE SHED said 390 fruit while the Morning Scale, one tap away, said 76 for the same shed: renderShed() printed shedNow().total (the boxes still above zero) where the scale has printed .net since v3.69.0, and its red alarm box came from fruitBacklog() - invoices only, blind to rations and to the load at the gate - so it also listed MK C 217 against the scale's 224. The hero now quotes NET with 'counted / short' under it, the alarm reads shedNow().short, and shedCount() and fruitBalance().shed_fruit - the home bar and the FOC balance table - quote net too. (2) The HARVEST REPORT header printed harvestMatrix() counts (1,800 good / 422 loss) beside lossByCause()'s 18.4%, while the lot table under it said 19%: the five matrix walkers added raw ROTTEN.qty and never saw a ROTTEN_ADJUST, and lossByCause() walked the adjust rows themselves - unclamped, dated by the correction, and counting -9 against six trial rows cleaned up in early August - then dropped the uncaused OTHER row while leaving it in the denominator, so the cause shares summed to 104.1%. rottenQty() is dropQty()'s twin - per row, by evUuid, clamped at zero - and every walker AND lossByCause() now read it: one basis, shares that sum to 100, one percentage. (3) Section 5 printed a tick beside '14.79 kg more has left than was weighed in' because fruitBalance().balances tested the residual against itself; it now means unaccounted === 0. Original v3.71.0 note follows. // v3.71.0 - THE PRICE THAT WOULD NOT STAY. A setting saved today could lose to one saved days earlier, because mergeSettings compared the two date stamps as TEXT and both begin with the weekday name, so it sorted Fri < Mon < Sat < Sun < Thu < Tue < Wed instead of by time. Saved on a Thursday, a price was thrown away on the next sync against the Tuesday copy - no message, no log entry. That is the whole story behind Musang King snapping back to RM 28, Black Thorn refusing to hold RM 45, and the gate billing Grade C at the Grade A rate off a table nobody could update. Both stamps are now parsed and compared as numbers, with the old string test kept only for a stamp no Date can read. One comparison changed; the rest of the merge is untouched. Original v3.70.1 note follows. // v3.70.1 - THE CLONE ROW IS A GRID, AND IT ONLY OFFERS CLONES THAT GROW HERE. 5 Sep, from the crew: 'only 3 clone can be choose in weight in the morning' - no 101, no Golden Phoenix. The picker code drew all ten; the SCREEN did not. .selrow.clones was a sideways strip with the scrollbar hidden and a faint fade as the only hint, and v3.70.0's longer names (Musang King (D197), Black Thorn (D200), D24 Sultan) made three buttons fill a 360 px phone: rendered right edges MK 131 - BT 262 - B24 364 - 101 466 - UM 672 - GP 823 against a 336 px row. So for four mornings the two clones after MK did not exist to a worker, and the 12 + 29 'B24' fruit invoiced on 3 and 5 Sep are almost certainly Golden Phoenix keyed under the one button that WAS on screen, nine of the ten B24 trees having become GP on 2 Sep. *** TWO CHANGES. (1) The row WRAPS: a 3-per-row grid in index.html, nothing off the right edge, ever. (2) scaleCloneChoices() offers only clones with at least one tree on the farm today - read off TREE_MASTER after the corrections are applied, so it follows the crew's own re-tagging without a release - biggest clone first: MK - 101 - GP - BT - TB - B24 - XO - D99 as of 5 Sep; UM and TNB have no tree and are not offered. The line's CURRENT clone is always kept in the list so a basket already keyed cannot be orphaned by a later correction. cloneShort() prints the name without the D-code under the button; the code IS the big label. *** NOTHING ELSE MOVED: CLONE_SELL_ORDER, CLONE_NAME, prices, the shed cards, the tree-correction picker and every stored row are untouched - this is a picker on one screen. *** STILL OPEN: RT-05's contract book has no GP / XO / D99 rate, so a GP line for him prices at RM 0 by the contract-hole rule until the Owner keys it in Marketing -> PRICES & RETAILERS. Original v3.70.0 note follows. // v3.70.0 - FOUR NEW CLONES, AND FIVE THAT ONLY CHANGED THEIR NAME. The Owner's clone list, 1 Sep: Musang King D197, Black Thorn D200, D24 Sultan, Red Prawn D175, D101, plus Golden Phoenix D198, XO D168, D99 and Tenom Beauty D236 - and 'we just found that certain trees are wrong', so the clones go in FIRST and the crew move the trees themselves with the correction they already know. *** NOT ONE CODE CHANGED ON AN EXISTING CLONE, and that is the whole release. The clone code is stamped into every drop, tying, rotten, dispatch and FOC row ever written, into the lines_json of every invoice, and into the contract books of RT-01, RT-02 and RT-05. Rename a CODE and every one of those rows stops matching CLONE_GRADES, hasGrade() goes false, priceOf() returns RM 0 and the season tally splits into two columns. So B24 IS D24 Sultan - the Owner confirmed they are one clone - and it keeps the code B24 and only reads D24 Sultan; UM keeps its code and reads Red Prawn / Udang Merah, because Udang Merah IS Red Prawn and two rows for one clone is how a farm double-counts itself. *** THE FOUR NEW ONES are GP, XO, D99 and TNB, on the two-letter ladder A/B plus BN with the A line at 1.5 kg, and priced at the D101 line on the Owner's instruction ('the rate are the same as 101') - RM 25 / 20 / 8 spot, mirrored into RT-01 at 25/20 and RT-02 at 26/21 so a basket of them can never invoice at RM 0. AVG_KG for all four is 1.5 as a PLACEHOLDER: it only drives the 'about N kg' a worker sees on a ration request, never an invoice, and it is replaced the first time a full basket crosses the scale. *** TNB IS NOT TB. TB still means UNIDENTIFIED (B-050, C-028). If those two turn out to be Tenom Beauty they move with a tree correction like any other tree - the TB code is never repointed, because rows already written against it would follow. *** AND THE TRAP THAT MADE THIS DANGEROUS IS GONE: CLONES was a hand-kept duplicate of CLONE_SELL_ORDER used in exactly one place, the tree-correction picker, so adding a clone to one list and not the other gave you a clone the crew could pick at the tree but that was invisible at the scale. CLONES is now derived from CLONE_SELL_ORDER. *** RT-05 NEEDS FOUR RATES KEYED BY HAND: his book is stored, not seeded, so the new clones read RM 0 there and the scale will refuse the line by design until the Owner sets them in Marketing -> PRICES & RETAILERS.
 // v3.67.0 - THE WORKER CAN SAY GRADE C AT THE SCALE. The Owner, 29 Aug, after a 0.99 kg/fruit load went out invoiced as Grade A: 'can we can apps here from grade a to c cause workers are busy and no option to choose as c'. He was right and the reason was exact: when a basket is picked FROM THE SHED the weigh step drew the clone and grade as fixed TEXT with only a 'change' link, and the only grade the shed can ever offer is A, because every pick is logged A. So there was no way to say C without unpicking the basket and losing its shed link. Now the shed-picked basket keeps its clone LOCKED (it came off a real layer) and draws the GRADE PICKER underneath - the same shape the correction road has used since v3.37.4. Alongside it the screen now prints the MEASURED average kg per fruit and the grade that weight actually falls in, so the man holding the fruit sees the mismatch before the load is sent, not the Owner on the invoice a day later. GRADE_BAND for MK also moved: C is now under 1.2 kg, not under 1.0. // v3.65.0 - ONE DAY OUT OF THE SEVEN. The Owner, within an hour of v3.64.0 landing: 'the total show in 7 days. i need a option to show a single particular date.' He is right and it is the difference between a report and a working screen - the seven-day total answers 'how was the week', and what he actually asks at the gate every evening is 'what went out TODAY, and to whom'. A day picker now sits BEFORE the customer picker, each option carrying that date's own takings so a day is chosen by money rather than by counting back dates, with 'All 7 days' first and the dates newest-first under it. Choosing one narrows the rows, every tile, the photo count, the gift line and the header - and it does NOT move the week window under the table above, which keeps its own arrows: narrowing what is on screen and re-fetching a different week are two different acts and a screen that confuses them makes the two halves disagree. If the week is stepped past the chosen date the picker falls back to all seven rather than showing an empty day, the same rule the customer picker already follows when a merchant is not in the new window. // v3.64.0 - THE OTHER HALF OF THE DAY. DAILY RECORD answered the fruit question and never the money question on the same page, and the two only mean something together: on 22 Aug RM 6,331.60 was invoiced while RM 7,416.40 of fruit was GIVEN AWAY, and no screen on this farm put those two figures side by side. This release appends a sales-and-gifts half under the SAME seven-day window - a customer picker, a free-gift tick, the account position, and every load with its photo - and writes nothing: every figure is a read. THREE RULES, each a bug before it was a rule. ONE MAN IS ONE NAME: the picker groups on the name with brackets stripped so 'Samsir', 'Samsir (gred B)' and 'Samsir (buah balance lama)' are one person in the list while the rows still print what was keyed - the picker groups, it never rewrites the record. A GIFT IS COUNTED ONCE: focApproved() returns APPROVED FOC_REQ only, so the FOC_APPROVE twin riding the same payload can never be added twice - anything walking focRows() directly must filter or every free figure on this farm doubles. A MERCHANT WHO NEVER BOUGHT IS NOT A DEBT: the account line skips cash rows, skips any retailer not Active and, on everyone, skips anyone with nothing invoiced - without those three it read RM 46,000 of credit, being the opening balances of a suspended merchant, a deleted one and one that has never taken a basket. PROVEN ON THE LIVE DATABASE before it was written into the file: 33 sold rows in the 18-24 Aug window matching a raw DISPATCH count day for day, RM 9,001.60, and 0 of 33 loads able to produce a photograph - which the screen prints honestly rather than trusting has_photo, true on all 43 invoices and fetchable on none. index.html is NOT touched: the block paints into #dailybox under renderDailyAudit()'s own output and injects its stylesheet once. // v3.63.2 - THE PROGRAMME COULD NEVER SEE ITS OWN WORK. The Owner, 21 Aug: 'i still see fetto in short'. The store was not the problem - 69 products audited, ZERO mismatches, Fetto sitting on 2,000 ml against a 500 ml threshold. It was the PURCHASER'S SHORTAGE LIST, telling him to buy Fetto and Pictor for `Aug|Set 1` - a round sprayed on 6 AUGUST - and 5-25-25 for a MAY fertiliser set. Both read 100% outstanding because usedForProgram() subtracts only rows whose `progId` matches, and progId is not a Sheet column: of his 577 STOCK_OUT rows it is on ZERO, while `phaseId` is on 452 and comes back intact. So no activated programme could ever close itself from synced data, and the buy queue went on ordering chemical for work already done - which for Fetto and Pictor means ordering a PESTICIDE the 6 Aug residue cut-off forbids before the harvest. Same root as v3.63.0, in the seven readers that release did not grep: lotsDone, usedForProgram, the recent-runs list, one programme's own history, its cost roll-up, the duplicate-task finder (blind for the same reason, so the app's own repeat-catcher was switched off), and - worst - the guard that refuses to DELETE a programme with work logged against it, which had been letting a completed programme be deleted. All seven now go through isProgRow() and progRowMatches(), which prefer progId and fall back to the phase label. THE LESSON, FOURTH TIME: grep every reader of a field, not the ones you happen to be looking at. // v3.63.1 - A WRONG PACK SIZE COULD NOT BE CORRECTED FROM ANY SCREEN. applyInvOverrides() is the one door for a product correction and it applied `unit_price` while ignoring `unit_multiplier` altogether. cpu is unit_price/unit_multiplier - the figure every cost report is built on - so a register holding the wrong container size costed every gram of that product wrong, for ever, with no way to fix it. Caught on 21 Aug by reading the supplier invoices against the register: YARA REGA 13-4-25 is billed as a 50 KG bag at RM 285 and the register held 25 kg at the same price, so it has been costed at DOUBLE - about RM 958 too much on June alone; PEGASUS 47.17SC is billed as a 250 ML bottle at RM 75 and was held as 500 ml, so it has been costed at HALF. Neither could be reached: the only correction road refused to look at the field that was wrong. cpu is now derived from whichever of price or multiplier the correction supplies, falling back to what the product already carries, so either one alone still lands right. THE LESSON: a correction road is only as good as the fields it will accept. // v3.63.0 - PROGRAMME COST HAS BEEN READING RM 0.00 ALL YEAR. Found the same hour v3.62.1 shipped, by asking the Owner's own laptop what its report actually says: day RM 0.00, month RM 0.00, YEAR RM 0.00, against 493 stock-out rows and about RM 33,000 of real 2026 material. THE CAUSE is the fault v3.62.1 had just fixed in the duplicate guard, sitting unfixed in FIVE more readers: runCostRollup(), workDone(), dirProgress(), dirDoneDate() and dirCostOf() all decide 'is this a programme run' by asking for `e.dirRun` - a field submitRun() writes and the Google Sheet has no column for. Every row loses it on the way back down, so all five could only ever see what this one phone had not yet synced. Of 493 rows, ZERO carry dirRun, progId or replyId. WORSE THAN A BLANK REPORT: dirProgress() could not see another phone's filing either, so a round already done on Phone 2 read 'not done' on the laptop and invited the crew to file it again - a second duplicate road, same root as the RM 10,610.54 of repeats voided on 20 Aug. THE FIX: one helper, isRunRow(), testing what actually survives a round trip - a STOCK_OUT carrying a `set` that is not the tying road's rope - plus runRowOfDir() which prefers progId and falls back to the SET LABEL, and runKeyOf() because `runs[e.replyId]` was collapsing every synced row into ONE run, so even a report that saw the rows would have counted one job a month. All five readers now share the three helpers and cannot drift apart again. THE LESSON, THIRD TIME IN TWO RELEASES: a field the WRITER sets is not a field the ROW still carries. Grep every reader of it, not the one you noticed. // v3.62.1 - THE GUARD WAS READING A COLUMN THE SHEET DOES NOT HAVE. v3.62.0's duplicate guard scanned `EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dirRun)`. Checked against the Owner's own laptop within the hour: of 117 August STOCK_OUT rows, ZERO carry dirRun, progId or replyId. The Sheet has no such columns, so every row that has been through a sync comes back stripped - which is every row written on another device and every row this device wrote before its last sync. The guard was therefore blind to the whole five-device August story and could only ever have caught a double press inside one unsynced session. Scoped on `set` instead, which does survive the trip. PROVEN ON THE REAL DATA, not a seed: the corrected filter groups August into 11 paying filings and finds the five identical RM 908.44 fertiliser rounds (three different devices, two different set names) and the two identical RM 1,179.90 May sets - RM 4,813.66 that would never have been charged. It also surfaced a SIXTH RM 908.44 filing on 19 Aug that the 18 Aug audit had not seen. THE LESSON, AGAIN: assert the far end. A filter that reads a field the WRITER sets is not the same as a filter that reads a field the ROW still carries after a round trip. // v3.62.0 - THE FILING THAT COULD BE MADE FIVE TIMES. The Owner, 18 Aug: 'check program cost on augst. it looks like charge repeated.' He was right and it was bigger than a double-count. Read from the live Sheet: August programme cost RM 12,298.69 against a real spend of about RM 1,690 - the SAME 85,500 gm fertiliser round booked FIVE times at RM 908.44 to the cent, on five devices, under TWO different set names; August Set 1 filed three times, twice inside one minute; a MAY set filed twice into August; MSolumax 3-16-36 driven to MINUS 485 kg. THE CAUSE: submitRun() wrote a fresh block of STOCK_OUT rows on every press of MARK WORK DONE and nothing asked whether that set had already been filed, so a re-test, a second phone and a corrected recipe were indistinguishable from a second real spray - and each one wrote real money into the cost report and real material off the store. THE FIX: two checks before the write. SAME SET SAME MONTH, matched on progId first (it travels with the directive) then on the set LABEL (a directive re-made on another phone has a new uuid but the same name); and SAME DRAW ANY NAME, the sorted pid:qty fingerprint of what is about to come off the store - the second check is the one that catches August, because those five filings wore two different names and no label test could ever have seen them. Prior filings are grouped by replyId falling back to dt-to-the-minute + set + device, which is how one press is reconstructed from Sheet-sourced rows that have no replyId column. It WARNS and never BLOCKS: a farm can spray the same set twice in a month, and a guard that refuses sends the crew back to paper. ALSO CONFIRMED THIS RELEASE, by reading rather than assuming: the backdate on MARK WORK DONE already shipped in v3.49.0 and the Purchaser's stock-out gate already shipped in v3.46.0 - both were still on the open list from 13 Aug and neither needed a line. AND THE ROOT CAUSE UNDERNEATH IT, found by driving the real modal rather than reading it: submitRun()'s tail block read mdProg.basis, and mdProg belongs to the OTHER modal (openMarkDone/#mdmodal). openRun() is reached from ONE button, the crew's MARK WORK DONE, which never touches mdProg - so it was null on every crew filing and threw a TypeError AFTER the rows were written and OUTSIDE the catch above. closeRun() never ran, the saved toast never appeared, nothing refreshed: the crew saw the confirm box unchanged and pressed again, runSaving was already cleared and RUN was still set, and the second press wrote the whole filing a second time. The v3.25.0 comment six lines above describes this exact failure and that fix's own tail block reintroduced it. The rate is now read from the DIRECTIVE, and the whole remember-a-default block is wrapped so nothing added there can ever strand the modal again. THE LESSON: an append-only log makes a correction safe and a REPEAT invisible; every writer of money needs to be asked 'have I seen this before' at the moment of writing, not in a report a fortnight later. // v3.61.0 - THE OTHER LEG OF THE BALANCE: THE EXITS. The Owner counted his shed by hand on 18 Aug - 5 Musang King, 3 Black Thorn - and the app gave him THREE answers: the two shed tabs said 2, and the home screen's IN THE SHED bar said 72. The bar was shedCount(): sum every DROP.qty, add every DROP_ADJUST.delta, subtract every DISPATCH.fruit_count. *** fruit_count IS NOT A COLUMN ON THE SHEET'S DISPATCH TAB. Proven against the live database that night: 27 invoices, 27 nulls, the key not even present on the row - the counts live inside lines_json and always have. So `out` was ALWAYS ZERO and that bar had never subtracted a single sale since the day it was written; it also never saw a ration or a gift, never saw the load standing at the gate, and carried no clone or grade. It was not a shed count, it was a running total of everything ever picked. *** AND IT WAS NOT ALONE. The same empty field is read in two more places, and both have been silently printing zero on every phone that received the invoice by sync rather than keying it: buildMonthMatrix() - the FRUIT SOLD figure on the month band and every report built off it - and yieldAudit() - the DECLARED count that the whole dual-signature audit divides kilos by. *** v3.60.0 routed twenty-three hand-rolled 'sum the drops' sites through dropQty() and missed all three of these, because they are not on the drops leg - they are on the EXITS leg. THE RULE, written down so the next sweep is whole: A BALANCE HAS TWO LEGS. When you unify one, walk the other in the same release. *** THE CURE IS AGAIN ONE DOOR: dispFruitN(e) = 'how many fruit this invoice actually carried', read off reqLines() which always travel, falling back to the old field only when a row has no lines at all. shedCount() stops calculating anything and returns shedNow().total - the very queue the Morning Scale enforces and THE SHED tab prints - so the home screen can no longer tell a third story. NEVER READ e.fruit_count OFF A STORED DISPATCH ROW AGAIN. Call dispFruitN(e).
@@ -95,7 +96,10 @@ const SETTINGS_KEYS=['cloneprice','pricemeta','baskets','tareok','addtrees',
   'season','opencount',
   /* v3.76.0 — what the Owner has asked the Purchaser to buy for rounds that are still only
      planned. A collection keyed by product; merges per key, newest `at` wins. */
-  'buyask'];
+  'buyask',
+  /* v3.78.0 — the Owner's water order: litres per tree, hold until a date, off. One small
+     object, one writer, newest wins whole. */
+  'waterorder'];
 /* ======================================================================================
    v3.74.0 · THE SEASON DOOR
    ======================================================================================
@@ -299,7 +303,8 @@ async function initStore(){
     const sn=kv.find(x=>x.k==='season'); if(sn&&sn.v&&typeof sn.v==='object'&&sn.v.cur) SEASON=sn.v;
     const oc=kv.find(x=>x.k==='opencount'); if(oc&&oc.v&&typeof oc.v==='object') OPEN_COUNT=oc.v;
     const lp=kv.find(x=>x.k==='lastlpt'); if(lp&&lp.v&&typeof lp.v==='object') LAST_LPT=lp.v;
-    const wx=kv.find(x=>x.k==='weather'); if(wx&&wx.v) WEATHER=String(wx.v);
+    /* v3.78.0 — the manual Sunny / Rainy switch is gone (the gauge makes the call now). A phone
+       that was left on RAINY would have no way back, so the stored value is no longer read. */
     const lc=kv.find(x=>x.k==='lastcrew'); if(lc&&lc.v&&typeof lc.v==='object') LAST_CREW=lc.v;
     const rt=kv.find(x=>x.k==='retailers'); if(rt&&Array.isArray(rt.v)&&rt.v.length) RETAILERS=rt.v;
     // v3.1 — the clone x grade matrix. A saved table only ever OVERLAYS the seed, so a
@@ -340,6 +345,9 @@ async function initStore(){
     const np=kv.find(x=>x.k==='newprods');   if(np&&Array.isArray(np.v)) NEW_PRODS=np.v;
     const pv=kv.find(x=>x.k==='progover'); if(pv&&pv.v&&typeof pv.v==='object') PROG_OVER=pv.v;
     const ba=kv.find(x=>x.k==='buyask'); if(ba&&ba.v&&typeof ba.v==='object'&&!Array.isArray(ba.v)) BUYASK=ba.v;   // v3.76.0
+    const wo=kv.find(x=>x.k==='waterorder'); if(wo&&wo.v&&typeof wo.v==='object'&&!Array.isArray(wo.v)) WATER_ORDER=wo.v;   // v3.78.0
+    const wb=kv.find(x=>x.k==='waterbase'); if(wb&&wb.v&&typeof wb.v==='object'&&!Array.isArray(wb.v)) WATER_BASE=wb.v;
+    const wl=kv.find(x=>x.k==='waterlost'); if(wl&&wl.v&&typeof wl.v==='object'&&!Array.isArray(wl.v)) WATER_LOST=wl.v;
     // v3.19 — a phone that slept mid-delivery must not lose eight keyed lines
     const ib=kv.find(x=>x.k==='inbasket');   if(ib&&Array.isArray(ib.v)) IN_BASKET=ib.v;
     // v3.49.0 — the issue basket survives a locked phone for the same reason the delivery
@@ -960,7 +968,7 @@ const MODULES={
      directive ever built is still in the Sheet. With the builder gone the tile holds the
      rain gauge, the month sheet and the spray-window advice, and its name says so. A deep
      link to agro/build falls through tabsFor() to WEATHER. */
-  agro:{ic:'🌦️',name:'Weather',sub:'rain gauge, month sheet',tn:'m_wx',
+  agro:{ic:'🌦️',name:'Weather',sub:'watering call, rain gauge, month sheet',tn:'m_wx',
     // v3.12 — the seasonal matrix is the Agronomist's main tool now and therefore sits
     // first. The v2.6 "My sets" AI->brand builder is untouched and still lives under the
     // month timeline: every set the Owner has already built keeps its edit path.
@@ -972,7 +980,7 @@ const MODULES={
              renderTimeline() is unchanged; only the route is gone. A deep link to agro/month
              falls through tabsFor() to PROGRAM BUILDER, exactly as the retired v3.19
              inventory keys and v3.40 'progrec' do. */
-          {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','hujancard','agrorain'],roles:FULL_ROLES,ic:'🌧️',d:'Rain gauge, month sheet and spray-window advice'},
+          {k:'wx',   t:'WEATHER',   scr:'dash',panels:['agroweather','hujancard','agrorain'],roles:FULL_ROLES,ic:'🌧️',d:'Water today or not, the rain gauge and the month sheet'},
           /* v3.40.0 — TWO RECORD SCREENS BECOME ONE, AND THE NAME COLLISION GOES.
              This tab was called RECORD and so was REPORTS ▸ RECORD — the same word on two
              unrelated screens, on the Owner's phone, which is the repeat he reported. It
@@ -1670,7 +1678,7 @@ function tileBadge(k){
       ((typeof ppCrewDue==='function'&&ppOn()&&hubTiles().indexOf('prog')>=0)?ppCrewDue().length:0)+   // v3.76.0
       ((typeof myDirectives==='function')?myDirectives().length:0);
     return n?{t:n+' '+tr('bg_tasks')}:null;}
-  if(k==='agro')return null;   // v3.77.0 — the tile is WEATHER; the Program Builder's badges went with it
+  if(k==='agro')return (typeof wtTileBadge==='function')?wtTileBadge():null;   // v3.78.0 — a dry spell that has reached the day he asked to be told
   // v3.7 — costadmin was split; the yield alert and the pending queue follow the section
   // they belong to, so a badge always names a tile that can actually resolve it.
   if(k==='admin'){
@@ -1774,6 +1782,7 @@ function renderTaskNotice(){
       '<div class="tn-dose">'+esc(n.s)+(n.d?(' \u00b7 '+esc(dateShort(n.d))):'')+'</div>'+
       '<div class="tn-hint">'+esc(tr('pc_hint'))+'</div></div>';});
   if(typeof ppHomeNoticeHTML==='function'){try{pre=ppHomeNoticeHTML()+pre;}catch(e){}}   // v3.76.0 — an issued set that is due
+  if(typeof wtHomeHTML==='function'){try{pre=wtHomeHTML()+pre;}catch(e){}}               // v3.78.0 — water today, or not
   box.innerHTML=pre;
   /* v3.77.0 — the bar is the issued set that is due (ppHomeNoticeHTML above). The Program
      Builder's directive no longer reaches it. */
@@ -2004,7 +2013,7 @@ function renderForTab(k,t){
   /* v3.75.0 — the form opens on the oldest morning not yet keyed, every time. A form that
      remembered a half-keyed day from another person's turn is the shared-phone fault again. */
   if(k==='rain'){rnOpen();}
-  if(k==='agro'&&t==='wx'){renderWeather();rnOpen();renderRain();}
+  if(k==='agro'&&t==='wx'){renderWeather();rnOpen();renderRain();if(typeof wtFresh==='function')wtFresh();}   // v3.78.0 — the farm's copy of the order before he touches it
   /* v3.40.0 — SPRAY RECORD carries both halves now. m5RecPick() resets the segment AND
      paints, so re-entering the tab is deterministic; the retired 'progrec' key is kept
      here so any direct renderForTab call still lands (the v3.22.0 merge lesson: the tabs
@@ -2357,6 +2366,7 @@ async function realWipe(){
   PROGRAMS=[];TASKS=[];BLUEPRINTS=[];RAINFALL=[];
   JPS_RAIN=[];JPS_META=null;RAIN_SIG='';RAIN_SERVED=false;RF=null;   // v3.75.0
   BUYASK={};PP_CACHE=null;PP_SHELF=null;PP_OPEN=null;PPE=PPM=PPR=PPA=PPCD=PPCN=PPCL=null;   // v3.76.0
+  WATER_ORDER=null;WATER_BASE=null;WATER_LOST=null;if(WT.syncT)clearTimeout(WT.syncT);WT={open:'',lots:{},busy:false,day:'',L0:0,syncT:0,pulled:0,fresh:null,wait:false,q:[]};   // v3.78.0
   // 1. wipe events + config + keys from IndexedDB
   await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv','corrections'],'readwrite');
     tx.objectStore('events').clear();tx.objectStore('kv').clear();
@@ -2549,7 +2559,8 @@ async function mergeEvents(rows){
     if(db)await put('events',e);
     n++;}
   }finally{ if(--ME_N<=0){ME_N=0;ME_HAVE=null;} }
-  if(n){rebuildLedgers();badge();if(typeof ppRefresh==='function')ppRefresh();}   // v3.76.0 — a set done on another phone reads done here
+  if(n){rebuildLedgers();badge();if(typeof ppRefresh==='function')ppRefresh();   // v3.76.0 — a set done on another phone reads done here
+    if(typeof wtRefresh==='function')wtRefresh();}                                  // v3.78.0 — and a lot watered on another phone
   return n;}
 
 async function refreshMasters(){
@@ -4522,6 +4533,7 @@ function mineLine(g){
                 (e.clone?(' · '+esc(CLONE_NAME[e.clone]||e.clone)):''),
               s:esc(e.reasonLabel||'')};
     case 'TASK_DONE':
+      if(e.kind==='WATER')return {w:'💧 '+(isMs()?'Siram':'Watering')+lot, s:trees};   // v3.78.0
       return {w:esc(e.kindLabel||tr('my_k_job','job done'))+lot, s:trees};
     default:{  // STOCK_OUT
       const names=[];g.rows.forEach(x=>{if(x.pname&&names.indexOf(x.pname)<0)names.push(x.pname);});
@@ -5332,6 +5344,7 @@ function renderSync(){
     else if(e.type==='STOCK_OUT') d='📦→ '+e.qty+' '+e.unit+' '+e.pname+(e.lot?(' · Lot '+e.lot):'')+(e.progSet?(' · '+e.progSet):'');
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
+    else if(e.type==='TASK_DONE'&&e.kind==='WATER') d='💧 '+(isMs()?'Siram':'Watering')+' · Lot '+esc(e.lot||'')+(e.count?(' · '+nf(e.count)+' L '+(isMs()?'sepokok':'per tree')):'');   // v3.78.0
     else if(e.type==='TASK_DONE') d='🛠️ '+esc(e.kindLabel||e.kind||'task')+' · Lot '+esc(e.lot||'')+
       (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(mhOf(e))+' man-h';
     // v3.5.1 — this used to end `else d=e.type`, which threw away describeEvent()'s wording
@@ -8891,6 +8904,7 @@ async function setWeather(w){
   renderWeather();renderTimeline();renderOpsTasks();if(pmPhase)pmCalc();
   toast(w==='RAINY'?'🌧️ Rainy mode on — spray lines are now checked for wash-off':'☀️ Sunny mode');}
 function renderWeather(){
+  if(typeof wtRenderOwner==='function')wtRenderOwner();   // v3.78.0 — the card is the watering call now
   if(!$('wxbtns'))return;
   ['SUNNY','RAINY'].forEach(k=>$('wx-'+k).classList.toggle('on',k===WEATHER));
   const live=activePrograms();
@@ -9203,7 +9217,9 @@ function labourRows(){
   // v3.14 — mhOf() reads the SHARE stored on the row when one completion covered several
   // lots, and falls back to crew x hours for every row written before v3.14. Both labour
   // readers go through here, so this one change fixes the month matrix too.
-  EVENTS.filter(e=>e.type==='TASK_DONE').forEach(e=>out.push({dt:e.dt,what:e.kindLabel,lot:e.lot,
+  /* v3.78.0 — SUDAH SIRAM is a TASK_DONE with kind WATER and no people or hours: a tick that
+     the lot was watered, not a labour record. A zero here would read as "the work was free". */
+  EVENTS.filter(e=>e.type==='TASK_DONE'&&!(e.kind==='WATER'&&!(mhOf(e)>0))).forEach(e=>out.push({dt:e.dt,what:e.kindLabel,lot:e.lot,
     crew:+e.crew||0,hours:+e.hours||0,mh:mhOf(e),worker:e.worker}));
   /* v3.77.0 — ONE REPLY, ONE CREW. A completion that covers three lots writes crew and hours
      on every lot's rows, and the Sheet has no man-hours column for STOCK_OUT, so a row that
@@ -9301,6 +9317,7 @@ function dupTaskGroups(){
   const g={};
   EVENTS.forEach(function(e){
     if(!e||e.type!=='TASK_DONE')return;
+    if(e.kind==='WATER'&&!(mhOf(e)>0))return;   // v3.78.0 — two phones ticking the same lot is not a job counted twice: it carries no hours
     const day=String(e.dt||'').slice(0,10); if(!day)return;
     const k=day+'|'+String(e.kind||e.kindLabel||'?')+'|'+String(e.lot||'—');
     (g[k]=g[k]||[]).push(e);});
@@ -9658,8 +9675,7 @@ async function rnSave(){
   RF={done:rec.date};
   badge(); rnRender(); renderRain(); renderHub();
   toast('✓ '+(rec.kind==='rain'?(nf(mm)+' mm'):tr('rn_norain_s','no rain'))+' · '+rnShort(rec.date));
-  if(rec.kind==='rain'&&rec.date===todayStr()&&myRole()==='OWNER'&&WEATHER!=='RAINY')
-    toast('🌧️ Rain recorded today — switch to Rainy mode if you are spraying',1);}
+  try{ if(typeof wtRenderOwner==='function')wtRenderOwner(); }catch(e){}}   // v3.78.0 — the call follows the reading
 function rnDoneHTML(){
   const r=rainOn(RF.done), miss=rnMissing(7);
   if(!r){RF=null;return '';}
@@ -9674,10 +9690,466 @@ function rnDoneHTML(){
   if(r.note)h+=row(tr('rn_r_note','NOTE'),r.note);
   h+=row(tr('rn_r_by','BY'),(r.by||'')+' · '+hm(r.at))+'</div>'+
     '<div class="rn-g" style="margin:8px 0">'+esc(tr('rn_syncnote','The reading travels on the next SYNC.'))+'</div>';
+  /* v3.78.0 — the reading is in: say at once whether to water. The crew only; the Owner has
+     the same call at the top of his Weather page. */
+  if(myRole()==='WORKER'&&typeof wtBoxHTML==='function')h+='<div id="wt-r-slot">'+wtBoxHTML('wt-r-',true)+'</div>';
   if(miss.length)h+='<button class="bigbtn" id="rn-next" onclick="rnOpen()">'+esc(tr('rn_next','KEY'))+' '+esc(rnDayLabel(miss[0]).toUpperCase())+'</button><div style="height:8px"></div>';
   h+='<button class="bigbtn ghost" id="rn-more" onclick="rnOpen(todayStr())">'+esc(tr('rn_another','Key another day'))+'</button>';
   if(curModule==='rain')h+='<div style="height:8px"></div><button class="bigbtn ghost" onclick="goHome()">'+esc(tr('rn_backhome','Back to menu'))+'</button>';
   return h;}
+
+/* ======================================================================================
+   v3.78.0 · THE WATERING CALL — dry alert, wet alert
+   ======================================================================================
+   The Owner, 3 Oct 2026: "weather key in by ground staff. i need the dry alert (no rain)
+   for staff to on irrigation and wet alert for no irrigation." He approved the sample
+   (DMS_Water_Alert_sample.html) with every number as suggested.
+   THE RULE, for the morning of day D, from the FARM GAUGE ONLY (never JPS):
+     WET  - no watering - when the reading for D-1 is WATER_WET_MM or more, or the last
+            WATER_SOAK_DAYS days together are WATER_SOAK_MM or more (the soil is still wet
+            from a soak), or rain already keyed for today is WATER_WET_MM or more;
+     DRY  - water today - on every other morning. Dry mornings in a row are counted:
+            amber on day 1-2, red from WATER_HOT_DAY, the Owner is told at WATER_TELL_DAY;
+     NO CALL until every one of the last WATER_SOAK_DAYS days is keyed. A day nobody keyed
+            is not a dry day: a storm may have fallen on it.
+   THE OWNER'S WATER ORDER is one shared setting, `waterorder`
+     {L, mode:'on'|'hold'|'off', from, hold, since, past:[{a,b,k}], at, by}.
+   NOTHING IS TOLD TO THE CREW UNTIL HE STARTS IT (`since`): the plan stays a plan until the
+   Owner issues it, the rule the whole Programme runs on. HOLD until a date is for the 7
+   days after PBZ: the crew is told not to water even when it is dry. A hold or an OFF that
+   has ended is KEPT in `past`, so the mornings it covered never turn into "dry, told to
+   water, not reported" afterwards. It is a NEW key: the Apps Script must be v3.78.0.
+   WATERING DONE is a fact, so it is a row in the log, not a setting: one TASK_DONE per lot
+   with kind 'WATER', through the same `tasklogs` road the work reports have always used.
+   No new tab, no new column. It carries no people and no hours, so labourRows() and the
+   duplicate-job check pass over it (a zero is not a labour record).
+   ⛔ NO BROWSER DIALOGS, and every class in this block starts wt-.
+   ====================================================================================== */
+let WATER_ORDER=null;                 // the `waterorder` setting; null = the Owner has not started the call
+let WT={open:'',lots:{},busy:false,day:'',L0:0,syncT:0,pulled:0,fresh:null,wait:false,q:[]};   // the open SUDAH SIRAM form · lots picked · the strip's open morning · litres before START · the pull in the air
+/* AN EDIT MADE ON AN OLD COPY DOES NOT OVERWRITE (second review, 3 Oct 2026). The order is one
+   object and the newest stamp wins it whole, so a tap on the litres carries that device's
+   idea of HOLD with it. A laptop that had not yet received the phone's HOLD lifted it for
+   every crew phone, silently. So every edit says which copy it was made on:
+     WATER_BASE {base, own}  the Sheet stamp the waiting edit was made on, and the stamps this
+                             phone has itself tried to send since (a reply can be lost after
+                             the Sheet has already stored the edit);
+     WATER_LOST {at, what}   an edit the Sheet refused because another device had changed the
+                             order first. Shown to the Owner until he taps it away. */
+let WATER_BASE=null, WATER_LOST=null;
+const wtT=(en,ms)=>isMs()?ms:en;
+function wtCanSet(){return myRole()==='OWNER';}
+function wtCanTick(){const r=myRole();return r==='OWNER'||r==='WORKER';}
+function wtOkDay(s){s=String(s||'').slice(0,10);return (/^\d{4}-\d{2}-\d{2}$/.test(s)&&parseDay(s))?s:'';}
+/** The order as it stands, checked: a date that is not a date is no date, a hold with no end is no hold. */
+function wtOrder(){
+  const o=(WATER_ORDER&&typeof WATER_ORDER==='object'&&!Array.isArray(WATER_ORDER))?WATER_ORDER:null, L=o?+o.L:0;
+  let mode=(o&&typeof o.mode==='string')?o.mode.toLowerCase():'on'; if(mode!=='hold'&&mode!=='off')mode='on';
+  const from=wtOkDay(o&&o.from), hold=wtOkDay(o&&o.hold);
+  if(mode==='hold'&&!hold)mode='on';
+  const since=o?(wtOkDay(o.since)||wtOkDay(o.at)||todayStr()):'';
+  const past=(o&&Array.isArray(o.past)?o.past:[]).map(w=>({a:wtOkDay(w&&w.a),b:wtOkDay(w&&w.b),k:(w&&w.k==='off')?'off':'hold'})).filter(w=>w.a&&w.b&&w.b>=w.a);
+  return {L:(L>=WATER_L_MIN&&L<=WATER_L_MAX)?L:WATER_L_DEFAULT, mode:mode, from:from, hold:hold, since:since, past:past,
+    at:String((o&&o.at)||''), by:String((o&&o.by)||''), started:!!o};}
+/** What the order says about one morning, before any rain is looked at: 'pre' (the call had
+ *  not started), 'hold', 'off', or '' (the rain decides). */
+function wtState(d,o){
+  if(!o.started||d<o.since)return 'pre';
+  for(const w of o.past){if(d>=w.a&&d<=w.b)return w.k;}
+  if(o.mode==='off'&&(!o.from||d>=o.from))return 'off';
+  if(o.mode==='hold'&&d<=o.hold&&(!o.from||d>=o.from))return 'hold';
+  return '';}
+/** mm on the farm gauge for one day: a number when the day is keyed (0 for a dry day), null when it is not. */
+function wtMm(d){const r=rainOn(d); return r?(rainKind(r)==='rain'?(+r.mm||0):0):null;}
+/** WET / DRY / not keyed for the morning of d, by the rain alone. `get(day)` gives mm or null. */
+function wtRain(d,get){
+  get=get||wtMm;
+  const miss=[]; let s=0, y=null;
+  for(let i=WATER_SOAK_DAYS;i>=1;i--){const x=rnShift(d,-i); if(x<RAIN_FROM)continue;
+    const v=get(x); if(v==null)miss.push(x); else s+=v; if(i===1)y=v;}
+  if(rnShift(d,-1)<RAIN_FROM)return {k:'nokey',miss:[]};
+  if(miss.length)return {k:'nokey',miss:miss};
+  s=+s.toFixed(1);
+  if(y>=WATER_WET_MM)return {k:'wet',why:'yday',y:y,s3:s};
+  if(s>=WATER_SOAK_MM)return {k:'wet',why:'soak',y:y,s3:s};
+  return {k:'dry',y:y,s3:s};}
+/** The call for one morning without the count of dry days: the order first, then the rain,
+ *  then rain keyed for that day itself. On an earlier morning a reading for that same day
+ *  counts only if it was keyed on that day - that is what the crew had in front of them. */
+function wtEff(d,o){
+  const st=wtState(d,o); if(st)return {k:st};
+  const c=wtRain(d);
+  if(c.k==='wet'||c.k==='dry'){
+    const r=rainOn(d), v=wtMm(d);
+    if(v!=null&&v>=WATER_WET_MM&&(d===todayStr()||String((r&&r.at)||'').slice(0,10)===d)){c.k='wet';c.why='today';c.t=v;}}
+  return c;}
+/** Dry mornings in a row ending on d. A hold, an OFF, a wet morning or an unkeyed one ends the run. */
+function wtRun(d,o,memo){
+  const seen=[]; let x=d, base=0;
+  while(seen.length<400){
+    if(memo&&memo[x]!=null){base=memo[x];break;}
+    if(wtEff(x,o).k!=='dry')break;
+    seen.push(x); x=rnShift(x,-1);}
+  if(memo){if(memo[x]==null)memo[x]=0; seen.forEach((s,i)=>{memo[s]=base+(seen.length-i);});}
+  return base+seen.length;}
+/** The first morning after d that is dry again if no more rain falls and the order stands. */
+function wtNext(d,o){
+  const t=todayStr(), get=x=>(x<=d&&x<=t)?(wtMm(x)==null?0:wtMm(x)):0;
+  for(let i=1;i<=WATER_HOLD_MAX+WATER_SOAK_DAYS+2;i++){const x=rnShift(d,i);
+    if(wtState(x,o))continue;
+    if(wtRain(x,get).k==='dry')return x;}
+  return '';}
+/** The call for the morning of d (today when d is not given). */
+function wtCall(d,memo){
+  d=d||todayStr(); const o=wtOrder(), c=wtEff(d,o); c.o=o; c.d=d;
+  if(c.k==='dry')c.run=wtRun(d,o,memo);
+  if(c.k==='wet')c.next=wtNext(d,o);
+  return c;}
+/** The lots reported watered on a day, from the log. */
+function wtDone(d){
+  const out=[];
+  EVENTS.forEach(e=>{if(e&&e.type==='TASK_DONE'&&e.kind==='WATER'&&String(e.dt||'').slice(0,10)===d&&e.lot&&out.indexOf(e.lot)<0)out.push(e.lot);});
+  return out.sort();}
+function wtLots(){return LOT_KEYS.slice();}
+function wtDay(iso){return rnDayLabel(iso);}
+/** The Owner's page is in English, like the month sheet under it. */
+function wtDayEN(iso){const d=parseDay(iso); return d?(RN_DOW.en[d.getDay()]+' '+d.getDate()+' '+RN_MON.en[d.getMonth()]):String(iso||'');}
+
+/* ---------- the box: on the crew's home, and under the saved rain reading ---------- */
+function wtPickerHTML(id,left){
+  return '<div class="wt-q">'+wtT('Which lots were watered','Lot mana yang disiram air')+'</div><div class="wt-lots">'+
+    left.map(L=>'<button class="wt-lot'+(WT.lots[L]?' on':'')+'" id="'+id+'lot-'+L+'" onclick="wtLot(\''+L+'\')">LOT '+L+'</button>').join('')+'</div>'+
+    '<button class="wt-btn" id="'+id+'save" onclick="wtSave()">'+wtT('SAVE','SIMPAN')+'</button>'+
+    '<button class="wt-btn wt-gh" id="'+id+'cancel" onclick="wtClose()">'+wtT('CANCEL','BATAL')+'</button>';}
+function wtBoxHTML(idp,noKeyBox){
+  if(typeof RAIN_FROM==='undefined')return '';
+  const t=todayStr(), c=wtCall(t), o=c.o, id=idp||'wt-';
+  if(c.k==='off'||c.k==='pre')return '';
+  if(c.k==='nokey'){
+    /* under the rain receipt the form already offers its own next missing day (the oldest of
+       the week). The box is shown there only when the call needs a DIFFERENT day first. */
+    if(noKeyBox){const nx=rnMissing(7)[0]||'', need=(c.miss&&c.miss[0])||rnShift(t,-1); if(nx===need)return '';}
+    const y=rnShift(t,-1), only=(c.miss.length===1&&c.miss[0]===y)||!c.miss.length;
+    return '<div class="wt-al wt-nokey" id="'+id+'al"><div class="wt-k">🌧 '+wtT('RAIN GAUGE','TOLOK HUJAN')+'</div>'+
+      '<div class="wt-h">'+(only?wtT('Yesterday’s rain is not keyed yet','Hujan semalam belum dimasukkan')
+        :(wtT('Rain not keyed: ','Hujan belum dimasukkan: ')+esc(c.miss.map(rnShort).join(', '))))+'</div>'+
+      '<div class="wt-w">'+wtT('Read the gauge and key it first. The watering call comes after.','Baca tolok dan masukkan dulu. Arahan siram air keluar selepas itu.')+'</div>'+
+      (rnCanKey()?'<button class="wt-btn" id="'+id+'key" onclick="wtGoKey()">'+(only?wtT('KEY IN YESTERDAY’S RAIN','MASUKKAN HUJAN SEMALAM'):wtT('KEY IN THE RAIN','MASUKKAN HUJAN'))+'</button>':'')+'</div>';}
+  if(c.k==='hold')return '<div class="wt-al wt-hold" id="'+id+'al"><div class="wt-k">⛔ '+wtT('WATERING ON HOLD','SIRAMAN DITAHAN')+'</div>'+
+    '<div class="wt-h">'+wtT('DO NOT WATER','JANGAN SIRAM AIR')+'</div>'+
+    '<div class="wt-w">'+wtT('The Owner’s order until ','Arahan Pengurus hingga ')+esc(wtDay(wtHoldEnd(t,o)))+'.</div>'+
+    '<div class="wt-x">'+wtT('Grafted trees only: ','Pokok cantuman sahaja: ')+WATER_GRAFT_L+' L '+wtT('each.','sepokok.')+'</div></div>';
+  if(c.k==='wet'){
+    const why=c.why==='today'?(wtT('Rain today so far: ','Hujan hari ini setakat ini: ')+nf(c.t)+' mm')
+      :c.why==='yday'?(wtT('Rain yesterday: ','Hujan semalam: ')+nf(c.y)+' mm')
+      :(nf(c.s3)+' mm '+wtT('in the last '+WATER_SOAK_DAYS+' days — the soil is still wet','dalam '+WATER_SOAK_DAYS+' hari terakhir — tanah masih basah'));
+    return '<div class="wt-al wt-wet" id="'+id+'al"><div class="wt-k">🌧 '+wtT('WET','BASAH')+'</div>'+
+      '<div class="wt-h">'+wtT('NO WATERING TODAY','TAK PERLU SIRAM AIR HARI INI')+'</div><div class="wt-w">'+why+'.</div>'+
+      (c.next?('<div class="wt-x">'+wtT('Water again: ','Siram air semula: ')+esc(wtDay(c.next))+wtT(' if no more rain.',' jika tiada hujan lagi.')+'</div>'):'')+'</div>';}
+  const done=wtDone(t), all=wtLots(), left=all.filter(L=>done.indexOf(L)<0);
+  if(done.length){
+    /* reported, in whole or in part: green, as in the approved sample; the lots still to do stay one tap away */
+    let h='<div class="wt-al wt-ok" id="'+id+'al"><div class="wt-k">✓ '+wtT('WATERED','SUDAH SIRAM AIR')+'</div>'+
+      '<div class="wt-h">'+wtT('Watering reported today','Siraman air hari ini sudah dilaporkan')+'</div>'+
+      '<div class="wt-w">Lot '+esc(done.join(' '))+' · '+nf(o.L)+' L '+wtT('per tree','sepokok')+(left.length?(' · '+wtT('not yet: Lot ','belum: Lot ')+esc(left.join(' '))):'')+'</div>';
+    if(left.length&&wtCanTick())h+=(WT.open===id)?wtPickerHTML(id,left)
+      :('<button class="wt-btn wt-gh" id="'+id+'done" onclick="wtOpen(\''+id+'\')">＋ '+wtT('ANOTHER LOT WATERED','LOT LAIN SUDAH SIRAM')+'</button>');
+    return h+'</div>';}
+  const hot=c.run>=WATER_HOT_DAY;
+  let h='<div class="wt-al wt-dry'+(hot?' wt-hot':'')+'" id="'+id+'al"><div class="wt-k">☀️ '+wtT('DRY','KERING')+' · '+wtT('day ','hari ke-')+c.run+'</div>'+
+    '<div class="wt-h">💧 '+wtT('WATER TODAY','SIRAM AIR HARI INI')+' · '+nf(o.L)+' L '+wtT('per tree','sepokok')+'</div>'+
+    '<div class="wt-w">'+wtT('Rain yesterday: ','Hujan semalam: ')+nf(c.y)+' mm · '+wtT('last '+WATER_SOAK_DAYS+' days: ',WATER_SOAK_DAYS+' hari terakhir: ')+nf(c.s3)+' mm</div>'+
+    '<div class="wt-x">'+(hot?wtT('No real rain for '+c.run+' days. Every tree today; grafted trees first ('+WATER_GRAFT_L+' L).','Tiada hujan sebenar '+c.run+' hari. Semua pokok hari ini; pokok cantuman dulu ('+WATER_GRAFT_L+' L).')
+                             :wtT('Grafted trees: '+WATER_GRAFT_L+' L each.','Pokok cantuman: '+WATER_GRAFT_L+' L sepokok.'))+'</div>';
+  if(wtCanTick())h+=(WT.open===id)?wtPickerHTML(id,left)
+    :('<button class="wt-btn" id="'+id+'done" onclick="wtOpen(\''+id+'\')">✓ '+wtT('WATERING DONE','SUDAH SIRAM AIR')+'</button>');
+  return h+'</div>';}
+/** The last day of the hold that covers d. */
+function wtHoldEnd(d,o){
+  for(const w of o.past){if(w.k==='hold'&&d>=w.a&&d<=w.b)return w.b;}
+  return o.hold;}
+function wtOpen(id){
+  const done=wtDone(todayStr()); WT.open=id; WT.lots={};
+  wtLots().forEach(L=>{if(done.indexOf(L)<0)WT.lots[L]=1;});
+  wtRefresh(true);}
+function wtClose(){WT.open='';wtRefresh(true);}
+function wtLot(L){WT.lots[L]=WT.lots[L]?0:1;wtRefresh(true);}
+async function wtSave(){
+  if(WT.busy||!wtCanTick())return;
+  const t=todayStr(), c=wtCall(t), done=wtDone(t);
+  if(c.k!=='dry'){WT.open='';toast(wtT('Today is not a watering day: nothing to record','Hari ini bukan hari siram air: tiada yang perlu direkod'),1);wtRefresh(true);return;}
+  const lots=wtLots().filter(L=>WT.lots[L]&&done.indexOf(L)<0);
+  if(!lots.length){toast(wtT('Pick at least one lot','Pilih sekurang-kurangnya satu lot'),1);return;}
+  WT.busy=true;
+  try{
+    const stamp=now();
+    for(const L of lots){
+      await persistEvent({uuid:uuid(),type:'TASK_DONE',dt:stamp,taskId:'',kind:'WATER',kindLabel:'Watering',
+        lot:L,count:c.o.L,countLabel:'L per tree',unit:'L',trees:treesInLot(L).length,
+        crew:0,hours:0,manHours:0,labourOff:true,
+        worker:(CFG&&CFG.worker)||'',device:(CFG&&CFG.device)||'',synced:false});}
+    WT.open='';
+    toast('✓ '+wtT('Watering recorded','Siraman air direkod')+' · Lot '+lots.join(' '));
+  }finally{WT.busy=false;}
+  wtRefresh(true);
+  wtSyncSoon(0);}
+function wtGoKey(){
+  const t=todayStr(), c=wtCall(t), d=(c.miss&&c.miss.length)?c.miss[0]:rnShift(t,-1);
+  if(myRole()==='WORKER'){openModule('rain');rnOpen(d);}
+  else{openModule('agro','wx');rnOpen(d);const e=$('hujancard');if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'});}}
+/** The crew's home screen, above the tiles. */
+function wtHomeHTML(){
+  if(myRole()!=='WORKER'||hubTiles().indexOf('rain')<0)return '';
+  return wtBoxHTML('wt-h-');}
+/** Repaint wherever the box is showing. A repaint that was not asked for by a tap never
+ *  takes the hold-date field from under the Owner's finger. */
+function wtRefresh(mine){
+  try{ if(typeof renderTaskNotice==='function')renderTaskNotice(); }catch(e){}
+  try{ const b=$('wt-r-slot'); if(b)b.innerHTML=wtBoxHTML('wt-r-',true); }catch(e){}
+  try{ const a=document.activeElement; if(mine||!(a&&a.id==='wt-m-date'))wtRenderOwner(); }catch(e){}}
+/** One sync for a burst of taps, a moment after the last one. */
+function wtSyncSoon(ms){
+  if(WT.syncT){clearTimeout(WT.syncT);WT.syncT=0;}
+  let tries=0;
+  const go=()=>{WT.syncT=0;
+    try{
+      if(!(CFG&&CFG.url&&navigator.onLine))return;
+      /* an upload of ordinary records is running: doSync() would turn this call away and the
+         order would wait for somebody to press SYNC. Come back when it has finished. */
+      if(typeof syncing!=='undefined'&&syncing&&tries++<WATER_RETRY_MAX){WT.syncT=setTimeout(go,WATER_RETRY_MS);return;}
+      doSync(true);
+    }catch(e){}};
+  if(ms>0)WT.syncT=setTimeout(go,ms); else go();}
+/** The Owner opens the page: take the farm's copy of the order before he touches it. */
+function wtFresh(){
+  if(!wtCanSet()||!CFG||!CFG.url||!navigator.onLine)return;
+  const n=Date.now(); if(n-(WT.pulled||0)<WATER_PULL_MS)return;
+  WT.pulled=n;
+  let p; try{p=Promise.resolve(doSync(true));}catch(e){return;}
+  const mine=p.catch(()=>{}).then(()=>{ if(WT.fresh===mine)WT.fresh=null; });
+  WT.fresh=mine;}
+/** What goes up with the order: the copy it was edited from, and this phone's own stamps. */
+function wtBaseOf(){
+  const st=String((SET_META.waterorder||{}).updated_at||'');
+  if(!WATER_BASE||typeof WATER_BASE!=='object')WATER_BASE={base:'',own:[]};
+  if(!Array.isArray(WATER_BASE.own))WATER_BASE.own=[];
+  if(st&&WATER_BASE.own.indexOf(st)<0)WATER_BASE.own=WATER_BASE.own.concat([st]).slice(-WATER_OWN_MAX);
+  return {base:String(WATER_BASE.base||''),own:WATER_BASE.own.slice()};}
+function wtSay(o){return o.mode==='hold'?('HOLD until '+wtDayEN(o.hold)+', '+nf(o.L)+' L'):o.mode==='off'?'OFF':('WATER on dry days, '+nf(o.L)+' L');}
+/** The Sheet has answered a push that carried the order. */
+async function wtPushed(stamp,lost,refused){
+  if(lost){
+    /* refused: another device changed the order before this one had received it. This
+       phone's edit is dropped, the Sheet's copy is taken on the pull, and the Owner is told. */
+    WATER_LOST={at:nowSec(),what:wtOrder().started?wtSay(wtOrder()):''};
+    WATER_BASE=null;
+    SET_META.waterorder=Object.assign({},SET_META.waterorder||{},{updated_at:''});
+    if(db){await put('kv',{k:'setmeta',v:SET_META});await put('kv',{k:'waterlost',v:WATER_LOST});await put('kv',{k:'waterbase',v:null});}
+    toast('⚠ Water order NOT applied — it was changed on another device first',1);
+    wtSyncSoon(WATER_SYNC_MS);                       // makes sure the Sheet's copy comes down
+  }else if(!refused){
+    /* The answered copy is now on the Sheet. With nothing waiting, there is nothing to track.
+       With an edit still waiting, the answered stamp becomes its base ONLY IF IT IS LATER than
+       the base it already has (replies can arrive out of order), and the stamps sent after it
+       STAY in `own`: their pushes may still be in the air. Third review: three taps two
+       seconds apart on a slow line forgot the second stamp, and the third push was refused
+       as "another device" on a farm with one device. */
+    if(!SET_DIRTY.waterorder)WATER_BASE=null;
+    else{
+      const wb=(WATER_BASE&&typeof WATER_BASE==='object')?WATER_BASE:{base:'',own:[]}, a=setStamp(stamp), b0=wb.base?setStamp(wb.base):null;
+      if(!(a!==null&&b0!==null&&a<=b0))
+        WATER_BASE={base:String(stamp||''),own:(Array.isArray(wb.own)?wb.own:[]).filter(x=>{const t=setStamp(x);return a!==null&&t!==null&&t>a;})};}
+    if(db)await put('kv',{k:'waterbase',v:WATER_BASE});}
+  wtRefresh();}
+/** True from the moment an edit is refused until the Sheet's copy of the order has come down. */
+function wtStale(){return !!WATER_ORDER&&!String((SET_META.waterorder||{}).updated_at||'');}
+function wtLostHTML(){
+  if(!WATER_LOST||!wtCanSet())return '';
+  const at=String(WATER_LOST.at||''), stale=wtStale();
+  return '<div class="wt-need wt-lost" id="wt-lost"><h4>⚠ YOUR LAST CHANGE WAS NOT APPLIED</h4><div>'+
+    (WATER_LOST.what?('You set <b>'+esc(WATER_LOST.what)+'</b>'+(at?(' ('+esc(wtDayEN(at.slice(0,10)))+' '+esc(hm(at).slice(0,5))+')'):'')+'. '):'')+
+    'The water order had already been changed on another device, and this one had not received it yet. '+
+    (stale?'<b id="wt-lost-wait">The farm’s order has not come down to this device yet: press SYNC.</b> Until it does, what is shown below is NOT the order the crew has.'
+          :'The order below is the one every phone has now. Set your change again if you still want it.')+'</div>'+
+    (stale?'':'<button class="wt-btn wt-gh" id="wt-lost-ok" onclick="wtLostOk()">OK, I HAVE SEEN IT</button>')+'</div>';}
+async function wtLostOk(){
+  if(wtStale())return;
+  WATER_LOST=null; if(db)await put('kv',{k:'waterlost',v:null});
+  wtRefresh(true); try{ if(typeof renderHub==='function')renderHub(); }catch(e){}}
+function wtLostLine(){return (WATER_LOST&&wtCanSet())?'💧 Your last water-order change was NOT applied — open Weather':'';}
+
+/* ---------- the Owner: WEATHER page ---------- */
+function wtWindow(){
+  const t=todayStr(), first=rnShift(RAIN_FROM,1), out=[];
+  for(let i=WATER_STRIP_DAYS-1;i>=0;i--){const d=rnShift(t,-i); if(d>=first)out.push(d);}
+  return out;}
+function wtPlanLine(d){
+  const p=(typeof WATER_PLAN!=='undefined'?WATER_PLAN:[]).find(x=>d>=x.from&&d<=x.to);
+  return p?('<b>'+esc(p.stage)+'</b> · '+esc(p.txt)):'';}
+function wtPlanTable(){
+  return '<table class="wt-tbl"><tr><th>Stage</th><th>Water per tree</th></tr>'+(typeof WATER_PLAN!=='undefined'?WATER_PLAN:[]).map(p=>
+    '<tr><td><b>'+esc(p.stage)+'</b><br><span class="small">'+esc(p.when)+'</span></td><td>'+esc(p.txt)+'</td></tr>').join('')+'</table>';}
+/** Dry mornings in the last WATER_MISS_DAYS that nobody reported. A morning when 8 mm or more
+ *  fell later that same day is not one of them: not watering was right. */
+function wtMissed(days,memo){
+  const t=todayStr(), from=rnShift(t,-WATER_MISS_DAYS);
+  return days.filter(d=>d<t&&d>=from&&wtCall(d,memo).k==='dry'&&!wtDone(d).length&&!((wtMm(d)||0)>=WATER_WET_MM)).length;}
+function wtOwnerNeeds(c,days,memo){
+  const out=[], t=todayStr(), y=rnShift(t,-1);
+  if(c.k==='dry'&&c.run>=WATER_TELL_DAY)out.push('☀️ <b>Dry '+c.run+' days in a row.</b> Check the spring and the tank.');
+  const miss=wtMissed(days,memo);
+  if(miss)out.push('💧 <b>Watering not reported on '+miss+' dry day'+(miss===1?'':'s')+'</b> in the last '+WATER_MISS_DAYS+'.');
+  if(c.k==='nokey')out.push('🌧 <b>Rain not keyed</b> for '+esc((c.miss&&c.miss.length?c.miss:[y]).map(wtDayEN).join(', '))+'.');
+  const r=rainOn(y);
+  if(r&&c.k!=='nokey'&&String(r.at||'').slice(0,10)===t&&(+String(r.at).slice(11,13))>=WATER_LATE_HOUR)
+    out.push('🕘 <b>Yesterday’s rain was keyed at '+esc(hm(r.at).slice(0,5))+'.</b> The call reached the crew late; the gauge is read first thing in the morning.');
+  return out;}
+function wtRenderOwner(){
+  const box=$('wtbox'); if(!box)return;
+  if(typeof RAIN_FROM==='undefined'||!roleAllows('agroweather')){box.innerHTML='';return;}
+  const t=todayStr(), o=wtOrder(), trees=(typeof PP_TREES!=='undefined'?PP_TREES:TREE_MASTER.length);
+  const help='<p class="small hidden" id="wt-help">The call is made from the farm gauge only, never JPS. <b>Wet</b>, no watering: yesterday '+WATER_WET_MM+' mm or more, or the last '+WATER_SOAK_DAYS+' days '+WATER_SOAK_MM+' mm or more. <b>Dry</b>, water: every other morning; red from day '+WATER_HOT_DAY+', and you are told at day '+WATER_TELL_DAY+'. No call until the last '+WATER_SOAK_DAYS+' days are keyed. A phone does not ring by itself: the box shows when the app is opened.</p>';
+  const plan=()=>{const pl=wtPlanLine(t);
+    return (pl?('<div class="wt-plan" id="wt-plan">Season plan for today: '+pl+'</div>'):'')+
+      '<button class="wt-btn wt-gh" id="wt-plan-tog" onclick="m5Tog(\'wt-plan-all\')">THE SEASON PLAN’S WATER, STAGE BY STAGE</button><div class="hidden" id="wt-plan-all">'+wtPlanTable()+'</div>';};
+  const wait=WT.wait?'<div class="wt-pend" id="wt-wait">⏳ Getting the latest order from the Sheet first…</div>':'';
+  const dirty=!!SET_DIRTY.waterorder||wtStale(), told=dirty?'will be told':'is told';
+  if(!o.started){
+    const L=WT.L0||WATER_L_DEFAULT;
+    box.innerHTML=wtLostHTML()+'<div class="sec">💧 The watering call <span class="m5-iq" onclick="m5Tog(\'wt-help\')">ⓘ</span></div>'+help+
+      '<div class="wt-big" id="wt-head">The watering call is not started</div>'+
+      '<div class="small" id="wt-why" style="margin-top:5px">The crew sees no watering box until you start it. Once started, each morning their phone says water or do not water, from the rain they keyed. Rain is keyed as usual either way.</div>'+
+      (wtCanSet()?(wait+'<div class="wt-row"><span>Litres per tree on a dry day</span><span class="wt-st"><button id="wt-l-dn" onclick="wtLit(-'+WATER_L_STEP+')">−</button><b id="wt-l-v">'+nf(L)+' L</b><button id="wt-l-up" onclick="wtLit('+WATER_L_STEP+')">+</button></span></div>'+
+        '<button class="wt-btn" id="wt-start" onclick="wtStart()">START · WATER ON DRY DAYS, '+nf(L)+' L A TREE</button>'):'')+plan();
+    return;}
+  const memo={}, c=wtCall(t,memo), days=wtWindow();
+  let wetN=0, dryN=0, doneN=0;
+  const cells=days.map(d=>{const k=wtCall(d,memo), dn=wtDone(d);
+    if(k.k==='wet')wetN++; if(k.k==='dry'){dryN++; if(dn.length)doneN++;}
+    return {d:d,k:k,done:dn,mm:wtMm(rnShift(d,-1))};});
+  const yr=rainOn(rnShift(t,-1)), keyed=(yr&&String(yr.at||'').slice(0,10)===t)?(' (keyed '+hm(yr.at).slice(0,5)+' today)'):'';
+  const head=c.k==='dry'?('☀️ DRY · day '+c.run+' — the crew '+told+' to water, '+nf(o.L)+' L a tree')
+    :c.k==='wet'?'🌧 WET — the crew is told NOT to water'
+    :c.k==='hold'?('⛔ WATER HOLD — the crew '+told+' not to water')
+    :c.k==='off'?'Watering alerts are off':'Rain not keyed — no call yet';
+  const why=c.k==='dry'?('Yesterday '+nf(c.y)+' mm'+keyed+', under '+WATER_WET_MM+' mm · last '+WATER_SOAK_DAYS+' days '+nf(c.s3)+' mm, under '+WATER_SOAK_MM+' mm. Today’s order: '+nf(trees*o.L)+' L for '+trees+' trees.')
+    :c.k==='wet'?((c.why==='today'?('Rain keyed today so far '+nf(c.t)+' mm.'):c.why==='yday'?('Yesterday '+nf(c.y)+' mm'+keyed+', at or over the '+WATER_WET_MM+' mm line.'):('Last '+WATER_SOAK_DAYS+' days '+nf(c.s3)+' mm, at or over the '+WATER_SOAK_MM+' mm soak line.'))+(c.next?(' Next watering '+esc(wtDayEN(c.next))+' if it stays dry.'):''))
+    :c.k==='hold'?('Your order until '+esc(wtDayEN(wtHoldEnd(t,o)))+'. The grafted trees still get '+WATER_GRAFT_L+' L.')
+    :c.k==='nokey'?('The call cannot be worked out until the gauge is keyed for '+esc((c.miss&&c.miss.length?c.miss:[rnShift(t,-1)]).map(wtDayEN).join(', '))+'.'):'The crew sees no watering box. Rain is still keyed as usual.';
+  const need=wtCanSet()?wtOwnerNeeds(c,days,memo):[];
+  const top=Math.max.apply(null,cells.map(x=>x.mm||0).concat([20]));
+  if(WT.day&&days.indexOf(WT.day)<0)WT.day='';
+  const sel=WT.day||t, sc=cells.find(x=>x.d===sel);
+  const mark={dry:'D',wet:'W',hold:'H',off:'–',pre:'·',nokey:'?'};
+  let h=wtLostHTML()+(need.length?('<div class="wt-need" id="wt-need"><h4>⚠ NEEDS YOU</h4>'+need.map(x=>'<div>'+x+'</div>').join('')+'</div>'):'')+
+    '<div class="sec">💧 Water today · '+esc(wtDayEN(t))+' <span class="m5-iq" onclick="m5Tog(\'wt-help\')">ⓘ</span></div>'+help+
+    '<div class="wt-big" id="wt-head">'+head+'</div><div class="small" id="wt-why" style="margin-top:5px">'+why+'</div>'+
+    (wtStale()?'<div class="wt-pend" id="wt-pend">⏳ This is not the farm’s order. The farm’s order has not come down to this device yet: press SYNC.</div>'
+      :dirty?'<div class="wt-pend" id="wt-pend">⏳ Your order is not on the Sheet yet, so the crew’s phones still show the one before. It goes up by itself in a moment. If this line stays, press SYNC.</div>':'');
+  if(c.k==='dry'&&wtCanTick())h+='<div id="wt-o-slot">'+wtOwnerTick()+'</div>';
+  h+='<div class="wt-kp"><div><b id="wt-k-dry">'+dryN+'</b><span>dry call'+(dryN===1?'':'s')+'</span></div><div><b id="wt-k-done">'+doneN+'</b><span>watered</span></div>'+
+    '<div><b id="wt-k-wet">'+wetN+'</b><span>wet call'+(wetN===1?'':'s')+'</span></div><div><b id="wt-k-save">'+nf(+(wetN*trees*o.L/1000).toFixed(1))+'</b><span>m³ not pumped</span></div></div>'+
+    '<div class="wt-sub">Last '+days.length+' mornings · what the crew was told · tap one</div>'+
+    '<div class="wt-strip" id="wt-strip">'+cells.map(x=>{const k=x.k.k;
+      return '<button class="wt-day'+(x.d===sel?' wt-now':'')+(x.d===t?' wt-today':'')+'" id="wt-dy-'+x.d+'" onclick="wtPick(\''+x.d+'\')"><span class="wt-mm">'+(x.mm?nf(x.mm):'')+'</span>'+
+        '<span class="wt-bar" style="height:'+(x.mm?Math.max(3,x.mm/top*56):2)+'px"></span>'+
+        '<span class="wt-c wt-c-'+k+'">'+(k==='dry'&&x.done.length?'✓':mark[k])+'</span><span class="wt-d">'+(+x.d.slice(8))+'</span></button>';}).join('')+'</div>'+
+    '<div class="wt-lg"><span><i class="wt-c-dry"></i>D water</span><span><i class="wt-c-wet"></i>W do not water</span><span><i class="wt-c-hold"></i>H hold</span><span><i class="wt-c-nokey"></i>? not keyed</span><span>✓ watering reported</span><span>· before the call started</span></div>';
+  if(sc){const k=sc.k, rd=wtMm(sc.d);
+    h+='<div class="wt-pick" id="wt-pick"><b>'+esc(wtDayEN(sc.d))+'</b> · '+
+      (k.k==='dry'?('DRY, day '+(k.run||1)+' — told to water. Rain the day before '+nf(k.y)+' mm; '+WATER_SOAK_DAYS+' days '+nf(k.s3)+' mm. '+(sc.done.length?('Reported: Lot '+esc(sc.done.join(' '))+'.'):(sc.d<t?'Not reported.':'Not reported yet.'))+(sc.d<t&&rd>=WATER_WET_MM?(' '+nf(rd)+' mm fell later that day.'):''))
+       :k.k==='wet'?('WET — told not to water. '+(k.why==='today'?('Rain keyed that day '+nf(k.t)+' mm.'):('Rain the day before '+nf(k.y)+' mm; '+WATER_SOAK_DAYS+' days '+nf(k.s3)+' mm.')))
+       :k.k==='hold'?'WATER HOLD — told not to water.'
+       :k.k==='off'?'Alerts were off — nobody was told anything.'
+       :k.k==='pre'?'Before the watering call was started — nobody was told anything.'
+       :'No call: the rain for the days before was not keyed.')+'</div>';}
+  h+='<div class="small" style="margin-top:6px">The bar is the rain that fell the day before (mm, farm gauge).</div>';
+  /* the order */
+  h+='<div class="sec" style="margin-top:14px">💧 Your water order</div>'+shareBox('waterorder')+wait;
+  if(wtCanSet()){
+    h+='<div class="wt-row"><span>Litres per tree on a dry day</span><span class="wt-st"><button id="wt-l-dn" onclick="wtLit(-'+WATER_L_STEP+')">−</button><b id="wt-l-v">'+nf(o.L)+' L</b><button id="wt-l-up" onclick="wtLit('+WATER_L_STEP+')">+</button></span></div>'+
+      '<div class="wt-modes"><button class="wt-mode'+(o.mode==='on'?' on':'')+'" id="wt-m-on" onclick="wtMode(\'on\')">WATER<small>on dry days</small></button>'+
+      '<button class="wt-mode'+(o.mode==='hold'?' on':'')+'" id="wt-m-hold" onclick="wtMode(\'hold\')">HOLD<small>no water until…</small></button>'+
+      '<button class="wt-mode'+(o.mode==='off'?' on':'')+'" id="wt-m-off" onclick="wtMode(\'off\')">OFF<small>no alert</small></button></div>'+
+      (o.mode==='hold'?('<label>Hold until (the last day with no watering)</label><input type="date" id="wt-m-date" min="'+t+'" max="'+rnShift(t,WATER_HOLD_MAX)+'" value="'+esc(o.hold)+'" onchange="wtHoldTo(this.value)">'+
+        (o.hold<t?'<div class="small" id="wt-m-ended" style="color:var(--warn);margin-top:4px">That hold ended on '+esc(wtDayEN(o.hold))+': the crew is on WATER on dry days again.</div>':'')):'');
+  }else h+='<div class="wt-row"><span>Litres per tree on a dry day</span><b>'+nf(o.L)+' L</b></div><div class="wt-row"><span>Mode</span><b>'+(o.mode==='hold'?('HOLD until '+esc(wtDayEN(o.hold))):o.mode==='off'?'OFF':'WATER on dry days')+'</b></div>';
+  h+='<div class="small" style="margin-top:7px">The order goes to every phone with the next sync. HOLD is for the 7 days after PBZ: the crew is told not to water even when it is dry. The '+(TREE_MASTER.length-trees>0?(TREE_MASTER.length-trees)+' ':'')+'grafted trees keep '+WATER_GRAFT_L+' L on every dry day.</div>'+plan();
+  box.innerHTML=h;
+  const st=$('wt-strip'), n=st&&st.querySelector('.wt-now'); if(st&&n)st.scrollLeft=Math.max(0,n.offsetLeft-st.offsetLeft-140);}
+/** The Owner can report watering himself, for today only, when the crew did not. */
+function wtOwnerTick(){
+  const t=todayStr(), done=wtDone(t), left=wtLots().filter(L=>done.indexOf(L)<0), id='wt-o-';
+  if(!left.length)return '<div class="wt-pick" id="wt-o-ok">✓ Watering reported today · Lot '+esc(done.join(' '))+'</div>';
+  if(WT.open===id)return wtPickerHTML(id,left);
+  return (done.length?('<div class="wt-pick" id="wt-o-part">Reported: Lot '+esc(done.join(' '))+'. Not yet: Lot '+esc(left.join(' '))+'.</div>'):'')+
+    '<button class="wt-btn wt-gh" id="'+id+'done" onclick="wtOpen(\''+id+'\')">✓ RECORD WATERING DONE MYSELF</button>';}
+function wtPick(d){WT.day=d;wtRenderOwner();}
+/** Save the order. `make(o,today)` gives the change, worked out from the order AS IT IS WHEN
+ *  THE PULL HAS LANDED (the page asks for the farm's copy when it opens, and a tap made while
+ *  that is still in the air waits for it). Nothing is written, stamped or sent when nothing
+ *  changed. The order is marked "not shared" BEFORE anything is awaited, so a pull landing in
+ *  between cannot put the old order back over the tap. */
+async function wtSetOrder(make){
+  if(!wtCanSet())return false;
+  if(WT.wait){WT.q.push(make);return false;}       // the farm's copy is still coming: this tap takes its turn after it
+  if(WT.fresh){
+    WT.wait=true; WT.q=[]; wtRenderOwner();
+    try{await Promise.race([WT.fresh,new Promise(r=>setTimeout(r,WATER_FRESH_WAIT_MS))]);}catch(e){}
+    WT.wait=false;
+    const q=WT.q; WT.q=[];
+    if(!wtCanSet())return false;                    // that pull logged this phone out: nothing is applied
+    let any=await wtApply(make);
+    for(const m of q)any=(await wtApply(m))||any;
+    if(!any)wtRenderOwner();
+    return any;}
+  const done=await wtApply(make); if(!done)wtRenderOwner();
+  return done;}
+async function wtApply(make){
+  if(!wtCanSet())return false;
+  const o=wtOrder(), t=todayStr(), patch=(typeof make==='function')?make(o,t):make;
+  if(!patch)return false;
+  const next=Object.assign({L:o.L,mode:o.mode,from:o.from,hold:o.hold,since:o.since||t,past:o.past},patch);
+  next.past=(next.past||[]).slice(-WATER_PAST_MAX);
+  const same=o.started&&['L','mode','from','hold','since'].every(k=>String(next[k])===String(o[k]))&&JSON.stringify(next.past)===JSON.stringify(o.past);
+  if(same)return false;
+  if(!SET_DIRTY.waterorder||!WATER_BASE)WATER_BASE={base:String((SET_META.waterorder||{}).updated_at||''),own:[]};
+  WATER_ORDER=Object.assign(next,{at:nowSec(),by:(CFG&&CFG.worker)||''});
+  const m=markSetting('waterorder');               // stamped and marked at once
+  if(db){await put('kv',{k:'waterorder',v:WATER_ORDER});await put('kv',{k:'waterbase',v:WATER_BASE});}
+  await m;
+  wtRefresh(true);
+  wtSyncSoon(WATER_SYNC_MS);
+  return true;}
+function wtStart(){if(!wtCanSet())return; wtSetOrder((o,t)=>o.started?null:{L:WT.L0||WATER_L_DEFAULT,mode:'on',from:'',hold:'',since:t,past:[]});}
+function wtLit(n){
+  const clamp=v=>Math.max(WATER_L_MIN,Math.min(WATER_L_MAX,v));
+  if(!wtOrder().started&&!WT.fresh){WT.L0=clamp((WT.L0||WATER_L_DEFAULT)+n);wtRenderOwner();return;}
+  wtSetOrder(o=>{ if(!o.started){WT.L0=clamp((WT.L0||WATER_L_DEFAULT)+n);return null;} return {L:clamp(o.L+n)}; });}
+/** The window the order's present hold or OFF has covered up to yesterday, to be kept as history. */
+function wtPastOf(o){
+  const t=todayStr(), y=rnShift(t,-1), past=o.past.slice();
+  if(o.mode==='hold'&&o.hold){const a=o.from||o.since, b=o.hold<y?o.hold:y; if(a&&b>=a)past.push({a:a,b:b,k:'hold'});}
+  if(o.mode==='off'){const a=o.from||o.since; if(a&&y>=a)past.push({a:a,b:y,k:'off'});}
+  return past;}
+function wtMode(m){
+  wtSetOrder((o,t)=>{
+    if(!o.started)return null;
+    if(m===o.mode&&!(m==='hold'&&o.hold<t))return null;     // already there (a hold that has ended may be set again)
+    const past=wtPastOf(o);
+    return m==='hold'?{mode:'hold',from:t,hold:rnShift(t,WATER_HOLD_DAYS-1),past:past}
+      :m==='off'?{mode:'off',from:t,hold:'',past:past}:{mode:'on',from:'',hold:'',past:past};});}
+function wtHoldTo(v){
+  const t=todayStr(); v=wtOkDay(v);
+  if(!v||v<t||v>rnShift(t,WATER_HOLD_MAX)){toast('Pick a day from today to '+wtDayEN(rnShift(t,WATER_HOLD_MAX)),1);wtRenderOwner();return;}
+  wtSetOrder((o,t2)=>!o.started?null
+    :(o.mode==='hold'&&o.hold>=t2)?{hold:v}                                // the hold that is running: only its last day moves
+    :{mode:'hold',from:t2,hold:v,past:wtPastOf(o)});}                      // a hold that had ended: this is a new one
+/** The Owner's Weather tile: red when the dry spell has reached the day he asked to be told. */
+function wtDrySpell(){
+  if(!wtCanSet()||typeof RAIN_FROM==='undefined')return 0;
+  const c=wtCall(); return (c.k==='dry'&&c.run>=WATER_TELL_DAY)?c.run:0;}
+function wtTileBadge(){if(wtLostLine())return {t:'CHECK ORDER'}; const n=wtDrySpell(); return n?{t:'DRY '+n+' DAYS'}:null;}
 
 // ---- the Owner's month sheet, in the estate's layout ---------------------------------
 function rnMonths(){
@@ -9859,7 +10331,7 @@ async function takeRainPack(j){
   if(db)await put('kv',{k:'rainpack',v:{sig:RAIN_SIG,jps:JPS_RAIN,meta:JPS_META,served:true}});
   /* repaint only when something arrived, and never the FORM: a pull landing while a man is
      half-way through typing his mm must not redraw the box under his thumb. */
-  if(!j.rainunchanged){try{renderRain(); if(!curModule)renderHub();}catch(paintErr){}}
+  if(!j.rainunchanged){try{renderRain(); if(!curModule)renderHub(); if(typeof wtRenderOwner==='function')wtRenderOwner();}catch(paintErr){}}
   return n;}
 async function pushRain(){
   const batch=RAINFALL.filter(r=>!r.synced);
@@ -14669,12 +15141,20 @@ function settingValue(k){
   if(k==='season')    return SEASON;         // v3.74.0
   if(k==='opencount') return OPEN_COUNT;     // v3.74.0
   if(k==='buyask')    return BUYASK;         // v3.76.0
+  if(k==='waterorder')return WATER_ORDER;    // v3.78.0
   return null;}
 
 /** Mark a setting as changed here and remember who did it. Called by every saver. */
 async function markSetting(k){
   if(SETTINGS_KEYS.indexOf(k)<0)return;
-  SET_META[k]={updated_at:nowSec(),updated_by:(CFG&&CFG.worker)||'',role:myRole()};
+  /* v3.78.0 — STRICTLY LATER than this key's last stamp. Stamps are to the second, so two
+     edits inside one second carried the same stamp and "newest wins" could not tell them
+     apart; and an edit stamped earlier than a copy that came from a phone with a fast clock
+     would be refused by the Sheet as older. */
+  let at=nowSec(); const was=(SET_META[k]||{}).updated_at, a0=was?setStamp(was):null, b0=setStamp(at);
+  if(a0!==null&&b0!==null&&b0<=a0){const d=new Date(a0+1000),p2=n=>String(n).padStart(2,'0');
+    at=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds());}
+  SET_META[k]={updated_at:at,updated_by:(CFG&&CFG.worker)||'',role:myRole()};
   SET_DIRTY[k]=true;
   if(db){await put('kv',{k:'setmeta',v:SET_META});await put('kv',{k:'setdirty',v:SET_DIRTY});}
   badge();}
@@ -14688,25 +15168,63 @@ function settingsQueue(){
     if(!SET_DIRTY[k]||SETTINGS_KEYS.indexOf(k)<0)return;
     const m=SET_META[k]||{};
     out[k]={value:settingValue(k),updated_at:m.updated_at||nowSec(),
-      updated_by:m.updated_by||'',role:m.role||myRole(),device:(CFG&&CFG.device)||''};});
+      updated_by:m.updated_by||'',role:m.role||myRole(),device:(CFG&&CFG.device)||''};
+    /* v3.78.0 — the water order says which copy it was edited from (see WATER_BASE) */
+    if(k==='waterorder'&&typeof wtBaseOf==='function')Object.assign(out[k],wtBaseOf());});
   return out;}
 
 async function pushSettings(){
   const q=settingsQueue(); const n=Object.keys(q).length;
   if(!n||!CFG||!CFG.url||!navigator.onLine)return false;
+  /* v3.78.0 — the water order goes up with the stamp of the copy it was edited from, and the
+     stamps this phone has itself tried to send; that list is kept before the request leaves. */
+  if(q.waterorder&&db&&typeof WATER_BASE!=='undefined'&&WATER_BASE)await put('kv',{k:'waterbase',v:WATER_BASE});
   for(let attempt=1;attempt<=SYNC_TRIES;attempt++){
     try{
       const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({settings:q}),
         headers:{'Content-Type':'text/plain;charset=utf-8'}});
       const j=await r.json();
       if(j&&j.ok&&j.settings){
-        Object.keys(q).forEach(k=>{delete SET_DIRTY[k];});
+        /* v3.78.0 — TWO THINGS STAY QUEUED that used to be marked sent.
+           (1) A key the Sheet side does not know: an Apps Script older than the app answers
+               "(not a shared setting)". The Owner's water order would have lived on his
+               phone alone, looking shared. It waits, and goes up by itself once the Apps
+               Script is updated; the sync screen says so.
+           (2) A key SAVED AGAIN while this push was in the air: the reply is about the older
+               copy. Found in review with three quick taps on the litres: the phone said
+               350 L, the Sheet and the crew 250 L, nothing queued. "Saved again" is read
+               from the STAMP alone, which markSetting() now makes strictly later on every
+               save. It is NOT read from the value: the store's opening count is typed into
+               the live object before SAVE is pressed, and a value test sent those unsaved
+               figures up 22 times in 30 seconds (second review).
+           An edit refused as OLDER than the Sheet's is still dropped: the Sheet's is newer.
+           And one refusal is new, for the water order alone: "(changed on another device)".
+           That edit was made on a copy the Sheet had already replaced; it is dropped, the
+           Sheet's copy is taken on the pull, and the Owner is told on the Weather page. */
+        const refused=Array.isArray(j.refused)?j.refused.map(String):[];
+        const unknown=Object.keys(q).filter(k=>refused.some(x=>x.indexOf(k+' (not a shared setting)')===0));
+        const moved=[];
+        Object.keys(q).forEach(k=>{
+          if(unknown.indexOf(k)>=0)return;
+          const m=SET_META[k]||{};
+          if(m.updated_at&&String(m.updated_at)!==String(q[k].updated_at)){moved.push(k);return;}
+          delete SET_DIRTY[k];});
+        /* a refusal of a copy this phone has ITSELF since replaced is not news: its own newer
+           push overtook the slow one, and the Sheet turned the slow one away. Only a refusal
+           of the copy the phone still holds means another device got there first. */
+        const lost=Object.keys(q).filter(k=>moved.indexOf(k)<0&&refused.some(x=>x.indexOf(k+' (changed on another device)')===0));
         if(db)await put('kv',{k:'setdirty',v:SET_DIRTY});
-        clearSyncFail('settings'); badge(); renderSync();
+        if(q.waterorder&&unknown.indexOf('waterorder')<0&&typeof wtPushed==='function')
+          await wtPushed(q.waterorder.updated_at,lost.indexOf('waterorder')>=0,refused.some(x=>x.indexOf('waterorder ')===0));
+        if(unknown.length)noteSyncFail('settings',tr('sy_l_settings'),unknown.length,unknown.map(k=>tr('st_'+k,k)).join(', ')+' — '+tr('st_oldgs','kept on this phone: the Google Sheet side is older than this app'));
+        else clearSyncFail('settings');
+        badge(); renderSync();
         // the backend refuses an edit older than what it already holds — say so rather
         // than letting the phone believe its figure is now the farm's figure
-        if(Array.isArray(j.refused)&&j.refused.length)
-          toast('⚠ '+tr('st_refused')+': '+j.refused.join(', '),1);
+        const other=refused.filter(x=>!unknown.concat(moved).concat(lost).some(k=>x.indexOf(k+' ')===0));
+        if(unknown.length)toast('⚠ '+unknown.map(k=>tr('st_'+k,k)).join(', ')+' — '+tr('st_oldgs','kept on this phone: the Google Sheet side is older than this app'),1);
+        if(other.length)toast('⚠ '+tr('st_refused')+': '+other.join(', '),1);
+        if(moved.length)setTimeout(()=>{try{pushSettings();}catch(e){}},400);   // the newer copy goes up next
         return true;}
       noteSyncFail('settings',tr('sy_l_settings'),n,tr('sy_oldbackend'));
       return false;
@@ -14752,11 +15270,21 @@ async function mergeSettings(map){
     const mine=(SET_META[k]||{}).updated_at||'';
     const theirs=String(inc.updated_at||'');
     if(!theirs)continue;
-    if(mine&&!setIsNewer(theirs,mine))continue;     // ours is the same or newer
+    if(mine&&!setIsNewer(theirs,mine)){              // ours is the same or newer
+      /* v3.78.0 — THE SAME SECOND, A DIFFERENT ORDER. Two Owner devices can stamp the water
+         order alike; the Sheet keeps the one that arrived last and every other phone has
+         that one. A phone holding the other, with nothing queued, takes the Sheet's. */
+      let tie=false;
+      if(k==='waterorder'){const a1=setStamp(theirs), b1=setStamp(mine);
+        try{tie=a1!==null&&a1===b1&&JSON.stringify(inc.value)!==JSON.stringify(settingValue(k));}catch(e){}}
+      if(!tie)continue;}
     if(await applySetting(k,inc.value)){
       SET_META[k]={updated_at:theirs,updated_by:String(inc.updated_by||''),
         role:String(inc.role||'')};
-      changed.push(k);}}
+      changed.push(k);
+      /* v3.78.0 — the Weather page reads the order's stamp (is this the farm's copy yet?), and
+         the stamp is only written here, after applySetting() has already repainted */
+      if(k==='waterorder'&&typeof wtRefresh==='function')wtRefresh();}}
   if(changed.length&&db)await put('kv',{k:'setmeta',v:SET_META});
   return changed;}
 
@@ -14898,6 +15426,13 @@ async function applySetting(k,v){
       BUYASK=next; if(db)await put('kv',{k:'buyask',v:BUYASK});
       if(typeof ppRefresh==='function')ppRefresh();
       if(typeof renderProcure==='function')renderProcure();
+      return true;}
+    /* v3.78.0 — the Owner's water order. One writer, one small object: newest wins whole. A
+       value with no litres and no mode is not an order and is refused. */
+    if(k==='waterorder'){
+      if(!v||typeof v!=='object'||Array.isArray(v)||(!(+v.L>0)&&!v.mode))return false;
+      WATER_ORDER=v; if(db)await put('kv',{k:'waterorder',v:WATER_ORDER});
+      if(typeof wtRefresh==='function')wtRefresh();
       return true;}
   }catch(e){return false;}
   return false;}
@@ -21421,6 +21956,10 @@ function needsYou(){
   const pd=(typeof pendingDispatches==='function')?pendingDispatches():[];
   push('crit','📷',pd.length,tr('cd_a_hold'),tr('cd_s_hold'),tr('cd_w_hold'),'mkt','verify');
 
+  /* v3.78.0 — a dry spell: no real rain on the farm gauge for WATER_TELL_DAY mornings in a row */
+  const ds=(typeof wtDrySpell==='function')?wtDrySpell():0;
+  push('warnr','☀️',ds,tr('cd_a_dry','Dry days in a row'),tr('cd_s_dry','no real rain on the farm gauge — check the spring and the tank'),tr('cd_w_dry','WATER'),'agro','wx');
+
   // 4. an active ingredient with no brand behind it - this stops the crew dead
   const ua=(typeof unallocatedSlots==='function')?unallocatedSlots():0;
   push('warnr','🔗',ua,tr('cd_a_wait'),tr('cd_s_wait'),tr('cd_w_wait'),'inv','alloc');
@@ -23209,7 +23748,7 @@ function whoLine(e){
     case 'ROTTEN':  return (e.tree||'')+' · '+q+' lost'+(e.cause?(' — '+e.cause):'');
     case 'TIE':     return (e.tree||'')+' · '+q+' fruit tied';
     case 'TIE_ADJUST': return 'tying corrected on '+(e.tree||'');
-    case 'TASK_DONE':  return 'finished a task'+(e.kind?(' — '+e.kind):'');
+    case 'TASK_DONE':  return e.kind==='WATER'?('watered Lot '+(e.lot||'')):('finished a task'+(e.kind?(' — '+e.kind):''));
     case 'DISPATCH_REQ':    return 'weighed a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
                                    (e.merchant?(' · '+e.merchant):'');
     case 'DISPATCH':        return 'APPROVED a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
@@ -23439,6 +23978,11 @@ function ownAlerts(){
   const pend=(typeof CORRECTIONS!=='undefined'?CORRECTIONS:[])
     .filter(c=>String(c.status||'').toUpperCase()==='PENDING').length;
   if(pend)out.push({hot:true,txt:'✏️ '+pend+' '+tr('ow_corrwait','correction(s) waiting for you')});
+  /* v3.78.0 — the dry spell he asked to be told about, on the screen he opens first */
+  const ds=(typeof wtDrySpell==='function')?wtDrySpell():0;
+  if(ds)out.unshift({hot:true,txt:'☀️ '+ds+' '+tr('ow_dry','dry days in a row — check the spring and the tank')});
+  const wl=(typeof wtLostLine==='function')?wtLostLine():'';
+  if(wl)out.unshift({hot:true,txt:wl});
   if(typeof focPending==='function'){
     const fp=focPending().length;
     if(fp)out.push({hot:false,txt:'🎁 '+fp+' '+tr('ow_focwait','ration request(s) waiting')});}
