@@ -2700,6 +2700,14 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pp-os-tick span{flex:1;min-width:0}
 .pp-os-buy{display:block;margin-top:3px;color:#1f5f8b !important;font-size:12px;line-height:1.3}
 .pp-os-key{font-size:12px;line-height:1.3;color:#1f5f8b;margin:4px 0 2px}
+/* v3.81.0 - rain on the spray card */
+.pp-rn-line{background:#f1f7fb;border:1px solid #dfe5dd;border-left:4px solid #1f5f8b;border-radius:8px;padding:9px 11px;font-size:13px;line-height:1.35;margin:8px 0;color:var(--ink)}
+.pp-rn-warn{background:#fdf1f1;border:1px solid #e2b4b4;border-left:4px solid #c62828;border-radius:8px;padding:9px 11px;font-size:13.5px;line-height:1.35;margin:8px 0;color:var(--ink)}
+.pp-rn-warn b{display:block;color:#c62828;font-size:14.5px;margin-bottom:2px}
+.pp-rn-wash{background:#fdf1f1;border:2px solid #c62828;border-radius:12px;padding:10px 11px;font-size:13.5px;line-height:1.4;margin:6px 0 10px;color:var(--ink)}
+.pp-rn-wash h5{margin:0 0 4px;font-size:14px;color:#c62828}
+.pp-rn-wash .pp-act{margin-top:9px}
+.pp-rn-wash .pp-ghost{background:#fff}
 .pp-short{color:#c62828;font-weight:800}
 .pp-scroll{overflow-x:auto;border:1px solid #dfe5dd;border-radius:10px;background:#fff;margin:8px 0}
 .pp-t{border-collapse:collapse;font-size:13px;width:100%;min-width:300px}
@@ -4472,7 +4480,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.80.0"></script>
-<script src="app.js?v=3.80.0"></script>
+<script src="database.js?v=3.81.0"></script>
+<script src="app.js?v=3.81.0"></script>
 </body>
 </html>

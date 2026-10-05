@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.80.0';   // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.81.0';   // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -7362,6 +7362,7 @@ function ppView(p,rec,rows){
     v.trees=ppTreesFor(v.basis,v.lots);
     return v;}
   v.num=+x.num||0; v.mon=x.mon||String(rec.plan||'').slice(0,7);
+  v.sfx=/^[a-z]$/.test(String(x.sfx||''))?String(x.sfx):'';   // v3.81.0 - the letter of a re-spray
   v.date=String(rec.plan||'').slice(0,10); v.tanks=+rec.tanks||0;
   v.lots=(Array.isArray(x.lots)&&x.lots.length)?x.lots.slice():ppLots();
   v.lines=(Array.isArray(rec.lines)?rec.lines:[]).map(ppLine);
@@ -7438,10 +7439,10 @@ function ppCounts(pid,dt){
 /* ---------- names ---------- */
 function ppName(v){
   if(!v.num)return 'Planned '+ppTypeW(v.k);
-  return ppMonEN(v.mon)+' · '+PP_GRPW[v.grp][0]+' '+v.num;}
+  return ppMonEN(v.mon)+' · '+PP_GRPW[v.grp][0]+' '+v.num+(v.sfx||'');}   // v3.81.0 - "Set 2b"
 function ppNameBM(v){
   if(!v.num)return '';
-  return ppMonName(v.mon)+' · '+ppT(PP_GRPW[v.grp][0],PP_GRPW[v.grp][1])+' '+v.num;}
+  return ppMonName(v.mon)+' · '+ppT(PP_GRPW[v.grp][0],PP_GRPW[v.grp][1])+' '+v.num+(v.sfx||'');}
 function ppTgt(v){return ppT(v.tgt,v.tgtbm)||v.tgt||'';}
 /** The next number in a month, by type. Skipped sets keep theirs; adopted rows hold theirs. */
 function ppNextNum(mon,grp){
@@ -7529,7 +7530,9 @@ function ppLogText(e){
   else if(e.k==='seen')t='the crew’s move seen by the Owner';
   else if(e.k==='done'||e.k==='rec')t=(e.k==='rec'?'recorded by the Owner: ':'')+'done '+ppFmtS(e.d)+
     (e.lots?(' · Lot '+e.lots.join(' ')):'')+(e.tanks?(' · '+nf(e.tanks)+' tanks'):'')+
-    (e.crew?(' · '+e.crew+' crew × '+nf(e.hours)+' h'):'');
+    (e.crew?(' · '+e.crew+' crew × '+nf(e.hours)+' h'):'')+
+    ((e.fin==='am'||e.fin==='pm')?(' · finished in the '+(e.fin==='am'?'morning':'afternoon')):'');   // v3.81.0
+  else if(e.k==='wash')t='rain after the spraying of '+ppFmtS(e.d)+' ('+nf(e.mm)+' mm): '+(e.a==='again'?('sprayed again as '+(e.name||'')):'no need, it held');   // v3.81.0
   else t=String(e.k||'');
   return d+' · '+t+who;}
 
@@ -7575,13 +7578,16 @@ function ppRecLines(basis,lines,tanks,lots,trees){
 function ppScope(lots){return lots.length===LOT_KEYS.length?'ALL':lots.join('+');}
 /** A new record for a planned round (v.plan) or an extra set. `o` = {date,tanks,lots,lines,trees}. */
 function ppNewRec(v,o,status){
-  const mon=String(o.date).slice(0,7), grp=v.grp;
+  /* v3.81.0 - a re-spray (v.re) keeps the month and the number of the set it repeats, and takes a letter */
+  const re=(v.re&&status!=='SKIPPED')?v.re:null;
+  const mon=re?String(re.mon):String(o.date).slice(0,7), grp=v.grp;
   const trees=v.basis==='P'?((+o.trees>0)?+o.trees:ppTreesFor('P',o.lots)):ppTrees(o.lots);
-  const num=(status==='SKIPPED')?0:ppNextNum(mon,grp);
+  const num=(status==='SKIPPED')?0:(re?(+re.num||0):ppNextNum(mon,grp));
   const x={iss:1,mon:mon,grp:grp,num:num,code:v.code||'',k:v.k,stage:v.stage||'',tgtbm:v.tgtbm||'',
     planDay:v.noPlanDay?'':v.planDay,lots:o.lots.slice(),why:'',extra:!!v.extra,ver:1,log:[]};
+  if(re){x.sfx=String(re.sfx||'');x.re=String(re.uuid||'');x.rek=String(re.k||'');x.rel=(re.lots||[]).filter(L=>o.lots.indexOf(L)>=0);}   /* it answers for the lots it was asked about AND is issued for: a lot he took out comes back as its own question */
   return {uuid:uuid(),phaseId:v.planId||('P27|X'+uuid().replace(/-/g,'').slice(0,8)),
-    month:ppMonEN(mon),set:num?(PP_GRPW[grp][0]+' '+num):'',
+    month:ppMonEN(mon),set:num?(PP_GRPW[grp][0]+' '+num+(re?String(re.sfx||''):'')):'',
     kind:v.k==='fert'?'FERT':'FOLIAR',
     mode:v.k==='fert'?'SOIL':v.k==='drench'?'DRENCH':v.k==='trunk'?'TRUNK':v.k==='weed'?'WEED':'SPRAY',
     header:v.tgt||'',basis:ppBasisLong(v.basis),plan:o.date,scope:ppScope(o.lots),trees:trees,
@@ -7644,10 +7650,12 @@ async function ppFileDone(rec,o,logKind){
   EVENTS.forEach(e=>{if(e&&e.lot&&progRowMatches(e,rec.uuid)&&lots.indexOf(e.lot)<0)lots.push(e.lot);});
   x.done={date:o.date,tanks:(+prev.tanks||0)+(+o.tanks||0),crew:Math.round(+o.crew||0),hours:+o.hours||0,
     by:ppMe(),via:o.via||'',lots:lots.sort()};
+  const fin=(o.fin==='am'||o.fin==='pm')?o.fin:'';   // v3.81.0 - a leaf spray: finished in the morning / the afternoon
+  if(fin)x.done.fin=fin;
   const issued=(x.lots&&x.lots.length)?x.lots:ppLots();
   if(issued.every(L=>lots.indexOf(L)>=0))rec.status='CLOSED';
   if(x.notice)x.notice.seen=true;
-  ppLog(x,{k:logKind||'done',d:o.date,lots:o.lots.slice(),tanks:+o.tanks||0,crew:Math.round(+o.crew||0),hours:+o.hours||0});
+  ppLog(x,Object.assign({k:logKind||'done',d:o.date,lots:o.lots.slice(),tanks:+o.tanks||0,crew:Math.round(+o.crew||0),hours:+o.hours||0},fin?{fin:fin}:{}));
   await ppSave(rec,false);
   if(typeof LAST_CREW!=='undefined'&&+o.crew>0){LAST_CREW={crew:Math.round(+o.crew),hours:+o.hours||0};
     if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});}
@@ -7913,9 +7921,11 @@ function ppNeedHTML(){
     ' here and issue the work from this page.<button class="pp-ghost" id="pp-olddir-go" style="margin-top:8px" '+(PP_ODB?'disabled ':'')+'onclick="ppOldDraftsClose()">'+
     (PP_ODB?'CLOSING…':('CLOSE '+(od.length===1?'IT':'THEM')))+'</button></div>'):'';
   const act=ppActList().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const wash=ppWashList(), dup=ppReDupes();   // v3.81.0 - a spray that rain may have washed off, waiting for his answer; a re-spray issued twice
   /* the box never pushes the month off the first screen: two rows, the rest one tap away */
   const show=(PPO.need||act.length<=PP_NEED_MAX+1)?act:act.slice(0,PP_NEED_MAX);
-  if(act.length||od.length)h+='<div class="pp-need" id="pp-o-need"><h4>⚠ NEEDS YOU · '+(act.length+od.length)+'</h4>'+note+show.map(v=>ppRowHTML(v,'','pp-need-')).join('')+
+  if(act.length||od.length||wash.length||dup.length)h+='<div class="pp-need" id="pp-o-need"><h4>⚠ NEEDS YOU · '+(act.length+od.length+wash.length+dup.length)+'</h4>'+note+
+    ppWashBoxHTML(wash)+ppReDupHTML()+ppRainDueHTML(act)+show.map(v=>ppRowHTML(v,'','pp-need-')).join('')+
     (show.length<act.length?('<button class="pp-ghost" id="pp-need-more" onclick="ppNeedAll(1)">＋ '+(act.length-show.length)+' MORE</button>')
       :(PPO.need&&act.length>PP_NEED_MAX+1?'<button class="pp-ghost" id="pp-need-less" onclick="ppNeedAll(0)">SHOW FEWER</button>':''))+'</div>';
   return h;}
@@ -8210,6 +8220,7 @@ function ppDetailHTML(){
       '<button class="pp-ghost" id="pp-o-seen" style="margin-top:8px" onclick="ppSeen()">OK, SEEN</button></div>';
     const left=ppLotsLeft(v);
     h+='<div class="pp-q">Issued for '+ppFmt(v.date)+'</div><div class="pp-g">'+ppSizeTxt(v,o.tanks,o.lots)+(v.ver>1?(' · version '+v.ver):'')+'</div>';
+    if(own)h+=ppRainCardHTML(v,true)+ppWashSetHTML(v);   // v3.81.0 - the gauge on a leaf spray; a lot already sprayed that rain may have washed
     if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' reported done on '+ppFmtS(v.done.date)+'. Still to do: <b>Lot '+esc(left.join(' '))+'</b>.</div>';
     h+=ppMixHTML(v,o,true)+ppBuyBox(v,o)+ppChgBox(v,ppChanges(v,o));
     if(own)h+='<button class="pp-act" id="pp-o-move" onclick="ppMoveOpen()">MOVE TO ANOTHER DAY</button>'+
@@ -8221,6 +8232,7 @@ function ppDetailHTML(){
     h+='<div class="pp-q">Done on '+ppFmt(d.date)+((d.first&&d.first!==d.date)?(' (started '+ppFmtS(d.first)+')'):'')+'</div><div class="pp-g">'+
       (v.basis==='T'?(nf(d.tanks)+' tanks used · '):'')+(d.crew?(d.crew+' crew × '+nf(d.hours)+' h'):'crew and hours not recorded')+
       (d.by?(' · '+esc(d.by)):'')+'</div>';
+    h+=ppWashSetHTML(v);   // v3.81.0
     h+='<div class="pp-scroll"><table class="pp-t"><tr><th>&nbsp;</th><th>Planned</th><th>Issued</th><th>Done</th></tr>'+
       '<tr><td><b>Day</b></td><td>'+(v.extra?'—':ppFmtS(v.fix&&v.fix.was?v.fix.was:v.planDay))+'</td><td>'+(direct?'—':ppFmtS(v.date))+'</td><td>'+ppFmtS(d.date)+'</td></tr>'+
       (v.basis==='T'?('<tr><td><b>Tanks</b></td><td>'+(v.extra?'—':nf(v.planTanks))+'</td><td>'+(direct?'—':nf(v.tanks))+'</td><td>'+nf(d.tanks)+'</td></tr>'):'')+
@@ -8261,6 +8273,287 @@ async function ppUnskip(){
 /* ----- issue / change the mix -----
    The editor works on a copy (PPE). A field that changes re-reads every field first
    (ppESync) and then redraws, so nothing typed is lost to a redraw. */
+/* ====================== v3.81.0 · RAIN ON THE SPRAY CARD ======================
+   Item 2 of the October builds, approved from the sample of 4 Oct 2026 as suggested:
+     2a  rain already keyed for today and a leaf spray due: WARN - the crew can still mark it done;
+     2b  the wash-off line is 8 mm (the season plan's line, the watering call's line too);
+     2c  "possible wash-off" is told to the Owner only: spraying again costs material;
+     2d  the crew is asked one tap on TANDA SIAP: finished in the morning / in the afternoon.
+   ⛔ THE FARM'S OWN GAUGE ONLY. Every figure here is read with rainOn(), never rainDay():
+   a JPS station 15 km away must not start a re-spray.
+   ⛔ A reading is ONE figure for the whole day and the 6-hour bands say WHEN it fell, not how
+   much fell in each. So "9 mm within 6 hours" is said as what it is: 9 mm keyed for that day,
+   with rain in a band that touches the hours after the spraying. The Owner decides.
+   Leaf sprays only (the sets The Programme calls a spray): not fertiliser, drench, trunk or
+   weeding rounds. A spray with paclobutrazol in the tank is looked at over 24 hours, as the
+   plan says for PBZ.
+   Stored, all inside the record's x (one JSON cell on the Sheet, no script change):
+     - `fin` ('am' | 'pm') on a done / rec log entry and on x.done;
+     - x.wash[<day>|<fin>|<lots>] = {a:'again'|'held', at, by, mm, lots, re, name} - the Owner's answer,
+       for the lots it was asked about;
+     - a log entry k:'wash';
+     - on a re-spray: x.sfx ('b', 'c' …), x.re (the uuid of the set it repeats), x.rek and x.rel
+       (the day|fin and the lots of the question it answers).
+   A phone on an older version keeps what it does not know: it changes the parsed x in place
+   and sends the whole of it back. It prints a re-spray without its letter. */
+const PP_WASH_MM=8;            // 2b - mm in one day's reading that can wash a spray off
+const PP_WASH_H=6;             // hours after a leaf spray that count
+const PP_WASH_PBZ_H=24;        // and after a spray with paclobutrazol in the tank
+const PP_WASH_SHOW=7;          // days a possible wash-off waits in NEEDS YOU; after that it stays on the set's own page
+const PP_WASH_HOLD=600;        // ms: after one answer, a tap on another card's button is not taken
+const PP_FIN=[['am','Morning','Pagi','before 12 noon','sebelum 12 tengah hari'],['pm','Afternoon','Petang','after 12 noon','selepas 12 tengah hari']];
+let PP_WASH_AT=0, PP_WASH_BUSY=false;
+/** A leaf spray: the sets The Programme calls a spray. */
+function ppIsSpray(v){return !!v&&ppTypeW(v.k)==='spray';}
+function ppHasPbz(v){return !!v&&(v.lines||[]).some(l=>/paclobutrazol/i.test(String(l.ai||''))||/\bpbz\b/i.test(String(l.n||'')));}
+function ppFinTxt(f){const w=PP_FIN.find(x=>x[0]===f);return w?ppT('finished in the '+w[1].toLowerCase(),'siap waktu '+w[2].toLowerCase()):'';}
+/** The FARM's reading for one day - never JPS. */
+function ppRn(d){
+  const r=(typeof rainOn==='function')?rainOn(d):null;
+  if(!r)return {keyed:false,wet:false,mm:0,bands:[]};
+  const wet=rainKind(r)==='rain';
+  return {keyed:true,wet:wet,mm:wet?(+r.mm||0):0,
+    bands:wet?RAIN_BANDS.map(b=>b.k).filter(k=>r.bands&&typeof r.bands==='object'&&r.bands[k]):[]};}
+/** "6 am – 12 pm, 12 pm – 6 pm" for the bands of a reading, in the language of the screen. */
+function ppBandTxt(keys){return RAIN_BANDS.filter(b=>keys.indexOf(b.k)>=0).map(b=>tr(b.ht,b.hen)).join(', ');}
+/** The gauge in one line: yesterday, the three days before today, and today. */
+function ppGauge(){
+  const t=todayISO(), y=ppRn(ppAdd(t,-1)), td=ppRn(t);
+  let sum=0, miss=0;
+  for(let i=1;i<=3;i++){const r=ppRn(ppAdd(t,-i)); if(r.keyed)sum+=r.mm; else miss++;}
+  return {y:y,td:td,sum:sum,miss:miss};}
+function ppGaugeTxt(){
+  const g=ppGauge(), nk=ppT('not keyed','belum dimasukkan');
+  return ppT('yesterday ','semalam ')+(g.y.keyed?(nf(g.y.mm)+' mm'):nk)+' · '+
+    ppT('last 3 days ','3 hari terakhir ')+nf(g.sum)+' mm'+(g.miss?(' ('+g.miss+' '+ppT(g.miss===1?'day not keyed':'days not keyed','hari belum dimasukkan')+')'):'')+' · '+
+    ppT('today ','hari ini ')+(g.td.keyed?(g.td.wet?(nf(g.td.mm)+' mm'):ppT('no rain keyed','tiada hujan dimasukkan')):ppT('not keyed yet','belum dimasukkan'));}
+/** Is this set's day here? (today or already past, or no day set) */
+function ppDueNow(v){return !ppOkDay(v.date)||v.date<=todayISO();}
+/** The line on a leaf spray: red when rain is keyed for today and the set is due, the plain
+ *  figures otherwise. `own` = the Owner's wording. Nothing for a set that is not a spray. */
+function ppRainCardHTML(v,own,day){
+  if(!ppIsSpray(v)||typeof rainOn!=='function')return '';
+  const g=ppGauge(), due=(day!==undefined)?(day===todayISO()):ppDueNow(v);
+  if(g.td.wet&&due){
+    const when=ppBandTxt(g.td.bands);
+    return '<div class="pp-rn-warn" id="pp-rn-card"><b>🌧 '+ppT('RAIN TODAY: ','HUJAN HARI INI: ')+nf(g.td.mm)+' mm</b>'+
+      (when?(ppT('Keyed for ','Dimasukkan untuk ')+esc(when)+'. '):'')+
+      (own?('Yesterday '+(g.y.keyed?(nf(g.y.mm)+' mm'):'not keyed')+' · last 3 days '+nf(g.sum)+' mm. The crew sees this warning on the set and can still mark it done.')
+          :(ppT('The leaves are wet and the spray may wash off. Ask the manager, or press NOT DONE TODAY.','Daun basah dan semburan mungkin tercuci. Tanya pengurus, atau tekan TAK JADI HARI INI.')))+'</div>';}
+  return '<div class="pp-rn-line" id="pp-rn-card">🌤 '+ppT('Farm gauge: ','Tolok hujan ladang: ')+esc(ppGaugeTxt())+'.</div>';}
+
+/* ----- after the spray -----
+   A report is the crew's (or the Owner's) "done" for some lots on one day. Reports of the same
+   day with the same "finished" are one question to the Owner, for the lots he has not yet
+   answered for. An answer names its lots: a lot reported LATER the same morning is a new
+   question, never covered by an answer given before it was sprayed (found in review). */
+function ppWashKey(d,fin){return String(d||'').slice(0,10)+'|'+(fin||'-');}
+function ppWashAns(k,lots){return k+'|'+lots.join('+');}
+/** The rain that may have washed off the spraying of day d. fin = 'am' | 'pm' | '' (not asked).
+ *  Returns null, or {mm, at:[{d,mm,bands,all}], how}. bands = the bands of that reading that
+ *  touch the hours after the spraying, all = every band keyed. how = 'during' (rain in the
+ *  same half of the day as the spraying), 'in' (in a later band), 'day' (the time it finished
+ *  is not known). Rain before dawn of the day itself came before any spraying: it never counts. */
+function ppWashRain(d,fin,hours){
+  const at=[];
+  const want=(day,keys)=>{const r=ppRn(day); if(!r.wet)return;
+    const hit=r.bands.filter(k=>keys.indexOf(k)>=0);
+    /* a reading with no band recorded fell at an unknown hour of that day: it counts */
+    if(hit.length||!r.bands.length)at.push({d:day,mm:r.mm,bands:hit,all:r.bands.slice()});};
+  if(hours<=PP_WASH_H)want(d,fin==='am'?['m','a']:fin==='pm'?['a','n']:['m','a','n']);
+  else{
+    want(d,fin==='am'?['m','a','n']:fin==='pm'?['a','n']:['m','a','n']);
+    want(ppAdd(d,1),fin==='am'?['em','m']:['em','m','a']);}
+  const mm=at.reduce((s,x)=>s+x.mm,0);
+  if(!(mm>=PP_WASH_MM))return null;
+  const same=fin==='am'?'m':fin==='pm'?'a':'';
+  return {mm:mm,at:at,how:!fin?'day':(at.some(x=>x.d===d&&x.bands.indexOf(same)>=0)?'during':'in')};}
+/** The re-sprays issued for this set: every live record that points at it. The record itself
+ *  is the proof that the question was answered, whatever became of the note on the original
+ *  (a crew report that reached the Sheet first can refuse the copy that carried it). */
+function ppReRecs(uuid){
+  return ppRecs().filter(r=>{const y=ppX(r);return !!(y&&y.re===uuid&&y.rek);});}
+/** Every day's spraying of this set that rain may have washed off and the Owner has not answered:
+ *  one entry per day and "finished", for the lots still unanswered. */
+function ppWashOpen(v){
+  if(!v||!v.rec||!ppIsSpray(v))return [];
+  const x=ppX(v.rec)||{}, ans=(x.wash&&typeof x.wash==='object')?x.wash:{}, by={};
+  (Array.isArray(x.log)?x.log:[]).forEach(e=>{
+    if(!e||(e.k!=='done'&&e.k!=='rec'))return;
+    const d=String(e.d||'').slice(0,10); if(!ppOkDay(d))return;
+    const fin=(e.fin==='am'||e.fin==='pm')?e.fin:'', k=ppWashKey(d,fin);
+    const o=by[k]||(by[k]={k:k,d:d,fin:fin,lots:[]});
+    (Array.isArray(e.lots)?e.lots:[]).forEach(L=>{if(o.lots.indexOf(L)<0)o.lots.push(L);});});
+  const res=ppReRecs(v.rec.uuid).map(r=>ppX(r));
+  const hours=ppHasPbz(v)?PP_WASH_PBZ_H:PP_WASH_H;
+  return Object.keys(by).map(k=>by[k]).map(o=>{
+    const got=[];
+    Object.keys(ans).forEach(ak=>{ if(ak.indexOf(o.k+'|')!==0)return; const a=ans[ak]||{};
+      (Array.isArray(a.lots)?a.lots:ak.slice(o.k.length+1).split('+')).forEach(L=>{if(got.indexOf(L)<0)got.push(L);});});
+    res.forEach(y=>{ if(y.rek===o.k)(Array.isArray(y.rel)?y.rel:[]).forEach(L=>{if(got.indexOf(L)<0)got.push(L);}); });
+    const open=o.lots.filter(L=>got.indexOf(L)<0).sort();
+    if(!open.length)return null;
+    const w=ppWashRain(o.d,o.fin,hours);
+    return w?{k:o.k,d:o.d,fin:o.fin,lots:open,v:v,w:w,hours:hours}:null;}).filter(Boolean);}
+/** What waits for the Owner: the last PP_WASH_SHOW days, the newest first. */
+function ppWashList(){
+  if(!ppOn()||!ppIsOwner()||typeof rainOn!=='function')return [];
+  const today=todayISO(); let out=[];
+  ppSets().forEach(v=>{ if(v.rec)out=out.concat(ppWashOpen(v).filter(o=>{const n=ppDiff(today,o.d);return n>=0&&n<=PP_WASH_SHOW;})); });
+  return out.sort((a,b)=>String(b.d).localeCompare(String(a.d))||String(a.v.key).localeCompare(String(b.v.key)));}
+/** Two re-sprays issued for the same rain and the same lots - SPRAY AGAIN pressed on two devices
+ *  before either had synced. Each is a real set on the crew's list; one of them is to be skipped.
+ *  Returns the groups in which at least one is still waiting to be sprayed. */
+function ppReDupes(){
+  if(!ppOn()||!ppIsOwner())return [];
+  const by={}, out=[];
+  ppRecs().forEach(r=>{const y=ppX(r); if(!y||!y.re||!y.rek||String(r.status)==='SKIPPED')return;
+    (by[y.re+'|'+y.rek]=by[y.re+'|'+y.rek]||[]).push(r);});
+  Object.keys(by).forEach(k=>{const g=by[k]; if(g.length<2)return;
+    const clash=g.filter(r=>{const a=ppX(r).rel||[];return g.some(q=>q!==r&&(ppX(q).rel||[]).some(L=>a.indexOf(L)>=0));});
+    const vs=clash.map(r=>ppFind(r.uuid)).filter(Boolean);
+    if(vs.length>1&&vs.some(v=>v.st==='iss'))out.push(vs);});
+  return out;}
+function ppReDupHTML(){
+  return ppReDupes().map((vs,i)=>'<div class="pp-rn-warn" id="pp-re-dup-'+i+'" style="margin:4px 0 8px"><b>⚠ SPRAYED AGAIN TWICE</b>'+
+    vs.length+' re-sprays were issued for the same rain, from two devices: '+esc(vs.map(v=>ppName(v)+' ('+ppFmtS(v.date)+')').join(' · '))+
+    '. Both are on the crew’s list. Open one and press SKIP THIS SET.'+vs.filter(v=>v.st==='iss').map(v=>ppRowHTML(v,'','pp-dup-')).join('')+'</div>').join('');}
+/** How many things of this release wait for the Owner. */
+function ppWashCount(){return ppWashList().length+ppReDupes().length;}
+/** The letter the next re-spray of this set takes: b, then c … */
+function ppReSfx(v){
+  const used=ppRecs().map(r=>ppX(r)).filter(x=>x&&x.mon===v.mon&&(x.grp||ppGrp(x.k))===v.grp&&(+x.num||0)===(+v.num||0)).map(x=>String(x.sfx||''));
+  const abc='bcdefghijklmnopqrstuvwxyz';
+  for(let i=0;i<abc.length;i++)if(used.indexOf(abc[i])<0)return abc[i];
+  return 'z';}
+function ppReName(v){return ppMonEN(v.mon)+' · '+PP_GRPW[v.grp][0]+' '+v.num+ppReSfx(v);}
+/** What the gauge knows, and no more: ONE figure for the whole day, and the bands it was keyed for. */
+function ppWashSay(o){
+  const w=o.w, half=o.fin==='am'?'morning':'afternoon', two=w.at.length>1;
+  const days=w.at.map(x=>'<b>'+nf(x.mm)+' mm</b> for the whole of '+ppFmt(x.d)+(x.all.length?(' (keyed for '+esc(ppBandTxt(x.all))+')'):' (the hours were not keyed)')).join(' and ');
+  const hit=w.at.filter(x=>x.bands.length).map(x=>ppBandTxt(x.bands)+(two?(' on '+ppFmtS(x.d)):'')).join(' and ');
+  let why;
+  if(!o.fin)why='The time the spray finished is not recorded, so any rain from 6 am that day'+(o.hours>PP_WASH_H?' to 6 pm the next day':'')+' counts.';
+  else if(!hit)why='The hours of the rain were not keyed, so it may have fallen after the spraying.';
+  else if(o.hours>PP_WASH_H)why='Rain in '+esc(hit)+' falls within '+o.hours+' hours of a spray that finished in the '+half+'.';
+  else if(w.how==='during')why='Rain in '+esc(hit)+' falls in the same '+half+' as the spraying, or after it.';
+  else why='Rain in '+esc(hit)+' falls after a spray that finished in the '+half+'.';
+  return 'The farm gauge has '+days+'. '+why+' '+(two?('Together '+nf(w.mm)+' mm, at'):'That is at')+' or over your '+PP_WASH_MM+' mm line. The gauge gives one figure for the day, not how much fell in each part of it.';}
+function ppWashCardHTML(o){
+  const v=o.v, id=ppCss(v.key)+'-'+ppCss(o.k);
+  return '<div class="pp-rn-wash" id="pp-wash-'+id+'"><h5>🌧 POSSIBLE WASH-OFF</h5>'+
+    '<b>'+esc(ppName(v))+'</b> was sprayed on '+ppFmt(o.d)+(o.lots.length?(', Lot '+esc(o.lots.join(' '))):'')+(o.fin?(', finished in the '+(o.fin==='am'?'morning':'afternoon')):'')+'. '+
+    ppWashSay(o)+
+    (o.hours>PP_WASH_H?' <span class="pp-g">This mix has PBZ in the tank: looked at over 24 hours.</span>':'')+
+    '<button class="pp-act" id="pp-wash-again-'+id+'" '+(PP_WASH_BUSY?'disabled ':'')+'onclick="ppWashAgain(\''+ppArg(v.key)+'\',\''+ppArg(o.k)+'\')">SPRAY AGAIN · '+esc(ppReName(v))+' ›</button>'+
+    '<button class="pp-ghost" id="pp-wash-held-'+id+'" '+(PP_WASH_BUSY?'disabled ':'')+'onclick="ppWashHeld(\''+ppArg(v.key)+'\',\''+ppArg(o.k)+'\')">NO NEED · IT HELD</button></div>';}
+/** In NEEDS YOU the box must not push the month off the screen: the newest card in full, the rest one tap away. */
+function ppWashBoxHTML(list){
+  if(!list.length)return '';
+  const show=(PPO.washAll||list.length<=1)?list:list.slice(0,1);
+  return show.map(ppWashCardHTML).join('')+
+    (show.length<list.length?('<button class="pp-ghost" id="pp-wash-more" style="margin:0 0 8px" onclick="ppWashAll(1)">＋ '+(list.length-show.length)+' MORE POSSIBLE WASH-OFF</button>')
+      :(PPO.washAll&&list.length>1?'<button class="pp-ghost" id="pp-wash-less" style="margin:0 0 8px" onclick="ppWashAll(0)">SHOW FEWER</button>':''));}
+function ppWashAll(on){PPO.washAll=!!on;ppRender();}
+function ppWashFind(key,k){
+  const v=ppFind(ppUnArg(key)); if(!v||!v.rec)return null;
+  k=ppUnArg(k); return ppWashOpen(v).find(o=>o.k===k)||null;}
+function ppWashHeldNow(){return PP_WASH_BUSY||(PP_WASH_AT&&(performance.now()-PP_WASH_AT)<PP_WASH_HOLD);}
+/** NO NEED · IT HELD - the answer is kept with the set, for the lots it was asked about. */
+async function ppWashHeld(key,k){
+  if(!ppIsOwner()||ppWashHeldNow())return;
+  const o=ppWashFind(key,k); if(!o)return;
+  if(ppStale(o.v.rec))return;
+  PP_WASH_BUSY=true;
+  try{
+    const rec=o.v.rec, x=ppX(rec);
+    ppDirty(rec);
+    x.wash=Object.assign({},(x.wash&&typeof x.wash==='object')?x.wash:{});
+    x.wash[ppWashAns(o.k,o.lots)]={a:'held',at:now(),by:ppMe(),mm:o.w.mm,lots:o.lots.slice()};
+    ppLog(x,{k:'wash',a:'held',d:o.d,mm:o.w.mm,lots:o.lots.slice()});
+    await ppSave(rec,false);
+    toast('✓ Recorded: no re-spray');
+  }finally{PP_WASH_BUSY=false; PP_WASH_AT=performance.now();}
+  ppAfter();}
+/** SPRAY AGAIN - opens the issue screen on the same mix, for the lots that were sprayed that
+ *  day, named after the set it repeats. Nothing is issued and nothing is answered until the
+ *  Owner presses ISSUE TO THE CREW there. */
+function ppWashAgain(key,k){
+  if(!ppIsOwner()||ppWashHeldNow())return;
+  const o=ppWashFind(key,k); if(!o)return;
+  const v=o.v; if(ppStale(v.rec))return;
+  const today=todayISO(), lots=(o.lots.length?o.lots:v.lots).slice(), sfx=ppReSfx(v);
+  const share=(ppTrees(lots)||1)/(ppTrees(v.lots)||1);
+  const base={key:'',planId:'',plan:null,rec:null,k:v.k,grp:v.grp,basis:v.basis,code:'',stage:'Extra',
+    tgt:v.tgt,tgtbm:v.tgtbm||'',extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,
+    planLines:[],num:0,ver:1,log:[],st:'new',date:today,lots:lots.slice(),lines:[],
+    tanks:v.basis==='T'?Math.max(0.5,Math.round((+v.tanks||0)*share*2)/2):0,
+    re:{uuid:v.rec.uuid,k:o.k,lots:o.lots.slice(),d:o.d,mm:o.w.mm,num:v.num,sfx:sfx,mon:v.mon,of:ppName(v),name:ppReName(v)}};
+  base.trees=ppTreesFor(base.basis,lots);
+  PPE={mode:'issue',base:base,date:today,tanks:base.tanks,lots:lots.slice(),trees:base.trees,lines:v.lines.map(ppELine),
+    why:'RAIN',err:'',adding:false,busy:false};
+  PPO.key=v.key; PPO.s='edit'; ppRender(); ppTop();}
+/** Called by ppEGo before a re-spray is issued: '' or why it cannot go out. */
+function ppReBlock(v){
+  if(!v.re)return '';
+  const orig=PROGRAMS.find(p=>p&&p.uuid===v.re.uuid), ox=orig?ppX(orig):null;
+  if(!ox)return 'The set this repeats is no longer here.';
+  if(orig.stale)return 'Another phone changed that set first. Go back and open it again in a moment.';
+  const ov=ppFind(orig.uuid), open=ov?ppWashOpen(ov).find(o=>o.k===v.re.k):null;
+  if(!open||!(v.re.lots||[]).every(L=>open.lots.indexOf(L)>=0))return 'This was already answered on another device.';
+  return '';}
+/** Called by ppEGo after the re-spray is saved: the answer goes on the set it repeats. The
+ *  re-spray carries the question it answers too (x.rek, x.rel), so the answer stands even
+ *  if this note is refused by the Sheet. */
+async function ppReAnswered(v,rec){
+  if(!v.re)return;
+  const orig=PROGRAMS.find(p=>p&&p.uuid===v.re.uuid), ox=orig?ppX(orig):null;
+  if(!ox||orig.stale)return;
+  /* for the lots the re-spray was asked about AND is issued for - the same list the re-spray
+     carries. A lot the Owner took out in the editor is not answered: its card comes back. */
+  const rx=ppX(rec)||{}, name=String(rec.month||'')+' · '+String(rec.set||''), lots=(Array.isArray(rx.rel)?rx.rel:[]).slice();
+  if(!lots.length)return;
+  ppDirty(orig);
+  ox.wash=Object.assign({},(ox.wash&&typeof ox.wash==='object')?ox.wash:{});
+  ox.wash[ppWashAns(v.re.k,lots)]={a:'again',at:now(),by:ppMe(),mm:v.re.mm,lots:lots,re:rec.uuid,name:name};
+  ppLog(ox,{k:'wash',a:'again',d:v.re.d,mm:v.re.mm,lots:lots,name:name});
+  await ppSave(orig,false);
+  PP_WASH_AT=performance.now();}
+/** The note at the top of the issue screen of a re-spray. */
+function ppReNoteHTML(v){
+  if(!v.re)return '';
+  return '<div class="pp-rn-line" id="pp-re-note">🌧 Spraying again after rain: '+nf(v.re.mm)+' mm keyed after the spraying of '+ppFmtS(v.re.d)+'. The same mix as <b>'+esc(v.re.of)+'</b>, for the lots sprayed that day. Set the day and the tanks, then issue.</div>';}
+/** On the set's own page: what is still open, and what was answered. */
+function ppWashSetHTML(v){
+  if(!ppIsOwner()||!v||!v.rec||!ppIsSpray(v))return '';
+  const x=ppX(v.rec)||{}, ans=(x.wash&&typeof x.wash==='object')?x.wash:{};
+  let h=ppWashOpen(v).map(ppWashCardHTML).join('');
+  const seen=[];
+  Object.keys(ans).sort().forEach(k=>{const a=ans[k]||{}; if(a.re)seen.push(a.re);
+    h+='<div class="pp-rn-line" id="pp-wash-ans-'+ppCss(k)+'">🌧 Rain after the spraying of '+ppFmtS(k.slice(0,10))+(Array.isArray(a.lots)&&a.lots.length?(', Lot '+esc(a.lots.join(' '))):'')+': '+nf(a.mm)+' mm. '+
+      (a.a==='again'?('Sprayed again as <b>'+esc(a.name||'')+'</b>'):'<b>No need, it held</b>')+(a.by?(' · '+esc(a.by)):'')+(a.at?(' · '+ppFmtS(String(a.at).slice(0,10))):'')+'</div>';});
+  /* a re-spray whose note never reached this record still says so here */
+  ppReRecs(v.rec.uuid).filter(r=>seen.indexOf(r.uuid)<0).forEach(r=>{const y=ppX(r);
+    h+='<div class="pp-rn-line" id="pp-wash-re-'+ppCss(r.uuid)+'">🌧 Rain after the spraying of '+ppFmtS(String(y.rek).slice(0,10))+(Array.isArray(y.rel)&&y.rel.length?(', Lot '+esc(y.rel.join(' '))):'')+
+      '. Sprayed again as <b>'+esc(String(r.month||'')+' · '+String(r.set||''))+'</b></div>';});
+  return h;}
+/** The note in NEEDS YOU when rain is keyed for today and a leaf spray is due. */
+function ppRainDueHTML(act){
+  if(typeof rainOn!=='function')return '';
+  const td=ppRn(todayISO()); if(!td.wet)return '';
+  const due=act.filter(v=>v.st==='iss'&&ppIsSpray(v)&&ppDueNow(v)); if(!due.length)return '';
+  const when=ppBandTxt(td.bands);
+  return '<div class="pp-rn-warn" id="pp-rn-due" style="margin:4px 0 8px"><b>🌧 RAIN TODAY, '+(due.length===1?'A LEAF SPRAY IS':(due.length+' LEAF SPRAYS ARE'))+' DUE</b>'+
+    nf(td.mm)+' mm keyed'+(when?(' for '+esc(when)):'')+'. '+esc(due.map(v=>ppName(v)+' (Lot '+ppLotsLeft(v).join(' ')+')').join(' · '))+
+    '. The crew sees the warning on the set and can still mark it done.</div>';}
+/** "When did the spraying finish?" - one tap. req = it must be answered (the crew's form). */
+function ppFinHTML(idp,cur,fn,req){
+  return '<label>'+ppT('When did the spraying finish?','Bila semburan siap?')+(req?'':' <span class="pp-g">(if known)</span>')+'</label><div class="pp-opts">'+
+    PP_FIN.map(w=>'<button class="pp-opt'+(cur===w[0]?' sel':'')+'" id="'+idp+w[0]+'" onclick="'+fn+'(\''+w[0]+'\')">'+ppT(w[1],w[2])+'<small>'+ppT(w[3],w[4])+'</small></button>').join('')+'</div>';}
+function ppCFin(f){ if(!PPCD)return; ppCSync(); PPCD.fin=f; PPCD.err=''; ppRender(); }
+function ppRFin(f){ if(!PPR)return; ppRSync(); PPR.fin=(PPR.fin===f)?'':f; ppRender(); }
+/* ====================== end of v3.81.0 · rain on the spray card ====================== */
+
 /* ====================== v3.80.0 · USE THE OLD STOCK FIRST ======================
    The Owner, 5 Oct 2026: the plan comes from last year's programme, a few products are short,
    and brands with the same or a similar ingredient sit on the shelf unused. Approved from the
@@ -8521,7 +8814,8 @@ function ppELive(){
   put('pp-e-ttl',ppETitle(v));
   PPE.lines.forEach((l,i)=>{put('pp-e-u-'+i,ppELineU(v,l));put('pp-e-chip-'+i,ppELineChip(v,l));
     put('pp-e-os-'+i,ppOsLineHTML(v,l,i));});   // v3.80.0 - buttons and a note, never the box he is typing in
-  put('pp-e-live',ppELiveHTML(v));}
+  put('pp-e-live',ppELiveHTML(v));
+  if(ppIsSpray(v))put('pp-e-rn',ppRainCardHTML(v,true,PPE.date));}   // v3.81.0 - the day typed to today brings up RAIN TODAY at once
 function ppELot(k){if(ppOsHeld())return;ppESync();const i=PPE.lots.indexOf(k);
   if(i>=0){if(PPE.lots.length>1)PPE.lots.splice(i,1);}else PPE.lots.push(k);
   PPE.lots.sort();PPE.trees=ppTreesFor(ppEBase().basis,PPE.lots);ppRender();}
@@ -8550,7 +8844,7 @@ function ppRainLine(){
   return '<div class="pp-note" style="margin:8px 0">🌧️ <b>Rain at the farm:</b> '+esc(bits.join(' · '))+'</div>';}
 function ppETitle(v){
   const o=PPE, mon=String(o.date).slice(0,7);
-  const will=v.num?ppName(v):(ppMonEN(mon)+' · '+PP_GRPW[v.grp][0]+' '+ppNextNum(mon,v.grp));
+  const will=v.re?v.re.name:(v.num?ppName(v):(ppMonEN(mon)+' · '+PP_GRPW[v.grp][0]+' '+ppNextNum(mon,v.grp)));   // v3.81.0 - a re-spray says its name
   return (o.mode==='issue'?'Issue as ':'Change ')+esc(will)+ppCodeTag(v);}
 function ppELineChip(v,l){return ppChip(v,l,ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),v.key);}
 function ppELineU(v,l){
@@ -8574,7 +8868,9 @@ function ppEditHTML(){
   const v=ppEBase(); if(!v||!PPE)return '<button class="pp-back" onclick="ppBack()">‹ back</button>';
   const o=PPE, today=todayISO();
   let h='<button class="pp-back" id="pp-e-back" onclick="ppEBack()">‹ back</button><div class="pp-ttl" id="pp-e-ttl">'+ppETitle(v)+'</div>'+
-    '<div class="pp-g">'+esc(v.tgt)+'</div>'+ppRainLine();
+    '<div class="pp-g">'+esc(v.tgt)+'</div>'+
+    /* v3.81.0 - a leaf spray reads the farm gauge only; the other rounds keep the three-day line */
+    '<div id="pp-e-rn">'+(ppIsSpray(v)?ppRainCardHTML(v,true,o.date):ppRainLine())+'</div>'+ppReNoteHTML(v);
   h+='<div class="pp-two"><div><label>Day to do it</label><input type="date" id="pp-e-date" value="'+esc(o.date)+'"'+(o.mode==='issue'?(' min="'+today+'"'):'')+' oninput="ppELive()" onchange="ppELive()"></div>'+
     (v.basis==='T'?('<div><label>Tanks of 1,000 L</label><input type="number" id="pp-e-tanks" inputmode="decimal" step="0.5" min="0" value="'+(+o.tanks||0)+'" oninput="ppELive()"></div>')
                   :v.basis==='P'?('<div><label>Trees to feed</label><input type="number" id="pp-e-trees" inputmode="numeric" step="1" min="0" value="'+(+o.trees||0)+'" oninput="ppELive()"></div>')
@@ -8620,6 +8916,7 @@ async function ppEGo(){
   if(!PPE.lots.length)return fail('Pick at least one lot.');
   const ch=ppChanges(v,PPE), need=ch.length||(v.extra&&!v.rec);
   if(need&&!PPE.why)return fail('Pick the reason.');
+  const reb=ppReBlock(v); if(reb)return fail(reb);   // v3.81.0 - a re-spray that was answered elsewhere meanwhile
   PPE.busy=true;
   try{
     if(!v.rec){
@@ -8627,6 +8924,7 @@ async function ppEGo(){
       x.why=need?PPE.why:'';
       ppLog(x,{k:'issue',name:rec.month+' · '+rec.set,d:PPE.date,why:need?PPE.why:'',ch:ch});
       await ppSave(rec,true);
+      await ppReAnswered(v,rec);   // v3.81.0 - the answer goes on the set it repeats
       PPO.key=rec.uuid;
       toast('✓ Issued as '+rec.month+' · '+rec.set);
     }else{
@@ -8721,6 +9019,7 @@ function ppRecHTML(){
     (v.basis==='T'?('<label>Tanks used</label><input type="number" id="pp-r-tanks" inputmode="decimal" step="0.5" min="0" value="'+(+PPR.tanks||0)+'" oninput="ppRLive()">'):'')+
     '<label>Lots done</label><div class="pp-opts">'+v.lots.map(k=>'<button class="pp-opt'+(PPR.lots.indexOf(k)>=0?' sel':'')+'" id="pp-r-lot-'+k+'"'+(left.indexOf(k)<0?' disabled':'')+' onclick="ppRLot(\''+k+'\')">Lot '+k+
       '<small>'+(left.indexOf(k)<0?'already reported':(treesInLot(k).length+' trees'))+'</small></button>').join('')+'</div>'+
+    (ppIsSpray(v)?ppFinHTML('pp-r-fin-',PPR.fin||'','ppRFin',false):'')+   /* v3.81.0 */
     '<div class="pp-two"><div><label>Crew (if known)</label><input type="number" id="pp-r-crew" inputmode="numeric" min="0" value="'+esc(PPR.crew)+'"></div>'+
     '<div><label>Hours each (if known)</label><input type="number" id="pp-r-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPR.hours)+'"></div></div>'+
     ppMixHTML(v,{tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},false)+
@@ -8760,7 +9059,7 @@ async function ppRecGo(){
     rec=ppNewRec(v,{date:PPR.date,tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},'ISSUED');
     rec.x.direct=true; PROGRAMS.push(rec);}
   const ok=await ppFileDone(rec,{date:PPR.date,tanks:v.basis==='T'?PPR.tanks:0,lots:PPR.lots.slice(),
-    crew:+PPR.crew||0,hours:+PPR.hours||0,via:'OWNER'},'rec');
+    crew:+PPR.crew||0,hours:+PPR.hours||0,via:'OWNER',fin:PPR.fin||''},'rec');
   if(!ok){PPR.busy=false;return fail('That day has not happened yet.');}
   toast('✓ Recorded · '+rec.month+' · '+rec.set);
   PPO.key=rec.uuid; PPR=null; PPO.s='detail';
@@ -8781,7 +9080,8 @@ function ppAddHTML(){
     '<label>Start from</label><select id="pp-a-from" onchange="ppAKeep()"><option value="">an empty set</option>'+opts+'</select>'+
     '<label>What is it for</label><input id="pp-a-tgt" value="'+esc(PPA.tgt)+'" placeholder="e.g. extra fungicide after rain" autocomplete="off">'+
     '<label>Dose basis (only for an empty set)</label><div class="pp-opts">'+
-    '<button class="pp-opt'+(PPA.kind==='T'?' sel':'')+'" id="pp-a-T" onclick="ppAKind(\'T\')">Spray or drench<small>per 1,000 L</small></button>'+
+    '<button class="pp-opt'+(PPA.kind==='T'?' sel':'')+'" id="pp-a-T" onclick="ppAKind(\'T\')">Leaf spray<small>per 1,000 L</small></button>'+
+    '<button class="pp-opt'+(PPA.kind==='D'?' sel':'')+'" id="pp-a-D" onclick="ppAKind(\'D\')">Drench<small>per 1,000 L</small></button>'+   /* v3.81.0 */
     '<button class="pp-opt'+(PPA.kind==='P'?' sel':'')+'" id="pp-a-P" onclick="ppAKind(\'P\')">Fertiliser<small>per tree</small></button></div>'+
     '<button class="pp-act" id="pp-a-go" onclick="ppAddGo()">NEXT — SET THE MIX</button>';}
 function ppAddGo(){
@@ -8790,10 +9090,10 @@ function ppAddGo(){
   const src=PPA.from?ppFind(PPA.from):null, t=String(PPA.tgt||'').trim();
   /* opened from a month that is still ahead: the day starts in THAT month, never today */
   const today=(PPA.mon&&PPA.mon>todayISO().slice(0,7))?(PPA.mon+'-01'):todayISO();
-  const k=src?src.k:(PPA.kind==='T'?'spray':'fert');
-  const base={key:'',planId:'',plan:null,rec:null,k:k,grp:ppGrp(k),basis:src?src.basis:PPA.kind,code:'',stage:'Extra',
+  const k=src?src.k:(PPA.kind==='T'?'spray':PPA.kind==='D'?'drench':'fert');   // v3.81.0 - a drench is a kind of its own
+  const base={key:'',planId:'',plan:null,rec:null,k:k,grp:ppGrp(k),basis:src?src.basis:(PPA.kind==='P'?'P':'T'),code:'',stage:'Extra',
     tgt:t||(src?src.tgt:'Extra set'),tgtbm:t?'':(src?src.tgtbm:''),extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,
-    planLines:[],num:0,ver:1,log:[],st:'new',date:today,tanks:src?src.tanks:(PPA.kind==='T'?2:0),lots:ppLots(),lines:[]};
+    planLines:[],num:0,ver:1,log:[],st:'new',date:today,tanks:src?src.tanks:(PPA.kind==='P'?0:2),lots:ppLots(),lines:[]};
   base.trees=ppTreesFor(base.basis,base.lots);
   PPE={mode:'issue',base:base,date:today,tanks:base.tanks,lots:ppLots(),trees:base.trees,lines:src?src.lines.map(ppELine):[],
     why:'',err:'',adding:!src,busy:false};
@@ -8841,7 +9141,7 @@ function ppCrewHTML(){
   if(PPC.s==='saved'){
     const d=PPC.info||{};
     return '<div class="pp-okbig">✔ '+ppT('Saved','Disimpan')+'</div><div class="pp-g">'+esc(d.name||'')+' · '+ppFmt(d.date)+(d.tanks?(' · '+nf(d.tanks)+' '+ppT('tanks','tangki')):'')+
-      ' · Lot '+esc((d.lots||[]).join(' '))+' · '+d.crew+' '+ppT('people','orang')+' × '+nf(d.hours)+' '+ppT('h','jam')+'</div>'+
+      ' · Lot '+esc((d.lots||[]).join(' '))+' · '+d.crew+' '+ppT('people','orang')+' × '+nf(d.hours)+' '+ppT('h','jam')+(d.fin?(' · '+ppFinTxt(d.fin)):'')+'</div>'+
       '<div class="pp-note">'+(d.rows?ppT('The material was taken off the store for the tanks used.','Bahan ditolak dari stor mengikut tangki yang digunakan.')
                                    :ppT('Nothing was taken off the store: these products have no store card yet.','Tiada bahan ditolak dari stor: produk ini belum ada kad stor.'))+
       (d.left&&d.left.length?(' '+ppT('Still to do: Lot ','Belum siap: Lot ')+esc(d.left.join(' '))+'.'):'')+'</div>'+
@@ -8857,6 +9157,7 @@ function ppCrewHTML(){
     h='<button class="pp-back" id="pp-c-up" onclick="ppCList()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+esc(ppNameBM(v))+'</div>'+
       '<div class="pp-g">'+esc(ppTgt(v))+' · '+ppFmt(v.date)+'</div>';
     if(bn)h+='<div class="pp-chg"><b>⚠ '+ppT('CHANGED','DIUBAH')+'</b>'+esc(bn)+'</div>';
+    h+=ppRainCardHTML(v,false);   // v3.81.0 - the farm gauge on a leaf spray
     if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' '+ppT('is done. Still to do: Lot ','sudah siap. Belum siap: Lot ')+'<b>'+esc(left.join(' '))+'</b>.</div>';
     h+='<div class="pp-q">'+(v.basis==='T'?ppT('The mix for each 1,000 L tank','Bancuhan setiap tangki 1,000 L'):v.basis==='P'?ppT('For each tree','Setiap pokok'):ppT('For the round','Setiap pusingan'))+'</div>'+
       '<table class="pp-mix">'+v.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>').join('')+'</table>'+
@@ -8871,6 +9172,7 @@ function ppCrewHTML(){
       (v.basis==='T'?('<label>'+ppT('How many tanks were used','Berapa tangki digunakan')+'</label><input type="number" id="pp-c-tanks" inputmode="decimal" step="0.5" min="0" value="'+esc(PPCD.tanks)+'">'):'')+
       '<label>'+ppT('Lots done','Lot yang siap')+'</label><div class="pp-opts">'+left.map(k=>'<button class="pp-opt'+(PPCD.lots.indexOf(k)>=0?' sel':'')+'" id="pp-c-lot-'+k+'" onclick="ppCLot(\''+k+'\')">Lot '+k+
         '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+
+      (ppIsSpray(v)?ppFinHTML('pp-c-fin-',PPCD.fin||'','ppCFin',true):'')+   /* v3.81.0 */
       '<div class="pp-two"><div><label>'+ppT('How many people','Berapa orang')+'</label><input type="number" id="pp-c-crew" inputmode="numeric" min="0" value="'+esc(PPCD.crew)+'"></div>'+
       '<div><label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'"></div></div>'+
       '<div class="pp-err" id="pp-c-err">'+esc(PPCD.err||'')+'</div><button class="pp-act" id="pp-c-save" onclick="ppCSave()">'+ppT('SAVE','SIMPAN')+'</button>';}
@@ -8915,11 +9217,14 @@ async function ppCSave(){
   if(v.basis==='T'&&!(tanks>0))return fail(ppT('Enter how many tanks.','Masukkan bilangan tangki.'));
   if(!PPCD.lots.length)return fail(ppT('Pick the lots that were done.','Pilih lot yang siap.'));
   if(!(crew>0)||!(hours>0))return fail(ppT('Enter how many people and how many hours.','Masukkan bilangan orang dan jam.'));
+  /* v3.81.0 - a leaf spray: one tap says whether it finished before or after noon */
+  const fin=ppIsSpray(v)?((PPCD.fin==='am'||PPCD.fin==='pm')?PPCD.fin:''):'';
+  if(ppIsSpray(v)&&!fin)return fail(ppT('Tap when the spraying finished: morning or afternoon.','Tekan bila semburan siap: pagi atau petang.'));
   PPCD.busy=true;
   const before=EVENTS.length, lots=PPCD.lots.slice();
-  const ok=await ppFileDone(v.rec,{date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,via:'CREW'},'done');
+  const ok=await ppFileDone(v.rec,{date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,via:'CREW',fin:fin},'done');
   if(!ok){PPCD.busy=false;return fail(ppT('That day has not happened yet.','Tarikh itu belum tiba.'));}
-  PPC={s:'saved',key:'',info:{name:ppNameBM(v),date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,
+  PPC={s:'saved',key:'',info:{name:ppNameBM(v),date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,fin:fin,
     rows:EVENTS.length-before,left:ppLotsLeft(v).filter(L=>lots.indexOf(L)<0)}};
   PPCD=null;
   try{refreshInventoryViews();}catch(e){}
@@ -8975,7 +9280,7 @@ function ppOverdue(){
 function ppTileBadge(){
   if(!ppOn())return null;
   const r=myRole();
-  if(r==='OWNER'){const n=ppActList().length+ppOldDrafts().length; if(n)return {t:n+' NEED YOU'};   // the same words as the amber box
+  if(r==='OWNER'){const n=ppActList().length+ppOldDrafts().length+ppWashCount(); if(n)return {t:n+' NEED YOU'};   // the same words as the amber box
     const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' ISSUED',amber:1}:null;}
   /* v3.77.0 - his buy list is in THE STORE ▸ BUY only; this tile shows what is coming */
   if(r==='PURCHASER'){const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
