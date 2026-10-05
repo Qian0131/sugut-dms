@@ -10,7 +10,8 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.78.0';   // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
+const APP_VERSION = 'v3.79.0';   // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+// v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
 // v3.74.0 - THE SEASON DOOR AND THE STORE'S OPENING COUNT. Season 2025/26 closed on 18 Sep with final figures, and the app had no way to know: seasonStart() was the first fruit ever logged and never moved, the shed kept 92 fruit standing, the tree ledger handed back 2,227 dropped and 762 on the tree every sync, and the first drop of 2027 would have been added to last year's 2,227. *** THE SEASON IS NOW A SHARED SETTING (`season`): ADMIN > SEASON closes the old season with a snapshot read from the log and the hand-counted shed, and opens the next from ONE date (21 Sep 2026 on the Owner's instruction). inSeason(e) guards every reader of fruit: seasonStart, the shed (layers and consumers), the backlog, the tree ledger (statOf() is silenced and countsLocally() answers by date, so the undated Sheet aggregate cannot hand back last season), the tying migration, the July census (no census until the fruit census is keyed), and the sync floor (syncFloor() = the open date). A phone that has not yet received the setting behaves exactly as v3.73.0. Nothing is deleted; Season history lists every closed season with the figures at the moment the door was pressed. *** THE STORE STARTS FROM A COUNT. onHand() was a constant baked into database.js minus every stock-out since, and stock-in was never keyed properly in 2025/26. THE STORE > SHELF > OPENING COUNT lets the worker or the Purchaser count every card as a person counts (full containers + loose), saves the draft as the `opencount` setting, and SEND hands it to the Owner; ADMIN > SEASON > CONFIRM writes one signed STOCK_ADJUST per product carrying `counted` and the note 'OPENING 2026/27' (the mark that survives the Sheet). onHand() and the moving average restart from the newest opening row and count only rows dated after it; a product with no opening row keeps the old rule. usedOf/recvOf/adjOf and the monthly ledger are untouched, so the write-off shows where it belongs. *** APPS SCRIPT v3.74.0 (one line): SETTINGS_ALLOWED gains 'season' and 'opencount' - and 'invover' and 'progover', which the app has pushed since v3.21/v3.28 and every backend to date has REFUSED ('not a shared setting'): the Owner's retired products, minimum levels, prices and programme edits never left his phone. Until the .gs is redeployed the season and the count stay on the phone that wrote them; the CHECK page says whether the backend accepts them. Original v3.73.0 note follows. // v3.73.0 - THE SHED DRAWS ACROSS GRADES. Every pick is keyed Grade A at collection because the grade is the weight on the scale; the scale then sells it as B or C, and a C sale could only draw from the C box, which is always empty. So on 17 Sep one shed read MK A +254 standing and MK C -224 short at the same time, and every MK C invoice since August was filed under lot '?'. shedDraw() now covers the requested grade first, then the other grades of the same clone (nearest first, oldest layer first), stamps `g` on a layer taken across so the basket row, the trace and the money ledger say 'from Grade A', and reports short ONLY what no box of that clone could cover. The shed is rebuilt from the log on every paint, so every past draw is repaired the moment this loads - nothing keyed, nothing edited on the Sheet. The basket chip at the scale now also names the clone's other boxes. Original v3.72.0 note follows. // v3.72.0 - ONE SHED, ONE LOSS FIGURE. Two screens, two answers, both in the app on 17 Sep. (1) Harvest > THE SHED said 390 fruit while the Morning Scale, one tap away, said 76 for the same shed: renderShed() printed shedNow().total (the boxes still above zero) where the scale has printed .net since v3.69.0, and its red alarm box came from fruitBacklog() - invoices only, blind to rations and to the load at the gate - so it also listed MK C 217 against the scale's 224. The hero now quotes NET with 'counted / short' under it, the alarm reads shedNow().short, and shedCount() and fruitBalance().shed_fruit - the home bar and the FOC balance table - quote net too. (2) The HARVEST REPORT header printed harvestMatrix() counts (1,800 good / 422 loss) beside lossByCause()'s 18.4%, while the lot table under it said 19%: the five matrix walkers added raw ROTTEN.qty and never saw a ROTTEN_ADJUST, and lossByCause() walked the adjust rows themselves - unclamped, dated by the correction, and counting -9 against six trial rows cleaned up in early August - then dropped the uncaused OTHER row while leaving it in the denominator, so the cause shares summed to 104.1%. rottenQty() is dropQty()'s twin - per row, by evUuid, clamped at zero - and every walker AND lossByCause() now read it: one basis, shares that sum to 100, one percentage. (3) Section 5 printed a tick beside '14.79 kg more has left than was weighed in' because fruitBalance().balances tested the residual against itself; it now means unaccounted === 0. Original v3.71.0 note follows. // v3.71.0 - THE PRICE THAT WOULD NOT STAY. A setting saved today could lose to one saved days earlier, because mergeSettings compared the two date stamps as TEXT and both begin with the weekday name, so it sorted Fri < Mon < Sat < Sun < Thu < Tue < Wed instead of by time. Saved on a Thursday, a price was thrown away on the next sync against the Tuesday copy - no message, no log entry. That is the whole story behind Musang King snapping back to RM 28, Black Thorn refusing to hold RM 45, and the gate billing Grade C at the Grade A rate off a table nobody could update. Both stamps are now parsed and compared as numbers, with the old string test kept only for a stamp no Date can read. One comparison changed; the rest of the merge is untouched. Original v3.70.1 note follows. // v3.70.1 - THE CLONE ROW IS A GRID, AND IT ONLY OFFERS CLONES THAT GROW HERE. 5 Sep, from the crew: 'only 3 clone can be choose in weight in the morning' - no 101, no Golden Phoenix. The picker code drew all ten; the SCREEN did not. .selrow.clones was a sideways strip with the scrollbar hidden and a faint fade as the only hint, and v3.70.0's longer names (Musang King (D197), Black Thorn (D200), D24 Sultan) made three buttons fill a 360 px phone: rendered right edges MK 131 - BT 262 - B24 364 - 101 466 - UM 672 - GP 823 against a 336 px row. So for four mornings the two clones after MK did not exist to a worker, and the 12 + 29 'B24' fruit invoiced on 3 and 5 Sep are almost certainly Golden Phoenix keyed under the one button that WAS on screen, nine of the ten B24 trees having become GP on 2 Sep. *** TWO CHANGES. (1) The row WRAPS: a 3-per-row grid in index.html, nothing off the right edge, ever. (2) scaleCloneChoices() offers only clones with at least one tree on the farm today - read off TREE_MASTER after the corrections are applied, so it follows the crew's own re-tagging without a release - biggest clone first: MK - 101 - GP - BT - TB - B24 - XO - D99 as of 5 Sep; UM and TNB have no tree and are not offered. The line's CURRENT clone is always kept in the list so a basket already keyed cannot be orphaned by a later correction. cloneShort() prints the name without the D-code under the button; the code IS the big label. *** NOTHING ELSE MOVED: CLONE_SELL_ORDER, CLONE_NAME, prices, the shed cards, the tree-correction picker and every stored row are untouched - this is a picker on one screen. *** STILL OPEN: RT-05's contract book has no GP / XO / D99 rate, so a GP line for him prices at RM 0 by the contract-hole rule until the Owner keys it in Marketing -> PRICES & RETAILERS. Original v3.70.0 note follows. // v3.70.0 - FOUR NEW CLONES, AND FIVE THAT ONLY CHANGED THEIR NAME. The Owner's clone list, 1 Sep: Musang King D197, Black Thorn D200, D24 Sultan, Red Prawn D175, D101, plus Golden Phoenix D198, XO D168, D99 and Tenom Beauty D236 - and 'we just found that certain trees are wrong', so the clones go in FIRST and the crew move the trees themselves with the correction they already know. *** NOT ONE CODE CHANGED ON AN EXISTING CLONE, and that is the whole release. The clone code is stamped into every drop, tying, rotten, dispatch and FOC row ever written, into the lines_json of every invoice, and into the contract books of RT-01, RT-02 and RT-05. Rename a CODE and every one of those rows stops matching CLONE_GRADES, hasGrade() goes false, priceOf() returns RM 0 and the season tally splits into two columns. So B24 IS D24 Sultan - the Owner confirmed they are one clone - and it keeps the code B24 and only reads D24 Sultan; UM keeps its code and reads Red Prawn / Udang Merah, because Udang Merah IS Red Prawn and two rows for one clone is how a farm double-counts itself. *** THE FOUR NEW ONES are GP, XO, D99 and TNB, on the two-letter ladder A/B plus BN with the A line at 1.5 kg, and priced at the D101 line on the Owner's instruction ('the rate are the same as 101') - RM 25 / 20 / 8 spot, mirrored into RT-01 at 25/20 and RT-02 at 26/21 so a basket of them can never invoice at RM 0. AVG_KG for all four is 1.5 as a PLACEHOLDER: it only drives the 'about N kg' a worker sees on a ration request, never an invoice, and it is replaced the first time a full basket crosses the scale. *** TNB IS NOT TB. TB still means UNIDENTIFIED (B-050, C-028). If those two turn out to be Tenom Beauty they move with a tree correction like any other tree - the TB code is never repointed, because rows already written against it would follow. *** AND THE TRAP THAT MADE THIS DANGEROUS IS GONE: CLONES was a hand-kept duplicate of CLONE_SELL_ORDER used in exactly one place, the tree-correction picker, so adding a clone to one list and not the other gave you a clone the crew could pick at the tree but that was invisible at the scale. CLONES is now derived from CLONE_SELL_ORDER. *** RT-05 NEEDS FOUR RATES KEYED BY HAND: his book is stored, not seeded, so the new clones read RM 0 there and the scale will refuse the line by design until the Owner sets them in Marketing -> PRICES & RETAILERS.
@@ -287,6 +288,7 @@ async function initStore(){
     TASKS=(await all('tasks'))||[];
     BLUEPRINTS=(await all('blueprints'))||[];
     RAINFALL=(await all('rain'))||[];
+    if(typeof tcBoot==='function')tcBoot(kv);   // v3.79.0 — the tree rows live in the kv store, one entry each
     /* v3.75.0 — the JPS back-up figures and the signature of the last rain pull */
     const rp=kv.find(x=>x.k==='rainpack');
     if(rp&&rp.v&&typeof rp.v==='object'){RAIN_SIG=String(rp.v.sig||'');
@@ -574,6 +576,7 @@ function corrUnsynced(){return CORRECTIONS.filter(c=>!c.synced).length;}
 function q4(){return (typeof progUnsynced==='function'?progUnsynced():0)+
   (typeof taskUnsynced==='function'?taskUnsynced():0)+
   (typeof rainUnsynced==='function'?rainUnsynced():0)+
+  (typeof tcUnsynced==='function'?tcUnsynced():0)+      // v3.79.0 — tree rows not yet in the Sheet
   (typeof q5==='function'?q5():0)+
   (typeof q6==='function'?q6():0)+
   (typeof q7==='function'?q7():0)+
@@ -769,8 +772,12 @@ async function setLang(l){
   renderLangChip();
   // repaint whatever is on screen right now, at whatever depth
   renderHub();
+  /* v3.79.0 — re-entering the tile resets it to its first screen; a tree walk that is open,
+     with what is tapped on it, comes back in the new language (found in review) */
+  const tcKeep=(typeof TCW!=='undefined'&&TCW&&TCW.on&&(curModule==='prog'||curModule==='tsv'))?TCW:null;
   if(curModule&&inMenu)openMenu(curModule);
   else if(curModule&&curTab)openModule(curModule,curTab);
+  if(tcKeep&&typeof tcPaint==='function'){TCW=tcKeep;tcPaint();}
 }
 function renderLangChip(){
   const el=$('langchip'); if(!el)return;
@@ -948,6 +955,13 @@ const MODULES={
     tabs:[{k:'key',t:'RAIN',scr:'dash',panels:['hujancard'],
            roles:['WORKER'],ic:'🌧️',tn:'m_rain',
            d:'Key the rain gauge: which day, how many mm, and when it fell'}]},
+  /* v3.79.0 — TREES: the Owner's tile for the tree survey. One tab, one card (#tccard),
+     painted whole by tcRenderOwner(): SURVEY · FLUSH · ISSUE & WALK. OWNER only: the crew
+     meet a check as an issued item in their Program tile, never as a tile of its own. */
+  tsv:{ic:'🌳',name:'Trees',sub:'survey · flush · issue a check',tn:'m_tsv',
+    tabs:[{k:'hub',t:'TREES',scr:'dash',panels:['tccard'],
+           roles:['OWNER'],ic:'🌳',tn:'m_tsv',
+           d:'The tree survey, the Friday flush and the checks you issue'}]},
   /* v3.76.0 — ONE PANEL. The whole screen is drawn into #progcard by ppRender(): the Owner's
      TODAY · COMING · DONE · MONTH, the Purchaser's TO BUY · COMING · DONE, the crew's list of
      issued sets. #progseg, #agromonth (the old ✎ PLAN editor) and #cxcard (the old cancel
@@ -1305,7 +1319,7 @@ const MODULES={
 // that he alone now covers the Sandakan desk when the Purchaser is offline.
 // ======================================================================================
 const HUB_ORDER={
-  OWNER:    ['cmd','harvest','tying','scale','inv','prog','agro','ops','mkt','reports','admin'],
+  OWNER:    ['cmd','harvest','tying','scale','inv','prog','tsv','agro','ops','mkt','reports','admin'],   // v3.79.0 — + 'tsv', the tree survey
   /* v3.30.0 — 'admin' REMOVED. It had become a DEAD TILE: v3.27.1 closed STAFF to the
      Marketer and that was the last section her Admin tile held, so tapping it ran
      openModule() -> tabs.length===0 -> goHome() and bounced her back with no message.
@@ -1466,7 +1480,9 @@ const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledger
   'seasoncard','opencount',
   /* v3.75.0 - the rain form. Same rule as every id above: absent from this list it would
      never be hidden and would ride along onto the next tile. */
-  'hujancard'];
+  'hujancard',
+  /* v3.79.0 - the Owner's tree survey page. Same rule as every id above. */
+  'tccard'];
 let curModule=null, curTab=null;
 
 function myRole(){return (CFG&&CFG.role)||'WORKER';}
@@ -1503,7 +1519,7 @@ function hubTiles(){return HUB_ORDER[myRole()]||HUB_ORDER.WORKER;}
    the top row. Six tiles fill the 2-column grid exactly — five left an odd tile alone on the
    last row, so this costs one row and wastes no space. */
 const HOME_TILES={
-  OWNER:['cmd','harvest','inv','prog','mkt','reports','admin']   // TODAY · HARVEST · STORE · PROGRAMME · GATE · MONEY · ADMIN
+  OWNER:['cmd','harvest','inv','prog','tsv','mkt','reports','admin']   // TODAY · HARVEST · STORE · PROGRAMME · TREES (v3.79.0) · GATE · MONEY · ADMIN
 };
 function homeTiles(){return HOME_TILES[myRole()]||hubTiles();}
 /** What the ALL TOOLS drawer holds: everything he may open that is not already on home. */
@@ -1556,6 +1572,7 @@ function roleAllows(id){
     /* v3.75.0 — the rain form: the man at the gauge, and the Owner who corrects a day from
        his month sheet. NOT `full`: the Gate has no part in the rain record. */
     case 'hujancard': return r==='OWNER'||r==='WORKER';
+    case 'tccard': return r==='OWNER';   // v3.79.0 — results, lists and the PBZ yes / no are the Owner's
     case 'opsassign': case 'labourcard': case 'agroweather': return full;
     case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard':
     case 'wavecard': case 'mktpanel': return full;
@@ -1679,6 +1696,7 @@ function tileBadge(k){
       ((typeof myDirectives==='function')?myDirectives().length:0);
     return n?{t:n+' '+tr('bg_tasks')}:null;}
   if(k==='agro')return (typeof wtTileBadge==='function')?wtTileBadge():null;   // v3.78.0 — a dry spell that has reached the day he asked to be told
+  if(k==='tsv')return (typeof tcTileBadge==='function')?tcTileBadge():null;    // v3.79.0 — NOT SURE answers, a check past its day, or how far it is
   // v3.7 — costadmin was split; the yield alert and the pending queue follow the section
   // they belong to, so a badge always names a tile that can actually resolve it.
   if(k==='admin'){
@@ -1781,6 +1799,7 @@ function renderTaskNotice(){
       '<div class="tn-brand">'+esc(tr(n.k))+'</div>'+
       '<div class="tn-dose">'+esc(n.s)+(n.d?(' \u00b7 '+esc(dateShort(n.d))):'')+'</div>'+
       '<div class="tn-hint">'+esc(tr('pc_hint'))+'</div></div>';});
+  if(typeof tcHomeHTML==='function'){try{pre=tcHomeHTML()+pre;}catch(e){}}               // v3.79.0 — a tree check that is due
   if(typeof ppHomeNoticeHTML==='function'){try{pre=ppHomeNoticeHTML()+pre;}catch(e){}}   // v3.76.0 — an issued set that is due
   if(typeof wtHomeHTML==='function'){try{pre=wtHomeHTML()+pre;}catch(e){}}               // v3.78.0 — water today, or not
   box.innerHTML=pre;
@@ -1862,6 +1881,10 @@ function hubBack(){
     if(curModule==='harvest'&&curTab==='log'&&!inMenu&&typeof HSTEP!=='undefined'&&HSTEP!=='pick'){
       if(HSTEP==='cam'){stopScan();return;}
       cancelTree();return;}
+    /* v3.79.0 — INSIDE A TREE WALK, BACK IS ONE STEP BACK: tree -> lots -> the list. The same
+       lesson as the scale road (v3.37.3): a man 40 trees into a lot must not be thrown out
+       to the tiles by the only back control the phone has. */
+    if((curModule==='prog'||curModule==='tsv')&&!inMenu&&typeof tcBack==='function'&&tcBack())return;
     if(curModule&&!inMenu&&tabsFor(curModule).length>1){openMenu(curModule);return;}
     goHome();}}
 /* ======================================================================================
@@ -2013,6 +2036,7 @@ function renderForTab(k,t){
   /* v3.75.0 — the form opens on the oldest morning not yet keyed, every time. A form that
      remembered a half-keyed day from another person's turn is the shared-phone fault again. */
   if(k==='rain'){rnOpen();}
+  if(k==='tsv'&&typeof tcOpen==='function'){tcOpen();}   // v3.79.0 — always the first tab, never a half-filled form
   if(k==='agro'&&t==='wx'){renderWeather();rnOpen();renderRain();if(typeof wtFresh==='function')wtFresh();}   // v3.78.0 — the farm's copy of the order before he touches it
   /* v3.40.0 — SPRAY RECORD carries both halves now. m5RecPick() resets the segment AND
      paints, so re-entering the tab is deterministic; the retired 'progrec' key is kept
@@ -2367,6 +2391,7 @@ async function realWipe(){
   JPS_RAIN=[];JPS_META=null;RAIN_SIG='';RAIN_SERVED=false;RF=null;   // v3.75.0
   BUYASK={};PP_CACHE=null;PP_SHELF=null;PP_OPEN=null;PPE=PPM=PPR=PPA=PPCD=PPCN=PPCL=null;   // v3.76.0
   WATER_ORDER=null;WATER_BASE=null;WATER_LOST=null;if(WT.syncT)clearTimeout(WT.syncT);WT={open:'',lots:{},busy:false,day:'',L0:0,syncT:0,pulled:0,fresh:null,wait:false,q:[]};   // v3.78.0
+  if(typeof tcWipe==='function')tcWipe();   // v3.79.0 — the rows themselves go with the kv store below
   // 1. wipe events + config + keys from IndexedDB
   await new Promise(res=>{if(!db){res();return;}const tx=db.transaction(['events','kv','corrections'],'readwrite');
     tx.objectStore('events').clear();tx.objectStore('kv').clear();
@@ -2380,9 +2405,17 @@ async function realWipe(){
 // v2.5.1 — upload first, wipe second. A revoked worker may be carrying a whole day of
 // offline drops; destroying them loses farm data that exists nowhere else. If the upload
 // cannot complete we log the device out instead and retry the wipe on the next sync.
+let SAFE_WIPING=false;
 async function safeWipe(){
-  const q=()=>pending()+corrUnsynced()+q4();
-  if(q()>0)await doSync(true);
+  /* v3.79.0 — NOT INSIDE ITSELF. This function starts a sync to get the last records up; the
+     pull of that sync runs the kill switch, which calls this function again. With a record
+     that cannot go up from here the count never reaches zero, so each call started another
+     sync and the phone neither wiped nor logged out, asking the Sheet without pause (found
+     in review). The call made from inside that sync now steps aside: the outer one decides. */
+  if(SAFE_WIPING)return false;
+  /* v3.79.0 — tree rows put aside for another Sheet are records no Sheet holds: they count */
+  const q=()=>pending()+corrUnsynced()+q4()+((typeof tcParked==='function')?tcParked():0);
+  if(q()>0){SAFE_WIPING=true; try{await doSync(true);}finally{SAFE_WIPING=false;}}
   if(q()>0){
     await forceLogout('Your access was removed. '+q()+' record(s) on this phone have not uploaded yet — '+
       'connect to the office Wi-Fi and open the app once more so nothing is lost.');
@@ -2588,7 +2621,12 @@ async function refreshMasters(){
             (wantEv?('&since='+encodeURIComponent(evFloor)):'')+
             /* v3.75.0 — ask for the rain log and the JPS figures. A backend older than
                v3.75.0 ignores both parameters and the reply simply carries no rain. */
-            '&rain='+encodeURIComponent(rnFloor())+'&rsig='+encodeURIComponent(rnSigToSend());
+            '&rain='+encodeURIComponent(rnFloor())+'&rsig='+encodeURIComponent(rnSigToSend())+
+            /* v3.79.0 — the tree survey rows after the last one this phone holds. Asked only
+               by the Owner and the crew; an older backend ignores the parameter. */
+            ((typeof tcAsk==='function')?tcAsk():'');
+  /* which URL this question goes to, and when: the reply is only acted on for that URL */
+  var tcAsked=(typeof tcUrlKey==='function')?tcUrlKey():undefined, tcAskedAt=Date.now();
     const r=await fetchT(CFG.url+q,{},SYNC_TIMEOUT_MS);const j=await r.json();
     /* v3.41.2 — STAMP IT THE MOMENT THE SERVER ANSWERS, not at the end of the function.
        ⛔ THE STAMP WAS AT THE BOTTOM AND THAT WAS WRONG. Between here and there sit three
@@ -2653,6 +2691,8 @@ async function refreshMasters(){
     /* v3.75.0 — THE RAIN LOG COMES DOWN, with the JPS back-up figures. After the kill switch
        like everything else; wrapped, because a rain row must never abort the staff registry. */
     try{const nRain=await takeRainPack(j); if(nRain)got.rain=nRain;}catch(rainErr){}
+    /* v3.79.0 — the tree survey rows. Same rules: after the kill switch, and wrapped. */
+    try{if(typeof takeTreePack==='function')await takeTreePack(j,tcAsked,tcAskedAt);}catch(treeErr){}
     // v3.6 — pending scale photos come DOWN too. The worker weighs on one phone and the
     // marketer audits on another; without this the hub would only ever show loads
     // weighed on the marketer's own device, which is the v3.5 divergence bug again.
@@ -4448,7 +4488,8 @@ const MY_KINDS={
   DISPATCH_REQ:{ic:'⚖️',t:'my_k_load', en:'morning load'},
   FOC_REQ:     {ic:'🎁',t:'my_k_foc',  en:'asked for fruit'},
   STOCK_OUT:   {ic:'🧪',t:'my_k_mat',  en:'material taken'},
-  TASK_DONE:   {ic:'✓', t:'my_k_job',  en:'job done'}
+  TASK_DONE:   {ic:'✓', t:'my_k_job',  en:'job done'},
+  TREECHECK:   {ic:'🌳',t:'my_k_tree', en:'tree check'}   // v3.79.0 — not an event: built from the tree log by tcMineGroups()
 };
 /** ⛔ HIS OWN WORK, and the Owner chose the rule: "only what he keyed", matched on his name
  *  and his phone. The staff id is used FIRST where both sides carry one, because a name can
@@ -4482,6 +4523,8 @@ function mineDayRows(iso){
     const g=by[k]; g.rows.push(e);
     if(!e.synced)g.pending++;
     if(String(e.dt||'')<g.dt)g.dt=String(e.dt||'');});
+  /* v3.79.0 — the trees he checked: one line per check and lot, from the tree log */
+  if(typeof tcMineGroups==='function'){try{tcMineGroups(day).forEach(g=>out.push(g));}catch(x){}}
   return out.sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));}
 /** Every day this person has ever keyed anything, oldest first — the calendar's real range. */
 function mineDays(){
@@ -4489,6 +4532,7 @@ function mineDays(){
   if(typeof EVENTS!=='undefined')EVENTS.forEach(e=>{
     if(!e||!MY_KINDS[e.type]||!mineIsMine(e))return;
     const k=String(e.dt||'').slice(0,10); if(k)d[k]=1;});
+  if(typeof tcMineDays==='function'){try{tcMineDays().forEach(k=>{d[k]=1;});}catch(x){}}   // v3.79.0
   return Object.keys(d).sort();}
 /** What the Gate said, on the two kinds that wait for an answer. '' when none is owed. */
 function mineAnswer(g){
@@ -4513,6 +4557,7 @@ function mineLine(g){
   const trees=(()=>{const s={};g.rows.forEach(x=>{if(x.tree)s[x.tree]=1;});
     const c=Object.keys(s).length; return c?(c+' '+tr('ow_trees','trees')):'';})();
   switch(g.type){
+    case 'TREECHECK': return tcMineLine(g);   // v3.79.0
     case 'DROP':{
       const gr={}; g.rows.forEach(x=>{if(x.grade)gr[x.grade]=(gr[x.grade]||0)+(+x.qty||0);});
       const parts=Object.keys(gr).sort().map(k=>k+' '+nf(gr[k]));
@@ -5455,6 +5500,7 @@ async function doSync(auto){
   await pushTasks();                          // then general task assignments (own payload key)
   await pushTaskLogs();                       // then general task completions + labour
   await pushRain();                           // then the rain gauge log (own payload key)
+  await pushTrees();                          // v3.79.0 — then the tree survey rows (own payload key)
   await pushRotten();                         // then rotten fruit logs (own payload key)
   await pushLogAdj();                         // then approved log corrections (own payload key)
   await pushTying();                          // then continuous tying rounds (own payload key)
@@ -7794,16 +7840,23 @@ let PPO={v:'',s:'list',key:'',pg:null,mix:true,year:false,need:false};   // tab 
 let PPE=null, PPM=null, PPR=null, PPA=null;   // the editor, move/skip, record-as-done, add-a-set forms
 let PPC={s:'list',key:''}, PPCD=null, PPCN=null;   // the crew's screen and its two forms
 function ppTabs(){return ppIsOwner()?['month','buy','rec']:['coming','done'];}
-function ppInForm(){return ['edit','move','skip','rec','add'].indexOf(PPO.s)>=0||['done','not'].indexOf(PPC.s)>=0;}
+function ppInForm(){return ['edit','move','skip','rec','add'].indexOf(PPO.s)>=0||['done','not'].indexOf(PPC.s)>=0||
+  (typeof tcCrewOn==='function'&&tcCrewOn());}   // v3.79.0 — a tree being keyed is a form too
 function ppTop(){const s=$('scr-dash'); if(s)s.scrollTop=0;}
 /** Entering the tile: always the first tab and the list, never a half-filled form. */
 function ppOpen(){
   PPO={v:ppTabs()[0],s:'list',key:'',pg:null,mix:true,year:false,need:false}; PPE=PPM=PPR=PPA=null;
   PPC={s:'list',key:''}; PPCD=PPCN=null;
+  if(typeof tcW0==='function')TCW=tcW0();   // v3.79.0 — and never a tree walk left open by the last person
   ppRender();}
 function ppRender(){
   const box=$('progcard'); if(!box)return;
   if(!roleAllows('progcard')||!ppOn()){box.innerHTML='';return;}
+  /* v3.79.0 — the crew's tree walk is drawn in this same box: the check is an issued item on
+     their list, and opening it must not need a tile of its own. */
+  if(typeof tcCrewOn==='function'&&tcCrewOn()){
+    box.classList.remove('m3-hide');
+    box.innerHTML='<div class="card pp tc-ui'+(tcHeld()?' tc-wait':'')+'" id="tc-root">'+tcWalkHTML()+'</div>';return;}
   ppTouch();
   if(ppTabs().indexOf(PPO.v)<0)PPO.v=ppTabs()[0];
   box.classList.remove('m3-hide');
@@ -8051,6 +8104,9 @@ function ppMonthHTML(){
     '<div class="pp-kpi"><div class="v">'+cnt('fert')+'</div><div class="l">fert done</div></div>'+
     '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='iss').length+'</div><div class="l">issued now</div></div>'+
     '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='plan').length+'</div><div class="l">on the plan</div></div></div>';
+  /* v3.79.0 — the tree checks of this month sit on the month page with the sets: tap one to
+     issue it, or to see how far it is */
+  if(typeof tcMonthHTML==='function'){try{h+=tcMonthHTML(pg.mon);}catch(x){}}
   /* a set that is added is ISSUED, for today or for a day in the month on screen: a month
      that has gone has no such button (a round done back then is recorded from its own row) */
   const add=(ppIsOwner()&&pg.mon>=today.slice(0,7))?'<button class="pp-ghost blu" id="pp-o-add" onclick="ppAddOpen(\''+(/^\d{4}-\d{2}$/.test(pg.mon)?pg.mon:'')+'\')">＋ ADD A SET THAT IS NOT ON THE PLAN</button>':'';
@@ -8528,7 +8584,10 @@ function ppCrewHTML(){
   if(PPC.s==='list'){
     const list=ppCrewList();
     h='<div class="pp-g">'+ppT('Only the sets the Owner has issued. Today ','Hanya set yang telah dikeluarkan oleh Pengurus. Hari ini ')+ppFmt(today)+'.</div>';
-    if(!list.length)h+='<div class="pp-note">'+ppT('No programme work for the next 7 days.','Tiada kerja program untuk 7 hari ini.')+'</div>';
+    /* v3.79.0 — a tree check the Owner issued is on this same list, above the sets */
+    const tcH=(typeof tcCrewListHTML==='function')?tcCrewListHTML():'';
+    h+=tcH;
+    if(!list.length&&!tcH)h+='<div class="pp-note">'+ppT('No programme work for the next 7 days.','Tiada kerja program untuk 7 hari ini.')+'</div>';
     list.forEach(v=>{const st=ppSt(v), left=ppLotsLeft(v);
       h+='<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
         '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
@@ -8679,8 +8738,9 @@ function ppTileBadge(){
     const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' ISSUED',amber:1}:null;}
   /* v3.77.0 - his buy list is in THE STORE ▸ BUY only; this tile shows what is coming */
   if(r==='PURCHASER'){const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
-  const due=ppCrewDue().length; if(due)return {t:due+' '+ppT('DUE','HARI INI')};
-  const c=ppCrewList().length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
+  /* v3.79.0 — a tree check that is due counts with the sets: it is on the same list */
+  const due=ppCrewDue().length+((typeof tcCrewDue==='function')?tcCrewDue().length:0); if(due)return {t:due+' '+ppT('DUE','HARI INI')};
+  const c=ppCrewList().length+((typeof tcCrewComing==='function')?tcCrewComing():0); return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
 
 /* ---------- closing last season's programme ----------
    The three sets the app held open on 2 Oct 2026, answered the way Programme 26 shows them.
@@ -10151,6 +10211,1327 @@ function wtDrySpell(){
   const c=wtCall(); return (c.k==='dry'&&c.run>=WATER_TELL_DAY)?c.run:0;}
 function wtTileBadge(){if(wtLostLine())return {t:'CHECK ORDER'}; const n=wtDrySpell(); return n?{t:'DRY '+n+' DAYS'}:null;}
 
+/* ======================================================================================
+   v3.79.0 · THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF
+   ======================================================================================
+   The Owner, 4 Oct 2026: "the census sheet no yet done" ... "census will be done by the
+   ground staff, but guided need to show them". One screen per tree. Two checks this
+   release: the health census (leaf colour, canopy, sunlight, does the hose reach, and four
+   things tapped only when seen) and the Friday flush check (one tap a tree). A check
+   reaches the crew only when the Owner ISSUES it: which lots, which day.
+
+   ONE LOG, APPEND-ONLY. Every answer, every issue, every decision of the Owner is one row
+   in TREE_LOG, and a row is never changed after it is written:
+     ISS   the Owner issues a check (lots, day; the flush returns every 7 days)
+     STOP  the Owner stops a check for some lots
+     ROW   one tree, one check, one walk: the answers
+     FIX   the Owner answers a question the staff marked NOT SURE
+     PBZ   the Owner's own yes / no for one tree over the proposed list
+     PRAC  a staff member passed the practice on a phone
+   What a tree "is" is DERIVED: the newest ROW for that tree and check counts, older ones
+   stay as history. So two phones can never overwrite each other, and there is nothing to
+   compare and swap: the Sheet holds every row, every phone reads the same rows, every phone
+   derives the same answer.
+
+   "NEWEST" IS MEASURED ON THE SHEET'S CLOCK, NOT ON EACH PHONE'S. (Found in review: a crew
+   phone ten minutes slow re-checked a tree and its answer lost to the older one on every
+   phone; a phone a day behind keyed a Friday walk into last week's.) Before it sends, and
+   at most every half hour, a phone asks the Sheet the time (`?time=1`, a request so small
+   that the answer is good to a second or two) and keeps the difference to its own clock
+   (TC_OFF). A row carries the moment it was keyed as this phone's clock read it; what goes
+   up is that moment moved by the difference, and the Sheet writes it as farm time (UTC+8).
+   So a phone ten minutes slow, a day behind, or set to another time zone stamps its rows
+   where a right clock would. The kept difference only changes when a new measurement
+   cannot agree with it (further away than TC_SKEW_MS plus half the time the answer took),
+   so two uploads of one phone are not moved by different amounts; and each row keeps the
+   difference the phone knew when it was keyed. NO ROW GOES UP UNTIL THE SHEET HAS SAID THE
+   TIME for this push. WHAT THIS CANNOT KNOW: a clock that was changed where there is no
+   line, by an amount that still gives a possible time, before the trees were keyed. A time
+   that cannot be true (after now, or before the Sheet's last word when the row was keyed)
+   is replaced: by the difference known now, and failing that by "sent now".
+
+   THE ROWS ON A PHONE BELONG TO ONE SHEET, which names itself (`tcsid`, in the time answer
+   and in every pull). A row is sent only to the Sheet it was keyed for; the Sheet refuses a
+   batch that names another. A phone that finds itself at another Sheet puts its unsent rows
+   ASIDE (kv `tcp:<uuid>`), never deletes them, and brings them back when it is pointed at
+   their Sheet again.
+
+   ITS OWN ROAD. The rows go up under the payload key `treechecks` to the tab TREE_CHECKS
+   and come down from a row cursor (`tc=<rows read>.<uuid of the last one>`), asked only by
+   the Owner and the crew. They are not general events: the event pull has a ceiling of
+   4,000 rows, and an Apps Script that does not know a row type answers "bad event".
+   A photo goes up AFTER its row, by itself (`treephotos`), so a weak line that cannot carry
+   a picture still carries the answers; it is fetched one at a time when the Owner asks.
+
+   THE SHEET HOLDS EVERY ROW, AND A PHONE PUTS BACK WHAT IS MISSING. When the tab is read
+   from its first row (a new phone, or a tab that was sorted or cut by hand), a row this
+   phone sent earlier and the tab no longer holds is sent again. So the phones cannot end
+   up disagreeing for good, and a tab deleted by mistake fills itself again.
+
+   STORED IN THE `kv` STORE, one entry per row under `tc:<uuid>`: no new IndexedDB store, so
+   the database version does not move and v3.78.0 can be put back without the phone losing
+   sight of its records.
+   ====================================================================================== */
+let TREE_LOG=[];
+let TC_CUR='', TC_HELD=0, TC_SERVED=null, TC_MORE=false, TC_ERR='', TC_RS=null;
+let TC_FOR='';             // the short name of the Sheet this phone's rows are for ('' = it has not heard one yet)
+let TC_PARK=[];            // rows not yet sent that were keyed for ANOTHER Sheet: kept, never sent here, never shown
+let TC_OFF=null, TC_FLOOR=0, TC_CLK_AT=0, TC_CLK_MONO=0, TC_CLK_URL='', TC_ASK_AT=0, TC_LASTE=0, TC_SRC='', TC_LT={k:'',t:0};
+let TC_PRAC={};            // this phone: who has passed the practice   {uid:{at,score}}
+let TC_REFPLAN=null;       // the Owner's reference trees still to be scored (this phone)
+let TC_PHOTO={};           // photos fetched this session, by row uuid
+let TC_CACHE=null, TC_PUSHING=false, tcWarned=false, TC_IDLE=0, TC_SOON=0, TC_HOLD=0, TC_SAVES=0;
+function tcW0(){return {on:false,who:'',s:'lots',chk:'',lot:'',i:0,tree:'',cur:null,help:'',err:'',busy:false,pbusy:false,dirty:false,leave:false,one:false,pc:0,qz:0,qa:[],cmp:null,review:false};}
+function tcO0(){return {v:'survey',s:'list',f:null,tree:'',arm:'',lot:'',add:'',busy:false,note:''};}
+let TCW=tcW0(), TCO=tcO0();
+
+function tcT(en,ms){return (LANG==='ms'&&ms)?ms:en;}
+function tcSeason(){return (typeof PP_SEASON!=='undefined')?String(PP_SEASON):'';}
+function tcIsGraft(t){return GRAFT_TREES.indexOf(t)>=0;}
+function tcTrees(lot){return treesInLot(lot).slice().sort((a,b)=>(+a.no||0)-(+b.no||0)).map(t=>t.id);}
+function tcAllTrees(){let o=[];LOT_KEYS.forEach(l=>{o=o.concat(tcTrees(l));});return o;}
+function tcClone(t){const x=treeById(t);return x?String(x.clone||''):'';}
+function tcChk(id){return TC_CHECKS.find(c=>c.id===id)||null;}
+function tcChkName(id){const c=tcChk(id);return c?tcT(c.en,c.ms):(id==='REF'?tcT('Reference trees','Pokok rujukan'):String(id||''));}
+function tcQ(id){return TC_Q.find(q=>q.id===id)||null;}
+function tcMust(){return TC_Q.filter(q=>q.must);}
+function tcSeen(){return TC_Q.filter(q=>!q.must&&!q.fl);}
+function tcTouch(){TC_CACHE=null;}
+function tcAddDays(iso,n){const a=String(iso).slice(0,10).split('-');const d=new Date(Date.UTC(+a[0],+a[1]-1,+a[2]));d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function tcDow(iso){const a=String(iso).slice(0,10).split('-');return new Date(Date.UTC(+a[0],+a[1]-1,+a[2])).getUTCDay();}
+function tcOkDay(iso){return /^\d{4}-\d{2}-\d{2}$/.test(String(iso||''));}
+function tcDiff(a,b){const p=s=>{const x=String(s).slice(0,10).split('-');return Date.UTC(+x[0],+x[1]-1,+x[2]);};return Math.round((p(a)-p(b))/864e5);}
+function tcDay(iso){return tcOkDay(iso)?longDay(iso):'—';}
+function tcMe(){return String((CFG&&(CFG.uid||CFG.worker))||'');}
+function tcCanAsk(){const r=myRole();return r==='OWNER'||r==='WORKER';}
+
+/* ---------- the clock ---------- */
+/** Farm time (UTC+8, no summer time) written out, and read back. No time zone of any phone enters into it. */
+function tcFarm(ms){
+  const d=new Date(ms+TC_TZ_MS), p=n=>String(n).padStart(2,'0');
+  return d.getUTCFullYear()+'-'+p(d.getUTCMonth()+1)+'-'+p(d.getUTCDate())+' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+':'+p(d.getUTCSeconds());}
+function tcFarmMs(at){
+  const m=String(at||'').match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/); if(!m)return null;
+  return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6])-TC_TZ_MS;}
+/** What time it is on the Sheet's clock, as well as this phone knows: its own clock moved by the
+ *  difference last measured, and never earlier than the last moment the Sheet itself told it. */
+function tcSrvNow(){const e=Date.now()+(TC_OFF||0); return (TC_FLOOR&&e<TC_FLOOR)?TC_FLOOR:e;}
+function tcToday(){return tcFarm(tcSrvNow()).slice(0,10);}
+/** The phone's clock reads EARLIER than the last time the Sheet told it: it was put back, or lost its date. */
+function tcClockBad(){return !!TC_FLOOR&&(Date.now()+(TC_OFF||0))<TC_FLOOR-60000;}
+/** The Sheet said what time it is. t0 / t1 = this phone's clock when it asked and when the
+ *  answer came. The answer was made somewhere between the two, so the true difference lies
+ *  within half that time of the middle. The kept figure stays while it can still be true (so
+ *  one phone's rows are moved by one amount); it is replaced as soon as it cannot be, HOWEVER
+ *  SLOW THE ANSWER WAS. (Found in review: slow answers were ignored, and a phone that had come
+ *  back from a flat battery went on stamping rows a day out on a weak line.) */
+async function tcClock(srvMs,t0,t1){
+  srvMs=+srvMs; if(!(srvMs>0))return false;
+  const rtt=Math.max(0,t1-t0), off=Math.round(srvMs-(t0+t1)/2);
+  if(TC_OFF===null||Math.abs(off-TC_OFF)>TC_SKEW_MS+rtt/2){TC_OFF=off;tcTouch();}
+  /* the Sheet's LAST word, not the highest ever heard: one absurd answer must not hold the
+     phone to a wrong day for good (found in review) */
+  if(srvMs!==TC_FLOOR){TC_FLOOR=srvMs;tcTouch();}
+  TC_CLK_AT=Date.now(); TC_CLK_MONO=performance.now(); TC_CLK_URL=tcUrlKey();
+  if(db)await tcPut('tcclock',{off:TC_OFF,floor:TC_FLOOR});
+  return true;}
+/** Has this phone's clock been moved since the Sheet was last asked the time? Its clock and its
+ *  stopwatch (which no setting can move) should have advanced by the same amount. A phone that
+ *  slept can look the same; the only cost of being wrong is one more small question to the Sheet. */
+function tcJumped(){
+  if(!TC_CLK_AT)return true;
+  return Math.abs((Date.now()-TC_CLK_AT)-(performance.now()-TC_CLK_MONO))>TC_SKEW_MS;}
+/** Ask the Sheet the time and its name, unless it was asked in the last half hour of this
+ *  session, at this same URL, and the phone's clock has not been touched since.
+ *  'ok' = answered; 'old' = a Sheet side that answers but knows neither (not v3.79.0);
+ *  'fail' = no answer (no line, a slow line, a wrong URL). */
+async function tcHandshake(force){
+  if(!CFG||!CFG.url||!navigator.onLine)return 'fail';
+  const since=Date.now()-TC_CLK_AT;
+  if(!force&&TC_CLK_AT&&TC_CLK_URL===tcUrlKey()&&since>=0&&since<TC_CLOCK_EVERY_MS&&!tcJumped())return 'ok';
+  let j=null,t0=0,t1=0; const asked=tcUrlKey();
+  try{t0=Date.now(); const r=await fetchT(CFG.url+'?time=1',{cache:'no-store'},TC_CLOCK_TIMEOUT_MS); j=await r.json(); t1=Date.now();}catch(e){return 'fail';}
+  if(asked!==tcUrlKey())return 'fail';                 // the Sync URL was changed while the question was out: this answer is the other Sheet's
+  if(!(j&&j.ok))return 'fail';
+  if(!(+j.nowms>0)||!j.tcsid)return 'old';
+  await tcBind(j.tcsid);
+  return (await tcClock(j.nowms,t0,t1))?'ok':'fail';}
+/** The moment a row was keyed, on the Sheet's clock (milliseconds). A row the Sheet has
+ *  already stamped is as written. For one still on the phone: the phone's clock at keying,
+ *  moved by the difference the phone knew THEN (a clock put right afterwards does not move a
+ *  row keyed before); if that gives a time that cannot be true - later than now, or earlier
+ *  than the Sheet's last word before the row was keyed - by the difference it knows NOW; and
+ *  if that cannot be true either, the row counts as keyed now. */
+function tcEst(r){
+  if(r.st||!(+r.t>0)){const m=tcFarmMs(r.at); return m===null?tcSrvNow():m;}
+  const now=tcSrvNow(), can=e=>e<=now&&!(+r.f>0&&e<+r.f-TC_SKEW_MS);
+  const a=(typeof r.o==='number'&&isFinite(r.o))?+r.t+r.o:null, b=+r.t+(TC_OFF||0);
+  if(a!==null&&can(a))return a;
+  return can(b)?b:now;}
+/** The stamp a row is judged by. */
+function tcEff(r){return r.synced?String(r.at||''):tcFarm(tcEst(r));}
+function tcSeqOf(r){const x=String(r.seq||'').split(':');return [x[0]||'',+x[1]||0];}
+/** Which of two rows is the newer. ONE order for every phone: the stamp on the Sheet's clock;
+ *  inside the same second the phone that wrote them (by its install id), then the order that
+ *  phone wrote them in (its own running number), then the uuid. */
+function tcNewer(a,b){
+  const x=tcEff(a),y=tcEff(b); if(x!==y)return x>y;
+  const sa=tcSeqOf(a),sb=tcSeqOf(b); if(sa[0]!==sb[0])return sa[0]>sb[0];
+  if(sa[1]!==sb[1])return sa[1]>sb[1];
+  return String(a.uuid)>String(b.uuid);}
+/** This phone's running number for the rows it writes: '<install id>:<n>'. */
+function tcSeq(){
+  if(!TC_SRC)return '';
+  let n=0; TREE_LOG.forEach(r=>{const x=tcSeqOf(r); if(x[0]===TC_SRC&&x[1]>n)n=x[1];});
+  return TC_SRC+':'+(n+1);}
+/** A second tap on the SAME control inside TC_DTAP_MS is the other half of a double tap, not a
+ *  second answer: a box ticked twice would end unticked. */
+function tcTapOk(k){
+  const now=(typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();
+  const ok=!(TC_LT.k===k&&now-TC_LT.t<TC_DTAP_MS); TC_LT={k:k,t:now}; return ok;}
+function tcUrlKey(){const u=String((CFG&&CFG.url)||''); if(!u)return ''; let h=5381; for(let i=0;i<u.length;i++)h=((h<<5)+h+u.charCodeAt(i))>>>0; return h.toString(36);}
+/** After a tap that changes what is under the thumb, the next tap is not taken for a moment:
+ *  a double tap must not answer the next tree (found in review, on the flush and on SAVE). */
+function tcHold(ms){
+  TC_HOLD++; const mine=TC_HOLD;
+  setTimeout(()=>{ if(TC_HOLD!==mine)return; TC_HOLD=0;
+    ['tc-root','tc-own'].forEach(id=>{const e=$(id); if(e)e.classList.remove('tc-wait');}); },ms||TC_TAP_MS);}
+function tcHeld(){return TC_HOLD>0;}
+/** A write to the phone's store that cannot hang the form if the store never answers. */
+function tcPut(k,v){return Promise.race([put('kv',{k:k,v:v}).then(()=>true),new Promise(r=>setTimeout(()=>r(false),4000))]);}
+
+/* ---------- boot: the rows are in the kv store, one entry each ---------- */
+function tcBoot(kv){
+  TREE_LOG=[]; TC_CACHE=null;
+  (kv||[]).forEach(x=>{if(x&&typeof x.k==='string'&&x.k.indexOf('tc:')===0&&x.v&&x.v.uuid&&x.v.k)TREE_LOG.push(x.v);});
+  const here={}; TREE_LOG.forEach(r=>{here[r.uuid]=1;}); TC_PARK=[];
+  (kv||[]).forEach(x=>{if(x&&typeof x.k==='string'&&x.k.indexOf('tcp:')===0&&x.v&&x.v.uuid&&x.v.k&&!here[x.v.uuid]){here[x.v.uuid]=1;TC_PARK.push(x.v);}});
+  const g=k=>{const x=(kv||[]).find(y=>y&&y.k===k);return x?x.v:null;};
+  const tp=g('tcpull'), okp=tp&&typeof tp==='object';
+  /* a read of the whole tab that was cut short starts again from the first row */
+  TC_CUR=(okp&&!tp.rs)?String(tp.cur||''):''; TC_HELD=(okp&&!tp.rs)?(+tp.held||0):0; TC_RS=null; TC_FOR=okp?String(tp.sid||''):'';
+  /* rows found put aside for the very Sheet this phone is at (the app was closed half way through a move) are its own rows */
+  if(TC_FOR&&TC_PARK.some(r=>r.u===TC_FOR)){
+    const mine=TC_PARK.filter(r=>r.u===TC_FOR); TC_PARK=TC_PARK.filter(r=>r.u!==TC_FOR);
+    mine.forEach(r=>{TREE_LOG.push(r); if(db){try{put('kv',{k:'tc:'+r.uuid,v:r}).then(()=>del('kv','tcp:'+r.uuid)).catch(()=>{});}catch(e){}}});}
+  const ck=g('tcclock'), okc=ck&&typeof ck==='object';
+  TC_OFF=(okc&&ck.off!==null&&isFinite(+ck.off))?+ck.off:null; TC_FLOOR=(okc&&+ck.floor>0)?+ck.floor:0; TC_CLK_AT=0; TC_CLK_MONO=0; TC_CLK_URL=''; TC_ASK_AT=0; TC_LASTE=0;
+  const pr=g('tcprac'); TC_PRAC=(pr&&typeof pr==='object'&&!Array.isArray(pr))?pr:{};
+  const rp=g('tcrefplan'); TC_REFPLAN=Array.isArray(rp)?rp.filter(t=>treeById(t)):null;
+  /* this install's own name for its rows. Made once; a phone that is wiped starts another. */
+  TC_SRC=String(g('tcsrc')||'');
+  if(!TC_SRC){TC_SRC=Math.random().toString(36).slice(2,8)||'x'; if(db)put('kv',{k:'tcsrc',v:TC_SRC});}}
+function tcWipe(){
+  TREE_LOG=[];TC_CUR='';TC_HELD=0;TC_SERVED=null;TC_MORE=false;TC_ERR='';TC_RS=null;TC_FOR='';TC_PARK=[];TC_OFF=null;TC_FLOOR=0;TC_CLK_AT=0;TC_CLK_MONO=0;TC_CLK_URL='';TC_ASK_AT=0;TC_LASTE=0;TC_PRAC={};TC_REFPLAN=null;TC_PHOTO={};TC_CACHE=null;TC_SAVES=0;
+  TC_SRC=Math.random().toString(36).slice(2,8)||'x';
+  if(TC_IDLE)clearTimeout(TC_IDLE); if(TC_SOON)clearTimeout(TC_SOON); TC_IDLE=TC_SOON=0;
+  TCW=tcW0(); TCO=tcO0();}
+
+/* ---------- what the log says ---------- */
+function tcState(){
+  if(TC_CACHE)return TC_CACHE;
+  const sn=tcSeason(), S={iss:[],stops:{},last:{},n:{},byIss:{},fix:{},pbz:{},prac:[],walks:{},eff:{},rows:{}};
+  TREE_LOG.forEach(r=>{
+    if(!r||r.refused||(r.season&&sn&&r.season!==sn))return;
+    if(r.k==='ISS'){if(tcChk(r.chk))S.iss.push(r);}
+    else if(r.k==='STOP'){if(r.chk)(S.stops[r.chk]=S.stops[r.chk]||[]).push(r);}
+    else if(r.k==='ROW'){
+      if(!r.tree||!r.chk)return;
+      const key=r.chk+'|'+r.walk+'|'+r.tree; S.n[key]=(S.n[key]||0)+1; S.rows[r.uuid]=r;
+      if(!S.last[key]||tcNewer(r,S.last[key]))S.last[key]=r;
+      if(r.iss)S.byIss[r.iss+'|'+r.tree]=1;
+      if(r.chk==='FL'&&tcOkDay(r.walk))S.walks[r.walk]=1;}
+    else if(r.k==='FIX'){if(r.tree){const key=(r.chk||'CE1')+'|'+(r.walk||'CE1')+'|'+r.tree;(S.fix[key]=S.fix[key]||[]).push(r);}}
+    else if(r.k==='PBZ'){if(r.tree&&(!S.pbz[r.tree]||tcNewer(r,S.pbz[r.tree])))S.pbz[r.tree]=r;}
+    else if(r.k==='PRAC')S.prac.push(r);});
+  S.iss.sort((a,b)=>tcNewer(a,b)?1:-1);
+  Object.keys(S.fix).forEach(k=>S.fix[k].sort((a,b)=>tcNewer(a,b)?-1:1));     // newest first
+  /* which issue counts for each check and lot: the latest one that names the lot, unless a
+     STOP for that check and lot is later still. A STOP therefore ends every earlier issue
+     of the lot, not only the one on the screen (found in review: stopping the newest one
+     brought an older issue back to the crew). */
+  S.iss.forEach(i=>{
+    const stops=S.stops[i.chk]||[];
+    tcIssLotsRaw(i).forEach(lot=>{
+      /* the issue a STOP names is ended by it whatever the clocks say; so is every issue of the lot not newer than the STOP */
+      const dead=stops.some(s=>{const sl=tcStopLots(s,S.iss); return sl.indexOf(lot)>=0&&(s.iss===i.uuid||!tcNewer(i,s));});
+      if(!dead)S.eff[i.chk+'|'+lot]=i;});});
+  return TC_CACHE=S;}
+function tcIssLotsRaw(i){return String(i&&i.lots||'').split(/[\s,+]+/).filter(l=>LOT_KEYS.indexOf(l)>=0);}
+function tcStopLots(s,iss){
+  const l=tcIssLotsRaw(s); if(l.length)return l;
+  const i=(iss||[]).find(x=>x.uuid===s.iss); return i?tcIssLotsRaw(i):[];}
+function tcRow(chk,walk,tree){return tcState().last[chk+'|'+walk+'|'+tree]||null;}
+/** THE ROUND a row belongs to. A lot is checked once; "check every tree again" opens a new
+ *  round for the lots it names. A lot issued again for another DAY is the same round. The
+ *  round of a row is that of the issue it was keyed under (or, for a row keyed under none,
+ *  of its own time): the newest "again" issue for its lot that is not newer than that. */
+function tcRound(chk,lot,r){
+  const S=tcState(), ag=S.iss.filter(i=>i.chk===chk&&+i.again&&tcIssLotsRaw(i).indexOf(lot)>=0);
+  if(!ag.length||!r)return '';
+  const ref=(r.iss&&S.iss.find(i=>i.uuid===r.iss))||r;
+  let k=''; ag.forEach(a=>{if(a===ref||!tcNewer(a,ref))k=a.uuid;}); return k;}
+/** The answers that count for one tree in one walk: the newest row, and for a question it
+ *  leaves NOT SURE, the Owner's newest decision for that tree IN THE SAME ROUND. So a phone
+ *  that had not heard his decision and saves the tree again, still not sure, does not undo
+ *  it - also when the lot has meanwhile been issued for another day; and a NOT SURE keyed in
+ *  a later round ("check every tree again") is a new question for him, not answered by last
+ *  month's decision. (All three found in review.) */
+function tcAns(chk,walk,tree){
+  const r=tcRow(chk,walk,tree); if(!r)return null;
+  const S=tcState(), v=Object.assign({},r.v||{}); let un=(r.un||[]).slice(), fixed=0;
+  let fx=S.fix[chk+'|'+walk+'|'+tree]||[];
+  if(fx.length&&un.length){
+    const lot=r.lot||String(tree).split('-')[0], mine=tcRound(chk,lot,r);
+    fx=fx.filter(x=>x.row===r.uuid||tcRound(chk,lot,S.rows[x.row]||x)===mine);
+    un.slice().forEach(f=>{const d=fx.find(x=>x.v&&x.v[f]!=null&&x.v[f]!=='?'); if(d){v[f]=d.v[f];un=un.filter(x=>x!==f);fixed++;}});}
+  return {r:r,v:v,un:un,skip:!!r.skip,fixed:fixed,n:S.n[chk+'|'+walk+'|'+tree]||1};}
+function tcCen(tree){return tcAns('CE1','CE1',tree);}
+function tcCenOk(tree){const a=tcCen(tree);return (a&&!a.skip)?a:null;}
+function tcSick(a){return !!(a&&!a.skip&&(a.v.canker||a.v.borer||a.v.dieback));}
+/** H / P / D / W, proposed from the answers. The rule is printed on the Owner's page. */
+function tcClass(a){
+  if(!a||a.skip)return '';
+  if(a.v.canker||a.v.dieback)return 'D';
+  if(a.v.borer)return 'P';
+  if(a.v.wet||a.v.leaf==='1'||a.v.canopy==='1')return 'W';
+  return 'H';}
+/** Why a tree is proposed for NO PBZ, or ''. */
+function tcPbzWhy(tree){
+  if(tcIsGraft(tree))return 'graft';
+  const a=tcCenOk(tree); if(!a)return '';
+  return tcSick(a)?'sick':a.v.wet?'waterlogged':a.v.light==='S'?'shaded':'';}
+function tcPbz(tree){
+  const why=tcPbzWhy(tree);
+  if(tcIsGraft(tree))return {no:true,why:why,own:false,lock:true};
+  const f=tcState().pbz[tree], x=f&&f.v?f.v.pbz:'';
+  if(x==='Y'||x==='N')return {no:x==='N',why:why,own:true,lock:false};
+  return {no:!!why,why:why,own:false,lock:false};}
+function tcWhyTxt(w){return {graft:'graft',sick:'sick',waterlogged:'waterlogged',shaded:'shaded'}[w]||'';}
+
+/* ---------- issues, and the work they ask for ---------- */
+/** The issues that count for at least one lot, oldest first. */
+function tcActive(chk){
+  const S=tcState(), out=[];
+  Object.keys(S.eff).forEach(k=>{const i=S.eff[k]; if((!chk||i.chk===chk)&&out.indexOf(i)<0)out.push(i);});
+  return out.sort((a,b)=>tcNewer(a,b)?1:-1);}
+/** The lots an issue counts for now. */
+function tcIssLots(i){const S=tcState();return tcIssLotsRaw(i).filter(l=>S.eff[i.chk+'|'+l]===i);}
+/** The walk an issue asks for today: its day, or for the flush the latest 7-day return of it. */
+function tcWalkOf(i,today){
+  const d=String(i.day||'').slice(0,10); if(!tcOkDay(d))return '';
+  const c=tcChk(i.chk); if(!c||c.kind!=='flush')return d;
+  const k=Math.floor(tcDiff(today,d)/7); return k<=0?d:tcAddDays(d,7*k);}
+function tcItemOf(i,lot,today){
+  const c=tcChk(i.chk), fl=c.kind==='flush';
+  const walk=fl?tcWalkOf(i,today):'CE1', day=fl?walk:String(i.day||'').slice(0,10);
+  if(!tcOkDay(day))return null;
+  return tcFill({chk:i.chk,lot:lot,walk:walk,day:day,iss:i.uuid,again:(!fl&&+i.again)?1:0,by:i.by||''},today);}
+function tcTreeDone(it,tree){
+  const r=tcRow(it.chk,it.walk,tree); if(!r)return false;
+  return it.again?!!tcState().byIss[it.iss+'|'+tree]:true;}
+function tcFill(it,today){
+  it.trees=it.trees||tcTrees(it.lot); it.of=it.trees.length;
+  it.done=it.trees.filter(t=>tcTreeDone(it,t)).length;
+  let last=''; it.trees.forEach(t=>{const r=tcRow(it.chk,it.walk,t); if(r&&tcEff(r)>last)last=tcEff(r);});
+  it.last=last.slice(0,10);
+  it.st=(it.of&&it.done>=it.of)?'done':(!it.day||it.day===today)?'due':(it.day<today?'over':'coming');
+  return it;}
+/** What is issued: one item per check and lot. */
+function tcWork(){
+  const today=tcToday(), S=tcState(), out=[];
+  Object.keys(S.eff).sort().forEach(k=>{const i=S.eff[k], it=tcItemOf(i,k.split('|')[1],today); if(it)out.push(it);});
+  return out;}
+/** What the crew sees: from PP_CREW_SEE days ahead; a finished item stays TC_DONE_SHOW days. */
+function tcCrewItems(){
+  const today=tcToday();
+  return tcWork().filter(it=>{
+    if(it.st==='done')return tcChk(it.chk).kind==='flush'||!it.last||tcDiff(today,it.last)<=TC_DONE_SHOW;
+    return tcDiff(it.day,today)<=PP_CREW_SEE;});}
+function tcGroup(items){
+  const out=[]; TC_CHECKS.forEach(c=>{
+    const its=items.filter(x=>x.chk===c.id); if(!its.length)return;
+    const open=its.filter(x=>x.st!=='done');
+    const st=!open.length?'done':open.some(x=>x.st==='over')?'over':open.some(x=>x.st==='due')?'due':'coming';
+    out.push({chk:c.id,c:c,items:its,st:st,done:its.reduce((s,x)=>s+x.done,0),of:its.reduce((s,x)=>s+x.of,0),
+      day:(open.length?open:its).map(x=>x.day).sort()[0]});});
+  return out;}
+function tcCrewDue(){return (myRole()==='WORKER'&&hubTiles().indexOf('prog')>=0)?tcGroup(tcCrewItems()).filter(g=>g.st==='due'||g.st==='over'):[];}
+function tcPill(st,day){
+  if(st==='done')return '<span class="tc-pill tc-gr">'+tcT('done','siap')+'</span>';
+  if(st==='over'){const n=tcDiff(tcToday(),day);return '<span class="tc-pill tc-r">'+tcT(n+(n===1?' day late':' days late'),'lewat '+n+' hari')+'</span>';}
+  if(st==='due')return '<span class="tc-pill tc-a">'+tcT('today','hari ini')+'</span>';
+  return '<span class="tc-pill tc-y">'+esc(ppFmtS(day))+'</span>';}
+
+/* ---------- writing a row ---------- */
+/** When the row this phone keyed last counts from (0 = it has keyed none). For a row still on
+ *  the phone this is what was worked out when it was keyed, whatever the clock says now: the
+ *  app may have been closed, and the clock moved, in between (found in review). */
+function tcLastOwn(){
+  let n=0,row=null; TREE_LOG.forEach(r=>{const x=tcSeqOf(r); if(x[0]===TC_SRC&&x[1]>n){n=x[1];row=r;}});
+  if(!row)return 0;
+  return (!row.st&&+row.t>0&&typeof row.o==='number'&&isFinite(row.o))?(+row.t+row.o):tcEst(row);}
+async function tcAdd(o){
+  /* t = this phone's clock now; o = by how much it differs from the Sheet's, as known now;
+     f = the last moment the Sheet told this phone the time (a row cannot have been keyed
+     before that); u = the Sheet this row is for.
+     A row is never placed BEFORE the row this phone keyed just before it: when the kept
+     difference has just been measured afresh the two could otherwise swap by a few seconds,
+     and a correction would lose to the answer it corrects. Only for such a small step; a
+     larger one is the clock itself having been changed, and is followed. */
+  const t=Date.now(); let off=TC_OFF;
+  if(off!==null){ if(!TC_LASTE)TC_LASTE=tcLastOwn(); let e=t+off; const back=TC_LASTE-e; if(back>0&&back<=TC_BACK_MAX){off+=back;e+=back;} TC_LASTE=e;}
+  const r=Object.assign({uuid:uuid(),at:tcFarm(tcSrvNow()),t:t,o:off,f:TC_FLOOR||0,u:TC_FOR,seq:tcSeq(),season:tcSeason(),
+    by:(CFG&&CFG.worker)||'',byId:(CFG&&CFG.uid)||'',role:myRole(),device:(CFG&&CFG.device)||'',synced:false},o);
+  TREE_LOG.push(r); tcTouch();
+  if(db){const okp=await tcPut('tc:'+r.uuid,r);
+    if(okp===false)toast('⚠ '+tcT('This phone is slow to save. Do not close the app before the next SYNC.','Telefon ini lambat menyimpan. Jangan tutup aplikasi sebelum SYNC seterusnya.'),1);}
+  try{badge();}catch(e){}
+  return r;}
+/** Rows not yet in the Sheet, and photos whose row is in but which have not gone up themselves. */
+function tcUnsynced(){return TREE_LOG.filter(r=>r&&(!r.synced||(r.photo&&!r.refused))).length;}
+/** One sync for a burst of taps, and one more when a walk has gone quiet. */
+function tcSyncSoon(ms,tries){
+  if(TC_SOON)clearTimeout(TC_SOON);
+  TC_SOON=setTimeout(()=>{TC_SOON=0;
+    if(!(CFG&&CFG.url&&navigator.onLine))return;
+    /* a sync still running would turn this one away: come back when it has finished (found in review) */
+    if((typeof syncing!=='undefined'&&syncing)||TC_PUSHING){ if((tries||0)<6)tcSyncSoon(1500,(tries||0)+1); return; }
+    try{doSync(true);}catch(e){}},ms||1500);}
+function tcIdleSync(){
+  if(TC_IDLE)clearTimeout(TC_IDLE);
+  TC_IDLE=setTimeout(()=>{TC_IDLE=0; if(tcUnsynced()&&CFG&&CFG.url&&navigator.onLine){try{doSync(true);}catch(e){}}},TC_IDLE_SYNC_MS);
+  /* a long walk with no pause still sends what it has every TC_SYNC_EVERY trees */
+  if(++TC_SAVES>=TC_SYNC_EVERY){TC_SAVES=0;tcSyncSoon(3000);}}
+
+/* ---------- up to the Sheet ---------- */
+function tcWire(r){
+  const o={}; Object.keys(r).forEach(k=>{if(['synced','sentAt','refused','photo','t','o','f','u','st'].indexOf(k)<0)o[k]=r[k];});
+  if(r.photo||r.ph)o.ph=1;        // a photo was taken; it follows by itself
+  o.est=tcEst(r);                 // when it was keyed, on the Sheet's clock
+  return o;}
+async function tcPost(body,ms){
+  const res=await fetchT(CFG.url,{method:'POST',body:JSON.stringify(body),headers:{'Content-Type':'text/plain;charset=utf-8'}},ms||SYNC_TIMEOUT_MS);
+  return await res.json();}
+/** Still the object the log holds? A pull can replace a row with the Sheet's copy while its upload is in the air. */
+function tcIsCur(x){return TREE_LOG.indexOf(x)>=0;}
+/** THE ROWS ON THIS PHONE BELONG TO ONE SHEET, known by the short name the Sheet gives itself
+ *  - not by its URL: a new deployment changes the URL and not the Sheet, and a mistyped URL
+ *  is no Sheet at all. When the phone finds itself at ANOTHER Sheet (a trial copy, then the
+ *  farm's):
+ *   - rows the first Sheet already holds are dropped from the phone: they are in that Sheet;
+ *   - rows NOT YET SENT are never deleted and never sent to the other Sheet. They are put
+ *     aside (kv `tcp:<uuid>`) and come back, to be sent, when the phone is at their own
+ *     Sheet again. (Found in review: an earlier version went by the URL and deleted them, so
+ *     one slip in the Sync URL lost a morning's answers.)
+ *  Memory first and no await until it is done. Returns true when the phone has changed Sheet. */
+async function tcBind(sid){
+  sid=String(sid||''); if(!sid)return false;
+  if(sid===TC_FOR&&!TC_PARK.some(r=>r.u===sid))return false;
+  const park=[], gone=[], named=[], was=(TC_FOR&&TC_FOR!==sid)?TC_FOR:'';
+  if(was){
+    TREE_LOG.forEach(r=>{ if(!r)return;
+      if(r.synced&&!(r.photo&&!r.refused))gone.push(r); else{if(!r.u)r.u=was; park.push(r);} });
+    TREE_LOG=[]; TC_PARK=TC_PARK.concat(park);
+    TC_CUR='';TC_HELD=0;TC_RS=null;TC_MORE=false;
+    /* a check open on the screen belongs to the Sheet the phone has left: it is closed, and said */
+    if(TCW.on){TCW=tcW0(); try{toast(tcT('This phone is now at another Google Sheet. The tree check was closed.','Telefon ini kini di Google Sheet lain. Semakan pokok ditutup.'),1);}catch(e){}}
+    TCO=tcO0();}
+  TC_FOR=sid;
+  TREE_LOG.forEach(r=>{if(r&&!r.u){r.u=sid;named.push(r);}});       // keyed before the phone had heard any Sheet: for the first one it hears
+  /* put aside for THIS Sheet: they come back. Also when nothing moved - an app closed half way
+     through putting rows aside leaves some marked for the Sheet the phone is still at (found in review). */
+  const back=TC_PARK.filter(r=>r.u===sid);
+  if(back.length){TC_PARK=TC_PARK.filter(r=>r.u!==sid); const here={}; TREE_LOG.forEach(r=>{here[r.uuid]=1;}); back.forEach(r=>{if(!here[r.uuid])TREE_LOG.push(r);});}
+  TC_LASTE=0; tcTouch();
+  if(db){
+    for(const r of park){ if((await tcPut('tcp:'+r.uuid,r))!==false)await del('kv','tc:'+r.uuid); }
+    for(const r of gone)await del('kv','tc:'+r.uuid);
+    for(const r of named)await tcPut('tc:'+r.uuid,r);
+    for(const r of back){ if((await tcPut('tc:'+r.uuid,r))!==false)await del('kv','tcp:'+r.uuid); }
+    await tcPut('tcpull',{cur:TC_CUR,held:TC_HELD,rs:!!TC_RS,sid:TC_FOR});}
+  return !!was;}
+/** Rows kept on this phone for another Sheet, and the line that says so. */
+function tcParked(){return TC_PARK.length;}
+function tcParkNote(id){
+  const n=tcParked(); if(!n)return '';
+  return '<div class="tc-note" id="'+id+'"><b>'+n+'</b> '+tcT('tree row(s) keyed for another Google Sheet are kept on this phone and are not sent to this one. They go up when this phone is set to that Sheet again.','rekod pokok untuk Google Sheet lain disimpan di telefon ini dan tidak dihantar ke Sheet ini. Ia dihantar apabila telefon ini ditetapkan semula ke Sheet itu.')+'</div>';}
+/** A flush row keyed while the phone did not know the day is put under the walk of the day
+ *  it was really keyed, now that the Sheet's clock is known. Only before it is first sent. */
+async function tcFixWalks(){
+  const S=tcState();
+  for(const r of TREE_LOG){
+    if(!r||r.synced||r.st||r.k!=='ROW'||r.chk!=='FL'||!(+r.t>0))continue;
+    const day=tcFarm(tcEst(r)).slice(0,10), i=r.iss?S.iss.find(x=>x.uuid===r.iss):null;
+    const w=i?tcWalkOf(i,day):tcFriday(day);
+    if(w&&w!==r.walk){r.walk=w; tcTouch(); if(db)await tcPut('tc:'+r.uuid,r);}}}
+async function pushTrees(){
+  if(TC_PUSHING)return false;
+  if(!CFG||!CFG.url||!navigator.onLine)return false;
+  /* nothing waiting: nothing to say is stuck. Rows put aside for another Sheet still make the
+     phone ask which Sheet this is: at their own Sheet they come back and go up. */
+  if(!tcUnsynced()&&!TC_PARK.length){clearSyncFail('trees');return false;}
+  TC_PUSHING=true; let ok=true, why='', nref=0; const sentTo=tcUrlKey();
+  try{
+    /* 0 · the Sheet's clock and its name first: what goes up is each row's time ON THAT
+       CLOCK, to the Sheet it was keyed for. No answer, no upload: the rows wait (found in
+       review: with the time question lost on a weak line, rows went up stamped by a clock
+       the phone had reason to doubt). A Sheet side that answers but cannot tell the time is
+       the old one: nothing is sent, nothing is marked. */
+    const hs=await tcHandshake();
+    if(hs==='old'){
+      ok=false; why=tr('sy_oldbackend','the Google Sheet does not understand this yet');
+      if(!tcWarned&&tcUnsynced()){tcWarned=true;toast(tcT('Tree checks kept on this phone — the Google Sheet side must be v3.79.0','Semakan pokok disimpan di telefon ini — bahagian Google Sheet mesti v3.79.0'),1);}}
+    else if(hs!=='ok'){ok=false; why=tcT('the Sheet did not answer; the rows are kept on this phone','Sheet tidak menjawab; rekod disimpan di telefon ini');}
+    if(ok)await tcFixWalks();
+    /* 1 · the rows, without their photos: the answers travel even where a picture cannot */
+    for(let round=0;ok&&round<TC_PUSH_ROUNDS;round++){
+      const batch=TREE_LOG.filter(r=>r&&!r.synced).sort((a,b)=>tcEst(a)-tcEst(b)||(tcSeqOf(a)[1]-tcSeqOf(b)[1])).slice(0,TC_PUSH_ROWS);
+      if(!batch.length)break;
+      const j=await tcPost({treechecks:batch.map(tcWire),tcsid:TC_FOR});
+      /* `taken` is how a v3.79.0 backend signs its answer. An older one does not know the key,
+         finds no events in the request and still replies ok: without the signature every row
+         would be marked sent and none would be in the Sheet. */
+      if(!(j&&j.ok&&j.treechecks===true&&Array.isArray(j.taken))){
+        ok=false; why=tr('sy_oldbackend','the Google Sheet does not understand this yet');
+        if(!tcWarned){tcWarned=true;toast(tcT('Tree checks kept on this phone — the Google Sheet side must be v3.79.0','Semakan pokok disimpan di telefon ini — bahagian Google Sheet mesti v3.79.0'),1);}
+        break;}
+      if(j.wrongsheet){if(sentTo===tcUrlKey())await tcBind(j.tcsid); ok=false; why=tcT('this is another Google Sheet','ini Google Sheet yang lain'); break;}
+      const took={}, ref={}, st=(j.stamped&&typeof j.stamped==='object')?j.stamped:{}; j.taken.forEach(u=>{took[String(u)]=1;});
+      (Array.isArray(j.refused)?j.refused:[]).forEach(x=>{const s=String(x),u=s.split(' ')[0];ref[u]=s.slice(u.length+1)||'refused';});
+      let moved=0;
+      for(const x of batch){
+        if(!took[x.uuid]&&ref[x.uuid]===undefined)continue;
+        moved++;
+        if(!tcIsCur(x))continue;                 // the pull already put the Sheet's copy in its place
+        if(took[x.uuid]){x.synced=true;x.st=1;x.sentAt=Date.now(); if(st[x.uuid])x.at=String(st[x.uuid]);
+          if(TC_RS)TC_RS.seen[x.uuid]=1;}          // sent while the tab is being read from the top: it is in the Sheet, not missing from it
+        else{x.synced=true;x.refused=ref[x.uuid];delete x.photo;nref++;}
+        if(db)await tcPut('tc:'+x.uuid,x);}
+      tcTouch();
+      if(!moved){ok=false;why=tcT('the Sheet did not take the rows','Sheet tidak menerima rekod');break;}}
+    /* 2 · the photos, a few at a time, each after its row */
+    for(let round=0;ok&&round<TC_PUSH_ROUNDS;round++){
+      const batch=TREE_LOG.filter(r=>r&&r.synced&&!r.refused&&r.photo).slice(0,TC_PUSH_PHOTOS);
+      if(!batch.length)break;
+      const j=await tcPost({treephotos:batch.map(r=>({uuid:r.uuid,tree:r.tree||'',at:r.at,by:r.by||'',device:r.device||'',photo:r.photo})),tcsid:TC_FOR},TC_PUSH_TIMEOUT_MS);
+      if(!(j&&j.ok&&j.treephotos===true&&Array.isArray(j.ptaken))){ok=false;why=tr('sy_oldbackend','the Google Sheet does not understand this yet');break;}
+      if(j.wrongsheet){if(sentTo===tcUrlKey())await tcBind(j.tcsid); ok=false; why=tcT('this is another Google Sheet','ini Google Sheet yang lain'); break;}
+      const bad=Array.isArray(j.prefused)?j.prefused.map(x=>String(x).split(' ')[0]):[];
+      if(bad.length)toast('⚠ '+bad.length+' '+tcT('photo(s) could not be stored by the Sheet','gambar tidak dapat disimpan oleh Sheet'),1);
+      const took={}; j.ptaken.concat(bad).forEach(u=>{took[String(u)]=1;});
+      let moved=0;
+      for(const x of batch){
+        if(!took[x.uuid])continue;
+        moved++; if(!tcIsCur(x))continue;
+        delete x.photo; x.ph=1; if(db)await tcPut('tc:'+x.uuid,x);}
+      if(!moved){ok=false;why=tcT('the Sheet did not take the photo','Sheet tidak menerima gambar');break;}}
+  }catch(err){ok=false;why=(err&&err.name==='AbortError')?tr('sy_timeout','timed out'):((err&&err.message)||'network');}
+  TC_PUSHING=false;
+  const left=tcUnsynced();
+  if(left&&!ok)noteSyncFail('trees',tr('sy_l_trees','Tree checks'),left,why); else clearSyncFail('trees');
+  if(nref)toast('⚠ '+nref+' '+tcT('tree row(s) were refused by the Sheet','rekod pokok ditolak oleh Sheet'),1);
+  tcTouch(); try{badge();}catch(e){} tcRefresh();
+  return ok&&!left;}
+
+/* ---------- down from the Sheet ---------- */
+function tcHave(){return TREE_LOG.filter(r=>r&&r.synced&&!r.refused).length;}
+function tcCurToSend(){
+  if(!/^\d+\./.test(String(TC_CUR||'')))return '0';
+  /* the cursor is only worth sending if this phone still holds the rows it had when the
+     cursor was written: a store that lost rows is read again from the first row */
+  return tcHave()>=TC_HELD?TC_CUR:'0';}
+function tcAsk(){
+  if(!tcCanAsk())return '';
+  return '&tc='+encodeURIComponent(tcCurToSend());}
+function tcFromWire(a,head){
+  if(!Array.isArray(a))return null;
+  const o={}; head.forEach((k,i)=>{o[k]=String(a[i]==null?'':a[i]);});
+  if(!o.uuid||!o.k)return null;
+  const r={uuid:o.uuid,at:o.at,k:o.k,season:o.season||'',by:o.by||'',byId:o.byId||'',role:o.role||'',device:o.device||'',synced:true};
+  ['chk','iss','row','walk','tree','lot','lots','day'].forEach(f=>{if(o[f])r[f]=o[f];});
+  ['rep','again','skip'].forEach(f=>{if(o[f]==='1')r[f]=1;});
+  if(o.photo==='1')r.ph=1;
+  if(o.score!==''&&o.score!=null)r.score=+o.score||0;
+  if(o.seq!==''&&o.seq!=null)r.seq=String(o.seq);
+  const v={}; ['leaf','canopy','light','hose','flush','pbz'].forEach(f=>{if(o[f]!==''&&o[f]!=null)v[f]=o[f];});
+  ['canker','borer','dieback','wet'].forEach(f=>{if(o[f]==='1')v[f]=1;});
+  if(Object.keys(v).length)r.v=v;
+  if(o.unsure)r.un=o.unsure.split(',').filter(Boolean);
+  return r;}
+/** One page of rows into the log. MEMORY FIRST, and no await until it is done: a save or a
+ *  second pull landing between finding a row and replacing it is how one row becomes two.
+ *  A READ OF THE WHOLE TAB (from its first row) is a RUN of pages that follow each other. Only
+ *  a page that continues the run is counted into it, and only the run's own last page ends
+ *  it: a reply from some other, older request must not (found in review: it ended the run
+ *  on page 1 and 556 rows were reported missing that were not). */
+function tcTakePage(j){
+  const head=Array.isArray(j.tchead)?j.tchead.map(String):[], rows=Array.isArray(j.tc)?j.tc:[];
+  const from=+j.tcfrom||0, end=+String(j.tccur||'').split('.')[0]||0, key=TC_FOR;
+  const at={}; TREE_LOG.forEach((r,i)=>{if(r)at[r.uuid]=i;});
+  const toPut=[]; let back=0;
+  if(from===0)TC_RS={seen:{},n:0};                // the tab is being read from its first row: note every row it holds
+  const run=!!TC_RS&&from===TC_RS.n;
+  rows.forEach(a=>{
+    const o=tcFromWire(a,head); if(!o)return;
+    o.u=key;
+    if(run)TC_RS.seen[o.uuid]=1;
+    const i=at[o.uuid];
+    if(i===undefined){at[o.uuid]=TREE_LOG.length;TREE_LOG.push(o);toPut.push(o);return;}
+    const cur=TREE_LOG[i];
+    /* a row this phone sent comes back as the Sheet holds it: the Sheet's copy is the one
+       every other phone has. A photo still waiting to go up stays with it. */
+    if(!cur.synced||cur.refused||String(cur.at)!==String(o.at)||String(cur.seq||'')!==String(o.seq||'')){
+      if(cur.photo&&!cur.refused){o.photo=cur.photo;o.ph=1;}
+      TREE_LOG[i]=o;toPut.push(o);}});
+  if(run)TC_RS.n=end;
+  if(run||!TC_RS){TC_CUR=String(j.tccur||''); TC_MORE=!!j.tcmore;}       // a stray reply does not move the cursor of a run
+  if(run&&!j.tcmore){
+    /* the whole tab has been read. A row of this season that this phone holds as sent and the
+       tab no longer has goes up again: the Sheet holds every row, and the phones are its backup. */
+    const sn=tcSeason(), seen=TC_RS.seen; TC_RS=null;
+    TREE_LOG.forEach(r=>{if(r&&r.synced&&!r.refused&&!seen[r.uuid]&&(!r.season||r.season===sn)){r.synced=false;delete r.sentAt;toPut.push(r);back++;}});}
+  TC_HELD=tcHave();
+  if(toPut.length)tcTouch();
+  return {toPut:toPut,back:back};}
+async function tcStorePage(res){
+  if(!db)return;
+  for(const o of res.toPut){ if(tcIsCur(o))await tcPut('tc:'+o.uuid,o); }
+  await tcPut('tcpull',{cur:TC_CUR,held:TC_HELD,rs:!!TC_RS,sid:TC_FOR});}
+/** Called from refreshMasters() once the kill switch has cleared this phone. */
+async function takeTreePack(j,asked,askedAt){
+  if(!(j&&j.ok))return 0;
+  /* A reply to a question put to ANOTHER URL than the one this phone has now is not acted on:
+     not its rows, not its clock, not its name. (Found in review: with the Sync URL changed
+     while a pull was out, the old Sheet's reply was merged under the new Sheet's name and its
+     rows were sent up to the farm's Sheet; or it took the phone back to the old Sheet.) */
+  if(asked!==undefined&&asked!==tcUrlKey())return 0;
+  if(!j.tcserved){
+    if(tcCanAsk()){
+      /* a Sheet side that knows the tree rows but could not read them this time is not an old one */
+      const can=Array.isArray(j.can)&&j.can.indexOf('treechecks')>=0;
+      TC_SERVED=can?true:false; TC_ERR=can?String(j.tcerror||'not served'):'';}
+    return 0;}
+  TC_SERVED=true; TC_ERR='';
+  const t1=Date.now();
+  const moved=await tcBind(j.tcsid);              // another Sheet: this phone's rows for the first are put away before this one's are merged
+  const hs=await tcHandshake();                   // "today" and "newest" are read on the Sheet's clock
+  if((asked!==undefined&&asked!==tcUrlKey())||!j.tcsid||String(j.tcsid)!==TC_FOR)return 0;   // the phone is no longer at the Sheet this page came from
+  let late=false; const t0=(+askedAt>0&&+askedAt<=t1)?+askedAt:t1;
+  if(hs!=='ok'&&+j.nowms>0)late=await tcClock(j.nowms,t0,t1);   // no answer to the short question: the pull itself tells the time, less exactly
+  let n=0, back=0, res;
+  if(moved){TC_CUR='';TC_MORE=true;}              // this page was asked for with the other Sheet's cursor: this Sheet is read from its first row
+  else{res=tcTakePage(j); n+=res.toPut.length; back+=res.back; await tcStorePage(res);}
+  /* a long tab comes down page by page in this same sync, each page a small request of its own */
+  for(let pg=0;TC_MORE&&pg<TC_PAGES&&tcCanAsk()&&CFG&&CFG.url;pg++){
+    let p=null;
+    try{const r=await fetchT(CFG.url+'?role='+encodeURIComponent(myRole())+'&uid='+encodeURIComponent((CFG&&CFG.uid)||'')+'&tconly=1&tc='+encodeURIComponent(TC_CUR||'0'),{},SYNC_TIMEOUT_MS); p=await r.json();}catch(e){p=null;}
+    if(!(p&&p.ok&&p.tcserved)||(p.tcsid&&String(p.tcsid)!==TC_FOR))break;
+    res=tcTakePage(p); n+=res.toPut.length; back+=res.back; await tcStorePage(res);}
+  if(!tcUnsynced())clearSyncFail('trees');
+  if(back){
+    if(myRole()==='OWNER')toast(back+' tree row'+(back===1?'':'s')+' missing from the Sheet '+(back===1?'is':'are')+' being sent again',1);
+    tcSyncSoon(800);}
+  /* rows that could not go up before this pull (no time from the Sheet, or put aside for this Sheet) go now */
+  if((late||moved)&&tcUnsynced())tcSyncSoon(800);
+  if(n||moved){try{badge();}catch(e){} tcRefresh();}
+  return n;}
+/** Something arrived or left. A form in progress keeps what is on it. */
+function tcOwnBusy(){return TCW.on&&TCW.who!=='crew'&&['tree','cmp'].indexOf(TCW.s)>=0;}
+function tcRefresh(){
+  try{
+    const m=(typeof curModule!=='undefined')?curModule:null;
+    if(m==='tsv'){ if(TCO.s!=='issue'&&!tcOwnBusy())tcRenderOwner(); }
+    else if(m==='prog'){
+      if(tcCrewOn()){ if(TCW.s==='lots'||TCW.s==='lotdone')ppRender(); }
+      else if(typeof ppRefresh==='function')ppRefresh(); }
+    else if(!m&&typeof renderHub==='function')renderHub();
+    if(typeof renderSync==='function'&&$('scr-sync')&&!$('scr-sync').classList.contains('hidden'))renderSync();
+  }catch(e){}}
+
+/* ---------- the drawings of the guide (simple on purpose: the farm's own photos can replace them) ---------- */
+const TC_LEAFC=['','#dfe08a','#b4cf63','#5fa33a','#2c7a30','#123f18'];
+function tcSvg(b,bg){return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="img"><rect width="80" height="80" rx="8" fill="'+(bg||'#eef5fb')+'"/>'+b+'</svg>';}
+function tcLeafShape(x,y,s,c,rot){return '<g transform="translate('+x+' '+y+') rotate('+(rot||0)+') scale('+s+')"><path d="M0 -30 C20 -18 22 12 0 32 C-22 12 -20 -18 0 -30Z" fill="'+c+'" stroke="#0d2e12" stroke-width="1.2"/><path d="M0 -26 L0 30" stroke="#0d2e12" stroke-width="1" opacity=".5"/></g>';}
+const TC_TRUNK='<rect x="36" y="46" width="8" height="26" rx="2" fill="#7a5a3a"/><rect x="6" y="72" width="68" height="4" fill="#b9a27d"/>';
+const TC_BARK='<rect x="22" y="2" width="36" height="76" fill="#8a6742"/><path d="M30 4 L30 76 M40 2 L41 78 M50 4 L49 76" stroke="#6d4f30" stroke-width="1.5"/>';
+function tcSun(x,y){return '<circle cx="'+x+'" cy="'+y+'" r="7" fill="#f6b21b"/>'+[0,45,90,135,180,225,270,315].map(a=>{const c=Math.cos(a*Math.PI/180),s=Math.sin(a*Math.PI/180);
+  return '<line x1="'+(x+10*c).toFixed(1)+'" y1="'+(y+10*s).toFixed(1)+'" x2="'+(x+13*c).toFixed(1)+'" y2="'+(y+13*s).toFixed(1)+'" stroke="#f6b21b" stroke-width="2"/>';}).join('');}
+function tcTreeShape(x,by,h,r,c){return '<rect x="'+(x-2.5)+'" y="'+(by-h)+'" width="5" height="'+h+'" fill="#7a5a3a"/><circle cx="'+x+'" cy="'+(by-h)+'" r="'+r+'" fill="'+(c||'#2f7d32')+'"/>';}
+function tcDraw(q,code){
+  const G='<rect x="4" y="72" width="72" height="4" fill="#b9a27d"/>';
+  if(q==='leaf')return tcSvg(tcLeafShape(40,40,1,TC_LEAFC[+code]||TC_LEAFC[3]),'#fbfcfa');
+  if(q==='canopy'){const n=+code||2, blobs=[[40,30,15],[26,34,10],[54,34,10],[33,20,9],[48,20,9],[20,26,7],[60,26,7],[40,42,9],[28,44,7],[52,44,7],[40,12,7]];
+    const use=n===1?[1,2,3,4,10]:n===2?[0,1,2,3,4,7]:blobs.map((_,i)=>i);
+    return tcSvg(TC_TRUNK+'<path d="M40 48 L28 30 M40 48 L52 30 M40 48 L40 14" stroke="#7a5a3a" stroke-width="2.5" fill="none"/>'+
+      use.map(i=>'<circle cx="'+blobs[i][0]+'" cy="'+blobs[i][1]+'" r="'+(blobs[i][2]*(n===1?.62:n===2?.95:1.1)).toFixed(1)+'" fill="#2f7d32" opacity="'+(n===3?1:.93)+'"/>').join(''));}
+  if(q==='light'){
+    if(code==='O')return tcSvg(G+tcSun(62,16)+tcTreeShape(36,72,26,17));
+    if(code==='P')return tcSvg(G+tcSun(62,14)+tcTreeShape(58,72,40,18,'#1e5c23')+'<path d="M44 30 L18 72 L44 72Z" fill="#000" opacity=".16"/>'+tcTreeShape(28,72,22,13));
+    return tcSvg(G+tcSun(40,10)+tcTreeShape(16,72,44,19,'#1e5c23')+tcTreeShape(64,72,44,19,'#1e5c23')+'<rect x="4" y="34" width="72" height="38" fill="#000" opacity=".2"/>'+tcTreeShape(40,72,18,10));}
+  if(q==='hose')return tcSvg(G+'<rect x="8" y="50" width="6" height="22" fill="#666"/><rect x="5" y="46" width="12" height="6" rx="2" fill="#888"/>'+tcTreeShape(60,72,26,14)+
+    (code==='Y'?'<path d="M14 62 C26 74 40 58 56 70" stroke="#1f5f8b" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
+               :'<path d="M14 62 C22 72 30 62 36 69" stroke="#1f5f8b" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M41 62 L49 70 M49 62 L41 70" stroke="#c62828" stroke-width="3" stroke-linecap="round"/>'));
+  if(q==='canker')return tcSvg(TC_BARK+'<ellipse cx="40" cy="34" rx="12" ry="9" fill="#2b1a10"/><path d="M38 42 C36 52 40 58 38 66" stroke="#b5651d" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="38" cy="68" r="3" fill="#b5651d"/>');
+  if(q==='borer')return tcSvg(TC_BARK+[[34,24],[46,36],[38,48]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.4" fill="#1a0f08"/>').join('')+
+    [[33,56],[37,60],[42,57],[40,63],[35,64],[45,61]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.5" fill="#e0c08a"/>').join(''));
+  if(q==='dieback')return tcSvg(TC_TRUNK+'<path d="M40 48 L24 26 M40 48 L56 26 M40 48 L40 10 M24 26 L16 14 M24 26 L28 12 M56 26 L64 14 M56 26 L52 12 M40 10 L36 4 M40 10 L45 4" stroke="#7a5a3a" stroke-width="2.2" fill="none"/><circle cx="34" cy="40" r="9" fill="#2f7d32"/><circle cx="47" cy="40" r="9" fill="#2f7d32"/><circle cx="40" cy="33" r="8" fill="#2f7d32"/>');
+  if(q==='wet')return tcSvg(tcTreeShape(40,66,26,17)+'<rect x="4" y="66" width="72" height="10" fill="#b9a27d"/><ellipse cx="40" cy="70" rx="26" ry="5" fill="#4b94c4"/><path d="M26 69 q4 -2 8 0 M44 71 q4 -2 8 0" stroke="#fff" stroke-width="1.2" fill="none"/>');
+  if(q==='flush'){const c=+code||0, old=tcLeafShape(20,56,.42,'#1e5c23',-70)+tcLeafShape(34,60,.42,'#1e5c23',70)+tcLeafShape(30,44,.42,'#1e5c23',-60);
+    const tip=['','#c0392b','#a6cf4f','#1e5c23'][c], sz=[0,.26,.4,.46][c];
+    return tcSvg('<path d="M12 70 L62 18" stroke="#7a5a3a" stroke-width="3" stroke-linecap="round"/>'+old+
+      (c?tcLeafShape(54,22,sz,tip,-55)+tcLeafShape(64,26,sz,tip,60)+tcLeafShape(62,12,sz,tip,10):'<circle cx="62" cy="18" r="2.5" fill="#7a5a3a"/>'),'#fbfcfa');}
+  return '';}
+function tcOptLabel(q,o){return q.yn?tcT(o[1],o[2]):o[0];}
+function tcPicsHTML(q){
+  return '<div class="tc-pics" style="grid-template-columns:repeat('+Math.min(5,q.o.length)+',1fr)">'+q.o.map(o=>'<div class="tc-pic">'+tcDraw(q.id,o[0]==='✓'?'1':o[0])+
+    '<b>'+esc(q.yn?tcT(o[1],o[2]):o[0])+'</b><small>'+esc(q.yn?tcT(o[3],o[4]).replace(/^[A-Z]+: /,''):tcT(o[3],o[4]))+'</small></div>').join('')+'</div>';}
+function tcHelpHTML(q){
+  return '<div class="tc-help" id="tc-help-'+q.id+'"><h4>'+esc(tcT(q.en,q.ms))+'</h4><div class="tc-how">'+esc(tcT(q.how[0],q.how[1]))+'</div>'+tcPicsHTML(q)+'</div>';}
+
+/* ---------- the walk: one state for the crew's walk, the Owner's own walk and his reference trees ---------- */
+function tcCrewOn(){return TCW.on&&TCW.who==='crew'&&myRole()==='WORKER';}
+function tcPaint(top){
+  if(TCW.who==='crew'){if(typeof ppRender==='function')ppRender();}
+  else tcRenderOwner();
+  if(top){const s=$('scr-dash'); if(s)s.scrollTop=0;}}
+function tcFriday(today){return tcAddDays(today,-((tcDow(today)-5+7)%7));}
+function tcRefTrees(){return tcAllTrees().filter(t=>{const r=tcRow('REF','REF',t);return r&&!r.skip;});}
+function tcRefPlan(){
+  const have=tcRefTrees(), gone={};
+  tcAllTrees().forEach(t=>{const r=tcRow('REF','REF',t); if(r&&r.skip)gone[t]=1;});
+  /* the list still to score is this phone's own; a tree that is scored is a reference tree on every phone */
+  const plan=(TC_REFPLAN?TC_REFPLAN:TC_REF_DEFAULT.filter(t=>!gone[t])).filter(t=>treeById(t));
+  const all={}; have.concat(plan).forEach(t=>{all[t]=1;});
+  return tcAllTrees().filter(t=>all[t]);}
+function tcWItems(){
+  const today=tcToday();
+  if(TCW.who==='crew')return tcCrewItems().filter(x=>x.chk===TCW.chk);
+  if(TCW.who==='ref')return [tcFill({chk:'REF',lot:'',walk:'REF',day:'',iss:'',again:0,trees:tcRefPlan()},today)];
+  const c=tcChk(TCW.chk); if(!c)return [];
+  /* the Owner walks any lot himself: under the issue that covers it when there is one */
+  const w=tcWork().filter(x=>x.chk===TCW.chk);
+  return LOT_KEYS.map(l=>w.find(x=>x.lot===l)||tcFill({chk:TCW.chk,lot:l,walk:c.kind==='flush'?tcFriday(today):'CE1',day:'',iss:'',again:0},today));}
+function tcWItem(){return tcWItems().find(x=>x.lot===TCW.lot)||null;}
+function tcCurOf(it,tree){
+  const a=tcAns(it.chk,it.walk,tree), c={v:{},photo:'',ph:0,had:null};
+  if(a&&!a.skip){c.v=Object.assign({},a.v);a.un.forEach(f=>{c.v[f]='?';});c.ph=a.r.ph?1:0;if(a.r.photo)c.photo=a.r.photo;}
+  if(a)c.had={at:a.r.at,by:a.r.by||'',skip:a.skip};
+  return c;}
+function tcCrewOpen(chk){
+  if(myRole()!=='WORKER')return;
+  TCW=tcW0(); TCW.on=true; TCW.who='crew'; TCW.chk=chk;
+  TCW.s=TC_PRAC[tcMe()]?'lots':'prac';
+  tcPaint(true);}
+/** From the home bar: into the Program tile, on the check. */
+function tcGo(chk){openModule('prog'); if(myRole()==='WORKER')tcCrewOpen(chk);}
+function tcOwnWalk(chk){
+  if(myRole()!=='OWNER')return;
+  TCW=tcW0(); TCW.on=true; TCW.who=(chk==='REF')?'ref':'own'; TCW.chk=chk; TCW.s='lots';
+  if(chk==='REF'){TCW.lot='';}
+  tcPaint(true);}
+function tcWClose(){
+  const crew=TCW.who==='crew'; TCW=tcW0();
+  if(tcUnsynced())tcSyncSoon();
+  if(crew){if(typeof ppRender==='function')ppRender();} else tcRenderOwner();
+  const s=$('scr-dash'); if(s)s.scrollTop=0;}
+/** Answers tapped on a tree and not saved are not thrown away by one stray tap: the first
+ *  tap that would leave says so, the second leaves. */
+function tcLeaveOk(){
+  if(TCW.s!=='tree'||!TCW.dirty||TCW.leave)return true;
+  TCW.leave=true; TCW.err=tcT('The answers for this tree are not saved yet. Tap once more to leave them.','Jawapan pokok ini belum disimpan. Tekan sekali lagi untuk tinggalkan.');
+  tcPaint(); const e=$('tc-err'); if(e&&e.scrollIntoView)e.scrollIntoView({block:'center'});
+  return false;}
+function tcWLots(){if(!tcLeaveOk())return; TCW.s='lots';TCW.help='';TCW.err='';TCW.cmp=null;TCW.dirty=TCW.leave=false;TCW.one=false;tcPaint(true);}
+/** Put one tree on the form. The tree is held by NAME: the list it came from is rebuilt on every paint. */
+function tcShow(it,j){
+  TCW.i=Math.max(0,Math.min(it.trees.length-1,j)); TCW.tree=it.trees[TCW.i]; TCW.cur=tcCurOf(it,TCW.tree);
+  TCW.help='';TCW.err='';TCW.dirty=TCW.leave=false;TCW.pbusy=false;TCW.s='tree';}
+function tcWLot(lot,i){
+  if(tcHeld())return;
+  /* the flush is filed under the walk of TODAY: a phone that knows its clock is wrong, and has
+     not heard from the Sheet since, must hear from it first */
+  if((tcChk(TCW.chk)||{}).kind==='flush'&&tcClockBad()){TCW.err=tcT('The date of this phone is wrong. Press SYNC where there is a line, then open the flush check.','Tarikh telefon ini salah. Tekan SYNC di tempat ada talian, kemudian buka semakan pucuk.');TCW.s='lots';return tcPaint();}
+  TCW.lot=lot; const it=tcWItem(); if(!it||!it.trees.length)return tcWLots();
+  let j=(typeof i==='number')?i:it.trees.findIndex(t=>!tcTreeDone(it,t));
+  if(j<0){TCW.s='lotdone';return tcPaint(true);}
+  tcShow(it,j); tcHold(); tcPaint(true);}
+function tcStep(n){
+  if(tcHeld()||!tcLeaveOk())return;
+  const it=tcWItem(); if(!it)return tcWLots();
+  const at=it.trees.indexOf(TCW.tree);
+  tcShow(it,(at<0?TCW.i:at)+n); tcPaint(true);}
+function tcSet(f,v){if(!TCW.cur||tcHeld()||(v==='?'&&!tcTapOk('set'+f)))return; TCW.cur.v[f]=(TCW.cur.v[f]===v&&v==='?')?'':v; TCW.err='';TCW.dirty=true;TCW.leave=false; tcPaint();}
+function tcTog(f){if(!TCW.cur||tcHeld()||!tcTapOk('tog'+f))return; TCW.cur.v[f]=TCW.cur.v[f]?0:1; TCW.err='';TCW.dirty=true;TCW.leave=false; tcPaint();}
+function tcHelp(id){TCW.help=(TCW.help===id)?'':id; tcPaint();}
+function tcReady(){return !!TCW.cur&&tcMust().every(q=>TCW.cur.v[q.id]);}
+function tcWrong(c){const v=c.v;return !!(v.canker||v.borer||v.dieback||v.wet||v.light==='S'||v.leaf==='1');}
+function tcUnsureNow(c){return tcMust().some(q=>c.v[q.id]==='?');}
+async function tcPhotoPick(inp){
+  const f=inp&&inp.files&&inp.files[0]; if(!f||!TCW.cur)return;
+  /* the picture takes a moment to shrink: SAVE waits for it, and the form says so (found in
+     review: a SAVE tapped meanwhile wrote the row without its photo, and said nothing) */
+  const cur=TCW.cur; TCW.pbusy=true; TCW.err=''; TCW.dirty=true; TCW.leave=false; tcPaint();
+  try{const d=await compressPhoto(f); if(TCW.cur===cur){cur.photo=d;cur.ph=0;}}
+  catch(e){if(TCW.cur===cur)TCW.err=tcT('The phone could not use that photo. Take it again.','Telefon tidak dapat guna gambar itu. Ambil sekali lagi.');}
+  if(TCW.cur===cur){TCW.pbusy=false;tcPaint();}}
+function tcPhotoDrop(){if(TCW.cur){TCW.cur.photo='';TCW.dirty=true;tcPaint();}}
+async function tcSave(skip){
+  if(TCW.busy||tcHeld())return;
+  const it=tcWItem(); if(!it||!TCW.cur||it.trees.indexOf(TCW.tree)<0){TCW.dirty=false;return tcWLots();}
+  const tree=TCW.tree, c=TCW.cur;
+  if(TCW.pbusy){TCW.err=tcT('The photo is still being prepared. Wait a moment.','Gambar masih disediakan. Tunggu sebentar.');return tcPaint();}
+  if(!skip&&!tcReady()){TCW.err=tcT('Answer the questions first.','Jawab soalan dahulu.');return tcPaint();}
+  TCW.busy=true; TCW.i=it.trees.indexOf(tree);
+  const t=treeById(tree), row={k:'ROW',chk:it.chk,walk:it.walk,iss:it.iss||'',tree:tree,lot:t?t.lot:''};
+  if(skip)row.skip=1;
+  else{
+    const v={}, un=[];
+    tcMust().forEach(q=>{v[q.id]=c.v[q.id]; if(c.v[q.id]==='?')un.push(q.id);});
+    tcSeen().forEach(q=>{if(c.v[q.id])v[q.id]=1;});
+    row.v=v; if(un.length)row.un=un;
+    if(c.photo)row.photo=c.photo;}
+  try{await tcAdd(row);}finally{TCW.busy=false;}
+  TCW.err=''; TCW.dirty=TCW.leave=false; tcIdleSync();
+  /* the Owner checking ONE tree from its own page goes back to that page */
+  if(TCW.one&&TCW.who==='own'){TCW=tcW0(); tcHold(); return tcTreeOpen(tree);}
+  /* a reference tree: the staff see the manager's answers beside their own, AFTER they have saved */
+  if(!skip&&TCW.who==='crew'&&it.chk==='CE1'){
+    const ref=tcAns('REF','REF',tree);
+    if(ref&&!ref.skip){TCW.cmp={tree:tree,mine:row.v,ref:ref.v};TCW.s='cmp';tcHold();return tcPaint(true);}}
+  tcNext();}
+async function tcFl(code){
+  if(TCW.busy||tcHeld())return;
+  const it=tcWItem(); if(!it||it.trees.indexOf(TCW.tree)<0)return tcWLots();
+  const tree=TCW.tree, t=treeById(tree);
+  TCW.busy=true; TCW.i=it.trees.indexOf(tree);
+  try{await tcAdd({k:'ROW',chk:it.chk,walk:it.walk,iss:it.iss||'',tree:tree,lot:t?t.lot:'',v:{flush:String(code)}});}finally{TCW.busy=false;}
+  tcIdleSync(); tcNext();}
+function tcNext(){
+  const it=tcWItem(); if(!it)return tcWLots();
+  const ls=it.trees; let j=-1;
+  for(let k=1;k<=ls.length;k++){const x=(TCW.i+k)%ls.length; if(!tcTreeDone(it,ls[x])){j=x;break;}}
+  TCW.cmp=null; TCW.dirty=TCW.leave=false;
+  /* the next screen has the same buttons in the same places: the second half of a double tap
+     must not land on it */
+  tcHold();
+  if(j<0){TCW.s='lotdone';tcSyncSoon();return tcPaint(true);}
+  tcShow(it,j); tcPaint(true);}
+async function tcRefRemove(){
+  if(TCW.busy||tcHeld()||TCW.who!=='ref')return;
+  const it=tcWItem(); if(!it)return tcWLots();
+  const tree=TCW.tree||it.trees[TCW.i];
+  TCW.busy=true; TCW.dirty=false;
+  try{
+    if(tcRow('REF','REF',tree)){const t=treeById(tree);await tcAdd({k:'ROW',chk:'REF',walk:'REF',iss:'',tree:tree,lot:t?t.lot:'',skip:1});}
+    TC_REFPLAN=tcRefPlan().filter(x=>x!==tree); if(db)await tcPut('tcrefplan',TC_REFPLAN);
+  }finally{TCW.busy=false;}
+  tcSyncSoon(); tcWLots();}
+/** The arrow in the header: one step back inside a walk, and out of a page of the Trees tile. */
+function tcBack(){
+  if(TCW.on&&(TCW.who!=='crew'||tcCrewOn())){
+    if(TCW.s==='tree'&&TCW.one&&TCW.who==='own'){if(tcLeaveOk()){const t=TCW.tree;TCW=tcW0();tcTreeOpen(t);}return true;}
+    if(TCW.s==='tree'||TCW.s==='cmp'||TCW.s==='lotdone'){tcWLots();return true;}
+    if((TCW.s==='prac'||TCW.s==='quiz'||TCW.s==='qres')&&TCW.review&&TCW.chk){TCW.review=false;tcWLots();return true;}
+    tcWClose();return true;}
+  if(typeof curModule!=='undefined'&&curModule==='tsv'&&TCO.s!=='list'){tcOList();return true;}
+  return false;}
+
+/* ----- the practice: ten cards, then five pictures ----- */
+function tcCard(n){TCW.pc=Math.max(0,Math.min(TC_Q.length,TCW.pc+n));tcPaint(true);}
+function tcCards(review){TCW.s='prac';TCW.pc=0;TCW.review=!!review;tcPaint(true);}
+function tcQuizStart(){TCW.s='quiz';TCW.qz=0;TCW.qa=[];tcPaint(true);}
+function tcQuizAns(v){if(TCW.qa[TCW.qz])return;TCW.qa[TCW.qz]=v;tcPaint();}
+async function tcQuizNext(){
+  if(TCW.busy)return;
+  TCW.qz++;
+  if(TCW.qz<TC_QUIZ.length)return tcPaint(true);
+  const sc=TC_QUIZ.filter((z,i)=>TCW.qa[i]===z.a).length;
+  TCW.s='qres'; TCW.score=sc;
+  if(sc>=TC_PASS&&TCW.who==='crew'&&!TC_PRAC[tcMe()]){
+    TCW.busy=true;
+    try{
+      TC_PRAC[tcMe()]={at:nowSec(),score:sc}; if(db)await tcPut('tcprac',TC_PRAC);
+      await tcAdd({k:'PRAC',score:sc});
+    }finally{TCW.busy=false;}
+    tcSyncSoon();}
+  tcPaint(true);}
+function tcPracHTML(){
+  const N=TC_Q.length+1, back='<button class="tc-back" id="tc-up" onclick="'+((TCW.review&&TCW.chk)?'tcWLots()':'tcWClose()')+'">‹ '+tcT('back','kembali')+'</button>';
+  if(TCW.s==='prac'){
+    const i=TCW.pc;
+    let h=back+'<div class="tc-sec">'+(TCW.review?tcT('The guide','Panduan'):tcT('Practice · before the first check','Latihan · sebelum semakan pertama'))+'</div>';
+    if(i===0)h+='<div class="tc-help" id="tc-rules"><h4>'+tcT('How to walk','Cara berjalan')+'</h4>'+TC_RULES.map((r,k)=>'<div class="tc-rule"><b>'+(k+1)+'</b><span>'+esc(tcT(r[0],r[1]))+'</span></div>').join('')+'</div>';
+    else h+=tcHelpHTML(TC_Q[i-1]);
+    const quiz=!TCW.review;
+    h+='<div class="tc-dots">'+Array.from({length:N},(_,k)=>'<i class="'+(k===i?'tc-on':'')+'"></i>').join('')+'</div><div class="tc-cardn" id="tc-pcn">'+(i+1)+' / '+N+'</div>'+
+      '<div class="tc-opts" style="grid-template-columns:1fr 1fr;margin-top:8px"><button class="tc-opt" id="tc-pc-back" '+(i===0?'disabled':'')+' onclick="tcCard(-1)">‹ '+tcT('Back','Balik')+'</button>'+
+      (i<N-1?'<button class="tc-opt tc-sel" id="tc-pc-next" onclick="tcCard(1)">'+tcT('Next','Seterusnya')+' ›</button>'
+            :'<button class="tc-opt tc-sel" id="tc-pc-end" onclick="'+(quiz?'tcQuizStart()':(TCW.chk?'tcWLots()':'tcWClose()'))+'">'+(quiz?(TC_QUIZ.length+' '+tcT('PICTURES','GAMBAR')+' ›'):tcT('DONE','SIAP'))+'</button>')+'</div>';
+    return h;}
+  if(TCW.s==='quiz'){
+    const z=TC_QUIZ[TCW.qz], q=tcQ(z.q), a=TCW.qa[TCW.qz], right=q.o.find(o=>o[0]===z.a);
+    return back+'<div class="tc-sec">'+tcT('Picture','Gambar')+' '+(TCW.qz+1)+' / '+TC_QUIZ.length+' · '+esc(tcT(q.en,q.ms))+'</div>'+
+      '<div class="tc-pic tc-big" id="tc-qz-pic">'+tcDraw(z.q,z.a)+'</div>'+
+      '<div class="tc-opts" style="grid-template-columns:repeat('+q.o.length+',1fr)">'+q.o.map(o=>'<button class="tc-opt'+(a===o[0]?(o[0]===z.a?' tc-sel':' tc-bad tc-sel'):'')+'" id="tc-qz-'+o[0]+'" '+(a?'disabled':'')+
+        ' onclick="tcQuizAns(\''+o[0]+'\')">'+esc(tcOptLabel(q,o))+'</button>').join('')+'</div>'+
+      (a?('<div class="tc-note '+(a===z.a?'tc-ok':'tc-r')+'" id="tc-qz-fb"><b>'+(a===z.a?tcT('Right','Betul'):(tcT('It is','Jawapannya')+' '+esc(tcOptLabel(q,right))))+'</b> · '+esc(tcT(right[3],right[4]))+'</div>'+
+        '<button class="tc-act" id="tc-qz-next" onclick="tcQuizNext()">'+tcT('NEXT','SETERUSNYA')+' ›</button>'):'');}
+  const sc=+TCW.score||0, pass=sc>=TC_PASS;
+  return back+'<div class="tc-score" id="tc-qz-score">'+sc+' / '+TC_QUIZ.length+'</div>'+
+    '<div class="tc-note '+(pass?'tc-ok':'tc-r')+'" id="tc-qz-res"><b>'+(pass?tcT('The tree checks are open on this phone.','Semakan pokok dibuka pada telefon ini.'):tcT('Look at the cards again, then try once more.','Lihat kad sekali lagi, kemudian cuba semula.'))+'</b></div>'+
+    (pass?('<button class="tc-act" id="tc-qz-go" onclick="'+(TCW.chk?'tcWLots()':'tcWClose()')+'">'+tcT('START THE CHECK','MULA SEMAKAN')+' ›</button>'):'')+
+    '<button class="tc-act'+(pass?' tc-gh':'')+'" id="tc-qz-again" onclick="tcCards('+(pass?'true':'false')+')">'+tcT('SEE THE CARDS AGAIN','LIHAT KAD SEKALI LAGI')+'</button>'+
+    '<div class="tc-g" style="margin-top:6px">'+tcT('The cards stay under the "?" in the form.','Kad ini kekal di bawah "?" dalam borang.')+'</div>';}
+
+/* ----- lots, one tree, the comparison, the end of a lot ----- */
+function tcWalkTitle(it){
+  const c=tcChk(TCW.chk);
+  return esc(tcChkName(TCW.chk))+((c&&c.kind==='flush'&&it)?(' · '+esc(tcDay(it.walk))):'');}
+function tcSendLineHTML(){
+  const n=tcUnsynced();
+  if(TC_SERVED===false&&tcCanAsk())return '<div class="tc-note tc-r" id="tc-oldgs">'+tcT('The Google Sheet side is older than this app: the tree rows stay on this phone until it is updated.','Bahagian Google Sheet lebih lama daripada aplikasi ini: rekod pokok kekal di telefon ini sehingga ia dikemas kini.')+'</div>';
+  if(!n&&tcParked())return tcParkNote('tc-walk-park');
+  if(!n)return '<div class="tc-g" id="tc-sent">✓ '+tcT('Everything keyed here has reached the Sheet.','Semua yang dimasukkan di sini sudah sampai ke Sheet.')+'</div>';
+  return '<div class="tc-note" id="tc-unsent"><b>'+n+'</b> '+tcT('tree row(s) are still on this phone. They go up on the next SYNC.','rekod pokok masih di telefon ini. Ia dihantar pada SYNC seterusnya.')+
+    '<button class="tc-act tc-gh" id="tc-sync" style="margin-top:6px" onclick="tcSyncNow()">'+tcT('SEND NOW','HANTAR SEKARANG')+'</button></div>';}
+async function tcSyncNow(){
+  if(!navigator.onLine){toast(tcT('No internet connection','Tiada sambungan internet'),1);return;}
+  try{await doSync();}catch(e){}
+  tcRefresh();}
+function tcWalkHTML(){
+  if(TCW.s==='prac'||TCW.s==='quiz'||TCW.s==='qres')return tcPracHTML();
+  const items=tcWItems(), crew=TCW.who==='crew';
+  if(TCW.s==='lots'){
+    if(TCW.who==='ref')return tcRefListHTML(items[0]);
+    let h='<button class="tc-back" id="tc-up" onclick="tcWClose()">‹ '+tcT('back','kembali')+'</button><div class="tc-ttl" id="tc-w-ttl">'+tcWalkTitle(items[0])+'</div>';
+    if(!items.length)return h+'<div class="tc-note" id="tc-w-none">'+tcT('This check is not issued any more.','Semakan ini tidak lagi dikeluarkan.')+'</div>';
+    const first=items.find(x=>x.st!=='done');
+    h+='<div class="tc-g">'+(crew?tcT('Tap a lot to start. The phone opens the next tree not yet checked.','Tekan lot untuk mula. Telefon membuka pokok seterusnya yang belum disemak.')
+                                 :tcT('Your own walk. What you key counts like any other answer: the newest one for a tree is the one that stands.','Semakan anda sendiri. Jawapan terbaru untuk satu pokok ialah yang dikira.'))+'</div>';
+    items.forEach(it=>{
+      h+='<button class="tc-li '+(it.st==='done'?'tc-done':it.st==='over'?'tc-late':it.st==='due'?'tc-due':'')+'" id="tc-lot-'+it.lot+'" onclick="tcWLot(\''+it.lot+'\')"><span class="tc-ic">'+it.lot+'</span><span><b>Lot '+it.lot+' · '+it.of+' '+tcT('trees','pokok')+'</b><small>'+
+        (it===first?esc(tcT('Start here','Mula di sini')):(it.st==='done'?esc(tcT('all checked','semua sudah disemak')):''))+(it.day&&it.st!=='done'?((it===first?' · ':'')+esc(ppFmtS(it.day))):'')+'</small></span>'+
+        '<span class="tc-rt"><span class="tc-pill '+(it.st==='done'?'tc-gr':it.done?'tc-a':'tc-y')+'">'+it.done+' / '+it.of+'</span></span></button>';});
+    if(TCW.err)h+='<div class="tc-note tc-r" id="tc-w-err">'+esc(TCW.err)+'</div>';
+    h+=tcSendLineHTML()+'<button class="tc-act tc-gh" id="tc-guide" onclick="tcCards(true)">📖 '+tcT('THE GUIDE','PANDUAN')+'</button>';
+    return h;}
+  const it=tcWItem();
+  if(!it)return '<button class="tc-back" id="tc-up" onclick="tcWLots()">‹ '+tcT('back','kembali')+'</button><div class="tc-note" id="tc-w-none">'+tcT('This lot is not issued any more.','Lot ini tidak lagi dikeluarkan.')+'</div>';
+  const up='<button class="tc-back" id="tc-up" onclick="'+((TCW.one&&TCW.who==='own')?'tcBack()':'tcWLots()')+'">‹ '+((TCW.one&&TCW.who==='own')?'back':TCW.who==='ref'?tcT('reference trees','pokok rujukan'):tcT('lots','lot'))+'</button>';
+  if(TCW.s==='lotdone'){
+    return up+'<div class="tc-note tc-ok" id="tc-lotdone"><b>✓ '+(TCW.who==='ref'?tcT('The reference trees are scored','Pokok rujukan sudah dinilai'):('Lot '+it.lot+' · '+it.of+' '+tcT('trees saved','pokok disimpan')))+'</b>'+
+      (crew?('<br>'+tcT('The result goes to the manager.','Keputusan pergi kepada pengurus.')):'')+'</div>'+tcSendLineHTML()+
+      '<button class="tc-act" id="tc-nextlot" onclick="tcWLots()">'+(TCW.who==='ref'?tcT('BACK TO THE LIST','KEMBALI KE SENARAI'):(tcT('NEXT LOT','LOT SETERUSNYA')+' ›'))+'</button>'+
+      '<button class="tc-act tc-gh" id="tc-review" onclick="tcWLot(\''+it.lot+'\',0)">‹ '+tcT('Look at a tree again','Lihat semula satu pokok')+'</button>';}
+  if(TCW.s==='cmp'&&TCW.cmp){
+    const m=TCW.cmp, qs=tcMust(), same=qs.filter(q=>String(m.mine[q.id])===String(m.ref[q.id])).length;
+    const lab=(q,v)=>{if(v==='?')return tcT('NOT SURE','TAK PASTI'); const o=q.o.find(x=>x[0]===String(v)); return o?tcOptLabel(q,o):'—';};
+    return up+'<div class="tc-note tc-b" id="tc-cmp-banner">🌳 '+tcT('Reference tree. The manager checked this tree too.','Pokok rujukan. Pengurus juga sudah semak pokok ini.')+'</div>'+
+      '<div class="tc-head"><span class="tc-tid">'+esc(m.tree)+'</span></div>'+
+      '<table class="tc-tbl" id="tc-cmp"><tr><th class="tc-l"></th><th>'+tcT('You','Anda')+'</th><th>'+tcT('Manager','Pengurus')+'</th></tr>'+
+      qs.map(q=>'<tr><td class="tc-l">'+esc(tcT(q.en,q.ms))+'</td><td class="'+(String(m.mine[q.id])===String(m.ref[q.id])?'':'tc-dif')+'">'+esc(lab(q,m.mine[q.id]))+'</td><td>'+esc(lab(q,m.ref[q.id]))+'</td></tr>').join('')+'</table>'+
+      '<div class="tc-note '+(same===qs.length?'tc-ok':'')+'" id="tc-cmp-same"><b>'+tcT('The same on','Sama pada')+' '+same+' / '+qs.length+'.</b> '+(same===qs.length?'':tcT('Look at the yellow lines again with the "?" pictures.','Lihat semula baris kuning dengan gambar "?".'))+'</div>'+
+      '<button class="tc-act" id="tc-cmp-next" onclick="tcNext()">'+tcT('NEXT TREE','POKOK SETERUSNYA')+' ›</button>';}
+  /* one tree */
+  const ls=it.trees;
+  if(ls.indexOf(TCW.tree)<0)return up+'<div class="tc-note" id="tc-w-none">'+tcT('This tree is not on the list any more.','Pokok ini tiada lagi dalam senarai.')+'</div>';
+  TCW.i=ls.indexOf(TCW.tree);
+  const tree=TCW.tree, c=TCW.cur||tcCurOf(it,tree), fl=(tcChk(it.chk)||{}).kind==='flush', ref=TCW.who==='ref';
+  let h=up+'<div class="tc-g" id="tc-pos">'+esc(ref?tcT('Reference tree','Pokok rujukan'):fl?tcT('Flush','Pucuk'):tcT('Census','Banci'))+(ref?'':(' · Lot '+it.lot))+' · '+tcT('tree','pokok')+' '+(TCW.i+1)+' / '+ls.length+'</div>'+
+    '<div class="tc-head"><span class="tc-tid" id="tc-tid">'+esc(tree)+'</span><span><b>'+esc(tcClone(tree))+'</b>'+(tcIsGraft(tree)?('<br><span class="tc-pill tc-b">'+tcT('grafted','cantuman')+'</span>'):'')+'</span>'+
+    '<span class="tc-st"><button id="tc-prev" '+(TCW.i<=0?'disabled':'')+' onclick="tcStep(-1)">‹</button><button id="tc-nxt" '+(TCW.i>=ls.length-1?'disabled':'')+' onclick="tcStep(1)">›</button></span></div>'+
+    '<div class="tc-bar"><i style="width:'+(it.of?Math.round(100*it.done/it.of):0)+'%"></i></div>';
+  if(crew&&!fl){const r0=tcAns('REF','REF',tree); if(r0&&!r0.skip)h+='<div class="tc-note tc-b" id="tc-refbanner">🌳 '+tcT('Reference tree. The manager has already checked this tree. Key what YOU see.','Pokok rujukan. Pengurus sudah semak pokok ini. Masukkan apa yang ANDA nampak.')+'</div>';}
+  if(c.had)h+='<div class="tc-g" id="tc-had">✓ '+(c.had.skip?tcT('Marked "cannot check" on ','Ditanda "tak dapat semak" pada '):tcT('Checked on ','Sudah disemak pada '))+esc(ppFmtS(String(c.had.at).slice(0,10)))+(c.had.by?(' · '+esc(c.had.by)):'')+'. '+tcT('Saving again replaces the answer.','Simpan semula untuk menukar jawapan.')+'</div>';
+  if(fl){
+    const q=tcQ('flush'), cur=c.v.flush;
+    h+='<div class="tc-hq"><span class="tc-lab">'+esc(tcT(q.en,q.ms))+'</span><button class="tc-hb'+(TCW.help==='flush'?' tc-on':'')+'" id="tc-hb-flush" onclick="tcHelp(\'flush\')">?</button></div>'+(TCW.help==='flush'?tcHelpHTML(q):'')+
+      '<div class="tc-opts" style="grid-template-columns:1fr 1fr">'+q.o.map(o=>'<button class="tc-opt'+(cur===o[0]?' tc-sel':'')+'" id="tc-fl-'+o[0]+'" onclick="tcFl(\''+o[0]+'\')">'+o[0]+'<small>'+esc(tcT(o[1],o[2]))+'</small></button>').join('')+'</div>'+
+      '<div class="tc-g" style="margin-top:7px">'+tcT('One tap saves and moves to the next tree.','Satu tekan: simpan dan terus ke pokok seterusnya.')+'</div>';
+  }else{
+    tcMust().forEach(q=>{
+      const n=q.o.length+(ref?0:1);
+      h+='<div class="tc-hq"><span class="tc-lab">'+esc(tcT(q.en,q.ms))+'</span><button class="tc-hb'+(TCW.help===q.id?' tc-on':'')+'" id="tc-hb-'+q.id+'" onclick="tcHelp(\''+q.id+'\')">?</button></div>'+(TCW.help===q.id?tcHelpHTML(q):'')+
+        '<div class="tc-opts" style="grid-template-columns:repeat('+n+',1fr)">'+q.o.map(o=>'<button class="tc-opt'+(q.bad===o[0]?' tc-bad':'')+(c.v[q.id]===o[0]?' tc-sel':'')+'" id="tc-f-'+q.id+'-'+o[0]+'" onclick="tcSet(\''+q.id+'\',\''+o[0]+'\')">'+
+          esc(tcOptLabel(q,o))+((!q.yn&&o[1])?('<small>'+esc(tcT(o[1],o[2]))+'</small>'):'')+'</button>').join('')+
+        (ref?'':('<button class="tc-opt tc-un'+(c.v[q.id]==='?'?' tc-sel':'')+'" id="tc-f-'+q.id+'-u" onclick="tcSet(\''+q.id+'\',\'?\')">'+tcT('NOT SURE','TAK PASTI')+'</button>'))+'</div>';});
+    h+='<div class="tc-hq"><span class="tc-lab">'+tcT('Tap only if you see it','Tekan hanya jika nampak')+'</span></div>';
+    tcSeen().forEach(q=>{
+      h+='<div class="tc-togrow"><button class="tc-tog'+(c.v[q.id]?' tc-sel':'')+'" id="tc-g-'+q.id+'" onclick="tcTog(\''+q.id+'\')"><i>'+(c.v[q.id]?'✓':'')+'</i>'+esc(tcT(q.en,q.ms))+'</button>'+
+        '<button class="tc-hb'+(TCW.help===q.id?' tc-on':'')+'" id="tc-hb-'+q.id+'" onclick="tcHelp(\''+q.id+'\')">?</button></div>'+(TCW.help===q.id?tcHelpHTML(q):'');});
+    const un=tcUnsureNow(c);
+    if(un||tcWrong(c)||c.photo){
+      h+=(un?('<div class="tc-note" id="tc-unsure">📷 '+tcT('Take a photo of what you are not sure about. The manager answers it on his screen.','Ambil gambar bahagian yang tak pasti. Pengurus jawab di skrinnya.')+'</div>'):'')+
+        (TCW.pbusy?('<div class="tc-photo" id="tc-photo-busy">⏳ <div>'+tcT('Preparing the photo…','Menyediakan gambar…')+'<span>'+tcT('SAVE opens when it is ready.','SIMPAN dibuka bila siap.')+'</span></div></div>')
+        :c.photo?('<div class="tc-photo" id="tc-photo-done"><img alt="" src="'+c.photo+'" onclick="showPhoto(TCW.cur.photo,\''+esc(tree)+'\')"><div>✓ '+tcT('Photo taken','Gambar diambil')+'<span>'+tcT('Tap the picture to see it.','Tekan gambar untuk lihat.')+'</span></div>'+
+            '<button class="tc-back" id="tc-photo-drop" style="margin-left:auto" onclick="tcPhotoDrop()">'+tcT('remove','buang')+'</button></div>')
+          :('<label class="tc-photo" id="tc-photo" for="tc-cam">📷 <div>'+tcT('Take a photo','Ambil gambar')+' ('+tcT('optional','pilihan')+')'+(c.ph?('<span>'+tcT('A photo was already sent for this tree.','Gambar untuk pokok ini sudah dihantar.')+'</span>'):'')+'</div></label>'))+
+        '<input type="file" id="tc-cam" accept="image/*" capture="environment" class="tc-file" onchange="tcPhotoPick(this)">';}
+    h+='<div class="tc-err" id="tc-err">'+esc(TCW.err||'')+'</div>'+
+       '<button class="tc-act" id="tc-save" '+((tcReady()&&!TCW.pbusy)?'':'disabled')+' onclick="tcSave()">'+tcT('SAVE · NEXT TREE','SIMPAN · POKOK SETERUSNYA')+' ›</button>';}
+  if(ref)h+='<button class="tc-act tc-gh" id="tc-refdrop" onclick="tcRefRemove()">'+tcT('Not a reference tree any more','Bukan lagi pokok rujukan')+'</button>';
+  else h+='<button class="tc-act tc-gh" id="tc-skip" onclick="tcSave(1)">'+tcT('Cannot check this tree','Tak dapat semak pokok ini')+'</button>';
+  return h;}
+
+/* ---------- the crew: the issued check in the Program tile, on the home screen, in Rekod Saya ---------- */
+function tcCrewRowHTML(g,id){
+  const fl=g.c.kind==='flush', lots=g.items.map(x=>x.lot).join(' ');
+  return '<button class="tc-li '+(g.st==='done'?'tc-done':g.st==='over'?'tc-late':g.st==='due'?'tc-due':'')+'" id="'+id+g.chk+'" onclick="tcCrewOpen(\''+g.chk+'\')"><span class="tc-ic">'+g.c.ic+'</span>'+
+    '<span><b>'+esc(tcT(g.c.en,g.c.ms))+'</b><small>Lot '+esc(lots)+' · '+g.done+' / '+g.of+' '+tcT('trees','pokok')+((fl&&g.st!=='coming')?(' · '+esc(ppFmtS(g.items[0].walk))):'')+'</small></span>'+
+    '<span class="tc-rt">'+tcPill(g.st,g.day)+'</span></button>';}
+function tcCrewListHTML(){
+  if(myRole()!=='WORKER')return '';
+  const gs=tcGroup(tcCrewItems());
+  /* said even when no check is listed yet: the check itself may be among the rows still to come */
+  const more=TC_MORE?('<div class="tc-note" id="tc-crew-more">'+tcT('More tree rows are still coming from the Sheet. Press SYNC once more.','Rekod pokok masih dimuat turun dari Sheet. Tekan SYNC sekali lagi.')+'</div>'):'';
+  const park=tcParkNote('tc-crew-park');
+  if(!gs.length)return (more||park)?('<div class="tc-ui" id="tc-crew">'+more+park+'</div>'):'';
+  return '<div class="tc-ui" id="tc-crew"><div class="tc-sec">🌳 '+tcT('Tree checks','Semak pokok')+'</div>'+gs.map(g=>tcCrewRowHTML(g,'tc-ck-')).join('')+more+park+
+    (tcClockBad()?('<div class="tc-note tc-r" id="tc-crew-clock">'+tcT('The date of this phone is wrong. Press SYNC where there is a line.','Tarikh telefon ini salah. Tekan SYNC di tempat ada talian.')+'</div>'):'')+'</div>';}
+function tcHomeHTML(){
+  return tcCrewDue().slice(0,2).map(g=>{
+    const open=g.items.filter(x=>x.st!=='done');
+    return '<div class="tasknote" id="tc-home-'+g.chk+'" onclick="tcGo(\''+g.chk+'\')"><span class="tn-tag'+(g.st==='over'?' late':'')+'">🌳 '+(g.st==='over'?tcT('LATE','LEWAT'):tcT('TODAY','HARI INI'))+'</span>'+
+      '<div class="tn-brand">'+esc(tcT(g.c.en,g.c.ms))+' · Lot '+esc(open.map(x=>x.lot).join(' '))+'</div>'+
+      '<div class="tn-dose">'+open.reduce((s,x)=>s+x.done,0)+' / '+open.reduce((s,x)=>s+x.of,0)+' '+tcT('trees','pokok')+'</div>'+
+      '<div class="tn-hint">'+tcT('Tap to open','Tekan untuk buka')+'</div></div>';}).join('');}
+function tcCrewComing(){return (myRole()==='WORKER')?tcGroup(tcCrewItems()).filter(g=>g.st==='coming').length:0;}
+function tcMine(r){
+  const id=String((CFG&&CFG.uid)||'');
+  if(id&&r.byId)return String(r.byId)===id;
+  const me=String((CFG&&CFG.worker)||'').trim().toLowerCase();
+  return !!me&&String(r.by||'').trim().toLowerCase()===me&&String(r.device||'')===String((CFG&&CFG.device)||'');}
+/** My own tree rows of one day for Rekod Saya: one line per check and lot. */
+function tcMineGroups(day){
+  const by={}, out=[];
+  TREE_LOG.forEach(r=>{
+    if(!r||r.k!=='ROW'||r.refused||String(r.at||'').slice(0,10)!==day||!tcMine(r))return;
+    const k='TREECHECK~'+r.chk+'|'+(r.lot||'');
+    if(!by[k]){by[k]={k:k,type:'TREECHECK',dt:String(r.at||''),rows:[],pending:0,first:r};out.push(by[k]);}
+    const g=by[k]; g.rows.push(r); if(!r.synced)g.pending++; if(String(r.at||'')<g.dt)g.dt=String(r.at||'');});
+  return out;}
+function tcMineDays(){const d={}; TREE_LOG.forEach(r=>{if(r&&r.k==='ROW'&&!r.refused&&tcMine(r)){const k=String(r.at||'').slice(0,10); if(k)d[k]=1;}}); return Object.keys(d);}
+function tcMineLine(g){
+  const s={}; g.rows.forEach(r=>{s[r.tree]=1;});
+  return {w:esc(tcChkName(g.first.chk))+(g.first.lot?(' · Lot '+esc(g.first.lot)):''), s:Object.keys(s).length+' '+tr('ow_trees','trees')};}
+
+/* ---------- the Owner: the Trees tile ---------- */
+function tcOpen(){TCO=tcO0(); TCW=tcW0(); tcRenderOwner(); tcFresh();}
+/** Opening the tile takes what the other phones have sent since the last pull. */
+function tcFresh(){
+  try{ if(CFG&&CFG.url&&navigator.onLine&&(Date.now()-((typeof PULL_AT!=='undefined'&&PULL_AT)||0))>60000)doSync(true); }catch(e){}}
+function tcRenderOwner(){
+  const box=$('tcbox'); if(!box)return;
+  if(myRole()!=='OWNER'||!roleAllows('tccard')){box.innerHTML='';return;}
+  box.innerHTML='<div class="card tc-ui'+(tcHeld()?' tc-wait':'')+'" id="tc-own">'+((TCW.on&&TCW.who!=='crew')?tcWalkHTML():tcOwnHTML())+'</div>';}
+function tcOTop(){const s=$('scr-dash'); if(s)s.scrollTop=0;}
+function tcOList(){TCO.s='list';TCO.f=null;TCO.arm='';tcRenderOwner();tcOTop();}
+function tcOTab(v){TCO.v=v;TCO.s='list';TCO.arm='';tcRenderOwner();tcOTop();}
+function tcUnsureList(){
+  const out=[]; tcAllTrees().forEach(t=>{const a=tcCenOk(t); if(a)a.un.forEach(f=>{if(tcQ(f))out.push({t:t,f:f,a:a});});});
+  return out;}
+function tcLateItems(){return tcWork().filter(x=>x.st==='over');}
+function tcNeedHTML(){
+  let h='';
+  if(TC_SERVED===false)h+='<div class="tc-need tc-r" id="tc-oldgs"><h4>The Google Sheet side is older than this app</h4>Tree checks stay on this phone and do not reach the crew until the Apps Script is v3.79.0.</div>';
+  else if(TC_ERR)h+='<div class="tc-need tc-r" id="tc-fault"><h4>The Sheet could not read the tree rows this time</h4>What you see here is what this phone already holds. Press SYNC again; if it stays, send me this line: '+esc(TC_ERR)+'</div>';
+  if(TC_MORE)h+='<div class="tc-need" id="tc-more"><h4>More tree rows are still coming</h4>Press SYNC once more to receive the rest.</div>';
+  const n=tcUnsynced();
+  if(n)h+='<div class="tc-need" id="tc-unsent"><h4>'+n+' row'+(n===1?'':'s')+' on this phone not sent yet</h4>They go up on the next SYNC. <button class="tc-act tc-gh" id="tc-sync" style="margin-top:6px" onclick="tcSyncNow()">SYNC NOW</button></div>';
+  h+=tcParkNote('tc-park');
+  return h;}
+function tcOwnHTML(){
+  if(TCO.s==='issue'&&TCO.f)return tcIssueHTML();
+  if(TCO.s==='tree'&&TCO.tree)return tcTreeHTML();
+  const un=tcUnsureList().length;
+  return tcNeedHTML()+'<div class="tc-seg">'+[['survey','SURVEY'+(un?(' · '+un+' ?'):'')],['flush','FLUSH'],['issue','ISSUE & WALK']].map(x=>
+    '<button id="tc-tab-'+x[0]+'" class="'+(TCO.v===x[0]?'tc-on':'')+'" onclick="tcOTab(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
+    (TCO.v==='flush'?tcFlushHTML():TCO.v==='issue'?tcChecksHTML():tcSurveyHTML());}
+function tcChips(list,cls,max){
+  max=max||60;
+  return '<div class="tc-ids">'+list.slice(0,max).map(t=>'<button class="'+(cls||'')+'" onclick="tcTreeOpen(\''+t+'\')">'+t+'</button>').join('')+
+    (list.length>max?('<button disabled>+'+(list.length-max)+'</button>'):'')+'</div>';}
+function tcOptTxt(q,v){
+  if(v==='?')return 'NOT SURE'; if(v==null||v==='')return '—';
+  const o=q.o.find(x=>x[0]===String(v)); return o?(q.yn?o[1]:(o[0]+(o[1]?(' · '+o[1]):''))):String(v);}
+
+/* ----- SURVEY ----- */
+function tcSurveyHTML(){
+  const all=tcAllTrees(), N=all.length, A={}; all.forEach(t=>{A[t]=tcCen(t);});
+  const ok=t=>!!(A[t]&&!A[t].skip), done=all.filter(ok), skip=all.filter(t=>A[t]&&A[t].skip);
+  const sick=done.filter(t=>tcSick(A[t])), shade=done.filter(t=>A[t].v.light==='S'), wet=done.filter(t=>A[t].v.wet), nohose=done.filter(t=>A[t].v.hose==='N');
+  let h='<div class="tc-kp"><div><b id="tc-k-done">'+done.length+'</b><span>of '+N+' surveyed</span></div><div><b id="tc-k-sick">'+sick.length+'</b><span>sick</span></div>'+
+    '<div><b id="tc-k-shade">'+shade.length+'</b><span>shaded</span></div><div><b id="tc-k-hose">'+nohose.length+'</b><span>no hose</span></div></div>';
+  if(!done.length&&!skip.length){
+    const act=tcActive('CE1').length;
+    h+='<div class="tc-note" id="tc-s-none">'+(act?'The health census is issued. No tree has been keyed yet, or the rows have not reached this phone: press SYNC.':'Nothing is surveyed yet. The crew sees the health census only after you issue it.')+'</div>'+
+      (act?'':'<button class="tc-act" id="tc-s-issue" onclick="tcIssueOpen(\'CE1\')">ISSUE THE HEALTH CENSUS ›</button>');
+  }else{
+    h+='<div class="tc-sec">By lot</div><table class="tc-tbl" id="tc-bylot"><tr><th class="tc-l">Lot</th><th>Surveyed</th><th>Sick</th><th>Shaded</th><th>Wet ground</th><th>No hose</th></tr>'+
+      LOT_KEYS.map(l=>{const ls=tcTrees(l), q=f=>ls.filter(f).length;
+        return '<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td><td>'+q(ok)+' / '+ls.length+'</td><td>'+q(t=>ok(t)&&tcSick(A[t]))+'</td><td>'+q(t=>ok(t)&&A[t].v.light==='S')+'</td><td>'+q(t=>ok(t)&&A[t].v.wet)+'</td><td>'+q(t=>ok(t)&&A[t].v.hose==='N')+'</td></tr>';}).join('')+'</table>';
+    /* the answers the staff could not decide */
+    const uns=tcUnsureList();
+    if(uns.length){
+      h+='<div class="tc-sec" id="tc-un-sec">Marked NOT SURE · for you to decide · '+uns.length+'</div>';
+      uns.slice(0,30).forEach(u=>{const q=tcQ(u.f), hasP=!!tcPhotoRow(u.t);
+        h+='<div class="tc-box" id="tc-un-'+u.t+'-'+u.f+'"><h4><span>'+u.t+' · '+esc(q.en)+'</span><span class="tc-pill tc-a">NOT SURE</span></h4>'+
+          '<div class="tc-g">'+esc(u.a.r.by||'')+' · '+esc(ppFmtS(String(u.a.r.at).slice(0,10)))+' '+esc(hm(u.a.r.at))+'</div>'+
+          (hasP?('<button class="tc-act tc-gh" style="margin:0 0 7px" onclick="tcPhotoShow(\''+u.t+'\')">📷 SEE THE PHOTO</button>'):'<div class="tc-g">No photo was taken.</div>')+
+          '<div class="tc-opts" style="grid-template-columns:repeat('+q.o.length+',1fr)">'+q.o.map(o=>'<button class="tc-opt" id="tc-fix-'+u.t+'-'+u.f+'-'+o[0]+'" onclick="tcFix(\''+u.a.r.uuid+'\',\''+u.t+'\',\''+u.f+'\',\''+o[0]+'\')">'+
+            esc(q.yn?o[1]:o[0])+((!q.yn&&o[1])?('<small>'+esc(o[1])+'</small>'):'')+'</button>').join('')+'</div></div>';});
+      if(uns.length>30)h+='<div class="tc-g">and '+(uns.length-30)+' more.</div>';}
+    if(skip.length)h+='<div class="tc-sec">Could not be checked · '+skip.length+'</div>'+tcChips(skip);
+    h+='<div class="tc-sec">Sick trees · the list for the Aliette round · '+sick.length+'</div>'+(sick.length?tcChips(sick,'tc-bad'):'<div class="tc-g">none keyed</div>');
+    h+='<div class="tc-sec">The hose does not reach · the tree list for the hose job · '+nohose.length+'</div>'+(nohose.length?tcChips(nohose):'<div class="tc-g">none keyed</div>');
+    h+='<div class="tc-sec">Shaded · '+shade.length+'</div>'+(shade.length?tcChips(shade):'<div class="tc-g">none keyed</div>');
+    h+='<div class="tc-sec">Standing water · '+wet.length+'</div>'+(wet.length?tcChips(wet):'<div class="tc-g">none keyed</div>');
+    /* class, proposed */
+    h+='<div class="tc-sec">Class · proposed from the answers</div><table class="tc-tbl" id="tc-class"><tr><th class="tc-l">Lot</th><th>H healthy</th><th>P pest</th><th>D disease</th><th>W weak</th></tr>'+
+      LOT_KEYS.map(l=>{const ls=tcTrees(l).filter(ok), q=k=>ls.filter(t=>tcClass(A[t])===k).length;
+        return '<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td><td>'+q('H')+'</td><td>'+q('P')+'</td><td>'+q('D')+'</td><td>'+q('W')+'</td></tr>';}).join('')+'</table>'+
+      '<div class="tc-g">The rule: D = canker or dieback · P = borer holes · W = standing water, leaf colour 1 or canopy 1 · H = none of these.</div>';}
+  /* PBZ: proposed, the Owner confirms */
+  const pz=(typeof PLAN_2627!=='undefined'&&Array.isArray(PLAN_2627))?PLAN_2627.find(x=>x.code==='PBZ'):null;
+  const no=all.filter(t=>tcPbz(t).no), listed=all.filter(t=>{const p=tcPbz(t);return p.no||p.own||p.why;});
+  h+='<div class="tc-sec">PBZ'+(pz&&pz.plan?(' on '+esc(ppFmtS(pz.plan))):'')+' · proposed, you confirm</div>'+
+    '<div class="tc-kp tc-k3"><div><b id="tc-k-pyes">'+(N-no.length)+'</b><span>PBZ yes</span></div><div><b id="tc-k-pno">'+no.length+'</b><span>PBZ no</span></div><div><b>'+all.filter(tcIsGraft).length+'</b><span>of them grafts</span></div></div>'+
+    '<div class="tc-g">Proposed NO: a graft, a sick tree, standing water, a shaded tree. Tap a tree to change it. Black = no PBZ. A graft cannot be changed.'+(done.length<N?(' The list is complete only when every tree is surveyed (now '+done.length+' of '+N+').'):'')+'</div>'+
+    '<div class="tc-ids" id="tc-pz-list">'+listed.map(t=>{const p=tcPbz(t);
+      return '<button id="tc-pz-'+t+'" class="'+(p.no?'tc-no':'')+'" onclick="tcPbzFlip(\''+t+'\')">'+t+' <small>'+esc(p.own?'yours':tcWhyTxt(p.why))+'</small></button>';}).join('')+'</div>';
+  /* every tree, by lot */
+  h+='<div class="tc-sec">Every tree · tap one to see its answers</div><div class="tc-lots">'+LOT_KEYS.map(l=>'<button class="tc-lot'+(TCO.lot===l?' tc-on':'')+'" id="tc-all-'+l+'" onclick="tcOLot(\''+l+'\')">Lot '+l+'<small>'+tcTrees(l).filter(ok).length+' / '+tcTrees(l).length+'</small></button>').join('')+'</div>';
+  if(TCO.lot)h+='<div class="tc-ids" id="tc-all-list">'+tcTrees(TCO.lot).map(t=>'<button class="'+(!A[t]?'tc-none':A[t].skip?'':tcSick(A[t])?'tc-bad':'tc-fine')+'" onclick="tcTreeOpen(\''+t+'\')">'+t.slice(2)+'</button>').join('')+'</div>'+
+    '<div class="tc-g">Green = surveyed · red = sick · dashed = not surveyed yet · plain = could not be checked.</div>';
+  return h;}
+function tcOLot(l){TCO.lot=(TCO.lot===l)?'':l;tcRenderOwner();}
+async function tcFix(rowId,tree,f,val){
+  if(myRole()!=='OWNER'||TCO.busy||tcHeld())return;
+  TCO.busy=true; tcHold();
+  /* the decision says which row it answers and which round (issue) that row belongs to */
+  const src=TREE_LOG.find(r=>r&&r.uuid===rowId);
+  try{const v={}; v[f]=val; await tcAdd({k:'FIX',chk:'CE1',walk:'CE1',row:rowId,iss:(src&&src.iss)||'',tree:tree,v:v});}finally{TCO.busy=false;}
+  toast('✓ '+tree+' · '+(tcQ(f)||{en:f}).en+' = '+val);
+  tcSyncSoon(); tcRenderOwner();}
+async function tcPbzFlip(tree){
+  if(myRole()!=='OWNER'||TCO.busy||tcHeld())return;
+  if(tcIsGraft(tree)){toast('A grafted tree never gets PBZ',1);return;}
+  TCO.busy=true; tcHold();
+  try{await tcAdd({k:'PBZ',tree:tree,v:{pbz:tcPbz(tree).no?'Y':'N'}});}finally{TCO.busy=false;}
+  tcSyncSoon(); tcRenderOwner();}
+function tcPhotoRow(tree){
+  let best=null;
+  TREE_LOG.forEach(r=>{if(r&&r.k==='ROW'&&r.tree===tree&&!r.refused&&(r.photo||r.ph)&&(!best||tcNewer(r,best)))best=r;});
+  return best;}
+async function tcPhotoShow(tree){
+  const r=tcPhotoRow(tree); if(!r){toast('No photo for this tree',1);return;}
+  const ttl=tree+' · '+ppFmtS(String(r.at).slice(0,10));
+  if(r.photo)return showPhoto(r.photo,ttl);
+  if(TC_PHOTO[r.uuid])return showPhoto(TC_PHOTO[r.uuid],ttl);
+  if(!CFG||!CFG.url||!navigator.onLine){toast('The photo is in the Sheet: it needs an internet connection',1);return;}
+  toast('Fetching the photo…');
+  try{
+    const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{},SYNC_TIMEOUT_MS), j=await res.json();
+    if(j&&j.ok&&j.treephoto&&j.photo){TC_PHOTO[r.uuid]=String(j.photo);showPhoto(TC_PHOTO[r.uuid],ttl);}
+    else toast('That photo has not reached the Sheet yet',1);
+  }catch(e){toast('Could not fetch the photo',1);}}
+
+/* ----- one tree ----- */
+function tcTreeOpen(t){if(!treeById(t))return;TCO.tree=t;TCO.s='tree';tcRenderOwner();tcOTop();}
+function tcTreeHTML(){
+  const t=TCO.tree, a=tcCen(t), p=tcPbz(t), S=tcState();
+  let h='<button class="tc-back" id="tc-up" onclick="tcOList()">‹ back</button>'+
+    '<div class="tc-head"><span class="tc-tid" id="tc-t-id">'+esc(t)+'</span><span><b>'+esc(tcClone(t))+'</b>'+(tcIsGraft(t)?'<br><span class="tc-pill tc-b">grafted</span>':'')+'</span></div>';
+  h+='<div class="tc-sec">Health census</div>';
+  if(!a)h+='<div class="tc-g" id="tc-t-none">Not surveyed yet.</div>';
+  else if(a.skip)h+='<div class="tc-note" id="tc-t-skip">Marked "cannot check this tree" by '+esc(a.r.by||'')+' on '+esc(ppFmtS(String(a.r.at).slice(0,10)))+'.</div>';
+  else{
+    h+='<table class="tc-tbl" id="tc-t-ans">'+tcMust().map(q=>'<tr><td class="tc-l">'+esc(q.en)+'</td><td class="'+(a.v[q.id]==='?'?'tc-dif':'')+'"><b>'+esc(tcOptTxt(q,a.v[q.id]))+'</b></td></tr>').join('')+
+      tcSeen().map(q=>'<tr><td class="tc-l">'+esc(q.en)+'</td><td>'+(a.v[q.id]?'<b style="color:#c62828">SEEN</b>':'not seen')+'</td></tr>').join('')+
+      '<tr><td class="tc-l">Class, proposed</td><td><b>'+({H:'H · healthy',P:'P · pest',D:'D · disease',W:'W · weak'}[tcClass(a)]||'—')+'</b></td></tr></table>'+
+      '<div class="tc-g" style="margin-top:5px">Keyed by '+esc(a.r.by||'—')+' on '+esc(ppFmtS(String(a.r.at).slice(0,10)))+' '+esc(hm(a.r.at))+(a.n>1?(' · checked '+a.n+' times, the newest counts'):'')+
+        (a.fixed?' · with your decision on a NOT SURE answer':'')+'</div>';}
+  if(tcPhotoRow(t))h+='<button class="tc-act tc-gh" id="tc-t-photo" onclick="tcPhotoShow(\''+t+'\')">📷 SEE THE PHOTO</button>';
+  h+='<div class="tc-sec">PBZ this season</div>'+(p.lock?'<div class="tc-note tc-b" id="tc-t-pbz">A grafted tree: no PBZ. This cannot be changed.</div>'
+    :('<div class="tc-seg tc-s2" id="tc-t-pbz"><button class="'+(!p.no?'tc-on':'')+'" id="tc-t-pyes" onclick="'+(p.no?'tcPbzFlip(\''+t+'\')':'')+'">YES</button><button class="'+(p.no?'tc-on':'')+'" id="tc-t-pno" onclick="'+(!p.no?'tcPbzFlip(\''+t+'\')':'')+'">NO</button></div>'+
+      '<div class="tc-g">'+(p.own?'Your own choice.':(p.why?('Proposed NO: '+tcWhyTxt(p.why)+'.'):'Proposed YES.'))+'</div>'));
+  const walks=Object.keys(S.walks).sort().filter(w=>tcRow('FL',w,t));
+  h+='<div class="tc-sec">Friday flush</div>'+(walks.length?('<table class="tc-tbl">'+walks.slice(-8).map(w=>{const r=tcRow('FL',w,t), q=tcQ('flush');
+      return '<tr><td class="tc-l">'+esc(tcDay(w))+'</td><td><b>'+(r.skip?'not checked':esc(tcOptTxt(q,r.v&&r.v.flush)))+'</b></td></tr>';}).join('')+'</table>'):'<div class="tc-g">No flush walk keyed for this tree yet.</div>');
+  h+='<button class="tc-act" id="tc-t-again" onclick="tcTreeWalk(\''+t+'\')">CHECK THIS TREE MYSELF ›</button>';
+  return h;}
+function tcTreeWalk(t){
+  const x=treeById(t); if(!x||myRole()!=='OWNER')return;
+  TCW=tcW0(); TCW.on=true; TCW.who='own'; TCW.chk='CE1'; TCW.lot=x.lot; TCW.one=true;
+  const it=tcWItem(); if(!it||it.trees.indexOf(t)<0){TCW=tcW0();return tcRenderOwner();}
+  tcShow(it,it.trees.indexOf(t)); tcHold(); tcPaint(true);}
+
+/* ----- FLUSH ----- */
+function tcFlushWalks(){
+  const S=tcState(), today=tcToday(), w=Object.assign({},S.walks);
+  tcActive('FL').forEach(i=>{const d=tcWalkOf(i,today); if(d&&d<=today)w[d]=1;});
+  return Object.keys(w).sort();}
+function tcFlushLot(lot,walk){
+  const ts=tcTrees(lot).filter(t=>!tcIsGraft(t)), got=ts.filter(t=>{const r=tcRow('FL',walk,t);return r&&!r.skip&&r.v&&r.v.flush!=null;});
+  const n3=got.filter(t=>String(tcRow('FL',walk,t).v.flush)==='3').length;
+  return {of:ts.length,n:got.length,n3:n3,pct:got.length?Math.round(100*n3/got.length):null};}
+function tcFlushHTML(){
+  const walks=tcFlushWalks().slice(-8), line=TC_FLUSH_LINE, col=['#b26a00','#2e7d32','#1f5f8b'];
+  let h='<div class="tc-sec">Friday flush · % of trees with hardened leaf, by lot</div>';
+  if(!walks.length){
+    const act=tcActive('FL').length;
+    return h+'<div class="tc-note" id="tc-f-none">'+(act?'The Friday flush check is issued. Its first walk has not come yet.':'The Friday flush check has not been issued. It is issued once and returns every 7 days until you stop it.')+'</div>'+
+      (act?'':'<button class="tc-act" id="tc-f-issue" onclick="tcIssueOpen(\'FL\')">ISSUE THE FRIDAY FLUSH CHECK ›</button>');}
+  h+='<div class="tc-fl" id="tc-f-chart"><div class="tc-line" style="top:'+(100-line*0.9)+'px">'+line+' % line</div>'+walks.map(w=>'<div class="tc-c">'+LOT_KEYS.map((l,i)=>{const p=tcFlushLot(l,w).pct;
+      return '<i title="Lot '+l+'" style="height:'+(p==null?0:Math.max(2,p*0.9))+'px;background:'+col[i%3]+'"></i>';}).join('')+'</div>').join('')+'</div>'+
+    '<table class="tc-tbl" id="tc-f-tbl"><tr><th class="tc-l">Walk</th>'+LOT_KEYS.map(l=>'<th>Lot '+l+'</th>').join('')+'</tr>'+walks.map(w=>'<tr><td class="tc-l">'+esc(ppFmt(w))+'</td>'+LOT_KEYS.map(l=>{const f=tcFlushLot(l,w);
+      return '<td id="tc-fp-'+w+'-'+l+'" class="'+(f.pct!=null&&f.pct>=line?'tc-hit':'')+'">'+(f.pct==null?'—':(f.pct+' %'))+'<small>'+f.n+' / '+f.of+' walked</small></td>';}).join('')+'</tr>').join('')+'</table>'+
+    '<div class="tc-g">Brown = Lot A · green = Lot B · blue = Lot C. Hardened = code 3, dark green and hard. The '+GRAFT_TREES.length+' grafts are left out of the count. The % is of the trees walked.</div>';
+  const last=walks[walks.length-1], q=tcQ('flush');
+  h+='<div class="tc-sec">The last walk, '+esc(ppFmt(last))+' · trees by code</div><table class="tc-tbl" id="tc-f-codes"><tr><th class="tc-l">Lot</th>'+q.o.map(o=>'<th>'+o[0]+'<small>'+esc(o[1])+'</small></th>').join('')+'</tr>'+
+    LOT_KEYS.map(l=>'<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td>'+q.o.map(o=>'<td>'+tcTrees(l).filter(t=>!tcIsGraft(t)).filter(t=>{const r=tcRow('FL',last,t);return r&&!r.skip&&r.v&&String(r.v.flush)===o[0];}).length+'</td>').join('')+'</tr>').join('')+'</table>';
+  return h;}
+
+/* ----- ISSUE & WALK ----- */
+function tcIssueOpen(chk){
+  const c=tcChk(chk); if(!c||myRole()!=='OWNER')return;
+  const today=tcToday(), lots={}, w=tcWork().filter(x=>x.chk===chk);
+  if(c.kind==='flush')LOT_KEYS.forEach(l=>{lots[l]=w.some(x=>x.lot===l)?0:1;});
+  else LOT_KEYS.forEach(l=>{lots[l]=(!tcTrees(l).every(t=>tcRow('CE1','CE1',t))&&!w.some(x=>x.lot===l))?1:0;});
+  let day=today;
+  if(c.kind==='flush'){const from=(c.from&&c.from>today)?c.from:today; day=tcAddDays(from,(5-tcDow(from)+7)%7);}
+  TCO.v='issue'; TCO.s='issue'; TCO.f={chk:chk,lots:lots,day:day,again:0,err:'',busy:false};
+  tcRenderOwner(); tcOTop();}
+function tcIssueLot(l){if(TCO.f){TCO.f.lots[l]=TCO.f.lots[l]?0:1;TCO.f.err='';tcRenderOwner();}}
+function tcIssueDay(v){if(TCO.f){TCO.f.day=String(v||'').slice(0,10);TCO.f.err='';tcRenderOwner();}}
+function tcIssueAgain(v){if(TCO.f){TCO.f.again=v?1:0;tcRenderOwner();}}
+function tcIssueHTML(){
+  const f=TCO.f, c=tcChk(f.chk), fl=c.kind==='flush', today=tcToday(), w=tcWork().filter(x=>x.chk===f.chk);
+  const picked=LOT_KEYS.filter(l=>f.lots[l]);
+  let h='<button class="tc-back" id="tc-up" onclick="tcOList()">‹ back</button><div class="tc-ttl">'+c.ic+' Issue: '+esc(c.en)+'</div>'+
+    '<div class="tc-g">'+esc(c.plan[0])+'. The crew sees it in their Program tile and on their home screen on its day.</div>'+
+    '<div class="tc-hq"><span class="tc-lab">Which lots</span></div><div class="tc-lots">'+LOT_KEYS.map(l=>{
+      const ls=tcTrees(l), d=fl?0:ls.filter(t=>tcRow('CE1','CE1',t)).length, cur=w.find(x=>x.lot===l);
+      return '<button class="tc-lot'+(f.lots[l]?' tc-on':'')+'" id="tc-i-lot-'+l+'" onclick="tcIssueLot(\''+l+'\')">Lot '+l+'<small>'+ls.length+' trees'+(fl?'':(' · '+d+' done'))+(cur?(' · issued '+esc(ppFmtS(cur.day))):'')+'</small></button>';}).join('')+'</div>'+
+    '<div class="tc-hq"><span class="tc-lab">'+(fl?'The first walk':'Which day')+'</span></div><input type="date" class="tc-date" id="tc-i-day" min="'+today+'" value="'+esc(f.day)+'" onchange="tcIssueDay(this.value)">'+
+    '<div class="tc-g" style="margin-top:5px">'+(tcOkDay(f.day)?esc(tcDay(f.day)):'Choose a day.')+(fl&&tcOkDay(f.day)?(' · it returns every '+WEEKDAY_EN[tcDow(f.day)]+' until you stop it'):'')+'</div>';
+  if(!fl){
+    const some=picked.some(l=>tcTrees(l).some(t=>tcRow('CE1','CE1',t)));
+    if(some)h+='<div class="tc-hq"><span class="tc-lab">Trees already checked in these lots</span></div><div class="tc-seg tc-s2"><button id="tc-i-again-0" class="'+(!f.again?'tc-on':'')+'" onclick="tcIssueAgain(0)">ONLY THE TREES NOT DONE</button>'+
+      '<button id="tc-i-again-1" class="'+(f.again?'tc-on':'')+'" onclick="tcIssueAgain(1)">CHECK EVERY TREE AGAIN</button></div>';}
+  const dup=picked.filter(l=>w.some(x=>x.lot===l));
+  if(dup.length)h+='<div class="tc-note" id="tc-i-dup">Lot '+dup.join(', ')+' '+(dup.length>1?'are':'is')+' already issued. Issuing again replaces the day for '+(dup.length>1?'those lots':'that lot')+'.</div>';
+  h+='<div class="tc-err" id="tc-i-err">'+esc(f.err||'')+'</div>'+
+    '<button class="tc-act" id="tc-i-save" '+(picked.length&&tcOkDay(f.day)?'':'disabled')+' onclick="tcIssueSave()">ISSUE TO THE CREW</button>'+
+    '<button class="tc-act tc-gh" id="tc-i-cancel" onclick="tcOList()">CANCEL</button>';
+  return h;}
+async function tcIssueSave(){
+  const f=TCO.f; if(!f||f.busy||myRole()!=='OWNER')return;
+  const c=tcChk(f.chk), picked=LOT_KEYS.filter(l=>f.lots[l]);
+  if(!picked.length){f.err='Choose at least one lot.';return tcRenderOwner();}
+  if(!tcOkDay(f.day)||f.day<tcToday()){f.err='Choose today or a later day.';return tcRenderOwner();}
+  f.busy=true;
+  try{await tcAdd({k:'ISS',chk:f.chk,lots:picked.join(' '),day:f.day,rep:c.kind==='flush'?1:0,again:(c.kind!=='flush'&&f.again)?1:0});}finally{f.busy=false;}
+  toast('✓ Issued: '+c.en+' · Lot '+picked.join(' '));
+  TCO.f=null; TCO.s='list'; TCO.v='issue'; tcRenderOwner(); tcOTop(); tcSyncSoon(300);
+  try{if(typeof renderHub==='function'&&!curModule)renderHub();}catch(e){}}
+async function tcStop(id){
+  if(myRole()!=='OWNER'||TCO.busy||tcHeld())return;
+  if(TCO.arm!==id){TCO.arm=id;tcHold(700);return tcRenderOwner();}
+  const i=tcActive().find(x=>x.uuid===id); if(!i){TCO.arm='';return tcRenderOwner();}
+  /* the STOP names the check and the lots, so it ends every issue of those lots made before it */
+  TCO.busy=true;
+  try{await tcAdd({k:'STOP',chk:i.chk,iss:id,lots:tcIssLots(i).join(' ')});}finally{TCO.busy=false;}
+  TCO.arm=''; toast('Stopped. The crew no longer sees it after their next sync.');
+  tcRenderOwner(); tcSyncSoon(300);}
+function tcStaffCen(tree){
+  let best=null;
+  TREE_LOG.forEach(r=>{if(r&&r.k==='ROW'&&r.chk==='CE1'&&r.tree===tree&&!r.refused&&!r.skip&&r.role==='WORKER'&&(!best||tcNewer(r,best)))best=r;});
+  return best;}
+function tcChecksHTML(){
+  const today=tcToday(), S=tcState(), work=tcWork();
+  let h='<div class="tc-sec">The checks</div>';
+  TC_CHECKS.forEach(c=>{
+    const act=tcActive(c.id), fl=c.kind==='flush', old=(S.stops[c.id]||[]).length;
+    h+='<div class="tc-box" id="tc-c-'+c.id+'"><h4><span>'+c.ic+' '+esc(c.en)+'</span>'+(act.length?'<span class="tc-pill tc-b">ISSUED</span>':'<span class="tc-pill tc-y">NOT ISSUED</span>')+'</h4><div class="tc-g">'+esc(c.plan[0])+'.</div>';
+    act.forEach(i=>{
+      const lots=tcIssLots(i), mine=work.filter(x=>x.iss===i.uuid);
+      h+='<div class="tc-row"><span><b>Lot '+esc(lots.join(' '))+'</b> · '+(fl?('from '+esc(ppFmt(i.day))+', every 7 days'):esc(ppFmt(i.day)))+'<br><span class="tc-g">issued by '+esc(i.by||'—')+' on '+esc(ppFmtS(String(i.at).slice(0,10)))+(+i.again?' · every tree again':'')+
+        (i.synced?'':' · <b style="color:#b26a00">not sent yet</b>')+'</span></span></div>'+
+        mine.map(x=>'<div class="tc-row"><span>Lot '+x.lot+(fl?(' · walk of '+esc(ppFmtS(x.walk))):'')+'</span><span><b>'+x.done+' / '+x.of+'</b> '+tcPill(x.st,x.day)+'</span></div>').join('')+
+        '<button class="tc-act '+(TCO.arm===i.uuid?'tc-arm':'tc-rd')+'" id="tc-stop-'+i.uuid+'" onclick="tcStop(\''+i.uuid+'\')">'+(TCO.arm===i.uuid?'TAP AGAIN TO STOP THIS CHECK':'STOP THIS CHECK')+'</button>';});
+    if(old)h+='<div class="tc-g" style="margin-top:6px">Stopped '+old+' time'+(old===1?'':'s')+' so far.</div>';
+    h+='<button class="tc-act'+(act.length?' tc-gh':'')+'" id="tc-issue-'+c.id+'" onclick="tcIssueOpen(\''+c.id+'\')">'+(act.length?'ISSUE AGAIN, OR MORE LOTS ›':'ISSUE THIS CHECK ›')+'</button></div>';});
+  /* the practice */
+  const pr=S.prac.slice().sort((a,b)=>tcNewer(a,b)?-1:1);
+  h+='<div class="tc-sec">The practice on the staff phones</div>'+(pr.length?pr.slice(0,8).map(r=>'<div class="tc-row" id="tc-pr-'+r.uuid+'"><span><b>'+esc(r.by||'—')+'</b> · '+esc(r.device||'')+'</span><span>'+(+r.score||0)+' / '+TC_QUIZ.length+' · '+esc(ppFmtS(String(r.at).slice(0,10)))+'</span></div>').join('')
+    :'<div class="tc-g" id="tc-pr-none">No staff phone has passed the practice yet. A check opens on a phone after 10 cards and '+TC_PASS+' of '+TC_QUIZ.length+' pictures right.</div>')+
+    '<button class="tc-act tc-gh" id="tc-seeguide" onclick="tcOwnGuide()">📖 SEE THE STAFF GUIDE</button>';
+  /* reference trees */
+  const plan=tcRefPlan(), refs=tcRefTrees(), qs=tcMust();
+  h+='<div class="tc-sec">Your reference trees</div><div class="tc-g">Score these trees yourself first. When the staff reach one of them, the phone shows your answers beside theirs after they save, and you see here where they differ.</div>'+
+    '<div class="tc-ids" id="tc-ref-list">'+plan.map(t=>'<button class="'+(refs.indexOf(t)>=0?'tc-fine':'tc-none')+'" onclick="tcOwnWalk(\'REF\')">'+t+' <small>'+(refs.indexOf(t)>=0?'scored':'not scored')+'</small></button>').join('')+'</div>'+
+    '<button class="tc-act'+(refs.length>=plan.length&&plan.length?' tc-gh':'')+'" id="tc-ref-go" onclick="tcOwnWalk(\'REF\')">SCORE MY REFERENCE TREES ›</button>';
+  const both=refs.map(t=>({t:t,ref:tcAns('REF','REF',t),st:tcStaffCen(t)})).filter(x=>x.st&&x.ref);
+  if(both.length)h+='<table class="tc-tbl" id="tc-ref-agree" style="margin-top:8px"><tr><th class="tc-l">'+both.length+' of '+refs.length+' scored by the staff</th>'+qs.map(q=>'<th>'+esc(q.en.split(' ')[0]==='Does'?'Hose':q.en.split(' ')[0])+'</th>').join('')+'</tr>'+
+    '<tr><td class="tc-l">Same as you</td>'+qs.map(q=>{const same=both.filter(x=>String((x.st.v||{})[q.id])===String(x.ref.v[q.id])).length;
+      return '<td class="'+(same/both.length<0.8?'tc-dif':'')+'">'+same+' / '+both.length+'</td>';}).join('')+'</tr></table><div class="tc-g" style="margin-top:5px">A yellow figure is the question to show them again before they walk the rest.</div>';
+  /* the Owner's own walk */
+  h+='<div class="tc-sec">Walk the trees myself</div><button class="tc-act tc-gh" id="tc-walk-CE1" onclick="tcOwnWalk(\'CE1\')">📋 HEALTH CENSUS ›</button>'+
+    '<button class="tc-act tc-gh" id="tc-walk-FL" onclick="tcOwnWalk(\'FL\')">🌿 FRIDAY FLUSH ›</button>';
+  return h;}
+function tcOwnGuide(){TCW=tcW0();TCW.on=true;TCW.who='own';TCW.chk='';TCW.s='prac';TCW.review=true;tcPaint(true);}
+/* the list of the reference trees: tap one to score it, add one, take one out */
+function tcRefListHTML(it){
+  const refs=tcRefTrees();
+  let h='<button class="tc-back" id="tc-up" onclick="tcWClose()">‹ back</button><div class="tc-ttl">Your reference trees</div>'+
+    '<div class="tc-g">Tap a tree and key what you see. Suggested: the first five of Lot A.</div>';
+  (it?it.trees:[]).forEach((t,i)=>{const r=tcRow('REF','REF',t), okr=r&&!r.skip;
+    h+='<button class="tc-li '+(okr?'tc-done':'')+'" id="tc-ref-'+t+'" onclick="tcWLot(\'\','+i+')"><span class="tc-ic">🌳</span><span><b>'+t+' · '+esc(tcClone(t))+'</b><small>'+(okr?('scored '+esc(ppFmtS(String(r.at).slice(0,10)))):'not scored yet')+'</small></span>'+
+      '<span class="tc-rt"><span class="tc-pill '+(okr?'tc-gr':'tc-y')+'">'+(okr?'scored':'to do')+'</span></span></button>';});
+  h+='<div class="tc-hq"><span class="tc-lab">Add a tree</span></div><div class="tc-lots">'+LOT_KEYS.map(l=>'<button class="tc-lot'+(TCO.add===l?' tc-on':'')+'" id="tc-ref-add-'+l+'" onclick="tcRefLot(\''+l+'\')">Lot '+l+'</button>').join('')+'</div>';
+  if(TCO.add)h+='<div class="tc-ids" id="tc-ref-pick">'+tcTrees(TCO.add).filter(t=>!it||it.trees.indexOf(t)<0).map(t=>'<button onclick="tcRefAdd(\''+t+'\')">'+t.slice(2)+'</button>').join('')+'</div>';
+  return h;}
+function tcRefLot(l){TCO.add=(TCO.add===l)?'':l;tcPaint();}
+async function tcRefAdd(t){
+  if(!treeById(t)||myRole()!=='OWNER')return;
+  const plan=tcRefPlan(); if(plan.indexOf(t)<0)plan.push(t);
+  TC_REFPLAN=plan; if(db)await tcPut('tcrefplan',TC_REFPLAN);
+  /* a tree taken out earlier and put back: its "taken out" row is the newest, so it is scored again */
+  TCO.add=''; tcPaint();}
+
+/* ---------- the same checks in The Programme ▸ MONTH, on the Owner's home and in NEEDS YOU ---------- */
+function tcMonthHTML(mon){
+  if(myRole()!=='OWNER')return '';
+  const cs=TC_CHECKS.filter(c=>c.mons.indexOf(mon)>=0); if(!cs.length)return '';
+  const work=tcWork();
+  return '<div class="tc-ui tc-mbox" id="tc-month"><h4>🌳 Tree checks</h4>'+cs.map(c=>{
+    const its=work.filter(x=>x.chk===c.id), act=tcActive(c.id).length, g=its.length?tcGroup(its)[0]:null;
+    return '<button class="tc-li '+(g?(g.st==='done'?'tc-done':g.st==='over'?'tc-late':g.st==='due'?'tc-due':''):'')+'" id="tc-m-'+c.id+'" onclick="tcGoIssue(\''+c.id+'\')"><span class="tc-ic">'+c.ic+'</span><span><b>'+esc(c.en)+'</b><small>'+
+      (g?('Lot '+esc(g.items.map(x=>x.lot).join(' '))+' · '+g.done+' / '+g.of+' trees'):esc(c.plan[0]))+'</small></span><span class="tc-rt">'+(g?tcPill(g.st,g.day):(act?'':'<span class="tc-pill tc-y">ISSUE ›</span>'))+'</span></button>';}).join('')+'</div>';}
+/** From the month list: an issued check opens its page in the Trees tile, one not issued opens the issue form. */
+function tcGoIssue(chk){
+  openModule('tsv'); if(typeof curModule==='undefined'||curModule!=='tsv')return;
+  if(tcActive(chk).length){TCO.v='issue';tcRenderOwner();} else tcIssueOpen(chk);}
+/** ONE line for Command ▸ Today: what most needs him. It is added under the band's own three
+ *  lines, so it never pushes a ration request or the unsent-records warning out (review). */
+function tcOwnAlert(){
+  if(myRole()!=='OWNER')return null;
+  const today=tcToday(), u=tcUnsureList().length, work=tcWork();
+  if(u)return {hot:true,txt:'🌳 '+u+' tree answer'+(u===1?'':'s')+' marked NOT SURE — decide in Trees'};
+  const late=tcGroup(work.filter(x=>x.st==='over'));
+  if(late.length)return {hot:true,txt:'🌳 '+late.map(g=>g.c.en+' is late: '+g.items.map(x=>'Lot '+x.lot+' '+x.done+' / '+x.of).join(' · ')).join(' · ')};
+  const fin=tcGroup(work.filter(x=>x.st==='done'&&x.last&&tcDiff(today,x.last)<=1));
+  if(fin.length)return {hot:false,txt:'🌳 '+fin.map(g=>g.c.en+' finished: Lot '+g.items.map(x=>x.lot).join(' ')).join(' · ')};
+  return null;}
+function tcTileBadge(){
+  if(myRole()!=='OWNER')return null;
+  const u=tcUnsureList().length; if(u)return {t:u+' '+tr('bg_notsure','NOT SURE')};
+  const work=tcWork(); if(work.some(x=>x.st==='over'))return {t:tr('bg_tclate','CHECK LATE')};
+  const open=work.filter(x=>x.st!=='done'); if(open.length)return {t:open.reduce((s,x)=>s+x.done,0)+' / '+open.reduce((s,x)=>s+x.of,0),amber:1};
+  return null;}
+
 // ---- the Owner's month sheet, in the estate's layout ---------------------------------
 function rnMonths(){
   const t=todayStr().slice(0,7); let first=RAIN_FROM.slice(0,7);
@@ -11328,6 +12709,7 @@ async function retryOne(key){
     sales:pushSales,retailers:pushRetailers,dispatchreqs:pushDispatchReqs,
     dispatch:pushDispatch,audit:pushAudit,adjustments:pushAdjustments,
     programs:pushPrograms,tasks:pushTasks,tasklogs:pushTaskLogs,rain:pushRain,
+    trees:pushTrees,   // v3.79.0
     corrections:pushCorrections,registry:pushRegistry,
     // v3.11 — without this line the RETRY button on the stuck "Shared settings" row said
     // "Nothing to retry". A dead retry is worse than no retry: it teaches people the
@@ -21960,6 +23342,13 @@ function needsYou(){
   const ds=(typeof wtDrySpell==='function')?wtDrySpell():0;
   push('warnr','☀️',ds,tr('cd_a_dry','Dry days in a row'),tr('cd_s_dry','no real rain on the farm gauge — check the spring and the tank'),tr('cd_w_dry','WATER'),'agro','wx');
 
+  /* v3.79.0 — the tree survey: answers the staff marked NOT SURE, and a check past its day */
+  if(typeof tcUnsureList==='function'&&myRole()==='OWNER'){
+    push('warnr','🌳',tcUnsureList().length,tr('cd_a_tcun','Tree answers marked NOT SURE'),tr('cd_s_tcun','the staff could not decide — look at the photo and answer'),tr('cd_w_tcun','DECIDE'),'tsv','hub');
+    const tl=tcLateItems();
+    push('warnr','🌳',tl.length?1:0,tr('cd_a_tclate','Tree check past its day'),
+      tl.map(x=>tcChkName(x.chk)+' Lot '+x.lot+' '+x.done+'/'+x.of).slice(0,3).join(' · ')||tr('cd_s_tclate','issued to the crew and not finished'),tr('cd_w_tclate','LATE'),'tsv','hub');}
+
   // 4. an active ingredient with no brand behind it - this stops the crew dead
   const ua=(typeof unallocatedSlots==='function')?unallocatedSlots():0;
   push('warnr','🔗',ua,tr('cd_a_wait'),tr('cd_s_wait'),tr('cd_w_wait'),'inv','alloc');
@@ -23988,7 +25377,11 @@ function ownAlerts(){
     if(fp)out.push({hot:false,txt:'🎁 '+fp+' '+tr('ow_focwait','ration request(s) waiting')});}
   const unsynced=EVENTS.filter(e=>e&&!e.synced).length;
   if(unsynced>40)out.push({hot:false,txt:'📵 '+unsynced+' '+tr('ow_unsynced','records still on this phone — press SYNC')});
-  return out.slice(0,3);}
+  /* v3.79.0 — ONE line for the tree survey (an answer waiting for him, a check past its day,
+     a check finished), added UNDER the band's own three so it never pushes one of them out. */
+  const top=out.slice(0,3);
+  if(typeof tcOwnAlert==='function'){try{const t=tcOwnAlert(); if(t)top.push(t);}catch(x){}}
+  return top;}
 
 /** The three lines that turn "what happened" into "what to do next". */
 function ownPlanBox(){

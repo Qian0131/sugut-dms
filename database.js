@@ -3120,3 +3120,79 @@ Object.assign(MS,{st_waterorder:'Arahan siram air',
   ow_dry:'hari kering berturut-turut — periksa mata air dan tangki',
   st_oldgs:'disimpan di telefon ini: bahagian Google Sheet lebih lama daripada aplikasi ini',
   ts_wx:'arahan siram air, tolok hujan, helaian bulan'});
+/* v3.79.0 - the tree survey: the nine top-worked trees the Owner confirmed on 4 Oct 2026, the two
+   checks that can be issued, the questions with the wording of the staff guide, and the numbers
+   of the practice and of the travel between the phones and the Sheet. */
+const GRAFT_TREES=['A-013','A-023','A-034','A-036','A-061','B-001','B-053','B-056','B-064'];
+const TC_CHECKS=[
+  {id:'CE1',kind:'census',ic:'📋',en:'Health census',ms:'Banci kesihatan',
+   plan:['Due 1–2 Oct on the plan','Sepatutnya 1–2 Okt dalam pelan'],due:'2026-10-02',mons:['2026-10']},
+  {id:'FL',kind:'flush',ic:'🌿',en:'Friday flush check',ms:'Semakan pucuk hari Jumaat',
+   plan:['Every Friday from 16 Oct','Setiap Jumaat dari 16 Okt'],from:'2026-10-16',mons:['2026-10','2026-11']}];
+const TC_FLUSH_LINE=80;       // % of trees with hardened leaf: the plan's line for Gate 1
+const TC_PASS=4;              // practice: right answers out of the five pictures that open the checks
+const TC_REF_DEFAULT=['A-001','A-002','A-003','A-004','A-005'];
+const TC_PUSH_ROWS=60;        // tree rows in one upload
+const TC_PUSH_PHOTOS=2;       // photos in one upload; a photo goes up after its row, by itself
+const TC_PUSH_ROUNDS=8;       // uploads in one sync
+const TC_PUSH_TIMEOUT_MS=45000;
+const TC_IDLE_SYNC_MS=90000;  // a walk that has gone quiet sends what it has
+const TC_DONE_SHOW=7;         // a finished check stays on the crew's list this many days
+const TC_TZ_MS=8*3600000;     // the farm's time: UTC+8, no summer time. Every stamp of a tree row is written in it.
+const TC_SKEW_MS=5000;        // the kept difference to the Sheet's clock is replaced only by a measurement that cannot agree with it: further than this plus half the time the answer took
+const TC_BACK_MAX=30000;      // a row is never placed before the one this phone keyed just before it, when the step back is no more than this
+const TC_CLOCK_EVERY_MS=1800000;  // the Sheet is asked the time at most this often in one session
+const TC_CLOCK_TIMEOUT_MS=12000;
+const TC_DTAP_MS=350;         // a second tap on the same control inside this is the other half of a double tap
+const TC_TAP_MS=500;          // after a tap that changes the tree on the form, the next tap is not taken for this long
+const TC_SYNC_EVERY=10;       // a walk with no pause still sends what it has every so many trees
+const TC_PAGES=8;             // pages of the tree tab read in one sync
+/* The questions. Wording: from the codes of the September sample and the diagnostic checklist in
+   the season plan; the Owner is the agronomist and corrects any line. `must` = answered on every
+   tree; the others are tapped only when seen. */
+const TC_Q=[
+  {id:'leaf',must:1,en:'Leaf colour',ms:'Warna daun',
+   how:['Look at the old leaves in the middle of the tree, not the new shoots.','Lihat daun tua di tengah pokok, bukan pucuk baru.'],
+   o:[['1','pale','pucat','pale, yellowish','pucat, kekuningan'],['2','','','',''],['3','green','hijau','normal green','hijau biasa'],['4','','','',''],['5','dark, soft','gelap, lembut','very dark, big, soft','hijau gelap, besar, lembut']]},
+  {id:'canopy',must:1,en:'Canopy',ms:'Kanopi',
+   how:['Stand under the tree and look up.','Berdiri di bawah pokok dan pandang ke atas.'],
+   o:[['1','thin','nipis','thin: you see a lot of sky','nipis: banyak nampak langit'],['2','medium','sederhana','medium','sederhana'],['3','dense','lebat','dense: almost no sky','lebat: hampir tak nampak langit']]},
+  {id:'light',must:1,en:'Sunlight on the tree',ms:'Cahaya matahari pada pokok',bad:'S',
+   how:['Look at the trees around it. Does anything stand between this tree and the sun?','Lihat pokok di keliling. Ada apa-apa menghalang matahari?'],
+   o:[['O','open','terbuka','open: sun most of the day','terbuka: kena matahari hampir sepanjang hari'],['P','part','separa','part: shaded for part of the day, or on one side','separa: terlindung sebahagian hari, atau sebelah sahaja'],['S','shaded','terlindung','shaded: under or between bigger trees','terlindung: di bawah atau di celah pokok besar']]},
+  {id:'hose',must:1,en:'Does the hose reach this tree?',ms:'Hos sampai ke pokok ini?',bad:'N',yn:1,
+   how:['Pull the hose from the nearest tap to the foot of the tree.','Tarik hos dari paip terdekat ke pangkal pokok.'],
+   o:[['Y','YES','YA','YES: it reaches the trunk','YA: sampai ke pangkal'],['N','NO','TIDAK','NO: it stops short','TIDAK: tak sampai']]},
+  {id:'canker',en:'Canker or gum on the trunk',ms:'Kanker atau getah di batang',
+   how:['Walk once around the trunk. Look from the ground up to the first branches.','Pusing sekali keliling batang. Lihat dari tanah hingga dahan pertama.'],
+   o:[['✓','','','a dark wet patch, or gum running down','tompok gelap dan basah, atau getah meleleh']]},
+  {id:'borer',en:'Borer holes',ms:'Lubang ulat pengorek',
+   how:['Look at the bark of the trunk and the big branches.','Lihat kulit batang dan dahan besar.'],
+   o:[['✓','','','small holes in the bark, with wood dust below','lubang kecil pada kulit, ada habuk kayu di bawahnya']]},
+  {id:'dieback',en:'Dieback: dead branch tips',ms:'Mati rosot: hujung dahan mati',
+   how:['Look at the top and the outside of the crown.','Lihat bahagian atas dan luar kanopi.'],
+   o:[['✓','','','branch tips dry, with no leaves','hujung dahan kering, tiada daun']]},
+  {id:'wet',en:'Standing water, soggy ground',ms:'Air bertakung, tanah becak',
+   how:['Look at the ground around the foot of the tree.','Lihat tanah di keliling pangkal pokok.'],
+   o:[['✓','','','water standing, or mud that sinks under the boot','air bertakung, atau lumpur yang jerlus dipijak']]},
+  {id:'flush',fl:1,en:'The newest leaves on this tree',ms:'Daun paling baru pada pokok ini',
+   how:['Look at the tips of the branches.','Lihat hujung dahan.'],
+   o:[['0','no new leaf','tiada pucuk','no new shoot','tiada pucuk baru'],['1','red, new','merah, baru','red, just out','merah, baru keluar'],['2','light green','hijau muda','light green, soft','hijau muda, lembut'],['3','dark green, hard','hijau tua, keras','dark green, hard','hijau tua, keras']]}];
+const TC_RULES=[
+  ['Start in Lot A. Follow the tree numbers.','Mula di Lot A. Ikut nombor pokok.'],
+  ['One tree at a time. Walk once around the trunk, then look up.','Satu pokok satu masa. Pusing sekali keliling batang, kemudian pandang ke atas.'],
+  ['Key what you see today, not what you remember.','Masukkan apa yang nampak hari ini, bukan yang diingat.'],
+  ['Not sure? Press NOT SURE and take a photo. The manager decides.','Tak pasti? Tekan TAK PASTI dan ambil gambar. Pengurus tentukan.'],
+  ['A tree you cannot reach: press "Cannot check this tree".','Pokok yang tak dapat didekati: tekan "Tak dapat semak pokok ini".']];
+/* the five pictures of the practice: which question, which drawing, the right answer */
+const TC_QUIZ=[{q:'canopy',a:'1'},{q:'light',a:'S'},{q:'leaf',a:'5'},{q:'flush',a:'2'},{q:'hose',a:'N'}];
+Object.assign(EN,{m_tsv:'Trees', m_tsv_d:'The tree survey, the Friday flush and the checks you issue',
+  sy_l_trees:'Tree checks', bg_notsure:'NOT SURE', bg_tclate:'CHECK LATE',
+  cd_a_tcun:'Tree answers marked NOT SURE', cd_s_tcun:'the staff could not decide — look at the photo and answer', cd_w_tcun:'DECIDE',
+  cd_a_tclate:'Tree check past its day', cd_s_tclate:'issued to the crew and not finished', cd_w_tclate:'LATE',
+  my_k_tree:'tree check', ts_prog_w:'sets and tree checks issued to you'});
+Object.assign(MS,{m_tsv:'Pokok', m_tsv_d:'Banci pokok, semakan pucuk Jumaat dan semakan yang anda keluarkan',
+  sy_l_trees:'Semakan pokok', bg_notsure:'TAK PASTI', bg_tclate:'SEMAKAN LEWAT',
+  cd_a_tcun:'Jawapan pokok ditanda TAK PASTI', cd_s_tcun:'pekerja tak dapat tentukan — lihat gambar dan jawab', cd_w_tcun:'TENTUKAN',
+  cd_a_tclate:'Semakan pokok lewat', cd_s_tclate:'dikeluarkan kepada pekerja dan belum siap', cd_w_tclate:'LEWAT',
+  my_k_tree:'semak pokok', ts_prog_w:'set dan semak pokok'});

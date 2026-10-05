@@ -632,6 +632,134 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .wt-lost{border-color:#a3341f;background:#fceeea}
 .wt-lost h4{color:#a3341f}
 .wt-lost .wt-btn{margin-top:9px}
+/* ===== v3.79.0 · the tree survey. Every class here starts tc-. ===== */
+.tc-ui{font-size:14.5px;line-height:1.45;color:var(--ink)}
+.tc-ui button{font-family:inherit;cursor:pointer}
+/* for half a second after a tap that changes the tree, the buttons do not take a tap, and show it */
+.tc-wait .tc-opt,.tc-wait .tc-act,.tc-wait .tc-tog,.tc-wait .tc-ids button,.tc-wait .tc-st button{opacity:.5}
+.tc-g{color:var(--muted);font-size:12.5px;margin:0 0 6px}
+.tc-sec{font-size:11.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);font-weight:800;margin:14px 0 6px}
+.tc-sec:first-child{margin-top:0}
+.tc-ttl{font-size:18px;font-weight:800;margin:4px 0 2px}
+.tc-back{border:0;background:transparent;color:#1f5f8b;font-weight:800;padding:6px 0;font-size:14px;min-height:36px}
+.tc-note{border-left:4px solid #b26a00;background:#fdf0e2;border-radius:0 9px 9px 0;padding:9px 11px;font-size:13.5px;margin:8px 0;color:#3d2a00}
+.tc-note.tc-b{border-color:#1f5f8b;background:#e9f2f8;color:#10384f}
+.tc-note.tc-ok{border-color:#2e7d32;background:#e8f3e8;color:#14401a}
+.tc-note.tc-r{border-color:#c62828;background:#fdf1f1;color:#6d1410}
+.tc-act{display:block;width:100%;margin-top:9px;border:0;border-radius:11px;padding:12px;min-height:48px;font-weight:900;font-size:14.5px;background:#2e7d32;color:#fff}
+.tc-act.tc-gh{background:#fff;color:#1b5e20;border:1.5px solid #b9cdb6}
+.tc-act.tc-rd{background:#fff;color:#c62828;border:1.5px solid #e2b4b4}
+.tc-act.tc-arm{background:#c62828;color:#fff;border:1.5px solid #c62828}
+.tc-act[disabled]{background:#c9cec7;color:#fff;cursor:not-allowed}
+.tc-li{font-size:14.5px;display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #dfe5dd;border-left:5px solid #c9cec7;border-radius:12px;padding:10px 11px;margin-bottom:7px;min-height:56px;color:var(--ink)}
+.tc-li .tc-ic{font-size:22px;width:28px;text-align:center;flex:none;font-weight:900}
+.tc-li b{display:block;font-size:14.5px;line-height:1.2}
+.tc-li small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.tc-li .tc-rt{margin-left:auto;flex:none;text-align:right}
+.tc-li.tc-due{border-left-color:#b26a00}
+.tc-li.tc-late{border-left-color:#c62828}
+.tc-li.tc-done{border-left-color:#2e7d32;background:#f3f9f3}
+.tc-pill{display:inline-block;border-radius:99px;font-size:10.5px;font-weight:900;padding:2px 8px;white-space:nowrap}
+.tc-pill.tc-a{background:#fdf0e2;color:#b26a00}
+.tc-pill.tc-r{background:#fbe1d6;color:#8c1c13}
+.tc-pill.tc-gr{background:#e3f1e3;color:#1b5e20}
+.tc-pill.tc-y{background:#eeece6;color:#55524a}
+.tc-pill.tc-b{background:#e9f2f8;color:#1f5f8b}
+.tc-lab{display:block;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin:0;font-weight:700}
+.tc-hq{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 5px}
+.tc-hb{width:38px;height:38px;border-radius:50%;border:2px solid #1f5f8b;background:#e9f2f8;color:#1f5f8b;font-weight:900;font-size:16px;flex:none;padding:0}
+.tc-hb.tc-on{background:#1f5f8b;color:#fff}
+.tc-opts{display:grid;gap:6px}
+.tc-opt{border:2px solid #cfe0cc;background:#fff;border-radius:12px;padding:9px 2px;min-height:52px;text-align:center;font-weight:900;color:#1b5e20;font-size:15px;line-height:1.15}
+.tc-opt small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;line-height:1.1}
+.tc-opt.tc-sel{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.tc-opt.tc-sel small{color:#e6f2e6}
+.tc-opt.tc-bad.tc-sel{background:#c62828;border-color:#c62828}
+.tc-opt.tc-un{font-size:11px;border-style:dashed;border-color:#b9a36a;color:#6b5200}
+.tc-opt.tc-un.tc-sel{background:#b26a00;border-color:#b26a00;border-style:solid;color:#fff}
+.tc-opt[disabled]{opacity:.55;cursor:default}
+.tc-tog{display:flex;align-items:center;gap:9px;width:100%;border:1.5px solid #d9dfd6;background:#fff;border-radius:11px;padding:9px 11px;min-height:48px;font-size:14px;font-weight:700;color:#3b3a35;text-align:left}
+.tc-tog i{font-style:normal;width:22px;height:22px;border-radius:6px;border:2px solid #b9cdb6;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.tc-tog.tc-sel{border-color:#c62828;background:#fdf1f1;color:#7a1712}
+.tc-tog.tc-sel i{background:#c62828;border-color:#c62828}
+.tc-togrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.tc-togrow .tc-tog{flex:1}
+.tc-head{display:flex;align-items:center;gap:10px;margin:2px 0}
+.tc-tid{font-size:38px;font-weight:900;line-height:1;letter-spacing:.5px}
+.tc-st{display:flex;align-items:center;gap:6px;margin-left:auto}
+.tc-st button{width:44px;height:44px;border-radius:10px;border:1px solid #b9cdb6;background:#fff;font-size:19px;font-weight:900;color:#1b5e20;padding:0}
+.tc-st button[disabled]{opacity:.35;cursor:default}
+.tc-bar{height:8px;background:#e3e8e0;border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.tc-bar i{display:block;height:100%;background:#2e7d32;width:0}
+.tc-help{border:2px solid #1f5f8b;background:#fff;border-radius:13px;padding:11px;margin:6px 0 6px}
+.tc-help h4{margin:0 0 4px;font-size:15px;color:#1f5f8b}
+.tc-how{font-size:13px;color:var(--muted);margin-bottom:7px}
+.tc-pics{display:grid;gap:6px}
+.tc-pic{border:1px solid #dfe5dd;border-radius:10px;padding:5px 3px 6px;text-align:center;background:#fbfcfa}
+.tc-pic svg{display:block;width:100%;height:auto;max-height:86px}
+.tc-pic b{display:block;font-size:14px;line-height:1.1;margin-top:3px}
+.tc-pic small{display:block;font-size:10.5px;color:var(--muted);line-height:1.15}
+.tc-pic.tc-big{max-width:190px;margin:0 auto 8px}
+.tc-pic.tc-big svg{max-height:170px}
+.tc-dots{display:flex;gap:5px;justify-content:center;margin:8px 0 2px}
+.tc-dots i{width:8px;height:8px;border-radius:50%;background:#cfd6cc}
+.tc-dots i.tc-on{background:#2e7d32}
+.tc-cardn{font-size:11.5px;color:var(--muted);text-align:center;margin:7px 0 0}
+.tc-rule{display:flex;gap:8px;padding:7px 0;border-top:1px solid #dfe5dd;font-size:14px}
+.tc-rule:first-of-type{border-top:0}
+.tc-rule b{width:20px;flex:none}
+.tc-score{font-size:38px;font-weight:900;text-align:center;margin:14px 0 4px}
+.tc-tbl{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:4px}
+.tc-tbl td,.tc-tbl th{border-bottom:1px solid #dfe5dd;padding:6px 3px;text-align:center;vertical-align:top}
+.tc-tbl th{font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.3px;font-weight:800}
+.tc-tbl td.tc-l,.tc-tbl th.tc-l{text-align:left}
+.tc-tbl td.tc-dif{background:#fff3c4;font-weight:900}
+.tc-tbl td.tc-hit{color:#1b5e20;font-weight:900}
+.tc-nw{white-space:nowrap}
+.tc-tbl small{display:block;color:var(--muted);font-size:10.5px;font-weight:400}
+.tc-kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 4px}
+.tc-kp.tc-k3{grid-template-columns:repeat(3,1fr)}
+.tc-kp div{border:1px solid #dfe5dd;border-radius:10px;padding:7px 4px;text-align:center;background:#fff}
+.tc-kp b{display:block;font-size:17px}
+.tc-kp span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.tc-ids{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.tc-ids button{border:1px solid #cfd6cc;background:#fff;border-radius:7px;padding:3px 7px;font-size:12px;font-weight:700;color:#3b3a35;min-height:34px}
+.tc-ids button small{font-weight:400;color:var(--muted);font-size:10.5px}
+.tc-ids button.tc-no{background:#2b2b2b;color:#fff;border-color:#2b2b2b}
+.tc-ids button.tc-no small{color:#ddd}
+.tc-ids button.tc-bad{border-color:#c62828;background:#fdf1f1;color:#7a1712}
+.tc-ids button.tc-fine{border-color:#9cc59e;background:#f3f9f3;color:#1b5e20}
+.tc-ids button.tc-none{color:#9a968b;border-style:dashed}
+.tc-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 10px}
+.tc-seg button{border:2px solid #dfe5dd;background:#fff;border-radius:10px;padding:9px 2px;min-height:44px;font-size:12px;font-weight:800;color:var(--green2)}
+.tc-seg button.tc-on{background:var(--green2);border-color:var(--green2);color:#fff}
+.tc-seg.tc-s2{grid-template-columns:repeat(2,1fr)}
+.tc-need{border:2px solid #b26a00;background:#fdf0e2;border-radius:12px;padding:9px 11px;margin-bottom:10px;font-size:13.5px;color:#3d2a00}
+.tc-need h4{margin:0 0 3px;color:#b26a00;font-size:13.5px}
+.tc-need.tc-r{border-color:#c62828;background:#fdf1f1;color:#6d1410}
+.tc-need.tc-r h4{color:#c62828}
+.tc-box{border:1px solid #dfe5dd;border-radius:12px;padding:10px 11px;margin-bottom:8px;background:#fff}
+.tc-box h4{margin:0 0 3px;font-size:14.5px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tc-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #dfe5dd;font-size:13.5px}
+.tc-row:first-of-type{border-top:0}
+.tc-lots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tc-lot{border:2px solid #cfe0cc;background:#fff;border-radius:12px;padding:10px 4px;min-height:52px;font-weight:900;color:#1b5e20;font-size:14.5px;line-height:1.15}
+.tc-lot small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.tc-lot.tc-on{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.tc-lot.tc-on small{color:#e6f2e6}
+.tc-fl{display:flex;gap:6px;align-items:flex-end;height:100px;margin:10px 0 2px;position:relative;border-bottom:1px solid #dfe5dd;overflow:hidden}
+.tc-fl .tc-c{flex:1;display:flex;gap:2px;align-items:flex-end;height:100%;justify-content:center}
+.tc-fl .tc-c i{display:block;width:12px;border-radius:3px 3px 0 0;font-style:normal}
+.tc-fl .tc-line{position:absolute;left:0;right:0;border-top:2px dashed #c62828;font-size:9.5px;color:#c62828;text-align:right;line-height:1.1}
+.tc-photo{font-family:inherit;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:10px;border:1.5px dashed #b9a36a;background:#fffaf0;border-radius:11px;padding:9px 11px;margin-top:9px;font-size:13.5px;font-weight:700;color:#3d2a00;min-height:48px;cursor:pointer}
+.tc-photo img{width:54px;height:54px;object-fit:cover;border-radius:8px;flex:none}
+.tc-photo span{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+/* not display:none: a file input that is display:none is unreachable from its label on some Android WebViews */
+.tc-file{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.tc-err{color:#c62828;font-size:13px;font-weight:700;margin-top:6px;min-height:0}
+.tc-mbox{border:1px solid #dfe5dd;border-left:4px solid #2e7d32;border-radius:10px;padding:9px 11px;margin:8px 0 10px;background:#fff}
+.tc-mbox h4{margin:0 0 5px;font-size:13px;color:var(--green2);text-transform:uppercase;letter-spacing:.5px}
+.tc-date{max-width:190px}
 .tasknote{background:#0d3d12;color:#fff;border-radius:14px;padding:11px 13px;margin-bottom:11px;
   border-left:6px solid var(--gold);cursor:pointer;user-select:none;box-shadow:0 2px 8px rgba(0,0,0,.18);}
 .tasknote:active{transform:scale(.99);}
@@ -3543,6 +3671,9 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
        three times (v3.6, v3.12, and the v3.51 stock-take page caught in testing). -->
   <div class="card" id="progseg" style="display:none"></div>
   <div id="progcard" style="display:none"></div>
+  <!-- v3.79.0 — THE TREES TILE (Owner). One panel; tcRenderOwner() fills #tcbox: SURVEY, FLUSH,
+       ISSUE & WALK, and the Owner's own walk. In HUB_PANELS and roleAllows like every panel. -->
+  <div id="tccard" style="display:none"><div id="tcbox"></div></div>
   <!-- v3.77.0 — the month's programme on paper. Filled by ppPrintMonth() and shown only by
        body.printing-pp in the print stylesheet; never on screen. -->
   <div class="card" id="ppprint" style="display:none"></div>
@@ -4306,7 +4437,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.78.0"></script>
-<script src="app.js?v=3.78.0"></script>
+<script src="database.js?v=3.79.0"></script>
+<script src="app.js?v=3.79.0"></script>
 </body>
 </html>
