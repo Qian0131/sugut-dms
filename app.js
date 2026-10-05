@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.79.0';   // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.79.1';   // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -10440,7 +10440,7 @@ function tcState(){
       const key=r.chk+'|'+r.walk+'|'+r.tree; S.n[key]=(S.n[key]||0)+1; S.rows[r.uuid]=r;
       if(!S.last[key]||tcNewer(r,S.last[key]))S.last[key]=r;
       if(r.iss)S.byIss[r.iss+'|'+r.tree]=1;
-      if(r.chk==='FL'&&tcOkDay(r.walk))S.walks[r.walk]=1;}
+      if(r.chk===TC_FL&&tcOkDay(r.walk))S.walks[r.walk]=1;}
     else if(r.k==='FIX'){if(r.tree){const key=(r.chk||'CE1')+'|'+(r.walk||'CE1')+'|'+r.tree;(S.fix[key]=S.fix[key]||[]).push(r);}}
     else if(r.k==='PBZ'){if(r.tree&&(!S.pbz[r.tree]||tcNewer(r,S.pbz[r.tree])))S.pbz[r.tree]=r;}
     else if(r.k==='PRAC')S.prac.push(r);});
@@ -10661,7 +10661,7 @@ function tcParkNote(id){
 async function tcFixWalks(){
   const S=tcState();
   for(const r of TREE_LOG){
-    if(!r||r.synced||r.st||r.k!=='ROW'||r.chk!=='FL'||!(+r.t>0))continue;
+    if(!r||r.synced||r.st||r.k!=='ROW'||r.chk!==TC_FL||!(+r.t>0))continue;
     const day=tcFarm(tcEst(r)).slice(0,10), i=r.iss?S.iss.find(x=>x.uuid===r.iss):null;
     const w=i?tcWalkOf(i,day):tcFriday(day);
     if(w&&w!==r.walk){r.walk=w; tcTouch(); if(db)await tcPut('tc:'+r.uuid,r);}}}
@@ -10877,17 +10877,41 @@ function tcDraw(q,code){
     [[33,56],[37,60],[42,57],[40,63],[35,64],[45,61]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.5" fill="#e0c08a"/>').join(''));
   if(q==='dieback')return tcSvg(TC_TRUNK+'<path d="M40 48 L24 26 M40 48 L56 26 M40 48 L40 10 M24 26 L16 14 M24 26 L28 12 M56 26 L64 14 M56 26 L52 12 M40 10 L36 4 M40 10 L45 4" stroke="#7a5a3a" stroke-width="2.2" fill="none"/><circle cx="34" cy="40" r="9" fill="#2f7d32"/><circle cx="47" cy="40" r="9" fill="#2f7d32"/><circle cx="40" cy="33" r="8" fill="#2f7d32"/>');
   if(q==='wet')return tcSvg(tcTreeShape(40,66,26,17)+'<rect x="4" y="66" width="72" height="10" fill="#b9a27d"/><ellipse cx="40" cy="70" rx="26" ry="5" fill="#4b94c4"/><path d="M26 69 q4 -2 8 0 M44 71 q4 -2 8 0" stroke="#fff" stroke-width="1.2" fill="none"/>');
-  if(q==='flush'){const c=+code||0, old=tcLeafShape(20,56,.42,'#1e5c23',-70)+tcLeafShape(34,60,.42,'#1e5c23',70)+tcLeafShape(30,44,.42,'#1e5c23',-60);
-    const tip=['','#c0392b','#a6cf4f','#1e5c23'][c], sz=[0,.26,.4,.46][c];
-    return tcSvg('<path d="M12 70 L62 18" stroke="#7a5a3a" stroke-width="3" stroke-linecap="round"/>'+old+
-      (c?tcLeafShape(54,22,sz,tip,-55)+tcLeafShape(64,26,sz,tip,60)+tcLeafShape(62,12,sz,tip,10):'<circle cx="62" cy="18" r="2.5" fill="#7a5a3a"/>'),'#fbfcfa');}
+  if(q==='flush'){
+    /* v3.79.1 - five stages of the leaf cycle: no shoot, new shoot, long tail, leaf spacing, mature.
+       A photograph from the farm where there is one; the drawing otherwise (answer 0, and any
+       stage whose photograph is taken out). */
+    if(typeof TC_FLUSH_PHOTO!=='undefined'&&TC_FLUSH_PHOTO[+code])return '<img class="tc-ph" src="'+TC_FLUSH_PHOTO[+code]+'" alt="">';
+    const c=+code||0, RED='#cf8a72', LG='#a6cf4f', DG='#1e5c23';
+    const old=tcLeafShape(18,58,.4,DG,-70)+tcLeafShape(31,62,.4,DG,70)+tcLeafShape(27,47,.4,DG,-60);
+    const thin=(x,y,sx,sy,col,rot)=>'<g transform="translate('+x+' '+y+') rotate('+rot+') scale('+sx+' '+sy+')"><path d="M0 -30 C20 -18 22 12 0 32 C-22 12 -20 -18 0 -30Z" fill="'+col+'" stroke="#0d2e12" stroke-width="2"/></g>';
+    let twig='<path d="M10 72 L52 30" stroke="#7a5a3a" stroke-width="3" stroke-linecap="round"/>', tip='';
+    if(c===0)tip='<circle cx="52" cy="30" r="2.6" fill="#7a5a3a"/>';
+    else if(c===1)tip=tcLeafShape(50,22,.2,RED,-25)+tcLeafShape(58,26,.2,RED,40)+tcLeafShape(56,17,.2,RED,8);
+    else if(c===2)tip='<path d="M52 30 L58 23" stroke="#a9654f" stroke-width="2" stroke-linecap="round"/>'+thin(50,44,.2,.5,RED,8)+thin(60,43,.2,.56,RED,-6)+thin(69,36,.2,.5,RED,-28);
+    else{const col=c===3?LG:DG, z=c===3?.27:.33;
+      twig='<path d="M10 72 L40 42" stroke="#7a5a3a" stroke-width="3" stroke-linecap="round"/><path d="M40 42 L64 18" stroke="'+(c===3?'#8a9a4a':'#7a5a3a')+'" stroke-width="'+(c===3?2.2:3)+'" stroke-linecap="round"/>';
+      tip=tcLeafShape(40,29,z,col,-52)+tcLeafShape(56,39,z,col,128)+tcLeafShape(50,19,z,col,-52)+tcLeafShape(66,29,z,col,128)+tcLeafShape(66,11,z*.85,col,18)+
+        (c===4?'<path d="M36 25 L42 31 M46 15 L52 21" stroke="#fff" stroke-width="1.2" opacity=".55" stroke-linecap="round"/>':'');}
+    return tcSvg(twig+old+tip,'#fbfcfa');}
   return '';}
 function tcOptLabel(q,o){return q.yn?tcT(o[1],o[2]):o[0];}
 function tcPicsHTML(q){
-  return '<div class="tc-pics" style="grid-template-columns:repeat('+Math.min(5,q.o.length)+',1fr)">'+q.o.map(o=>'<div class="tc-pic">'+tcDraw(q.id,o[0]==='✓'?'1':o[0])+
+  /* the flush: one stage a row, the photograph large enough to compare with the branch in front of him */
+  if(q.fl)return '<div class="tc-frows">'+q.o.map(o=>'<div class="tc-frow" id="tc-fr-'+o[0]+'"><div class="tc-fimg">'+tcDraw(q.id,o[0])+'</div><div class="tc-ftxt"><b>'+o[0]+' · '+esc(tcT(o[1],o[2]))+'</b><small>'+esc(tcT(o[3],o[4]))+'</small></div></div>').join('')+'</div>';
+  /* a sign with the farm's own photographs: the words of the answer, then the photographs two a row, each with what it shows */
+  const ph=(typeof TC_SEEN_PHOTO!=='undefined')?TC_SEEN_PHOTO[q.id]:null;
+  if(ph&&ph.length)return '<div class="tc-sline" id="tc-sl-'+q.id+'"><b>✓</b> '+esc(tcT(q.o[0][3],q.o[0][4]))+'</div><div class="tc-sgrid" id="tc-sg-'+q.id+'">'+ph.map((x,i)=>'<div class="tc-scell" id="tc-sp-'+q.id+'-'+(i+1)+'"><img class="tc-ph" src="'+x[0]+'" alt=""><small>'+esc(tcT(x[1],x[2]))+'</small></div>').join('')+'</div>';
+  /* minmax(0,1fr): equal boxes whatever the words under them (found in review: in Bahasa the
+     long words made some pictures twice the size of others, and answer 4 the smallest) */
+  return '<div class="tc-pics" style="grid-template-columns:repeat('+Math.min(5,q.o.length)+',minmax(0,1fr))">'+q.o.map(o=>'<div class="tc-pic">'+tcDraw(q.id,o[0]==='✓'?'1':o[0])+
     '<b>'+esc(q.yn?tcT(o[1],o[2]):o[0])+'</b><small>'+esc(q.yn?tcT(o[3],o[4]).replace(/^[A-Z]+: /,''):tcT(o[3],o[4]))+'</small></div>').join('')+'</div>';}
 function tcHelpHTML(q){
-  return '<div class="tc-help" id="tc-help-'+q.id+'"><h4>'+esc(tcT(q.en,q.ms))+'</h4><div class="tc-how">'+esc(tcT(q.how[0],q.how[1]))+'</div>'+tcPicsHTML(q)+'</div>';}
+  return '<div class="tc-help" id="tc-help-'+q.id+'"><h4>'+esc(tcT(q.en,q.ms))+'</h4><div class="tc-how">'+esc(tcT(q.how[0],q.how[1]))+'</div>'+tcPicsHTML(q)+(q.fl?tcCycleHTML():'')+'</div>';}
+/** The leaf cycle in days, under the five pictures: a guide for the eye, not a rule. */
+function tcCycleHTML(){
+  const d=TC_FLUSH_DAYS, ab=tcT('about','kira-kira'), dy=tcT('days','hari');
+  return '<div class="tc-cyc" id="tc-cyc"><b>1</b> → '+ab+' '+d[0]+' '+dy+' → <b>2</b> → '+ab+' '+d[1]+' '+dy+' → <b>3</b> → '+ab+' '+d[2]+' '+dy+' → <b>4</b></div>';}
 
 /* ---------- the walk: one state for the crew's walk, the Owner's own walk and his reference trees ---------- */
 function tcCrewOn(){return TCW.on&&TCW.who==='crew'&&myRole()==='WORKER';}
@@ -11356,8 +11380,8 @@ function tcTreeHTML(){
   h+='<div class="tc-sec">PBZ this season</div>'+(p.lock?'<div class="tc-note tc-b" id="tc-t-pbz">A grafted tree: no PBZ. This cannot be changed.</div>'
     :('<div class="tc-seg tc-s2" id="tc-t-pbz"><button class="'+(!p.no?'tc-on':'')+'" id="tc-t-pyes" onclick="'+(p.no?'tcPbzFlip(\''+t+'\')':'')+'">YES</button><button class="'+(p.no?'tc-on':'')+'" id="tc-t-pno" onclick="'+(!p.no?'tcPbzFlip(\''+t+'\')':'')+'">NO</button></div>'+
       '<div class="tc-g">'+(p.own?'Your own choice.':(p.why?('Proposed NO: '+tcWhyTxt(p.why)+'.'):'Proposed YES.'))+'</div>'));
-  const walks=Object.keys(S.walks).sort().filter(w=>tcRow('FL',w,t));
-  h+='<div class="tc-sec">Friday flush</div>'+(walks.length?('<table class="tc-tbl">'+walks.slice(-8).map(w=>{const r=tcRow('FL',w,t), q=tcQ('flush');
+  const walks=Object.keys(S.walks).sort().filter(w=>tcRow(TC_FL,w,t));
+  h+='<div class="tc-sec">Friday flush</div>'+(walks.length?('<table class="tc-tbl">'+walks.slice(-8).map(w=>{const r=tcRow(TC_FL,w,t), q=tcQ('flush');
       return '<tr><td class="tc-l">'+esc(tcDay(w))+'</td><td><b>'+(r.skip?'not checked':esc(tcOptTxt(q,r.v&&r.v.flush)))+'</b></td></tr>';}).join('')+'</table>'):'<div class="tc-g">No flush walk keyed for this tree yet.</div>');
   h+='<button class="tc-act" id="tc-t-again" onclick="tcTreeWalk(\''+t+'\')">CHECK THIS TREE MYSELF ›</button>';
   return h;}
@@ -11370,27 +11394,27 @@ function tcTreeWalk(t){
 /* ----- FLUSH ----- */
 function tcFlushWalks(){
   const S=tcState(), today=tcToday(), w=Object.assign({},S.walks);
-  tcActive('FL').forEach(i=>{const d=tcWalkOf(i,today); if(d&&d<=today)w[d]=1;});
+  tcActive(TC_FL).forEach(i=>{const d=tcWalkOf(i,today); if(d&&d<=today)w[d]=1;});
   return Object.keys(w).sort();}
 function tcFlushLot(lot,walk){
-  const ts=tcTrees(lot).filter(t=>!tcIsGraft(t)), got=ts.filter(t=>{const r=tcRow('FL',walk,t);return r&&!r.skip&&r.v&&r.v.flush!=null;});
-  const n3=got.filter(t=>String(tcRow('FL',walk,t).v.flush)==='3').length;
+  const ts=tcTrees(lot).filter(t=>!tcIsGraft(t)), got=ts.filter(t=>{const r=tcRow(TC_FL,walk,t);return r&&!r.skip&&r.v&&r.v.flush!=null;});
+  const n3=got.filter(t=>String(tcRow(TC_FL,walk,t).v.flush)===TC_FLUSH_HARD).length;
   return {of:ts.length,n:got.length,n3:n3,pct:got.length?Math.round(100*n3/got.length):null};}
 function tcFlushHTML(){
   const walks=tcFlushWalks().slice(-8), line=TC_FLUSH_LINE, col=['#b26a00','#2e7d32','#1f5f8b'];
   let h='<div class="tc-sec">Friday flush · % of trees with hardened leaf, by lot</div>';
   if(!walks.length){
-    const act=tcActive('FL').length;
+    const act=tcActive(TC_FL).length;
     return h+'<div class="tc-note" id="tc-f-none">'+(act?'The Friday flush check is issued. Its first walk has not come yet.':'The Friday flush check has not been issued. It is issued once and returns every 7 days until you stop it.')+'</div>'+
-      (act?'':'<button class="tc-act" id="tc-f-issue" onclick="tcIssueOpen(\'FL\')">ISSUE THE FRIDAY FLUSH CHECK ›</button>');}
+      (act?'':'<button class="tc-act" id="tc-f-issue" onclick="tcIssueOpen(\''+TC_FL+'\')">ISSUE THE FRIDAY FLUSH CHECK ›</button>');}
   h+='<div class="tc-fl" id="tc-f-chart"><div class="tc-line" style="top:'+(100-line*0.9)+'px">'+line+' % line</div>'+walks.map(w=>'<div class="tc-c">'+LOT_KEYS.map((l,i)=>{const p=tcFlushLot(l,w).pct;
       return '<i title="Lot '+l+'" style="height:'+(p==null?0:Math.max(2,p*0.9))+'px;background:'+col[i%3]+'"></i>';}).join('')+'</div>').join('')+'</div>'+
     '<table class="tc-tbl" id="tc-f-tbl"><tr><th class="tc-l">Walk</th>'+LOT_KEYS.map(l=>'<th>Lot '+l+'</th>').join('')+'</tr>'+walks.map(w=>'<tr><td class="tc-l">'+esc(ppFmt(w))+'</td>'+LOT_KEYS.map(l=>{const f=tcFlushLot(l,w);
       return '<td id="tc-fp-'+w+'-'+l+'" class="'+(f.pct!=null&&f.pct>=line?'tc-hit':'')+'">'+(f.pct==null?'—':(f.pct+' %'))+'<small>'+f.n+' / '+f.of+' walked</small></td>';}).join('')+'</tr>').join('')+'</table>'+
-    '<div class="tc-g">Brown = Lot A · green = Lot B · blue = Lot C. Hardened = code 3, dark green and hard. The '+GRAFT_TREES.length+' grafts are left out of the count. The % is of the trees walked.</div>';
+    '<div class="tc-g">Brown = Lot A · green = Lot B · blue = Lot C. Hardened = answer 4, mature: dark green and hard. The '+GRAFT_TREES.length+' grafts are left out of the count. The % is of the trees walked.</div>';
   const last=walks[walks.length-1], q=tcQ('flush');
   h+='<div class="tc-sec">The last walk, '+esc(ppFmt(last))+' · trees by code</div><table class="tc-tbl" id="tc-f-codes"><tr><th class="tc-l">Lot</th>'+q.o.map(o=>'<th>'+o[0]+'<small>'+esc(o[1])+'</small></th>').join('')+'</tr>'+
-    LOT_KEYS.map(l=>'<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td>'+q.o.map(o=>'<td>'+tcTrees(l).filter(t=>!tcIsGraft(t)).filter(t=>{const r=tcRow('FL',last,t);return r&&!r.skip&&r.v&&String(r.v.flush)===o[0];}).length+'</td>').join('')+'</tr>').join('')+'</table>';
+    LOT_KEYS.map(l=>'<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td>'+q.o.map(o=>'<td>'+tcTrees(l).filter(t=>!tcIsGraft(t)).filter(t=>{const r=tcRow(TC_FL,last,t);return r&&!r.skip&&r.v&&String(r.v.flush)===o[0];}).length+'</td>').join('')+'</tr>').join('')+'</table>';
   return h;}
 
 /* ----- ISSUE & WALK ----- */
@@ -11479,7 +11503,7 @@ function tcChecksHTML(){
       return '<td class="'+(same/both.length<0.8?'tc-dif':'')+'">'+same+' / '+both.length+'</td>';}).join('')+'</tr></table><div class="tc-g" style="margin-top:5px">A yellow figure is the question to show them again before they walk the rest.</div>';
   /* the Owner's own walk */
   h+='<div class="tc-sec">Walk the trees myself</div><button class="tc-act tc-gh" id="tc-walk-CE1" onclick="tcOwnWalk(\'CE1\')">📋 HEALTH CENSUS ›</button>'+
-    '<button class="tc-act tc-gh" id="tc-walk-FL" onclick="tcOwnWalk(\'FL\')">🌿 FRIDAY FLUSH ›</button>';
+    '<button class="tc-act tc-gh" id="tc-walk-FL" onclick="tcOwnWalk(\''+TC_FL+'\')">🌿 FRIDAY FLUSH ›</button>';
   return h;}
 function tcOwnGuide(){TCW=tcW0();TCW.on=true;TCW.who='own';TCW.chk='';TCW.s='prac';TCW.review=true;tcPaint(true);}
 /* the list of the reference trees: tap one to score it, add one, take one out */
