@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.79.1';   // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.80.0';   // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -7230,8 +7230,8 @@ function ppFmtS(iso){if(!ppOkDay(String(iso||'').slice(0,10)))return '—';const
   return d.getUTCDate()+' '+ppT(PP_MONS,PP_MONSBM)[d.getUTCMonth()];}
 function ppMonName(mon){const i=+String(mon||'').slice(5,7)-1;return ppT(PP_MONL,PP_MONLBM)[i]||String(mon||'');}
 function ppMonEN(mon){return PP_MONL[+String(mon||'').slice(5,7)-1]||String(mon||'');}
-function ppWhy(k){const w=PP_WHY.concat(PP_MWHY).find(x=>x[0]===k);return w?ppT(w[1],w[2]):String(k||'');}
-function ppWhyM(k){const w=PP_MWHY.concat(PP_WHY).find(x=>x[0]===k);return w?ppT(w[1],w[2]):String(k||'');}
+function ppWhy(k){const w=PP_WHY.concat(PP_MWHY,[PP_WHY_OLD]).find(x=>x[0]===k);return w?ppT(w[1],w[2]):String(k||'');}
+function ppWhyM(k){const w=PP_MWHY.concat(PP_WHY,[PP_WHY_OLD]).find(x=>x[0]===k);return w?ppT(w[1],w[2]):String(k||'');}
 function ppCss(s){return String(s).replace(/[^A-Za-z0-9]/g,'_');}
 /** A value on its way into an inline handler, and back out of it. Quotes never survive raw. */
 function ppArg(s){return encodeURIComponent(String(s)).replace(/'/g,'%27');}
@@ -7511,7 +7511,7 @@ function ppChanges(v,o){
   v.planLines.forEach(p=>{const n=o.lines.find(l=>l.key===p.key);
     if(!n)out.push('Taken out: '+p.n);
     else if(Math.abs(n.q-p.q)>1e-9)out.push(p.n+': '+ppQty(p.q,p.u)+' → '+ppQty(n.q,n.u));});
-  o.lines.forEach(n=>{if(!v.planLines.find(p=>p.key===n.key))out.push('Added: '+n.n+' '+ppQty(n.q,n.u));});
+  o.lines.forEach(n=>{if(!v.planLines.find(p=>p.key===n.key))out.push('Added: '+n.n+' '+ppQty(n.q,n.u)+(n.sub?(' (in place of '+n.sub+')'):''));});   // v3.80.0
   return out;}
 function ppWhys(v){const u=[];(v.log||[]).forEach(x=>{if(x.why&&u.indexOf(x.why)<0)u.push(x.why);});
   if(v.fix&&v.fix.why&&u.indexOf(v.fix.why)<0)u.push(v.fix.why);
@@ -7752,12 +7752,14 @@ function ppBuyHTML(){
   const wait=b.rows.concat(b.nocard).filter(r=>!r.firm&&!r.sent).length;
   let h='<div class="pp-buy" id="pp-o-buy"><h4>⚠ TO BUY · '+b.rows.length+' product'+(b.rows.length===1?'':'s')+' short'+
     (b.nocard.length?(' · '+b.nocard.length+' with no store card'):'')+'</h4>'+
-    '<div class="pp-g">Issued sets, and the plan for the next '+PP_BUY_DAYS+' days.</div>';
+    '<div class="pp-g">Issued sets, and the plan for the next '+PP_BUY_DAYS+' days.</div><!--os-->';
   const part=r=>(!r.covered&&r.has>1e-6)?(' · the Purchaser has '+ppQty(r.has,r.u)+' of this'):'';
+  const osn=ppOsNeed('');   // v3.80.0 - what the plan asks of every card, once
   b.rows.forEach(r=>{h+='<div class="pp-it"><div><b>'+esc(r.name)+'</b> — buy '+ppQty(r.short,r.u)+
-    '<small>first needed for '+esc(ppForTxt(r))+' · shelf '+ppQty(r.shelf,r.u)+part(r)+'</small></div>'+tag(r)+'</div>';});
+    '<small>first needed for '+esc(ppForTxt(r))+' · shelf '+ppQty(r.shelf,r.u)+part(r)+'</small>'+ppOsBuyHTML(r,osn)+'</div>'+tag(r)+'</div>';});
   b.nocard.forEach(r=>{h+='<div class="pp-it"><div><b>'+esc(r.name)+'</b> — '+ppQty(r.need,r.u)+
-    '<small>'+(r.odd?('the card '+esc(r.odd)+' counts in another unit'):'no store card')+', so the app cannot count it · needed for '+esc(ppForTxt(r))+'</small></div>'+tag(r)+'</div>';});
+    '<small>'+(r.odd?('the card '+esc(r.odd)+' counts in another unit'):'no store card')+', so the app cannot count it · needed for '+esc(ppForTxt(r))+'</small>'+ppOsBuyHTML(r,osn)+'</div>'+tag(r)+'</div>';});
+  h=h.replace('<!--os-->',h.indexOf('class="pp-os-buy"')>0?ppOsBuyNote():'');   // v3.80.0
   if(wait)h+='<button class="pp-act red" id="pp-buy-all" style="margin-top:8px;padding:11px" onclick="ppBuySendAll()">SEND ALL TO THE PURCHASER</button>';
   return h+'</div>';}
 /** The Purchaser's list - on his Programme screen and at the top of THE STORE ▸ BUY. */
@@ -8259,6 +8261,232 @@ async function ppUnskip(){
 /* ----- issue / change the mix -----
    The editor works on a copy (PPE). A field that changes re-reads every field first
    (ppESync) and then redraws, so nothing typed is lost to a redraw. */
+/* ====================== v3.80.0 · USE THE OLD STOCK FIRST ======================
+   The Owner, 5 Oct 2026: the plan comes from last year's programme, a few products are short,
+   and brands with the same or a similar ingredient sit on the shelf unused. Approved from the
+   sample as U1a U2a U3a U4a U5a:
+     U1a  the app reads the ingredient written on each store card and shows the matches;
+          the Owner chooses each time - nothing is swapped by itself;
+     U2a  the dose is carried over only when both are weight or both are volume, blank
+          otherwise, and he ticks "I checked the label" before the set can be issued;
+     U3a  when the planned product still has some left he is asked: finish it first and top
+          up, or use only the other one;
+     U4a  the To Buy list says what the shelf holds, before anything is sent to the Purchaser;
+     U5a  oldest pack first: not built.
+   ⛔ THE APP NEVER SETS A DOSE. The same ingredient is not the same strength: the figure it
+   carries over is the planned product's, shown amber, and it is the agronomist who confirms
+   it. Nothing new is stored: a stand-in is an ordinary line of the set, the list of changes
+   says what it stands in for, and the reason is one more code (OLD) read through ppWhy(),
+   which prints a code it does not know as it stands. */
+const PP_WHY_OLD=['OLD','Use old stock','Guna stok lama'];
+/* The ingredient of a planned product that has NO store card, for the five names the workbook
+   uses. A name that is not here is read as it is written. */
+const PP_OS_PLAN={'Calcium-Boron':'Calcium + Boron','K-sulphate (SOP)':'Potassium sulphate','15-15-30':'NPK 15-15-30'};
+/* words on a card that are not an ingredient */
+const PP_OS_STOP=/\b(mix|complex|extract|foliar|powder|chelated|carrier|compound|complete|blend|nutrients?|micronutrients?|plant|hormone|rooting|npk|ec|sc|sl|wp|wg|wb|wdg|sp)\b/g;
+/* a card that says it is a mix names its ingredients loosely: it is the SAME as another card
+   only when the two say it in the same words */
+const PP_OS_LOOSE=/\b(mix|complex|compound|complete|blend)\b/;
+const PP_OS_DOT='·';         // on a card, what follows this dot is a note, not an ingredient
+const PP_OS_HOLD=500;          // ms: after the mix is changed under the thumb, the next tap on an answer or on ✕ is not taken
+const PP_OS_MAX=5;             // similar cards shown under one product; the rest are counted
+const PP_OS_BUY=2;             // and named on one row of the To Buy list
+/** The reasons offered where the mix is edited: the usual ones, and "use old stock". */
+function ppWhyEd(){return PP_WHY.slice(0,-1).concat([PP_WHY_OLD],PP_WHY.slice(-1));}
+/** What a card's ingredient text names. p = the ingredients, in order; g = the N-P-K grade
+ *  when the text names nothing else (a plain NPK fertiliser). A note after "·", anything in
+ *  brackets and every strength ("80%", "50 g/L") is not an ingredient. A card that only says
+ *  "(confirm — see label)" names nothing, and is never offered. */
+function ppOsSig(txt){
+  let s=String(txt==null?'':txt).toLowerCase().split(PP_OS_DOT)[0].replace(/\([^)]*\)/g,' ');
+  const loose=PP_OS_LOOSE.test(s), npk=/\bnpk\b/.test(s);
+  const m=s.match(/(\d+(?:\.\d+)?)[-:](\d+(?:\.\d+)?)[-:](\d+(?:\.\d+)?)/);
+  s=s.replace(/\d+(?:\.\d+)?(?:[-:]\d+(?:\.\d+)?)+/g,' ')            // a grade: 12-12-17, 20:20:20
+     .replace(/\b\d+(?:\.\d+)?\s*(?:mgo|cao|te)\b/g,' ')              // what rides on a grade: 2MgO, 26.5 CaO
+     .replace(/(^|[\s+,&\/])\d+(?:\.\d+)?\s*(?:%|g\/l|ml\/l|g\/kg)?(?:\s*(?:w\/w|w\/v|v\/v))?(?=$|[\s+,&\/])/g,'$1 ');   // a strength standing alone: 80%, 50 g/L - never the 12 of "B12"
+  const p=[];
+  s.split(/\+|\/|,|&|\band\b/).forEach(x=>{
+    x=x.replace(PP_OS_STOP,' ').replace(/[^a-z0-9\- ]/g,' ').replace(/\s+/g,' ').trim().replace(/^-+|-+$/g,'').trim();
+    if(x.length>4&&/[^s]s$/.test(x))x=x.slice(0,-1);
+    if(x.length>=3&&!/^[\d. ]+$/.test(x)&&p.indexOf(x)<0)p.push(x);});
+  /* a grade that stands beside another ingredient ("NPK 15-15-15 + Boron") is part of what the card is */
+  if(p.length&&npk&&m)p.push('npk '+(+m[1])+'-'+(+m[2])+'-'+(+m[3]));
+  return {p:p.sort(),g:(!p.length&&m)?[+m[1],+m[2],+m[3]]:null,x:loose,t:p.join('+')+'|'+s.replace(/\s+/g,' ').trim()};}
+/** How a store card (b) stands to the planned product (a): 2 = the same ingredient or the
+ *  same grade, 1 = shares an ingredient (or, for two NPK grades, the same leading nutrient),
+ *  null = nothing in common. s orders the similar ones, the nearest first. */
+function ppOsRel(a,b){
+  if(a.g&&b.g){
+    if(a.g.join()===b.g.join())return {r:2,s:0};
+    const top=g=>{const m=Math.max.apply(null,g);return g.map(x=>x===m);};
+    const ta=top(a.g), tb=top(b.g);
+    return ta.some((x,i)=>x&&tb[i])?{r:1,s:-(Math.abs(a.g[0]-b.g[0])+Math.abs(a.g[1]-b.g[1])+Math.abs(a.g[2]-b.g[2]))}:null;}
+  if(!a.p.length||!b.p.length)return null;
+  const sh=a.p.filter(x=>b.p.indexOf(x)>=0).length;
+  if(!sh)return null;
+  if(sh===a.p.length&&sh===b.p.length&&(!(a.x||b.x)||a.t===b.t))return {r:2,s:0};
+  return {r:1,s:sh};}
+function ppOsNorm(n){return String(n||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+/** The ingredient text of a line: its card's, or the plan's name for a product with no card. */
+function ppOsText(l){
+  if(l.card){const p=prodById(l.pid);return p?String(p.active_ingredient||''):'';}
+  return PP_OS_PLAN[l.n]||String(l.n||'');}
+/** The store cards that could stand in for line l and have something to give.
+ *  stockOf(p) = what that card can give here; skip(p) = leave this card out. */
+function ppOsFind(l,stockOf,skip){
+  const a=ppOsSig(ppOsText(l)), an=ppOsNorm(l.n), same=[], sim=[];
+  activeProducts().forEach(p=>{
+    if(String(p.cat||'')==='Consumable'||(l.card&&p.id===l.pid)||(skip&&skip(p)))return;
+    const st=+stockOf(p)||0; if(!(st>1e-9))return;
+    let r=ppOsRel(a,ppOsSig(p.active_ingredient));
+    const pn=ppOsNorm(p.name), nm=an.length>=4&&pn.length>=4&&(pn.indexOf(an)>=0||an.indexOf(pn)>=0);
+    if(!r&&nm)r={r:1,s:9};
+    if(!r)return;
+    (r.r===2?same:sim).push({p:p,st:st,s:r.s,nm:nm&&r.r!==2});});
+  const byName=(x,y)=>String(x.p.name).localeCompare(String(y.p.name));
+  same.sort(byName); sim.sort((x,y)=>(y.s-x.s)||byName(x,y));
+  return {same:same,sim:sim.slice(0,PP_OS_MAX),more:Math.max(0,sim.length-PP_OS_MAX),text:ppOsText(l)};}
+/** What the plan still asks of each card: ahead = the planned rounds in the window that are
+ *  not issued yet, all = those and the issued sets. One pass over the needs. */
+function ppOsNeed(exceptKey){
+  const ahead={}, all={};
+  ppNeeds().forEach(n=>{ if(!n.l.card||n.v.key===exceptKey)return;
+    all[n.l.pid]=(all[n.l.pid]||0)+n.q; if(!n.firm)ahead[n.l.pid]=(ahead[n.l.pid]||0)+n.q;});
+  return {ahead:ahead,all:all};}
+
+/* ----- in the editor: under a product that is short ----- */
+function ppOsShort(v,l){
+  if(!PPE||l.chk)return false;
+  if(!l.card)return true;
+  return Math.max(0,ppAvail(l.pid,v.key))<ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees)-1e-9;}
+function ppOsCandHTML(l,c,ahead){
+  const a=+ahead[c.p.id]||0;
+  return '<div class="pp-os-c" id="pp-os-c-'+c.p.id+'"><div><b>'+esc(c.p.name)+'</b><small>'+esc(c.p.active_ingredient||'no ingredient on the card')+
+    (c.nm?(' · the name says '+esc(l.n)):'')+' · shelf '+ppQty(c.st,c.p.unit)+(a>1e-9?(' · the plan ahead needs '+ppQty(a,c.p.unit)+' of it'):'')+'</small></div>'+
+    '<button id="pp-os-u-'+c.p.id+'" onclick="ppOsUse(\''+ppArg(l.key)+'\','+c.p.id+')">USE THIS</button></div>';}
+function ppOsLineHTML(v,l,i){
+  if(l.chk)return '<div class="pp-os-chk" id="pp-os-chk-'+i+'">'+(l.blank?(esc(l.sub)+' is counted in another unit. Type the dose from the label.')
+    :('The figure comes from '+esc(l.sub)+'. Check the label: the strength may differ.'))+'</div>';
+  if(!ppOsShort(v,l))return '';
+  const c=ppOsFind(l,p=>Math.max(0,ppAvail(p.id,v.key)),p=>!!PPE.lines.find(x=>x.card&&x.pid===p.id));
+  const nSim=c.sim.length+c.more;
+  if(!c.same.length&&!nSim)return '';
+  const open=PPE.os===l.key;
+  let h='<button class="pp-os-b" id="pp-os-b-'+i+'" onclick="ppOsOpen(\''+ppArg(l.key)+'\')">🔁 ON THE SHELF: '+
+    (c.same.length?(c.same.length+' with the same ingredient'):'nothing the same')+(nSim?(' · '+nSim+' similar'):'')+' '+(open?'▴':'▾')+'</button>';
+  if(!open)return h;
+  const ask=PPE.osAsk?prodById(+PPE.osAsk):null;
+  h+='<div class="pp-os-p" id="pp-os-p">';
+  if(ask){
+    const a=Math.max(0,ppAvail(l.pid,v.key));
+    h+='<h5>'+esc(l.n)+' still has '+ppQty(a,l.u)+' on the shelf</h5>'+
+      '<button class="pp-os-two" id="pp-os-fin" onclick="ppOsAnswer(\''+ppArg(l.key)+'\','+ask.id+',\'finish\')">FINISH '+esc(String(l.n).toUpperCase())+' FIRST<small>use the last '+ppQty(a,l.u)+', top up with '+esc(ask.name)+'</small></button>'+
+      '<button class="pp-os-two pp-os-gh" id="pp-os-only" onclick="ppOsAnswer(\''+ppArg(l.key)+'\','+ask.id+',\'only\')">USE ONLY '+esc(String(ask.name).toUpperCase())+'<small>'+esc(l.n)+' stays on the shelf</small></button>'+
+      '<button class="pp-os-x" id="pp-os-askx" onclick="ppOsAskBack()">‹ choose another</button>';
+  }else{
+    const ahead=ppOsNeed(v.key).ahead;
+    h+='<h5>Same ingredient'+(c.text?(' · '+esc(c.text)):'')+'</h5>'+
+      (c.same.length?c.same.map(x=>ppOsCandHTML(l,x,ahead)).join(''):'<div class="pp-os-none">No other store card with stock names this ingredient.</div>');
+    if(nSim)h+='<h5 class="pp-os-sim">Similar — you decide</h5>'+c.sim.map(x=>ppOsCandHTML(l,x,ahead)).join('')+
+      (c.more?('<div class="pp-os-none">and '+c.more+' more. Any product can be put in with ＋ ADD A PRODUCT.</div>'):'');}
+  return h+'</div>';}
+function ppOsLineOf(key){key=ppUnArg(key);return PPE?PPE.lines.findIndex(l=>l.key===key&&!l.chk):-1;}
+function ppOsOpen(key){
+  if(!PPE||PPE.busy)return; ppESync();
+  key=ppUnArg(key); PPE.os=(PPE.os===key?'':key); PPE.osAsk=0; ppRender();}
+function ppOsAskBack(){ if(!PPE)return; ppESync(); PPE.osAsk=0; ppRender(); }
+/** Was the mix changed under the thumb a moment ago? A second tap of a double tap lands on
+ *  whatever now stands where the first one was: an answer nobody read, the ✕ of a line, a
+ *  reason, a lot, the tick or ISSUE (found in review: 4 of 84 double taps changed the reason). */
+function ppOsHeld(){return !!(PPE&&PPE.osAt&&(performance.now()-PPE.osAt)<PP_OS_HOLD);}
+/** The dose at which the planned product uses what its shelf holds and no more: rounded DOWN
+ *  to a figure the dose box can show, so the box never reads back a larger one (found in
+ *  review: 123.45 gm shown as 0.1235 kg came back as 123.5 gm and the set went out 7 gm
+ *  short). 0 = the shelf cannot carry a dose. */
+function ppOsKeep(v,l){
+  if(!l.card)return 0;
+  const a=Math.max(0,ppAvail(l.pid,v.key)), need=ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees);
+  if(!(a>1e-9)||!(need>1e-9)||a>=need-1e-9)return 0;
+  const k=l.q*a/need, kd=ppUnitKind(l.u);
+  /* tablets whole; kg and L cards to 4 places; gm and ml to 2, or to 1 when the box shows kg or L */
+  const st=kd[0]==='t'?1:kd[1]!==1?10000:(kd[0]!=='?'&&k>=1000)?10:100;
+  const keep=Math.floor(k*st+1e-9)/st;
+  return keep>0?keep:0;}
+function ppOsUse(key,pid){
+  if(!PPE||PPE.busy||!ppIsOwner())return; ppESync();
+  const v=ppEBase(), i=ppOsLineOf(key); if(!v||i<0)return;
+  /* asked only when FINISH FIRST can really be done */
+  if(ppOsKeep(v,PPE.lines[i])>0){PPE.osAsk=+pid; PPE.osAt=performance.now(); ppRender(); return;}
+  ppOsApply(key,pid,'only');}
+function ppOsAnswer(key,pid,how){ if(ppOsHeld())return; ppOsApply(key,pid,how); }
+/** Put the store card `pid` into the mix for the line `key`: in its place ('only'), or beside
+ *  it after the planned product is cut down to what the shelf holds ('finish'). */
+function ppOsApply(key,pid,how){
+  if(!PPE||PPE.busy||!ppIsOwner())return; ppESync();
+  const v=ppEBase(), i=ppOsLineOf(key), p=prodById(+pid); if(!v||i<0||!p)return;
+  if(PPE.lines.find(x=>x.card&&x.pid===p.id))return;          // already in the mix: a second tap
+  const l=PPE.lines[i], fits=ppUnitFits(l.u,p.unit);
+  const mk=q=>Object.assign(ppELine({pid:p.id,n:p.name,q:q,u:p.unit,ai:p.active_ingredient||'',card:true,key:'p:'+p.id}),{sub:l.n,chk:true,blank:!(q>0)});
+  /* a carried figure the box can show as it is: one place of a gm or ml once it reads in kg or L */
+  const box=x=>{ if(x.big)x.q=Math.round(x.q*10)/10; x.blank=!(x.q>0); return x; };
+  if(how==='finish'){
+    const keep=ppOsKeep(v,l);
+    /* FINISH FIRST never turns into "take it out": if the shelf cannot carry a dose any more
+       (the tanks or the trees were changed while the question stood), he is told and chooses again */
+    if(!(keep>0)){PPE.osAsk=0; PPE.err='There is too little '+l.n+' left to give a dose. Choose again.'; toast(PPE.err); ppRender(); return;}
+    const rest=+(l.q-keep).toFixed(4);
+    /* a second FINISH on the same product keeps the dose it had before the FIRST cut */
+    if(!(l.q0>0))l.q0=l.q;
+    l.q=keep; l.qCut=keep; l.fin=true; l.big=ppELine(l).big;
+    PPE.lines.splice(i+1,0,box(mk(fits?ppConv(rest,l.u,p.unit):0)));
+  }else PPE.lines.splice(i,1,box(mk(fits?ppConv(l.q,l.u,p.unit):0)));
+  PPE.os=''; PPE.osAsk=0; PPE.okLabel=false; PPE.err=''; PPE.osAt=performance.now();
+  if(!PPE.why){PPE.why=PP_WHY_OLD[0]; PPE.whyAuto=true;}
+  ppRender();}
+/** ✕ on a line (called by ppEDrop before it takes the line out). A stand-in that goes takes
+ *  its traces with it: the planned product it topped up gets its planned dose back, unless
+ *  the Owner has typed another since, and a reason the app set by itself is cleared when no
+ *  stand-in is left. */
+function ppOsDropped(i){
+  const d=PPE.lines[i]; PPE.os=''; PPE.osAsk=0;
+  if(!d||!d.chk)return;
+  const others=PPE.lines.filter((l,k)=>k!==i&&l.chk);
+  /* the planned product gets its dose back when its LAST stand-in goes */
+  if(!others.some(l=>l.sub===d.sub))PPE.lines.forEach(l=>{ if(l.fin&&!l.chk&&l.n===d.sub){
+    if(l.q0>0&&Math.abs(l.q-l.qCut)<1e-9){l.q=l.q0; l.big=ppELine(l).big;}
+    l.fin=false; l.q0=0; l.qCut=0;}});
+  if(PPE.whyAuto&&PPE.why===PP_WHY_OLD[0]&&!others.length){PPE.why=''; PPE.whyAuto=false;}}
+function ppOsOk(c){
+  if(!PPE)return;
+  /* a tap that lands here by accident just after the mix moved is put back */
+  if(ppOsHeld()){const b=$('pp-e-oklabel'); if(b)b.checked=!!PPE.okLabel; return;}
+  PPE.okLabel=!!c; if(c){PPE.err=''; const e=$('pp-e-err'); if(e)e.textContent='';}}
+/** The tick the Owner gives before a set with a stand-in can be issued. */
+function ppOsTickHTML(v,o){
+  const subs=o.lines.filter(l=>l.chk); if(!subs.length)return '';
+  return '<label class="pp-os-tick" id="pp-os-tick"><input type="checkbox" id="pp-e-oklabel"'+(o.okLabel?' checked':'')+' onchange="ppOsOk(this.checked)">'+
+    '<span><b>I checked the label.</b> The dose of '+esc(subs.map(l=>l.n).join(' and '))+' above is the one I want'+(v.basis==='T'?' in the tank':'')+
+    ', and it can be used with the rest of the mix.</span></label>';}
+/** What stops a set with a stand-in from being issued, or ''. */
+function ppOsBlock(o){
+  const subs=o.lines.filter(l=>l.chk); if(!subs.length)return '';
+  const blank=subs.find(l=>!(l.q>0));
+  if(blank)return 'Type the dose of '+blank.n+', or take it out with ✕.';
+  return o.okLabel?'':'Tick "I checked the label" first.';}
+
+/* ----- on the To Buy list: what the shelf holds that the plan does not need ----- */
+function ppOsBuyHTML(r,need){
+  const l=r.nocard?{card:false,pid:0,n:r.name}:{card:true,pid:r.pid,n:r.name};
+  const c=ppOsFind(l,p=>ppShelf(p.id)-(+need.all[p.id]||0));
+  const list=c.same.map(x=>[x,'same ingredient']).concat(c.sim.map(x=>[x,'similar']));
+  if(!list.length)return '';
+  const show=list.slice(0,PP_OS_BUY), more=list.length-show.length+c.more;
+  return '<small class="pp-os-buy" id="pp-os-buy-'+ppCss(r.key)+'">🔁 '+
+    show.map(y=>'<b>'+esc(y[0].p.name)+'</b> '+ppQty(y[0].st,y[0].p.unit)+' ('+y[1]+')').join(' · ')+(more>0?(' · +'+more+' more'):'')+'</small>';}
+/** One line above the rows, shown only when a row carries the mark. */
+function ppOsBuyNote(){return '<div class="pp-os-key" id="pp-os-key">🔁 = on the shelf and not needed by the plan in the next '+PP_BUY_DAYS+' days: a product with the same or a similar ingredient. To use it, open the set and tap ON THE SHELF.</div>';}
+/* ====================== end of v3.80.0 · use the old stock first ====================== */
+
 function ppEBase(){return (PPE&&PPE.base)||ppFind(PPO.key);}
 function ppELine(l){const k=ppUnitKind(l.u);
   return Object.assign({},l,{big:(k[0]==='w'||k[0]==='v')&&k[1]===1&&l.q>=1000});}
@@ -8276,7 +8504,11 @@ function ppESync(){
   const t=$('pp-e-tanks'); if(t)PPE.tanks=Math.max(0,+t.value||0);
   const tr2=$('pp-e-trees'); if(tr2&&!tr2.disabled)PPE.trees=Math.max(0,Math.round(+tr2.value||0));
   PPE.lines.forEach((l,i)=>{const el=$('pp-e-q-'+i); if(!el)return;
-    const val=Math.max(0,+el.value||0); l.q=l.big?val*1000:val;});}
+    /* v3.80.0 - 14.9691 kg read back is 14969.1 gm, not 14969.099999999999 */
+    const val=Math.max(0,+el.value||0), nq=l.big?+(val*1000).toFixed(4):val;
+    /* v3.80.0 - a stand-in's dose typed again after the tick is a dose he has not confirmed */
+    if(l.chk&&Math.abs(nq-l.q)>1e-9)PPE.okLabel=false;
+    l.q=nq;});}
 /* ⛔ TYPING NEVER REDRAWS THE FORM. A redraw replaces the box the thumb is in: the keyboard
    closes, and a tap that lands while the redraw is under way is lost (the v3.9.1 focus bug).
    So a keystroke re-reads the fields and repaints only the figures that depend on them - the
@@ -8287,13 +8519,14 @@ function ppELive(){
   const v=ppEBase(); if(!v)return;
   const put=(id,h)=>{const e=$(id); if(e)e.innerHTML=h;};
   put('pp-e-ttl',ppETitle(v));
-  PPE.lines.forEach((l,i)=>{put('pp-e-u-'+i,ppELineU(v,l));put('pp-e-chip-'+i,ppELineChip(v,l));});
+  PPE.lines.forEach((l,i)=>{put('pp-e-u-'+i,ppELineU(v,l));put('pp-e-chip-'+i,ppELineChip(v,l));
+    put('pp-e-os-'+i,ppOsLineHTML(v,l,i));});   // v3.80.0 - buttons and a note, never the box he is typing in
   put('pp-e-live',ppELiveHTML(v));}
-function ppELot(k){ppESync();const i=PPE.lots.indexOf(k);
+function ppELot(k){if(ppOsHeld())return;ppESync();const i=PPE.lots.indexOf(k);
   if(i>=0){if(PPE.lots.length>1)PPE.lots.splice(i,1);}else PPE.lots.push(k);
   PPE.lots.sort();PPE.trees=ppTreesFor(ppEBase().basis,PPE.lots);ppRender();}
-function ppEDrop(i){ppESync();PPE.lines.splice(i,1);ppRender();}
-function ppEAdd(){ppESync();PPE.adding=true;ppRender();}
+function ppEDrop(i){if(ppOsHeld())return;ppESync();ppOsDropped(i);PPE.lines.splice(i,1);ppRender();}   // v3.80.0
+function ppEAdd(){ppESync();PPE.adding=true;PPE.os='';PPE.osAsk=0;ppRender();}   // v3.80.0 - one thing open at a time
 function ppEAddOk(){
   const pid=+(($('pp-e-new')||{}).value||0), v=ppEBase();
   ppESync();
@@ -8307,7 +8540,7 @@ function ppEAddOk(){
     PPE.lines.push(ppELine({pid:p.id,n:p.name,q:(k[0]==='t'||k[0]==='?')?base:+(base/k[1]).toFixed(4),u:p.unit,
       ai:p.active_ingredient||'',card:true,key:'p:'+p.id}));}
   ppRender();}
-function ppEWhy(k){ppESync();PPE.why=k;ppRender();}
+function ppEWhy(k){if(ppOsHeld())return;ppESync();PPE.why=k;PPE.whyAuto=false;ppRender();}   // v3.80.0 - his own choice is never cleared
 function ppEBack(){ if(PPE&&PPE.base){PPE=null;ppBack();return;} PPE=null;ppToDetail();}
 function ppRainLine(){
   if(typeof rainDay!=='function')return '';
@@ -8323,15 +8556,18 @@ function ppELineChip(v,l){return ppChip(v,l,ppReq(v.basis,l,PPE.tanks,PPE.lots,P
 function ppELineU(v,l){
   const kd=ppUnitKind(l.u), ulab=kd[0]==='t'?'tablets':l.big?(kd[0]==='w'?'kg':'L'):l.u;
   return esc(ulab)+' '+ppBasisTxt(v.basis)+'<br>needs <b>'+ppQty(ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),l.u)+'</b>'+
-    (l.card?(' · shelf '+ppQty(Math.max(0,ppAvail(l.pid,v.key)),l.u)):'');}
+    (l.card?(' · shelf '+ppQty(Math.max(0,ppAvail(l.pid,v.key)),l.u)):'')+
+    /* v3.80.0 - the planned product cut down to what its shelf holds */
+    ((l.fin&&l.card&&(a=>a>1e-9&&ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees)>=a*0.98)(Math.max(0,ppAvail(l.pid,v.key))))?' · <b>finishes it</b>':'');}
 function ppELiveHTML(v){
   const o=PPE, ch=ppChanges(v,o), need=ch.length||(v.extra&&!v.rec);
   let h=ppBuyBox(v,o,true);
   if(need){
     h+=(ch.length?('<div class="pp-chg"><b>Different from the plan</b><ul>'+ch.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul></div>')
                  :'<div class="pp-chg"><b>A set that is not on the plan</b>Say why it is needed.</div>')+
-      '<div class="pp-q">Why? <span class="pp-g">(kept on the record)</span></div><div class="pp-opts">'+PP_WHY.map(w=>
+      '<div class="pp-q">Why? <span class="pp-g">(kept on the record)</span></div><div class="pp-opts">'+ppWhyEd().map(w=>
         '<button class="pp-opt'+(o.why===w[0]?' sel':'')+'" id="pp-e-why-'+w[0]+'" onclick="ppEWhy(\''+w[0]+'\')">'+w[1]+'</button>').join('')+'</div>';}
+  h+=ppOsTickHTML(v,o);   // v3.80.0
   if(SHOW_VALUES)h+='<div class="pp-g" style="margin-top:10px">Material about '+rm(ppCost(v.basis,o.lines,o.tanks,o.lots,o.trees))+'.</div>';
   return h;}
 function ppEditHTML(){
@@ -8348,10 +8584,11 @@ function ppEditHTML(){
   h+='<div class="pp-q">The mix — '+ppBasisTxt(v.basis)+'</div>';
   o.lines.forEach((l,i)=>{
     const isNew=!v.extra&&!v.planLines.find(p=>p.key===l.key);
-    h+='<div class="pp-ln'+(isNew?' added':'')+'" id="pp-e-ln-'+i+'"><div class="a"><b>'+esc(l.n)+(isNew?' <span class="pp-pill new">ADDED</span>':'')+'</b><span id="pp-e-chip-'+i+'">'+ppELineChip(v,l)+'</span></div>'+
-      '<div class="b"><input type="number" id="pp-e-q-'+i+'" inputmode="decimal" step="any" min="0" value="'+(l.big?+(l.q/1000).toFixed(4):l.q)+'" oninput="ppELive()">'+
+    h+='<div class="pp-ln'+(isNew?' added':'')+'" id="pp-e-ln-'+i+'"><div class="a"><b>'+esc(l.n)+(l.sub?(' <span class="pp-pill new">IN PLACE OF '+esc(String(l.sub).toUpperCase())+'</span>'):isNew?' <span class="pp-pill new">ADDED</span>':'')+'</b><span id="pp-e-chip-'+i+'">'+ppELineChip(v,l)+'</span></div>'+
+      '<div class="b"><input type="number" id="pp-e-q-'+i+'"'+(l.chk?' class="pp-os-in" placeholder="dose"':'')+' inputmode="decimal" step="any" min="0" value="'+((l.chk&&!(l.q>0))?'':(l.big?+(l.q/1000).toFixed(4):l.q))+'" oninput="ppELive()">'+
       '<div class="u" id="pp-e-u-'+i+'">'+ppELineU(v,l)+'</div>'+
-      '<button class="x" id="pp-e-x-'+i+'" onclick="ppEDrop('+i+')" title="take out">✕</button></div></div>';});
+      '<button class="x" id="pp-e-x-'+i+'" onclick="ppEDrop('+i+')" title="take out">✕</button></div>'+
+      '<div id="pp-e-os-'+i+'">'+ppOsLineHTML(v,l,i)+'</div></div>';});   // v3.80.0 - what the shelf holds for a product that is short
   if(o.adding){
     const opts=activeProducts().filter(p=>String(p.cat||'')!=='Consumable'&&!o.lines.find(l=>l.card&&l.pid===p.id))
       .sort((a,b)=>String(a.name).localeCompare(String(b.name)))
@@ -8365,10 +8602,14 @@ function ppEditHTML(){
   return h;}
 async function ppEGo(){
   if(!PPE||PPE.busy||!ppIsOwner())return;
+  if(ppOsHeld())return;   // v3.80.0 - not on the second half of a double tap
   ppESync();
   const v=ppEBase(); if(!v)return;
   if(ppStale(v.rec)){PPE=null;PPO.s='detail';ppRender();return;}
   const fail=m=>{PPE.err=m;ppRender();};
+  /* v3.80.0 - a stand-in with no dose is NOT dropped in silence like an emptied line, and
+     the set does not go out before the Owner has said he checked the label */
+  const osb=ppOsBlock(PPE); if(osb)return fail(osb);
   PPE.lines=PPE.lines.filter(l=>l.q>0);
   if(!PPE.lines.length)return fail('A set needs at least one product.');
   if(!ppOkDay(PPE.date))return fail('Pick the day.');

@@ -2679,6 +2679,27 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pp-it:first-of-type{border-top:0}
 .pp-it small{display:block;color:var(--muted);font-size:12px}
 .pp-it button{border:2px solid #c62828;background:#fff;color:#c62828 !important;font-weight:800;border-radius:9px;padding:6px 10px;font-size:12px;white-space:nowrap}
+/* v3.80.0 - use the old stock first */
+.pp-os-b{display:block;width:100%;margin-top:8px;border:1.5px dashed #1f5f8b;background:#f1f7fb;color:#1f5f8b !important;border-radius:10px;padding:10px;min-height:44px;font-weight:800;font-size:13px;text-align:left;line-height:1.25}
+.pp-os-p{border:1.5px solid #1f5f8b;background:#f6fafd;border-radius:10px;padding:9px;margin-top:6px}
+.pp-os-p h5{margin:0 0 6px;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:#1f5f8b;line-height:1.3}
+.pp-os-p h5.pp-os-sim{color:#b26a00;margin-top:10px}
+.pp-os-c{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;background:#fff;border:1px solid #dfe5dd;border-radius:10px;padding:8px 9px;margin-bottom:5px}
+.pp-os-c b{display:block;font-size:14px;line-height:1.2;overflow-wrap:break-word}
+.pp-os-c small{display:block;font-size:12px;color:var(--muted);line-height:1.3;overflow-wrap:break-word}
+.pp-os-c button{border:0;background:#1f5f8b;color:#fff !important;border-radius:9px;padding:9px 11px;min-height:44px;font-weight:800;font-size:12.5px;white-space:nowrap}
+.pp-os-two{display:block;width:100%;border:0;background:#1f5f8b;color:#fff !important;border-radius:10px;padding:10px 11px;min-height:48px;font-weight:800;font-size:13px;text-align:left;margin-top:6px;line-height:1.25}
+.pp-os-two.pp-os-gh{background:#fff;color:#1f5f8b !important;border:1.5px solid #1f5f8b}
+.pp-os-two small{display:block;font-weight:500;font-size:12px;opacity:.92}
+.pp-os-x{display:block;border:0;background:transparent;color:#1f5f8b !important;font-weight:700;font-size:13px;padding:10px 2px 2px;min-height:40px}
+.pp-os-none{font-size:13px;color:var(--muted);padding:1px 2px 4px}
+.pp-os-chk{font-size:12.5px;color:#b26a00;margin-top:5px;line-height:1.3}
+.pp-ln .b input.pp-os-in{border-color:#b26a00;background:#fffaf0}
+.pp-os-tick{display:flex;gap:10px;align-items:flex-start;border:1.5px solid #b26a00;background:#fffaf0;border-radius:10px;padding:10px 11px;margin:10px 0 0;font-size:13.5px;line-height:1.35;color:var(--ink);text-transform:none;letter-spacing:0;cursor:pointer}
+.pp-os-tick input{width:22px;height:22px;min-height:0;padding:0;margin:1px 0 0;flex:none}
+.pp-os-tick span{flex:1;min-width:0}
+.pp-os-buy{display:block;margin-top:3px;color:#1f5f8b !important;font-size:12px;line-height:1.3}
+.pp-os-key{font-size:12px;line-height:1.3;color:#1f5f8b;margin:4px 0 2px}
 .pp-short{color:#c62828;font-weight:800}
 .pp-scroll{overflow-x:auto;border:1px solid #dfe5dd;border-radius:10px;background:#fff;margin:8px 0}
 .pp-t{border-collapse:collapse;font-size:13px;width:100%;min-width:300px}
@@ -4451,7 +4472,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.79.1"></script>
-<script src="app.js?v=3.79.1"></script>
+<script src="database.js?v=3.80.0"></script>
+<script src="app.js?v=3.80.0"></script>
 </body>
 </html>
