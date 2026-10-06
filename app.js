@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.81.0';   // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.82.0';   // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -774,10 +774,16 @@ async function setLang(l){
   renderHub();
   /* v3.79.0 — re-entering the tile resets it to its first screen; a tree walk that is open,
      with what is tapped on it, comes back in the new language (found in review) */
-  const tcKeep=(typeof TCW!=='undefined'&&TCW&&TCW.on&&(curModule==='prog'||curModule==='tsv'))?TCW:null;
+  const tcKeep=(typeof TCW!=='undefined'&&TCW&&TCW.on&&((typeof ppHere==='function'?ppHere():curModule==='prog')||curModule==='tsv'))?TCW:null;
+  /* v3.82.0 — and so does a job screen: the card, a report half keyed, the reason for an undo, the Owner's forms */
+  let pjKeep=null;
+  if(typeof PJC!=='undefined'&&typeof ppHere==='function'&&ppHere()&&(PJC.s||PJO.s||PJC.undo)){
+    try{pjCSync();pjCUndoSync();pjISync();pjRSync();pjPaySync();}catch(e){}
+    pjKeep={c:Object.assign({},PJC),o:Object.assign({},PJO),v:PPO.v,pg:PPO.pg,mix:PPO.mix};}
   if(curModule&&inMenu)openMenu(curModule);
   else if(curModule&&curTab)openModule(curModule,curTab);
   if(tcKeep&&typeof tcPaint==='function'){TCW=tcKeep;tcPaint();}
+  else if(pjKeep&&typeof ppHere==='function'&&ppHere()){PJC=pjKeep.c;PJO=pjKeep.o;PPO.v=pjKeep.v;PPO.pg=pjKeep.pg;PPO.mix=pjKeep.mix;ppRender();}
 }
 function renderLangChip(){
   const el=$('langchip'); if(!el)return;
@@ -885,7 +891,7 @@ const MODULES={
     tabs:[{k:'scale',t:'MORNING SCALE',scr:'dash',panels:['scalecard'],
            roles:['OWNER','MARKETING','WORKER'],ic:'⚖️',tn:'s_scale',
            d:'Weigh the baskets and photograph the scale display'}]},
-  ops:{ic:'📋',name:'Daily Ops',sub:'tasks, stock out',tn:'m_ops',
+  ops:{ic:'📋',name:'Work',sub:'sets, jobs, tree checks, stock out',tn:'m_ops',   // v3.82.0 — the crew's one tile for work; nobody else holds it
     /* v3.56.0 — 'opshistory' DROPPED FROM THIS TAB. The card said "Completion replies sent
        from this phone" and did neither thing it claimed: it listed only work filed against a
        programme job — of the 452 stock-out rows in this farm's ledger, ZERO qualify — and it
@@ -893,7 +899,10 @@ const MODULES={
        answers the question it was pretending to. ⛔ The card and renderOpsHistory() stay in
        the build, unrouted, exactly as #invcc did in v3.48.0: removing a route is reversible,
        deleting a renderer with live callers is not. */
-    tabs:[{k:'tasks',t:"TODAY'S TASKS",scr:'dash',panels:['opstasks','opsgeneral'],ic:'📋',tn:'s_tasks',d:'The jobs assigned to you, with one-tap completion'},
+    /* v3.82.0 — THE FIRST SECTION IS THE PROGRAMME SCREEN ITSELF (#progcard), drawn for the crew:
+       every set, job and tree check on one list. 'opstasks' and 'opsgeneral' (the old phase
+       cards and the general-task box) are no longer routed; nothing they wrote is erased. */
+    tabs:[{k:'tasks',t:"WORK",scr:'dash',panels:['progcard'],roles:['WORKER'],ic:'📋',tn:'s_tasks',d:'Every set, job and tree check the Owner has issued'},
           /* v3.48.0 — ⛔ THE CREW'S DOOR, AND ONLY THE CREW'S. A fault I shipped in v3.47.0
              and found while answering the Owner's "any technical impact?": making ISSUE a
              segment on the store bar handed OWNER and MARKETING a SECOND route to this exact
@@ -912,8 +921,10 @@ const MODULES={
              from Review & Credit, and a second door for one person is exactly the
              duplicate-route problem this release is closing everywhere else. The panel's
              own gate lets a worker ASK; focDecide() still refuses to let him answer. */
-          {k:'foc',   t:'ASK FOR FRUIT',scr:'dash',panels:['foccard'],roles:['WORKER'],ic:'🎁',d:'Ask the Gate for a ration, and see what was decided'},
-          {k:'assign',t:'ASSIGN WORK', scr:'dash',panels:['opsassign'],roles:FULL_ROLES,ic:'👷',d:'Give the crew their jobs'},
+          {k:'foc',   t:'ASK FOR FRUIT',scr:'dash',panels:['foccard'],roles:['WORKER'],ic:'🎁',tn:'s_focask',d:'Ask the Gate for a ration, and see what was decided'},
+          /* v3.82.0 — 'assign' (ASSIGN WORK) RETIRED. One task was given through it all season and its
+             report form stopped halfway on save. A job is issued in The Programme now. The route is
+             gone; #opsassign, renderAssign() and the TASKS tab stay, unrouted. */
           /* v3.39.0 — 'scale' RETIRED FROM DAILY OPS. It was here because Owner and
              Marketing had no Scale tile of their own; R2 gave them one (they weigh their
              own loads now and confirm in one step), so this became the identical panel
@@ -1319,7 +1330,7 @@ const MODULES={
 // that he alone now covers the Sandakan desk when the Purchaser is offline.
 // ======================================================================================
 const HUB_ORDER={
-  OWNER:    ['cmd','harvest','tying','scale','inv','prog','tsv','agro','ops','mkt','reports','admin'],   // v3.79.0 — + 'tsv', the tree survey
+  OWNER:    ['cmd','harvest','tying','scale','inv','prog','tsv','agro','mkt','reports','admin'],   // v3.79.0 — + 'tsv', the tree survey · v3.82.0 — 'ops' gone: its two doors (the issued sets, ASSIGN WORK) are The Programme now
   /* v3.30.0 — 'admin' REMOVED. It had become a DEAD TILE: v3.27.1 closed STAFF to the
      Marketer and that was the last section her Admin tile held, so tapping it ran
      openModule() -> tabs.length===0 -> goHome() and bounced her back with no message.
@@ -1343,7 +1354,7 @@ const HUB_ORDER={
      THE STORE ▸ MY MONTH, which shows everything rather than only his own. */
   /* v3.75.0 — THE SEVENTH TILE: 'rain'. Added LAST so the six tiles the crew already know
      stay exactly where their thumbs expect them. */
-  WORKER:   ['harvest','tying','scale','ops','prog','mine','rain'],   // + Morning Scale as its own tile
+  WORKER:   ['harvest','tying','scale','ops','mine','rain'],   // + Morning Scale as its own tile · v3.82.0 — 'prog' gone: its list is the first section of 'ops' (KERJA). Six tiles fill the two columns.
   PURCHASER:['inv','prog']                       // the store, and the programme he buys for
 };
 /* v3.24 — the panels behind the sections MARKETING no longer holds. This is the SECOND
@@ -1658,7 +1669,7 @@ function tileBadge(k){
   if(k==='cmd'){
     const v=(typeof varianceAlerts==='function')?varianceAlerts().length:0;
     if(v)return {t:v+' '+tr('bg_variance')};
-    const od=(typeof ppOverdue==='function')?ppOverdue().length:0;   // v3.77.0 — issued sets past their day
+    const od=((typeof ppOverdue==='function')?ppOverdue().length:0)+((typeof pjOverdue==='function')?pjOverdue().length:0);   // v3.77.0 — issued sets past their day · v3.82.0 — and jobs
     if(od)return {t:od+' '+tr('bg_over','OVERDUE')};
     const cr=(typeof creditAdvice==='function')?creditAdvice().filter(c=>c.raise).length:0;
     if(cr)return {t:cr+' '+tr('bg_credit'),amber:1};
@@ -1689,10 +1700,11 @@ function tileBadge(k){
     return mine?{t:mine+' '+tr('sc_pending'),amber:1}:null;}
   if(k==='prog')return (typeof ppTileBadge==='function')?ppTileBadge():null;   // v3.76.0
   if(k==='ops'){
+    if(myRole()==='WORKER'&&typeof ppTileBadge==='function')return ppTileBadge();   // v3.82.0 — the one list behind the tile is what it counts
     // v3.12 — a directive waiting on a brand still counts as work the crew is carrying.
     // It is the thing they need to see, and hiding it is what made them ring the office.
     const n=myTasks().length+myGeneralTasks().length+
-      ((typeof ppCrewDue==='function'&&ppOn()&&hubTiles().indexOf('prog')>=0)?ppCrewDue().length:0)+   // v3.76.0
+      ((typeof ppCrewDue==='function'&&ppOn()&&hubTiles().indexOf(ppHome())>=0)?ppCrewDue().length:0)+   // v3.76.0
       ((typeof myDirectives==='function')?myDirectives().length:0);
     return n?{t:n+' '+tr('bg_tasks')}:null;}
   if(k==='agro')return (typeof wtTileBadge==='function')?wtTileBadge():null;   // v3.78.0 — a dry spell that has reached the day he asked to be told
@@ -1884,8 +1896,9 @@ function hubBack(){
     /* v3.79.0 — INSIDE A TREE WALK, BACK IS ONE STEP BACK: tree -> lots -> the list. The same
        lesson as the scale road (v3.37.3): a man 40 trees into a lot must not be thrown out
        to the tiles by the only back control the phone has. */
-    if((curModule==='prog'||curModule==='tsv')&&!inMenu&&typeof tcBack==='function'&&tcBack())return;
-    if(curModule&&!inMenu&&tabsFor(curModule).length>1){openMenu(curModule);return;}
+    if(((typeof ppHere==='function'?ppHere():curModule==='prog')||curModule==='tsv')&&!inMenu&&typeof tcBack==='function'&&tcBack())return;
+    if((typeof ppHere==='function')&&ppHere()&&!inMenu&&typeof pjBackStep==='function'&&pjBackStep())return;   // v3.82.0 — on a job screen ← is one step back, not out to the tiles
+    if(curModule&&!inMenu&&tabsFor(curModule).length>1&&!(typeof pjDirect==='function'&&pjDirect(curModule))){openMenu(curModule);return;}   // v3.82.0 — KERJA has no menu: ← goes home
     goHome();}}
 /* ======================================================================================
    v3.7 · STRICT BIG TILE ROUTING
@@ -1905,7 +1918,11 @@ function hubBack(){
 let inMenu=false;
 
 function openModule(k,tabKey){
+  if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}   // v3.82.0 — the same door goHome() has had since v2.5.1: no key, no screen
   k=MODULE_ALIAS[k]||k;
+  /* v3.82.0 — the crew's Program tile is gone: every old route to it lands on KERJA's list,
+     and KERJA opens on that list, not on a menu */
+  if(myRole()==='WORKER'){ if(k==='prog'){k='ops';tabKey='tasks';} else if(k==='ops'&&!tabKey)tabKey='tasks'; }
   const m=MODULES[k];
   if(!m||hubTiles().indexOf(k)<0){goHome();return;}
   const tabs=tabsFor(k);
@@ -1948,6 +1965,7 @@ function openModule(k,tabKey){
   // levels down can still see where they are.
   $('ttl').textContent=tabs.length>1?tabLabel(tab):moduleLabel(m);
   const sb=$('subbar'); sb.classList.add('hidden'); sb.innerHTML='';   // retired in v3.7
+  if(typeof pjStrip==='function')pjStrip(k,tab.k);                     // v3.82.0 — back for ONE tile: the crew's KERJA · AMBIL BAHAN · MOHON BUAH
   renderForTab(k,tab.k);
   $('scr-'+tab.scr).scrollTop=0;}
 
@@ -2009,7 +2027,7 @@ function renderForTab(k,t){
   if(k==='harvest'&&t==='today')renderDash();
   if(k==='tying'&&t==='tally')renderTally();
   if(k==='tying'&&t==='bal')renderTying();
-  if(k==='ops'&&t==='tasks'){renderOpsTasks();renderGeneralTasks();renderOpsHistory();}
+  if(k==='ops'&&t==='tasks'){if(typeof cxClose==='function')cxClose();ppOpen();}   // v3.82.0 — the crew's list of sets, jobs and tree checks; always the list, never a half-filled form
   if(k==='ops'&&t==='scale')renderScaleCard();
   if(k==='ops'&&t==='out'){renderOutOpts();renderStock();}
   if(k==='ops'&&t==='assign')renderAssign();
@@ -2314,6 +2332,11 @@ function showLogin(){
   $('nav-home').style.display='none';$('nav-sync').style.display='none';
   $('backbtn').classList.add('hidden');$('ttl').textContent='Sugut DMS';
   $('scr-setup').classList.add('hidden');$('scr-login').classList.remove('hidden');$('ttl').textContent='Login';buildKeypad();
+  /* v3.82.0 — FOUND IN REVIEW. The login pad covered the screens but left the place the last person stood: the crew's
+     new strip stayed tappable above the pad, and (since long before this release) the BM / EN chip re-opened the last
+     screen with nobody logged in. A phone at the pad is nowhere: no module, no strip. openModule() refuses as well. */
+  curModule=null;curTab=null;inMenu=false;{const sb0=$('subbar');if(sb0){sb0.classList.add('hidden');sb0.innerHTML='';}}
+  {const pc0=$('progcard');if(pc0)pc0.innerHTML='';}   // and the last person's work list is not left drawn under the pad
   // v3.17.1 — try to fetch the staff list the moment this screen opens, so the common
   // case (phone pushed out because the Owner changed a key, new key waiting in the
   // Sheet) needs no button press at all. Fire and forget: it must never delay the pad.
@@ -4509,7 +4532,8 @@ function mineIsMine(e){
  *  pickId, roundId, reportId, replyId — so the grouping is the app's own, not invented here.
  *  ROTTEN has none, so it falls back to the minute it was keyed. */
 function mineKey(e){
-  return String(e.pickId||e.roundId||e.reportId||e.replyId||
+  /* v3.82.0 — a job report is one row per lot under one reply id, and the id rides in `detail`: the only place the Sheet keeps it */
+  return String((e.detail&&!Array.isArray(e.detail)&&e.detail.rid)||e.pickId||e.roundId||e.reportId||e.replyId||
                 (e.type+'|'+(e.lot||'')+'|'+String(e.dt||'').slice(0,16)));}
 function mineDayRows(iso){
   if(typeof EVENTS==='undefined')return [];
@@ -4579,6 +4603,8 @@ function mineLine(g){
               s:esc(e.reasonLabel||'')};
     case 'TASK_DONE':
       if(e.kind==='WATER')return {w:'💧 '+(isMs()?'Siram':'Watering')+lot, s:trees};   // v3.78.0
+      if(String(e.kind||'').indexOf('UNDO')===0)return {w:'↩ '+(isMs()?'Laporan dibatalkan':'Report undone'), s:(typeof pjUndoMineS==='function')?pjUndoMineS(e):esc(String(e.kindLabel||'').replace(/^Undone: /,''))};   // v3.82.0
+      if(typeof pjMineW==='function'){const mw=pjMineW(e,g); if(mw)return mw;}   // v3.82.0 - a job or other work, in the crew's language
       return {w:esc(e.kindLabel||tr('my_k_job','job done'))+lot, s:trees};
     default:{  // STOCK_OUT
       const names=[];g.rows.forEach(x=>{if(x.pname&&names.indexOf(x.pname)<0)names.push(x.pname);});
@@ -5390,6 +5416,7 @@ function renderSync(){
     else if(e.type==='STOCK_IN') d='📦← '+e.qty+' '+esc(e.unit||'')+' '+esc(e.pname||'')+(e.ref?(' · '+esc(e.ref)):'');
     else if(e.type==='STOCK_ADJUST') d='🧾 stock-take '+((e.delta||0)<0?'':'+')+e.delta+' '+e.unit+' '+e.pname;
     else if(e.type==='TASK_DONE'&&e.kind==='WATER') d='💧 '+(isMs()?'Siram':'Watering')+' · Lot '+esc(e.lot||'')+(e.count?(' · '+nf(e.count)+' L '+(isMs()?'sepokok':'per tree')):'');   // v3.78.0
+    else if(e.type==='TASK_DONE'&&String(e.kind||'').indexOf('UNDO')===0) d='↩ '+esc(e.kindLabel||'report undone');   // v3.82.0
     else if(e.type==='TASK_DONE') d='🛠️ '+esc(e.kindLabel||e.kind||'task')+' · Lot '+esc(e.lot||'')+
       (e.count?(' · '+e.count+' '+esc(e.countLabel||'items')):'')+' · '+nf(mhOf(e))+' man-h';
     // v3.5.1 — this used to end `else d=e.type`, which threw away describeEvent()'s wording
@@ -7084,7 +7111,7 @@ async function pushPrograms(){
        fixed first, with the previous attempt in it; then THIS attempt is noted and stored
        before anything goes on the air. */
     const body=JSON.stringify({programs:batch});
-    for(const s of sent){ if((typeof ppIsIss==='function')&&ppIsIss(s.p)){s.p.tried={rev:s.rev,at:s.at}; if(db)await put('programs',s.p);} }
+    for(const s of sent){ if((typeof ppRevRec==='function')&&ppRevRec(s.p)){s.p.tried={rev:s.rev,at:s.at}; if(db)await put('programs',s.p);} }
     const r=await fetch(CFG.url,{method:'POST',body:body,
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
@@ -7092,7 +7119,7 @@ async function pushPrograms(){
       const signed=(j.issued===true), refused=Array.isArray(j.refused)?j.refused.map(String):[];
       let held=0; const lost=[];
       for(const s of sent){
-        const p=s.p, iss=(typeof ppIsIss==='function')&&ppIsIss(p);
+        const p=s.p, iss=(typeof ppRevRec==='function')&&ppRevRec(p);   // v3.82.0 — a job and the worker list ride the same compare-and-swap as an issued set
         if(iss&&!signed){held++;continue;}
         if(refused.indexOf(String(p.uuid))>=0){
           /* the Sheet holds a change this copy was not built on: whatever was done here since
@@ -7130,7 +7157,7 @@ async function mergePrograms(rows){
       trees:+raw.trees||0,litresPerTree:+raw.litresPerTree||0,tanks:+raw.tanks||0,
       lines:lines,projCost:+raw.projCost||0,by:String(raw.by||''),byId:String(raw.byId||''),
       at:String(raw.at||''),status:String(raw.status||'ACTIVE').toUpperCase(),synced:true};
-    const iss=!!(x&&x.iss);
+    const iss=!!(x&&(x.iss||x.job||x.cfg));   // v3.82.0 — a job (x.job) and the worker list (x.cfg) keep their x and their rev too
     if(iss){sp.x=x; sp.rev=+raw.rev||0; sp.plan=String(raw.plan||'').slice(0,10);}
     const lc=PROGRAMS.find(x=>x.uuid===u);
     if(!lc){PROGRAMS.push(sp);if(db)await put('programs',sp);changed=true;
@@ -7311,7 +7338,9 @@ function ppX(p){ if(!p)return null; let x=p.x;
 function ppIsIss(p){const x=ppX(p);return !!(x&&x.iss);}
 /** Every issued set this season. VOID = a skipped planned round the Owner put back. */
 function ppRecs(){return (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).filter(p=>p&&ppIsIss(p)&&String(p.status)!=='VOID');}
-function ppTouch(){PP_CACHE=null;PP_SHELF=null;PP_OPEN=null;}
+function ppTouch(){PP_CACHE=null;PP_SHELF=null;PP_OPEN=null;if(typeof pjTouch==='function')pjTouch();}
+/** v3.82.0 — a PROGRAMS record that carries a rev and keeps its x: an issued set, a job, the worker list. */
+function ppRevRec(p){const x=ppX(p);return !!(x&&(x.iss||x.job||x.cfg));}
 function ppShelf(pid){
   if(!PP_SHELF){PP_SHELF={};Promise.resolve().then(()=>{PP_SHELF=null;});}
   if(PP_SHELF[pid]===undefined){const p=prodById(pid);PP_SHELF[pid]=p?Math.max(0,onHand(p)):0;}
@@ -7808,7 +7837,7 @@ function ppBuyStoreHTML(idp,more_){
       '<button class="pp-ghost" id="pp-st-more-go" style="margin-top:8px" onclick="ppGoBuy()">THE PROGRAMME ▸ TO BUY ›</button></div>';}
   return '<div class="pp" style="margin-bottom:10px"><div class="pp-mon" style="margin-top:0">📅 '+
     ppT('Programme ','Program ')+esc((typeof PP_SEASON!=='undefined')?PP_SEASON:'')+' · '+n+'</div>'+ppPurHTML(idp||'pp-st-')+more+'</div>';}
-function ppGoBuy(){openModule('prog');ppTab('buy');}
+function ppGoBuy(){openModule('prog');ppTab('buy');}   // the Owner's door only
 function ppBuyStoreRender(){
   const box=$('ppbuystore'); if(!box)return;
   if(!roleAllows('procurecard')){box.innerHTML='';return;}
@@ -7851,12 +7880,16 @@ let PPE=null, PPM=null, PPR=null, PPA=null;   // the editor, move/skip, record-a
 let PPC={s:'list',key:''}, PPCD=null, PPCN=null;   // the crew's screen and its two forms
 function ppTabs(){return ppIsOwner()?['month','buy','rec']:['coming','done'];}
 function ppInForm(){return ['edit','move','skip','rec','add'].indexOf(PPO.s)>=0||['done','not'].indexOf(PPC.s)>=0||
+  (typeof PJC!=='undefined'&&(['form','not'].indexOf(PJC.s)>=0||!!PJC.undo))||                       // v3.82.0 — a job report, a not-done, an undo reason
+  (typeof PJO!=='undefined'&&['issue','add','rec','move','skip','pay'].indexOf(PJO.s)>=0)||
+  /^pj-(day|w-new)$/.test((document.activeElement&&document.activeElement.id)||'')||                 // the day rate or a name being typed
   (typeof tcCrewOn==='function'&&tcCrewOn());}   // v3.79.0 — a tree being keyed is a form too
 function ppTop(){const s=$('scr-dash'); if(s)s.scrollTop=0;}
 /** Entering the tile: always the first tab and the list, never a half-filled form. */
 function ppOpen(){
   PPO={v:ppTabs()[0],s:'list',key:'',pg:null,mix:true,year:false,need:false}; PPE=PPM=PPR=PPA=null;
   PPC={s:'list',key:''}; PPCD=PPCN=null;
+  if(typeof pjCReset==='function'){pjCReset();pjOReset();PJO.base=null;PJO.rtab='day';PJO.rmon='';}   // v3.82.0
   if(typeof tcW0==='function')TCW=tcW0();   // v3.79.0 — and never a tree walk left open by the last person
   ppRender();}
 function ppRender(){
@@ -7877,15 +7910,15 @@ function ppRender(){
 /** Something changed (a sync, a save on another screen). A form in progress keeps its typing. */
 function ppRefresh(force){
   ppTouch();
-  try{ if(typeof curModule!=='undefined'&&curModule==='prog'&&(force||!ppInForm()))ppRender(); }catch(e){}
+  try{ if(ppHere()&&(force||!ppInForm()))ppRender(); }catch(e){}
   try{ ppBuyStoreRender(); }catch(e){}}
 function ppAfter(){
   ppTouch(); ppRender(); ppTop();
   try{ ppBuyStoreRender(); if(typeof renderProgCheck==='function')renderProgCheck(); }catch(e){}
   try{ if(typeof renderOpsTasks==='function')renderOpsTasks(); renderHub(); }catch(e){}
   ppSyncSoon();}
-function ppTab(v){PPO.v=v;PPO.s='list';PPO.year=false;ppRender();ppTop();}
-function ppOpenSet(k){PPO.key=ppUnArg(k);PPO.s='detail';ppRender();ppTop();}
+function ppTab(v){PPO.v=v;PPO.s='list';PPO.year=false;if(typeof pjOReset==='function')pjOReset();ppRender();ppTop();}
+function ppOpenSet(k){if(typeof pjOReset==='function')pjOReset();PPO.key=ppUnArg(k);PPO.s='detail';ppRender();ppTop();}
 function ppBack(){PPO.s='list';ppRender();ppTop();}
 function ppToDetail(){PPO.s='detail';ppRender();ppTop();}
 function ppActList(){
@@ -7922,12 +7955,14 @@ function ppNeedHTML(){
     (PP_ODB?'CLOSING…':('CLOSE '+(od.length===1?'IT':'THEM')))+'</button></div>'):'';
   const act=ppActList().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   const wash=ppWashList(), dup=ppReDupes();   // v3.81.0 - a spray that rain may have washed off, waiting for his answer; a re-spray issued twice
+  const jact=(typeof pjActList==='function'&&pjOn())?pjActList().sort((a,b)=>String(a.from).localeCompare(String(b.from))):[];   // v3.82.0 - a job past its last day, or one the crew moved
   /* the box never pushes the month off the first screen: two rows, the rest one tap away */
   const show=(PPO.need||act.length<=PP_NEED_MAX+1)?act:act.slice(0,PP_NEED_MAX);
-  if(act.length||od.length||wash.length||dup.length)h+='<div class="pp-need" id="pp-o-need"><h4>⚠ NEEDS YOU · '+(act.length+od.length+wash.length+dup.length)+'</h4>'+note+
+  if(act.length||od.length||wash.length||dup.length||jact.length)h+='<div class="pp-need" id="pp-o-need"><h4>⚠ NEEDS YOU · '+(act.length+od.length+wash.length+dup.length+jact.length)+'</h4>'+note+
     ppWashBoxHTML(wash)+ppReDupHTML()+ppRainDueHTML(act)+show.map(v=>ppRowHTML(v,'','pp-need-')).join('')+
     (show.length<act.length?('<button class="pp-ghost" id="pp-need-more" onclick="ppNeedAll(1)">＋ '+(act.length-show.length)+' MORE</button>')
-      :(PPO.need&&act.length>PP_NEED_MAX+1?'<button class="pp-ghost" id="pp-need-less" onclick="ppNeedAll(0)">SHOW FEWER</button>':''))+'</div>';
+      :(PPO.need&&act.length>PP_NEED_MAX+1?'<button class="pp-ghost" id="pp-need-less" onclick="ppNeedAll(0)">SHOW FEWER</button>':''))+
+    jact.map(v=>pjRowHTML(v,'','pj-need-')).join('')+'</div>';
   return h;}
 const PP_NEED_MAX=2;
 function ppNeedAll(on){PPO.need=!!on;ppRender();}
@@ -8014,6 +8049,7 @@ function ppPages(){
   ((typeof PROG_MONTH_ORDER!=='undefined')?PROG_MONTH_ORDER:[]).forEach(m=>{
     if(ppOldPhases().some(p=>p.month===m))out.push({last:m});});
   const ms=ppSeasonMonths(); ppSets().forEach(v=>{if(v.mon&&ms.indexOf(v.mon)<0)ms.push(v.mon);});
+  if(typeof pjOn==='function'&&pjOn())pjJobs().forEach(v=>{if(/^\d{4}-\d{2}$/.test(v.mon)&&ms.indexOf(v.mon)<0)ms.push(v.mon);});   // v3.82.0
   ms.sort().forEach(k=>out.push({mon:k}));
   return out;}
 function ppPgIdx(){
@@ -8029,8 +8065,9 @@ function ppMonList(mon){
   const today=todayISO(), key=v=>ppDayOf(v)||(today+'~');
   return ppSets().filter(v=>v.mon===mon).sort((a,b)=>String(key(a)).localeCompare(String(key(b))));}
 function ppMonCount(mon){
-  const l=ppMonList(mon).filter(v=>v.st!=='skip');
-  return {n:l.length,done:l.filter(v=>v.st==='done').length,iss:l.filter(v=>v.st==='iss').length,plan:l.filter(v=>v.st==='plan').length};}
+  /* v3.82.0 - the jobs of the month count with its sets: the programme is both */
+  const l=ppMonList(mon).concat((typeof pjOn==='function'&&pjOn())?pjMonList(mon):[]).filter(v=>v.st!=='skip');
+  return {n:l.length,done:l.filter(v=>v.st==='done').length,iss:l.filter(v=>v.st==='iss'&&!(v.job&&v.direct)).length,plan:l.filter(v=>v.st==='plan').length};}
 function ppMonStages(mon){
   const st=[]; ppMonList(mon).forEach(v=>{if(v.stage&&v.stage!=='Extra'&&st.indexOf(v.stage)<0)st.push(v.stage);}); return st;}
 /** The month buttons across the top: last season, then the twelve months with how many are done. */
@@ -8055,7 +8092,8 @@ function ppYearHTML(){
   let h='<div class="pp-g">Season '+esc(seasonName()||PP_SEASON)+(ms.length?(', '+ppMonEN(ms[0])+' to '+ppMonEN(ms[ms.length-1])):'')+'. Tap a month to open it.</div>';
   p.forEach((x,j)=>{ if(x.last)return;
     const l=ppMonList(x.mon).filter(v=>v.st!=='skip'), c=ppMonCount(x.mon), st=ppMonStages(x.mon);
-    const typ=['set','fert','trunk','weed'].map(g=>[l.filter(v=>v.grp===g).length,W[g]]).filter(a=>a[0]).map(a=>a[0]+' '+a[1]).join(' · ');
+    const jn=(typeof pjOn==='function'&&pjOn())?pjMonList(x.mon).filter(v=>v.st!=='skip').length:0;   // v3.82.0
+    const typ=['set','fert','trunk','weed'].map(g=>[l.filter(v=>v.grp===g).length,W[g]]).concat([[jn,jn===1?'job':'jobs']]).filter(a=>a[0]).map(a=>a[0]+' '+a[1]).join(' · ');
     h+='<button class="pp-yr'+(x.mon===cur?' cur':'')+'" id="pp-yr-'+x.mon+'" onclick="ppPgTo('+j+')"><div class="pp-top"><b>'+esc(ppMonEN(x.mon)+' '+x.mon.slice(0,4))+'</b>'+
       '<span class="pp-ys">'+(c.n?(c.done+' done · '+c.iss+' issued · '+c.plan+' on the plan'):'nothing on the programme')+'</span></div>'+
       (st.length?('<div class="pp-ys">'+esc(st.join(' → '))+'</div>'):'')+
@@ -8067,15 +8105,23 @@ function ppYearHTML(){
 function ppPrintMonth(){
   const p=ppPages(), pg=p[ppPgIdx()], box=$('ppprint');
   if(!pg||pg.last||!box||!ppIsOwner())return;
-  const list=ppMonList(pg.mon);
+  const list=ppMonList(pg.mon), today0=todayISO();
+  /* v3.82.0 - the jobs of the month are on the sheet too, in the order of their days */
+  const rowsP=list.map(v=>({d:ppDayOf(v)||(today0+'~'),v:v})).concat(((typeof pjOn==='function'&&pjOn())?pjMonList(pg.mon):[]).map(v=>({d:pjDayOf(v)||(today0+'~'),v:v})))
+    .sort((a,b)=>String(a.d).localeCompare(String(b.d)));
   let h='<div class="pp-ph">S.H.A. Hup Aik Plantation · Sugut durian farm</div><div class="pp-pt">Programme — '+esc(ppMonEN(pg.mon)+' '+pg.mon.slice(0,4))+'</div>'+
     '<div class="pp-ps">Season '+esc(seasonName()||PP_SEASON)+' · stage: '+esc(ppMonStages(pg.mon).join(' → ')||'—')+' · printed '+esc(ppFmt(todayISO()))+' '+todayISO().slice(0,4)+'</div>'+
     '<table class="pp-ptbl"><thead><tr><th>Day</th><th>Set</th><th>What for</th><th>The mix</th><th>Status</th><th>Done on</th></tr></thead><tbody>';
-  list.forEach(v=>{const st=ppSt(v), d=ppDayOf(v), size=ppSizeShort(v);
+  rowsP.forEach(rw=>{const v=rw.v;
+    if(v.job){const st=pjSt(v), plan=pjPlanTxt(v);
+      h+='<tr><td>'+esc(pjRange(v.from,v.to))+'</td><td><b>'+esc(pjName(v))+'</b>'+(v.code?(' ('+esc(v.code)+')'):'')+'</td><td>'+esc(v.en)+'<br>job, no material</td>'+
+        '<td>'+(plan?('plan: '+esc(plan)):'')+'</td><td>'+esc(st.t)+'</td><td>'+((v.st==='done')?esc(ppFmt(pjDoneDay(v))):'')+'</td></tr>';
+      return;}
+    const st=ppSt(v), d=ppDayOf(v), size=ppSizeShort(v);
     h+='<tr><td>'+(ppOkDay(String(d||'').slice(0,10))?esc(ppFmt(d)):'day not set')+'</td><td><b>'+esc(ppName(v))+'</b>'+(v.code?(' ('+esc(v.code)+')'):'')+'</td>'+
       '<td>'+esc(v.tgt)+'<br>'+esc(ppBasisTxt(v.basis))+(size?(' · '+esc(size)):'')+'</td>'+
       '<td>'+v.lines.map(l=>esc(l.n)+' '+ppQty(l.q,l.u)).join('<br>')+'</td><td>'+esc(st.t)+'</td><td>'+((v.st==='done'&&v.done)?esc(ppFmt(v.done.date)):'')+'</td></tr>';});
-  if(!list.length)h+='<tr><td colspan="6">Nothing on the programme this month.</td></tr>';
+  if(!rowsP.length)h+='<tr><td colspan="6">Nothing on the programme this month.</td></tr>';
   box.innerHTML=h+'</tbody></table>';
   document.body.classList.add('printing-pp');
   try{window.print();}catch(e){toast('This phone would not open the print dialog',1);}
@@ -8110,25 +8156,32 @@ function ppMonthHTML(){
     return h;}
   const key=v=>ppDayOf(v)||(today+'~');     // a round with no day yet sits just after today
   const list=ppMonList(pg.mon), stages=ppMonStages(pg.mon);
+  const jl=(typeof pjOn==='function'&&pjOn())?pjMonList(pg.mon):[];   // v3.82.0 - the jobs of the month, from section D of the workbook
   const cnt=g=>list.filter(v=>v.st==='done'&&v.grp===g).length;
   h+=(stages.length?('<div class="pp-g"><b>Stage:</b> '+esc(stages.join(' → '))+'</div>'):'')+
     '<div class="pp-kpis k4"><div class="pp-kpi"><div class="v">'+cnt('set')+'</div><div class="l">sets done</div></div>'+
     '<div class="pp-kpi"><div class="v">'+cnt('fert')+'</div><div class="l">fert done</div></div>'+
     '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='iss').length+'</div><div class="l">issued now</div></div>'+
     '<div class="pp-kpi"><div class="v">'+list.filter(v=>v.st==='plan').length+'</div><div class="l">on the plan</div></div></div>';
+  if(jl.length)h+='<div class="pp-g" id="pj-m-count"><b>Jobs with no material:</b> '+jl.filter(v=>v.st==='done').length+' done · '+jl.filter(v=>v.st==='iss'&&!v.direct).length+' issued · '+jl.filter(v=>v.st==='plan').length+' on the plan'+(jl.some(v=>v.st==='iss'&&v.direct)?(' · '+jl.filter(v=>v.st==='iss'&&v.direct).length+' recorded by you, not finished'):'')+'</div>';
   /* v3.79.0 — the tree checks of this month sit on the month page with the sets: tap one to
      issue it, or to see how far it is */
   if(typeof tcMonthHTML==='function'){try{h+=tcMonthHTML(pg.mon);}catch(x){}}
   /* a set that is added is ISSUED, for today or for a day in the month on screen: a month
      that has gone has no such button (a round done back then is recorded from its own row) */
-  const add=(ppIsOwner()&&pg.mon>=today.slice(0,7))?'<button class="pp-ghost blu" id="pp-o-add" onclick="ppAddOpen(\''+(/^\d{4}-\d{2}$/.test(pg.mon)?pg.mon:'')+'\')">＋ ADD A SET THAT IS NOT ON THE PLAN</button>':'';
-  if(!list.length)return h+'<div class="pp-note">Nothing on the programme this month.</div>'+add;
+  const add=(ppIsOwner()&&pg.mon>=today.slice(0,7))?('<button class="pp-ghost blu" id="pp-o-add" onclick="ppAddOpen(\''+(/^\d{4}-\d{2}$/.test(pg.mon)?pg.mon:'')+'\')">＋ ADD A SET THAT IS NOT ON THE PLAN</button>'+
+    ((typeof pjOn==='function'&&pjOn())?('<button class="pp-ghost blu" id="pj-o-add" onclick="pjAddOpen(\''+(/^\d{4}-\d{2}$/.test(pg.mon)?pg.mon:'')+'\')">＋ ADD A JOB THAT IS NOT ON THE PLAN</button>'):'')):'';   // v3.82.0
+  if(!list.length&&!jl.length)return h+'<div class="pp-note">Nothing on the programme this month.</div>'+add;
   /* the current one: the first issued set still open, else the next planned round */
   const curSet=list.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
   const nextp=curSet?null:list.filter(v=>v.st==='plan'&&(v.nodate||ppDiff(v.date,today)>=0))[0];
   let line=pg.mon!==today.slice(0,7); h+='<div class="pp-tl">';
-  list.forEach(v=>{
-    if(!line&&String(key(v))>today){h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';line=true;}
+  /* v3.82.0 - sets and jobs on one list, in the order of their days; on the same day the set leads */
+  const both=list.map(v=>({d:String(key(v)),v:v,j:0})).concat(jl.map(v=>({d:String(pjDayOf(v)||(today+'~')),v:v,j:1})))
+    .sort((a,b)=>a.d.localeCompare(b.d)||(a.j-b.j));
+  both.forEach(it=>{const v=it.v;
+    if(!line&&it.d>today){h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';line=true;}
+    if(it.j){h+=PPO.mix?pjSheetHTML(v,''):pjRowHTML(v,'');return;}
     const c=v===curSet?'now':v===nextp?'nextp':'';
     h+=PPO.mix?ppSheetHTML(v,c):ppRowHTML(v,c);});
   if(!line)h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';
@@ -8139,6 +8192,7 @@ function ppMonthHTML(){
 function ppOwnHTML(){
   const today=todayISO(), sets=ppSets(), own=ppIsOwner();
   let h='';
+  if(typeof PJO!=='undefined'&&PJO.s&&own)return pjOwnHTML();   // v3.82.0 - a job's page, its forms, the pay of a set or a job
   if(PPO.s==='detail')return ppDetailHTML();
   if(PPO.s==='edit')return ppEditHTML();
   if(PPO.s==='move')return ppMoveHTML();
@@ -8154,7 +8208,10 @@ function ppOwnHTML(){
     const list=sets.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)));
     h+='<div class="pp-g">'+ppT('Issued by the Owner and not yet done. What to buy for them is in THE STORE ▸ BUY.','Dikeluarkan oleh Pengurus dan belum siap. Senarai beli ada di STOR ▸ BELI.')+'</div>';
     h+=list.length?list.map(v=>ppRowHTML(v)).join(''):'<div class="pp-note">'+ppT('Nothing is issued.','Tiada set dikeluarkan.')+'</div>';
+  }else if(PPO.v==='rec'&&own&&typeof pjOn==='function'&&pjOn()&&PJO.rtab!=='sets'){
+    h+=pjRecordHTML();                       // v3.82.0 - RECORD opens on the work record; the list of sets done is its fourth view
   }else{
+    if(PPO.v==='rec'&&own&&typeof pjOn==='function'&&pjOn())h+=pjRecSegHTML();
     const list=sets.filter(v=>v.st==='done').sort((a,b)=>String(b.done.date).localeCompare(String(a.done.date)));
     const chg=sets.filter(v=>v.rec&&v.st!=='skip'&&(ppChanges(v,v).length||(v.log||[]).some(x=>x.why))).length;
     const mat=list.reduce((t,v)=>t+(+v.done.cost||0),0);
@@ -8273,6 +8330,1197 @@ async function ppUnskip(){
 /* ----- issue / change the mix -----
    The editor works on a copy (PPE). A field that changes re-reads every field first
    (ppESync) and then redraws, so nothing typed is lost to a redraw. */
+/* ====================== v3.82.0 · ONE WORK LIST: JOBS, ONE TANDA SIAP, THE WORK RECORD ======================
+   Item 3 of the October builds. Sample 1 on 5 Oct 2026; the Owner's reply on 6 Oct:
+     '3B i prefer both option, 3C with sugeestion but need a reason to key in . working hours is 8
+      and the salary rate put a column for me to key cause certain work i might plan for piece
+      rated. prunning just completed was done by one worker and the supervisor who take care of
+      oil palm and durian .'
+   Sample 2 showed it back to him; he answered "Build item 3".
+     3A  the crew may report work that is not on the plan, from a short list;
+     3B  people = the names ticked from the Owner's list + a number for anyone not on it;
+     3C  the crew can undo its own report the same day, and must say why;
+     3D  one tile for the crew (KERJA): the Program tile goes;
+     3E  money: one day rate, and on any job its own rate, by day or by piece - keyed by the
+         Owner, never shown on a crew screen;
+     3F  a report says whether the lot is finished: a job that takes four days in a lot is four
+         reports, and the lot closes with the one that says so.
+   THE JOBS are section D ("Other tasks this month") of every monthly sheet of the 2026/27
+   workbook: PLAN_JOBS_2627 in database.js, 40 rows, 19 kinds. They are grey on the month
+   page until the Owner issues one; issued, a job takes the next number of its month by
+   itself: October · Job 3 / Oktober · Kerja 3. CE1 and AS1 are tree checks already and are
+   not offered as jobs.
+
+   WHAT IS STORED, AND WHERE. Nothing new on the Sheet: no tab, no column, no script change.
+     A JOB is a PROGRAMS record flagged x.job - NOT x.iss. ⛔ That is deliberate: a phone on
+       v3.81.0 or older keeps only x.iss records as programme sets (ppRecs), and prints a set's
+       name from a table of four groups; a fifth group would have thrown on its Programme
+       screen. A record it does not know is stored without its x and never drawn. rev, base,
+       `tried` and the Sheet's compare-and-swap are the ones an issued set has (ppSave).
+         x = { job:1, mon, num, code, k, en, ms, cen, cms, from, to, lots, note, extra,
+               pay:{b:'day'|'piece', rm, unit}, notice, bm, skip, closed, direct, log:[...] }
+     A REPORT is TASK_DONE rows on the TASK_LOGS tab, ONE ROW PER LOT (the labour readers
+       filter on e.lot), all carrying the same `detail` object:
+         detail = { v:1, rid, job:<phaseId>, day, lots, n, h, cnt, end, names, at, via, oth, dd }
+       h is the hours EACH PERSON worked in that report. The crew reports one day at a time.
+       The Owner, recording work he was not on the phone for (the pruning of September: one
+       worker and the supervisor, 11 days), may key the days: dd is that number and h is the
+       hours of all of them, so every reader that multiplies people by hours is right.
+       crew and hours are the true figures on every row; manHours is that lot's share by its
+       trees, so no reader multiplies. The count rides on the first lot's row only.
+       ⛔ APPEND ONLY. Nothing about a report is ever changed.
+     AN UNDO is its own TASK_DONE row, kind 'UNDO', detail = { v:1, undo:<rid>, why, txt, at }.
+       The report it names stays on the record and stops counting, everywhere: the job's
+       lots, the work record, labourRows(), the duplicate finder.
+     A JOB IS DONE WHEN ITS REPORTS SAY SO: every lot it was issued for has a report with
+       end:1 that is not undone. The record's CLOSED status is only the Owner's CLOSE THE
+       JOB (work that never finishes a lot: collection, pollination, tying).
+     THE OWNER'S WORKER LIST AND DAY RATE are ONE PROGRAMS record with a fixed id for the
+       season, flagged x.cfg: x = { cfg:1, names:[...], day }. It rides the same
+       compare-and-swap, so an edit made on a device that had not yet received the other
+       device's edit is refused and told, not silently lost - the fault the water order had.
+     THE RATE OF ITS OWN of a job or a set is x.pay on that record.
+   ⛔ MONEY IS THE OWNER'S. Nothing in pjCrew* reads a rate. The records do reach every
+   phone (a record is a record), but no crew or Purchaser screen prints one.
+   ⛔ NOTHING HERE POPS A DIALOG, and for PJ_HOLD ms after a screen changes a second tap
+   takes nothing: a double tap must not answer a question nobody read. */
+const PJ_DAY_H=8;                    // hours in one man-day - the Owner, 6 Oct 2026
+const PJ_HOLD=600;                   // ms
+const PJ_NAMES_MAX=40, PJ_NAME_LEN=24, PJ_NOTE_LEN=120, PJ_WHY_LEN=60, PJ_UNIT_LEN=24, PJ_TITLE_LEN=60;
+const PJ_PEOPLE_MAX=40, PJ_HOURS_MAX=16, PJ_DAYS_MAX=31, PJ_COUNT_MAX=100000;
+const PJ_CFG_ID='cfg-labour-'+String((typeof PP_SEASON!=='undefined')?PP_SEASON:'').replace(/[^0-9]+/g,'-');
+const PJ_OTHER=[['PRUNE','Pruning','Cantas'],['WEED','Weeding','Cabut rumput'],['PIPE','Pipe or hose repair','Baiki paip atau hos'],['FENCE','Fence','Pagar'],['OTHER','Other','Lain-lain']];
+const PJ_UNDO=[['LOT','Wrong lot','Salah lot'],['DAY','Wrong day','Salah hari'],['PPL','Wrong people or hours','Salah orang atau jam'],['TWICE','Keyed twice','Tertekan dua kali'],['OTHER','Other: type it','Lain-lain: taip']];
+const PJ_KIND={PR:['✂️','Pruning'],CE:['📋','Census'],PC:['🔧','Pipe check'],WS:['🌱','Water shoots'],MU:['🍂','EFB mulch'],HO:['🚰','Hose'],FB:['🔥','Fire breaks'],
+  AS:['🌿','Flush check'],G:['🚦','Gate walk'],TR:['🌸','Flower-bud trimming'],PO:['🌙','Hand pollination'],TH:['🍈','Thinning'],TY:['🎗️','Fruit tying'],CT:['🔪','Cut-test'],
+  NT:['🕸️','Netting'],SW:['⚖️','Sample-weigh'],HP:['📦','Harvest prep'],HV:['🧺','Collection'],CO:['📊','Close-out'],XX:['🛠️','Job']};
+let PJ_CACHE=null, PJ_REPS=null, PJ_AT=0, PJ_UAT=0;
+let PJC={s:'',key:'',f:null,info:null,undo:null,not:null};     // the crew: '' (the list) · card · form · saved · not · told
+let PJO={s:'',key:'',pid:'',f:null,rtab:'day',rmon:'',pay:null,base:null};   // the Owner: '' · detail · issue · rec · move · skip · pay · add; the RECORD view and month; a job being added
+
+/* ---------- small things ---------- */
+function pjOn(){return ppOn()&&typeof PLAN_JOBS_2627!=='undefined'&&Array.isArray(PLAN_JOBS_2627);}
+function pjIsJob(p){const x=ppX(p);return !!(x&&x.job);}
+function pjIsCfg(p){const x=ppX(p);return !!(x&&x.cfg);}
+function pjTouch(){PJ_CACHE=null;PJ_REPS=null;}
+function pjN2(n){n=+n||0;return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
+function pjMd(mh){return (+mh||0)/PJ_DAY_H;}
+function pjLotOk(L){return LOT_KEYS.indexOf(L)>=0;}
+function pjClip(s,n){return String(s==null?'':s).replace(/\s+/g,' ').trim().slice(0,n);}
+/** For PJ_HOLD ms after a job screen moved, a tap takes nothing. */
+function pjHeld(){return (performance.now()-PJ_AT)<PJ_HOLD;}
+function pjMoved(){PJ_AT=performance.now();}
+/** The reason box of an undo opens and closes in the middle of a page and moves every button under it: for
+ *  PJ_HOLD ms after that, a tap that would OPEN another form takes nothing either (found in review). */
+function pjUHeld(){return (performance.now()-PJ_UAT)<PJ_HOLD;}
+function pjUMoved(){PJ_UAT=performance.now();}
+/** A count as keyed: a number from 0 up, two decimals kept (metres, bags). null = not a count. */
+function pjCount(raw){const t=String(raw==null?'':raw).trim(); if(t==='')return 0; const n=+t;
+  return (isFinite(n)&&n>=0&&n<=PJ_COUNT_MAX)?Math.round(n*100)/100:null;}
+/** Text the Owner types that lands in a Sheet cell of its own must not begin like a formula. */
+function pjPlain(s,n){return pjClip(String(s==null?'':s).replace(/^[\s=+\-@]+/,''),n);}
+function pjRange(a,b){
+  if(!ppOkDay(a))return '—';
+  if(!ppOkDay(b)||a===b)return ppFmt(a);
+  const x=ppD(a), y=ppD(b), m=ppT(PP_MONS,PP_MONSBM);
+  if(x.getUTCMonth()===y.getUTCMonth()&&x.getUTCFullYear()===y.getUTCFullYear())return x.getUTCDate()+'–'+y.getUTCDate()+' '+m[y.getUTCMonth()];
+  return x.getUTCDate()+' '+m[x.getUTCMonth()]+' – '+y.getUTCDate()+' '+m[y.getUTCMonth()];}
+function pjRecs(){return (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).filter(p=>p&&pjIsJob(p)&&String(p.status)!=='VOID');}
+
+/* ---------- the reports: every reply filed with this release, whole, with its undo ---------- */
+function pjReps(){
+  if(PJ_REPS)return PJ_REPS;
+  const by={}, undo={}, list=[];
+  (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(e=>{
+    if(!e||e.type!=='TASK_DONE')return;
+    const d=e.detail; if(!d||typeof d!=='object'||Array.isArray(d)||+d.v!==1)return;
+    if(d.undo){const u=String(d.undo), at=String(d.at||e.dt||''), c=undo[u];
+      /* two undos of one report (two phones): the first one stands, so every phone reads the same reason */
+      if(!c||at<c.at||(at===c.at&&String(e.uuid)<String(c.id)))undo[u]={why:String(d.why||''),txt:pjClip(d.txt,PJ_WHY_LEN),at:at,by:String(e.worker||''),id:String(e.uuid)};
+      return;}
+    if(!d.rid)return;
+    const k=String(d.rid); let r=by[k];
+    if(!r){
+      const n=Math.max(0,Math.round(+d.n||0)), h=Math.max(0,+d.h||0);
+      r=by[k]={rid:k,job:String(d.job||''),oth:String(d.oth||''),d:String(d.day||e.dt||'').slice(0,10),
+        lots:(Array.isArray(d.lots)?d.lots:[e.lot]).map(String).filter(pjLotOk).filter((L,i,a)=>a.indexOf(L)===i).sort(),
+        n:n,h:h,dd:Math.max(1,Math.min(PJ_DAYS_MAX,Math.round(+d.dd||1))),cnt:Math.max(0,+d.cnt||0),end:!!d.end,names:(Array.isArray(d.names)?d.names:[]).map(x=>pjClip(x,PJ_NAME_LEN)).filter(Boolean).slice(0,n),
+        at:String(d.at||e.dt||''),by:String(e.worker||''),uid:String(d.uid||''),device:String(e.device||''),via:String(d.via||''),label:String(e.kindLabel||''),rows:[],undone:null};
+      list.push(r);}
+    r.rows.push(e);});
+  list.forEach(r=>{if(undo[r.rid])r.undone=undo[r.rid];
+    /* found in review - the Owner's SELECTIVE CLEAN-UP can take away ONE lot's row of a report. The report is then
+       what is left of it: those lots, and their share of the hours by trees - the same share labourRows() reads. */
+    const have=r.lots.filter(L=>r.rows.some(e=>String(e.lot)===L));
+    if(have.length&&have.length<r.lots.length){
+      const t=a=>a.reduce((s,L)=>s+(treesInLot(L).length||1),0);
+      /* the count follows the same share as the hours (found in the re-review: it rode on the first lot's row alone,
+         so taking that row away paid a piece job nothing and taking another away changed nothing) */
+      const f=t(have)/t(r.lots); r.h=r.h*f; r.cnt=Math.round(r.cnt*f*100)/100; r.lots=have; r.cut=true;}});
+  list.sort((a,b)=>String(b.d).localeCompare(String(a.d))||String(b.at).localeCompare(String(a.at))||String(b.rid).localeCompare(String(a.rid)));
+  /* the reports that are out of the count, by id: an undo can reach a phone before the report it names */
+  list.off={}; Object.keys(undo).forEach(k=>{list.off[k]=1;});
+  PJ_REPS=list; Promise.resolve().then(()=>{PJ_REPS=null;});
+  return list;}
+/** Is this TASK_DONE row out of the count: an undo row itself, or a row of a report that was undone. */
+function pjRowOff(e){
+  const d=e&&e.detail; if(!d||typeof d!=='object'||Array.isArray(d)||+d.v!==1)return false;
+  if(d.undo)return true;
+  if(!d.rid)return false;
+  return !!pjReps().off[String(d.rid)];}
+/** Days between the work and the keying. The Owner's own record of past work is not "late": the flag is for the crew's habit. */
+function pjLate(r){return (r.via!=='OWNER'&&ppOkDay(r.d)&&ppOkDay(String(r.at).slice(0,10)))?Math.max(0,ppDiff(String(r.at).slice(0,10),r.d)):0;}
+/** "2 × 8 h", or "2 × 8 h × 11 days" for a report the Owner keyed over several days. */
+function pjNxH(r){const dd=(+r.dd>1)?+r.dd:1;return r.n+' × '+nf(r.h/dd)+' '+ppT('h','jam')+(dd>1?(' × '+dd+' '+ppT('days','hari')):'');}
+function pjWho(r){
+  const nm=r.names||[], x=r.n-nm.length;
+  if(!nm.length)return '';
+  return nm.join(', ')+(x>0?(' + '+x+' '+ppT(x>1?'others':'other','lagi')):'');}
+function pjRepLine(r){return ppFmt(r.d)+' · Lot '+r.lots.join(' ')+' · '+pjNxH(r);}
+
+/* ---------- the jobs: the plan, the issued records, as one list ---------- */
+function pjJobs(){
+  if(PJ_CACHE)return PJ_CACHE;
+  if(!pjOn())return [];
+  const recs=pjRecs(), recOf={};
+  /* Two records of one job (two of the Owner's devices, before a sync): the newest change stands - but a record the
+     Owner only RECORDED work on never stands over one he ISSUED. Found in the re-review: he issues the hose job on the
+     iPhone and presses ALREADY DONE for Lot A on a laptop that had not synced; the later, recorded-only copy won on
+     every phone and the job left the crew's list in silence. The reports are kept either way: they name the job. */
+  const dirOf=r=>{const x=ppX(r);return (x&&x.direct&&String(r.status)==='ISSUED')?1:0;};
+  recs.forEach(r=>{const c=recOf[r.phaseId];
+    if(!c){recOf[r.phaseId]=r;return;}
+    const dr=dirOf(r), dc=dirOf(c);
+    if(dr!==dc){if(dr<dc)recOf[r.phaseId]=r;return;}
+    if((+r.rev||0)>(+c.rev||0)||((+r.rev||0)===(+c.rev||0)&&String(r.at||'')>String(c.at||'')))recOf[r.phaseId]=r;});
+  const byJob={}; pjReps().forEach(r=>{if(r.job)(byJob[r.job]=byJob[r.job]||[]).push(r);});
+  const out=[], seen={};
+  PLAN_JOBS_2627.forEach(p=>{ if(p.chk)return; const r=recOf[p.id]||null; if(r)seen[r.uuid]=1; out.push(pjView(p,r,byJob[p.id]||[]));});
+  recs.forEach(r=>{ if(seen[r.uuid])return;
+    if(PLAN_JOBS_2627.some(p=>p.id===r.phaseId))return;            // an older copy of a planned job: the newest is already in
+    if(recOf[r.phaseId]!==r)return;
+    out.push(pjView(null,r,byJob[r.phaseId]||[]));});
+  PJ_CACHE=out; Promise.resolve().then(()=>{PJ_CACHE=null;});
+  return out;}
+function pjView(p,rec,reps){
+  const x=rec?ppX(rec):null;
+  const v={job:true,key:rec?rec.uuid:p.id,planId:p?p.id:'',pid:rec?String(rec.phaseId||''):p.id,plan:p,rec:rec,
+    code:p?p.code:String((x&&x.code)||''),k:String((x&&x.k)||(p?p.k:'XX')),
+    en:String((x&&x.en)||(p?p.en:'')||'Job'),ms:String((x&&x.ms)||(p?p.ms:'')||''),
+    cen:String((x&&x.cen!==undefined)?x.cen:(p?p.cen:'')||''),cms:String((x&&x.cms!==undefined)?x.cms:(p?p.cms:'')||''),
+    planMd:p?+p.md||0:0,planCrew:p?+p.crew||0:0,planDays:p?+p.days||0:0,planFrom:p?p.from:'',planTo:p?p.to:'',
+    extra:!p,num:0,mon:'',from:'',to:'',lots:ppLots(),note:'',pay:null,notice:null,bm:null,log:[],skip:null,closed:null,direct:false,ok2:{},
+    reps:reps,live:reps.filter(r=>!r.undone)};
+  if(!rec){v.st='plan';v.mon=p.mon;v.from=p.from;v.to=p.to;return v;}
+  v.num=+x.num||0; v.mon=String(x.mon||String(rec.plan||'').slice(0,7));
+  v.from=String(x.from||rec.plan||'').slice(0,10); v.to=String(x.to||v.from).slice(0,10); if(!ppOkDay(v.to)||v.to<v.from)v.to=v.from;
+  const lots=(Array.isArray(x.lots)?x.lots:[]).map(String).filter(pjLotOk); v.lots=lots.length?lots:ppLots();
+  v.note=pjClip(x.note,PJ_NOTE_LEN); v.pay=pjPayOk(x.pay); v.notice=x.notice||null; v.bm=x.bm||null;
+  v.log=Array.isArray(x.log)?x.log:[]; v.skip=x.skip||null; v.closed=x.closed||null; v.direct=!!x.direct;
+  v.ok2=(x.ok2&&typeof x.ok2==='object')?x.ok2:{};
+  const all=v.lots.every(L=>pjLotSt(v,L)==='done');
+  v.st=(String(rec.status)==='SKIPPED')?'skip':((String(rec.status)==='CLOSED'||all)?'done':'iss');
+  return v;}
+function pjLotSt(v,L){
+  const rs=v.live.filter(r=>r.lots.indexOf(L)>=0);
+  if(!rs.length)return 'none';
+  return rs.some(r=>r.end)?'done':'part';}
+function pjLotsLeft(v){return v.lots.filter(L=>pjLotSt(v,L)!=='done');}
+function pjMh(v){return v.live.reduce((s,r)=>s+r.n*r.h,0);}
+function pjCnt(v){return v.live.reduce((s,r)=>s+(+r.cnt||0),0);}
+function pjLastDay(v){return v.live.reduce((m,r)=>(r.d>m?r.d:m),'');}
+/** The day a job sits on in its month, and the day it reads as finished. */
+function pjDayOf(v){return (v.st==='done'&&pjLastDay(v))?pjLastDay(v):v.from;}
+function pjDoneDay(v){return pjLastDay(v)||String((v.closed&&v.closed.at)||'').slice(0,10)||v.to;}
+function pjWhen(v){
+  if(v.st!=='iss')return v.st;
+  /* found in review - a job the Owner RECORDED himself was never sent to the crew: it has no day to be late for */
+  if(v.direct)return 'rec';
+  const t=todayISO();
+  if(v.from>t)return 'come';
+  return ppDiff(t,v.to)>PP_GRACE?'over':'due';}
+function pjSt(v){
+  const w=pjWhen(v);
+  if(w==='done')return {c:'ok',t:ppT('DONE','SIAP'),k:'done'};
+  if(w==='skip')return {c:'mut',t:ppT('SKIPPED','DILANGKAU'),k:'skip'};
+  if(w==='come')return {c:'new',t:ppT('ISSUED','AKAN DATANG'),k:'come'};
+  if(w==='due')return {c:'amb',t:ppT('DUE NOW','HARI INI'),k:'due'};
+  if(w==='over')return {c:'red',t:ppT('OVERDUE','LEWAT'),k:'over'};
+  if(w==='rec')return {c:'mut',t:'RECORDED · NOT ISSUED',k:'rec'};
+  return {c:'mut',t:ppDiff(todayISO(),v.to)>0?'DATE PASSED':'ON THE PLAN',k:'plan'};}
+function pjName(v){return v.num?(ppMonEN(v.mon)+' · Job '+v.num):'Planned job';}
+function pjNameBM(v){return v.num?(ppMonName(v.mon)+' · '+ppT('Job','Kerja')+' '+v.num):ppT('Planned job','Kerja dalam rancangan');}
+function pjTitle(v){return ppT(v.en,v.ms)||v.en;}
+function pjIc(v){return (PJ_KIND[v.k]||PJ_KIND.XX)[0];}
+function pjKindW(v){return (PJ_KIND[v.k]||PJ_KIND.XX)[1];}
+function pjCntW(v){return ppT(v.cen,v.cms)||v.cen||((v.pay&&v.pay.b==='piece')?v.pay.unit:'');}
+function pjNextNum(mon){let top=0;pjRecs().forEach(r=>{const x=ppX(r);if(x&&x.mon===mon)top=Math.max(top,+x.num||0);});return top+1;}
+function pjFind(key){return pjJobs().find(v=>v.key===key)||null;}
+function pjCodeTag(v){return (ppIsOwner()&&v.code)?'<span class="pp-code">'+esc(v.code)+'</span>':'';}
+function pjMonList(mon){return pjJobs().filter(v=>v.mon===mon);}
+/** Jobs that need the Owner: past their last day with a lot open, or moved by the crew and not yet seen. */
+function pjActList(){return pjJobs().filter(v=>v.rec&&((v.st==='iss'&&!v.direct&&(pjWhen(v)==='over'||(v.notice&&!v.notice.seen)))||
+  (v.st!=='skip'&&(pjTwice(v).length>0||pjNumClash(v)))));}
+function pjOverdue(){return pjOn()?pjJobs().filter(v=>v.st==='iss'&&!v.direct&&pjWhen(v)==='over'):[];}
+/** Found in review - two phones with no signal can both report the same lot FINISHED: both stand, and the hours
+ *  are paid twice unless somebody looks. The lots with more finished reports than the Owner has accepted. */
+function pjTwice(v){
+  if(!v||!v.rec)return [];
+  /* what he accepted is THOSE reports, by id - not a number of them (found in the re-review: accept two, undo one,
+     and a third arriving made two again with nothing said) */
+  return v.lots.filter(L=>{const fin=v.live.filter(r=>r.end&&r.lots.indexOf(L)>=0), ok=Array.isArray(v.ok2&&v.ok2[L])?v.ok2[L]:[];
+    return fin.length>1&&fin.some(r=>ok.indexOf(r.rid)<0);});}
+/** Found in review - two of the Owner's devices that issue different jobs before either syncs both take the same
+ *  number, and nothing refuses it: they are different records. He is told, and gives one the next number. */
+function pjNumClash(v){
+  return !!(v&&v.rec&&v.num>0&&v.st!=='skip'&&pjJobs().some(o=>o!==v&&o.key!==v.key&&o.rec&&o.st!=='skip'&&o.num===v.num&&o.mon===v.mon));}
+/** Of the jobs that share a number, the ONE that is to take the next: the same answer on every device (the last by
+ *  its id), so two devices cannot each move a different one and meet again on the same number (found in the re-review). */
+function pjClashMover(v){
+  const l=pjJobs().filter(o=>o.rec&&o.st!=='skip'&&o.num===v.num&&o.mon===v.mon).sort((a,b)=>String(a.key).localeCompare(String(b.key)));
+  return l.length>1?l[l.length-1]:null;}
+/** The name of the work on a report row, as the job is called NOW: a job given another number keeps one name everywhere. */
+function pjLabel(e){
+  const d=e&&e.detail; if(!d||typeof d!=='object'||Array.isArray(d)||+d.v!==1||!d.job)return '';
+  const v=pjJobs().find(x=>x.pid===String(d.job)); return (v&&v.rec)?(pjName(v)+' · '+v.en):'';}
+function pjCrewList(){
+  const t=todayISO();
+  return pjJobs().filter(v=>v.st==='iss'&&!v.direct&&ppDiff(v.from,t)<=PP_CREW_SEE).sort((a,b)=>String(a.from).localeCompare(String(b.from))||a.num-b.num);}
+function pjCrewDue(){return pjCrewList().filter(v=>{const w=pjWhen(v);return w==='due'||w==='over';});}
+
+/* ---------- the Owner's worker list and day rate: one record, changed in place ---------- */
+function pjCfgRec(){return (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).find(p=>p&&p.uuid===PJ_CFG_ID&&pjIsCfg(p))||null;}
+function pjCfg(){
+  const r=pjCfgRec(), x=r?ppX(r):null, seen={};
+  const names=((x&&Array.isArray(x.names))?x.names:[]).map(n=>pjClip(n,PJ_NAME_LEN)).filter(n=>{const k=n.toLowerCase();if(!n||seen[k])return false;seen[k]=1;return true;}).slice(0,PJ_NAMES_MAX);
+  return {names:names,day:(x&&+x.day>0)?+x.day:0,rec:r};}
+async function pjCfgSave(make){
+  if(!ppIsOwner())return false;
+  let rec=pjCfgRec(), isNew=false;
+  if(rec&&ppStale(rec))return false;
+  if(!rec){isNew=true;
+    rec={uuid:PJ_CFG_ID,phaseId:'CFG|labour',month:'',set:'WORKERS AND DAY RATE',kind:'CFG',mode:'CFG',
+      header:'The worker list and the day rate (The Programme, RECORD)',basis:'PER_ROUND',plan:'',scope:'ALL',trees:0,litresPerTree:0,tanks:0,
+      lines:[],projCost:0,by:ppMe(),byId:(CFG&&CFG.uid)||'',at:nowSec(),status:'CFG',rev:0,base:0,synced:false,x:{cfg:1,names:[],day:0}};}
+  const x=ppX(rec); make(x); rec.by=ppMe();
+  await ppSave(rec,isNew);
+  return true;}
+
+/* ---------- pay: the day rate, or the record's own rate ---------- */
+function pjPayOk(p){
+  if(!p||typeof p!=='object')return null;
+  const rm0=+p.rm; if(!(rm0>0))return null;
+  if(p.b==='piece'){const u=pjClip(p.unit,PJ_UNIT_LEN);return u?{b:'piece',rm:rm0,unit:u}:null;}
+  return p.b==='day'?{b:'day',rm:rm0}:null;}
+/** The rate a report is priced at: `own` is the record's x.pay, already checked. Null = nothing keyed. */
+function pjPay(own){
+  if(own)return own;
+  const d=pjCfg().day;
+  return d>0?{b:'day',rm:d,def:1}:null;}
+function pjRm(pay,r){
+  if(!pay)return null;
+  return pay.b==='piece'?(+r.cnt||0)*pay.rm:(r.n*r.h/PJ_DAY_H)*pay.rm;}
+function pjPayTxt(pay){
+  if(!pay)return 'not keyed';
+  return pay.b==='piece'?('RM '+pjN2(pay.rm)+' a '+pay.unit):('RM '+pjN2(pay.rm)+' a day');}
+/** A set's own rate (by day only: its form has no count). */
+function pjSetPay(v){const x=(v&&v.rec)?ppX(v.rec):null, p=x?pjPayOk(x.pay):null;return (p&&p.b==='day')?p:null;}
+/** Plan man-days of a set: the workbook gives every round of section B (spray, drench)
+ *  2 people x 2 days and every round of section C (fertiliser, trunk, weeding) 2. */
+function pjSetPlanMd(v){if(!v||!v.plan)return 0;return (v.k==='spray'||v.k==='drench')?4:2;}
+/** The replies of a set, from its own log: the day, the lots, people, hours, and the day it was keyed. */
+function pjSetReps(v){
+  const x=(v&&v.rec)?ppX(v.rec):null, out=[];
+  (Array.isArray(x&&x.log)?x.log:[]).forEach((e,i)=>{
+    if(!e||(e.k!=='done'&&e.k!=='rec')||!(+e.crew>0)||!(+e.hours>0))return;
+    out.push({rid:'S'+v.key+'#'+i,set:true,d:String(e.d||'').slice(0,10),lots:Array.isArray(e.lots)?e.lots.slice():[],n:Math.round(+e.crew),h:+e.hours,cnt:0,end:true,
+      names:[],at:String(e.at||''),by:String(e.by||''),undone:null});});
+  if(!out.length&&v&&v.done&&+v.done.mh>0){
+    const c=+v.done.crew||0, hh=+v.done.hours||0;
+    out.push({rid:'S'+v.key+'#d',set:true,d:String(v.done.date||'').slice(0,10),lots:(v.done.lots||[]).slice(),n:c>0?c:1,h:c>0&&hh>0?(+v.done.mh/c):+v.done.mh,cnt:0,end:true,
+      names:[],at:'',by:String(v.done.by||''),undone:null});}
+  return out;}
+/** Every line of the work record: jobs, other work, and the sets that carry people and hours. */
+function pjWorkRows(){
+  const out=[], jobs=pjJobs(), byPid={}; jobs.forEach(v=>{byPid[v.pid]=v;});
+  pjReps().forEach(r=>{
+    const v=r.job?byPid[r.job]:null;
+    if(r.job&&!v)return;                               // a report for a job this phone does not hold (yet)
+    const oth=PJ_OTHER.find(o=>o[0]===r.oth);
+    const pay=pjPay(v?v.pay:null);
+    out.push({r:r,src:v?'job':'oth',v:v,name:v?pjName(v):(oth?oth[1]:(r.label||'Other work')),sub:v?pjKindW(v):'',pay:pay,rm:r.undone?null:pjRm(pay,r)});});
+  ppSets().forEach(v=>{ if(v.st==='skip'||v.st==='plan')return;
+    const pay=pjPay(pjSetPay(v));
+    pjSetReps(v).forEach(r=>{out.push({r:r,src:'set',v:v,name:ppName(v),sub:'',pay:pay,rm:pjRm(pay,r)});});});
+  out.sort((a,b)=>String(b.r.d).localeCompare(String(a.r.d))||String(b.r.at).localeCompare(String(a.r.at))||String(b.r.rid).localeCompare(String(a.r.rid)));
+  return out;}
+
+/* ---------- where the Programme screen lives ----------
+   The Owner and the Purchaser open it from the Programme tile. The crew's copy is the first
+   section of KERJA: the Program tile is gone from their home (3D). Every route that used to
+   say openModule('prog') for the crew goes through here. */
+function ppHome(){return myRole()==='WORKER'?'ops':'prog';}
+function ppHere(){return typeof curModule!=='undefined'&&(curModule==='prog'||(curModule==='ops'&&curTab==='tasks'&&myRole()==='WORKER'));}
+function ppOpenTile(){if(myRole()==='WORKER')openModule('ops','tasks');else openModule('prog');}
+/** The crew's KERJA tile opens on the list, not on a menu; its other two sections are on the strip. */
+function pjDirect(k){return k==='ops'&&myRole()==='WORKER';}
+function pjStrip(k,t){
+  const sb=$('subbar'); if(!sb)return;
+  if(!pjDirect(k)){return;}
+  const tabs=tabsFor('ops'); if(tabs.length<2)return;
+  sb.innerHTML=tabs.map(x=>'<div id="pj-sb-'+x.k+'" class="'+(x.k===t?'on':'')+'" onclick="openModule(\'ops\',\''+x.k+'\')">'+(x.ic||'')+' '+esc(tabLabel(x))+'</div>').join('');
+  sb.classList.remove('hidden');}
+/** The arrow at the top of the screen, on a job screen: one step back, not out to the tiles with a half-keyed
+ *  report thrown away (found in review). false = nothing of ours is open; the arrow does what it always did. */
+function pjBackStep(){
+  if(myRole()==='WORKER'){
+    if(PJC.undo){pjCUndoNo();return true;}
+    if(PJC.s==='form'){if(PJC.f&&PJC.f.oth)pjCList();else pjCCard();return true;}
+    if(PJC.s==='not'){pjCCard();return true;}
+    if(PJC.s){pjCList();return true;}
+    return false;}
+  if(!ppIsOwner()||!PJO.s)return false;
+  if(PJC.undo){pjCUndoNo();return true;}
+  if(PJO.s==='pay'){pjPayBack();return true;}
+  if(PJO.s==='detail'||PJO.s==='add'||(PJO.s==='issue'&&PJO.base)){pjBack();return true;}
+  pjToDetail();return true;}
+/** ppSave() with the one failure it can have said honestly. It changes the record in memory and queues it for the
+ *  Sheet BEFORE it writes to the phone's own store; if that write is refused the change is still made and still goes
+ *  up at the next sync. Found in the re-review: saying "not saved, press again" there made the second press a second
+ *  job. So: carry on, and say what is true. */
+async function pjSave(rec,isNew){
+  try{await ppSave(rec,isNew);}
+  catch(e){try{ppTouch();badge();}catch(e2){}
+    /* after the caller's own "done" line, which would otherwise cover it */
+    setTimeout(()=>toast(ppT('⚠ Done, but this phone could not store it just now. Keep the app open and press SYNC.','⚠ Siap, tetapi telefon ini tidak dapat simpan sekarang. Biar aplikasi terbuka dan tekan SYNC.'),1),350);}}
+function pjAfter(top){
+  ppTouch(); ppRender(); if(top!==false)ppTop();
+  try{ renderHub(); badge(); if(typeof renderMine==='function'&&curModule==='mine')renderMine(); }catch(e){}
+  ppSyncSoon();}
+
+/* ---------- filing: a report, an undo ---------- */
+/** o = {v (the job view, or null for other work), oth, day, stamp, lots, n, h, cnt, end, names, via}. */
+async function pjFile(o){
+  const rid=uuid(), at=nowSec(), lots=o.lots.slice().sort(), v=o.v;
+  const shares=splitExact(o.n*o.h,lots.map(L=>treesInLot(L).length||1));
+  const oth=PJ_OTHER.find(x=>x[0]===o.oth);
+  /* ⛔ THE KIND IS THE REPORT'S OWN (found in review). The duplicate finder of v3.81.0 groups work by day, kind and
+     lot and offers "the extra copies" for clean-up: with one kind for a whole job, a morning and an afternoon report
+     would be offered for deletion on any Owner device not yet updated. Nothing in this build reads the tail. */
+  const kind=(v?('JOB:'+String(v.pid).replace(/^J27\|/,'')):('OTH:'+String(o.oth||'OTHER')))+'#'+rid.replace(/-/g,'').slice(0,8);
+  const label=v?(pjName(v)+' · '+v.en):('Other work · '+(oth?oth[1]:'Other'));
+  const det={v:1,rid:rid,job:v?v.pid:'',day:o.day,lots:lots,n:o.n,h:o.h,cnt:o.cnt,end:o.end?1:0,names:o.names.slice(),at:at,via:String(o.via||'')};
+  if(!v)det.oth=String(o.oth||'OTHER');
+  if(+o.dd>1)det.dd=Math.round(+o.dd);
+  if(CFG&&CFG.uid)det.uid=String(CFG.uid);
+  /* all the rows of a report, or none: a write that fails half-way must not leave one lot standing while the
+     person is told "not saved, press again" (found in review) */
+  const made=[];
+  try{
+  for(let i=0;i<lots.length;i++){
+    const ev=({uuid:uuid(),type:'TASK_DONE',dt:o.stamp,taskId:v?String(v.rec.uuid):'',kind:kind,kindLabel:label,lot:lots[i],
+      count:i===0?o.cnt:0,countLabel:v?(v.cen||((v.pay&&v.pay.b==='piece')?v.pay.unit:'')):'',unit:'',trees:treesInLot(lots[i]).length,
+      crew:o.n,hours:o.h,manHours:shares[i],worker:ppMe(),device:(CFG&&CFG.device)||'',detail:det,synced:false});
+    made.push(ev); await persistEvent(ev);}
+  }catch(err){
+    for(const ev of made){const i=EVENTS.indexOf(ev); if(i>=0)EVENTS.splice(i,1); try{await del('events',ev.uuid);}catch(e2){}}
+    pjTouch(); try{badge();}catch(e2){} throw err;}
+  pjTouch();
+  return rid;}
+async function pjUndo(r,why,txt){
+  const first=r.rows[0]||{};
+  await persistEvent({uuid:uuid(),type:'TASK_DONE',dt:now(),taskId:String(first.taskId||''),kind:'UNDO#'+String(r.rid).replace(/-/g,'').slice(0,8),kindLabel:'Undone: '+String(r.label||''),lot:'',
+    count:0,countLabel:'',unit:'',trees:0,crew:0,hours:0,manHours:0,labourOff:true,worker:ppMe(),device:(CFG&&CFG.device)||'',
+    detail:{v:1,undo:r.rid,why:String(why||''),txt:pjClip(txt,PJ_WHY_LEN),at:nowSec()},synced:false});
+  pjTouch();}
+function pjUndoTxt(u){
+  if(!u)return '';
+  if(u.why==='OTHER'||!u.why)return u.txt||'';
+  const w=PJ_UNDO.find(x=>x[0]===u.why); return w?ppT(w[1],w[2]):u.why;}
+/** The crew: its own report, from this phone, keyed today. The Owner: any report. */
+function pjCanUndo(r){
+  if(!r||r.undone||r.set)return false;
+  if(ppIsOwner())return true;
+  /* found in review - the phone alone is not enough on a farm where phones are shared: the same person, too */
+  /* ...by his id on the staff list, so a name the Owner corrects the same day does not take his undo away; the name
+     only for a report that carries no id (found in the re-review) */
+  const me=(CFG&&CFG.uid)?String(CFG.uid):'', mine=(r.uid&&me)?(r.uid===me):(!!ppMe()&&r.by===ppMe());
+  return myRole()==='WORKER'&&r.via!=='OWNER'&&mine&&r.device===((CFG&&CFG.device)||'')&&String(r.at).slice(0,10)===todayISO();}
+/** Is the count compulsory on this job (the Owner pays it by piece)? The rate itself is never read here. */
+function pjCountMust(v){return !!(v&&v.pay&&v.pay.b==='piece');}
+
+/* ======================================================================================
+   THE CREW
+   ====================================================================================== */
+function pjCReset(){PJC={s:'',key:'',f:null,info:null,undo:null,not:null};}
+function pjCJob(){const v=pjFind(PJC.key);return (v&&v.rec)?v:null;}
+function pjCGo(k){PJC={s:'card',key:ppUnArg(k),f:null,info:null,undo:null,not:null};pjMoved();ppRender();ppTop();}
+function pjCList(){pjCReset();ppRender();ppTop();}
+function pjCCard(){PJC.s='card';PJC.f=null;PJC.undo=null;PJC.not=null;pjMoved();ppRender();ppTop();}
+/** From the bar on the home screen: into KERJA, on the job. */
+function pjGo(k){ppOpenTile(); if(myRole()==='WORKER'){PJC={s:'card',key:ppUnArg(k),f:null,info:null,undo:null,not:null};pjMoved();ppRender();ppTop();}}
+function pjCMin(){let m=ppAdd(todayISO(),-PP_CREW_BACK);const sf=ppSeasonFrom();if(sf&&sf>m)m=sf;return m;}
+function pjCFormOpen(oth){
+  if(pjUHeld())return;
+  const v=oth?null:pjCJob();
+  if(!oth&&(!v||v.st!=='iss'||v.direct)){toast(ppT('This job is no longer open.','Kerja ini sudah tidak dibuka.'),1);pjCList();return;}
+  const left=oth?ppLots():pjLotsLeft(v), lots={};
+  if(left.length===1)lots[left[0]]=1;
+  /* the Owner's list as it stood when the form opened: a name he takes off meanwhile must not move the others under the finger (found in review) */
+  const list=pjCfg().names.slice();
+  PJC.f={oth:!!oth,kind:'',day:'today',dsel:'',lots:lots,end:'',cnt:'',names:{},list:list,x:list.length?0:2,h:8,err:'',busy:false};
+  PJC.s='form'; if(oth)PJC.key=''; PJC.undo=null; pjMoved(); ppRender(); ppTop();}
+function pjCSync(){
+  const f=PJC.f; if(!f)return;
+  const c=$('pj-f-cnt'); if(c)f.cnt=c.value;
+  const d=$('pj-f-dsel'); if(d&&d.value)f.dsel=d.value;}
+function pjCSet(k,val){const f=PJC.f;if(!f)return;pjCSync();f[k]=val;f.err='';ppRender();}
+function pjCLot(L){const f=PJC.f;if(!f)return;pjCSync();if(f.lots[L])delete f.lots[L];else f.lots[L]=1;f.err='';ppRender();}
+function pjCName(i){const f=PJC.f;if(!f)return;pjCSync();const n=(f.list||[])[i];if(!n)return;if(f.names[n])delete f.names[n];else f.names[n]=1;f.err='';ppRender();}
+function pjCNum(k,d){const f=PJC.f;if(!f)return;pjCSync();
+  if(k==='x')f.x=Math.max(0,Math.min(PJ_PEOPLE_MAX,Math.round((+f.x||0)+d)));
+  else f.h=Math.max(0.5,Math.min(PJ_HOURS_MAX,(+f.h||0)+d));
+  f.err='';ppRender();}
+function pjFPeople(f){return (f.list||[]).filter(n=>f.names[n]).length+Math.max(0,Math.round(+f.x||0));}
+async function pjCSave(){
+  const f=PJC.f; if(!f||f.busy||pjHeld())return;
+  pjCSync();
+  const v=f.oth?null:pjCJob(), fail=m=>{f.err=m;ppRender();};
+  if(!f.oth&&(!v||v.st!=='iss'||v.direct)){PJC.f=null;toast(ppT('This job is no longer open.','Kerja ini sudah tidak dibuka.'),1);pjCList();return;}
+  const t=todayISO(), day=f.day==='today'?t:f.day==='yest'?ppAdd(t,-1):f.dsel;
+  if(f.oth&&!PJ_OTHER.some(o=>o[0]===f.kind))return fail(ppT('Pick the kind of work.','Pilih jenis kerja.'));
+  if(!ppOkDay(day)||day>t||day<pjCMin())return fail(ppT('Pick the day: today or up to 7 days back.','Pilih hari: hari ini atau paling awal 7 hari lepas.'));
+  const lots=LOT_KEYS.filter(L=>f.lots[L]);
+  if(!lots.length)return fail(ppT('Pick the lot.','Pilih lot.'));
+  if(v){
+    /* ⛔ ASK AGAIN, NOW: a lot another phone reported finished while this form stood open */
+    const open=pjLotsLeft(v), dup=lots.filter(L=>open.indexOf(L)<0);
+    if(dup.length){dup.forEach(L=>{delete f.lots[L];});
+      return fail('Lot '+dup.join(' ')+' '+ppT('was reported finished from another phone. Check the lots and press again.','sudah dilaporkan siap dari telefon lain. Semak lot dan tekan sekali lagi.'));}
+    if(f.end!=='yes'&&f.end!=='no')return fail(ppT('Press: is the lot finished, or not yet?','Tekan: lot ini sudah habis, atau belum?'));}
+  const list=f.list||[], names=list.filter(n=>f.names[n]), n=names.length+Math.max(0,Math.round(+f.x||0)), h=+f.h||0;
+  if(!(n>0))return fail(list.length?ppT('Tick who worked, or key how many others.','Tanda siapa yang kerja, atau masukkan bilangan orang lain.'):ppT('Key how many people.','Masukkan bilangan orang.'));
+  if(!(h>0))return fail(ppT('Key the hours.','Masukkan jam.'));
+  const cnt=pjCount(f.cnt);
+  if(cnt===null)return fail(ppT('Check the count: a number from 0 up.','Semak bilangan: nombor dari 0 ke atas.'));
+  if(v&&pjCountMust(v)&&!(cnt>0))return fail(ppT('Key how many: this job is counted.','Masukkan bilangan: kerja ini dikira.'));
+  const stamp=stampFor(day); if(stamp===null)return fail(ppT('That day has not happened yet.','Tarikh itu belum tiba.'));
+  f.busy=true;
+  let rid='';
+  try{rid=await pjFile({v:v,oth:f.oth?f.kind:'',day:day,stamp:stamp,lots:lots,n:n,h:h,cnt:cnt,end:f.oth?true:f.end==='yes',names:names,via:'CREW'});}
+  catch(e){f.busy=false;return fail(ppT('Not saved. Press again.','Tidak disimpan. Tekan sekali lagi.'));}
+  PJC.info={rid:rid,key:v?v.key:''}; PJC.f=null; PJC.s='saved'; pjMoved(); pjAfter();}
+/* ----- undo, with a reason ----- */
+function pjCUndoOpen(rid){if(pjUHeld())return;PJC.undo={rid:String(rid),why:'',txt:'',err:'',busy:false};pjMoved();pjUMoved();ppRender();}
+function pjCUndoSync(){const u=PJC.undo,e=$('pj-u-txt');if(u&&e)u.txt=e.value;}
+function pjCUndoWhy(k){const u=PJC.undo;if(!u)return;pjCUndoSync();u.why=k;u.err='';ppRender();}
+function pjCUndoNo(){PJC.undo=null;pjUMoved();ppRender();}
+async function pjCUndoGo(){
+  const u=PJC.undo; if(!u||u.busy||pjHeld())return;
+  pjCUndoSync();
+  const r=pjReps().find(x=>x.rid===u.rid);
+  if(!r||!pjCanUndo(r)){PJC.undo=null;toast(ppT('This report can no longer be undone here.','Laporan ini tidak boleh dibatalkan di sini lagi.'),1);ppRender();return;}
+  if(!PJ_UNDO.some(w=>w[0]===u.why)){u.err=ppT('Press the reason first.','Tekan sebabnya dahulu.');ppRender();return;}
+  const txt=pjClip(u.txt,PJ_WHY_LEN);
+  if(u.why==='OTHER'&&!txt){u.err=ppT('Type the reason.','Taip sebabnya.');ppRender();return;}
+  u.busy=true;
+  try{await pjUndo(r,u.why,u.why==='OTHER'?txt:'');}
+  catch(e){u.busy=false;u.err=ppT('Not saved. Press again.','Tidak disimpan. Tekan sekali lagi.');ppRender();return;}
+  PJC.undo=null; pjMoved(); pjUMoved();
+  toast(ppT('Undone. The Owner sees it, with the reason.','Dibatalkan. Pengurus nampak, dengan sebabnya.'));
+  pjAfter(false);}
+/** Under one report: nothing, the UNDO button, the reason box, or "undone · why". `own` = the Owner's page. */
+function pjUndoUI(r,own){
+  if(r.undone)return ' <span class="pp-pill red" id="pj-un-'+ppCss(r.rid)+'">'+(own?('undone by '+esc(r.undone.by||'?')):ppT('undone','dibatalkan'))+(pjUndoTxt(r.undone)?(' · '+esc(pjUndoTxt(r.undone))):'')+'</span>';
+  if(!pjCanUndo(r))return '';
+  const u=PJC.undo;
+  if(u&&u.rid===r.rid)return '<div class="pj-ubox" id="pj-u-box"><div class="pp-q" style="margin-top:0">'+ppT('Why is it wrong?','Kenapa salah?')+'</div><div class="pp-opts">'+
+    PJ_UNDO.map(w=>'<button class="pp-opt big'+(u.why===w[0]?' sel':'')+'" id="pj-u-w-'+w[0]+'" onclick="pjCUndoWhy(\''+w[0]+'\')">'+ppT(w[1],w[2])+'</button>').join('')+'</div>'+
+    (u.why==='OTHER'?('<input id="pj-u-txt" maxlength="'+PJ_WHY_LEN+'" placeholder="'+ppT('the reason','sebabnya')+'" value="'+esc(u.txt)+'" autocomplete="off" style="margin-top:8px">'):'')+
+    '<div class="pp-err" id="pj-u-err">'+esc(u.err||'')+'</div>'+
+    '<button class="pp-ghost rd" id="pj-u-go" onclick="pjCUndoGo()">'+ppT('UNDO THIS REPORT','BATALKAN LAPORAN INI')+'</button>'+
+    '<button class="pp-ghost" id="pj-u-no" onclick="pjCUndoNo()">'+ppT('KEEP THE REPORT','JANGAN BATAL')+'</button></div>';
+  return '<button class="pp-ghost rd pj-sm" id="pj-undo-'+ppCss(r.rid)+'" onclick="pjCUndoOpen(\''+ppArg(r.rid)+'\')">'+(own?'UNDO THIS REPORT':ppT('UNDO · I pressed it wrong','BATALKAN · salah tekan'))+'</button>';}
+/* ----- not done today: a reason and a new first day, as for a set ----- */
+function pjCNotOpen(){
+  if(pjUHeld())return;
+  const v=pjCJob(); if(!v||v.st!=='iss'||v.direct)return;
+  if(ppStale(v.rec))return;
+  PJC.not={why:'',date:ppAdd(todayISO(),1),err:'',busy:false}; PJC.s='not'; pjMoved(); ppRender(); ppTop();}
+function pjCNotWhy(k){const d=$('pj-n-date'),n=PJC.not;if(!n)return;if(d&&d.value)n.date=d.value;n.why=k;n.err='';ppRender();}
+async function pjCNotGo(){
+  const n=PJC.not; if(!n||n.busy||pjHeld())return;
+  const v=pjCJob();
+  if(!v||v.st!=='iss'){PJC.not=null;toast(ppT('This job is no longer open.','Kerja ini sudah tidak dibuka.'),1);pjCList();return;}
+  if(ppStale(v.rec)){PJC.not=null;pjCCard();return;}
+  const d=$('pj-n-date'); if(d&&d.value)n.date=d.value;
+  const today=todayISO(), fail=m=>{n.err=m;ppRender();};
+  if(!n.why)return fail(ppT('Pick the reason first.','Pilih sebab dahulu.'));
+  if(!ppOkDay(n.date)||n.date<=today||n.date>ppAdd(today,PP_CREW_FWD))return fail(ppT('Pick the new day: after today and within 14 days.','Pilih hari baru, selepas hari ini dan dalam 14 hari.'));
+  n.busy=true;
+  const rec=v.rec, x=ppX(rec), from=v.from, span=Math.max(0,ppDiff(v.to,v.from));
+  x.notice={from:from,to:n.date,why:n.why,at:now(),by:ppMe(),seen:false};
+  ppLog(x,{k:'crewmove',from:from,to:n.date,why:n.why});
+  rec.plan=n.date; x.from=n.date; x.to=ppAdd(n.date,span); x.bm=null;
+  await pjSave(rec,false);
+  PJC.info={name:pjNameBM(v),from:from,to:n.date,why:n.why}; PJC.not=null; PJC.s='told'; pjMoved(); pjAfter();}
+
+/* ----- what the crew sees ----- */
+function pjChipsHTML(v,idp){
+  return '<div class="pj-chips" id="'+(idp||'pj-chips-')+ppCss(v.key)+'">'+v.lots.map(L=>{const s=pjLotSt(v,L);
+    return '<span class="'+(s==='done'?'ok':s==='part'?'pt':'')+'" id="'+(idp||'pj-chip-')+ppCss(v.key)+'-'+L+'">Lot '+L+' · '+
+      (s==='done'?('✓ '+ppT('finished','siap')):s==='part'?ppT('in progress','sedang dibuat'):ppT('not started','belum mula'))+'</span>';}).join('')+'</div>';}
+function pjCRowHTML(v){
+  const st=pjSt(v), dn=v.lots.filter(L=>pjLotSt(v,L)==='done'), any=v.live.length>0;
+  return '<button class="pp-row'+(v.st==='done'?' st-done':'')+'" id="pj-crow-'+ppCss(v.key)+'" onclick="pjCGo(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+pjIc(v)+' '+esc(pjNameBM(v))+'</b>'+
+    '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(pjTitle(v))+'</div><div class="pp-dt">'+(v.st==='done'?ppFmt(pjDoneDay(v)):pjRange(v.from,v.to))+' · '+
+    (v.st==='done'?ppT('finished','siap'):(dn.length?('Lot '+dn.join(' ')+' ✓ · '+dn.length+' / '+v.lots.length):any?ppT('started','sudah mula'):ppT('nothing reported','belum ada laporan')))+
+    ((v.st!=='done'&&v.bm&&v.bm.k==='move')?(' · <b style="color:#b26a00">'+ppT('MOVED','DIPINDAH')+'</b>'):'')+'</div></button>';}
+function pjRepHTML(v,r,own){
+  const cw=v?(ppT(v.cen,v.cms)||v.cen||((v.pay&&v.pay.b==='piece')?v.pay.unit:'')):'', who=pjWho(r), lt=pjLate(r);
+  const oth=PJ_OTHER.find(o=>o[0]===r.oth);
+  return '<div class="pj-rep'+(r.undone?' off':'')+'" id="pj-rep-'+ppCss(r.rid)+'"><span class="'+(r.undone?'pj-strike':'')+'">✓ '+(v?'':(esc(oth?ppT(oth[1],oth[2]):(r.label||''))+' · '))+esc(pjRepLine(r))+
+    ((r.cnt&&v)?(' · '+nf(r.cnt)+(cw?(' '+esc(cw)):'')):'')+(v?(' · '+(r.end?ppT('lot finished','lot siap'):ppT('not finished','belum habis'))):'')+
+    (who?('<br>'+esc(who)):'')+'</span>'+
+    ((own&&lt)?(' <span class="pp-pill amb">keyed '+lt+' day'+(lt>1?'s':'')+' late</span>'):'')+
+    ((own&&r.via==='OWNER')?' <span class="pp-pill mut">keyed by the Owner</span>':'')+
+    ((own&&r.cut)?' <span class="pp-pill amb">part of it was removed in a clean-up</span>':'')+pjUndoUI(r,own)+'</div>';}
+function pjStepHTML(id,val,fn){
+  return '<span class="pj-st"><button id="'+id+'-dn" onclick="'+fn+'-1)">−</button><b id="'+id+'-v">'+val+'</b><button id="'+id+'-up" onclick="'+fn+'1)">+</button></span>';}
+function pjCFormHTML(){
+  const f=PJC.f, v=f.oth?null:pjCJob(), today=todayISO(), min=pjCMin(), yest=ppAdd(today,-1);
+  if(!f.oth&&!v)return '<button class="pp-back" onclick="pjCList()">‹ '+ppT('back','kembali')+'</button>';
+  const all=f.oth?ppLots():v.lots, list=f.list||[];
+  let h='<button class="pp-back" id="pj-f-up" onclick="'+(f.oth?'pjCList()':'pjCCard()')+'">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+ppT('Done','Siap')+' — '+esc(f.oth?ppT('Other work','Kerja lain'):pjNameBM(v))+'</div>'+
+    (f.oth?'':'<div class="pp-g">'+esc(pjTitle(v))+'</div>');
+  if(f.oth)h+='<label>'+ppT('What work?','Kerja apa?')+'</label><div class="pp-opts">'+PJ_OTHER.map(o=>'<button class="pp-opt big'+(f.kind===o[0]?' sel':'')+'" id="pj-f-k-'+o[0]+'" onclick="pjCSet(\'kind\',\''+o[0]+'\')">'+ppT(o[1],o[2])+'</button>').join('')+'</div>';
+  const days=[['today',ppT('Today','Hari ini'),ppFmt(today)]];
+  if(yest>=min)days.push(['yest',ppT('Yesterday','Semalam'),ppFmt(yest)]);
+  if(ppAdd(today,-2)>=min)days.push(['other',ppT('Other day','Hari lain'),ppT('up to 7 days back','paling awal 7 hari lepas')]);
+  h+='<label>'+ppT('Which day was the work done?','Kerja dibuat hari apa?')+'</label><div class="pp-opts">'+days.map(o=>'<button class="pp-opt'+(f.day===o[0]?' sel':'')+'" id="pj-f-d-'+o[0]+'" onclick="pjCSet(\'day\',\''+o[0]+'\')">'+o[1]+'<small>'+o[2]+'</small></button>').join('')+'</div>';
+  if(f.day==='other'){const opts=[];for(let n=2;n<=PP_CREW_BACK;n++){const d=ppAdd(today,-n);if(d<min)break;opts.push(d);}
+    if(!f.dsel||opts.indexOf(f.dsel)<0)f.dsel=opts[0]||'';
+    h+='<select id="pj-f-dsel" style="margin-top:8px" onchange="if(PJC.f)PJC.f.dsel=this.value">'+opts.map(d=>'<option value="'+d+'"'+(f.dsel===d?' selected':'')+'>'+ppFmt(d)+'</option>').join('')+'</select>';}
+  h+='<label>'+ppT('Which lot did you work in that day?','Lot mana yang dibuat hari itu?')+'</label><div class="pp-opts">'+all.map(L=>{const dn=!f.oth&&pjLotSt(v,L)==='done';
+    return '<button class="pp-opt'+(f.lots[L]?' sel':'')+'" id="pj-f-l-'+L+'"'+(dn?' disabled':'')+' onclick="pjCLot(\''+L+'\')">Lot '+L+'<small>'+(dn?ppT('finished','sudah siap'):(treesInLot(L).length+' '+ppT('trees','pokok')))+'</small></button>';}).join('')+'</div>';
+  if(!f.oth)h+='<label>'+ppT('Is that lot finished?','Lot itu sudah habis?')+'</label><div class="pp-opts" id="pj-f-end">'+
+    '<button class="pp-opt big'+(f.end==='no'?' sel':'')+'" id="pj-f-e-no" onclick="pjCSet(\'end\',\'no\')">'+ppT('NOT YET','BELUM HABIS')+'<small>'+ppT('more work another day','sambung hari lain')+'</small></button>'+
+    '<button class="pp-opt big'+(f.end==='yes'?' sel':'')+'" id="pj-f-e-yes" onclick="pjCSet(\'end\',\'yes\')">'+ppT('FINISHED','SUDAH HABIS')+'<small>'+ppT('the lot is done','lot ini siap')+'</small></button></div>';
+  if(v){const cw=ppT(v.cen,v.cms)||v.cen||((v.pay&&v.pay.b==='piece')?v.pay.unit:''), must=pjCountMust(v);
+    if(cw||must)h+='<label id="pj-f-cnt-l">'+esc(cw||ppT('how many','berapa'))+' ('+(must?ppT('must be keyed','wajib diisi'):ppT('if counted','jika dikira'))+')</label><input type="number" id="pj-f-cnt" inputmode="decimal" min="0" step="any" value="'+esc(f.cnt)+'" oninput="if(PJC.f)PJC.f.cnt=this.value">';}
+  if(list.length)h+='<label>'+ppT('Who worked? Tick the names','Siapa yang kerja? Tanda nama')+'</label><div class="pp-opts" id="pj-f-names">'+list.map((n,i)=>'<button class="pp-opt'+(f.names[n]?' sel':'')+'" id="pj-f-n-'+i+'" onclick="pjCName('+i+')">'+esc(n)+'</button>').join('')+'</div>';
+  h+='<div class="pj-row"><span>'+(list.length?ppT('Others, not on the list','Orang lain, tiada dalam senarai'):ppT('How many people','Berapa orang'))+'</span>'+pjStepHTML('pj-f-x',Math.round(+f.x||0),'pjCNum(\'x\',')+'</div>'+
+    '<div class="pj-row"><span>'+ppT('Hours each','Jam seorang')+'</span>'+pjStepHTML('pj-f-h',nf(f.h),'pjCNum(\'h\',0.5*')+'</div>'+
+    '<div class="pp-note grn" id="pj-f-sum">'+pjFPeople(f)+' '+ppT('people','orang')+' × '+nf(f.h)+' '+ppT('hours','jam')+' = <b>'+nf(pjFPeople(f)*f.h)+' '+ppT('man-hours','jam kerja')+'</b></div>'+
+    '<div class="pp-err" id="pj-f-err">'+esc(f.err||'')+'</div><button class="pp-act" id="pj-f-save" onclick="pjCSave()">'+ppT('SAVE','SIMPAN')+'</button>';
+  return h;}
+function pjCrewHTML(){
+  const today=todayISO();
+  if(PJC.s==='form'&&PJC.f)return pjCFormHTML();
+  if(PJC.s==='saved'){
+    const r=pjReps().find(x=>x.rid===(PJC.info||{}).rid), v=(PJC.info&&PJC.info.key)?pjFind(PJC.info.key):null;
+    let h='<div class="pp-okbig" id="pj-c-saved">✔ '+ppT('Saved','Disimpan')+'</div>';
+    if(r){const oth=PJ_OTHER.find(o=>o[0]===r.oth), cw=v?(ppT(v.cen,v.cms)||v.cen||((v.pay&&v.pay.b==='piece')?v.pay.unit:'')):'';
+      h+='<div class="pp-g">'+esc(v?pjNameBM(v):(oth?ppT(oth[1],oth[2]):ppT('Other work','Kerja lain')))+' · '+esc(pjRepLine(r))+((r.cnt&&v)?(' · '+nf(r.cnt)+(cw?(' '+esc(cw)):'')):'')+(pjWho(r)?('<br><span id="pj-c-who">'+esc(pjWho(r))+'</span>'):'')+'</div>';}
+    if(v){const left=pjLotsLeft(v);
+      h+=pjChipsHTML(v)+'<div class="pp-note'+(v.st==='done'?' grn':'')+'" id="pj-c-left">'+(v.st==='done'?('<b>'+ppT('All lots are finished. The job is closed.','Semua lot sudah siap. Kerja ditutup.')+'</b>')
+        :(ppT('Still to do: Lot ','Belum siap: Lot ')+'<b>'+esc(left.join(' '))+'</b>. '+ppT('The job stays on your list.','Kerja ini kekal dalam senarai anda.')))+'</div>';}
+    else h+='<div class="pp-note">'+ppT('The Owner sees it in the work record, marked "not on the plan".','Pengurus nampak dalam rekod kerja, ditanda "bukan dalam rancangan".')+'</div>';
+    return h+'<button class="pp-ghost" id="pj-c-back" onclick="pjCList()">'+ppT('Back to the list','Kembali ke senarai')+'</button>';}
+  if(PJC.s==='told'){
+    const d=PJC.info||{};
+    return '<div class="pp-okbig" style="color:#b26a00">'+ppT('Moved','Dipindah')+'</div><div class="pp-g">'+esc(d.name||'')+' '+ppT('was not done on','tak jadi pada')+' '+ppFmt(d.from)+' — '+
+      esc(ppWhyM(d.why))+'. '+ppT('New day','Hari baru')+': <b>'+ppFmt(d.to)+'</b>. '+ppT('The Owner has been told.','Pengurus akan dimaklumkan.')+'</div>'+
+      '<button class="pp-ghost" id="pj-c-back" onclick="pjCList()">'+ppT('Back to the list','Kembali ke senarai')+'</button>';}
+  const v=pjFind(PJC.key);
+  if(!v||!v.rec||v.direct&&v.st!=='done'||(v.st!=='iss'&&v.st!=='done')){pjCReset();return pjCrewListHTML();}
+  if(PJC.s==='not'&&PJC.not){const n=PJC.not;
+    return '<button class="pp-back" onclick="pjCCard()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+ppT('Not done','Tak jadi')+' — '+esc(pjNameBM(v))+'</div>'+
+      '<div class="pp-q">1 · '+ppT('Why?','Kenapa?')+'</div><div class="pp-opts">'+PP_MWHY.slice(0,6).map(w=>'<button class="pp-opt big'+(n.why===w[0]?' sel':'')+'" id="pj-n-why-'+w[0]+'" onclick="pjCNotWhy(\''+w[0]+'\')">'+ppT(w[1],w[2])+'</button>').join('')+'</div>'+
+      '<div class="pp-q">2 · '+ppT('The new day','Hari baru')+'</div><div class="pp-g">'+ppT('Choose the day this work will start (within 14 days).','Pilih hari untuk mula kerja ini (dalam 14 hari).')+'</div>'+
+      '<input type="date" id="pj-n-date" value="'+esc(n.date)+'" min="'+ppAdd(today,1)+'" max="'+ppAdd(today,PP_CREW_FWD)+'" onchange="if(PJC.not)PJC.not.date=this.value">'+
+      '<div class="pp-err" id="pj-n-err">'+esc(n.err||'')+'</div><button class="pp-act warn" id="pj-n-send" onclick="pjCNotGo()">'+ppT('SEND','HANTAR')+'</button>';}
+  /* the card */
+  let h='<button class="pp-back" id="pj-c-up" onclick="pjCList()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+pjIc(v)+' '+esc(pjNameBM(v))+'</div>'+
+    '<div class="pp-g">'+esc(pjTitle(v))+' · '+pjRange(v.from,v.to)+'</div>';
+  if(v.bm&&v.bm.k==='move')h+='<div class="pp-chg"><b>⚠ '+ppT('CHANGED','DIUBAH')+'</b>'+ppT('Moved by the Owner to ','Dipindah oleh Pengurus ke ')+ppFmt(v.bm.d)+' — '+esc(ppWhyM(v.bm.why))+'.</div>';
+  if(v.note)h+='<div class="pp-note" id="pj-c-note">'+ppT('From the Owner: ','Daripada Pengurus: ')+esc(v.note)+'</div>';
+  h+=pjChipsHTML(v);
+  v.reps.forEach(r=>{h+=pjRepHTML(v,r,false);});
+  if(v.st==='done')h+='<div class="pp-note grn" id="pj-c-alldone"><b>'+(v.closed?ppT('Closed by the Owner.','Ditutup oleh Pengurus.'):ppT('All lots are finished. The job is closed.','Semua lot sudah siap. Kerja ditutup.'))+'</b></div>';
+  else h+='<button class="pp-act" id="pj-c-done" onclick="pjCFormOpen()">✓ '+ppT('MARK DONE','TANDA SIAP')+'</button>'+
+    '<button class="pp-ghost rd" id="pj-c-not" onclick="pjCNotOpen()">✗ '+ppT('NOT DONE TODAY','TAK JADI HARI INI')+'</button>';
+  return h;}
+/** The crew's one list: the watering call, the tree checks, then every set and job that is
+ *  due, then what is coming, other work, and what was finished in the last seven days. */
+function pjCrewListHTML(){
+  const today=todayISO(), sets=ppCrewList(), jobs=pjOn()?pjCrewList():[];
+  let h='<div class="pp-g">'+ppT('Work the Owner has issued: sets, jobs and tree checks. Today ','Kerja yang dikeluarkan oleh Pengurus: set, kerja dan semak pokok. Hari ini ')+ppFmt(today)+'.</div>';
+  if(typeof wtBoxHTML==='function'){let w='';try{w=wtBoxHTML('wt-k-');}catch(e){w='';}h+='<div id="wt-k-slot">'+w+'</div>';}
+  /* a tree check the Owner issued is on this same list, above the sets and jobs */
+  const tcH=(typeof tcCrewListHTML==='function')?tcCrewListHTML():'';
+  h+=tcH;
+  const setRow=v=>{const st=ppSt(v), left=ppLotsLeft(v);
+    return '<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
+      '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
+      (v.bm?(' · <b style="color:#b26a00">'+ppT('CHANGED','DIUBAH')+'</b>'):'')+'</div></button>';};
+  const now=[], come=[];
+  sets.forEach(v=>{const k=ppSt(v).k;(k==='come'?come:now).push({d:String(v.date||''),h:setRow(v)});});
+  jobs.forEach(v=>{(pjWhen(v)==='come'?come:now).push({d:String(v.from||''),h:pjCRowHTML(v)});});
+  const by=(a,b)=>String(a.d).localeCompare(String(b.d));
+  if(!now.length&&!come.length&&!tcH)h+='<div class="pp-note">'+ppT('No programme work for the next 7 days.','Tiada kerja program untuk 7 hari ini.')+'</div>';
+  if(now.length||come.length){
+    h+='<div class="pp-mon" id="pj-l-now">'+ppT('Today','Hari ini')+' · '+now.length+'</div>'+(now.length?now.sort(by).map(x=>x.h).join(''):('<div class="pp-note grn">'+ppT('Nothing is due today.','Tiada kerja untuk hari ini.')+'</div>'));
+    if(come.length)h+='<div class="pp-mon" id="pj-l-come">'+ppT('Coming','Akan datang')+' · '+come.length+'</div>'+come.sort(by).map(x=>x.h).join('');}
+  if(pjOn()){
+    h+='<button class="pp-ghost blu" id="pj-c-other" onclick="pjCFormOpen(1)">＋ '+ppT('OTHER WORK DONE','KERJA LAIN YANG DIBUAT')+'</button>';
+    const min=ppAdd(today,-PP_CREW_BACK), oth=pjReps().filter(r=>!r.job&&r.d>=min&&r.d<=today);
+    if(oth.length)h+='<div id="pj-c-oth">'+oth.map(r=>pjRepHTML(null,r,false)).join('')+'</div>';}
+  const dn=[];
+  ppSets().filter(v=>v.st==='done'&&v.done&&ppOkDay(v.done.date)&&ppDiff(today,v.done.date)<=PP_CREW_BACK&&ppDiff(today,v.done.date)>=0).forEach(v=>{
+    dn.push({d:v.done.date,h:'<div class="pp-row st-done"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b><span class="pp-pill ok">'+ppT('DONE','SIAP')+'</span></div><div class="pp-dt">'+ppFmt(v.done.date)+'</div></div>'});});
+  (pjOn()?pjJobs():[]).filter(v=>v.st==='done'&&v.rec&&!v.direct).forEach(v=>{const d=pjDoneDay(v);
+    if(ppOkDay(d)&&ppDiff(today,d)<=PP_CREW_BACK&&ppDiff(today,d)>=0)dn.push({d:d,h:pjCRowHTML(v)});});
+  if(dn.length)h+='<div class="pp-mon">'+ppT('Done','Siap')+'</div>'+dn.sort((a,b)=>String(b.d).localeCompare(String(a.d))).map(x=>x.h).join('');
+  return h;}
+/** The bars on the crew's home screen for a job that is due. */
+function pjHomeHTML(){
+  if(!pjOn()||myRole()!=='WORKER'||hubTiles().indexOf(ppHome())<0)return '';
+  return pjCrewDue().slice(0,2).map(v=>{const st=pjSt(v);
+    return '<div class="tasknote" id="pj-home-'+ppCss(v.key)+'" onclick="pjGo(\''+ppArg(v.key)+'\')"><span class="tn-tag'+(st.k==='over'?' late':'')+'">'+pjIc(v)+' '+esc(st.t)+'</span>'+
+      '<div class="tn-brand">'+esc(pjNameBM(v))+'</div><div class="tn-dose">'+esc(pjTitle(v))+' · '+pjRange(v.from,v.to)+'</div>'+
+      '<div class="tn-hint">'+ppT('Tap to open','Tekan untuk buka')+'</div></div>';}).join('');}
+/** REKOD SAYA, under "Laporan dibatalkan": which report it was, in the crew's language, and the reason given. */
+function pjUndoMineS(e){
+  const d=(e&&e.detail)||{}, r=pjReps().find(x=>x.rid===String(d.undo||''));
+  const why=pjUndoTxt({why:String(d.why||''),txt:pjClip(d.txt,PJ_WHY_LEN)});
+  if(!r)return esc(why);
+  const v=r.job?pjJobs().find(x=>x.pid===r.job):null, oth=PJ_OTHER.find(o=>o[0]===r.oth);
+  return esc((v?pjNameBM(v):(ppT('Other work','Kerja lain')+(oth?(' · '+ppT(oth[1],oth[2])):'')))+' · Lot '+r.lots.join(' ')+(why?(' · '+why):''));}
+/** REKOD SAYA: one line for a job report or other work, in the crew's language. null = not one of ours. */
+function pjMineW(e,g){
+  const d=e&&e.detail; if(!d||typeof d!=='object'||Array.isArray(d)||+d.v!==1||!d.rid)return null;
+  const v=d.job?pjJobs().find(x=>x.pid===String(d.job)):null, oth=PJ_OTHER.find(o=>o[0]===d.oth);
+  const lots=Array.isArray(d.lots)?d.lots.join(' '):String(e.lot||''), off=!!pjReps().off[String(d.rid)];
+  return {w:(off?'↩ ':'')+esc(v?(pjNameBM(v)+' · '+pjTitle(v)):(ppT('Other work','Kerja lain')+(oth?(' · '+ppT(oth[1],oth[2])):'')))+' · Lot '+esc(lots),
+          s:(+d.n||0)+' × '+nf(+d.h||0)+' '+ppT('h','jam')+(off?(' · '+ppT('undone','dibatalkan')):'')};}
+
+/* ======================================================================================
+   THE OWNER
+   ====================================================================================== */
+function pjOReset(){PJO.s='';PJO.key='';PJO.pid='';PJO.f=null;PJO.pay=null;PJO.base=null;PJC.undo=null;}
+function pjOpen(k){PJO.s='detail';PJO.key=ppUnArg(k);const v0=pjFind(PJO.key);PJO.pid=v0?v0.pid:'';PJO.f=null;PJO.pay=null;PJO.base=null;PJC.undo=null;pjMoved();ppRender();ppTop();}
+function pjBack(){pjOReset();ppRender();ppTop();}
+function pjToDetail(){PJO.s='detail';PJO.f=null;PJO.pay=null;pjMoved();ppRender();ppTop();}
+/** The job that is open. Its key is the plan's id until a record exists and the record's id after: a job issued on
+ *  another device while this page stood open is found again by what it IS (found in review). */
+function pjOJob(){
+  let v=pjFind(PJO.key);
+  if(!v&&PJO.pid){v=pjJobs().find(x=>x.pid===PJO.pid)||null; if(v)PJO.key=v.key;}
+  if(v&&!PJO.pid)PJO.pid=v.pid;
+  return v;}
+function pjNewRec(v,o,status){
+  const mon=(status==='SKIPPED')?String(v.mon||String(o.from).slice(0,7)):String(o.from).slice(0,7);
+  const num=(status==='SKIPPED')?0:pjNextNum(mon);
+  const x={job:1,mon:mon,num:num,code:v.code||'',k:v.k||'XX',en:pjClip(v.en,PJ_TITLE_LEN),ms:pjClip(v.ms,PJ_TITLE_LEN),cen:pjClip(v.cen,PJ_UNIT_LEN),cms:pjClip(v.cms,PJ_UNIT_LEN),
+    from:o.from,to:o.to,lots:o.lots.slice(),note:pjClip(o.note,PJ_NOTE_LEN),extra:!!v.extra,log:[]};
+  return {uuid:uuid(),phaseId:v.planId||('J27|X'+uuid().replace(/-/g,'').slice(0,8)),month:ppMonEN(mon),set:num?('Job '+num):'',kind:'JOB',mode:'JOB',
+    header:x.en,basis:'PER_ROUND',plan:o.from,scope:ppScope(o.lots),trees:ppTrees(o.lots),litresPerTree:0,tanks:0,lines:[],projCost:0,
+    by:ppMe(),byId:(CFG&&CFG.uid)||'',at:nowSec(),status:status||'ISSUED',rev:0,base:0,synced:false,x:x};}
+function pjLogText(e){
+  const d=ppFmtS(String(e.at||'').slice(0,10)), who=e.by?(' · '+e.by):'', why=e.why?(' — '+ppWhy(e.why)):'';
+  let t='';
+  if(e.k==='jissue')t='issued as '+(e.name||'')+' for '+(e.from===e.to?ppFmtS(e.from):(ppFmtS(e.from)+' to '+ppFmtS(e.to)))+' · Lot '+(e.lots||[]).join(' ');
+  else if(e.k==='move')t='moved by the Owner: first day '+ppFmtS(e.from)+' → '+ppFmtS(e.to)+why;
+  else if(e.k==='crewmove')t='crew: not done — '+ppWhyM(e.why)+'; the crew moved it '+ppFmtS(e.from)+' → '+ppFmtS(e.to);
+  else if(e.k==='skip')t='skipped'+why;
+  else if(e.k==='back')t='put back';
+  else if(e.k==='seen')t='the crew’s move seen by the Owner';
+  else if(e.k==='close')t='closed by the Owner';
+  else if(e.k==='open')t='opened again by the Owner';
+  else if(e.k==='pay')t='pay set: '+(e.txt||'');
+  else if(e.k==='direct')t='recorded by the Owner without issuing';
+  else if(e.k==='send')t='sent to the crew by the Owner';
+  else if(e.k==='renum')t='given the next number: Job '+e.from+' → Job '+e.to+' (two jobs had the same one)';
+  else if(e.k==='twiceok')t='two finished reports for Lot '+(e.lots||[]).join(' ')+' accepted as right';
+  else t=String(e.k||'');
+  return d+' · '+t+who;}
+function pjWhenTxt(v){
+  if(v.st==='done')return 'done '+ppFmt(pjDoneDay(v))+(v.closed?' · closed by you':'');
+  if(v.st==='iss'){const dn=v.lots.filter(L=>pjLotSt(v,L)==='done');
+    return (v.direct?'recorded by you · ':'')+pjRange(v.from,v.to)+((v.planFrom&&v.planFrom!==v.from&&!v.direct)?(' · planned '+ppFmtS(v.planFrom)):'')+
+      (dn.length?(' · Lot '+dn.join(' ')+' finished'):(v.live.length?' · started':''));}
+  if(v.st==='skip')return v.planFrom?('planned '+pjRange(v.planFrom,v.planTo)):'';
+  return 'planned '+pjRange(v.from,v.to);}
+function pjMovedHTML(v){
+  const tw=pjTwice(v);
+  return ((v.notice&&!v.notice.seen&&v.st==='iss')?('<div class="pp-dt" style="color:#b26a00;font-weight:700">Crew moved it: '+
+    ppFmtS(v.notice.from)+' → '+ppFmtS(v.notice.to)+' — '+esc(ppWhyM(v.notice.why))+'</div>'):'')+
+    (tw.length?('<div class="pp-dt" style="color:#b3261e;font-weight:700">Lot '+esc(tw.join(' '))+' is reported FINISHED twice</div>'):'')+
+    (pjNumClash(v)?('<div class="pp-dt" style="color:#b3261e;font-weight:700">Two jobs are named '+esc(pjName(v))+'</div>'):'');}
+function pjPlanTxt(v){
+  if(!v.planMd)return '';
+  return v.planCrew+' '+(v.planCrew===1?'person':'people')+' × '+v.planDays+' day'+(v.planDays===1?'':'s')+' = '+v.planMd+' man-day'+(v.planMd===1?'':'s');}
+function pjRowHTML(v,cls,idp){
+  const st=pjSt(v);
+  return '<button class="pp-row st-'+v.st+' pj-job'+(cls?(' '+cls):'')+'" id="'+(idp||'pj-row-')+ppCss(v.key)+'" onclick="pjOpen(\''+ppArg(v.key)+'\')">'+
+    '<div class="pp-top"><div><b class="pp-nm">'+pjIc(v)+' '+esc(pjName(v))+'</b>'+pjCodeTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
+    '<div class="pp-pur">'+esc(v.en)+'</div><div class="pp-dt">'+pjWhenTxt(v)+' · <span class="pj-tag">job, no material</span></div>'+pjMovedHTML(v)+'</button>';}
+function pjSheetHTML(v,cls){
+  const st=pjSt(v), d=pjDayOf(v), ok=ppOkDay(String(d||'').slice(0,10)), dd=ok?ppD(d):null;
+  const day=dd?('<small>'+PP_DOW[dd.getUTCDay()].toUpperCase()+'</small><b>'+dd.getUTCDate()+'</b><small>'+PP_MONS[dd.getUTCMonth()].toUpperCase()+'</small>')
+    :'<small>DAY</small><b>—</b><small>NOT SET</small>';
+  const mh=pjMh(v), plan=pjPlanTxt(v);
+  return '<button class="pp-row st-'+v.st+' pj-job'+(cls?(' '+cls):'')+'" id="pj-row-'+ppCss(v.key)+'" onclick="pjOpen(\''+ppArg(v.key)+'\')"><div class="pp-sh"><div class="pp-day">'+day+'</div><div>'+
+    '<div class="pp-top"><div><b class="pp-nm">'+pjIc(v)+' '+esc(pjName(v))+'</b>'+pjCodeTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
+    '<div class="pp-pur">'+esc(v.en)+'</div><div class="pp-dt">'+pjWhenTxt(v)+'</div>'+pjMovedHTML(v)+
+    '<div class="pp-mxh"><span class="pj-tag">job, no material</span>'+(plan?(' · plan '+esc(plan)):'')+(mh?(' · done '+nf(pjMd(mh))+' man-day'+(pjMd(mh)===1?'':'s')):'')+'</div></div></div></button>';}
+
+/* ----- issue a job ----- */
+function pjIssueOpen(){
+  const v=pjOJob(); if(!v||!ppIsOwner()||v.st!=='plan')return;
+  const today=todayISO(), span=Math.max(0,ppDiff(v.to,v.from));
+  const from=(ppOkDay(v.from)&&v.to>=today)?v.from:today;
+  const lots={}; ppLots().forEach(L=>{lots[L]=1;});
+  PJO.f={from:from,to:ppAdd(from,span),lots:lots,note:'',err:'',busy:false}; PJO.s='issue'; pjMoved(); ppRender(); ppTop();}
+function pjISync(){const f=PJO.f;if(!f)return;const a=$('pj-i-from'),b=$('pj-i-to'),n=$('pj-i-note');if(a&&a.value)f.from=a.value;if(b&&b.value)f.to=b.value;if(n)f.note=n.value;}
+function pjILot(L){const f=PJO.f;if(!f)return;pjISync();if(f.lots[L])delete f.lots[L];else f.lots[L]=1;f.err='';ppRender();}
+function pjIssueHTML(){
+  const v=PJO.base||pjOJob(), f=PJO.f; if(!v||!f)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
+  const mon=String(f.from).slice(0,7), plan=pjPlanTxt(v);
+  return '<button class="pp-back" id="pj-i-up" onclick="'+(PJO.base?'pjBack()':'pjToDetail()')+'">‹ back</button><div class="pp-ttl">Issue as '+esc(ppMonEN(mon))+' · Job '+pjNextNum(mon)+'</div>'+
+    '<div class="pp-g">'+pjIc(v)+' '+esc(v.en)+(v.code?(' · '+esc(v.code)):'')+(plan?('<br>On the plan: '+pjRange(v.planFrom,v.planTo)+' · '+esc(plan)):' · not on the plan')+'</div>'+
+    '<div class="pp-two pj-two"><div><label>First day</label><input type="date" id="pj-i-from" value="'+esc(f.from)+'" onchange="pjISync()"></div>'+
+    '<div><label>Last day</label><input type="date" id="pj-i-to" value="'+esc(f.to)+'" onchange="pjISync()"></div></div>'+
+    '<label>Lots</label><div class="pp-opts">'+ppLots().map(L=>'<button class="pp-opt'+(f.lots[L]?' sel':'')+'" id="pj-i-lot-'+L+'" onclick="pjILot(\''+L+'\')">Lot '+L+'<small>'+treesInLot(L).length+' trees</small></button>').join('')+'</div>'+
+    '<label>A line for the crew (optional)</label><input id="pj-i-note" maxlength="'+PJ_NOTE_LEN+'" value="'+esc(f.note)+'" placeholder="e.g. Lot B first. Seal the cuts." autocomplete="off">'+
+    '<div class="pp-g" style="margin-top:8px">No mix and no store: a job draws nothing. The crew sees it from '+PP_CREW_SEE+' days before its first day.</div>'+
+    '<div class="pp-err" id="pj-i-err">'+esc(f.err||'')+'</div><button class="pp-act" id="pj-i-go" onclick="pjIssueGo()">ISSUE TO THE CREW</button>';}
+async function pjIssueGo(){
+  const f=PJO.f; if(!f||f.busy||!ppIsOwner()||pjHeld())return;
+  pjISync();
+  const v=PJO.base||pjOJob(), fail=m=>{f.err=m;ppRender();};
+  if(!v||(!PJO.base&&v.st!=='plan')){PJO.f=null;PJO.s='detail';toast('This job is already issued',1);ppRender();return;}
+  const today=todayISO(), sf=ppSeasonFrom(), lots=LOT_KEYS.filter(L=>f.lots[L]);
+  if(!ppOkDay(f.from)||!ppOkDay(f.to))return fail('Pick the first day and the last day.');
+  if(f.to<f.from)return fail('The last day is before the first day.');
+  if(sf&&f.from<sf)return fail('The first day is before this season opened ('+ppFmtS(sf)+').');
+  if(f.to<today)return fail('Those days have passed. To record work already done, go back and press ALREADY DONE.');
+  const sm=ppSeasonMonths();
+  if(sm.length&&sm.indexOf(String(f.from).slice(0,7))<0)return fail('The first day is outside season '+(seasonName()||PP_SEASON)+' ('+ppMonEN(sm[0])+' '+sm[0].slice(0,4)+' to '+ppMonEN(sm[sm.length-1])+' '+sm[sm.length-1].slice(0,4)+').');
+  if(!lots.length)return fail('Pick at least one lot.');
+  f.busy=true;
+  const rec=pjNewRec(v,{from:f.from,to:f.to,lots:lots,note:f.note},'ISSUED'), x=ppX(rec);
+  ppLog(x,{k:'jissue',name:rec.month+' · '+rec.set,from:f.from,to:f.to,lots:lots});
+  await pjSave(rec,true);
+  toast('✓ Issued · '+rec.month+' · '+rec.set);
+  PJO.base=null; PJO.key=rec.uuid; PJO.pid=rec.phaseId; PJO.f=null; PJO.s='detail'; pjMoved(); ppAfter();}
+/* ----- a job that is not on the plan ----- */
+function pjAddOpen(mon){ if(!ppIsOwner())return; PJO.s='add'; PJO.key=''; PJO.base=null; PJO.f={en:'',cen:'',mon:/^\d{4}-\d{2}$/.test(String(mon||''))?String(mon):'',err:''}; pjMoved(); ppRender(); ppTop();}
+function pjAddHTML(){
+  const f=PJO.f; if(!f)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
+  return '<button class="pp-back" id="pj-a-up" onclick="pjBack()">‹ back</button><div class="pp-ttl">A job that is not on the plan</div>'+
+    '<div class="pp-g">Work with no material that the workbook does not list. It takes the next job number of its month.</div>'+
+    '<label>What is the job (the crew reads this line)</label><input id="pj-a-en" maxlength="'+PJ_TITLE_LEN+'" value="'+esc(f.en)+'" placeholder="e.g. Baiki pagar Lot C" autocomplete="off">'+
+    '<label>What is counted, if anything (optional)</label><input id="pj-a-cen" maxlength="'+PJ_UNIT_LEN+'" value="'+esc(f.cen)+'" placeholder="e.g. metres fenced" autocomplete="off">'+
+    '<div class="pp-err" id="pj-a-err">'+esc(f.err||'')+'</div><button class="pp-act" id="pj-a-go" onclick="pjAddGo()">NEXT — THE DAYS AND THE LOTS</button>';}
+function pjAddGo(){
+  const f=PJO.f; if(!f||!ppIsOwner())return;
+  const en=pjPlain(($('pj-a-en')||{}).value,PJ_TITLE_LEN), cen=pjPlain(($('pj-a-cen')||{}).value,PJ_UNIT_LEN);
+  f.en=en; f.cen=cen;
+  if(!en){f.err='Say what the job is.';ppRender();return;}
+  const today=(f.mon&&f.mon>todayISO().slice(0,7))?(f.mon+'-01'):todayISO();
+  PJO.base={job:true,key:'',planId:'',pid:'',plan:null,rec:null,code:'',k:'XX',en:en,ms:en,cen:cen,cms:cen,planMd:0,planCrew:0,planDays:0,planFrom:'',planTo:'',extra:true,st:'new'};
+  const lots={}; ppLots().forEach(L=>{lots[L]=1;});
+  PJO.f={from:today,to:today,lots:lots,note:'',err:'',busy:false}; PJO.s='issue'; pjMoved(); ppRender(); ppTop();}
+
+/* ----- the Owner records work himself: on an issued job, or on a planned one that was already done ----- */
+function pjRecOpen(){
+  if(pjUHeld())return;
+  const v=pjOJob(); if(!v||!ppIsOwner()||(v.st!=='iss'&&v.st!=='plan'))return;
+  if(v.rec&&ppStale(v.rec))return;
+  const today=todayISO(), left=v.rec?pjLotsLeft(v):v.lots, lots={};
+  if(left.length===1)lots[left[0]]=1;
+  const list=pjCfg().names.slice();
+  PJO.f={day:(v.rec||!ppOkDay(v.to)||v.to>today)?today:v.to,lots:lots,end:'',cnt:'',names:{},list:list,x:list.length?0:2,h:8,dd:1,err:'',busy:false};
+  PJO.s='rec'; pjMoved(); ppRender(); ppTop();}
+function pjRSync(){const f=PJO.f;if(!f)return;const d=$('pj-r-day'),c=$('pj-r-cnt');if(d&&d.value)f.day=d.value;if(c)f.cnt=c.value;}
+function pjRSet(k,val){const f=PJO.f;if(!f)return;pjRSync();f[k]=val;f.err='';ppRender();}
+function pjRLot(L){const f=PJO.f;if(!f)return;pjRSync();if(f.lots[L])delete f.lots[L];else f.lots[L]=1;f.err='';ppRender();}
+function pjRName(i){const f=PJO.f;if(!f)return;pjRSync();const n=(f.list||[])[i];if(!n)return;if(f.names[n])delete f.names[n];else f.names[n]=1;f.err='';ppRender();}
+function pjRNum(k,d){const f=PJO.f;if(!f)return;pjRSync();
+  if(k==='x')f.x=Math.max(0,Math.min(PJ_PEOPLE_MAX,Math.round((+f.x||0)+d)));
+  else if(k==='dd')f.dd=Math.max(1,Math.min(PJ_DAYS_MAX,Math.round((+f.dd||1)+d)));
+  else f.h=Math.max(0.5,Math.min(PJ_HOURS_MAX,(+f.h||0)+d));
+  f.err='';ppRender();}
+function pjRecHTML(){
+  const v=pjOJob(), f=PJO.f; if(!v||!f)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
+  const sf=ppSeasonFrom(), today=todayISO(), list=f.list||[], must=pjCountMust(v), cw=v.cen||((v.pay&&v.pay.b==='piece')?v.pay.unit:'');
+  let h='<button class="pp-back" id="pj-r-up" onclick="pjToDetail()">‹ back</button><div class="pp-ttl">Record work on '+esc(v.num?pjName(v):'a planned job')+pjCodeTag(v)+'</div>'+
+    '<div class="pp-g">'+esc(v.en)+(v.rec?'':' · it is not issued: recording it puts it on the record without sending it to the crew')+'</div>'+
+    '<label>Day the work was done (any day this season; the last day, if it took several)</label><input type="date" id="pj-r-day" value="'+esc(f.day)+'" min="'+esc(sf)+'" max="'+today+'" onchange="pjRSync()">'+
+    '<label>Lots worked that day</label><div class="pp-opts">'+v.lots.map(L=>{const dn=v.rec&&pjLotSt(v,L)==='done';
+      return '<button class="pp-opt'+(f.lots[L]?' sel':'')+'" id="pj-r-lot-'+L+'"'+(dn?' disabled':'')+' onclick="pjRLot(\''+L+'\')">Lot '+L+'<small>'+(dn?'finished':(treesInLot(L).length+' trees'))+'</small></button>';}).join('')+'</div>'+
+    '<label>Is that lot finished?</label><div class="pp-opts"><button class="pp-opt big'+(f.end==='no'?' sel':'')+'" id="pj-r-e-no" onclick="pjRSet(\'end\',\'no\')">NOT YET</button>'+
+    '<button class="pp-opt big'+(f.end==='yes'?' sel':'')+'" id="pj-r-e-yes" onclick="pjRSet(\'end\',\'yes\')">FINISHED</button></div>';
+  if(cw||must)h+='<label id="pj-r-cnt-l">'+esc(cw||'how many')+' ('+(must?'must be keyed: this job is paid by piece':'if counted')+')</label><input type="number" id="pj-r-cnt" inputmode="decimal" min="0" step="any" value="'+esc(f.cnt)+'" oninput="if(PJO.f)PJO.f.cnt=this.value">';
+  if(list.length)h+='<label>Who worked? Tick the names</label><div class="pp-opts" id="pj-r-names">'+list.map((n,i)=>'<button class="pp-opt'+(f.names[n]?' sel':'')+'" id="pj-r-n-'+i+'" onclick="pjRName('+i+')">'+esc(n)+'</button>').join('')+'</div>';
+  h+='<div class="pj-row"><span>'+(list.length?'Others, not on the list':'How many people')+'</span>'+pjStepHTML('pj-r-x',Math.round(+f.x||0),'pjRNum(\'x\',')+'</div>'+
+    '<div class="pj-row"><span>Hours each, in a day</span>'+pjStepHTML('pj-r-h',nf(f.h),'pjRNum(\'h\',0.5*')+'</div>'+
+    '<div class="pj-row"><span>Days it took</span>'+pjStepHTML('pj-r-dd',f.dd,'pjRNum(\'dd\',')+'</div>'+
+    '<div class="pp-g">More than 1 day only for work the crew did not report day by day.</div>'+
+    '<div class="pp-note grn" id="pj-r-sum">'+pjFPeople(f)+' people × '+nf(f.h)+' hours'+(f.dd>1?(' × '+f.dd+' days'):'')+' = <b>'+nf(pjFPeople(f)*f.h*f.dd)+' man-hours</b> = '+nf(pjMd(pjFPeople(f)*f.h*f.dd))+' man-days</div>'+
+    '<div class="pp-err" id="pj-r-err">'+esc(f.err||'')+'</div><button class="pp-act" id="pj-r-go" onclick="pjRecGo()">RECORD THE WORK</button>';
+  return h;}
+async function pjRecGo(){
+  const f=PJO.f; if(!f||f.busy||!ppIsOwner()||pjHeld())return;
+  pjRSync();
+  let v=pjOJob(); const fail=m=>{f.err=m;ppRender();};
+  if(!v||(v.st!=='iss'&&v.st!=='plan')){PJO.f=null;PJO.s='detail';toast('This job is no longer open',1);ppRender();return;}
+  if(v.rec&&ppStale(v.rec)){PJO.f=null;PJO.s='detail';ppRender();return;}
+  const sf=ppSeasonFrom(), today=todayISO();
+  if(!ppOkDay(f.day)||f.day>today||(sf&&f.day<sf))return fail('Pick a day between '+ppFmtS(sf)+' and today.');
+  const lots=LOT_KEYS.filter(L=>f.lots[L]&&v.lots.indexOf(L)>=0);
+  if(!lots.length)return fail('Pick the lots that were worked.');
+  if(v.rec){const open=pjLotsLeft(v), dup=lots.filter(L=>open.indexOf(L)<0);
+    if(dup.length){dup.forEach(L=>{delete f.lots[L];});return fail('Lot '+dup.join(' ')+' was reported finished from another phone while this form was open. Check the lots and press again.');}}
+  if(f.end!=='yes'&&f.end!=='no')return fail('Press: is the lot finished, or not yet?');
+  const list=f.list||[], names=list.filter(n=>f.names[n]), n=names.length+Math.max(0,Math.round(+f.x||0)), dd=Math.max(1,Math.min(PJ_DAYS_MAX,Math.round(+f.dd||1))), h=(+f.h||0)*dd;
+  if(!(n>0))return fail(list.length?'Tick who worked, or key how many others.':'Key how many people.');
+  if(!(h>0))return fail('Key the hours.');
+  const cnt=pjCount(f.cnt);
+  if(cnt===null)return fail('Check the count: a number from 0 up.');
+  if(pjCountMust(v)&&!(cnt>0))return fail('Key how many: this job is paid by piece.');
+  const stamp=stampFor(f.day); if(stamp===null)return fail('That day has not happened yet.');
+  f.busy=true;
+  if(!v.rec){
+    /* a planned job that was already done: it goes on the record without ever reaching the crew */
+    const rec=pjNewRec(v,{from:f.day,to:f.day,lots:v.lots,note:''},'ISSUED'), x=ppX(rec);
+    x.direct=true; ppLog(x,{k:'direct'});
+    await pjSave(rec,true);
+    PJO.key=rec.uuid; PJO.pid=rec.phaseId; ppTouch(); v=pjFind(rec.uuid);
+    if(!v){f.busy=false;return fail('Not saved. Press again.');}}
+  try{await pjFile({v:v,oth:'',day:f.day,stamp:stamp,lots:lots,n:n,h:h,dd:dd,cnt:cnt,end:f.end==='yes',names:names,via:'OWNER'});}
+  catch(e){f.busy=false;return fail('Not saved. Press again.');}
+  toast('✓ Recorded · '+pjName(v));
+  PJO.f=null; PJO.s='detail'; pjMoved(); pjAfter();}
+
+/* ----- move · skip · put back · close · open again · seen ----- */
+function pjMoveOpen(){
+  if(pjUHeld())return;
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||v.st!=='iss'||v.direct)return;
+  if(ppStale(v.rec))return;
+  const today=todayISO();
+  PJO.f={date:ppAdd((v.from>today)?v.from:today,1),why:'',err:'',busy:false}; PJO.s='move'; pjMoved(); ppRender(); ppTop();}
+function pjMWhy(k){const f=PJO.f,d=$('pj-m-date');if(!f)return;if(d&&d.value)f.date=d.value;f.why=k;f.err='';ppRender();}
+function pjMoveHTML(){
+  const v=pjOJob(), f=PJO.f; if(!v||!f)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
+  return '<button class="pp-back" onclick="pjToDetail()">‹ back</button><div class="pp-ttl">Move '+esc(pjName(v))+'</div>'+
+    '<div class="pp-g">Now '+pjRange(v.from,v.to)+'. The last day moves with the first; the name stays the same.</div>'+
+    '<label>New first day</label><input type="date" id="pj-m-date" value="'+esc(f.date)+'" min="'+todayISO()+'" onchange="if(PJO.f)PJO.f.date=this.value">'+
+    '<div class="pp-q">Why?</div><div class="pp-opts">'+PP_MWHY.map(w=>'<button class="pp-opt'+(f.why===w[0]?' sel':'')+'" id="pj-m-why-'+w[0]+'" onclick="pjMWhy(\''+w[0]+'\')">'+w[1]+'</button>').join('')+'</div>'+
+    '<div class="pp-err" id="pj-m-err">'+esc(f.err||'')+'</div><button class="pp-act" id="pj-m-go" onclick="pjMoveGo()">MOVE IT</button>';}
+async function pjMoveGo(){
+  const v=pjOJob(), f=PJO.f; if(!v||!v.rec||!f||f.busy||!ppIsOwner()||pjHeld())return;
+  if(ppStale(v.rec)){PJO.f=null;PJO.s='detail';ppRender();return;}
+  const d=$('pj-m-date'); if(d&&d.value)f.date=d.value;
+  const fail=m=>{f.err=m;ppRender();};
+  if(!ppOkDay(f.date))return fail('Pick the new first day.');
+  if(!f.why)return fail('Pick the reason.');
+  if(f.date===v.from)return fail('That is the same day.');
+  if(f.date<todayISO())return fail('That day has passed.');
+  const sm=ppSeasonMonths();
+  if(sm.length&&sm.indexOf(String(f.date).slice(0,7))<0)return fail('That day is outside season '+(seasonName()||PP_SEASON)+'.');
+  f.busy=true;
+  const rec=v.rec, x=ppX(rec), span=Math.max(0,ppDiff(v.to,v.from));
+  ppLog(x,{k:'move',from:v.from,to:f.date,why:f.why});
+  rec.plan=f.date; x.from=f.date; x.to=ppAdd(f.date,span); x.bm={k:'move',d:f.date,why:f.why,at:now()}; if(x.notice)x.notice.seen=true;
+  await pjSave(rec,false);
+  toast('✓ Moved to '+ppFmt(f.date));
+  PJO.f=null; PJO.s='detail'; pjMoved(); ppAfter();}
+function pjSkipOpen(){if(pjUHeld())return; const v=pjOJob(); if(!v||!ppIsOwner()||(v.st!=='iss'&&v.st!=='plan'))return; if(v.rec&&ppStale(v.rec))return; PJO.f={why:'',err:'',busy:false}; PJO.s='skip'; pjMoved(); ppRender(); ppTop();}
+function pjSWhy(k){if(PJO.f){PJO.f.why=k;PJO.f.err='';ppRender();}}
+function pjSkipHTML(){
+  const v=pjOJob(), f=PJO.f; if(!v||!f)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
+  return '<button class="pp-back" onclick="pjToDetail()">‹ back</button><div class="pp-ttl">Skip '+esc(v.num?pjName(v):v.en)+pjCodeTag(v)+'</div>'+
+    '<div class="pp-g">'+esc(v.en)+'. It stays on the record as skipped, with the reason.'+(v.live.length?' The work already reported stays in the work record.':'')+'</div>'+
+    '<div class="pp-q">Why?</div><div class="pp-opts">'+PP_WHY.map(w=>'<button class="pp-opt'+(f.why===w[0]?' sel':'')+'" id="pj-s-why-'+w[0]+'" onclick="pjSWhy(\''+w[0]+'\')">'+w[1]+'</button>').join('')+'</div>'+
+    '<div class="pp-err" id="pj-s-err">'+esc(f.err||'')+'</div><button class="pp-act red" id="pj-s-go" onclick="pjSkipGo()">SKIP THIS JOB</button>';}
+async function pjSkipGo(){
+  const v=pjOJob(), f=PJO.f; if(!v||!f||f.busy||!ppIsOwner()||pjHeld())return;
+  if(v.rec&&ppStale(v.rec)){PJO.f=null;PJO.s='detail';ppRender();return;}
+  if(!f.why){f.err='Pick the reason.';ppRender();return;}
+  f.busy=true;
+  let rec=v.rec, isNew=false;
+  if(!rec){rec=pjNewRec(v,{from:v.from||todayISO(),to:v.to||v.from||todayISO(),lots:v.lots,note:''},'SKIPPED');isNew=true;}
+  const x=ppX(rec);
+  rec.status='SKIPPED'; x.skip={why:f.why,at:now(),by:ppMe()}; x.notice=null;
+  ppLog(x,{k:'skip',why:f.why});
+  await pjSave(rec,isNew);
+  PJO.key=rec.uuid; PJO.pid=rec.phaseId; PJO.f=null; PJO.s='detail'; pjMoved(); ppAfter();}
+async function pjUnskip(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||pjHeld())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec);
+  v.rec.status=(+x.num>0)?'ISSUED':'VOID'; x.skip=null; ppLog(x,{k:'back'});
+  await ppSave(v.rec,false);
+  if(v.rec.status==='VOID')PJO.key=v.planId;
+  pjMoved(); ppAfter();}
+async function pjClose(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||v.st!=='iss'||pjHeld()||pjUHeld())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec);
+  v.rec.status='CLOSED'; x.closed={at:now(),by:ppMe()}; if(x.notice)x.notice.seen=true; ppLog(x,{k:'close'});
+  await ppSave(v.rec,false);
+  toast('✓ Closed. It leaves the crew’s list.');
+  pjMoved(); ppAfter();}
+async function pjReopen(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||String(v.rec.status)!=='CLOSED'||pjHeld()||pjUHeld())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec);
+  v.rec.status='ISSUED'; x.closed=null; ppLog(x,{k:'open'});
+  await ppSave(v.rec,false);
+  pjMoved(); ppAfter();}
+async function pjSeen(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||pjHeld()||pjUHeld())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec); if(!x.notice)return;
+  x.notice.seen=true; ppLog(x,{k:'seen'});
+  await ppSave(v.rec,false); pjMoved(); ppAfter();}
+/** A job the Owner recorded himself, with lots still open: he sends what is left to the crew, from today. */
+async function pjSend(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||v.st!=='iss'||!v.direct||pjHeld()||pjUHeld())return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec), t=todayISO();
+  x.direct=false; x.from=t; x.to=t; v.rec.plan=t; ppLog(x,{k:'send'});
+  await ppSave(v.rec,false);
+  toast('✓ Sent to the crew for today. MOVE TO OTHER DAYS changes the days.');
+  pjMoved(); ppAfter();}
+async function pjTwiceOk(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||pjHeld()||pjUHeld())return;
+  const tw=pjTwice(v); if(!tw.length)return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec); x.ok2=(x.ok2&&typeof x.ok2==='object')?x.ok2:{};
+  tw.forEach(L=>{x.ok2[L]=v.live.filter(r=>r.end&&r.lots.indexOf(L)>=0).map(r=>r.rid).slice(-12);});
+  ppLog(x,{k:'twiceok',lots:tw});
+  await ppSave(v.rec,false); pjMoved(); ppAfter();}
+async function pjRenum(){
+  const v=pjOJob(); if(!v||!v.rec||!ppIsOwner()||pjHeld()||pjUHeld()||!pjNumClash(v))return;
+  const mv=pjClashMover(v); if(!mv||mv.key!==v.key)return;
+  if(ppStale(v.rec))return;
+  const x=ppX(v.rec), old=+x.num||0, n=pjNextNum(v.mon);
+  x.num=n; v.rec.set='Job '+n; ppLog(x,{k:'renum',from:old,to:n});
+  await ppSave(v.rec,false);
+  toast('✓ Now '+ppMonEN(v.mon)+' · Job '+n);
+  pjMoved(); ppAfter();}
+
+/* ----- pay: of a job (day or piece) or of a set (day) ----- */
+function pjPayTarget(){
+  const p=PJO.pay; if(!p)return null;
+  if(p.t==='J'){const v=pjFind(p.key);return (v&&v.rec)?{v:v,rec:v.rec,name:pjName(v)+' · '+v.en,own:v.pay,unit:v.cen?v.cen.replace(/^trees /,'tree '):'',job:true}:null;}
+  const s=ppFind(p.key); return (s&&s.rec)?{v:s,rec:s.rec,name:ppName(s)+' · '+s.tgt,own:pjSetPay(s),unit:'',job:false}:null;}
+function pjPayOpen(t,k,back){
+  if(!ppIsOwner()||pjUHeld())return;
+  PJO.pay={t:t,key:ppUnArg(k),back:back||'rec',b:'',rm:'',unit:'',err:'',busy:false};
+  const g=pjPayTarget(); if(!g){PJO.pay=null;return;}
+  if(ppStale(g.rec)){PJO.pay=null;return;}
+  PJO.pay.b=g.own?g.own.b:'def'; PJO.pay.rm=g.own?String(g.own.rm):''; PJO.pay.unit=(g.own&&g.own.unit)?g.own.unit:g.unit;
+  PJO.s='pay'; pjMoved(); ppRender(); ppTop();}
+function pjPaySync(){const p=PJO.pay;if(!p)return;const a=$('pj-p-rm'),u=$('pj-p-unit');if(a)p.rm=a.value;if(u)p.unit=u.value;}
+function pjPayB(b){const p=PJO.pay;if(!p)return;pjPaySync();p.b=b;p.err='';ppRender();}
+function pjPayBack(){const p=PJO.pay;PJO.pay=null;if(p&&p.back==='detail'){PJO.s='detail';}else{PJO.s='';PJO.key='';}pjMoved();ppRender();ppTop();}
+function pjPayHTML(){
+  const p=PJO.pay, g=pjPayTarget(); if(!p||!g)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
+  const day=pjCfg().day;
+  let h='<button class="pp-back" id="pj-p-up" onclick="pjPayBack()">‹ back</button><div class="pp-ttl">💰 Pay</div><div class="pp-g">'+esc(g.name)+' · your eyes only</div>'+
+    '<label>How is this work paid?</label><div class="pp-opts" id="pj-p-basis">'+
+    '<button class="pp-opt'+(p.b==='def'?' sel':'')+'" id="pj-p-b-def" onclick="pjPayB(\'def\')">The day rate<small>'+(day>0?('RM '+pjN2(day)+' a day'):'not keyed yet')+'</small></button>'+
+    '<button class="pp-opt'+(p.b==='day'?' sel':'')+'" id="pj-p-b-day" onclick="pjPayB(\'day\')">Its own day rate<small>RM a man-day</small></button>'+
+    (g.job?('<button class="pp-opt'+(p.b==='piece'?' sel':'')+'" id="pj-p-b-piece" onclick="pjPayB(\'piece\')">By piece<small>RM for each one</small></button>'):'')+'</div>';
+  if(p.b==='def')h+='<div class="pp-note grn" id="pj-p-def">Uses the day rate you key in RECORD. Pay = man-days × the day rate. A man-day is '+PJ_DAY_H+' hours.</div>';
+  if(p.b==='day')h+='<label>RM for one man-day of '+PJ_DAY_H+' hours</label><input type="number" id="pj-p-rm" inputmode="decimal" min="0" step="0.5" value="'+esc(p.rm)+'">';
+  if(p.b==='piece')h+='<div class="pp-two pj-two"><div><label>RM for each one</label><input type="number" id="pj-p-rm" inputmode="decimal" min="0" step="0.1" value="'+esc(p.rm)+'"></div>'+
+    '<div><label>What is one piece?</label><input id="pj-p-unit" maxlength="'+PJ_UNIT_LEN+'" value="'+esc(p.unit)+'" placeholder="tree, metre, bag" autocomplete="off"></div></div>'+
+    '<div class="pp-note amb" id="pj-p-piece">Pay = the count × this rate. The crew <b>must key the count</b> on every report of this job, or it will not save. Their hours are still recorded.</div>';
+  return h+'<div class="pp-err" id="pj-p-err">'+esc(p.err||'')+'</div><button class="pp-act" id="pj-p-save" onclick="pjPaySave()">SAVE</button>'+
+    '<div class="pp-g" style="margin-top:8px">A rate changed today re-prices every report of this work, old and new: the record keeps the count and the hours, not the RM. Fix a rate before the work starts. No crew screen shows it.</div>';}
+async function pjPaySave(){
+  const p=PJO.pay; if(!p||p.busy||!ppIsOwner()||pjHeld())return;
+  pjPaySync();
+  const g=pjPayTarget(); if(!g){pjPayBack();return;}
+  if(ppStale(g.rec)){pjPayBack();return;}
+  let pay=null;
+  if(p.b==='day'||p.b==='piece'){
+    const rm0=+p.rm, u=pjPlain(p.unit,PJ_UNIT_LEN);
+    if(!(rm0>0)){p.err='Key the rate in RM.';ppRender();return;}
+    if(p.b==='piece'&&!g.job){p.err='A set is paid by day.';ppRender();return;}
+    if(p.b==='piece'&&!u){p.err='Say what one piece is: a tree, a metre, a bag.';ppRender();return;}
+    pay=(p.b==='piece')?{b:'piece',rm:rm0,unit:u}:{b:'day',rm:rm0};}
+  else if(p.b!=='def'){p.err='Pick how this work is paid.';ppRender();return;}
+  p.busy=true;
+  const x=ppX(g.rec);
+  if(pay)x.pay=pay; else delete x.pay;
+  ppLog(x,{k:'pay',txt:pay?pjPayTxt(pay):'the day rate'});
+  await pjSave(g.rec,false);
+  toast('✓ Pay saved');
+  pjPayBack(); ppSyncSoon();}
+
+/* ----- one job ----- */
+function pjHistHTML(v){
+  const t=(v.log||[]).map(pjLogText);
+  return t.length?('<div class="pp-q">What happened</div><div class="pp-g">'+t.map(esc).join('<br>')+'</div>'):'';}
+function pjDetailHTML(){
+  const v=pjOJob();
+  if(!v)return '<button class="pp-back" onclick="pjBack()">‹ back</button><div class="pp-note">This job is no longer here.</div>';
+  const st=pjSt(v), plan=pjPlanTxt(v), mh=pjMh(v), cnt=pjCnt(v), pay=pjPay(v.pay), rmT=v.live.reduce((s,r)=>s+(pjRm(pay,r)||0),0);
+  let h='<button class="pp-back" id="pj-back" onclick="pjBack()">‹ back</button><div class="pp-ttl">'+pjIc(v)+' '+esc(pjName(v))+pjCodeTag(v)+'</div>'+
+    '<div class="pp-g">'+esc(v.en)+(v.extra?' · not on the plan':'')+' · <span class="pj-tag">job, no material</span></div><span class="pp-pill '+st.c+'" id="pj-o-st">'+st.t+'</span>';
+  if(v.st==='plan'){
+    h+='<div class="pp-q">Planned for '+pjRange(v.from,v.to)+'</div><div class="pp-g">'+(plan?(esc(plan)+' · from the workbook'):'')+(v.cen?(' · counted: '+esc(v.cen)):'')+'</div>'+
+      '<button class="pp-act" id="pj-o-issue" onclick="pjIssueOpen()">ISSUE THIS JOB</button>'+
+      '<button class="pp-ghost blu" id="pj-o-rec" onclick="pjRecOpen()">ALREADY DONE — RECORD IT</button>'+
+      '<button class="pp-ghost" id="pj-o-skip" onclick="pjSkipOpen()">SKIP — NOT NEEDED THIS SEASON</button>';
+    return h;}
+  if(v.st==='skip'){
+    h+='<div class="pp-note" style="margin-top:10px">Skipped'+(v.skip&&v.skip.why?(' — '+esc(ppWhy(v.skip.why))):'')+'.'+(v.live.length?' The work reported before stays in the work record.':'')+'</div>'+
+      '<button class="pp-ghost" id="pj-o-unskip" onclick="pjUnskip()">PUT IT BACK</button>';
+    return h+pjHistHTML(v);}
+  if(v.st==='iss'&&v.notice&&!v.notice.seen)h+='<div class="pp-note amb" style="margin-top:10px"><b>The crew moved it:</b> not done on '+ppFmt(v.notice.from)+' — '+esc(ppWhyM(v.notice.why))+
+    '. New first day chosen by the crew: <b>'+ppFmt(v.notice.to)+'</b>.'+(v.notice.by?(' ('+esc(v.notice.by)+')'):'')+
+    '<button class="pp-ghost" id="pj-o-seen" style="margin-top:8px" onclick="pjSeen()">OK, SEEN</button></div>';
+  const tw=pjTwice(v);
+  if(tw.length)h+='<div class="pp-note amb" id="pj-o-twice" style="margin-top:10px"><b>Lot '+esc(tw.join(' '))+' is reported FINISHED more than once.</b> Two phones with no signal can both report the same work; '+
+    'the hours of both count. If one is a double, press UNDO THIS REPORT on it below. If both are right (two gangs, one lot), say so.'+
+    '<button class="pp-ghost" id="pj-o-twice-ok" style="margin-top:8px" onclick="pjTwiceOk()">OK, BOTH REPORTS ARE RIGHT</button></div>';
+  if(pjNumClash(v))h+='<div class="pp-note amb" id="pj-o-clash" style="margin-top:10px"><b>Two jobs are named '+esc(pjName(v))+'.</b> They were issued on two of your devices before either had the other’s. '+
+    'One of them takes the next number; the crew sees the new name at its next sync.'+
+    ((mv=>(mv&&mv.key===v.key)?('<button class="pp-ghost" id="pj-o-renum" style="margin-top:8px" onclick="pjRenum()">GIVE THIS ONE THE NEXT NUMBER · Job '+pjNextNum(v.mon)+'</button>')
+      :(mv?('<button class="pp-ghost" id="pj-o-clash-go" style="margin-top:8px" onclick="pjOpen(\''+ppArg(mv.key)+'\')">OPEN THE OTHER ONE · '+esc(mv.en)+' ›</button>'):''))(pjClashMover(v)))+'</div>';
+  if(v.st==='iss'&&v.direct)h+='<div class="pp-note" id="pj-o-direct" style="margin-top:10px"><b>Recorded by you; the crew does not see this job.</b> The lots not reported finished stay open until you record them, close the job, or send what is left to the crew.</div>';
+  h+='<div class="pp-q">'+(v.direct?'Recorded for ':'Issued for ')+pjRange(v.from,v.to)+'</div><div class="pp-g">Lot '+esc(v.lots.join(' '))+(v.note?(' · your line to the crew: '+esc(v.note)):'')+'</div>'+pjChipsHTML(v,'pj-ochip-')+
+    '<div class="pp-kpis k3"><div class="pp-kpi"><div class="v" id="pj-o-plan">'+(v.planMd?v.planMd:'—')+'</div><div class="l">man-days planned</div></div>'+
+    '<div class="pp-kpi"><div class="v" id="pj-o-done">'+nf(pjMd(mh))+'</div><div class="l">man-days so far</div></div>'+
+    '<div class="pp-kpi"><div class="v" id="pj-o-cnt">'+((v.cen||pjCountMust(v))?nf(cnt):'—')+'</div><div class="l">'+esc(v.cen||(pjCountMust(v)?v.pay.unit:'no count'))+'</div></div></div>';
+  h+='<div class="pp-g" id="pj-o-rm">Labour so far: <b>'+(pay?rm(rmT):'—')+'</b> · '+esc(pay?pjPayTxt(pay):'no rate keyed yet')+(pay&&pay.def?' (the day rate)':'')+'</div>'+
+    '<button class="pp-ghost" id="pj-o-pay" onclick="pjPayOpen(\'J\',\''+ppArg(v.key)+'\',\'detail\')">💰 PAY: '+esc(pay?pjPayTxt(pay):'not keyed')+' ›</button>';
+  h+='<div class="pp-q">Reports</div>'+(v.reps.length?v.reps.map(r=>pjRepHTML(v,r,true)).join(''):'<div class="pp-note" id="pj-o-none">Nothing reported yet.</div>');
+  if(v.st==='done'){
+    h+='<div class="pp-note grn" id="pj-o-closed"><b>'+(v.closed?'Closed by you.':'Every lot is reported finished. The job closed by itself.')+'</b>'+(v.closed?' Lots not finished stay as they were reported.':'')+'</div>';
+    if(String(v.rec.status)==='CLOSED')h+='<button class="pp-ghost" id="pj-o-reopen" onclick="pjReopen()">OPEN IT AGAIN</button>';
+  }else{
+    h+=(v.direct?'<button class="pp-act" id="pj-o-send" onclick="pjSend()">SEND WHAT IS LEFT TO THE CREW</button>'
+                :'<button class="pp-act" id="pj-o-move" onclick="pjMoveOpen()">MOVE TO OTHER DAYS</button>')+
+      '<button class="pp-ghost blu" id="pj-o-rec" onclick="pjRecOpen()">RECORD WORK MYSELF</button>'+
+      '<button class="pp-ghost blu" id="pj-o-close" onclick="pjClose()">CLOSE THE JOB</button>'+
+      '<button class="pp-ghost rd" id="pj-o-skip" onclick="pjSkipOpen()">SKIP THIS JOB</button>'+
+      '<div class="pp-g" style="margin-top:8px">A job closes by itself when every lot is reported finished. CLOSE THE JOB is for work that never finishes a lot: collection, pollination, tying.</div>';}
+  return h+pjHistHTML(v);}
+function pjOwnHTML(){
+  if(PJO.s==='issue')return pjIssueHTML();
+  if(PJO.s==='add')return pjAddHTML();
+  if(PJO.s==='rec')return pjRecHTML();
+  if(PJO.s==='move')return pjMoveHTML();
+  if(PJO.s==='skip')return pjSkipHTML();
+  if(PJO.s==='pay')return pjPayHTML();
+  return pjDetailHTML();}
+
+/* ----- RECORD: the work record ----- */
+function pjRTab(t){PJO.rtab=t;PJC.undo=null;ppRender();}
+function pjRMonGo(n){const ms=pjRMons(), i=Math.max(0,Math.min(ms.length-1,ms.indexOf(pjRMon())+n));PJO.rmon=ms[i];ppRender();}
+function pjRMons(){const ms=ppSeasonMonths().slice();pjWorkRows().forEach(w=>{const m=String(w.r.d).slice(0,7);if(/^\d{4}-\d{2}$/.test(m)&&ms.indexOf(m)<0)ms.push(m);});return ms.sort();}
+function pjRMon(){const ms=pjRMons(), cur=todayISO().slice(0,7);
+  if(PJO.rmon&&ms.indexOf(PJO.rmon)>=0)return PJO.rmon;
+  return ms.indexOf(cur)>=0?cur:(ms[ms.length-1]||cur);}
+function pjRecSegHTML(){
+  const t=PJO.rtab||'day';
+  return '<div class="pp-vsw pj-rseg" id="pj-rseg">'+[['day','BY DAY'],['job','BY JOB'],['who','WORKERS'],['sets','SETS DONE']].map(o=>
+    '<button id="pj-rt-'+o[0]+'" class="'+(t===o[0]?'on':'')+'" onclick="pjRTab(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';}
+async function pjDaySave(){
+  if(!ppIsOwner()||pjHeld())return;
+  const e=$('pj-day'), val=e?+e.value:NaN;
+  if(!(val>=0)||!isFinite(val)){toast('Key the day rate in RM',1);return;}
+  if(val===pjCfg().day){toast('That is the rate already');return;}
+  const ok=await pjCfgSave(x=>{x.day=val>0?Math.round(val*100)/100:0;});
+  if(ok){toast(val>0?('✓ Day rate RM '+pjN2(val)):'✓ Day rate cleared');pjMoved();pjAfter(false);}}
+async function pjWAdd(){
+  if(!ppIsOwner()||pjHeld())return;
+  const e=$('pj-w-new'), n=pjClip(e?e.value:'',PJ_NAME_LEN), cur=pjCfg().names;
+  if(!n){toast('Type a name first',1);return;}
+  if(cur.some(x=>x.toLowerCase()===n.toLowerCase())){toast('That name is already on the list',1);return;}
+  if(cur.length>=PJ_NAMES_MAX){toast('The list is full ('+PJ_NAMES_MAX+' names)',1);return;}
+  const ok=await pjCfgSave(x=>{x.names=cur.concat([n]);});
+  if(ok){pjMoved();pjAfter(false);}}
+async function pjWDel(i){
+  if(!ppIsOwner()||pjHeld())return;
+  const cur=pjCfg().names; if(!cur[i])return;
+  const ok=await pjCfgSave(x=>{x.names=cur.filter((_,j)=>j!==i);});
+  if(ok){pjMoved();pjAfter(false);}}
+function pjRecordHTML(){
+  const mon=pjRMon(), ms=pjRMons(), mi=ms.indexOf(mon), t=PJO.rtab||'day', cfg=pjCfg();
+  const rows=pjWorkRows().filter(w=>String(w.r.d).slice(0,7)===mon), live=rows.filter(w=>!w.r.undone);
+  const mh=live.reduce((s,w)=>s+w.r.n*w.r.h,0), late=live.filter(w=>pjLate(w.r)>0).length, off=live.filter(w=>w.src==='oth').length;
+  const rmT=live.reduce((s,w)=>s+(w.rm||0),0), unpriced=live.filter(w=>w.rm===null).length;
+  let h=pjRecSegHTML()+'<div class="pp-pager"><button id="pj-rm-prev" '+(mi<=0?'disabled':'')+' onclick="pjRMonGo(-1)">‹</button><div class="c"><b id="pj-rm-title">'+esc(ppMonEN(mon)+' '+mon.slice(0,4))+'</b>'+
+    '<small>every report with people and hours · 1 man-day = '+PJ_DAY_H+' hours</small></div><button id="pj-rm-next" '+(mi>=ms.length-1?'disabled':'')+' onclick="pjRMonGo(1)">›</button></div>'+
+    '<div class="pp-kpis k4"><div class="pp-kpi"><div class="v" id="pj-k-mh">'+nf(mh)+'</div><div class="l">man-hours</div></div><div class="pp-kpi"><div class="v" id="pj-k-md">'+nf(pjMd(mh))+'</div><div class="l">man-days</div></div>'+
+    '<div class="pp-kpi"><div class="v" id="pj-k-late">'+late+'</div><div class="l">keyed late</div></div><div class="pp-kpi"><div class="v" id="pj-k-off">'+off+'</div><div class="l">not on plan</div></div></div>';
+  h+='<div class="pj-pay" id="pj-pay"><div class="pp-q" style="margin-top:0">💰 Pay · your eyes only</div>'+
+    '<div class="pj-row"><span>Day rate, RM for a man-day of '+PJ_DAY_H+' hours</span><span class="pj-dayr"><input type="number" id="pj-day" inputmode="decimal" min="0" step="0.5" value="'+(cfg.day>0?cfg.day:'')+'" placeholder="RM"><button class="pj-pb" id="pj-day-save" onclick="pjDaySave()">SAVE</button></span></div>'+
+    '<div class="pp-g">'+(cfg.day>0?'Used for every set and job with no rate of its own.':'<b>Not keyed yet.</b> Your workbook says RM 60 a man-day. Until you key a rate here, the RM columns stay empty.')+' A job paid by piece gets its own rate: BY JOB ▸ its PAY button.</div>'+
+    '<div class="pp-note grn" id="pj-k-rm" style="margin-bottom:0">Labour, '+esc(ppMonEN(mon))+': <b>'+(live.some(w=>w.rm!==null)?rm(rmT):'—')+'</b>'+(unpriced&&unpriced<live.length?(' · '+unpriced+' report'+(unpriced===1?'':'s')+' with no rate'):'')+'</div></div>';
+  if(t==='day'){
+    h+=rows.length?('<div class="pp-scroll"><table class="pp-t pj-t" id="pj-t-day"><colgroup><col class="pj-c1"><col><col class="pj-c3"></colgroup><tr><th>Day</th><th>Work · lot</th><th class="r">Man-hours<br>RM</th></tr>'+rows.map(w=>{const r=w.r, lt=pjLate(r), un=r.undone, who=pjWho(r);
+      return '<tr id="pj-wr-'+ppCss(r.rid)+'"><td><span class="'+(un?'pj-strike':'')+'">'+ppFmt(r.d)+'</span>'+(lt?('<br><span class="pp-pill amb">keyed '+lt+' day'+(lt>1?'s':'')+' late</span>'):'')+'</td>'+
+        '<td><span class="'+(un?'pj-strike':'')+'"><b>'+esc(w.name)+'</b><br><span class="pp-g">'+esc((w.sub?(w.sub+' · '):'')+'Lot '+r.lots.join(' ')+(r.cnt?(' · '+nf(r.cnt)+' counted'):''))+'</span></span>'+
+        (w.src==='oth'?'<br><span class="pp-pill new">not on the plan</span>':'')+(un?('<br><span class="pp-pill red">undone by '+esc(un.by||'?')+(pjUndoTxt(un)?(' · '+esc(pjUndoTxt(un))):'')+'</span>'):'')+
+        (who?('<br><span class="pp-g">'+esc(who)+'</span>'):'')+(r.via==='OWNER'?'<br><span class="pp-pill mut">keyed by the Owner</span>':'')+(r.cut?'<br><span class="pp-pill amb">part removed in a clean-up</span>':'')+'</td>'+
+        '<td class="r"><span class="'+(un?'pj-strike':'')+'"><b>'+nf(r.n*r.h)+'</b><br><span class="pp-g">'+esc(pjNxH(r))+'</span></span>'+
+        ((w.rm!==null&&!un)?('<br><b class="pj-rm">'+rm(w.rm)+'</b>'+(w.pay&&w.pay.b==='piece'?'<br><span class="pp-pill mut">piece</span>':'')):'')+'</td></tr>';}).join('')+'</table></div>')
+      :'<div class="pp-note" id="pj-wr-none">No work is reported for this month yet.</div>';
+    h+='<div class="pp-g">A report that was undone stays here, struck through, with the reason, and does not count. A set shows the people and hours keyed when it was marked done. Watering is a tick with no hours, so it is not here.</div>';
+  }else if(t==='job'){
+    /* Found in review: the table listed the sets and jobs NAMED in this month and the head counted the work DONE in
+       it, so work on a job of another month (issued over a month end, moved, back-dated) or on a job skipped later
+       was in the head and not in the table. Every live line of the month now has its row: the work of a job named
+       in another month is listed under that job's own name, marked so. */
+    const items=[], seenIt=new Map();
+    const add=(k,v,o)=>{if(seenIt.has(v))return;const it=Object.assign({k:k,v:v},o);seenIt.set(v,it);items.push(it);};
+    ppSets().filter(v=>v.mon===mon&&v.st!=='plan'&&v.st!=='skip').forEach(v=>{add('S',v,{d:ppDayOf(v)||'',name:ppName(v),sub:v.tgt,plan:pjSetPlanMd(v),own:pjSetPay(v),can:!!v.rec,st:v.st});});
+    pjJobs().filter(v=>v.mon===mon&&v.rec&&v.st!=='skip').forEach(v=>{add('J',v,{d:pjDayOf(v)||'',name:pjName(v),sub:pjKindW(v),plan:v.planMd,own:v.pay,can:true,st:v.st});});
+    live.forEach(w=>{ if(w.src==='oth'||!w.v||seenIt.has(w.v))return;
+      const far=w.v.mon!==mon, skp=w.v.st==='skip';
+      if(w.src==='set')add('S',w.v,{d:String(w.r.d),name:ppName(w.v),sub:w.v.tgt+(far?' · a set of another month':''),plan:0,own:pjSetPay(w.v),can:!!w.v.rec,st:w.v.st});
+      else add('J',w.v,{d:String(w.r.d),name:pjName(w.v),sub:pjKindW(w.v)+(skp?' · skipped later':far?' · a job of another month':''),plan:0,own:w.v.pay,can:!skp,st:w.v.st});});
+    items.sort((a,b)=>String(a.d).localeCompare(String(b.d)));
+    let pl=0, dn=0, rs=0, any=false;
+    const line=it=>{const mine=live.filter(w=>w.v===it.v), md=pjMd(mine.reduce((s,w)=>s+w.r.n*w.r.h,0)), pay=pjPay(it.own), r0=mine.reduce((s,w)=>s+(w.rm||0),0), cnt=mine.reduce((s,w)=>s+(+w.r.cnt||0),0);
+      pl+=it.plan||0; dn+=md; rs+=r0; if(pay)any=true;
+      return '<tr id="pj-wj-'+ppCss(it.v.key)+'"><td><b>'+esc(it.name)+'</b><br><span class="pp-g">'+esc(it.sub)+'</span><br><span class="pp-pill '+(it.st==='done'?'ok':it.st==='skip'?'mut':'amb')+'">'+(it.st==='done'?'done':it.st==='skip'?'skipped':'open')+'</span></td>'+
+        '<td class="r">'+(it.plan?it.plan:'—')+' / <b>'+nf(md)+'</b></td>'+
+        '<td class="r">'+(it.can?('<button class="pj-pb" id="pj-pay-'+ppCss(it.v.key)+'" onclick="pjPayOpen(\''+it.k+'\',\''+ppArg(it.v.key)+'\')">'+esc(pay?pjPayTxt(pay):'not keyed')+(pay&&pay.b==='piece'?('<small>'+nf(cnt)+' counted</small>'):(pay&&!pay.def?'<small>its own rate</small>':''))+'</button>'):esc(pay?pjPayTxt(pay):'not keyed'))+
+        '<br><b class="pj-rm" id="pj-wj-rm-'+ppCss(it.v.key)+'">'+(pay?rm(r0):'—')+'</b></td></tr>';};
+    const oth=live.filter(w=>w.src==='oth'), opay=pjPay(null);
+    let body=items.map(line).join('');
+    if(oth.length){const md=pjMd(oth.reduce((s,w)=>s+w.r.n*w.r.h,0)), r0=oth.reduce((s,w)=>s+(w.rm||0),0); dn+=md; rs+=r0; if(opay)any=true;
+      body+='<tr id="pj-wj-oth"><td><b>Other work</b><br><span class="pp-g">not on the plan · '+oth.length+' report'+(oth.length===1?'':'s')+'</span></td><td class="r">— / <b>'+nf(md)+'</b></td><td class="r"><span class="pp-g">'+esc(opay?pjPayTxt(opay):'not keyed')+'</span><br><b class="pj-rm">'+(opay?rm(r0):'—')+'</b></td></tr>';}
+    h+=body?('<div class="pp-scroll"><table class="pp-t pj-t" id="pj-t-job"><colgroup><col><col class="pj-j2"><col class="pj-j3"></colgroup><tr><th>Set or job</th><th class="r">Man-days<br>plan / done</th><th class="r">Pay · RM</th></tr>'+body+
+      '<tr><td><b>Total</b></td><td class="r"><span id="pj-wj-plan">'+pl+'</span> / <b id="pj-wj-done">'+nf(dn)+'</b></td><td class="r"><b class="pj-rm" id="pj-wj-rmt">'+(any?rm(rs):'—')+'</b></td></tr></table></div>')
+      :'<div class="pp-note" id="pj-wj-none">No set or job is issued for this month yet.</div>';
+    h+='<div class="pp-g">Plan man-days are your workbook’s own figures. Tap a PAY button to give that work its own rate: a set by day, a job by day or by piece.</div>';
+  }else{
+    const by={}; let others=0;
+    live.forEach(w=>{const r=w.r;(r.names||[]).forEach(n=>{by[n]=(by[n]||0)+r.h;});others+=Math.max(0,r.n-(r.names||[]).length)*r.h;});
+    h+='<div class="pj-pay" id="pj-w-list"><div class="pp-q" style="margin-top:0">Your list · the crew ticks these names</div>'+
+      (cfg.names.length?cfg.names.map((n,i)=>'<div class="pj-row" id="pj-w-'+i+'"><span><b>'+esc(n)+'</b></span><button class="pj-pb" id="pj-w-del-'+i+'" onclick="pjWDel('+i+')">✕ take off</button></div>').join(''):'<div class="pp-g" id="pj-w-none">No name yet. Until there is one, the crew keys only a number of people.</div>')+
+      '<div class="pj-row"><input id="pj-w-new" maxlength="'+PJ_NAME_LEN+'" placeholder="a name" autocomplete="off"><button class="pj-pb pj-nw" id="pj-w-add" onclick="pjWAdd()">＋ ADD</button></div>'+
+      '<div class="pp-g">Anyone not on the list is keyed as a number: the oil-palm gang, a casual. A name taken off stays on the reports already made.</div></div>'+
+      '<div class="pp-q">Hours by worker · '+esc(ppMonEN(mon))+'</div><div class="pp-scroll"><table class="pp-t pj-t" id="pj-t-who"><colgroup><col><col class="pj-w2"><col class="pj-w3"></colgroup><tr><th>Worker</th><th class="r">Hours</th><th class="r">Man-days</th></tr>'+
+      Object.keys(by).sort().map(n=>'<tr><td>'+esc(n)+'</td><td class="r">'+nf(by[n])+'</td><td class="r"><b>'+nf(pjMd(by[n]))+'</b></td></tr>').join('')+
+      '<tr id="pj-w-oth"><td>Others, not named</td><td class="r">'+nf(others)+'</td><td class="r"><b>'+nf(pjMd(others))+'</b></td></tr></table></div>'+
+      '<div class="pp-g">"Others, not named" = people keyed as a number: every set, and anyone not on your list. Pay by worker is not built; this page gives the hours for it.</div>';}
+  return h;}
+/* ====================== end of v3.82.0 · one work list ====================== */
+
 /* ====================== v3.81.0 · RAIN ON THE SPRAY CARD ======================
    Item 2 of the October builds, approved from the sample of 4 Oct 2026 as suggested:
      2a  rain already keyed for today and a leaf spray due: WARN - the crew can still mark it done;
@@ -9111,7 +10359,7 @@ function ppCrewList(){
     .sort((a,b)=>String(a.date).localeCompare(String(b.date)));}
 function ppCrewDue(){return ppCrewList().filter(v=>{const k=ppSt(v).k;return k==='due'||k==='over';});}
 function ppCrewSet(){const v=ppFind(PPC.key);return (v&&v.st==='iss')?v:null;}
-function ppCOpen(k){PPC={s:'card',key:ppUnArg(k)};ppRender();ppTop();}
+function ppCOpen(k){if(typeof pjCReset==='function')pjCReset();PPC={s:'card',key:ppUnArg(k)};ppRender();ppTop();}
 function ppCList(){PPC={s:'list',key:''};PPCD=PPCN=null;ppRender();ppTop();}
 function ppCCard(){PPC.s='card';PPCD=PPCN=null;ppRender();ppTop();}
 function ppBanner(v){
@@ -9121,23 +10369,11 @@ function ppBanner(v){
   return '';}
 function ppCrewHTML(){
   const today=todayISO(); let h='';
+  if(typeof PJC!=='undefined'&&PJC.s)return pjCrewHTML();   // v3.82.0 - a job: its card, the form, saved, not done
   if(PPC.s!=='list'&&PPC.s!=='saved'&&PPC.s!=='told'&&!ppCrewSet())PPC={s:'list',key:''};
-  if(PPC.s==='list'){
-    const list=ppCrewList();
-    h='<div class="pp-g">'+ppT('Only the sets the Owner has issued. Today ','Hanya set yang telah dikeluarkan oleh Pengurus. Hari ini ')+ppFmt(today)+'.</div>';
-    /* v3.79.0 — a tree check the Owner issued is on this same list, above the sets */
-    const tcH=(typeof tcCrewListHTML==='function')?tcCrewListHTML():'';
-    h+=tcH;
-    if(!list.length&&!tcH)h+='<div class="pp-note">'+ppT('No programme work for the next 7 days.','Tiada kerja program untuk 7 hari ini.')+'</div>';
-    list.forEach(v=>{const st=ppSt(v), left=ppLotsLeft(v);
-      h+='<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
-        '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
-        (v.bm?(' · <b style="color:#b26a00">'+ppT('CHANGED','DIUBAH')+'</b>'):'')+'</div></button>';});
-    const dn=ppSets().filter(v=>v.st==='done'&&v.done&&ppOkDay(v.done.date)&&ppDiff(today,v.done.date)<=PP_CREW_BACK&&ppDiff(today,v.done.date)>=0)
-      .sort((a,b)=>String(b.done.date).localeCompare(String(a.done.date)));
-    if(dn.length)h+='<div class="pp-mon">'+ppT('Done','Siap')+'</div>'+dn.map(v=>'<div class="pp-row st-done"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+
-      '</b><span class="pp-pill ok">'+ppT('DONE','SIAP')+'</span></div><div class="pp-dt">'+ppFmt(v.done.date)+'</div></div>').join('');
-    return h;}
+  /* v3.82.0 - ONE LIST: the watering call, the tree checks, every set and job that is due, what is
+     coming, other work, what was finished. The old list of sets alone is gone. */
+  if(PPC.s==='list')return pjCrewListHTML();
   if(PPC.s==='saved'){
     const d=PPC.info||{};
     return '<div class="pp-okbig">✔ '+ppT('Saved','Disimpan')+'</div><div class="pp-g">'+esc(d.name||'')+' · '+ppFmt(d.date)+(d.tanks?(' · '+nf(d.tanks)+' '+ppT('tanks','tangki')):'')+
@@ -9255,18 +10491,18 @@ async function ppCNotGo(){
 
 /* ---------- the same sets on the crew's home screen and in TODAY'S TASKS ---------- */
 function ppGoSet(k){
-  openModule('prog');
-  if(myRole()==='WORKER'){PPC={s:'card',key:ppUnArg(k)};}
+  ppOpenTile();
+  if(myRole()==='WORKER'){pjCReset();PPC={s:'card',key:ppUnArg(k)};}
   else{PPO.key=ppUnArg(k);PPO.s='detail';}
   ppRender();ppTop();}
 function ppHomeNoticeHTML(){
-  if(!ppOn()||myRole()!=='WORKER'||hubTiles().indexOf('prog')<0)return '';
-  return ppCrewDue().slice(0,2).map(v=>{const st=ppSt(v);
+  if(!ppOn()||myRole()!=='WORKER'||hubTiles().indexOf(ppHome())<0)return '';
+  return pjHomeHTML()+ppCrewDue().slice(0,2).map(v=>{const st=ppSt(v);
     return '<div class="tasknote" onclick="ppGoSet(\''+ppArg(v.key)+'\')"><span class="tn-tag'+(st.k==='over'?' late':'')+'">📅 '+esc(st.t)+'</span>'+
       '<div class="tn-brand">'+esc(ppNameBM(v))+'</div><div class="tn-dose">'+esc(ppTgt(v))+' · '+ppFmt(v.date)+'</div>'+
       '<div class="tn-hint">'+ppT('Tap to open the set','Tekan untuk buka set')+'</div></div>';}).join('');}
 function ppOpsHTML(){
-  if(!ppOn()||hubTiles().indexOf('prog')<0)return '';
+  if(!ppOn()||hubTiles().indexOf(ppHome())<0)return '';
   const list=ppCrewList(); if(!list.length)return '';
   return '<div class="pp" id="pp-ops" style="margin-bottom:10px"><div class="pp-mon" style="margin-top:0">📅 '+ppT('The Programme','Program')+' · '+list.length+'</div>'+
     list.map(v=>{const st=ppSt(v);
@@ -9280,13 +10516,14 @@ function ppOverdue(){
 function ppTileBadge(){
   if(!ppOn())return null;
   const r=myRole();
-  if(r==='OWNER'){const n=ppActList().length+ppOldDrafts().length+ppWashCount(); if(n)return {t:n+' NEED YOU'};   // the same words as the amber box
-    const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' ISSUED',amber:1}:null;}
+  const pj=(typeof pjOn==='function'&&pjOn());   // v3.82.0 - jobs count with the sets, on every role's tile that shows them
+  if(r==='OWNER'){const n=ppActList().length+ppOldDrafts().length+ppWashCount()+(pj?pjActList().length:0); if(n)return {t:n+' NEED YOU'};   // the same words as the amber box
+    const c=ppSets().filter(v=>v.st==='iss').length+(pj?pjJobs().filter(v=>v.st==='iss'&&!v.direct).length:0); return c?{t:c+' ISSUED',amber:1}:null;}
   /* v3.77.0 - his buy list is in THE STORE ▸ BUY only; this tile shows what is coming */
   if(r==='PURCHASER'){const c=ppSets().filter(v=>v.st==='iss').length; return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
   /* v3.79.0 — a tree check that is due counts with the sets: it is on the same list */
-  const due=ppCrewDue().length+((typeof tcCrewDue==='function')?tcCrewDue().length:0); if(due)return {t:due+' '+ppT('DUE','HARI INI')};
-  const c=ppCrewList().length+((typeof tcCrewComing==='function')?tcCrewComing():0); return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
+  const due=ppCrewDue().length+((typeof tcCrewDue==='function')?tcCrewDue().length:0)+(pj?pjCrewDue().length:0); if(due)return {t:due+' '+ppT('DUE','HARI INI')};
+  const c=ppCrewList().length+((typeof tcCrewComing==='function')?tcCrewComing():0)+(pj?pjCrewList().length:0); return c?{t:c+' '+ppT('COMING','AKAN DATANG'),amber:1}:null;}
 
 /* ---------- closing last season's programme ----------
    The three sets the app held open on 2 Oct 2026, answered the way Programme 26 shows them.
@@ -9825,7 +11062,8 @@ function labourRows(){
   // readers go through here, so this one change fixes the month matrix too.
   /* v3.78.0 — SUDAH SIRAM is a TASK_DONE with kind WATER and no people or hours: a tick that
      the lot was watered, not a labour record. A zero here would read as "the work was free". */
-  EVENTS.filter(e=>e.type==='TASK_DONE'&&!(e.kind==='WATER'&&!(mhOf(e)>0))).forEach(e=>out.push({dt:e.dt,what:e.kindLabel,lot:e.lot,
+  /* v3.82.0 — AN UNDO ROW IS NOT WORK, and the report it names stops counting: both are left out here, at the source */
+  EVENTS.filter(e=>e.type==='TASK_DONE'&&!(e.kind==='WATER'&&!(mhOf(e)>0))&&!(typeof pjRowOff==='function'&&pjRowOff(e))).forEach(e=>out.push({dt:e.dt,what:((typeof pjLabel==='function')&&pjLabel(e))||e.kindLabel,lot:e.lot,
     crew:+e.crew||0,hours:+e.hours||0,mh:mhOf(e),worker:e.worker}));
   /* v3.77.0 — ONE REPLY, ONE CREW. A completion that covers three lots writes crew and hours
      on every lot's rows, and the Sheet has no man-hours column for STOCK_OUT, so a row that
@@ -9924,6 +11162,10 @@ function dupTaskGroups(){
   EVENTS.forEach(function(e){
     if(!e||e.type!=='TASK_DONE')return;
     if(e.kind==='WATER'&&!(mhOf(e)>0))return;   // v3.78.0 — two phones ticking the same lot is not a job counted twice: it carries no hours
+    /* v3.82.0 — a job report is one row per lot under one reply, and a job is reported day after day: two rows of a job on
+       one day in one lot are a morning and an afternoon, not a double filing. They are judged on the job's own page, where
+       a wrong one is undone with its reason; this finder would tick half a reply. */
+    if(e.detail&&typeof e.detail==='object'&&!Array.isArray(e.detail)&&+e.detail.v===1)return;
     const day=String(e.dt||'').slice(0,10); if(!day)return;
     const k=day+'|'+String(e.kind||e.kindLabel||'?')+'|'+String(e.lot||'—');
     (g[k]=g[k]||[]).push(e);});
@@ -10512,6 +11754,7 @@ function wtHomeHTML(){
 function wtRefresh(mine){
   try{ if(typeof renderTaskNotice==='function')renderTaskNotice(); }catch(e){}
   try{ const b=$('wt-r-slot'); if(b)b.innerHTML=wtBoxHTML('wt-r-',true); }catch(e){}
+  try{ const k=$('wt-k-slot'); if(k)k.innerHTML=wtBoxHTML('wt-k-'); }catch(e){}   // v3.82.0 — the same call at the top of the crew's KERJA list
   try{ const a=document.activeElement; if(mine||!(a&&a.id==='wt-m-date'))wtRenderOwner(); }catch(e){}}
 /** One sync for a burst of taps, a moment after the last one. */
 function wtSyncSoon(ms){
@@ -11102,7 +12345,7 @@ function tcGroup(items){
     out.push({chk:c.id,c:c,items:its,st:st,done:its.reduce((s,x)=>s+x.done,0),of:its.reduce((s,x)=>s+x.of,0),
       day:(open.length?open:its).map(x=>x.day).sort()[0]});});
   return out;}
-function tcCrewDue(){return (myRole()==='WORKER'&&hubTiles().indexOf('prog')>=0)?tcGroup(tcCrewItems()).filter(g=>g.st==='due'||g.st==='over'):[];}
+function tcCrewDue(){return (myRole()==='WORKER'&&hubTiles().indexOf(ppHome())>=0)?tcGroup(tcCrewItems()).filter(g=>g.st==='due'||g.st==='over'):[];}
 function tcPill(st,day){
   if(st==='done')return '<span class="tc-pill tc-gr">'+tcT('done','siap')+'</span>';
   if(st==='over'){const n=tcDiff(tcToday(),day);return '<span class="tc-pill tc-r">'+tcT(n+(n===1?' day late':' days late'),'lewat '+n+' hari')+'</span>';}
@@ -11388,7 +12631,7 @@ function tcRefresh(){
   try{
     const m=(typeof curModule!=='undefined')?curModule:null;
     if(m==='tsv'){ if(TCO.s!=='issue'&&!tcOwnBusy())tcRenderOwner(); }
-    else if(m==='prog'){
+    else if(m==='prog'||(typeof ppHere==='function'&&ppHere())){   // v3.82.0 — the crew's list is the first section of KERJA
       if(tcCrewOn()){ if(TCW.s==='lots'||TCW.s==='lotdone')ppRender(); }
       else if(typeof ppRefresh==='function')ppRefresh(); }
     else if(!m&&typeof renderHub==='function')renderHub();
@@ -11494,7 +12737,7 @@ function tcCrewOpen(chk){
   TCW.s=TC_PRAC[tcMe()]?'lots':'prac';
   tcPaint(true);}
 /** From the home bar: into the Program tile, on the check. */
-function tcGo(chk){openModule('prog'); if(myRole()==='WORKER')tcCrewOpen(chk);}
+function tcGo(chk){ppOpenTile(); if(myRole()==='WORKER'){pjCReset();tcCrewOpen(chk);}}
 function tcOwnWalk(chk){
   if(myRole()!=='OWNER')return;
   TCW=tcW0(); TCW.on=true; TCW.who=(chk==='REF')?'ref':'own'; TCW.chk=chk; TCW.s='lots';
@@ -23900,8 +25143,9 @@ function needsYou(){
 
   // 2. a programme past its date with work still outstanding
   const od=(typeof ppOverdue==='function')?ppOverdue():[];   // v3.77.0 — issued sets past their day
-  push('crit','⏰',od.length,tr('cd_a_late'),
-    od.slice(0,3).map(v=>ppName(v)).filter(Boolean).join(' · ')||tr('cd_s_late'),
+  const odj=(typeof pjOverdue==='function')?pjOverdue():[];  // v3.82.0 — and jobs past their last day
+  push('crit','⏰',od.length+odj.length,tr('cd_a_late'),
+    od.map(v=>ppName(v)).concat(odj.map(v=>pjName(v))).filter(Boolean).slice(0,3).join(' · ')||tr('cd_s_late'),
     tr('cd_w_late'),'prog','hub');
 
   // 3. a weighed load whose credit cannot move until the Owner has looked at the photo
@@ -25707,7 +26951,8 @@ function whoLine(e){
     case 'ROTTEN':  return (e.tree||'')+' · '+q+' lost'+(e.cause?(' — '+e.cause):'');
     case 'TIE':     return (e.tree||'')+' · '+q+' fruit tied';
     case 'TIE_ADJUST': return 'tying corrected on '+(e.tree||'');
-    case 'TASK_DONE':  return e.kind==='WATER'?('watered Lot '+(e.lot||'')):('finished a task'+(e.kind?(' — '+e.kind):''));
+    case 'TASK_DONE':  return e.kind==='WATER'?('watered Lot '+(e.lot||'')):String(e.kind||'').indexOf('UNDO')===0?('undid a work report'+(e.kindLabel?(' — '+String(e.kindLabel).replace(/^Undone: /,'')):'')):
+                              (e.detail&&!Array.isArray(e.detail)&&+e.detail.v===1)?('reported work — '+(e.kindLabel||'')+(e.lot?(' · Lot '+e.lot):'')+((typeof pjRowOff==='function'&&pjRowOff(e))?' (undone later)':'')):('finished a task'+(e.kind?(' — '+e.kind):''));   // v3.82.0
     case 'DISPATCH_REQ':    return 'weighed a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
                                    (e.merchant?(' · '+e.merchant):'');
     case 'DISPATCH':        return 'APPROVED a load'+(e.kg?(' · '+nkg(e.kg)+' kg'):'')+
