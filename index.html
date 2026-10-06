@@ -2700,6 +2700,48 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pp-os-tick span{flex:1;min-width:0}
 .pp-os-buy{display:block;margin-top:3px;color:#1f5f8b !important;font-size:12px;line-height:1.3}
 .pp-os-key{font-size:12px;line-height:1.3;color:#1f5f8b;margin:4px 0 2px}
+/* v3.83.0 - the Programme, chosen his way: the picker, SWAP, START FROM, CHANGE THE PLAN, ＋ NEW */
+.pp .pq-new{margin:2px 0 10px;padding:13px}
+.pq-new small{display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:1px}
+.pp .pq-sm{padding:10px;font-size:13px}
+.pq-kinds{margin-top:10px}
+.pq-ai{font-size:12px;color:var(--muted);line-height:1.3;margin-top:2px;overflow-wrap:anywhere}
+.pp .pq-swb{display:inline-block;margin-top:7px;border:1.5px solid #1f5f8b;background:#fff;color:#1f5f8b !important;border-radius:9px;padding:8px 12px;min-height:42px;font-weight:800;font-size:12.5px}
+.pp .pq-swb.on{background:#1f5f8b;color:#fff !important}
+.pq-pk{border:1.5px solid #1f5f8b;background:#f6fafd;border-radius:10px;padding:9px;margin:8px 0}
+.pq-pkh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.pq-pkh b{font-size:13.5px;line-height:1.25;min-width:0;overflow-wrap:anywhere}
+.pp .pq-x{flex:none;border:1px solid #dfe5dd;background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;min-height:42px;color:var(--ink)}
+.pq-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pp .pq-chips button{border:1.5px solid #dfe5dd;background:#fff;border-radius:999px;padding:8px 12px;font-size:12.5px;font-weight:700;min-height:42px;color:var(--ink)}
+.pp .pq-chips button.on{background:var(--ink);color:#fff !important;border-color:var(--ink)}
+.pp .pq-chips button.pq-sh{border-style:dashed}
+.pq-pkl{max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid #dfe5dd;padding-top:6px}
+.pp .pq-pr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #dfe5dd;border-radius:10px;padding:8px 9px;margin:0 0 5px;min-height:48px;color:var(--ink)}
+.pq-pr b{display:block;font-size:14px;line-height:1.2;overflow-wrap:anywhere}
+.pq-pr small{display:block;font-size:12px;font-weight:400;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
+.pq-pr .rt{font-size:11.5px;font-weight:600;color:var(--muted);text-align:right;white-space:nowrap;line-height:1.25}
+.pq-pr.zero .rt{color:#b26a00}
+.pp .pq-pr.same{border-left:4px solid var(--green2)}
+.pp .pq-pr.sim{border-left:4px solid #b26a00}
+.pq-src{font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--green2);font-weight:800;margin:10px 0 6px;line-height:1.3}
+.pq-src.amb{color:#b26a00}
+.pq-src.mut{color:var(--muted)}
+.pq-from{background:#e9f2f8;border:1px solid #c5dbe9;border-left:4px solid #1f5f8b;border-radius:8px;padding:9px 11px;font-size:13px;margin:8px 0}
+.pq-pcbox{background:#e9f2f8;border:1px solid #c5dbe9;border-left:4px solid #1f5f8b;border-radius:8px;padding:10px 12px;font-size:13px;margin:10px 0}
+.pq-pcbox ul{margin:4px 0 0;padding-left:17px}
+.pq-pl{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;border-bottom:1px dashed #dfe5dd;padding:7px 2px;font-size:14px}
+.pq-pl b{display:block;line-height:1.25;overflow-wrap:anywhere}
+.pq-pl small{display:block;font-size:12px;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
+.pq-pl>span{font-weight:700;white-space:nowrap}
+.pq-pl>div{min-width:0}
+/* a word with no space in it (a purpose typed in one piece, a long product name) breaks instead of pushing the page sideways */
+#pp-root{overflow-wrap:break-word}
+/* a long name with IN PLACE OF beside it wraps; the shelf chip keeps its place (found in review: it was pushed off a 320 px screen) */
+.pq-a>b{min-width:0;overflow-wrap:anywhere}
+.pq-a>span{flex:none}
+.pp .pq-inpl{white-space:normal;text-align:left;border-radius:9px}
+.pq-hint{margin:4px 0 0}
 /* v3.82.0 - one work list: jobs, one TANDA SIAP, the work record */
 .pj-tag{color:#1f5f8b;font-weight:800}
 .pj-job .pp-nm{color:var(--ink)}
@@ -4516,7 +4558,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.82.0"></script>
-<script src="app.js?v=3.82.0"></script>
+<script src="database.js?v=3.83.0"></script>
+<script src="app.js?v=3.83.0"></script>
 </body>
 </html>
