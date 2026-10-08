@@ -741,6 +741,66 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tc-seg button{border:2px solid #dfe5dd;background:#fff;border-radius:10px;padding:9px 2px;min-height:44px;font-size:12px;font-weight:800;color:var(--green2)}
 .tc-seg button.tc-on{background:var(--green2);border-color:var(--green2);color:#fff}
 .tc-seg.tc-s2{grid-template-columns:repeat(2,1fr)}
+.tc-seg.pz-seg4{grid-template-columns:repeat(4,1fr)}   /* v3.85.0 - Trees has a fourth tab, GATE 1 */
+.tc-seg.pz-seg4 button{font-size:11px;padding:8px 1px}
+/* v3.85.0 - GATE 1 AND THE PBZ TICK LIST (every class starts pz-) */
+.pz-intro{margin:0 0 8px}
+.pz-kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 4px}
+.pz-kp.pz-kp3{grid-template-columns:repeat(3,1fr)}
+.pz-kp>div{border:1px solid #dfe5dd;border-radius:10px;padding:6px 3px;text-align:center;background:#fff;min-width:0}
+.pz-kp b{display:block;font-size:16px;line-height:1.15;overflow-wrap:anywhere}
+.pz-kp span{display:block;font-size:10px;line-height:1.2;color:var(--muted);text-transform:uppercase;letter-spacing:.2px}
+.pz-kp .pz-dry{border-width:2px}
+.pz-kp .pz-d-no{border-color:#c62828;background:#fdf4f2}.pz-kp .pz-d-start{border-color:#b26a00;background:#fdf0e2}.pz-kp .pz-d-best{border-color:#2e7d32;background:#eef7ee}
+.pz-gate{border:1.5px solid #cfd6cc;border-left:6px solid #c9cec7;border-radius:13px;background:#fff;padding:9px 10px;margin:10px 0}
+.pz-gate.pz-pass{border-left-color:#2e7d32;background:#f6fbf6}
+.pz-gate.pz-wait{border-left-color:#b26a00;background:#fffaf2}
+.pz-gate.pz-g2{border-left-color:#c62828;background:#fdf7f6}
+.pz-gate h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.pz-gate h3 small{font-weight:400}
+.pz-pills{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.pz-yn{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;padding:7px 0;border-top:1px solid #e6eae3;font-size:13.5px}
+.pz-yn>span:first-child{min-width:0}
+.pz-yn b{white-space:nowrap;font-size:13.5px}.pz-yn b.y{color:#1b5e20}.pz-yn b.n{color:#c62828}.pz-yn b.a{color:#b26a00}.pz-yn b.q{color:#6b675c}
+.pz-tr{font-size:11.5px;color:#6b675c}
+.pz-hs button{min-height:44px;padding:4px 10px;font-size:13px}
+.pz-hs button.pz-arm{background:#c62828;border-color:#c62828;color:#fff}
+.pz-dec{grid-template-columns:repeat(3,1fr);margin-top:8px}
+.pz-dec .tc-opt{font-size:14px;padding:8px 2px}
+.pz-dec .tc-opt small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
+.pz-said{margin-top:6px}
+.pz-see{margin-top:8px}
+.pz-set{border:1px dashed #b9cdb6;border-radius:10px;padding:7px 8px;margin-top:8px;font-size:13px}
+.pz-leaf{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.pz-leaf span{border:1px solid #dfe5dd;border-radius:8px;padding:3px 5px;font-size:11px;text-align:center;min-width:52px;background:#fff}
+.pz-leaf span b{display:block;font-size:11px}
+.pz-leaf .pz-ly{border-color:#c62828;background:#fdf1f1;color:#7a1712}.pz-leaf .pz-ln{border-color:#9cc59e;background:#f3f9f3;color:#1b5e20}.pz-leaf .pz-lq{color:#6b675c}.pz-leaf .pz-lf{color:#9a968b;opacity:.7}
+.pz-hold{border-color:#1f5f8b;background:#e9f2f8;color:#14374f}.pz-hold h4{color:#1f5f8b}.pz-hold .tc-act{margin-top:7px}
+.pz-mix{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 0}.pz-mix td{padding:4px 2px;border-bottom:1px dashed #dfe5dd}.pz-mix td.r{text-align:right;font-weight:800}
+.pz-how{margin-top:10px}
+.pz-tr1{padding:6px 0;border-bottom:1px dashed #dfe5dd}.pz-tr1>b{font-size:13px}.pz-tr1.pz-gr{opacity:.6}
+.pz-sc{display:flex;flex-wrap:wrap;gap:3px;margin:3px 0 2px}
+.pz-s{display:inline-flex;flex-direction:column;align-items:center;min-width:28px;border-radius:7px;padding:2px 2px 1px;font-weight:900;font-size:13px;background:#eef2ec;color:#2b3a2b}
+.pz-s i{font-style:normal;font-weight:700;font-size:8.5px;line-height:1.1;white-space:nowrap;color:#5b5a52}
+.pz-s1,.pz-s2{background:#f6d9cf;color:#8c1c13}.pz-s3{background:#e2f0d9;color:#2e6b1f}.pz-s4{background:#1f5c2a;color:#fff}.pz-s4 i{color:#d8ecd6}.pz-sx{color:#9a968b;background:#f4f4f1}
+.pz-lotrow{width:100%}
+.pz-bar{height:8px;border-radius:99px;background:#e6eae3;overflow:hidden;margin:6px 0 8px}.pz-bar i{display:block;height:100%;background:#2e7d32}
+.pz-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pz-t{border:2px solid #b9cdb6;background:#fff;border-radius:11px;min-height:54px;padding:5px 2px;font:inherit;font-weight:900;font-size:14px;color:#1b5e20;line-height:1.1;min-width:0}
+.pz-t small{display:block;font-size:10px;font-weight:600;line-height:1.15;margin-top:2px;overflow-wrap:anywhere}
+.pz-t.pz-on{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.pz-t.pz-ns{background:#fdf0e2;border-color:#b26a00;color:#7a4a00}
+.pz-t.pz-arm{background:#c62828;border-color:#c62828;color:#fff}
+.pz-t.pz-no{background:#2b2b2b;border-color:#2b2b2b;color:#fff;opacity:1}
+.pz-lrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:center;margin:6px 0}
+.pz-lrow b{font-size:15px}.pz-lrow .pp-opt{min-height:48px;margin:0}
+.pz-lrow .pp-opt.pz-armb{background:#c62828;border-color:#c62828;color:#fff}
+.pz-dl{margin:6px 0;font-size:13px}.pz-dok{color:#1b5e20}.pz-dno{color:#c62828;font-weight:800}
+.pz-kleaf{border:1.5px solid #9fc1d8;background:#eef5fb;border-radius:12px;padding:8px 10px;margin:6px 0}
+.pz-kleaf .pp-opts{margin-top:6px}
+.pz-kleaf .pp-opt.pz-kys{background:#c62828;border-color:#c62828;color:#fff}
+.pz-sl{margin:3px 0}
+.pz-wt{margin:6px 0}
 .tc-need{border:2px solid #b26a00;background:#fdf0e2;border-radius:12px;padding:9px 11px;margin-bottom:10px;font-size:13.5px;color:#3d2a00}
 .tc-need h4{margin:0 0 3px;color:#b26a00;font-size:13.5px}
 .tc-need.tc-r{border-color:#c62828;background:#fdf1f1;color:#6d1410}
@@ -4565,7 +4625,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.84.0"></script>
-<script src="app.js?v=3.84.0"></script>
+<script src="database.js?v=3.85.0"></script>
+<script src="app.js?v=3.85.0"></script>
 </body>
 </html>

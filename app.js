@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.84.0';   // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.85.0';   // v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -7648,7 +7648,8 @@ function ppNewRec(v,o,status){
     planDay:v.noPlanDay?'':v.planDay,lots:o.lots.slice(),why:'',extra:!!v.extra,ver:1,log:[]};
   {const pcs=(typeof pqPcs==='function')?pqPcs(v):null; if(pcs)x.pcs=pcs;}   // v3.83.0 - issued, recorded or skipped on a plan he had changed
   if(v.tgt)x.tgt=String(v.tgt);   // v3.83.0 - what it is for, kept where the Sheet cannot re-read it as a date or a number
-  if(re){x.sfx=String(re.sfx||'');x.re=String(re.uuid||'');x.rek=String(re.k||'');x.rel=(re.lots||[]).filter(L=>o.lots.indexOf(L)>=0);}   /* it answers for the lots it was asked about AND is issued for: a lot he took out comes back as its own question */
+  if(re){x.sfx=String(re.sfx||'');x.re=String(re.uuid||'');x.rek=String(re.k||'');x.rel=(re.lots||[]).filter(L=>o.lots.indexOf(L)>=0);
+    if(Array.isArray(re.trees)&&re.trees.length)x.trees=re.trees.filter(t=>o.lots.indexOf(String(t).split('-')[0])>=0);}   // v3.85.0 (G8a) - a PBZ re-spray of named trees: its tick list holds only those   /* it answers for the lots it was asked about AND is issued for: a lot he took out comes back as its own question */
   return {uuid:uuid(),phaseId:v.planId||('P27|X'+uuid().replace(/-/g,'').slice(0,8)),
     month:ppMonEN(mon),set:num?(PP_GRPW[grp][0]+' '+num+(re?String(re.sfx||''):'')):'',
     kind:v.k==='fert'?'FERT':'FOLIAR',
@@ -8321,6 +8322,7 @@ function ppDetailHTML(){
       '<button class="pp-ghost" id="pp-o-seen" style="margin-top:8px" onclick="ppSeen()">OK, SEEN</button></div>';
     const left=ppLotsLeft(v);
     h+='<div class="pp-q">Issued for '+ppFmt(v.date)+'</div><div class="pp-g">'+ppSizeTxt(v,o.tanks,o.lots)+(v.ver>1?(' · version '+v.ver):'')+'</div>';
+    h+=pzSetTicksHTML(v);   // v3.85.0
     if(own&&v.note)h+='<div class="pp-note" id="pq-o-note">Your line to the crew: '+esc(v.note)+'</div>';   // v3.83.0 (P7)
     if(own)h+=ppRainCardHTML(v,true)+ppWashSetHTML(v);   // v3.81.0 - the gauge on a leaf spray; a lot already sprayed that rain may have washed
     if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' reported done on '+ppFmtS(v.done.date)+'. Still to do: <b>Lot '+esc(left.join(' '))+'</b>.</div>';
@@ -8335,6 +8337,7 @@ function ppDetailHTML(){
       (v.basis==='T'?(nf(d.tanks)+' tanks used · '):'')+(d.crew?(d.crew+' crew × '+nf(d.hours)+' h'):'crew and hours not recorded')+
       (d.by?(' · '+esc(d.by)):'')+'</div>';
     h+=ppWashSetHTML(v);   // v3.81.0
+    h+=pzSetTicksHTML(v);   // v3.85.0
     h+='<div class="pp-scroll"><table class="pp-t"><tr><th>&nbsp;</th><th>Planned</th><th>Issued</th><th>Done</th></tr>'+
       '<tr><td><b>Day</b></td><td>'+(v.extra?'—':ppFmtS(v.fix&&v.fix.was?v.fix.was:v.planDay))+'</td><td>'+(direct?'—':ppFmtS(v.date))+'</td><td>'+ppFmtS(d.date)+'</td></tr>'+
       (v.basis==='T'?('<tr><td><b>Tanks</b></td><td>'+(v.extra?'—':nf(v.planTanks))+'</td><td>'+(direct?'—':nf(v.tanks))+'</td><td>'+nf(d.tanks)+'</td></tr>'):'')+
@@ -9006,6 +9009,7 @@ function pjCrewListHTML(){
   /* a tree check the Owner issued is on this same list, above the sets and jobs */
   const tcH=(typeof tcCrewListHTML==='function')?tcCrewListHTML():'';
   h+=tcH;
+  {let pzk='';try{pzk=pzCrewLeafHTML();}catch(e){pzk='';} h+=pzk;}   // v3.85.0 - every day for 7 days after PBZ
   const setRow=v=>{const st=ppSt(v), left=ppLotsLeft(v);
     return '<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
       '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
@@ -10359,7 +10363,9 @@ function ppWashCardHTML(o){
     '<b>'+esc(ppName(v))+'</b> was sprayed on '+ppFmt(o.d)+(o.lots.length?(', Lot '+esc(o.lots.join(' '))):'')+(o.fin?(', finished in the '+(o.fin==='am'?'morning':'afternoon')):'')+'. '+
     ppWashSay(o)+
     (o.hours>PP_WASH_H?' <span class="pp-g">This mix has PBZ in the tank: looked at over 24 hours.</span>':'')+
-    '<button class="pp-act" id="pp-wash-again-'+id+'" '+(PP_WASH_BUSY?'disabled ':'')+'onclick="ppWashAgain(\''+ppArg(v.key)+'\',\''+ppArg(o.k)+'\')">SPRAY AGAIN · '+esc(ppReName(v))+' ›</button>'+
+    pzWashHTML(v,o)+   /* v3.85.0 (G8a) - the trees ticked that day */
+    ((pzW=>pzW?('<button class="pp-act" id="pp-wash-again-'+id+'" '+(PP_WASH_BUSY?'disabled ':'')+'onclick="ppWashAgain(\''+ppArg(v.key)+'\',\''+ppArg(o.k)+'\',1)">SPRAY THESE '+pzW.trees.length+' TREE'+(pzW.trees.length===1?'':'S')+' AGAIN · '+esc(ppReName(v))+' ›</button>')
+      :('<button class="pp-act" id="pp-wash-again-'+id+'" '+(PP_WASH_BUSY?'disabled ':'')+'onclick="ppWashAgain(\''+ppArg(v.key)+'\',\''+ppArg(o.k)+'\')">SPRAY AGAIN · '+esc(ppReName(v))+' ›</button>'))(pzWashTrees(v,o)))+
     '<button class="pp-ghost" id="pp-wash-held-'+id+'" '+(PP_WASH_BUSY?'disabled ':'')+'onclick="ppWashHeld(\''+ppArg(v.key)+'\',\''+ppArg(o.k)+'\')">NO NEED · IT HELD</button></div>';}
 /** In NEEDS YOU the box must not push the month off the screen: the newest card in full, the rest one tap away. */
 function ppWashBoxHTML(list){
@@ -10392,17 +10398,20 @@ async function ppWashHeld(key,k){
 /** SPRAY AGAIN - opens the issue screen on the same mix, for the lots that were sprayed that
  *  day, named after the set it repeats. Nothing is issued and nothing is answered until the
  *  Owner presses ISSUE TO THE CREW there. */
-function ppWashAgain(key,k){
+function ppWashAgain(key,k,pz){
   if(!ppIsOwner()||ppWashHeldNow())return;
   const o=ppWashFind(key,k); if(!o)return;
   const v=o.v; if(ppStale(v.rec))return;
   const today=todayISO(), lots=(o.lots.length?o.lots:v.lots).slice(), sfx=ppReSfx(v);
-  const share=(ppTrees(lots)||1)/(ppTrees(v.lots)||1);
+  /* v3.85.0 (G8a) - a PBZ set sprays again only the trees ticked that day; its tanks are sized for those trees */
+  const pzW=pz?pzWashTrees(v,o):null, pzT=pzW?pzW.trees.slice():null;
+  if(pzT){const L2=lots.filter(L=>pzT.some(t=>String(t).split('-')[0]===L)); if(L2.length)lots.splice(0,lots.length,...L2);}   // found in review: a lot with no named tree had nothing to tick
+  const share=pzT?(pzT.length/(ppTrees(v.lots)||1)):((ppTrees(lots)||1)/(ppTrees(v.lots)||1));
   const base={key:'',planId:'',plan:null,rec:null,k:v.k,grp:v.grp,basis:v.basis,code:'',stage:'Extra',
     tgt:v.tgt,tgtbm:v.tgtbm||'',extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,
     planLines:[],num:0,ver:1,log:[],st:'new',date:today,lots:lots.slice(),lines:[],note:v.note||'',   // v3.83.0 - his line for the crew is in the box, to keep or change
     tanks:v.basis==='T'?Math.max(0.5,Math.round((+v.tanks||0)*share*2)/2):0,
-    re:{uuid:v.rec.uuid,k:o.k,lots:o.lots.slice(),d:o.d,mm:o.w.mm,num:v.num,sfx:sfx,mon:v.mon,of:ppName(v),name:ppReName(v)}};
+    re:Object.assign({uuid:v.rec.uuid,k:o.k,lots:o.lots.slice(),d:o.d,mm:o.w.mm,num:v.num,sfx:sfx,mon:v.mon,of:ppName(v),name:ppReName(v)},pzT?{trees:pzT}:{})};
   base.trees=ppTreesFor(base.basis,lots);
   PPE={mode:'issue',base:base,date:today,tanks:base.tanks,lots:lots.slice(),trees:base.trees,lines:v.lines.map(ppELine),
     why:'RAIN',err:'',adding:false,busy:false};
@@ -10436,7 +10445,8 @@ async function ppReAnswered(v,rec){
 /** The note at the top of the issue screen of a re-spray. */
 function ppReNoteHTML(v){
   if(!v.re)return '';
-  return '<div class="pp-rn-line" id="pp-re-note">🌧 Spraying again after rain: '+nf(v.re.mm)+' mm keyed after the spraying of '+ppFmtS(v.re.d)+'. The same mix as <b>'+esc(v.re.of)+'</b>, for the lots sprayed that day. Set the day and the tanks, then issue.</div>';}
+  return '<div class="pp-rn-line" id="pp-re-note">🌧 Spraying again after rain: '+nf(v.re.mm)+' mm keyed after the spraying of '+ppFmtS(v.re.d)+'. The same mix as <b>'+esc(v.re.of)+'</b>, '+
+    ((Array.isArray(v.re.trees)&&v.re.trees.length)?('for the <b>'+v.re.trees.length+' trees</b> ticked that day only: the crew\'s tick list holds those trees.'):'for the lots sprayed that day.')+' Set the day and the tanks, then issue.</div>';}   // v3.85.0
 /** On the set's own page: what is still open, and what was answered. */
 function ppWashSetHTML(v){
   if(!ppIsOwner()||!v||!v.rec||!ppIsSpray(v))return '';
@@ -10840,8 +10850,9 @@ function ppEditHTML(){
     (plan?'':('<div class="pp-g pq-hint" id="pq-tgt-hint">'+(bmw?('In Bahasa the crew reads “'+esc(bmw)+'”. If you change this line they read your words, as typed.'):'The crew reads this line as you type it.')+'</div>'))+
     '<label>Stage (your month page and record; the crew never sees it)</label><select id="pp-e-stage" onchange="ppELive()">'+pqStageOpts(o.stage)+'</select>';
   if(!plan)h+='<label>A line for the crew (optional)</label><input id="pp-e-note" maxlength="'+PJ_NOTE_LEN+'" value="'+esc(o.note)+'" placeholder="e.g. spray after 4 pm, inside the canopy" autocomplete="off">';
+  const pzR=pzIsRound(v);   // v3.85.0 - a PBZ set: the lots not passed at Gate 1 say so
   if(!plan)h+='<label>Lots</label><div class="pp-opts">'+LOT_KEYS.map(k=>'<button class="pp-opt'+(o.lots.indexOf(k)>=0?' sel':'')+'" id="pp-e-lot-'+k+'" onclick="ppELot(\''+k+'\')">Lot '+k+
-    '<small>'+treesInLot(k).length+' trees</small></button>').join('')+'</div>';
+    '<small>'+treesInLot(k).length+' trees'+((pzR&&!pzPassed(k))?' · not passed at Gate 1':'')+'</small></button>').join('')+'</div>';
   h+='<div class="pp-q">The mix — '+ppBasisTxt(v.basis)+'</div>';
   const pl=plan?wbv.planLines:v.planLines;
   o.lines.forEach((l,i)=>{
@@ -10896,6 +10907,9 @@ async function ppEGo(){
   if(v.basis==='T'&&!(PPE.tanks>0))return fail('Enter how many tanks.');
   if(v.basis==='P'&&!(PPE.trees>0))return fail('Enter how many trees.');
   if(!PPE.lots.length)return fail('Pick at least one lot.');
+  /* v3.85.0 (G5a) - PBZ goes only on a lot he passed at Gate 1. Lots the set already held, and the lots a re-spray repeats, are not asked again. */
+  if(pzIsRound(v)){const was=v.rec?v.lots:(v.re?(v.re.lots||[]):[]), bad=PPE.lots.filter(L=>was.indexOf(L)<0&&!pzPassed(L));
+    if(bad.length)return fail('Lot '+bad.join(', ')+' has not passed Gate 1. PBZ goes only on a lot you passed: Trees ▸ GATE 1.');}
   const ch=ppChanges(v,PPE), need=ch.length||(v.extra&&!v.rec);
   if(need&&!PPE.why)return fail('Pick the reason.');
   const reb=ppReBlock(v); if(reb)return fail(reb);   // v3.81.0 - a re-spray that was answered elsewhere meanwhile
@@ -11021,6 +11035,7 @@ function ppRecOpen(){
   {const pr0=(v.st==='plan'&&v.plan&&typeof pqPcRec==='function')?pqPcRec(v.plan.id):null; if(pr0&&ppStale(pr0))return;}   // v3.83.0 - as for ISSUE
   const today=todayISO();
   PPR={date:(ppOkDay(v.date)&&v.date<=today)?v.date:today,tanks:v.tanks,lots:ppLotsLeft(v),crew:'',hours:'',err:''};
+  if(pzIsRound(v)&&!v.rec){const ok=PPR.lots.filter(pzPassed); if(ok.length)PPR.lots=ok;}   // v3.85.0 (review 2) - a PBZ round offers the lots that passed
   PPO.s='rec'; ppRender(); ppTop();}
 function ppRSync(){
   if(!PPR)return;
@@ -11044,6 +11059,7 @@ function ppRecHTML(){
     '<div><label>Hours each (if known)</label><input type="number" id="pp-r-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPR.hours)+'"></div></div>'+
     ppMixHTML(v,{tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},false)+
     ((ppStockFrom()&&sf<ppStockFrom())?('<div class="pp-g">A day before the store’s opening count of '+ppFmtS(ppStockFrom())+' goes on the record and in the cost. It does not change today’s shelf, except for a product whose card was made after that count.</div>'):'')+
+    (pzIsRound(v)&&v.rec?('<div class="pp-g">The crew\'s tick list, for the lots you record. A tree left without a tick stays on the record as not ticked.</div>'+pzDoneLinesHTML(v,PPR.lots)):'')+   /* v3.85.0 */
     '<div id="pp-r-warn">'+ppRecWarn(v)+'</div>'+
     '<div class="pp-err" id="pp-r-err">'+esc(PPR.err||'')+'</div><button class="pp-act" id="pp-r-go" onclick="ppRecGo()">RECORD AS DONE</button>';}
 /** What RECORD AS DONE would take below zero, said before it is pressed. */
@@ -11067,6 +11083,9 @@ async function ppRecGo(){
   if(!ppOkDay(PPR.date)||PPR.date>today||(sf&&PPR.date<sf))return fail('Pick a day between '+ppFmtS(sf)+' and today.');
   if(v.basis==='T'&&!(PPR.tanks>0))return fail('Enter how many tanks were used.');
   if(!PPR.lots.length)return fail('Pick the lots that were done.');
+  /* v3.85.0 (G5a, found in review) - recording PBZ as done does not go round Gate 1, and does not leave the other lots issued */
+  if(pzIsRound(v)){const was=v.rec?v.lots:[], bad=PPR.lots.filter(L=>was.indexOf(L)<0&&!pzPassed(L));
+    if(bad.length)return fail('Lot '+bad.join(', ')+' has not passed Gate 1. Pass it there first: Trees ▸ GATE 1.');}
   if(stampFor(PPR.date)===null)return fail('That day has not happened yet.');
   /* ⛔ ASK THE STORE AGAIN, NOW. The form may have stood open while another phone reported a
      lot; filing it a second time would draw it a second time. */
@@ -11077,7 +11096,7 @@ async function ppRecGo(){
   PPR.busy=true;
   let rec=v.rec;
   if(!rec){
-    rec=ppNewRec(v,{date:PPR.date,tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},'ISSUED');
+    rec=ppNewRec(v,{date:PPR.date,tanks:v.tanks,lots:pzIsRound(v)?PPR.lots.slice():v.lots,lines:v.lines,trees:v.trees},'ISSUED');   // v3.85.0 - a PBZ round holds only the lots recorded
     rec.x.direct=true; PROGRAMS.push(rec);}
   const ok=await ppFileDone(rec,{date:PPR.date,tanks:v.basis==='T'?PPR.tanks:0,lots:PPR.lots.slice(),
     crew:+PPR.crew||0,hours:+PPR.hours||0,via:'OWNER',fin:PPR.fin||''},'rec');
@@ -11136,6 +11155,7 @@ function ppCrewHTML(){
       esc(ppWhyM(d.why))+'. '+ppT('New day','Hari baru')+': <b>'+ppFmt(d.to)+'</b>. '+ppT('The Owner has been told.','Pengurus akan dimaklumkan.')+'</div>'+
       '<button class="pp-ghost" id="pp-c-back" onclick="ppCList()">'+ppT('Back to the list','Kembali ke senarai')+'</button>';}
   const v=ppCrewSet(), left=ppLotsLeft(v);
+  if(PPC.s==='tick'||PPC.s==='tleft')return pzCrewHTML(v);   // v3.85.0 - the PBZ tick list
   if(PPC.s==='card'){
     const bn=ppBanner(v);
     h='<button class="pp-back" id="pp-c-up" onclick="ppCList()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+esc(ppNameBM(v))+'</div>'+
@@ -11146,7 +11166,7 @@ function ppCrewHTML(){
     if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' '+ppT('is done. Still to do: Lot ','sudah siap. Belum siap: Lot ')+'<b>'+esc(left.join(' '))+'</b>.</div>';
     h+='<div class="pp-q">'+(v.basis==='T'?ppT('The mix for each 1,000 L tank','Bancuhan setiap tangki 1,000 L'):v.basis==='P'?ppT('For each tree','Setiap pokok'):ppT('For the round','Setiap pusingan'))+'</div>'+
       '<table class="pp-mix">'+v.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>').join('')+'</table>'+
-      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+
+      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+pzCardHTML(v)+   /* v3.85.0 */
       '<button class="pp-act" id="pp-c-done" onclick="ppCDoneOpen()">✓ '+ppT('MARK DONE','TANDA SIAP')+'</button>'+
       '<button class="pp-ghost rd" id="pp-c-not" onclick="ppCNotOpen()">✗ '+ppT('NOT DONE TODAY','TAK JADI HARI INI')+'</button>';
     return h;}
@@ -11156,7 +11176,7 @@ function ppCrewHTML(){
       '<input type="date" id="pp-c-date" value="'+esc(PPCD.date)+'" min="'+ppCrewMin()+'" max="'+today+'">'+
       (v.basis==='T'?('<label>'+ppT('How many tanks were used','Berapa tangki digunakan')+'</label><input type="number" id="pp-c-tanks" inputmode="decimal" step="0.5" min="0" value="'+esc(PPCD.tanks)+'">'):'')+
       '<label>'+ppT('Lots done','Lot yang siap')+'</label><div class="pp-opts">'+left.map(k=>'<button class="pp-opt'+(PPCD.lots.indexOf(k)>=0?' sel':'')+'" id="pp-c-lot-'+k+'" onclick="ppCLot(\''+k+'\')">Lot '+k+
-        '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+
+        '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+pzDoneLinesHTML(v,PPCD.lots)+   /* v3.85.0 */
       (ppIsSpray(v)?ppFinHTML('pp-c-fin-',PPCD.fin||'','ppCFin',true):'')+   /* v3.81.0 */
       '<div class="pp-two"><div><label>'+ppT('How many people','Berapa orang')+'</label><input type="number" id="pp-c-crew" inputmode="numeric" min="0" value="'+esc(PPCD.crew)+'"></div>'+
       '<div><label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'"></div></div>'+
@@ -11201,6 +11221,7 @@ async function ppCSave(){
   const tanks=v.basis==='T'?(+PPCD.tanks||0):0, crew=Math.round(+PPCD.crew||0), hours=+PPCD.hours||0;
   if(v.basis==='T'&&!(tanks>0))return fail(ppT('Enter how many tanks.','Masukkan bilangan tangki.'));
   if(!PPCD.lots.length)return fail(ppT('Pick the lots that were done.','Pilih lot yang siap.'));
+  {const pzb=pzDoneBlock(v,PPCD.lots); if(pzb)return fail(pzb);}   // v3.85.0 (G7a) - every tree of a PBZ lot ticked or marked NOT SPRAYED
   if(!(crew>0)||!(hours>0))return fail(ppT('Enter how many people and how many hours.','Masukkan bilangan orang dan jam.'));
   /* v3.81.0 - a leaf spray: one tap says whether it finished before or after noon */
   const fin=ppIsSpray(v)?((PPCD.fin==='am'||PPCD.fin==='pm')?PPCD.fin:''):'';
@@ -12961,6 +12982,7 @@ function tcBoot(kv){
   const rp=g('tcrefplan'); TC_REFPLAN=Array.isArray(rp)?rp.filter(t=>treeById(t)):null;
   /* this install's own name for its rows. Made once; a phone that is wiped starts another. */
   TC_SRC=String(g('tcsrc')||'');
+  if(typeof PZ_CAN!=='undefined')PZ_CAN=g('pzcan')===true;   // v3.85.0 - the Sheet said it takes gate, tick, leaf and hose rows
   if(!TC_SRC){TC_SRC=Math.random().toString(36).slice(2,8)||'x'; if(db)put('kv',{k:'tcsrc',v:TC_SRC});}}
 function tcWipe(){
   TREE_LOG=[];TC_CUR='';TC_HELD=0;TC_SERVED=null;TC_MORE=false;TC_ERR='';TC_RS=null;TC_FOR='';TC_PARK=[];TC_OFF=null;TC_FLOOR=0;TC_CLK_AT=0;TC_CLK_MONO=0;TC_CLK_URL='';TC_ASK_AT=0;TC_LASTE=0;TC_PRAC={};TC_REFPLAN=null;TC_PHOTO={};TC_CACHE=null;TC_SAVES=0;
@@ -12971,7 +12993,7 @@ function tcWipe(){
 /* ---------- what the log says ---------- */
 function tcState(){
   if(TC_CACHE)return TC_CACHE;
-  const sn=tcSeason(), S={iss:[],stops:{},last:{},n:{},byIss:{},fix:{},pbz:{},prac:[],walks:{},eff:{},rows:{}};
+  const sn=tcSeason(), S={iss:[],stops:{},last:{},n:{},byIss:{},fix:{},pbz:{},prac:[],walks:{},eff:{},rows:{},gate:{},tick:{},leaf:{},hose:{}};   // v3.85.0 - gate tick leaf hose
   TREE_LOG.forEach(r=>{
     if(!r||r.refused||(r.season&&sn&&r.season!==sn))return;
     if(r.k==='ISS'){if(tcChk(r.chk))S.iss.push(r);}
@@ -12984,7 +13006,12 @@ function tcState(){
       if(r.chk===TC_FL&&tcOkDay(r.walk))S.walks[r.walk]=1;}
     else if(r.k==='FIX'){if(r.tree){const key=(r.chk||'CE1')+'|'+(r.walk||'CE1')+'|'+r.tree;(S.fix[key]=S.fix[key]||[]).push(r);}}
     else if(r.k==='PBZ'){if(r.tree&&(!S.pbz[r.tree]||tcNewer(r,S.pbz[r.tree])))S.pbz[r.tree]=r;}
-    else if(r.k==='PRAC')S.prac.push(r);});
+    else if(r.k==='PRAC')S.prac.push(r);
+    /* v3.85.0 - the Owner's Gate 1 decision for a lot; one tree of a PBZ spray; the crew's daily leaf look; the Owner's word on a hose */
+    else if(r.k==='GATE'){if(r.lot&&(!S.gate[r.lot]||tcNewer(r,S.gate[r.lot])))S.gate[r.lot]=r;}
+    else if(r.k==='TICK'){if(r.tree&&r.iss){const k=r.iss+'|'+r.tree; if(!S.tick[k]||tcNewer(r,S.tick[k]))S.tick[k]=r;}}
+    else if(r.k==='LEAF'){if(r.lot&&r.day){const k=r.lot+'|'+String(r.day).slice(0,10); if(!S.leaf[k]||tcNewer(r,S.leaf[k]))S.leaf[k]=r;}}
+    else if(r.k==='HOSE'){if(r.tree&&(!S.hose[r.tree]||tcNewer(r,S.hose[r.tree])))S.hose[r.tree]=r;}});
   S.iss.sort((a,b)=>tcNewer(a,b)?1:-1);
   Object.keys(S.fix).forEach(k=>S.fix[k].sort((a,b)=>tcNewer(a,b)?-1:1));     // newest first
   /* which issue counts for each check and lot: the latest one that names the lot, unless a
@@ -13212,6 +13239,7 @@ async function pushTrees(){
   /* nothing waiting: nothing to say is stuck. Rows put aside for another Sheet still make the
      phone ask which Sheet this is: at their own Sheet they come back and go up. */
   if(!tcUnsynced()&&!TC_PARK.length){clearSyncFail('trees');return false;}
+  if(!TC_PARK.length&&!PZ_CAN&&pzWaitRows()&&TREE_LOG.every(r=>!r||(r.synced?!(r.photo&&!r.refused):PZ_KINDS[r.k]))){noteSyncFail('trees',tr('sy_l_trees','Tree checks'),pzWaitRows(),tcT('the Google Sheet side must be v3.85.0','bahagian Google Sheet mesti v3.85.0'));return false;}   // v3.85.0 - only the new kinds wait (found in review: a photo still to go up was held too)
   TC_PUSHING=true; let ok=true, why='', nref=0; const sentTo=tcUrlKey();
   try{
     /* 0 · the Sheet's clock and its name first: what goes up is each row's time ON THAT
@@ -13227,7 +13255,9 @@ async function pushTrees(){
     if(ok)await tcFixWalks();
     /* 1 · the rows, without their photos: the answers travel even where a picture cannot */
     for(let round=0;ok&&round<TC_PUSH_ROUNDS;round++){
-      const batch=TREE_LOG.filter(r=>r&&!r.synced).sort((a,b)=>tcEst(a)-tcEst(b)||(tcSeqOf(a)[1]-tcSeqOf(b)[1])).slice(0,TC_PUSH_ROWS);
+      /* v3.85.0 - a gate decision, a tick, a leaf look or a hose word waits on the phone until the Sheet says it can take them:
+         an Apps Script older than v3.85.0 refuses the kind, and a refused row is never sent again */
+      const batch=TREE_LOG.filter(r=>r&&!r.synced&&(PZ_CAN||!PZ_KINDS[r.k])).sort((a,b)=>tcEst(a)-tcEst(b)||(tcSeqOf(a)[1]-tcSeqOf(b)[1])).slice(0,TC_PUSH_ROWS);
       if(!batch.length)break;
       const j=await tcPost({treechecks:batch.map(tcWire),tcsid:TC_FOR});
       /* `taken` is how a v3.79.0 backend signs its answer. An older one does not know the key,
@@ -13247,6 +13277,7 @@ async function pushTrees(){
         if(!tcIsCur(x))continue;                 // the pull already put the Sheet's copy in its place
         if(took[x.uuid]){x.synced=true;x.st=1;x.sentAt=Date.now(); if(st[x.uuid])x.at=String(st[x.uuid]);
           if(TC_RS)TC_RS.seen[x.uuid]=1;}          // sent while the tab is being read from the top: it is in the Sheet, not missing from it
+        else if(pzKeepRefused(x,ref[x.uuid]))continue;   // v3.85.0 - a Sheet put back to an older script: the row waits, it is not refused for good
         else{x.synced=true;x.refused=ref[x.uuid];delete x.photo;nref++;}
         if(db)await tcPut('tc:'+x.uuid,x);}
       tcTouch();
@@ -13347,6 +13378,7 @@ async function takeTreePack(j,asked,askedAt){
      while a pull was out, the old Sheet's reply was merged under the new Sheet's name and its
      rows were sent up to the farm's Sheet; or it took the phone back to the old Sheet.) */
   if(asked!==undefined&&asked!==tcUrlKey())return 0;
+  if(typeof pzCanFrom==='function')pzCanFrom(j);   // v3.85.0 - can: ['treechecks','pbzgate'] from Apps Script v3.85.0
   if(!j.tcserved){
     if(tcCanAsk()){
       /* a Sheet side that knows the tree rows but could not read them this time is not an old one */
@@ -13863,10 +13895,11 @@ function tcNeedHTML(){
 function tcOwnHTML(){
   if(TCO.s==='issue'&&TCO.f)return tcIssueHTML();
   if(TCO.s==='tree'&&TCO.tree)return tcTreeHTML();
+  if(TCO.s==='gatelot'&&TCO.lot)return pzGateLotHTML();   // v3.85.0
   const un=tcUnsureList().length;
-  return tcNeedHTML()+'<div class="tc-seg">'+[['survey','SURVEY'+(un?(' · '+un+' ?'):'')],['flush','FLUSH'],['issue','ISSUE & WALK']].map(x=>
+  return tcNeedHTML()+'<div class="tc-seg pz-seg4">'+[['survey','SURVEY'+(un?(' · '+un+' ?'):'')],['flush','FLUSH'],['issue','ISSUE & WALK'],['gate','GATE 1']].map(x=>
     '<button id="tc-tab-'+x[0]+'" class="'+(TCO.v===x[0]?'tc-on':'')+'" onclick="tcOTab(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
-    (TCO.v==='flush'?tcFlushHTML():TCO.v==='issue'?tcChecksHTML():tcSurveyHTML());}
+    (TCO.v==='flush'?tcFlushHTML():TCO.v==='issue'?tcChecksHTML():TCO.v==='gate'?pzGateHTML():tcSurveyHTML());}
 function tcChips(list,cls,max){
   max=max||60;
   return '<div class="tc-ids">'+list.slice(0,max).map(t=>'<button class="'+(cls||'')+'" onclick="tcTreeOpen(\''+t+'\')">'+t+'</button>').join('')+
@@ -13879,7 +13912,7 @@ function tcOptTxt(q,v){
 function tcSurveyHTML(){
   const all=tcAllTrees(), N=all.length, A={}; all.forEach(t=>{A[t]=tcCen(t);});
   const ok=t=>!!(A[t]&&!A[t].skip), done=all.filter(ok), skip=all.filter(t=>A[t]&&A[t].skip);
-  const sick=done.filter(t=>tcSick(A[t])), shade=done.filter(t=>A[t].v.light==='S'), wet=done.filter(t=>A[t].v.wet), nohose=done.filter(t=>A[t].v.hose==='N');
+  const sick=done.filter(t=>tcSick(A[t])), shade=done.filter(t=>A[t].v.light==='S'), wet=done.filter(t=>A[t].v.wet), nohose=done.filter(t=>pzNoHose(t,A[t]));   // v3.85.0 - less the trees he marked CONNECTED
   let h='<div class="tc-kp"><div><b id="tc-k-done">'+done.length+'</b><span>of '+N+' surveyed</span></div><div><b id="tc-k-sick">'+sick.length+'</b><span>sick</span></div>'+
     '<div><b id="tc-k-shade">'+shade.length+'</b><span>shaded</span></div><div><b id="tc-k-hose">'+nohose.length+'</b><span>no hose</span></div></div>';
   if(!done.length&&!skip.length){
@@ -13889,7 +13922,7 @@ function tcSurveyHTML(){
   }else{
     h+='<div class="tc-sec">By lot</div><table class="tc-tbl" id="tc-bylot"><tr><th class="tc-l">Lot</th><th>Surveyed</th><th>Sick</th><th>Shaded</th><th>Wet ground</th><th>No hose</th></tr>'+
       LOT_KEYS.map(l=>{const ls=tcTrees(l), q=f=>ls.filter(f).length;
-        return '<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td><td>'+q(ok)+' / '+ls.length+'</td><td>'+q(t=>ok(t)&&tcSick(A[t]))+'</td><td>'+q(t=>ok(t)&&A[t].v.light==='S')+'</td><td>'+q(t=>ok(t)&&A[t].v.wet)+'</td><td>'+q(t=>ok(t)&&A[t].v.hose==='N')+'</td></tr>';}).join('')+'</table>';
+        return '<tr><td class="tc-l tc-nw"><b>Lot '+l+'</b></td><td>'+q(ok)+' / '+ls.length+'</td><td>'+q(t=>ok(t)&&tcSick(A[t]))+'</td><td>'+q(t=>ok(t)&&A[t].v.light==='S')+'</td><td>'+q(t=>ok(t)&&A[t].v.wet)+'</td><td>'+q(t=>ok(t)&&pzNoHose(t,A[t]))+'</td></tr>';}).join('')+'</table>';
     /* the answers the staff could not decide */
     const uns=tcUnsureList();
     if(uns.length){
@@ -14161,6 +14194,7 @@ function tcGoIssue(chk){
 function tcOwnAlert(){
   if(myRole()!=='OWNER')return null;
   const today=tcToday(), u=tcUnsureList().length, work=tcWork();
+  {const ls=pzLeafSeen(); if(ls.length)return {hot:true,txt:'🍃 Wilted or curled leaf seen after PBZ: '+ls.map(x=>'Lot '+x.lot+' '+ppFmtS(x.day)).join(' · ')+' — Trees ▸ GATE 1'};}   // v3.85.0
   if(u)return {hot:true,txt:'🌳 '+u+' tree answer'+(u===1?'':'s')+' marked NOT SURE — decide in Trees'};
   const late=tcGroup(work.filter(x=>x.st==='over'));
   if(late.length)return {hot:true,txt:'🌳 '+late.map(g=>g.c.en+' is late: '+g.items.map(x=>'Lot '+x.lot+' '+x.done+' / '+x.of).join(' · ')).join(' · ')};
@@ -14169,10 +14203,480 @@ function tcOwnAlert(){
   return null;}
 function tcTileBadge(){
   if(myRole()!=='OWNER')return null;
+  if(pzLeafSeen().length)return {t:'LEAF CURL'};   // v3.85.0
   const u=tcUnsureList().length; if(u)return {t:u+' '+tr('bg_notsure','NOT SURE')};
   const work=tcWork(); if(work.some(x=>x.st==='over'))return {t:tr('bg_tclate','CHECK LATE')};
   const open=work.filter(x=>x.st!=='done'); if(open.length)return {t:open.reduce((s,x)=>s+x.done,0)+' / '+open.reduce((s,x)=>s+x.of,0),amber:1};
   return null;}
+
+/* ======================================================================================
+   v3.85.0 · GATE 1 AND THE PBZ TICK LIST
+   ======================================================================================
+   The Owner, 8 Oct 2026, on the first sample: "nov 10-17 is the plan date that projection
+   from the weather forecast. in order to start spraying PBZ, we need at least 2 layer of new
+   leaf ... second the second leaf have to be harden and mature enough. 3. it must have 7 or
+   10 days dry spell. either of them not reach we will go to gate 2 around jan or april."
+   Then, on sample 2: "Ok with suggestion" (G1a G2b G3b G4a G5a G6a G7a G8a G9a).
+   ⛔ NO DATE IN HERE DECIDES ANYTHING. The page reads his three conditions from the Friday
+   walks and the farm gauge, proposes, and HE presses PASS, NOT YET or GATE 2. 10 Dec, the
+   plan's last day, is shown as a reminder only.
+   HIS FOUR ANSWERS OF 8 OCT, BUILT IN:
+     - two layers are COUNTED FROM THE FRIDAY WALKS: the newest leaf soft (1-3) and then hard
+       (4) = a layer hardened; a new shoot after that = the next layer. A tree at 4 on its
+       first walk is old leaf (G1a): its first new layer is its next shoot.
+     - a dry day is UNDER 1 mm on the farm gauge (never JPS); 7 dry days in a row = can start
+       (amber, his call), 10 = best (green). A day not keyed stops the count: it is not dry.
+     - a lot goes to GATE 2 only when he presses it.
+   THE SHARE (G2b): 80 %, the flush line of v3.79.0, of the trees ANSWERED on the walk, the
+   grafts left out. A walk counts (G3b) only when every tree of the lot is answered or marked
+   "cannot check" AND at least 4 in 5 were really answered.
+   STORED: four more row kinds on the tree road (TREE_CHECKS, append-only, newest counts),
+   which the Apps Script v3.85.0 accepts and an older one refuses - so they are held on the
+   phone until the Sheet says it can take them (`can` holds 'pbzgate'):
+     GATE  lot, walk, day, v.pbz = PASS | WAIT | G2, row = the figures he decided on, score = %
+     TICK  iss = the PBZ set, tree, lot, v.pbz = Y sprayed | N not sprayed | '' taken off
+     LEAF  lot, day, v.pbz = Y wilted or curled leaf seen | N none
+     HOSE  tree, v.hose = Y: the Owner's word that the hose now reaches it
+   THE PBZ SPRAY STAYS A SET OF THE PROGRAMME (code PBZ): the mix, the tanks, the store, the
+   crew's TANDA SIAP, the wash-off card of v3.81.0. What this release adds to it: lots not
+   passed cannot be issued (G5a), a tick list of trees on the crew's set card (G6a), TANDA
+   SIAP only when every tree of the lot is ticked or marked NOT SPRAYED (G7a), the wash-off
+   card names the trees and can spray only those again (G8a), and once a lot is done the
+   7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days (G9a).
+   ====================================================================================== */
+const PZ_CODE='PBZ', PZ_PLAN_ID='P27|PBZ';
+const PZ_DRY_MM=1, PZ_DRY_START=7, PZ_DRY_BEST=10;   // a dry day is under 1 mm; 7 can start, 10 best
+const PZ_LPT=8;                // litres a tree, inside the canopy (the plan)
+const PZ_HOLD_DAYS=7;          // no watering from the PBZ day to 7 days after it (10 Nov -> 17 Nov), water again on day 8
+const PZ_WATER_L=100;          // then 100 L a tree on dry days (the plan's deficit)
+const PZ_LEAF_DAYS=7;          // the crew's daily leaf look after PBZ
+const PZ_PLAN_LAST='2026-12-10';   // the plan's latest PBZ: a reminder, never a rule
+const PZ_SHOW_WALKS=8, PZ_ARM_MS=6000, PZ_TAP_MS=500;
+const PZ_KINDS={GATE:1,TICK:1,LEAF:1,HOSE:1};
+const PZ_DECW={PASS:['PASS','pz-pass'],WAIT:['NOT YET','pz-wait'],G2:['GATE 2','pz-g2']};
+let PZ_CAN=false, PZ_ARM_T=0, PZ_MEMO={s:null,m:{}};
+let PZO={arm:'',lot:''};
+
+function pzOn(){return typeof TC_FL!=='undefined'&&typeof ppOn==='function'&&ppOn();}
+function pzMemo(k,f){const S=tcState(); if(PZ_MEMO.s!==S)PZ_MEMO={s:S,m:{}}; if(!(k in PZ_MEMO.m))PZ_MEMO.m[k]=f(); return PZ_MEMO.m[k];}
+/** The Sheet said it takes the four new kinds. Kept on the phone so a restart off-line knows it. */
+function pzCanFrom(j){
+  const c=!!(j&&Array.isArray(j.can)&&j.can.indexOf('pbzgate')>=0);
+  if(c!==PZ_CAN){PZ_CAN=c; if(db){try{put('kv',{k:'pzcan',v:c});}catch(e){}}
+    /* found in review: after the redeploy the waiting rows needed a second SYNC. They go now. */
+    if(c&&pzWaitRows()&&typeof tcSyncSoon==='function')tcSyncSoon(1500);}}
+/** Found in review: a Sheet put BACK to an older script after this phone had heard it could take the rows refused the next
+ *  decision as "unknown kind", and a refused row is never sent again. Such a row is kept unsent, and the phone forgets
+ *  that the Sheet could take them. true = keep it. */
+function pzKeepRefused(x,why){
+  if(!x||!PZ_KINDS[x.k]||!/unknown kind/.test(String(why||'')))return false;
+  pzCanFrom({can:[]}); return true;}
+function pzWaitRows(){return TREE_LOG.filter(r=>r&&!r.synced&&PZ_KINDS[r.k]).length;}
+function pzOldNote(id,crew){
+  if(PZ_CAN)return '';
+  const n=pzWaitRows();
+  if(crew)return '<div class="tc-need tc-r" id="'+id+'"><h4>'+ppT('The Google Sheet side is older than this app','Bahagian Google Sheet lebih lama daripada aplikasi ini')+'</h4>'+
+    ppT('Your ticks are kept on this phone'+(n?(' ('+n+' waiting)'):'')+' until the manager updates the Apps Script. Nothing is lost.','Tanda anda disimpan di telefon ini'+(n?(' ('+n+' menunggu)'):'')+' sehingga pengurus mengemas kini Apps Script. Tiada yang hilang.')+'</div>';
+  return '<div class="tc-need tc-r" id="'+id+'"><h4>The Google Sheet side is older than this app</h4>Gate decisions, PBZ ticks and the leaf look stay on this phone'+(n?(' ('+n+' waiting)'):'')+' until the Apps Script is v3.85.0. Paste it and redeploy, then press SYNC.</div>';}
+
+/* ---------- the Friday walks: the stage of each tree, and its layers ---------- */
+function pzWalks(){return pzMemo('walks',()=>{const t=tcToday();return tcFlushWalks().filter(w=>w<=t);});}
+function pzLast(){const w=pzWalks();return w.length?w[w.length-1]:'';}
+/** The stage of the newest leaf (0-4) for one tree on one walk, or null (not walked, cannot check, not sure). */
+function pzStage(walk,tree){
+  const a=tcAns(TC_FL,walk,tree); if(!a||a.skip)return null;
+  if(a.un&&a.un.indexOf('flush')>=0)return null;
+  const f=a.v?a.v.flush:null; if(f==null||f===''||f==='?')return null;
+  const n=+f; return (n>=0&&n<=4&&String(n)===String(f).trim())?n:null;}
+/** THE LAYERS OF ONE TREE up to a walk (his answer of 8 Oct). Soft (1-3) then 4 = a layer is hard; a new
+ *  shoot after that = the next layer is out. A 4 on the tree's first answered walk is its old leaf (G1a).
+ *  A walk the tree was not answered on is a gap: it neither starts nor ends a layer. */
+function pzLayers(tree,upto){
+  return pzMemo('L|'+tree+'|'+upto,()=>{
+    let hard=0,out=false,first=true; const ev=[];
+    pzWalks().filter(w=>w<=upto).forEach(w=>{
+      const s=pzStage(w,tree); let e='';
+      if(s!=null){
+        if(first){first=false; if(s===4){ev.push({w:w,s:s,e:'old'});return;}}
+        if(s>=1&&s<=3&&!out){out=true;e='L'+(hard+1)+' out';}
+        else if(s===4&&out){hard++;out=false;e='L'+hard+' hard';}}
+      ev.push({w:w,s:s,e:e});});
+    return {hard:hard,out:out,n:hard+(out?1:0),ev:ev};});}
+/** A lot on one walk: the two leaf lines of his gate. The share is of the trees answered on that walk. */
+function pzLot(lot,walk){
+  return pzMemo('lot|'+lot+'|'+walk,()=>{
+    const f=tcFlushLot(lot,walk), line=TC_FLUSH_LINE;
+    /* G3b - the walk counts when every tree is answered or marked cannot-check AND 4 in 5 were really answered */
+    const ans=tcTrees(lot).filter(t=>!tcIsGraft(t)&&pzStage(walk,t)!=null);
+    /* found in review: a NOT SURE leaf counted as answered. 4 in 5 is judged on the trees with a real stage. */
+    const read=!!(f.full&&f.of>0&&ans.length*5>=f.of*4);
+    let L2=0,L2H=0; ans.forEach(t=>{const x=pzLayers(t,walk); if(x.n>=2)L2++; if(x.hard>=2)L2H++;});
+    const den=ans.length, pc=x=>{if(!den)return {e:null,r:null}; const e=100*x/den; let r=Math.round(e); if(e<line&&r>=line)r=line-1; return {e:e,r:r};};
+    const p1=pc(L2),p2=pc(L2H);
+    return {of:f.of,n:f.n,sk:f.sk,full:f.full,read:read,den:den,un:Math.max(0,f.n-den),L2:L2,L2H:L2H,p1:p1.r,p2:p2.r,line:line,
+      ok1:read&&p1.e!=null&&p1.e>=line, ok2:read&&p2.e!=null&&p2.e>=line};});}
+/** THE DRY SPELL on the farm gauge: days in a row under 1 mm, back from yesterday.
+ *  A day not keyed is not a dry day: the count stops there and says so. */
+function pzDry(){
+  return pzMemo('dry',()=>{
+    /* found in review: today keyed at 7 am is not a finished day (the rain page does not count it either): the count runs to yesterday */
+    const t=todayStr(); let d=tcAddDays(t,-1), n=0, unk='', wet='', hit0=false;
+    const mm=r=>rainKind(r)==='rain'?(+r.mm||0):0;
+    for(let g=0;g<400&&d>=RAIN_FROM;g++){
+      const r=rainOn(d);
+      if(!r){unk=d;break;}
+      if(mm(r)>=PZ_DRY_MM){wet=d;break;}
+      n++; d=tcAddDays(d,-1);}
+    if(d<RAIN_FROM)hit0=true;
+    if(!wet){let x=d; for(let g=0;g<90&&x>=RAIN_FROM;g++){const r=rainOn(x); if(r&&mm(r)>=PZ_DRY_MM){wet=x;break;} x=tcAddDays(x,-1);}}
+    return {n:n,unk:unk,wet:wet,start:hit0,k:n>=PZ_DRY_BEST?'best':n>=PZ_DRY_START?'start':'no'};});}
+/** The Owner's newest decision for a lot this season: {dec,r} or null. */
+function pzGate(lot){const r=tcState().gate[lot]; if(!r||!r.v)return null; const d=String(r.v.pbz||''); return PZ_DECW[d]?{dec:d,r:r}:null;}
+function pzPassed(lot){const g=pzGate(lot);return !!(g&&g.dec==='PASS');}
+/** Lines 1 and 2 and the dry spell: 'pass' (all met, 10+ dry days) · 'call' (leaf met, 7-9 dry days) · 'notyet'. */
+function pzProp(f,dry){return (f.ok1&&f.ok2)?(dry.n>=PZ_DRY_BEST?'pass':dry.n>=PZ_DRY_START?'call':'notyet'):'notyet';}
+/* ---------- the hose: shown, not one of his three (G4a) ---------- */
+function pzHoseFixed(t,a){const h=tcState().hose[t]; return !!(h&&(!a||!a.r||tcNewer(h,a.r)));}
+function pzNoHose(t,a){return !!(a&&a.v&&a.v.hose==='N'&&!pzHoseFixed(t,a));}
+function pzNoHoseLot(lot){return tcTrees(lot).filter(t=>pzNoHose(t,tcCenOk(t)));}
+
+/* ---------- the PBZ sets of the Programme ---------- */
+/** A set of the PBZ round: the planned round (code PBZ), an extra PBZ set, or a re-spray of one (followed back by x.re). */
+function pzIsRound(v){
+  if(!v)return false;
+  if(v.code===PZ_CODE)return true;
+  const x=v.rec?ppX(v.rec):null; if(x&&x.code===PZ_CODE)return true;
+  let re=(x&&x.re)||(v.re&&v.re.uuid)||'', g=0;
+  while(re&&g++<8){const o=(typeof PROGRAMS!=='undefined'?PROGRAMS:[]).find(p=>p&&p.uuid===re), ox=o?ppX(o):null;
+    if(!ox)return false; if(ox.code===PZ_CODE)return true; re=ox.re||'';}
+  return false;}
+function pzSets(){return ppSets().filter(v=>v.rec&&v.st!=='skip'&&pzIsRound(v));}
+/** The trees of a lot this set is for: the whole lot, or for a re-spray of named trees only those (x.trees). */
+function pzSetTrees(v,lot){
+  const x=v&&v.rec?ppX(v.rec):null, all=tcTrees(lot), sub=(x&&Array.isArray(x.trees)&&x.trees.length)?x.trees:null;
+  /* found in review: a lot added to a re-spray of named trees had none of them, so nothing to tick. The names count only in their own lots. */
+  return (sub&&sub.some(t=>String(t).split('-')[0]===lot))?all.filter(t=>sub.indexOf(t)>=0):all;}
+function pzNo(t){return tcPbz(t).no;}
+function pzTick(iss,t){const r=tcState().tick[iss+'|'+t]; const p=r&&r.v?String(r.v.pbz||''):''; return (p==='Y'||p==='N')?p:'';}
+/** When a lot of this set was reported done ('' = not yet): the stamp of that report on its log. */
+function pzDoneAt(v,lot){
+  if(!(v.done&&v.done.lots.indexOf(lot)>=0))return '';
+  const x=ppX(v.rec)||{}; let at='';
+  (Array.isArray(x.log)?x.log:[]).forEach(e=>{if(e&&(e.k==='done'||e.k==='rec')&&Array.isArray(e.lots)&&e.lots.indexOf(lot)>=0&&String(e.at||'')>at)at=String(e.at||'');});
+  return at||'9999';}
+/** Was a tree on the NO list at a given moment? His flips are rows: the newest one not later than then counts. */
+function pzNoAt(t,at){
+  if(tcIsGraft(t))return true;
+  const S=tcState(), cut=String(at).length===16?at+':59':String(at), cur=S.pbz[t];
+  if(!cur||tcEff(cur)<=cut)return pzNo(t);
+  let best=null; TREE_LOG.forEach(r=>{if(r&&r.k==='PBZ'&&r.tree===t&&!r.refused&&tcEff(r)<=cut&&(!best||tcNewer(r,best)))best=r;});
+  const x=best&&best.v?best.v.pbz:''; return (x==='Y'||x==='N')?x==='N':!!tcPbzWhy(t);}
+/** A tree with a tick counts as ticked whatever the NO list says now; for a lot reported done the NO list is the one
+ *  of that moment (found in review: a NO flipped after the spraying made the record say a tree was left unticked). */
+function pzCount(v,lot){
+  const ts=pzSetTrees(v,lot), iss=v.rec.uuid, at=pzDoneAt(v,lot), tk=t=>pzTick(iss,t);
+  const isNo=t=>!tk(t)&&(at?pzNoAt(t,at):pzNo(t));
+  const no=ts.filter(isNo), yes=ts.filter(t=>!isNo(t));
+  return {ts:ts,no:no,yes:yes,Y:ts.filter(t=>tk(t)==='Y'),N:ts.filter(t=>tk(t)==='N'),left:yes.filter(t=>!tk(t))};}
+/** Found in review: the page read only the newest walk, so on walk day (and whenever a lot was not walked in full)
+ *  every lot showed NO READING. Each lot is read on the newest walk that gives a reading; a newer walk still going
+ *  on is named under it. */
+function pzReadWalk(lot){const ws=pzWalks(); for(let i=ws.length-1;i>=0;i--){if(pzLot(lot,ws[i]).read)return ws[i];} return '';}
+/** The day each lot was last sprayed with PBZ: {lot:{d,fin,key}} from the sets' done reports. */
+function pzDone(){
+  return pzMemo('done',()=>{
+    const out={};
+    pzSets().forEach(v=>{const x=ppX(v.rec)||{};
+      (Array.isArray(x.log)?x.log:[]).forEach(e=>{
+        if(!e||(e.k!=='done'&&e.k!=='rec'))return; const d=String(e.d||'').slice(0,10); if(!ppOkDay(d))return;
+        (Array.isArray(e.lots)?e.lots:[]).forEach(L=>{if(!out[L]||d>out[L].d)out[L]={d:d,fin:e.fin||'',key:v.key};});});});
+    return out;});}
+function pzLeaf(lot,day){const r=tcState().leaf[lot+'|'+day]; const p=r&&r.v?String(r.v.pbz||''):''; return (p==='Y'||p==='N')?p:'';}
+/** Wilted or curled leaf seen in the last 7 days of a lot's PBZ: [{lot,day}]. */
+function pzLeafSeen(){
+  const t=tcToday(), dn=pzDone(), out=[];
+  Object.keys(dn).sort().forEach(L=>{for(let i=0;i<PZ_LEAF_DAYS;i++){const d=tcAddDays(dn[L].d,i); if(d>t)break; if(pzLeaf(L,d)==='Y')out.push({lot:L,day:d});}});
+  return out.filter(x=>tcDiff(t,x.day)<=PZ_LEAF_DAYS);}
+
+/* ---------- writing ---------- */
+function pzArm(k){PZO.arm=k; if(PZ_ARM_T)clearTimeout(PZ_ARM_T); PZ_ARM_T=setTimeout(()=>{PZ_ARM_T=0; if(PZO.arm===k){PZO.arm=''; pzRepaint();}},PZ_ARM_MS);}
+function pzRepaint(){try{ if(typeof curModule!=='undefined'&&curModule==='tsv')tcRenderOwner(); else if(typeof ppRender==='function')ppRender(); }catch(e){}}
+async function pzWrite(o){
+  const r=await tcAdd(o); tcTouch(); tcIdleSync();
+  if(!PZ_CAN&&!pzWrite.told){pzWrite.told=1;toast(tcT('Kept on this phone: the Google Sheet side must be v3.85.0','Disimpan di telefon ini: bahagian Google Sheet mesti v3.85.0'),1);}
+  return r;}
+/** PASS · NOT YET · GATE 2 - one tap, kept with the figures he decided on. */
+async function pzDecide(lot,dec){
+  if(myRole()!=='OWNER'||!PZ_DECW[dec]||tcHeld()||!tcTapOk('pzd'+lot+dec))return;
+  const g=pzGate(lot); if(g&&g.dec===dec)return;
+  const W=pzReadWalk(lot)||pzLast(), f=W?pzLot(lot,W):null, dry=pzDry();
+  const row=(W?('walk '+W+' · '):'no walk · ')+(f&&f.read?('2 layers '+f.L2+'/'+f.den+' · 2nd hard '+f.L2H+'/'+f.den):'no reading')+' · dry '+dry.n+' days';
+  tcHold(PZ_TAP_MS);
+  await pzWrite({k:'GATE',chk:'G1',lot:lot,lots:lot,walk:W||'',day:tcToday(),row:row,score:(f&&f.read&&f.p2!=null)?f.p2:'',v:{pbz:dec}});
+  toast('Lot '+lot+': '+PZ_DECW[dec][0]); tcRenderOwner();}
+/** CONNECTED - two taps: the hose reaches this tree now. */
+async function pzHoseTap(t){
+  if(myRole()!=='OWNER'||!tcTapOk('pzh'+t))return;
+  if(PZO.arm!=='h'+t){pzArm('h'+t);tcHold(PZ_TAP_MS);return tcRenderOwner();}
+  PZO.arm=''; tcHold(PZ_TAP_MS);
+  await pzWrite({k:'HOSE',chk:'CE1',tree:t,lot:String(t).split('-')[0],v:{hose:'Y'}});
+  toast(t+': the hose reaches it. Recorded as your answer.'); tcRenderOwner();}
+
+/* ======================= THE OWNER · Trees ▸ GATE 1 ======================= */
+function pzPill(g,prop,dry){
+  if(g)return '<span class="tc-pill '+(g.dec==='PASS'?'tc-gr':g.dec==='WAIT'?'tc-a':'tc-r')+'" id="pz-dec-'+g.r.lot+'">'+PZ_DECW[g.dec][0]+' · '+esc(ppFmtS(String(g.r.day||tcEff(g.r)).slice(0,10)))+'</span>';
+  return '';}
+function pzLotCardHTML(lot,W0,dry){
+  const W=pzReadWalk(lot)||W0, f=pzLot(lot,W), g=pzGate(lot), prop=pzProp(f,dry), gr=tcTrees(lot).filter(tcIsGraft).length, nh=pzNoHoseLot(lot);
+  const walks=pzWalks().filter(w=>w<=W).slice(-5), trend=walks.map(w=>{const x=pzLot(lot,w);return x.read&&x.p2!=null?String(x.p2):'–';});
+  const dc=g?g.dec:'';
+  let h='<div class="pz-gate'+(dc==='PASS'?' pz-pass':dc==='WAIT'?' pz-wait':dc==='G2'?' pz-g2':'')+'" id="pz-lot-'+lot+'"><h3><span>Lot '+lot+' <small class="tc-g">· '+f.of+' trees'+(gr?(' + '+gr+' graft'+(gr===1?'':'s')):'')+'</small></span>'+
+    '<span class="pz-pills">'+pzPill(g)+'<span class="tc-pill '+(prop==='pass'?'tc-gr':prop==='call'?'tc-a':'tc-y')+'" id="pz-prop-'+lot+'">'+(g?'now: ':'')+(prop==='pass'?'proposed: PASS':prop==='call'?'your call · dry '+dry.n+' of '+PZ_DRY_BEST:'not yet')+'</span></span></h3>';
+  const age=f.read?tcDiff(tcToday(),W):0;   // review 2: a reading kept from an old walk says how old it is
+  h+='<div class="tc-g pz-rw" id="pz-rw-'+lot+'">'+(f.read?'Read on the walk of '+esc(ppFmt(W))+(age>14?(' · <b>'+age+' days ago</b>: no later walk gave a reading'):''):'No walk gives a reading yet')+'</div>';
+  if(W0&&W0!==W&&f.read){const x=pzLot(lot,W0);
+    h+='<div class="tc-g pz-now" id="pz-now-'+lot+'">This week, the walk of '+esc(ppFmtS(W0))+': '+(x.n+x.sk)+' of '+x.of+' walked'+(x.full?' (under four in five really answered)':'')+'. The reading stays on '+esc(ppFmtS(W))+(x.full?' until a walk gives a reading.':' until it is walked in full.')+'</div>';}
+  if(!f.read)h+='<div class="tc-note" id="pz-why-'+lot+'">'+(f.full?('Only '+f.den+' of '+f.of+' trees were really answered on this walk'+(f.sk?('; '+f.sk+' are marked cannot-check'):'')+(f.un?('; '+f.un+' NOT SURE'):'')+'. That is under four in five, so the walk gives no reading.')
+      :('The walk is not finished: '+(f.n+f.sk)+' of '+f.of+' trees. A part walk gives no reading.'))+'</div>';
+  const yn=(ok,read,txt)=>'<b class="'+(read?(ok?'y':'n'):'q')+'">'+(read?txt+' · '+(ok?'YES':'NO'):'NO READING')+'</b>';
+  h+='<div class="pz-yn"><span>1 · Two new layers of leaf<br><span class="tc-g">'+(f.read?(f.L2+' of '+f.den+' trees answered'):'')+'</span></span><span id="pz-l1-'+lot+'">'+yn(f.ok1,f.read,f.p1+' %')+'</span></div>'+
+    '<div class="pz-yn"><span>2 · The second layer hard and mature (stage 4)<br><span class="tc-g">need '+f.line+' %'+(f.read?(' · '+f.L2H+' of '+f.den+' trees'):'')+' · '+(f.sk?(f.n+' answered · '+f.sk+' cannot check'):(f.full?'walked in full':(f.n+' / '+f.of+' walked')))+'</span><br><span class="pz-tr" id="pz-tr-'+lot+'">by walk: '+trend.join(' → ')+(f.read?' %':'')+'</span></span><span id="pz-l2-'+lot+'">'+yn(f.ok2,f.read,f.p2+' %')+'</span></div>'+
+    '<div class="pz-yn"><span>3 · Dry spell<br><span class="tc-g">days under '+PZ_DRY_MM+' mm, farm gauge</span></span><b class="'+(dry.k==='best'?'y':dry.k==='start'?'a':'n')+'" id="pz-l3-'+lot+'">'+dry.n+' day'+(dry.n===1?'':'s')+' · '+(dry.k==='best'?'YES':dry.k==='start'?'CAN START':'NO')+'</b></div>';
+  if(nh.length)h+='<div class="pz-yn"><span>The hose · not one of your three<br><span class="tc-g">no hose yet, from the survey:</span></span><b class="q" id="pz-hose-'+lot+'">NO · '+nh.length+'</b></div>'+
+    '<div class="tc-ids pz-hs">'+nh.map(t=>'<button id="pz-hs-'+t+'" class="'+(PZO.arm==='h'+t?'pz-arm':'')+'" onclick="pzHoseTap(\''+t+'\')">'+(PZO.arm==='h'+t?('TAP AGAIN: '+t+' is connected'):(t+' · CONNECTED ›'))+'</button>').join('')+'</div>';
+  h+='<div class="tc-opts pz-dec"><button class="tc-opt'+(dc==='PASS'?' tc-sel':'')+'" id="pz-pass-'+lot+'" onclick="pzDecide(\''+lot+'\',\'PASS\')">PASS<small>PBZ on this lot</small></button>'+
+    '<button class="tc-opt'+(dc==='WAIT'?' tc-sel':'')+'" id="pz-wait-'+lot+'" onclick="pzDecide(\''+lot+'\',\'WAIT\')">NOT YET<small>next Friday</small></button>'+
+    '<button class="tc-opt tc-bad'+(dc==='G2'?' tc-sel':'')+'" id="pz-g2-'+lot+'" onclick="pzDecide(\''+lot+'\',\'G2\')">GATE 2<small>Jan or April</small></button></div>';
+  if(g){const fig=String(g.r.row||'').replace(/^(walk \d{4}-\d{2}-\d{2}|no walk) · /,'');
+    h+='<div class="tc-g pz-said" id="pz-said-'+lot+'">Your decision of '+esc(ppFmt(String(g.r.day||'').slice(0,10)))+(g.r.walk?(', on the walk of '+esc(ppFmtS(g.r.walk))):'')+(fig?(': '+esc(fig)):'')+(g.r.by?(' · '+esc(g.r.by)):'')+'.</div>';}
+  if(dc==='WAIT')h+='<div class="tc-g" id="pz-held-'+lot+'">Stays at Gate 1; the Friday walk goes on. Your plan for a lot not ready: MKP 2.5 kg a tank + Ca-B, no nitrogen.'+(tcToday()>PZ_PLAN_LAST?' <b>Past your plan\'s last day, 10 Dec</b> (a reminder; GATE 2 is yours to press).':' Your plan\'s last day is 10 Dec, a reminder only.')+'</div>';
+  if(dc==='G2')h+='<div class="tc-g" id="pz-gone-'+lot+'">At Gate 2 (Jan or April). No new PBZ for it at Gate 1. The Friday walk goes on, so Gate 2 starts with its figures.</div>';
+  if(dc==='PASS'&&prop==='notyet')h+='<div class="tc-note tc-r" id="pz-over-'+lot+'">You passed a lot the figures would not pass today. Your decision stands; it is kept with the figures as they were.</div>';
+  {const has=pzSets().filter(v=>v.lots.indexOf(lot)>=0);
+    if(dc==='PASS'||has.length)h+=pzLotPbzHTML(lot);
+    /* found in review: a lot moved to NOT YET or GATE 2 after its PBZ was issued said "No PBZ" while the crew still held the set */
+    const open=has.filter(v=>v.st==='iss'&&!(v.done&&v.done.lots.indexOf(lot)>=0));
+    if(dc&&dc!=='PASS'&&open.length)h+='<div class="tc-note tc-r" id="pz-stillout-'+lot+'">PBZ for Lot '+lot+' is still with the crew in '+esc(open.map(ppName).join(', '))+'. Open the set in The Programme and take the lot out, or skip the set.</div>';}
+  h+='<button class="tc-act tc-gh pz-see" id="pz-see-'+lot+'" onclick="pzSeeLot(\''+lot+'\')">SEE THE TREES OF LOT '+lot+' ›</button></div>';
+  return h;}
+/** Under a passed lot: where its PBZ stands - not issued, with the crew (ticks so far), done (and the leaf look). */
+function pzLotPbzHTML(lot){
+  const sets=pzSets().filter(v=>v.lots.indexOf(lot)>=0); let h='';
+  if(!sets.length)return '<div class="tc-g" id="pz-noset-'+lot+'">PBZ is not issued for this lot yet: see ISSUE PBZ below.</div>';
+  sets.forEach(v=>{const c=pzCount(v,lot), done=v.done&&v.done.lots.indexOf(lot)>=0;
+    h+='<div class="pz-set" id="pz-set-'+lot+'-'+ppCss(v.key)+'"><b>'+esc(ppName(v))+'</b> · '+(done?'done':'with the crew, '+esc(ppFmtS(v.date)))+
+      '<div class="pz-kp"><div><b>'+c.Y.length+'</b><span>sprayed, ticked</span></div><div><b>'+c.N.length+'</b><span>not sprayed</span></div><div><b>'+c.left.length+'</b><span>not ticked</span></div><div><b>'+c.no.length+'</b><span>not to spray</span></div></div>'+
+      (c.N.length?('<div class="tc-g">Not sprayed, for you to follow up:</div>'+tcChips(c.N)):'')+
+      ((done&&c.left.length)?('<div class="tc-note" id="pz-unt-'+lot+'">'+c.left.length+' tree'+(c.left.length===1?' was':'s were')+' left without a tick when the lot was reported done: the record cannot say whether '+(c.left.length===1?'it':'they')+' got PBZ.</div>'):'')+'</div>';});
+  const dn=pzDone()[lot];
+  if(dn)h+=pzLeafStripHTML(lot,dn.d);
+  return h;}
+function pzLeafStripHTML(lot,d){
+  const t=tcToday(); let h='<div class="tc-g" style="margin-top:6px">The daily leaf look after PBZ ('+esc(ppFmtS(d))+(pzDone()[lot].fin?(', '+(pzDone()[lot].fin==='am'?'morning':'afternoon')):'')+'):</div><div class="pz-leaf" id="pz-leaf-'+lot+'">';
+  for(let i=0;i<PZ_LEAF_DAYS;i++){const day=tcAddDays(d,i), a=pzLeaf(lot,day);
+    h+='<span class="'+(a==='Y'?'pz-ly':a==='N'?'pz-ln':day>t?'pz-lf':'pz-lq')+'" title="'+esc(ppFmt(day))+'">'+esc(ppFmtS(day))+'<b>'+(a==='Y'?'SEEN':a==='N'?'none':day>t?'':'not keyed')+'</b></span>';}
+  return h+'</div>';}
+/** The 7-day HOLD after PBZ (G9a): offered once a lot is reported done, for PBZ day + 7. */
+function pzHoldTarget(){const dn=pzDone(); let d=''; Object.keys(dn).forEach(L=>{if(dn[L].d>d)d=dn[L].d;}); return d?{d:d,to:tcAddDays(d,PZ_HOLD_DAYS)}:null;}
+function pzHoldHTML(){
+  const h0=pzHoldTarget(); if(!h0)return '';
+  const t=todayStr(); if(h0.to<t)return '';
+  const o=wtOrder(), dayE=x=>(typeof wtDayEN==='function')?wtDayEN(x):ppFmt(x);
+  if(o.mode==='hold'&&o.hold>=h0.to)return '<div class="tc-note tc-ok" id="pz-holdset">💧 Watering is on HOLD until '+esc(dayE(o.hold))+'. The crew\'s phones say JANGAN SIRAM AIR; the grafts keep their water on dry days.</div>';
+  if(!o.started)return '<div class="tc-need" id="pz-holdoff"><h4>💧 PBZ is done: the plan holds the water for 7 days</h4>The watering call has not been started, so it cannot be held from here. Open Weather and start it, then come back.</div>';
+  let no=false; try{no=localStorage.getItem('pzholdno')===h0.to;}catch(e){}
+  if(no)return '';
+  return '<div class="tc-need pz-hold" id="pz-hold"><h4>💧 PBZ IS DONE ('+esc(ppFmtS(h0.d))+')</h4>Your plan: no watering for the 7 days after PBZ, to '+esc(dayE(h0.to))+', then '+PZ_WATER_L+' L a tree on dry days. One water order for the whole farm: if another lot is sprayed later, this card comes back with its date.'+
+    '<button class="tc-act" id="pz-hold-go" onclick="pzHoldGo(\''+h0.to+'\')">PUT WATERING ON HOLD TO '+esc(dayE(h0.to)).toUpperCase()+'</button>'+
+    '<button class="tc-act tc-gh" id="pz-hold-no" onclick="pzHoldNo(\''+h0.to+'\')">NOT NOW</button></div>';}
+async function pzHoldGo(to){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('pzhold'))return;
+  const t=todayStr(); if(!wtOkDay(to)||to<t||to>rnShift(t,WATER_HOLD_MAX))return;
+  tcHold(PZ_TAP_MS);
+  const did=await wtSetOrder((o,t2)=>{
+    if(!o.started||to<t2)return null;
+    if(o.mode==='hold'&&o.hold>=to)return null;
+    return (o.mode==='hold'&&o.hold>=t2)?{hold:to,L:PZ_WATER_L}:{mode:'hold',from:t2,hold:to,L:PZ_WATER_L,past:wtPastOf(o)};});
+  if(did)toast('💧 Watering is on HOLD to '+((typeof wtDayEN==='function')?wtDayEN(to):to)+'.');
+  tcRenderOwner();}
+function pzHoldNo(to){try{localStorage.setItem('pzholdno',to);}catch(e){} tcRenderOwner();}
+/** PBZ for the lots he passed that no PBZ set holds yet: the size, and the button that opens the issue screen. */
+function pzToIssue(){const inSet={}; pzSets().forEach(v=>v.lots.forEach(L=>{inSet[L]=1;})); return LOT_KEYS.filter(L=>pzPassed(L)&&!inSet[L]);}
+function pzPlanView(){return ppSets().find(v=>v.planId===PZ_PLAN_ID)||null;}
+function pzIssueBoxHTML(){
+  const lots=pzToIssue(), held=LOT_KEYS.filter(L=>{const g=pzGate(L);return g&&g.dec!=='PASS';});
+  let h='';
+  if(lots.length){
+    const n=lots.reduce((s,L)=>s+tcTrees(L).filter(t=>!pzNo(t)).length,0), L=n*PZ_LPT, pv=pzPlanView();
+    const lines=pv?pv.lines:[];
+    h+='<div class="tc-sec">PBZ · inside the canopy, branch bark · Lot '+lots.join(', ')+'</div><div class="pz-kp pz-kp3"><div><b id="pz-is-n">'+n+'</b><span>trees to spray</span></div><div><b id="pz-is-l">'+nf(L)+' L</b><span>at '+PZ_LPT+' L a tree</span></div><div><b id="pz-is-t">'+(L/1000).toFixed(2)+'</b><span>tanks of 1,000 L</span></div></div>'+
+      (lines.length?('<table class="pz-mix" id="pz-is-mix">'+lines.map(l=>'<tr><td>'+esc(l.n)+' <span class="tc-g">'+ppQty(l.q,l.u)+' a tank</span></td><td class="r">'+ppQty(l.q*L/1000,l.u)+'</td></tr>').join('')+'</table>'):'')+
+      '<div class="tc-g">The trees that get PBZ, not every tree: grafts and the trees you keep on the NO list are left out. You still set the day and the tanks on the issue screen.</div>'+
+      '<button class="tc-act" id="pz-issue" onclick="pzIssueGo()">ISSUE PBZ TO THE CREW · LOT '+lots.join(', ')+' ›</button>';}
+  held.forEach(L=>{h+='<div class="tc-note" id="pz-block-'+L+'">Lot '+L+' is not passed ('+PZ_DECW[pzGate(L).dec][0]+'): PBZ cannot be issued for it.</div>';});
+  return h;}
+/** Opens The Programme on the issue screen of the PBZ round for the passed lots: the planned round if it is
+ *  still a plan; the issued set (with the lots added) while it is with the crew; else a new PBZ set on the same mix. */
+function pzIssueGo(){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('pzissue'))return;
+  const lots=pzToIssue(); if(!lots.length)return;
+  const pv=pzPlanView(), open=pzSets().find(v=>v.st==='iss'&&!(ppX(v.rec)||{}).re);   // found in review: never a re-spray of named trees
+  openModule('prog'); if(typeof curModule!=='undefined'&&curModule!=='prog')return;
+  const tk=Math.max(0.5,Math.ceil(lots.reduce((s,L)=>s+tcTrees(L).filter(t=>!pzNo(t)).length,0)*PZ_LPT/500)/2);   // tanks for the trees that get PBZ, to the half tank
+  if(pv&&pv.st==='plan'){PPO.key=pv.key;PPO.s='detail';ppEditOpen('issue'); if(PPE){PPE.lots=lots.slice();PPE.trees=ppTreesFor(pv.basis,lots);PPE.tanks=tk;if(!PPE.why)PPE.why='TREE';} ppRender();ppTop();return;}   // the lots differ from the plan because of the gate: 'Tree condition', his to change
+  if(open){PPO.key=open.key;PPO.s='detail';ppEditOpen('change');
+    if(PPE){lots.forEach(L=>{if(PPE.lots.indexOf(L)<0)PPE.lots.push(L);});PPE.lots.sort();PPE.trees=ppTreesFor(open.basis,PPE.lots);if(!PPE.why)PPE.why='TREE';} ppRender();ppTop();return;}
+  const src=pv||pzSets().slice(-1)[0]; if(!src){toast('The PBZ round is not in the plan.',1);return;}
+  const today=todayISO();
+  const base={key:'',planId:'',plan:null,rec:null,k:'spray',grp:ppGrp('spray'),basis:'T',code:PZ_CODE,stage:src.stage||'Boosting (PBZ)',
+    tgt:src.tgt,tgtbm:src.tgtbm||'',extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,planLines:[],num:0,ver:1,log:[],st:'new',
+    date:today,lots:lots.slice(),lines:[],note:'',tanks:tk};
+  base.trees=ppTreesFor('T',lots);
+  PPE={mode:'issue',base:base,date:today,tanks:base.tanks,lots:lots.slice(),trees:base.trees,lines:src.lines.map(ppELine),why:'TREE',err:'',adding:false,busy:false};
+  PPE.osAt=performance.now();
+  PPO.key=src.key; PPO.s='edit'; ppRender(); ppTop();}
+function pzSeeLot(l){TCO.s='gatelot';TCO.lot=l;TCO.arm='';tcRenderOwner();tcOTop();}
+function pzGateHTML(){
+  let h=pzOldNote('pz-oldgs');
+  h+='<div class="tc-g pz-intro"><b>No fixed date.</b> 10–17 Nov is your forecast. PBZ when, for a lot: <b>two new layers of leaf</b> · <b>the second layer hard and mature</b> · <b>a dry spell</b> (7 days can start, 10 best). The page proposes; you press PASS, NOT YET or GATE 2.</div>';
+  const seen=pzLeafSeen();
+  if(seen.length)h+='<div class="tc-need tc-r" id="pz-leafseen"><h4>🍃 Wilted or curled leaf seen after PBZ</h4>'+esc(seen.map(x=>'Lot '+x.lot+' on '+ppFmtS(x.day)).join(' · '))+'. Look at the trees.</div>';
+  h+=pzHoldHTML();
+  const W=pzLast(), dry=pzDry(), dayE=x=>(typeof wtDayEN==='function')?wtDayEN(x):ppFmt(x);
+  h+='<div class="tc-sec">The dry spell · farm gauge</div><div class="pz-kp"><div class="pz-dry pz-d-'+dry.k+'"><b id="pz-dry">'+dry.n+'</b><span>dry days in a row</span></div><div><b>under '+PZ_DRY_MM+' mm</b><span>a dry day</span></div><div><b>'+PZ_DRY_START+' · '+PZ_DRY_BEST+'</b><span>can start · best</span></div><div><b id="pz-wet">'+(dry.wet?esc(ppFmtS(dry.wet)):'—')+'</b><span>last day of '+PZ_DRY_MM+' mm or more</span></div></div>'+
+    '<div class="tc-g" id="pz-drysay">'+(dry.k==='best'?PZ_DRY_BEST+' dry days or more: the dry spell is there.':dry.k==='start'?dry.n+' dry days: PBZ can start; '+PZ_DRY_BEST+' is best. Your call.':'Under '+PZ_DRY_START+' dry days: no lot is proposed for PBZ, whatever its leaf.')+
+      (dry.unk?(' <b>'+esc(dayE(dry.unk))+' is not keyed:</b> the count stops there.'):'')+(dry.start?' The gauge record starts on '+esc(ppFmtS(RAIN_FROM))+'.':'')+'</div>';
+  if(!W){
+    const act=tcActive(TC_FL).length;
+    return h+'<div class="tc-note" id="pz-nowalk">No Friday walk yet. The two leaf lines are read from the Friday flush walk'+(act?': its first walk has not come.':', which has not been issued.')+'</div>'+
+      (act?'':'<button class="tc-act" id="pz-flissue" onclick="tcIssueOpen(\''+TC_FL+'\')">ISSUE THE FRIDAY FLUSH CHECK ›</button>');}
+  h+='<div class="tc-sec">The latest Friday walk: '+esc(ppFmt(W))+' · walk '+pzWalks().length+' of the season</div>';
+  LOT_KEYS.forEach(L=>{h+=pzLotCardHTML(L,W,dry);});
+  h+=pzIssueBoxHTML();
+  h+='<div class="tc-g pz-how">How the layers are counted: the stage of the newest leaf each walk (0 none · 1 shoot · 2 long tail · 3 open · 4 hard). Soft then 4 = a layer is hard; a new shoot after that = the next layer. A tree at 4 on its first walk is old leaf: its first new layer is its next shoot. A walk a tree was not answered on is a gap, not a step. The '+GRAFT_TREES.length+' grafts are left out.</div>';
+  return h;}
+/** One lot, tree by tree: the stage on every walk and what the count makes of it. */
+function pzGateLotHTML(){
+  const L=TCO.lot, W=pzLast(), walks=pzWalks().slice(-PZ_SHOW_WALKS);
+  let h='<button class="tc-back" id="pz-up" onclick="tcOList()">‹ GATE 1</button><div class="tc-ttl">Lot '+esc(L)+' · the layers, tree by tree</div>'+
+    '<div class="tc-g">Stage of the newest leaf on each walk'+(walks.length?(' from '+esc(ppFmtS(walks[0]))):'')+'. Under a stage: what it counts as. The last '+PZ_SHOW_WALKS+' walks are shown; the count uses every walk of the season.</div>';
+  if(!W)return h+'<div class="tc-note">No Friday walk yet.</div>';
+  const S={two:0,hard:0};
+  h+='<div class="pz-trees" id="pz-trees">'+tcTrees(L).map(t=>{
+    if(tcIsGraft(t))return '<div class="pz-tr1 pz-gr"><b>'+t+'</b> <span class="tc-g">graft · left out</span></div>';
+    const x=pzLayers(t,W), byW={}; x.ev.forEach(e=>{byW[e.w]=e;}); if(x.n>=2)S.two++; if(x.hard>=2)S.hard++;
+    return '<div class="pz-tr1" id="pz-t-'+t+'"><b>'+t+'</b><div class="pz-sc">'+walks.map(w=>{const e=byW[w]; const s=e?e.s:null;
+        return '<span class="pz-s pz-s'+(s==null?'x':s)+'" title="'+esc(ppFmt(w))+'">'+(s==null?'–':s)+'<i>'+(e&&e.e?(e.e==='old'?'old leaf':e.e):'&nbsp;')+'</i></span>';}).join('')+'</div>'+
+      '<span class="tc-g" id="pz-r-'+t+'">'+(x.hard>=2?'two layers, the second hard':x.n>=2?'two layers, the second not hard yet':x.n===1?(x.hard?'one layer, hard':'one layer, growing'):'no new layer yet')+'</span></div>';}).join('')+'</div>';
+  return h+'<div class="tc-g" id="pz-tsum">Of the trees that are not grafts: '+S.two+' with two layers, '+S.hard+' with the second layer hard.</div>';}
+
+/* ======================= THE CREW · the tick list on the PBZ set ======================= */
+/** On the crew's set card: one button a lot, with how many trees are ticked. */
+function pzCardHTML(v){
+  if(!pzIsRound(v)||!v.rec)return '';
+  return '<div class="pp-q">'+ppT('PBZ · TICK THE TREES','PBZ · TANDA POKOK')+'</div><div class="pp-g">'+ppT('Tap each tree as it is sprayed. The black ones must not get PBZ.','Tekan setiap pokok selepas disembur. Pokok hitam jangan disembur.')+'</div>'+
+    v.lots.map(L=>{const c=pzCount(v,L), done=v.done&&v.done.lots.indexOf(L)>=0;
+      return '<button class="pp-row pz-lotrow" id="pz-c-lot-'+L+'" onclick="pzCLot(\''+L+'\')"><div class="pp-top"><b class="pp-nm">Lot '+L+'</b><span class="pp-pill '+(done?'ok':(c.left.length?'amb':'ok'))+'">'+(done?ppT('DONE','SIAP'):(c.Y.length+c.N.length)+' / '+c.yes.length)+'</span></div>'+
+        '<div class="pp-dt">'+c.yes.length+' '+ppT('trees to spray','pokok untuk disembur')+' · '+c.no.length+' '+ppT('not to spray','jangan sembur')+'</div></button>';}).join('');}
+function pzCLot(L){if(typeof tcTapOk==='function'&&!tcTapOk('pzcl'+L))return; PPC.s='tick';PPC.lot=L;PZO.arm='';ppRender();ppTop();}
+function pzCBack(){if(PPC.s==='tleft'){PPC.s='tick';}else{PPC.s='card';} PZO.arm='';ppRender();ppTop();}
+const PZ_WHYBM={graft:['graft','cantuman'],sick:['sick','sakit'],waterlogged:['standing water','becak'],shaded:['shaded','terlindung']};
+function pzWhyTxt(t){const w=tcPbz(t).why, x=PZ_WHYBM[w]; return x?ppT(x[0],x[1]):(tcPbz(t).own?ppT('your NO','NO pengurus'):'');}
+function pzCrewHTML(v){
+  const L=PPC.lot; if(!v||!pzIsRound(v)||v.lots.indexOf(L)<0){PPC.s='card';return ppCrewHTML();}
+  const c=pzCount(v,L), done=v.done&&v.done.lots.indexOf(L)>=0, iss=v.rec.uuid;
+  let h='<button class="pp-back" id="pz-c-up" onclick="pzCBack()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">PBZ · Lot '+esc(L)+'</div>';
+  h+=pzOldNote('pz-c-oldgs',1);
+  if(PPC.s==='tleft'){
+    if(!c.left.length){PPC.s='tick';return pzCrewHTML(v);}
+    h+='<div class="pp-note amb" id="pz-c-left"><b>'+c.left.length+' '+ppT(c.left.length===1?'tree is not ticked.':'trees are not ticked.','pokok belum ditanda.')+'</b> '+ppT('For each one: was it sprayed?','Bagi setiap pokok: sudah disembur?')+'</div>'+
+      c.left.map(t=>{const arm=PZO.arm==='n'+t;
+        return '<div class="pz-lrow" id="pz-lf-'+t+'"><b>'+t+'</b><button class="pp-opt" id="pz-lf-y-'+t+'" onclick="pzTickLeft(\''+t+'\',\'Y\')">✓ '+ppT('SPRAYED','DISEMBUR')+'</button>'+
+          '<button class="pp-opt'+(arm?' pz-armb':'')+'" id="pz-lf-n-'+t+'" onclick="pzTickLeft(\''+t+'\',\'N\')">'+(arm?ppT('TAP AGAIN','TEKAN SEKALI LAGI'):ppT('NOT SPRAYED','TAK DISEMBUR'))+'</button></div>';}).join('');
+    return h;}
+  h+='<div class="pp-g" id="pz-c-count"><b>'+(c.Y.length+c.N.length)+' / '+c.yes.length+'</b> '+ppT('ticked. Tap a tree when it is sprayed.','ditanda. Tekan pokok selepas disembur.')+(c.N.length?(' · '+c.N.length+' '+ppT('not sprayed','tak disembur')):'')+'</div>'+
+    '<div class="pz-bar"><i style="width:'+(c.yes.length?Math.round(100*(c.Y.length+c.N.length)/c.yes.length):0)+'%"></i></div><div class="pz-grid" id="pz-grid">'+
+    c.ts.map(t=>{
+      if(pzNo(t))return '<button class="pz-t pz-no" id="pz-t-'+t+'" disabled aria-disabled="true">'+t+'<small>'+esc(pzWhyTxt(t))+'</small></button>';
+      const k=pzTick(iss,t), arm=PZO.arm==='t'+t;
+      return '<button class="pz-t'+(arm?' pz-arm':k==='Y'?' pz-on':k==='N'?' pz-ns':'')+'" id="pz-t-'+t+'"'+(done?' disabled':'')+' onclick="pzTap(\''+t+'\')">'+t+'<small>'+(arm?ppT('tap again: take it off','tekan lagi: buang tanda'):k==='Y'?('✓ '+ppT('sprayed','disembur')):k==='N'?ppT('not sprayed','tak disembur'):'&nbsp;')+'</small></button>';}).join('')+'</div>'+
+    '<div class="pp-g">'+ppT('Black = do not spray. To take a tick off, tap the tree twice.','Hitam = jangan sembur. Untuk buang tanda, tekan pokok itu dua kali.')+'</div>';
+  if(done)h+='<div class="pp-note grn" id="pz-c-isdone">✓ '+ppT('This lot is done.','Lot ini sudah siap.')+'</div>';
+  else h+='<button class="pp-act" id="pz-c-close" onclick="pzClose()">'+ppT('LOT DONE','LOT SIAP')+' ›</button>';
+  return h;}
+function pzCrewSet(){const v=(typeof ppCrewSet==='function')?ppCrewSet():null; return (v&&pzIsRound(v))?v:null;}
+async function pzTap(t){
+  const v=pzCrewSet(); if(!v||PZO.busy||!tcTapOk('pzt'+t))return;
+  const L=PPC.lot; if(v.done&&v.done.lots.indexOf(L)>=0)return;
+  if(pzNo(t)||pzSetTrees(v,L).indexOf(t)<0)return;
+  const k=pzTick(v.rec.uuid,t);
+  if(k){ if(PZO.arm!=='t'+t){pzArm('t'+t);return ppRender();} PZO.arm=''; return pzSetTick(v,t,''); }   // taking a mark off is two taps
+  PZO.arm=''; return pzSetTick(v,t,'Y');}
+async function pzSetTick(v,t,val){
+  PZO.busy=true;
+  try{await pzWrite({k:'TICK',chk:'PZ',iss:v.rec.uuid,tree:t,lot:String(t).split('-')[0],v:{pbz:val}});}
+  finally{PZO.busy=false;}
+  ppRender();}
+async function pzTickLeft(t,val){
+  const v=pzCrewSet(); if(!v||PZO.busy||!tcTapOk('pzl'+t+val))return;
+  if(val==='N'&&PZO.arm!=='n'+t){pzArm('n'+t);return ppRender();}
+  PZO.arm=''; await pzSetTick(v,t,val);
+  if(!pzCount(v,PPC.lot).left.length)pzToDone(v);}
+function pzClose(){
+  const v=pzCrewSet(); if(!v||!tcTapOk('pzclose'))return;
+  if(pzCount(v,PPC.lot).left.length){PPC.s='tleft';PZO.arm='';ppRender();ppTop();return;}
+  pzToDone(v);}
+/** Every tree of the lot answered: on to TANDA SIAP for that lot. */
+function pzToDone(v){
+  const L=PPC.lot; PPC.s='card';
+  if(typeof ppCDoneOpen!=='function')return ppRender();
+  ppCDoneOpen(); if(PPCD&&ppLotsLeft(v).indexOf(L)>=0){PPCD.lots=[L];ppRender();}}
+/** G7a - TANDA SIAP for a PBZ lot only when every tree is ticked or marked NOT SPRAYED. '' = it may go. */
+function pzDoneBlock(v,lots){
+  if(!pzIsRound(v)||!v.rec)return '';
+  const bad=lots.map(L=>[L,pzCount(v,L).left.length]).filter(x=>x[1]>0);
+  if(!bad.length)return '';
+  return ppT('Every tree must be ticked first: ','Setiap pokok mesti ditanda dahulu: ')+bad.map(x=>'Lot '+x[0]+' · '+x[1]+' '+ppT('not ticked','belum ditanda')).join(', ')+'. '+
+    ppT('Go back and open the lot under PBZ · TICK THE TREES.','Kembali dan buka lot di bawah PBZ · TANDA POKOK.');}
+/** On the done form: one line a lot, ticked or not. */
+function pzDoneLinesHTML(v,lots){
+  if(!pzIsRound(v)||!v.rec)return '';
+  return '<div class="pz-dl" id="pz-c-dl">'+lots.map(L=>{const c=pzCount(v,L), ok=!c.left.length;
+    return '<div class="'+(ok?'pz-dok':'pz-dno')+'" id="pz-dl-'+L+'">Lot '+L+' · '+(c.Y.length+c.N.length)+' / '+c.yes.length+' '+ppT('ticked','ditanda')+(ok?' ✓':(' · '+c.left.length+' '+ppT('not ticked','belum ditanda')))+'</div>';}).join('')+'</div>';}
+/** The crew's daily leaf look, on their KERJA list, for 7 days from each lot's PBZ. */
+function pzCrewLeafHTML(){
+  if(myRole()!=='WORKER'&&myRole()!=='OWNER')return '';
+  const t=tcToday(), dn=pzDone(), lots=Object.keys(dn).sort().filter(L=>{const n=tcDiff(t,dn[L].d);return n>=0&&n<PZ_LEAF_DAYS;});
+  if(!lots.length)return '';
+  return '<div class="pp-mon" id="pz-k-leaf">'+ppT('Every day for 7 days after PBZ','Setiap hari selama 7 hari selepas PBZ')+'</div>'+lots.map(L=>{const a=pzLeaf(L,t), n=tcDiff(t,dn[L].d)+1;
+    return '<div class="pz-kleaf" id="pz-k-'+L+'"><b>🍃 Lot '+L+' · '+ppT('Wilted or curled leaf?','Daun layu atau kerinting?')+'</b> <span class="pp-g">'+ppT('day ','hari ')+n+' / '+PZ_LEAF_DAYS+'</span>'+
+      '<div class="pp-opts"><button class="pp-opt'+(a==='N'?' sel':'')+'" id="pz-k-'+L+'-N" onclick="pzLeafSet(\''+L+'\',\'N\')">'+ppT('NONE','TIADA')+'</button>'+
+      '<button class="pp-opt'+(a==='Y'?' sel pz-kys':'')+'" id="pz-k-'+L+'-Y" onclick="pzLeafSet(\''+L+'\',\'Y\')">'+ppT('YES, SEEN','ADA')+'</button></div></div>';}).join('');}
+async function pzLeafSet(L,val){
+  if(!tcCanAsk()||PZO.busy||!tcTapOk('pzk'+L+val))return;
+  if(pzLeaf(L,tcToday())===val)return;
+  PZO.busy=true;
+  try{await pzWrite({k:'LEAF',chk:'PZ',lot:L,lots:L,day:tcToday(),v:{pbz:val}});}finally{PZO.busy=false;}
+  toast(val==='Y'?ppT('Saved. The Owner is told.','Disimpan. Pengurus dimaklumkan.'):ppT('Saved','Disimpan'));
+  ppRender();}
+
+/* ======================= THE PROGRAMME: the PBZ set on the Owner's side ======================= */
+/** On the Owner's page of a PBZ set: one line a lot, with the ticks. */
+function pzSetTicksHTML(v){
+  if(!ppIsOwner()||!pzIsRound(v)||!v.rec)return '';
+  return '<div class="pp-q">PBZ · the tick list</div>'+v.lots.map(L=>{const c=pzCount(v,L);
+    return '<div class="pp-g pz-sl" id="pz-sl-'+L+'"><b>Lot '+L+'</b> · '+c.Y.length+' sprayed · '+c.N.length+' not sprayed'+(c.N.length?(' ('+esc(c.N.slice(0,8).join(', '))+(c.N.length>8?' …':'')+')'):'')+' · '+c.left.length+' not ticked · '+c.no.length+' not to spray</div>';}).join('');}
+/** G8a - the trees ticked as sprayed on the day of the spraying rain may have washed, in the lots asked about. */
+function pzWashTrees(v,o){
+  if(!pzIsRound(v)||!v.rec)return null;
+  const S=tcState(), iss=v.rec.uuid, all=[], day=[];
+  o.lots.forEach(L=>{pzSetTrees(v,L).forEach(t=>{const r=S.tick[iss+'|'+t]; if(r&&r.v&&r.v.pbz==='Y'){all.push(t); if(tcEff(r).slice(0,10)===o.d)day.push(t);}});});
+  if(!all.length)return null;
+  return day.length?{trees:day,same:true}:{trees:all,same:false};}
+function pzWashHTML(v,o){
+  const w=pzWashTrees(v,o); if(!w)return '';
+  return '<div class="pp-g pz-wt" id="pz-wt-'+ppCss(v.key)+'"><b>'+w.trees.length+' tree'+(w.trees.length===1?'':'s')+'</b> '+(w.same?'were ticked as sprayed that day':'are ticked as sprayed in these lots (not on that day)')+': '+
+    esc(w.trees.slice(0,12).join(', '))+(w.trees.length>12?(' and '+(w.trees.length-12)+' more'):'')+'.</div>';}
 
 // ---- the Owner's month sheet, in the estate's layout ---------------------------------
 function rnMonths(){
