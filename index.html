@@ -743,6 +743,61 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tc-seg.tc-s2{grid-template-columns:repeat(2,1fr)}
 .tc-seg.pz-seg4{grid-template-columns:repeat(4,1fr)}   /* v3.85.0 - Trees has a fourth tab, GATE 1 */
 .tc-seg.pz-seg4 button{font-size:11px;padding:8px 1px}
+/* v3.86.0 - TREE FOLLOW-UP: canker, shade, hose (every class starts fu-) */
+.tc-seg.fu-seg5{grid-template-columns:repeat(5,1fr)}
+.tc-seg.fu-seg5 button{font-size:10px;padding:8px 1px;letter-spacing:0}
+.tc-seg.fu-seg3{grid-template-columns:repeat(3,1fr);margin-top:2px}
+.tc-seg.fu-seg3 button{font-size:11px;padding:8px 2px}
+.fu-tr{background:#fff;border:1px solid #dfe5dd;border-left:5px solid #c9cec7;border-radius:12px;padding:9px 10px;margin:0 0 8px}
+.fu-tr.fu-due{border-left-color:#b26a00}.fu-tr.fu-late{border-left-color:#c62828}.fu-tr.fu-wait{border-left-color:#1f5f8b}.fu-tr.fu-ok{border-left-color:#2e7d32;background:#f3f9f3}
+.fu-tr.fu-hl{outline:3px solid #fdd835;outline-offset:2px}
+.fu-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.fu-h b{font-size:15px}
+.fu-hist{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.fu-hist span{border-radius:8px;padding:3px 7px;font-size:11px;font-weight:800;border:1px solid #cfd6cc;background:#fff;color:#3b3a35;line-height:1.25}
+.fu-hist span[role=button]{cursor:pointer;text-decoration:underline dotted}
+.fu-hist span small{display:block;font-weight:400;font-size:10px}
+.fu-hist .fu-lw{background:#fbe1d6;border-color:#e9b7a6;color:#8c1c13}.fu-hist .fu-ld{background:#fdf0e2;border-color:#e6c28f;color:#b26a00}.fu-hist .fu-lk{background:#e3f1e3;border-color:#9cc79e;color:#1b5e20}
+.fu-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.fu-btns .tc-act{flex:1;min-width:110px;margin-top:0}
+.fu-look{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:4px}
+.fu-look button{border:2px solid #cfe0cc;background:#fff;border-radius:10px;padding:7px 2px;min-height:48px;font:inherit;font-size:12.5px;font-weight:900;color:#1b5e20;cursor:pointer;line-height:1.15}
+.fu-look button.on{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.fu-look button.fu-lw.on{background:#a2321f;border-color:#a2321f}.fu-look button.fu-ld.on{background:#b26a00;border-color:#b26a00}
+.fu-tick{display:flex;align-items:center;gap:8px;margin-top:7px;width:100%;border:1.5px solid #b9cdb6;background:#fff;border-radius:10px;padding:8px 10px;min-height:46px;font:inherit;font-size:13.5px;font-weight:800;color:#1b5e20;cursor:pointer;text-align:left;box-sizing:border-box;position:relative}
+.fu-tick i{font-style:normal;width:24px;height:24px;border:2px solid #9cc79e;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fu-tick.on{background:#e8f3e8;border-color:#2e7d32}.fu-tick.on i{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.fu-file{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.fu-st{display:flex;align-items:center;gap:6px;margin-top:7px}
+.fu-st span{flex:1;font-size:13px}
+.fu-st button{width:44px;height:44px;border-radius:10px;border:1px solid #b9cdb6;background:#fff;font:inherit;font-size:19px;font-weight:900;color:#1b5e20;cursor:pointer}
+.fu-st b{min-width:52px;text-align:center;font-size:17px}
+.fu-add{display:flex;gap:6px;margin-top:6px}
+.fu-add input{flex:1;min-width:0;padding:10px;border:1px solid #cfd6cc;border-radius:10px;font:inherit;font-size:16px}
+.fu-add .tc-act{width:auto;margin-top:0;padding:10px 16px}
+.fu-dec{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}
+.fu-dec button{border:1.5px solid #b9cdb6;background:#fff;border-radius:10px;padding:7px 4px;min-height:46px;font:inherit;font-size:12px;font-weight:900;color:#1b5e20;cursor:pointer;line-height:1.15}
+.fu-dec button small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
+.fu-dec button.tc-on{background:#14401a;border-color:#14401a;color:#fff}.fu-dec button.tc-on small{color:#d7e8d7}
+.fu-mapbox{background:#fafaf3;border:1px solid #dfe5dd;border-radius:12px;padding:6px;margin-top:8px}
+.fu-maph{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:0 0 3px 3px}
+.fu-svg{width:100%;height:auto;display:block;max-height:560px}
+.fu-svg .fu-pk{fill:#f1d9d6}.fu-svg .fu-blk{fill:#e3ebb4;stroke:#8aa23e;stroke-width:1.2}.fu-svg .fu-rd{fill:#7b4b4b;opacity:.85}
+.fu-svg .fu-palm{fill:#111}
+.fu-svg .fu-o{fill:#9ccb3f;stroke:#2f5d3a;stroke-width:1}.fu-svg .fu-p{fill:#ffd08a;stroke:#b07a2a;stroke-width:1}.fu-svg .fu-s{fill:#ff8c1a;stroke:#a24e00;stroke-width:1.2}.fu-svg .fu-n{fill:#fff;stroke:#999;stroke-width:1;stroke-dasharray:2 1}
+.fu-svg .fu-sr{fill:none;stroke:#e16900;stroke-width:3}.fu-svg .fu-ck{fill:none;stroke:#be0000;stroke-width:3}
+.fu-svg text{font:700 7.5px -apple-system,Segoe UI,Roboto,sans-serif;text-anchor:middle;fill:#1f2a1f;pointer-events:none}
+.fu-svg .fu-tag{font-size:10px;font-weight:900;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.fu-svg .fu-tag-s{fill:#c25400}.fu-svg .fu-tag-ck{fill:#be0000}
+.fu-svg .fu-tr2[onclick]{cursor:pointer}
+.fu-leg{display:flex;gap:4px 10px;flex-wrap:wrap;font-size:12px;margin:6px 0 4px}
+.fu-leg span{display:inline-flex;align-items:center;gap:5px}
+.fu-leg i{width:12px;height:12px;border-radius:50%;border:3px solid;display:inline-block;box-sizing:border-box}
+.pz-t.fu-hok{background:#14401a;border-color:#14401a;color:#fff}.pz-t.fu-hok small{color:#cfe3cf}
+.pz-t.fu-gr{box-shadow:inset 0 0 0 2px #7a5bb5}
+.pp-opts.fu-o3{display:grid;grid-template-columns:repeat(3,1fr)}
+.fu-dl{margin:6px 0}.fu-sl{margin:2px 0}
+.fu-ckrow{border-left:5px solid #b26a00}
 /* v3.85.0 - GATE 1 AND THE PBZ TICK LIST (every class starts pz-) */
 .pz-intro{margin:0 0 8px}
 .pz-kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 4px}
@@ -4625,7 +4680,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.85.0"></script>
-<script src="app.js?v=3.85.0"></script>
+<script src="database.js?v=3.86.0"></script>
+<script src="app.js?v=3.86.0"></script>
 </body>
 </html>

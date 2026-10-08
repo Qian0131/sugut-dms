@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.85.0';   // v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.86.0';   // v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -7648,6 +7648,7 @@ function ppNewRec(v,o,status){
     planDay:v.noPlanDay?'':v.planDay,lots:o.lots.slice(),why:'',extra:!!v.extra,ver:1,log:[]};
   {const pcs=(typeof pqPcs==='function')?pqPcs(v):null; if(pcs)x.pcs=pcs;}   // v3.83.0 - issued, recorded or skipped on a plan he had changed
   if(v.tgt)x.tgt=String(v.tgt);   // v3.83.0 - what it is for, kept where the Sheet cannot re-read it as a date or a number
+  if(Array.isArray(v.ck)&&v.ck.length&&status!=='SKIPPED'){x.ck=1;x.trees=fuCkInLots(v.ck,o.lots);x.issAt=new Date().toISOString();}   // v3.86.0 - a canker round: its trees
   if(re){x.sfx=String(re.sfx||'');x.re=String(re.uuid||'');x.rek=String(re.k||'');x.rel=(re.lots||[]).filter(L=>o.lots.indexOf(L)>=0);
     if(Array.isArray(re.trees)&&re.trees.length)x.trees=re.trees.filter(t=>o.lots.indexOf(String(t).split('-')[0])>=0);}   // v3.85.0 (G8a) - a PBZ re-spray of named trees: its tick list holds only those   /* it answers for the lots it was asked about AND is issued for: a lot he took out comes back as its own question */
   return {uuid:uuid(),phaseId:v.planId||('P27|X'+uuid().replace(/-/g,'').slice(0,8)),
@@ -7682,8 +7683,9 @@ async function ppDraw(rec,o){
     const l=ppLine(raw); if(!l.card)continue;
     const p=prodById(l.pid); if(!p)continue;
     const total=basis==='T'?l.q*(+o.tanks||0):basis==='P'?l.q*(+rec.trees||ppTreesFor('P',issuedLots))*selT/allT:l.q*selT/allT;
-    const q=+total.toFixed(2); if(!(q>0))continue;
-    const parts=sel.length>1?splitExact(q,w):[q];
+    const ckP=(x&&x.ck&&typeof fuCkParts==='function')?fuCkParts(rec,sel,l.q):null;   // v3.86.0 - a canker round: by the litres keyed on its trees
+    const q=ckP?+ckP.reduce((s2,y)=>s2+y,0).toFixed(2):+total.toFixed(2); if(!(q>0))continue;
+    const parts=ckP||(sel.length>1?splitExact(q,w):[q]);
     for(let i=0;i<sel.length;i++){
       if(!(parts[i]>0))continue;
       await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:p.id,pname:p.name,
@@ -8322,7 +8324,7 @@ function ppDetailHTML(){
       '<button class="pp-ghost" id="pp-o-seen" style="margin-top:8px" onclick="ppSeen()">OK, SEEN</button></div>';
     const left=ppLotsLeft(v);
     h+='<div class="pp-q">Issued for '+ppFmt(v.date)+'</div><div class="pp-g">'+ppSizeTxt(v,o.tanks,o.lots)+(v.ver>1?(' · version '+v.ver):'')+'</div>';
-    h+=pzSetTicksHTML(v);   // v3.85.0
+    h+=pzSetTicksHTML(v)+fuCkSetHTML(v);   // v3.85.0 · v3.86.0
     if(own&&v.note)h+='<div class="pp-note" id="pq-o-note">Your line to the crew: '+esc(v.note)+'</div>';   // v3.83.0 (P7)
     if(own)h+=ppRainCardHTML(v,true)+ppWashSetHTML(v);   // v3.81.0 - the gauge on a leaf spray; a lot already sprayed that rain may have washed
     if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' reported done on '+ppFmtS(v.done.date)+'. Still to do: <b>Lot '+esc(left.join(' '))+'</b>.</div>';
@@ -8337,7 +8339,7 @@ function ppDetailHTML(){
       (v.basis==='T'?(nf(d.tanks)+' tanks used · '):'')+(d.crew?(d.crew+' crew × '+nf(d.hours)+' h'):'crew and hours not recorded')+
       (d.by?(' · '+esc(d.by)):'')+'</div>';
     h+=ppWashSetHTML(v);   // v3.81.0
-    h+=pzSetTicksHTML(v);   // v3.85.0
+    h+=pzSetTicksHTML(v)+fuCkSetHTML(v);   // v3.85.0 · v3.86.0
     h+='<div class="pp-scroll"><table class="pp-t"><tr><th>&nbsp;</th><th>Planned</th><th>Issued</th><th>Done</th></tr>'+
       '<tr><td><b>Day</b></td><td>'+(v.extra?'—':ppFmtS(v.fix&&v.fix.was?v.fix.was:v.planDay))+'</td><td>'+(direct?'—':ppFmtS(v.date))+'</td><td>'+ppFmtS(d.date)+'</td></tr>'+
       (v.basis==='T'?('<tr><td><b>Tanks</b></td><td>'+(v.extra?'—':nf(v.planTanks))+'</td><td>'+(direct?'—':nf(v.tanks))+'</td><td>'+nf(d.tanks)+'</td></tr>'):'')+
@@ -8995,6 +8997,7 @@ function pjCrewHTML(){
   if(v.bm&&v.bm.k==='move')h+='<div class="pp-chg"><b>⚠ '+ppT('CHANGED','DIUBAH')+'</b>'+ppT('Moved by the Owner to ','Dipindah oleh Pengurus ke ')+ppFmt(v.bm.d)+' — '+esc(ppWhyM(v.bm.why))+'.</div>';
   if(v.note)h+='<div class="pp-note" id="pj-c-note">'+ppT('From the Owner: ','Daripada Pengurus: ')+esc(v.note)+'</div>';
   h+=pjChipsHTML(v);
+  h+=fuJobCardHTML(v);   // v3.86.0 - a shade job's trees · HO1's trees off the hose
   v.reps.forEach(r=>{h+=pjRepHTML(v,r,false);});
   if(v.st==='done')h+='<div class="pp-note grn" id="pj-c-alldone"><b>'+(v.closed?ppT('Closed by the Owner.','Ditutup oleh Pengurus.'):ppT('All lots are finished. The job is closed.','Semua lot sudah siap. Kerja ditutup.'))+'</b></div>';
   else h+='<button class="pp-act" id="pj-c-done" onclick="pjCFormOpen()">✓ '+ppT('MARK DONE','TANDA SIAP')+'</button>'+
@@ -9010,6 +9013,7 @@ function pjCrewListHTML(){
   const tcH=(typeof tcCrewListHTML==='function')?tcCrewListHTML():'';
   h+=tcH;
   {let pzk='';try{pzk=pzCrewLeafHTML();}catch(e){pzk='';} h+=pzk;}   // v3.85.0 - every day for 7 days after PBZ
+  {let fuk='';try{fuk=fuCrewLightHTML();}catch(e){fuk='';} h+=fuk;}   // v3.86.0 - the sunlight after the shade work
   const setRow=v=>{const st=ppSt(v), left=ppLotsLeft(v);
     return '<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
       '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
@@ -9074,6 +9078,7 @@ function pjNewRec(v,o,status){
   const num=(status==='SKIPPED')?0:pjNextNum(mon);
   const x={job:1,mon:mon,num:num,code:v.code||'',k:v.k||'XX',en:pjClip(v.en,PJ_TITLE_LEN),ms:pjClip(v.ms,PJ_TITLE_LEN),cen:pjClip(v.cen,PJ_UNIT_LEN),cms:pjClip(v.cms,PJ_UNIT_LEN),
     from:o.from,to:o.to,lots:o.lots.slice(),note:pjClip(o.note,PJ_NOTE_LEN),extra:!!v.extra,log:[]};
+  if(v.fu&&Array.isArray(v.fuTrees)&&status!=='SKIPPED'){x.fu=String(v.fu);x.trees=v.fuTrees.filter(t=>o.lots.indexOf(String(t).split('-')[0])>=0);x.issAt=new Date().toISOString();}   // v3.86.0 - a shade job: its trees
   return {uuid:uuid(),phaseId:v.planId||('J27|X'+uuid().replace(/-/g,'').slice(0,8)),month:ppMonEN(mon),set:num?('Job '+num):'',kind:'JOB',mode:'JOB',
     header:x.en,basis:'PER_ROUND',plan:o.from,scope:ppScope(o.lots),trees:ppTrees(o.lots),litresPerTree:0,tanks:0,lines:[],projCost:0,
     by:ppMe(),byId:(CFG&&CFG.uid)||'',at:nowSec(),status:status||'ISSUED',rev:0,base:0,synced:false,x:x};}
@@ -9165,6 +9170,7 @@ async function pjIssueGo(){
   const sm=ppSeasonMonths();
   if(sm.length&&sm.indexOf(String(f.from).slice(0,7))<0)return fail('The first day is outside season '+(seasonName()||PP_SEASON)+' ('+ppMonEN(sm[0])+' '+sm[0].slice(0,4)+' to '+ppMonEN(sm[sm.length-1])+' '+sm[sm.length-1].slice(0,4)+').');
   if(!lots.length)return fail('Pick at least one lot.');
+  if(v.fu&&Array.isArray(v.fuTrees)&&!v.fuTrees.some(t=>lots.indexOf(String(t).split('-')[0])>=0))return fail('None of the trees is in the lots chosen.');   // v3.86.0
   if(v.nj){   /* v3.83.0 - the job's own words, keyed on this same screen; checked first, so the form says what is missing before anything else */
     const en=pjPlain(f.en,PJ_TITLE_LEN), cen=pjPlain(f.cen,PJ_UNIT_LEN);
     if(!en)return fail('Say what the job is.');
@@ -10769,7 +10775,7 @@ function ppELive(){
   if(PPE.mode!=='plan'&&ppIsSpray(v))put('pp-e-rn',ppRainCardHTML(v,true,PPE.date));}   // v3.81.0 - the day typed to today brings up RAIN TODAY at once
 function ppELot(k){if(ppOsHeld())return;ppESync();const i=PPE.lots.indexOf(k);
   if(i>=0){if(PPE.lots.length>1)PPE.lots.splice(i,1);}else PPE.lots.push(k);
-  PPE.lots.sort();PPE.trees=ppTreesFor(ppEBase().basis,PPE.lots);ppRender();}
+  PPE.lots.sort();{const b=ppEBase(), ck=b?(Array.isArray(b.ck)?b.ck:(fuIsCk(b)?(ppX(b.rec)||{}).trees:null)):null; PPE.trees=ck?fuCkInLots(ck,PPE.lots).length:ppTreesFor(b.basis,PPE.lots);}ppRender();}   // v3.86.0 - a canker round counts its named trees
 function ppEDrop(i){if(ppOsHeld())return;ppESync();ppOsDropped(i);PPE.lines.splice(i,1);PPE.sw=-1;PPE.swAll=false;
   /* FOUND IN REVIEW: every line below moves up under the thumb. The second tap of a double tap took out a SECOND product,
      or, after the last line, opened whatever button had come up. */
@@ -10842,7 +10848,7 @@ function ppEditHTML(){
   if(plan)h+='<label>Planned day'+((wbv&&wbv.nodate)?' (the workbook gives none)':'')+'</label><input type="date" id="pp-e-date" value="'+esc(o.date)+'" oninput="ppELive()" onchange="ppELive()">';
   else h+='<div class="pp-two"><div><label>Day to do it</label><input type="date" id="pp-e-date" value="'+esc(o.date)+'"'+(o.mode==='issue'?(' min="'+today+'"'):'')+' oninput="ppELive()" onchange="ppELive()"></div>'+
     (v.basis==='T'?('<div><label>Tanks of 1,000 L</label><input type="number" id="pp-e-tanks" inputmode="decimal" step="0.5" min="0" value="'+(+o.tanks||0)+'" oninput="ppELive()"></div>')
-                  :v.basis==='P'?('<div><label>Trees to feed</label><input type="number" id="pp-e-trees" inputmode="numeric" step="1" min="0" value="'+(+o.trees||0)+'" oninput="ppELive()"></div>')
+                  :v.basis==='P'?('<div><label>Trees to feed</label><input type="number" id="pp-e-trees" inputmode="numeric" step="1" min="0" value="'+(+o.trees||0)+'"'+(fuCkMixNote(v)?' disabled':'')+' oninput="ppELive()"></div>')
                   :('<div><label>Trees</label><input value="'+ppTrees(o.lots)+'" disabled></div>'))+'</div>';
   /* v3.83.0 (P5) - what the set is for and its stage are his to change here; (P7) one line for the crew */
   const bmw=(!plan&&v.tgtbm&&String(v.tgtbm)!==String(v.tgt))?String(v.tgtbm):'';
@@ -10853,7 +10859,7 @@ function ppEditHTML(){
   const pzR=pzIsRound(v);   // v3.85.0 - a PBZ set: the lots not passed at Gate 1 say so
   if(!plan)h+='<label>Lots</label><div class="pp-opts">'+LOT_KEYS.map(k=>'<button class="pp-opt'+(o.lots.indexOf(k)>=0?' sel':'')+'" id="pp-e-lot-'+k+'" onclick="ppELot(\''+k+'\')">Lot '+k+
     '<small>'+treesInLot(k).length+' trees'+((pzR&&!pzPassed(k))?' · not passed at Gate 1':'')+'</small></button>').join('')+'</div>';
-  h+='<div class="pp-q">The mix — '+ppBasisTxt(v.basis)+'</div>';
+  h+='<div class="pp-q">The mix — '+ppBasisTxt(v.basis)+'</div>'+fuCkMixNote(v);   // v3.86.0
   const pl=plan?wbv.planLines:v.planLines;
   o.lines.forEach((l,i)=>{
     const isNew=!v.extra&&!pl.find(p=>p.key===l.key);
@@ -10907,6 +10913,8 @@ async function ppEGo(){
   if(v.basis==='T'&&!(PPE.tanks>0))return fail('Enter how many tanks.');
   if(v.basis==='P'&&!(PPE.trees>0))return fail('Enter how many trees.');
   if(!PPE.lots.length)return fail('Pick at least one lot.');
+  /* v3.86.0 - a canker round is for its named trees in the lots chosen, whatever the box says */
+  {const ck=Array.isArray(v.ck)?v.ck:(fuIsCk(v)?(ppX(v.rec)||{}).trees:null); if(ck){PPE.trees=fuCkInLots(ck,PPE.lots).length; if(!PPE.trees)return fail('None of the canker trees is in the lots chosen.');}}
   /* v3.85.0 (G5a) - PBZ goes only on a lot he passed at Gate 1. Lots the set already held, and the lots a re-spray repeats, are not asked again. */
   if(pzIsRound(v)){const was=v.rec?v.lots:(v.re?(v.re.lots||[]):[]), bad=PPE.lots.filter(L=>was.indexOf(L)<0&&!pzPassed(L));
     if(bad.length)return fail('Lot '+bad.join(', ')+' has not passed Gate 1. PBZ goes only on a lot you passed: Trees ▸ GATE 1.');}
@@ -11156,6 +11164,7 @@ function ppCrewHTML(){
       '<button class="pp-ghost" id="pp-c-back" onclick="ppCList()">'+ppT('Back to the list','Kembali ke senarai')+'</button>';}
   const v=ppCrewSet(), left=ppLotsLeft(v);
   if(PPC.s==='tick'||PPC.s==='tleft')return pzCrewHTML(v);   // v3.85.0 - the PBZ tick list
+  if(PPC.s==='ck')return fuCkCrewHTML(v);   // v3.86.0 - a canker round, tree by tree
   if(PPC.s==='card'){
     const bn=ppBanner(v);
     h='<button class="pp-back" id="pp-c-up" onclick="ppCList()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+esc(ppNameBM(v))+'</div>'+
@@ -11166,7 +11175,7 @@ function ppCrewHTML(){
     if(left.length<v.lots.length)h+='<div class="pp-note grn">Lot '+esc(v.done.lots.join(' '))+' '+ppT('is done. Still to do: Lot ','sudah siap. Belum siap: Lot ')+'<b>'+esc(left.join(' '))+'</b>.</div>';
     h+='<div class="pp-q">'+(v.basis==='T'?ppT('The mix for each 1,000 L tank','Bancuhan setiap tangki 1,000 L'):v.basis==='P'?ppT('For each tree','Setiap pokok'):ppT('For the round','Setiap pusingan'))+'</div>'+
       '<table class="pp-mix">'+v.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>').join('')+'</table>'+
-      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+pzCardHTML(v)+   /* v3.85.0 */
+      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+pzCardHTML(v)+fuCkCardHTML(v)+   /* v3.85.0 · v3.86.0 */
       '<button class="pp-act" id="pp-c-done" onclick="ppCDoneOpen()">✓ '+ppT('MARK DONE','TANDA SIAP')+'</button>'+
       '<button class="pp-ghost rd" id="pp-c-not" onclick="ppCNotOpen()">✗ '+ppT('NOT DONE TODAY','TAK JADI HARI INI')+'</button>';
     return h;}
@@ -11176,7 +11185,7 @@ function ppCrewHTML(){
       '<input type="date" id="pp-c-date" value="'+esc(PPCD.date)+'" min="'+ppCrewMin()+'" max="'+today+'">'+
       (v.basis==='T'?('<label>'+ppT('How many tanks were used','Berapa tangki digunakan')+'</label><input type="number" id="pp-c-tanks" inputmode="decimal" step="0.5" min="0" value="'+esc(PPCD.tanks)+'">'):'')+
       '<label>'+ppT('Lots done','Lot yang siap')+'</label><div class="pp-opts">'+left.map(k=>'<button class="pp-opt'+(PPCD.lots.indexOf(k)>=0?' sel':'')+'" id="pp-c-lot-'+k+'" onclick="ppCLot(\''+k+'\')">Lot '+k+
-        '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+pzDoneLinesHTML(v,PPCD.lots)+   /* v3.85.0 */
+        '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+pzDoneLinesHTML(v,PPCD.lots)+fuCkDoneLinesHTML(v,PPCD.lots)+   /* v3.85.0 · v3.86.0 */
       (ppIsSpray(v)?ppFinHTML('pp-c-fin-',PPCD.fin||'','ppCFin',true):'')+   /* v3.81.0 */
       '<div class="pp-two"><div><label>'+ppT('How many people','Berapa orang')+'</label><input type="number" id="pp-c-crew" inputmode="numeric" min="0" value="'+esc(PPCD.crew)+'"></div>'+
       '<div><label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'"></div></div>'+
@@ -11222,6 +11231,7 @@ async function ppCSave(){
   if(v.basis==='T'&&!(tanks>0))return fail(ppT('Enter how many tanks.','Masukkan bilangan tangki.'));
   if(!PPCD.lots.length)return fail(ppT('Pick the lots that were done.','Pilih lot yang siap.'));
   {const pzb=pzDoneBlock(v,PPCD.lots); if(pzb)return fail(pzb);}   // v3.85.0 (G7a) - every tree of a PBZ lot ticked or marked NOT SPRAYED
+  {const fub=fuCkDoneBlock(v,PPCD.lots); if(fub)return fail(fub);}   // v3.86.0 - every named tree of a canker round saved
   if(!(crew>0)||!(hours>0))return fail(ppT('Enter how many people and how many hours.','Masukkan bilangan orang dan jam.'));
   /* v3.81.0 - a leaf spray: one tap says whether it finished before or after noon */
   const fin=ppIsSpray(v)?((PPCD.fin==='am'||PPCD.fin==='pm')?PPCD.fin:''):'';
@@ -12983,6 +12993,7 @@ function tcBoot(kv){
   /* this install's own name for its rows. Made once; a phone that is wiped starts another. */
   TC_SRC=String(g('tcsrc')||'');
   if(typeof PZ_CAN!=='undefined')PZ_CAN=g('pzcan')===true;   // v3.85.0 - the Sheet said it takes gate, tick, leaf and hose rows
+  if(typeof FU_CAN!=='undefined')FU_CAN=g('fucan')===true;   // v3.86.0 - and the six follow-up kinds
   if(!TC_SRC){TC_SRC=Math.random().toString(36).slice(2,8)||'x'; if(db)put('kv',{k:'tcsrc',v:TC_SRC});}}
 function tcWipe(){
   TREE_LOG=[];TC_CUR='';TC_HELD=0;TC_SERVED=null;TC_MORE=false;TC_ERR='';TC_RS=null;TC_FOR='';TC_PARK=[];TC_OFF=null;TC_FLOOR=0;TC_CLK_AT=0;TC_CLK_MONO=0;TC_CLK_URL='';TC_ASK_AT=0;TC_LASTE=0;TC_PRAC={};TC_REFPLAN=null;TC_PHOTO={};TC_CACHE=null;TC_SAVES=0;
@@ -12993,7 +13004,7 @@ function tcWipe(){
 /* ---------- what the log says ---------- */
 function tcState(){
   if(TC_CACHE)return TC_CACHE;
-  const sn=tcSeason(), S={iss:[],stops:{},last:{},n:{},byIss:{},fix:{},pbz:{},prac:[],walks:{},eff:{},rows:{},gate:{},tick:{},leaf:{},hose:{}};   // v3.85.0 - gate tick leaf hose
+  const sn=tcSeason(), S={iss:[],stops:{},last:{},n:{},byIss:{},fix:{},pbz:{},prac:[],walks:{},eff:{},rows:{},gate:{},tick:{},leaf:{},hose:{},ckr:{},ckd:{},shd:{},sht:{},shl:{},hot:{}};   // v3.85.0 - gate tick leaf hose · v3.86.0 - the follow-up
   TREE_LOG.forEach(r=>{
     if(!r||r.refused||(r.season&&sn&&r.season!==sn))return;
     if(r.k==='ISS'){if(tcChk(r.chk))S.iss.push(r);}
@@ -13011,7 +13022,10 @@ function tcState(){
     else if(r.k==='GATE'){if(r.lot&&(!S.gate[r.lot]||tcNewer(r,S.gate[r.lot])))S.gate[r.lot]=r;}
     else if(r.k==='TICK'){if(r.tree&&r.iss){const k=r.iss+'|'+r.tree; if(!S.tick[k]||tcNewer(r,S.tick[k]))S.tick[k]=r;}}
     else if(r.k==='LEAF'){if(r.lot&&r.day){const k=r.lot+'|'+String(r.day).slice(0,10); if(!S.leaf[k]||tcNewer(r,S.leaf[k]))S.leaf[k]=r;}}
-    else if(r.k==='HOSE'){if(r.tree&&(!S.hose[r.tree]||tcNewer(r,S.hose[r.tree])))S.hose[r.tree]=r;}});
+    else if(r.k==='HOSE'){if(r.tree&&(!S.hose[r.tree]||tcNewer(r,S.hose[r.tree])))S.hose[r.tree]=r;}
+    /* v3.86.0 - the follow-up: a canker round's tree; his word on a canker tree; his shade decision; a shade job's tree; the sunlight after; a hose job's tree */
+    else if(r.k==='CKR'||r.k==='SHT'||r.k==='HOT'){if(r.tree&&r.iss){const m=r.k==='CKR'?S.ckr:r.k==='SHT'?S.sht:S.hot, k=r.iss+'|'+r.tree; if(!m[k]||tcNewer(r,m[k]))m[k]=r;}}
+    else if(r.k==='CKD'||r.k==='SHD'||r.k==='SHL'){if(r.tree){const m=r.k==='CKD'?S.ckd:r.k==='SHD'?S.shd:S.shl; if(!m[r.tree]||tcNewer(r,m[r.tree]))m[r.tree]=r;}}});
   S.iss.sort((a,b)=>tcNewer(a,b)?1:-1);
   Object.keys(S.fix).forEach(k=>S.fix[k].sort((a,b)=>tcNewer(a,b)?-1:1));     // newest first
   /* which issue counts for each check and lot: the latest one that names the lot, unless a
@@ -13239,7 +13253,7 @@ async function pushTrees(){
   /* nothing waiting: nothing to say is stuck. Rows put aside for another Sheet still make the
      phone ask which Sheet this is: at their own Sheet they come back and go up. */
   if(!tcUnsynced()&&!TC_PARK.length){clearSyncFail('trees');return false;}
-  if(!TC_PARK.length&&!PZ_CAN&&pzWaitRows()&&TREE_LOG.every(r=>!r||(r.synced?!(r.photo&&!r.refused):PZ_KINDS[r.k]))){noteSyncFail('trees',tr('sy_l_trees','Tree checks'),pzWaitRows(),tcT('the Google Sheet side must be v3.85.0','bahagian Google Sheet mesti v3.85.0'));return false;}   // v3.85.0 - only the new kinds wait (found in review: a photo still to go up was held too)
+  if(!TC_PARK.length&&fuHeldN()&&TREE_LOG.every(r=>!r||(r.synced?!(r.photo&&!r.refused):fuHeld(r)))){noteSyncFail('trees',tr('sy_l_trees','Tree checks'),fuHeldN(),tcT('the Google Sheet side must be '+((!FU_CAN&&fuWaitRows())?'v3.86.0':'v3.85.0'),'bahagian Google Sheet mesti '+((!FU_CAN&&fuWaitRows())?'v3.86.0':'v3.85.0')));return false;}   // v3.85.0 · v3.86.0 - only the kinds the Sheet cannot take yet wait
   TC_PUSHING=true; let ok=true, why='', nref=0; const sentTo=tcUrlKey();
   try{
     /* 0 · the Sheet's clock and its name first: what goes up is each row's time ON THAT
@@ -13257,7 +13271,7 @@ async function pushTrees(){
     for(let round=0;ok&&round<TC_PUSH_ROUNDS;round++){
       /* v3.85.0 - a gate decision, a tick, a leaf look or a hose word waits on the phone until the Sheet says it can take them:
          an Apps Script older than v3.85.0 refuses the kind, and a refused row is never sent again */
-      const batch=TREE_LOG.filter(r=>r&&!r.synced&&(PZ_CAN||!PZ_KINDS[r.k])).sort((a,b)=>tcEst(a)-tcEst(b)||(tcSeqOf(a)[1]-tcSeqOf(b)[1])).slice(0,TC_PUSH_ROWS);
+      const batch=TREE_LOG.filter(r=>r&&!r.synced&&!fuHeld(r)).sort((a,b)=>tcEst(a)-tcEst(b)||(tcSeqOf(a)[1]-tcSeqOf(b)[1])).slice(0,TC_PUSH_ROWS);
       if(!batch.length)break;
       const j=await tcPost({treechecks:batch.map(tcWire),tcsid:TC_FOR});
       /* `taken` is how a v3.79.0 backend signs its answer. An older one does not know the key,
@@ -13277,7 +13291,7 @@ async function pushTrees(){
         if(!tcIsCur(x))continue;                 // the pull already put the Sheet's copy in its place
         if(took[x.uuid]){x.synced=true;x.st=1;x.sentAt=Date.now(); if(st[x.uuid])x.at=String(st[x.uuid]);
           if(TC_RS)TC_RS.seen[x.uuid]=1;}          // sent while the tab is being read from the top: it is in the Sheet, not missing from it
-        else if(pzKeepRefused(x,ref[x.uuid]))continue;   // v3.85.0 - a Sheet put back to an older script: the row waits, it is not refused for good
+        else if(pzKeepRefused(x,ref[x.uuid])||fuKeepRefused(x,ref[x.uuid]))continue;   // v3.85.0 · v3.86.0 - a Sheet put back to an older script: the row waits, it is not refused for good
         else{x.synced=true;x.refused=ref[x.uuid];delete x.photo;nref++;}
         if(db)await tcPut('tc:'+x.uuid,x);}
       tcTouch();
@@ -13379,6 +13393,7 @@ async function takeTreePack(j,asked,askedAt){
      rows were sent up to the farm's Sheet; or it took the phone back to the old Sheet.) */
   if(asked!==undefined&&asked!==tcUrlKey())return 0;
   if(typeof pzCanFrom==='function')pzCanFrom(j);   // v3.85.0 - can: ['treechecks','pbzgate'] from Apps Script v3.85.0
+  if(typeof fuCanFrom==='function')fuCanFrom(j);   // v3.86.0 - 'followup' from Apps Script v3.86.0
   if(!j.tcserved){
     if(tcCanAsk()){
       /* a Sheet side that knows the tree rows but could not read them this time is not an old one */
@@ -13897,9 +13912,10 @@ function tcOwnHTML(){
   if(TCO.s==='tree'&&TCO.tree)return tcTreeHTML();
   if(TCO.s==='gatelot'&&TCO.lot)return pzGateLotHTML();   // v3.85.0
   const un=tcUnsureList().length;
-  return tcNeedHTML()+'<div class="tc-seg pz-seg4">'+[['survey','SURVEY'+(un?(' · '+un+' ?'):'')],['flush','FLUSH'],['issue','ISSUE & WALK'],['gate','GATE 1']].map(x=>
+  const fuN=fuNeedN();   // v3.86.0
+  return tcNeedHTML()+'<div class="tc-seg fu-seg5">'+[['survey','SURVEY'+(un?(' · '+un+' ?'):'')],['flush','FLUSH'],['issue','ISSUE & WALK'],['gate','GATE 1'],['fu','FOLLOW-UP'+(fuN?(' · '+fuN):'')]].map(x=>
     '<button id="tc-tab-'+x[0]+'" class="'+(TCO.v===x[0]?'tc-on':'')+'" onclick="tcOTab(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
-    (TCO.v==='flush'?tcFlushHTML():TCO.v==='issue'?tcChecksHTML():TCO.v==='gate'?pzGateHTML():tcSurveyHTML());}
+    (TCO.v==='flush'?tcFlushHTML():TCO.v==='issue'?tcChecksHTML():TCO.v==='gate'?pzGateHTML():TCO.v==='fu'?fuHTML():tcSurveyHTML());}
 function tcChips(list,cls,max){
   max=max||60;
   return '<div class="tc-ids">'+list.slice(0,max).map(t=>'<button class="'+(cls||'')+'" onclick="tcTreeOpen(\''+t+'\')">'+t+'</button>').join('')+
@@ -14196,6 +14212,7 @@ function tcOwnAlert(){
   const today=tcToday(), u=tcUnsureList().length, work=tcWork();
   {const ls=pzLeafSeen(); if(ls.length)return {hot:true,txt:'🍃 Wilted or curled leaf seen after PBZ: '+ls.map(x=>'Lot '+x.lot+' '+ppFmtS(x.day)).join(' · ')+' — Trees ▸ GATE 1'};}   // v3.85.0
   if(u)return {hot:true,txt:'🌳 '+u+' tree answer'+(u===1?'':'s')+' marked NOT SURE — decide in Trees'};
+  {const fa=fuAlert(); if(fa)return fa;}   // v3.86.0
   const late=tcGroup(work.filter(x=>x.st==='over'));
   if(late.length)return {hot:true,txt:'🌳 '+late.map(g=>g.c.en+' is late: '+g.items.map(x=>'Lot '+x.lot+' '+x.done+' / '+x.of).join(' · ')).join(' · ')};
   const fin=tcGroup(work.filter(x=>x.st==='done'&&x.last&&tcDiff(today,x.last)<=1));
@@ -14205,6 +14222,7 @@ function tcTileBadge(){
   if(myRole()!=='OWNER')return null;
   if(pzLeafSeen().length)return {t:'LEAF CURL'};   // v3.85.0
   const u=tcUnsureList().length; if(u)return {t:u+' '+tr('bg_notsure','NOT SURE')};
+  {const n=fuNeedN(); if(n)return {t:n+' TO CONFIRM'};}   // v3.86.0
   const work=tcWork(); if(work.some(x=>x.st==='over'))return {t:tr('bg_tclate','CHECK LATE')};
   const open=work.filter(x=>x.st!=='done'); if(open.length)return {t:open.reduce((s,x)=>s+x.done,0)+' / '+open.reduce((s,x)=>s+x.of,0),amber:1};
   return null;}
@@ -14677,6 +14695,545 @@ function pzWashHTML(v,o){
   const w=pzWashTrees(v,o); if(!w)return '';
   return '<div class="pp-g pz-wt" id="pz-wt-'+ppCss(v.key)+'"><b>'+w.trees.length+' tree'+(w.trees.length===1?'':'s')+'</b> '+(w.same?'were ticked as sprayed that day':'are ticked as sprayed in these lots (not on that day)')+': '+
     esc(w.trees.slice(0,12).join(', '))+(w.trees.length>12?(' and '+(w.trees.length-12)+' more'):'')+'.</div>';}
+/* ======================================================================================
+   v3.86.0 · TREE FOLLOW-UP: CANKER UNTIL CURED · OIL-PALM SHADE · THE HOSE
+   ======================================================================================
+   The Owner, 8 Oct 2026, after the first census: "3 important job need to create in
+   programme. no1 tree that found canker, need to treat with brush with 25gm aliite with
+   1 liter water. this treatment need to be continue after 7 to 10 days untill the canker dry
+   up. so how to create and monitor to each specific tree untill it cure? no 2. those tree
+   with sheded by oil palm need to trim the oil palm leaf or make decision to chop down the
+   oil palm. no3 hose that no reach to that tree must be fix or repipe".
+   His answers: the crew says dry, he confirms · each brush round takes the Aliette out of the
+   store as a set for the named trees · shade: the shaded trees, on the Sugut Farm Map · hose:
+   the crew ticks each tree on HO1, he confirms. Then "follow all the suggetion answer":
+   F1a due on day 7, late after day 10 · F2a the crew keys the litres on each tree · F3a a photo
+   of every tree every round · F4a a tick "dead bark scraped off" · F5a the sunlight asked again
+   after the shade work · F6a Trees ▸ FOLLOW-UP · F7a a new canker joins the list by itself.
+   STORED: six more row kinds on the tree road (TREE_CHECKS, append-only, newest counts), which
+   the Apps Script v3.86.0 accepts and an older one refuses - so they are held on the phone
+   until the Sheet says it can take them (`can` holds 'followup'):
+     CKR  one tree of a canker round: iss = the set, tree, day, v.pbz = W wet | D drying | K dry,
+          score = litres of mix, again = dead bark scraped, photo
+     CKD  the Owner on a canker tree: v.pbz = CURED | NOTYET | OPEN (came back) | ADD
+     SHD  the Owner's decision on a shaded tree: v.pbz = TRIM | CHOP | LEAVE | LOOK | '', score = palms
+     SHT  one tree of a shade job: iss = the job, day, score = fronds cut or palms felled,
+          v.pbz = Y finished (crew) | '' taken off (crew) | OK confirmed | BACK sent back (Owner)
+     SHL  the sunlight looked at again after the shade work: v.light = O | P | S
+     HOT  one tree of the hose job: iss = the job, day, v.pbz = Y water reaches (crew) | '' taken
+          off (crew) | BACK sent back (Owner). The Owner's CONFIRM writes the v3.85.0 HOSE row,
+          so SURVEY and GATE 1 count the tree as on the hose.
+   A CANKER ROUND IS A SET OF THE PROGRAMME (kind trunk, per tree, code CK) holding only the
+   named trees (x.ck = 1, x.trees): issued from the issue screen, the crew's TANDA SIAP, the
+   store. The store takes 25 g for every litre the crew keyed on each tree (1 L when none).
+   A SHADE JOB IS A JOB with its tree list (x.fu = 'SH', x.trees). THE HOSE JOB IS HO1.
+   ====================================================================================== */
+const FU_KINDS={CKR:1,CKD:1,SHD:1,SHT:1,SHL:1,HOT:1};
+const FU_DUE=7, FU_LATE=10;           // F1a - a round is due on day 7 and late after day 10
+const FU_ALI_PID=9, FU_ALI_G=25;      // Aliette: 25 g in each litre of water
+const FU_CK_CODE='CK', FU_SH='SH', FU_HO_CODE='HO1';
+const FU_ARM_MS=6000, FU_TAP_MS=500, FU_L_MAX=10;
+const FU_LOOK={W:['STILL WET','MASIH BASAH','fu-lw'],D:['DRYING','MULA KERING','fu-ld'],K:['DRY','SUDAH KERING','fu-lk'],X:['NOT DONE','TAK DAPAT BUAT','']};   // X - review 1: a tree the crew could not do
+const FU_DEC={TRIM:['TRIM FRONDS','the palm fronds over the tree'],CHOP:['FELL THE PALM','the palms that shade it'],LEAVE:['LEAVE IT','for now'],LOOK:['NOT OIL PALM','go and look first']};
+const FU_LIGHT={O:['OPEN','TERBUKA'],P:['PART','SEPARA'],S:['SHADED','TERLINDUNG']};
+const FU_MAP={"pos":{"A-001":[568.5,566.5],"A-002":[591.5,586.5],"A-003":[601.5,611.5],"A-004":[625.0,623.5],"A-005":[568.5,643.5],"A-006":[592.5,650.5],"A-007":[571.5,668.5],"A-008":[546.5,685.0],"A-009":[498.5,736.5],"A-010":[486.5,768.5],"A-011":[475.0,796.5],"A-012":[501.5,803.5],"A-013":[513.5,763.5],"A-014":[540.0,743.5],"A-015":[558.5,716.5],"A-016":[580.0,701.5],"A-017":[601.5,675.0],"A-018":[618.5,695.0],"A-019":[630.0,710.0],"A-020":[602.5,705.0],"A-021":[599.0,723.5],"A-022":[591.5,765.0],"A-023":[583.5,783.5],"A-024":[571.5,798.5],"A-025":[573.5,820.0],"A-026":[543.5,885.0],"A-027":[530.5,910.0],"A-028":[491.5,971.5],"A-029":[525.0,971.5],"A-030":[505.0,944.0],"A-031":[523.5,936.5],"A-032":[501.5,988.5],"A-033":[583.5,875.0],"A-034":[603.5,813.5],"A-035":[613.5,801.5],"A-036":[615.0,775.0],"A-037":[631.5,761.5],"A-038":[637.5,734.5],"A-039":[658.5,716.5],"A-040":[646.5,651.5],"A-041":[673.5,660.0],"A-042":[681.5,635.0],"A-043":[701.5,634.0],"A-044":[726.5,643.5],"A-045":[738.5,666.5],"A-046":[740.0,688.5],"A-047":[713.5,673.5],"A-048":[705.0,660.0],"A-049":[696.5,680.0],"A-050":[738.5,701.5],"A-051":[708.5,705.5],"A-052":[771.5,731.5],"A-053":[783.5,741.5],"A-054":[808.5,753.5],"A-055":[763.5,763.5],"A-056":[795.0,781.0],"A-057":[773.5,788.5],"A-058":[735.0,798.5],"A-059":[706.0,815.0],"A-060":[736.5,821.5],"A-061":[699.0,834.0],"A-062":[718.5,851.5],"A-063":[686.5,798.5],"A-064":[653.5,788.5],"A-065":[638.5,820.0],"B-001":[215.0,1050.0],"B-002":[225.0,994.5],"B-003":[230.0,965.5],"B-004":[235.5,928.5],"B-005":[240.5,908.5],"B-006":[245.5,875.0],"B-007":[248.5,853.0],"B-008":[245.5,821.0],"B-009":[245.5,790.5],"B-010":[269.0,710.0],"B-011":[289.0,629.0],"B-012":[260.5,632.5],"B-013":[272.5,607.5],"B-014":[302.5,604.0],"B-015":[314.5,582.0],"B-016":[291.0,585.5],"B-017":[259.0,599.0],"B-018":[228.5,639.5],"B-019":[257.0,659.5],"B-020":[245.5,688.0],"B-021":[237.0,710.0],"B-022":[232.0,732.0],"B-023":[222.0,757.0],"B-024":[232.0,802.5],"B-025":[230.0,841.0],"B-026":[222.0,868.0],"B-027":[211.5,814.5],"B-028":[215.0,922.0],"B-029":[208.5,952.0],"B-030":[220.0,982.5],"B-031":[193.0,1012.5],"B-032":[180.0,1050.0],"B-033":[141.0,1063.0],"B-034":[47.0,1144.0],"B-035":[89.0,1100.0],"B-036":[79.0,1076.5],"B-037":[116.0,1066.5],"B-038":[102.5,1046.5],"B-039":[111.0,1036.5],"B-040":[145.0,1012.5],"B-041":[134.5,990.0],"B-042":[171.5,979.0],"B-043":[181.5,949.0],"B-044":[193.5,915.0],"B-045":[193.5,865.0],"B-046":[173.0,863.0],"B-047":[185.0,844.5],"B-048":[190.0,814.5],"B-049":[205.0,780.5],"B-050":[203.5,757.0],"B-051":[206.5,735.0],"B-052":[210.0,706.5],"B-053":[159.5,942.0],"B-054":[169.5,901.5],"B-055":[181.5,787.5],"B-056":[163.0,794.0],"B-057":[176.5,764.0],"B-058":[183.0,735.0],"B-059":[188.0,705.0],"B-060":[191.5,678.0],"B-061":[191.5,664.5],"B-062":[161.5,716.5],"B-063":[139.5,735.0],"B-064":[139.5,760.5],"B-065":[132.5,801.0],"B-066":[132.5,843.0],"C-001":[229.0,71.5],"C-002":[226.5,90.0],"C-003":[193.5,86.5],"C-004":[210.0,115.0],"C-005":[190.0,121.5],"C-006":[186.5,151.5],"C-007":[241.5,168.5],"C-008":[266.5,178.5],"C-009":[256.5,198.5],"C-010":[238.5,200.0],"C-011":[226.5,185.0],"C-012":[273.5,223.5],"C-013":[255.0,230.0],"C-014":[265.0,251.5],"C-015":[238.5,255.0],"C-016":[206.5,246.5],"C-017":[205.0,315.0],"C-018":[178.5,296.5],"C-019":[173.5,316.5],"C-020":[188.5,348.5],"C-021":[210.0,330.0],"C-022":[200.0,388.5],"C-023":[220.0,390.0],"C-024":[193.5,375.0],"C-025":[215.0,406.5],"C-026":[236.5,401.5],"C-027":[238.5,430.0],"C-028":[221.5,438.5],"C-029":[256.5,463.5],"C-030":[256.5,476.5],"C-031":[186.5,461.5],"C-032":[210.0,465.0],"C-033":[268.5,505.0],"C-034":[200.0,498.5],"C-035":[235.0,483.5],"C-036":[235.0,531.5],"C-037":[206.5,553.5],"C-038":[220.0,565.0],"C-039":[236.5,556.5],"C-040":[276.5,551.5]},"blocks":["706.0,600.0 700.5,600.0 699.5,604.5 685.5,606.0 654.5,603.0 650.5,608.5 631.5,608.5 631.0,600.5 626.0,600.0 623.5,607.0 595.0,608.5 589.5,604.0 591.5,621.5 581.0,626.0 571.5,638.5 566.5,638.5 566.0,646.5 555.0,647.0 544.0,658.5 541.0,667.5 530.0,677.0 526.0,692.5 519.5,693.5 519.5,701.5 507.0,702.0 503.0,699.5 503.0,706.5 508.5,707.0 508.5,721.5 504.0,726.5 504.0,744.5 477.0,745.0 477.0,750.5 485.0,751.0 484.0,774.0 477.0,778.0 478.0,803.5 474.0,804.5 474.0,814.0 478.5,819.5 479.0,829.5 482.5,830.5 489.0,842.0 494.5,842.0 498.5,836.5 498.5,830.0 508.5,808.0 515.0,807.5 518.0,788.0 522.0,783.5 529.0,783.5 529.5,768.0 546.0,753.0 547.5,736.0 556.0,736.0 560.5,731.0 566.5,731.0 566.5,724.5 572.5,721.5 588.5,721.5 597.5,733.0 598.0,766.5 587.0,771.0 583.5,787.0 570.0,788.0 566.5,800.5 556.5,804.5 549.5,820.5 539.0,830.5 533.5,854.5 529.5,855.5 526.0,880.0 521.5,881.5 521.0,897.0 516.0,898.5 516.0,906.5 512.5,907.0 512.5,914.5 508.0,922.5 487.0,924.0 487.0,931.0 496.5,931.5 495.5,948.5 492.0,949.5 489.5,966.0 482.5,967.0 479.0,991.0 493.5,994.0 504.0,991.5 504.5,987.5 519.0,982.5 524.5,974.0 524.5,963.0 534.5,958.5 538.0,941.5 542.0,938.5 542.5,911.5 554.0,910.0 555.5,906.0 571.5,906.0 579.0,911.5 588.0,912.0 592.5,905.0 593.0,887.0 576.5,881.0 579.0,865.0 572.0,863.0 572.0,847.0 581.0,837.5 604.5,829.0 605.5,825.0 644.5,825.0 646.0,821.0 657.0,821.0 658.0,807.5 670.5,808.0 672.0,824.5 675.0,821.0 688.0,821.0 688.5,861.5 683.5,862.0 683.5,871.5 686.5,871.0 689.5,863.5 701.5,863.5 708.0,869.5 708.5,888.5 703.5,889.5 700.5,905.5 710.0,911.0 724.5,905.5 725.0,902.0 738.5,893.0 746.0,893.0 745.5,875.5 742.0,872.5 741.5,817.5 757.0,812.0 758.5,803.5 771.0,803.5 774.0,809.5 790.0,813.0 801.5,822.0 803.0,837.5 815.5,837.5 816.0,843.5 831.0,846.0 856.5,841.0 858.0,775.5 852.0,763.0 836.5,762.0 834.0,745.0 828.0,745.5 827.5,752.5 811.0,752.5 810.0,749.0 806.5,749.0 805.5,743.0 801.5,740.5 801.5,728.0 788.5,727.5 790.0,704.5 784.5,704.5 783.5,719.5 771.0,719.0 770.5,702.5 758.0,701.5 754.5,696.0 754.0,668.5 767.0,668.0 768.0,659.5 777.5,659.5 776.0,652.5 758.5,650.5 758.0,662.5 744.5,661.5 744.0,646.5 750.5,646.0 750.5,634.5 730.5,637.0 728.5,622.0 725.0,622.0 724.5,618.5 722.0,618.5 721.5,626.5 709.0,626.5","244.5,11.0 241.0,11.5 214.5,51.0 206.5,56.5 194.0,71.5 194.0,76.5 186.0,82.5 183.5,98.0 180.5,99.5 181.5,145.5 186.0,146.0 185.5,174.5 189.5,175.5 190.5,183.5 197.0,192.5 198.5,208.5 202.0,209.5 203.0,238.5 182.0,270.0 181.0,285.5 171.5,287.0 168.5,297.0 169.0,310.0 173.5,311.5 173.0,333.0 178.0,341.5 185.5,342.5 186.0,370.0 189.0,370.0 189.5,366.5 202.0,367.0 202.0,379.0 190.0,379.5 190.0,390.0 193.0,392.5 194.0,404.5 198.0,405.5 198.5,429.0 202.5,430.5 202.5,454.5 199.5,457.5 199.5,472.5 192.0,491.5 192.0,510.0 182.5,515.5 176.5,534.5 180.0,540.5 194.5,542.0 194.5,555.0 182.0,557.5 184.5,558.0 185.5,568.5 191.5,571.5 202.0,593.5 206.5,596.0 210.0,621.0 208.5,624.0 195.0,626.0 189.0,633.5 173.5,635.5 163.0,644.5 140.0,650.5 129.5,659.5 123.5,660.0 121.5,736.5 113.0,772.0 118.0,838.5 108.0,843.5 104.5,855.0 86.5,872.5 76.5,877.0 72.0,885.5 67.5,885.5 53.0,909.5 46.0,915.0 36.0,960.0 31.0,963.0 28.0,973.5 19.5,983.5 19.5,991.0 16.0,992.0 11.0,1002.0 10.5,1033.0 25.5,1047.5 44.5,1051.5 55.0,1064.5 62.0,1068.0 62.0,1075.5 66.0,1079.5 62.5,1110.0 43.0,1121.5 43.0,1134.5 40.0,1136.5 41.0,1156.5 53.5,1157.5 54.5,1160.0 70.5,1156.0 87.0,1156.0 101.0,1148.0 112.0,1147.0 113.0,1144.0 120.5,1144.0 130.5,1136.5 137.0,1135.5 146.5,1127.0 147.5,1119.0 154.5,1114.0 155.0,1093.5 168.0,1076.0 172.0,1076.0 178.5,1067.5 189.0,1067.5 189.5,1063.0 222.5,1062.0 226.0,1058.5 228.0,1026.0 231.0,1025.0 232.0,1000.0 234.5,998.0 238.0,968.5 235.0,965.0 235.0,953.0 240.0,952.5 240.0,940.5 242.5,938.0 238.5,934.0 238.5,918.0 242.5,917.0 242.5,910.5 245.5,910.0 249.0,872.5 251.5,871.5 252.0,859.0 255.0,855.0 254.5,851.0 250.5,850.5 250.5,838.5 254.0,826.5 257.5,745.0 265.5,736.0 266.0,728.0 270.0,727.5 277.5,711.5 275.5,694.0 279.0,693.0 279.5,685.5 295.5,684.5 295.5,677.0 291.5,676.5 291.5,663.5 296.5,651.5 299.5,650.5 300.5,623.5 314.0,608.5 333.5,595.0 329.0,575.0 300.0,572.0 299.0,566.5 283.5,566.5 276.5,561.5 276.5,556.0 262.5,555.5 262.5,541.0 273.5,540.0 274.0,491.5 269.5,486.5 268.0,457.0 253.0,455.5 253.0,430.5 246.0,430.0 248.5,410.5 245.0,403.0 231.5,397.0 231.0,385.0 215.0,381.5 215.0,371.0 211.0,369.5 210.5,361.5 206.5,357.0 206.5,342.0 211.0,338.0 211.0,328.5 219.0,327.5 218.5,285.5 223.5,281.0 235.5,281.0 240.5,286.0 240.5,318.5 244.0,320.5 244.0,327.0 252.0,333.0 256.5,331.0 257.5,315.0 263.0,303.5 273.5,296.0 280.0,286.0 284.5,286.0 291.0,271.0 302.0,271.0 291.0,269.0 289.0,256.5 283.5,256.0 283.5,244.0 287.5,243.0 287.0,228.5 277.0,223.5 277.0,209.5 300.0,209.0 300.0,201.0 295.0,201.0 294.0,205.5 282.0,205.5 279.0,199.5 279.0,184.0 274.5,183.5 273.0,170.0 266.0,169.5 266.0,145.5 282.0,145.0 282.5,138.5 275.5,138.0 274.0,142.0 259.5,140.5 259.5,124.5 266.0,124.0 266.0,116.0 259.5,115.5 259.5,99.5 265.0,97.5 265.5,79.0 260.5,74.5 257.5,80.0 245.5,80.0 243.5,64.5 245.0,26.0 259.0,25.5 259.0,19.5 247.0,18.0"],"pink":["258.0,-5.5 249.5,1.5 247.0,14.5 247.0,81.0 249.5,99.0 253.5,99.5 254.5,123.5 262.5,134.0 264.0,149.0 268.5,150.0 268.5,158.5 277.5,176.0 291.5,244.0 292.0,276.0 264.0,307.0 253.5,335.5 262.0,346.5 285.0,357.0 322.0,358.0 322.5,362.0 353.5,367.0 354.0,386.5 334.0,390.0 290.5,381.5 270.0,371.0 262.0,371.0 261.5,366.5 253.5,366.5 238.5,344.5 238.5,336.0 234.0,336.0 233.5,332.0 219.5,331.0 207.0,346.0 213.0,359.5 213.0,370.0 225.0,379.0 232.0,379.0 232.5,386.5 250.0,388.5 249.0,408.5 255.0,424.5 254.5,446.5 268.5,450.0 273.0,471.5 278.0,473.5 275.5,515.0 281.0,538.5 278.5,554.0 283.5,558.0 283.5,564.0 299.0,565.5 300.5,569.5 331.0,571.0 337.0,575.5 334.0,594.0 305.5,618.5 298.0,660.0 283.5,677.0 279.0,702.0 295.0,702.0 295.5,715.0 281.5,731.0 267.5,731.0 273.5,734.0 273.5,747.5 259.5,748.5 258.0,760.0 271.0,762.0 267.0,836.5 254.5,836.5 253.0,868.5 262.0,869.0 262.0,883.0 249.5,883.5 249.5,893.0 259.5,893.5 257.5,921.0 244.0,921.0 244.0,928.0 254.5,928.5 252.5,971.5 245.5,1012.5 232.5,1013.0 229.0,1047.5 240.5,1047.5 242.0,1052.5 247.5,1048.0 259.5,1048.0 258.0,1070.5 283.0,1091.5 315.0,1092.5 315.5,1105.0 305.5,1110.0 284.0,1110.5 242.5,1094.0 226.0,1070.5 224.0,1060.5 178.5,1071.0 156.0,1094.0 156.0,1113.0 177.0,1134.5 208.0,1158.0 213.5,1158.0 217.0,1164.5 240.0,1166.0 258.0,1158.0 272.0,1158.0 279.5,1162.0 286.5,1170.5 292.0,1194.0 292.0,1209.5 273.5,1237.0 280.0,1251.0 427.5,1251.0 433.5,1243.5 446.0,1243.5 446.5,1250.5 869.5,1254.0 869.5,1230.0 863.0,1229.5 858.5,989.5 852.5,989.0 852.5,976.0 858.5,975.5 856.5,843.5 825.0,847.0 807.0,835.5 806.5,829.5 787.0,813.5 751.0,813.5 745.5,819.5 745.5,832.5 742.5,834.0 748.0,884.0 737.0,898.0 718.5,912.0 706.5,912.0 699.5,906.0 699.5,890.0 705.0,887.0 705.5,871.0 686.5,855.0 687.5,819.5 681.0,809.5 666.0,809.0 660.0,821.5 649.5,822.0 647.5,840.5 632.0,840.5 608.5,853.5 608.0,901.5 595.0,902.0 592.5,906.5 603.5,909.0 603.5,923.0 599.5,931.0 580.5,933.0 582.5,912.5 556.0,909.5 554.0,915.0 548.0,916.0 546.0,939.0 541.5,942.0 537.5,959.5 531.0,966.0 530.0,977.5 524.5,978.0 513.0,989.0 512.0,996.5 478.5,993.5 479.0,969.5 486.5,962.0 492.5,941.0 497.0,939.0 509.5,907.0 515.5,905.0 526.5,856.0 530.0,854.5 537.0,831.0 558.0,796.5 584.0,774.0 586.0,762.5 594.5,754.5 594.5,734.0 588.5,724.5 572.0,724.0 564.0,728.5 554.0,748.5 548.0,750.0 530.5,770.0 529.5,780.5 511.0,804.5 499.5,838.5 484.5,838.5 475.5,829.0 471.0,812.5 475.5,771.0 484.0,763.5 489.5,745.5 495.0,743.5 495.0,732.5 501.0,729.5 501.5,720.0 506.5,718.5 509.5,710.0 514.0,710.0 516.0,694.5 523.5,693.0 526.5,677.5 532.0,675.0 542.5,656.0 562.5,635.5 571.5,634.0 593.5,614.5 589.0,611.5 589.0,600.5 560.5,574.0 554.5,548.0 554.5,464.5 549.5,454.0 520.5,422.5 510.0,422.0 504.0,439.0 491.5,438.5 492.5,405.0 487.0,393.0 481.0,389.5 481.0,377.5 504.0,379.5 505.0,376.0 520.0,374.5 529.0,362.0 529.0,354.0 520.0,343.0 493.5,328.0 488.5,318.5 475.5,311.0 469.5,269.5 461.5,269.0 444.0,250.0 437.0,248.0 421.0,225.0 402.5,215.0 401.0,209.5 390.5,209.5 384.0,204.0 377.5,204.0 375.5,197.5 365.5,197.0 366.5,64.5 378.5,64.5 422.0,132.0 530.0,286.0 539.0,305.5 579.0,358.0 601.0,396.0 606.0,399.0 608.0,396.5 368.0,40.0 364.0,40.0 360.0,166.5 347.5,167.0 342.5,150.5 316.5,115.5 316.5,108.5 300.0,81.0 299.0,49.0 291.5,43.5 282.5,23.0 275.0,16.5 274.0,5.5 265.0,-6.0"],"roads":["539.5,299.0 540.5,305.5 546.0,310.0 551.5,321.0 556.5,325.5 556.5,330.0 564.0,337.0 569.5,348.0 574.5,351.5 578.5,362.0 592.5,379.0 595.0,386.0 597.5,386.5 600.5,393.0 603.5,394.0 603.5,398.5 607.5,402.0 608.0,405.0 611.5,406.5 615.0,415.0 626.0,429.0 626.0,432.0 629.0,433.0 632.0,441.5 639.5,448.5 642.5,455.5 646.5,459.0 649.5,467.5 655.0,470.5 660.5,484.0 670.0,494.5 671.0,500.5 676.0,503.0 678.0,509.5 687.5,521.5 688.0,526.0 694.0,529.5 697.0,538.0 702.0,541.0 704.0,547.5 709.5,552.5 710.0,555.5 712.5,556.0 712.5,559.0 716.5,562.5 719.5,571.5 724.0,575.5 726.5,582.0 729.5,582.0 732.0,589.5 737.5,593.0 737.5,590.5 732.0,585.0 724.0,570.0 716.5,562.0 712.5,552.5 708.5,549.5 699.0,532.5 690.0,522.0 657.0,470.5 654.5,470.0 654.0,466.5 645.0,455.0 642.0,448.0 620.5,416.5 618.5,416.0 618.5,413.0 611.5,405.5 607.5,396.5 603.0,393.5 603.0,390.5 596.0,382.0 596.0,379.5 593.0,377.5 577.5,352.0 574.5,351.0 562.5,329.5 557.0,324.5 542.0,299.5","226.0,280.0 223.5,285.0 221.0,286.0 217.0,298.0 221.5,317.0 221.5,331.5 230.5,332.0 233.5,334.0 243.5,353.5 258.5,370.0 296.5,381.5 319.5,384.5 328.5,388.5 341.0,390.5 368.5,384.0 402.0,381.5 416.0,383.5 416.0,386.5 412.0,391.0 393.5,405.0 390.0,411.0 385.5,431.0 377.0,447.5 367.5,452.5 361.0,453.5 356.5,449.5 344.0,450.5 343.5,447.0 341.5,447.0 341.5,454.5 351.5,453.0 352.0,457.0 341.5,459.0 341.0,460.5 337.5,460.0 336.5,451.0 330.0,451.5 329.5,459.0 333.0,461.0 333.0,464.0 329.0,464.5 316.5,475.0 306.0,488.5 303.0,502.5 303.0,515.5 308.5,530.5 313.0,536.5 325.0,546.0 336.5,548.5 351.0,542.5 351.0,532.0 354.0,532.0 354.5,537.0 356.5,537.0 371.5,522.5 380.5,523.0 388.0,534.0 395.0,569.5 386.0,589.5 363.5,607.5 356.0,611.5 351.5,611.5 351.0,615.0 341.0,619.0 324.0,640.0 316.0,656.5 308.0,680.5 299.5,697.5 292.5,701.5 283.5,698.5 283.5,703.5 280.0,705.5 278.5,713.5 275.0,716.5 265.5,739.0 259.0,747.5 256.0,808.5 253.5,809.0 253.5,811.5 255.5,812.0 255.0,837.0 252.5,839.5 252.5,847.5 256.0,852.0 256.0,855.0 253.5,860.0 253.5,869.0 249.5,881.0 248.5,899.5 246.0,906.5 243.5,940.0 242.0,940.5 240.5,949.5 240.5,968.5 237.5,972.0 235.5,999.0 233.5,1001.0 232.0,1025.0 229.0,1038.5 229.5,1048.5 226.0,1063.5 224.0,1064.0 226.0,1070.5 234.0,1079.5 243.0,1094.5 270.5,1108.0 285.5,1111.0 305.0,1110.0 320.0,1102.5 335.5,1100.0 335.5,1112.0 331.5,1117.0 334.0,1122.0 334.0,1148.0 328.5,1148.5 329.0,1152.0 333.5,1152.5 333.0,1160.5 329.5,1164.0 326.5,1164.0 324.0,1161.0 317.5,1161.0 317.5,1165.0 320.5,1165.0 321.0,1168.5 316.5,1174.0 316.5,1176.0 326.0,1175.0 324.0,1172.0 324.5,1168.0 326.0,1166.5 332.0,1167.0 332.5,1187.0 328.5,1188.5 328.5,1194.0 332.5,1197.0 332.5,1214.5 331.0,1220.0 327.5,1223.5 327.5,1226.0 331.0,1229.5 331.0,1251.5 345.5,1250.0 356.5,1230.5 381.0,1202.5 411.0,1185.5 442.0,1178.0 465.0,1174.5 471.0,1175.5 484.0,1185.5 488.5,1197.5 486.5,1210.5 474.0,1221.5 458.0,1226.5 430.0,1246.5 429.5,1251.5 444.0,1251.0 452.0,1246.0 457.0,1245.5 460.0,1241.5 487.5,1229.0 500.5,1218.0 503.5,1211.0 502.0,1195.0 492.0,1180.5 491.0,1169.0 504.5,1148.0 519.5,1112.5 528.0,1074.0 528.0,1036.5 537.0,1020.0 543.5,1019.0 563.0,1025.0 578.5,1037.5 581.0,1041.5 586.0,1059.5 578.0,1112.0 582.5,1148.5 592.5,1170.5 612.5,1186.5 618.5,1199.5 629.0,1240.5 627.5,1252.0 639.0,1252.0 640.5,1232.0 635.5,1207.0 626.0,1187.5 607.5,1161.0 593.0,1119.5 594.0,1074.0 597.0,1045.5 589.0,1028.5 563.0,992.0 559.5,991.0 555.5,972.5 557.0,954.0 560.5,948.5 563.5,948.5 571.0,942.5 585.0,935.5 600.0,930.5 607.5,904.0 607.5,854.5 614.0,849.0 632.0,840.5 648.5,843.0 659.0,857.5 679.5,928.0 702.5,975.0 736.5,1017.0 761.0,1051.0 765.0,1067.0 761.5,1094.0 768.0,1118.5 783.5,1145.5 802.0,1161.0 848.0,1173.0 861.0,1172.0 861.0,1165.5 842.0,1161.0 833.5,1161.5 832.0,1159.5 824.5,1158.5 792.5,1140.5 782.5,1125.5 776.5,1113.0 775.5,1100.5 772.5,1091.0 773.5,1070.0 775.0,1068.5 772.5,1047.0 760.5,1029.0 718.5,981.5 699.5,954.5 684.5,914.5 668.0,861.0 661.0,846.5 653.5,840.5 650.5,835.5 652.0,830.0 658.0,826.0 659.0,821.5 657.0,821.5 655.0,826.5 652.5,826.5 652.0,829.5 648.0,829.5 647.5,827.0 634.0,823.5 607.0,826.0 605.5,830.0 589.5,835.5 588.5,838.0 585.0,838.0 575.0,846.0 573.0,858.0 580.5,864.0 583.0,871.0 589.0,872.5 589.5,878.0 595.0,881.5 595.5,903.0 588.0,914.0 582.5,914.5 581.0,919.5 570.0,931.5 554.5,943.5 547.0,955.0 538.5,982.5 535.5,986.5 533.0,986.5 532.0,991.5 526.5,998.5 524.5,1008.0 508.5,1028.5 484.0,1051.0 447.5,1077.5 428.5,1084.0 387.0,1085.5 366.0,1082.5 349.0,1087.0 339.0,1087.5 340.0,1015.5 342.5,1002.5 342.5,953.5 408.5,870.5 424.5,842.0 431.5,808.0 438.0,702.0 441.0,697.0 442.0,687.0 460.5,648.5 477.0,622.5 480.5,578.0 473.0,547.0 476.0,519.5 509.0,424.0 506.0,389.5 504.0,387.0 504.0,380.5 473.0,373.0 435.5,370.0 368.5,369.5 348.5,367.5 323.0,358.5 284.5,357.0 262.0,347.0 257.0,335.5 249.5,335.0 245.0,330.5 238.0,314.5 239.5,291.5 237.0,284.5 232.0,279.5","512.0,1042.0 516.0,1061.0 512.5,1091.0 508.0,1098.5 496.0,1134.0 478.5,1158.5 461.5,1167.0 414.0,1173.5 413.5,1175.5 395.5,1180.5 372.5,1192.5 353.0,1213.0 338.5,1237.5 335.0,1238.0 337.0,1153.5 343.0,1152.0 341.0,1148.0 342.0,1139.5 337.5,1136.0 339.0,1098.5 363.5,1093.0 380.5,1094.5 425.5,1092.5 451.0,1087.0 505.0,1042.0","339.0,959.5 338.5,996.0 334.5,999.0 338.5,1009.5 336.5,1023.0 335.5,1088.5 296.0,1094.0 279.5,1090.5 258.0,1070.5 262.5,1046.0 281.0,1015.0 296.0,1000.5 299.5,1000.5 302.0,995.0 308.0,993.5 308.5,989.0 336.0,959.5","475.0,386.0 487.5,393.5 492.5,404.0 492.0,430.0 483.5,475.0 480.0,481.0 476.0,498.0 464.5,519.5 460.5,531.5 460.5,566.0 467.0,594.5 464.0,609.5 442.0,650.0 434.5,676.5 433.5,689.0 430.0,691.5 431.0,706.0 424.0,751.5 424.0,778.5 421.5,784.5 416.0,830.0 403.5,856.0 398.5,860.5 398.0,864.0 393.5,864.0 393.5,869.0 385.5,878.0 385.0,882.0 359.5,906.5 346.5,923.5 343.5,923.5 342.5,919.5 345.0,908.0 344.0,872.0 341.5,872.5 339.5,932.5 315.0,960.0 292.0,978.5 288.5,978.5 288.0,983.0 284.5,983.0 284.5,986.5 266.0,1007.0 265.5,1014.5 261.0,1020.0 248.5,1047.0 244.5,1052.0 241.5,1052.0 242.0,1028.0 252.5,970.5 252.0,961.0 264.5,865.0 270.5,790.0 272.0,788.0 271.0,755.5 274.5,738.0 312.0,694.5 322.5,656.5 338.5,630.5 345.0,626.5 351.0,627.5 352.0,623.0 383.0,602.5 398.5,580.5 401.0,572.0 402.0,555.5 394.5,541.0 392.5,523.0 384.5,513.0 371.5,510.5 358.5,519.0 355.5,519.0 355.0,515.5 352.0,515.5 354.0,528.5 349.5,528.5 339.0,535.5 325.5,535.5 314.0,527.0 310.0,510.5 313.0,496.5 322.5,481.5 336.5,471.0 374.5,459.0 384.5,451.0 392.5,435.5 403.0,407.0 410.0,400.5 432.0,389.5 449.0,384.0","359.5,243.0 359.0,266.5 357.5,268.5 350.5,267.5 348.5,269.0 348.5,271.5 351.0,271.5 353.5,275.5 353.5,278.5 349.5,279.0 349.5,281.0 358.0,281.5 358.0,310.5 360.0,310.5 361.5,307.0 360.0,299.5 361.0,294.0 363.5,293.0 363.5,291.0 360.5,290.0 360.5,283.0 367.0,282.0 367.0,280.0 364.5,279.0 367.0,270.0 361.5,266.5 361.5,259.0 363.5,258.0 364.0,252.5 369.0,252.5 371.5,250.0 370.0,245.5"],"palms":[[291.3,172.7],[297.2,198.9],[500.2,699.0],[465.7,711.0],[478.1,720.6],[574.7,739.8],[562.1,761.8],[459.9,773.6],[453.1,795.6],[562.0,830.8],[502.5,883.0],[562.0,931.2],[471.3,961.5],[462.2,991.7],[514.0,1007.3],[469.0,1007.4]],"near":{"A-009":[3,["N","NW"],9],"A-011":[2,["NW","W"],8],"A-022":[2,["NW","W"],10],"A-025":[1,["SW"],5],"A-027":[2,["NW","SE"],13],"A-028":[4,["NW","SW","SE"],8],"A-030":[1,["SW"],13],"A-032":[4,["NW","W","SW","SE"],8],"A-046":[0,[],20],"C-008":[2,["E","SE"],9]},"box":{"A":[425,555,440,462],"B":[0,560,350,620],"C":[140,40,190,545]}};
+let FU_CAN=false, FU_ARM_T=0, FU_MEMO={s:null,m:{}};
+let FUO={sec:'ck',arm:''}, FUC={ck:{},sh:{},arm:'',busy:false};
+
+function fuMemo(k,f){const S=tcState(); if(FU_MEMO.s!==S)FU_MEMO={s:S,m:{}}; if(!(k in FU_MEMO.m))FU_MEMO.m[k]=f(); return FU_MEMO.m[k];}
+/** The Sheet said it takes the six new kinds. Kept on the phone, as for v3.85.0. */
+function fuCanFrom(j){
+  const c=!!(j&&Array.isArray(j.can)&&j.can.indexOf('followup')>=0);
+  if(c!==FU_CAN){FU_CAN=c; if(db){try{put('kv',{k:'fucan',v:c});}catch(e){}}
+    if(c&&fuWaitRows()&&typeof tcSyncSoon==='function')tcSyncSoon(1500);}}
+function fuKeepRefused(x,why){
+  if(!x||!FU_KINDS[x.k]||!/unknown kind/.test(String(why||'')))return false;
+  fuCanFrom({can:[]}); return true;}
+function fuWaitRows(){return TREE_LOG.filter(r=>r&&!r.synced&&FU_KINDS[r.k]).length;}
+/** A row this phone holds back because the Sheet cannot take its kind yet. */
+function fuHeld(r){return !!r&&((!PZ_CAN&&PZ_KINDS[r.k])||(!FU_CAN&&FU_KINDS[r.k]));}
+function fuHeldN(){return TREE_LOG.filter(r=>r&&!r.synced&&fuHeld(r)).length;}
+function fuOldNote(id,crew){
+  if(FU_CAN)return '';
+  const n=fuWaitRows();
+  if(crew)return '<div class="tc-need tc-r" id="'+id+'"><h4>'+ppT('The Google Sheet side is older than this app','Bahagian Google Sheet lebih lama daripada aplikasi ini')+'</h4>'+
+    ppT('Your answers are kept on this phone'+(n?(' ('+n+' waiting)'):'')+' until the manager updates the Apps Script. Nothing is lost.','Jawapan anda disimpan di telefon ini'+(n?(' ('+n+' menunggu)'):'')+' sehingga pengurus mengemas kini Apps Script. Tiada yang hilang.')+'</div>';
+  return '<div class="tc-need tc-r" id="'+id+'"><h4>The Google Sheet side is older than this app</h4>Canker rounds, shade and hose ticks stay on this phone'+(n?(' ('+n+' waiting)'):'')+' until the Apps Script is v3.86.0. Paste it and redeploy, then press SYNC.</div>';}
+function fuArm(k){FUO.arm=k; FUC.arm=k; if(FU_ARM_T)clearTimeout(FU_ARM_T); FU_ARM_T=setTimeout(()=>{FU_ARM_T=0; if(FUO.arm===k||FUC.arm===k){FUO.arm='';FUC.arm=''; fuRepaint();}},FU_ARM_MS);}
+function fuRepaint(){try{ if(typeof curModule!=='undefined'&&curModule==='tsv')tcRenderOwner(); else if(typeof ppRender==='function')ppRender(); }catch(e){}}
+async function fuWrite(o){
+  const r=await tcAdd(o); tcTouch(); tcIdleSync();
+  if(!FU_CAN&&!fuWrite.told){fuWrite.told=1;toast(tcT('Kept on this phone: the Google Sheet side must be v3.86.0','Disimpan di telefon ini: bahagian Google Sheet mesti v3.86.0'),1);}
+  return r;}
+function fuLot(t){return String(t).split('-')[0];}
+function fuSortT(a){return a.slice().sort((x,y)=>{const p=fuLot(x).localeCompare(fuLot(y)); return p||((+String(x).split('-')[1]||0)-(+String(y).split('-')[1]||0));});}
+function fuOkTree(t){return /^[A-Z]-\d{1,4}$/.test(String(t))&&!!treeById(t);}
+function fuPill(c,t){return '<span class="tc-pill '+c+'">'+t+'</span>';}
+
+/* =========================== CANKER =========================== */
+/** The newest census row that says canker, for every tree (F7a: a canker keyed at any later census joins by itself). */
+function fuCkSeen(){return fuMemo('cks',()=>{const m={};
+  TREE_LOG.forEach(r=>{if(r&&r.k==='ROW'&&r.chk==='CE1'&&!r.refused&&!r.skip&&r.tree&&r.v&&r.v.canker&&(!r.season||r.season===tcSeason())&&(!m[r.tree]||tcNewer(r,m[r.tree])))m[r.tree]=r;});
+  return m;});}
+function fuSn(r){return !!r&&!r.refused&&(!r.season||r.season===tcSeason());}
+/** Every canker tree: {t,st:'open'|'wait'|'cured',ev,cur,back,add}. st wait = the crew said DRY and he has not answered.
+ *  Review 1: a canker tapped by mistake and taken back at the census (the newest census answer of the tree says no canker)
+ *  leaves the list - but only a tree that has had no round and no word of his since: a tree under treatment stays until he
+ *  says CURED or NOT CANKER. NO = his "not canker": off the list like CURED, said so. */
+function fuCk(){return fuMemo('ck',()=>{
+  const S=tcState(), seen=fuCkSeen(), out=[], trees={};
+  Object.keys(seen).forEach(t=>{trees[t]=1;}); Object.keys(S.ckd).forEach(t=>{trees[t]=1;});
+  const lastR=fuCkLooks();
+  fuSortT(Object.keys(trees)).forEach(t=>{
+    const a=seen[t]||null, d=S.ckd[t]||null, ev=(a&&d)?(tcNewer(a,d)?a:d):(a||d);
+    if(!ev||!fuOkTree(t))return;
+    const dec=(ev===d)?String((d.v&&d.v.pbz)||''):'';
+    if(dec==='CURED'||dec==='NO'){out.push({t:t,st:'cured',no:dec==='NO',ev:ev,cur:tcEff(d).slice(0,10)});return;}
+    const lr=lastR[t]||null, cen=tcCenOk(t);
+    if(ev===a&&!d&&cen&&cen.r!==a&&!(cen.v&&cen.v.canker)&&tcNewer(cen.r,a)&&!lr)return;   // taken back at the census, never brushed, never named by him (review 2)
+    const dry=!!(lr&&lr.v&&lr.v.pbz==='K'&&(!d||tcNewer(lr,d))&&(!a||tcNewer(lr,a)));
+    const backs=TREE_LOG.filter(r=>r&&r.k==='CKD'&&r.tree===t&&fuSn(r)&&r.v&&r.v.pbz==='OPEN').length;
+    out.push({t:t,st:dry?'wait':'open',ev:ev,back:backs,add:!a});});
+  return out;});}
+/** The newest look of each tree that is not X (could not be done): an X does not hide a DRY waiting for his OK (review 2). */
+function fuCkLooks(){return fuMemo('ckl',()=>{const S=tcState(), m={}; Object.keys(S.ckr).forEach(k=>{const r=S.ckr[k]; if(r.v&&r.v.pbz==='X')return; if(!m[r.tree]||tcNewer(r,m[r.tree]))m[r.tree]=r;}); return m;});}
+function fuCkOpen(){return fuCk().filter(c=>c.st!=='cured');}
+function fuCkWait(){return fuCk().filter(c=>c.st==='wait');}
+/** The canker rounds: sets of the Programme with x.ck, oldest first. */
+function fuIsCk(v){const x=v&&v.rec?ppX(v.rec):null; return !!(x&&x.ck);}
+/** When a set or a job was ISSUED (its first log entry): a record's `at` moves with every later save (review 1). */
+function fuIssAt(rec){const x=ppX(rec)||{}; if(x.issAt)return String(x.issAt); const l=Array.isArray(x.log)?x.log.find(e=>e&&(e.k==='issue'||e.k==='jissue'||e.k==='rec'||e.k==='direct')):null; return String((l&&l.at)||rec.at||'');}
+function fuCkSets(){return ppSets().filter(v=>v.rec&&v.st!=='skip'&&fuIsCk(v)).sort((a,b)=>fuIssAt(a.rec).localeCompare(fuIssAt(b.rec))||String(a.key).localeCompare(String(b.key)));}
+function fuCkRound(v){const s=fuCkSets(); const i=s.findIndex(x=>x.key===v.key); return i>=0?i+1:0;}
+function fuCkTreesOf(v){const x=v&&v.rec?ppX(v.rec):null; return (x&&Array.isArray(x.trees))?x.trees.filter(t=>v.lots.indexOf(fuLot(t))>=0):[];}
+function fuCkRow(iss,t){return tcState().ckr[iss+'|'+t]||null;}
+/** A tree he has taken off the list (CURED or NOT CANKER): a round still out does not ask for it. */
+function fuCkGone(t){const c=fuCk().find(x=>x.t===t); return !c||c.st==='cured';}   // review 2: taken back at the census is gone too
+/** When each open tree was last brushed (its newest saved round), and when the next round is due (F1a). Review 1: kept
+ *  per tree - a canker found in December is "due now", not 54 days late; a tree left out of a round is due on its own day. */
+function fuCkLast(t){const c=fuCk().find(x=>x.t===t), ev=c?c.ev:null; let d=''; Object.keys(tcState().ckr).forEach(k=>{const r=tcState().ckr[k]; if(r.tree===t&&r.v&&r.v.pbz!=='X'&&(!ev||tcNewer(r,ev))){const x=String(r.day||tcEff(r)).slice(0,10); if(x>d)d=x;}}); return d;}   // review 2: a round from before it was cured does not count
+function fuCkDue(){
+  const sets=fuCkSets(), out=sets.find(v=>v.st==='iss');
+  let due='', late='', last='', fresh=0;
+  fuCkOpen().forEach(c=>{const l=fuCkLast(c.t); if(!l){fresh++;return;} const d1=tcAddDays(l,FU_DUE), d2=tcAddDays(l,FU_LATE);
+    if(!due||d1<due)due=d1; if(!late||d2<late)late=d2; if(l>last)last=l;});
+  return {out:out||null,last:last,due:due,late:late,fresh:fresh,n:sets.length};}
+function fuCkState(){
+  const op=fuCkOpen(); if(!op.length)return {k:'none'};
+  const d=fuCkDue(), t=tcToday();
+  if(d.out)return {k:'out',d:d};
+  if(d.late&&t>d.late)return {k:'late',d:d};
+  if(d.fresh||!d.due||t>=d.due)return {k:'due',d:d};
+  return {k:'wait',d:d};}
+/** The litres of mix on each named tree of a lot, from the crew's rows (1 L for a tree with none): the store draw (F2a). */
+function fuCkParts(rec,sel,q){
+  const x=ppX(rec); if(!x||!x.ck||!Array.isArray(x.trees))return null;
+  return sel.map(L=>{const ts=x.trees.filter(t=>fuLot(t)===L);
+    const litres=ts.reduce((s,t)=>{const r=fuCkRow(rec.uuid,t);
+      if(r)return s+((r.v&&r.v.pbz==='X')?0:Math.min(FU_L_MAX,Math.max(0,+r.score||0)||1));
+      return s+(fuCkGone(t)?0:1);},0);   // a tree not saved: 1 L; one he took off (cured, not canker) since: none
+    return +(q*litres).toFixed(2);});}
+/** The issue screen of the Programme, filled in for the open canker trees. */
+function fuCkIssueGo(){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fuckiss'))return;
+  const st=fuCkState(); if(st.k==='none'||st.k==='out')return;
+  const trees=fuCkOpen().map(c=>c.t), lots=LOT_KEYS.filter(L=>trees.some(t=>fuLot(t)===L));
+  if(!trees.length)return;
+  openModule('prog'); if(typeof curModule!=='undefined'&&curModule!=='prog')return;
+  const today=todayISO(), n=trees.length;
+  const base={key:'',planId:'',plan:null,rec:null,k:'trunk',grp:ppGrp('trunk'),basis:'P',code:FU_CK_CODE,stage:'Extra',
+    tgt:'Canker: brush Aliette 25 g in 1 L of water · '+n+' tree'+(n===1?'':'s'),tgtbm:'Kanker: sapu Aliette 25 g dalam 1 liter air · '+n+' pokok',
+    extra:true,fix:null,noPlanDay:true,planDay:'',planTanks:0,planLines:[],num:0,ver:1,log:[],st:'new',date:today,lots:lots.slice(),lines:[],note:'',tanks:0,ck:trees.slice()};
+  base.trees=n;
+  PPE={mode:'issue',base:base,date:today,tanks:0,lots:lots.slice(),trees:n,lines:[ppELine(ppLine({pid:FU_ALI_PID,n:'Aliette',q:FU_ALI_G,u:'gm'}))],why:'TREE',err:'',adding:false,busy:false};
+  PPE.osAt=performance.now();
+  PPO.key=''; PPO.s='edit'; ppRender(); ppTop();}
+/** On the issue screen of a canker round: the dose is per litre; the trees are its named trees (review 1). */
+function fuCkMixNote(v){const ck=v?(Array.isArray(v.ck)?v.ck:(fuIsCk(v)?(ppX(v.rec)||{}).trees:null)):null; if(!ck)return '';
+  return '<div class="pp-note" id="fu-e-note">Canker round: Aliette 25 g in each litre of water, about 1 L a tree. The crew keys the litres on each tree and the store takes 25 g a litre. The trees are the named ones in the lots you pick: '+esc(fuCkInLots(ck,PPE?PPE.lots:LOT_KEYS).join(', '))+'.</div>';}
+/** A canker round holds the named trees of the lots it is issued for. */
+function fuCkInLots(ck,lots){return (ck||[]).filter(t=>lots.indexOf(fuLot(t))>=0);}
+async function fuCkDecide(t,dec){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fuck'+t+dec))return;
+  const ak=dec==='NO'?('cuNO'+t):('cu'+t);
+  if((dec==='CURED'||dec==='NO')&&FUO.arm!==ak){fuArm(ak);tcHold(FU_TAP_MS);return tcRenderOwner();}
+  FUO.arm=''; tcHold(FU_TAP_MS);
+  await fuWrite({k:'CKD',chk:'CK',tree:t,lot:fuLot(t),v:{pbz:dec}});
+  toast(dec==='CURED'?(t+': cured. It leaves the rounds; its history stays.'):dec==='NO'?(t+': not canker. Off the list; its history stays.'):dec==='NOTYET'?(t+': not yet. It stays on the next round.'):(t+': on the next round.'));
+  tcRenderOwner();}
+async function fuCkAdd(){
+  if(myRole()!=='OWNER'||tcHeld())return;
+  const inp=$('fu-ck-add-in'), t=String(inp?inp.value:'').trim().toUpperCase();
+  if(!/^[ABC]-\d{3}$/.test(t)||!treeById(t)){toast('Type a tree of the register, like A-017.',1);return;}
+  const c=fuCk().find(x=>x.t===t);
+  if(c&&c.st!=='cured'){toast(t+' is already on the canker list.',1);return;}
+  tcHold(FU_TAP_MS);
+  await fuWrite({k:'CKD',chk:'CK',tree:t,lot:fuLot(t),v:{pbz:c?'OPEN':'ADD'}});
+  toast(t+' is on the canker list. It goes on the next round.'); tcRenderOwner();}
+function fuCkHist(t){
+  const S=tcState(), sets=fuCkSets(), out=[], seen=fuCkSeen()[t];
+  if(seen)out.push('<span>'+esc(ppFmtS(tcEff(seen).slice(0,10)))+'<small>'+(seen.ph||seen.photo?'census · 📷':'census')+'</small></span>');
+  sets.forEach((v,i)=>{const r=fuCkRow(v.rec.uuid,t); if(!r)return; const k=String((r.v&&r.v.pbz)||''); const L=FU_LOOK[k]||['?','?','']; const d=String(r.day||tcEff(r)).slice(0,10);
+    out.push('<span class="'+L[2]+'"'+((r.ph||r.photo)?(' onclick="fuPhoto(\''+r.uuid+'\')" role="button"'):'')+'>R'+(i+1)+' · '+esc(ppFmtS(d))+'<small>'+L[0].toLowerCase()+(k==='X'?'':(' · '+nf(+r.score||1)+' L'+(r.again?' · scraped':'')))+((r.ph||r.photo)?' · 📷':'')+'</small></span>');});
+  TREE_LOG.filter(r=>r&&r.k==='CKD'&&r.tree===t&&fuSn(r)).sort((a,b)=>tcNewer(a,b)?1:-1).forEach(r=>{const p=String((r.v&&r.v.pbz)||'');
+    out.push('<span class="'+(p==='CURED'?'fu-lk':'')+'">'+esc(ppFmtS(tcEff(r).slice(0,10)))+'<small>'+(p==='CURED'?'✓ cured':p==='NO'?'not canker':p==='NOTYET'?'not yet':p==='OPEN'?'came back':p==='ADD'?'added by you':p)+'</small></span>');});
+  return '<div class="fu-hist">'+out.join('')+'</div>';}
+async function fuPhoto(uuid){
+  const r=TREE_LOG.find(x=>x&&x.uuid===uuid); if(!r)return;
+  const ttl=(r.tree||'')+' · '+ppFmtS(String(r.day||r.at||'').slice(0,10));
+  if(r.photo)return showPhoto(r.photo,ttl);
+  if(TC_PHOTO[r.uuid])return showPhoto(TC_PHOTO[r.uuid],ttl);
+  if(!CFG||!CFG.url||!navigator.onLine){toast('The photo is in the Sheet: it needs an internet connection',1);return;}
+  toast('Fetching the photo…');
+  try{const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{},SYNC_TIMEOUT_MS), j=await res.json();
+    if(j&&j.ok&&j.treephoto&&j.photo){TC_PHOTO[r.uuid]=String(j.photo);showPhoto(TC_PHOTO[r.uuid],ttl);}
+    else toast('That photo has not reached the Sheet yet',1);}catch(e){toast('The photo could not be fetched',1);}}
+function fuCkHTML(){
+  const st=fuCkState(), op=fuCkOpen(), wait=fuCkWait(), cured=fuCk().filter(c=>c.st==='cured');
+  let h='<div class="tc-sec">Canker · '+op.length+' tree'+(op.length===1?'':'s')+' open</div>'+
+    '<div class="tc-g">Brush Aliette 25 g in 1 L of water, again every 7 to 10 days, until the canker is dry. A tree leaves the list only when you confirm it.</div>';
+  if(st.k==='none')h+='<div class="tc-note tc-ok" id="fu-ck-st">'+(cured.length?'Every canker tree is cured.':'No tree has canker on the census.')+' A canker keyed at a later census or walk joins this list by itself.</div>';
+  else if(st.k==='out'){const v=st.d.out, ts=fuCkTreesOf(v), n=ts.filter(t=>fuCkRow(v.rec.uuid,t)||fuCkGone(t)).length, age=ppOkDay(v.date)?tcDiff(tcToday(),v.date):0;
+    h+='<div class="tc-note tc-b" id="fu-ck-st"><b>Round '+fuCkRound(v)+' is with the crew</b>: '+esc(ppName(v))+', for '+ppFmtS(v.date)+', '+ts.length+' tree'+(ts.length===1?'':'s')+'. '+n+' of '+ts.length+' answered on the phones so far.'+(age>=2?(' <b>Not finished after '+age+' days.</b>'):'')+
+      ' <button class="tc-act tc-gh" id="fu-ck-see" onclick="fuSeeSet(\''+ppArg(v.key)+'\')">OPEN THE SET ›</button></div>';}
+  else{const d=st.d, n=fuCkOpen().length;
+    h+='<div class="tc-note'+(st.k==='late'?' tc-r':st.k==='wait'?' tc-ok':'')+'" id="fu-ck-st">'+
+      (!d.n?'<b>Round 1 is due now:</b> the census found canker.'
+       :(st.k==='due'&&d.fresh&&(!d.due||tcToday()<d.due))?('<b>Round '+(d.n+1)+' is due now</b> for '+d.fresh+' tree'+(d.fresh===1?'':'s')+' not brushed yet.'+(d.due?(' The others are due '+ppFmtS(d.due)+'.'):''))
+       :st.k==='late'?('<b>LATE:</b> round '+(d.n+1)+' was due '+ppFmtS(d.due)+' and is '+tcDiff(tcToday(),d.late)+' day'+(tcDiff(tcToday(),d.late)===1?'':'s')+' past day '+FU_LATE+'.')
+       :st.k==='due'?('<b>Round '+(d.n+1)+' is due</b> since '+ppFmtS(d.due)+'. Late after '+ppFmtS(d.late)+'.')
+       :('Next round due '+ppFmtS(d.due)+' (in '+tcDiff(d.due,tcToday())+' day'+(tcDiff(d.due,tcToday())===1?'':'s')+'). Late after '+ppFmtS(d.late)+'.'))+
+      (d.last?(' Last brushed '+ppFmtS(d.last)+'.'):'')+'</div>'+
+      '<button class="tc-act'+(st.k==='wait'?' tc-gh':'')+'" id="fu-ck-iss" onclick="fuCkIssueGo()">ISSUE ROUND '+(d.n+1)+(st.k==='wait'?' EARLY':'')+' · '+n+' TREE'+(n===1?'':'S')+' ›</button>'+
+      '<div class="tc-g">Opens the issue screen of The Programme: Aliette 25 g in each litre, about 1 L a tree; the day is yours to set. The store takes 25 g for every litre the crew keys.</div>';}
+  if(wait.length)h+='<div class="tc-need" id="fu-ck-need"><h4>NEEDS YOU · '+wait.length+' tree'+(wait.length===1?'':'s')+' marked DRY by the crew</h4>Look at the photo (tap the round), then confirm or keep it on the rounds.</div>';
+  op.forEach(c=>{
+    const lr=fuCkLooks()[c.t]||null;
+    const look=lr?FU_LOOK[String((lr.v&&lr.v.pbz)||'')]:null;
+    h+='<div class="fu-tr '+(c.st==='wait'?'fu-wait':st.k==='late'?'fu-late':st.k==='due'?'fu-due':'')+'" id="fu-ck-t-'+c.t+'"><div class="fu-h"><div><b>'+c.t+'</b><div class="tc-g" style="margin:0">'+esc(tcCloneTxt(c.t))+(c.add?' · added by you':'')+'</div></div>'+
+      (c.st==='wait'?fuPill('tc-b','DRY · YOUR OK'):look?fuPill(look[0]==='STILL WET'?'tc-r':'tc-a',look[0]):fuPill('tc-a','NOT BRUSHED YET'))+'</div>'+fuCkHist(c.t)+
+      (c.back?'<div class="tc-g" style="margin:4px 0 0">Came back '+c.back+' time'+(c.back===1?'':'s')+'.</div>':'')+
+      (c.st==='wait'?('<div class="fu-btns"><button class="tc-act'+(FUO.arm==='cu'+c.t?' tc-arm':'')+'" id="fu-ck-ok-'+c.t+'" onclick="fuCkDecide(\''+c.t+'\',\'CURED\')">'+(FUO.arm==='cu'+c.t?'TAP AGAIN: CURED':'CURED ✓')+'</button>'+
+        '<button class="tc-act tc-rd" id="fu-ck-no-'+c.t+'" onclick="fuCkDecide(\''+c.t+'\',\'NOTYET\')">NOT YET</button></div>')
+        :('<div class="fu-btns"><button class="tc-act tc-gh'+(FUO.arm==='cuNO'+c.t?' tc-arm':'')+'" id="fu-ck-off-'+c.t+'" onclick="fuCkDecide(\''+c.t+'\',\'NO\')">'+(FUO.arm==='cuNO'+c.t?'TAP AGAIN: NOT CANKER':'NOT CANKER · TAKE IT OFF')+'</button></div>'))+'</div>';});   // review 1 - a tree on the list by mistake
+  if(cured.length)h+='<div class="tc-sec">Cured · '+cured.length+'</div>'+cured.map(c=>'<div class="fu-tr fu-ok" id="fu-ck-t-'+c.t+'"><div class="fu-h"><b>'+c.t+'</b>'+fuPill('tc-gr',(c.no?'NOT CANKER ':'CURED ')+esc(ppFmtS(c.cur)))+'</div>'+fuCkHist(c.t)+
+    '<div class="fu-btns"><button class="tc-act tc-rd" id="fu-ck-back-'+c.t+'" onclick="fuCkDecide(\''+c.t+'\',\'OPEN\')">IT CAME BACK · OPEN AGAIN</button></div></div>').join('');
+  h+='<div class="tc-sec">Another tree with canker</div><div class="tc-g">A canker keyed at a later census joins by itself. You can also add one here.</div>'+
+    '<div class="fu-add"><input id="fu-ck-add-in" placeholder="A-017" maxlength="5" autocomplete="off" autocapitalize="characters"><button class="tc-act" id="fu-ck-add" onclick="fuCkAdd()">＋ ADD</button></div>';
+  return h;}
+function tcCloneTxt(t){const r=treeById(t); return r?('Lot '+fuLot(t)+' · '+(r.clone||'')):'';}
+function fuSeeSet(k){openModule('prog'); if(typeof curModule!=='undefined'&&curModule!=='prog')return; if(typeof ppOpenSet==='function')ppOpenSet(k);}
+
+/* ----- the crew: a canker round on their set card ----- */
+function fuCkCardHTML(v){
+  if(!fuIsCk(v)||!v.rec)return '';
+  const ts=fuCkTreesOf(v), n=ts.filter(t=>fuCkRow(v.rec.uuid,t)||fuCkGone(t)).length;
+  return '<div class="pp-q">'+ppT('CANKER · EACH TREE','KANKER · SETIAP POKOK')+'</div>'+
+    '<button class="pp-row fu-ckrow" id="fu-c-open" onclick="fuCOpen()"><div class="pp-top"><b class="pp-nm">'+ts.length+' '+ppT(ts.length===1?'tree':'trees','pokok')+'</b><span class="pp-pill '+(n>=ts.length?'ok':'amb')+'">'+n+' / '+ts.length+'</span></div>'+
+    '<div class="pp-dt">'+esc(ts.join(' · '))+'</div></button>';}
+function fuCOpen(){if(typeof tcTapOk==='function'&&!tcTapOk('fuco'))return; const v=ppCrewSet(), k=v&&v.rec?v.rec.uuid:''; if(FUC.ckSet!==k){FUC.ck={};FUC.ckSet=k;} PPC.s='ck'; FUC.arm=''; ppRender(); ppTop();}   // review 1: a draft (and its photo) is kept while the same round is open
+function fuCBack(){PPC.s='card'; FUC.arm=''; ppRender(); ppTop();}
+function fuCf(t){if(!FUC.ck[t])FUC.ck[t]={scr:0,br:0,look:'',L:1,photo:'',pbusy:false}; return FUC.ck[t];}
+function fuCSet(t,k,val){
+  const v=ppCrewSet(); if(!v||!fuIsCk(v)||FUC.busy||tcHeld())return;
+  if(k!=='L'&&!tcTapOk('fucs'+t+k+val))return;   // a stepper counts every tap; a tick or a look is not undone by a double tap
+  const f=fuCf(t);
+  if(k==='L')f.L=Math.max(0.5,Math.min(FU_L_MAX,+(f.L+val).toFixed(1)));
+  else if(k==='look')f.look=(f.look===val)?'':val;
+  else f[k]=f[k]?0:1;
+  ppRender();}
+async function fuCPhoto(inp,t){
+  const file=inp&&inp.files&&inp.files[0]; if(!file)return;
+  const f=fuCf(t); f.pbusy=true; ppRender();
+  try{f.photo=await compressPhoto(file);}catch(e){toast(ppT('The phone could not use that photo. Take it again.','Telefon tidak dapat guna gambar itu. Ambil sekali lagi.'),1);}
+  f.pbusy=false; ppRender();}
+async function fuCSkip(t){
+  const v=ppCrewSet(); if(!v||!fuIsCk(v)||FUC.busy||tcHeld()||!tcTapOk('fucskip'+t))return;
+  if(fuCkTreesOf(v).indexOf(t)<0||(v.done&&v.done.lots.indexOf(fuLot(t))>=0))return;
+  if(FUC.arm!=='sk'+t){fuArm('sk'+t);return ppRender();}
+  FUC.arm=''; FUC.busy=true;
+  try{await fuWrite({k:'CKR',chk:'CK',iss:v.rec.uuid,tree:t,lot:fuLot(t),day:todayISO(),score:0,v:{pbz:'X'}});}finally{FUC.busy=false;}
+  delete FUC.ck[t]; tcHold(FU_TAP_MS);
+  toast(t+' · '+ppT('not done: it stays on the next round','tak dapat buat: kekal untuk pusingan seterusnya')); ppRender();}
+function fuCReady(f){return !!(f&&f.br&&f.look&&f.scr&&f.photo&&!f.pbusy);}
+async function fuCSave(t){
+  const v=ppCrewSet(); if(!v||!fuIsCk(v)||FUC.busy||tcHeld()||!tcTapOk('fucsave'+t))return;
+  if(fuCkTreesOf(v).indexOf(t)<0||(v.done&&v.done.lots.indexOf(fuLot(t))>=0))return;
+  const f=fuCf(t);
+  if(!fuCReady(f)){toast(ppT('Tick scraped and brushed, choose how it looks, and take the photo.','Tanda dikikis dan disapu, pilih rupanya, dan ambil gambar.'),1);return;}
+  FUC.busy=true;
+  try{await fuWrite({k:'CKR',chk:'CK',iss:v.rec.uuid,tree:t,lot:fuLot(t),day:todayISO(),again:1,score:f.L,photo:f.photo,v:{pbz:f.look}});}
+  finally{FUC.busy=false;}
+  delete FUC.ck[t]; tcHold(FU_TAP_MS);   // review 1: the next tree moves up under the thumb
+  toast(t+' · '+ppT('saved','disimpan')); ppRender();}
+function fuCkCrewHTML(v){
+  if(!v||!fuIsCk(v)){PPC.s='card';return ppCrewHTML();}
+  const ts=fuCkTreesOf(v), iss=v.rec.uuid, n=ts.filter(t=>fuCkRow(iss,t)||fuCkGone(t)).length;
+  let h='<button class="pp-back" id="fu-c-up" onclick="fuCBack()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+ppT('Canker · round ','Kanker · pusingan ')+fuCkRound(v)+'</div>'+fuOldNote('fu-c-oldgs',1)+
+    '<div class="pp-g" id="fu-c-count"><b>'+n+' / '+ts.length+'</b> '+ppT('trees saved','pokok disimpan')+'</div>'+
+    '<div class="pp-note" id="fu-c-how">'+ppT('Mix 25 g of Aliette in 1 litre of water. Scrape the dead, wet bark off first, then brush the whole patch and a hand-width around it.','Bancuh 25 g Aliette dalam 1 liter air. Kikis kulit mati yang basah dahulu, kemudian sapu seluruh tompok dan selebar tapak tangan di sekelilingnya.')+'</div>';
+  ts.forEach(t=>{
+    const r=fuCkRow(iss,t), lotDone=v.done&&v.done.lots.indexOf(fuLot(t))>=0;
+    if(!r&&fuCkGone(t)){h+='<div class="fu-tr fu-ok" id="fu-c-'+t+'"><div class="fu-h"><b>'+t+'</b><span class="pp-pill ok">'+ppT('not needed any more','tidak perlu lagi')+'</span></div></div>';return;}
+    if(r&&!FUC.ck[t]){const L=FU_LOOK[String((r.v&&r.v.pbz)||'')]||['?','?',''], xr=r.v&&r.v.pbz==='X';
+      h+='<div class="fu-tr '+(xr?'fu-due':'fu-ok')+'" id="fu-c-'+t+'"><div class="fu-h"><b>'+t+'</b><span class="pp-pill '+(xr?'amb':'ok')+'">'+(xr?'':'✓ ')+ppT(L[0],L[1])+(xr?'':(' · '+nf(+r.score||1)+' L'))+'</span></div>'+
+        (lotDone?'':'<button class="pp-ghost" id="fu-c-'+t+'-redo" onclick="fuCf(\''+t+'\');ppRender()">'+ppT('Change this tree','Ubah pokok ini')+'</button>')+'</div>';
+      return;}
+    if(lotDone)return;
+    const f=fuCf(t);
+    h+='<div class="fu-tr" id="fu-c-'+t+'"><div class="fu-h"><b>'+t+'</b>'+(fuCReady(f)?'<span class="pp-pill ok">✓</span>':'')+'</div>'+
+      '<button class="fu-tick'+(f.scr?' on':'')+'" id="fu-c-'+t+'-scr" onclick="fuCSet(\''+t+'\',\'scr\')"><i>'+(f.scr?'✓':'')+'</i>'+ppT('Dead bark scraped off','Kulit mati sudah dikikis')+'</button>'+
+      '<button class="fu-tick'+(f.br?' on':'')+'" id="fu-c-'+t+'-br" onclick="fuCSet(\''+t+'\',\'br\')"><i>'+(f.br?'✓':'')+'</i>'+ppT('Brushed with Aliette','Sudah disapu Aliette')+'</button>'+
+      '<div class="pp-q" style="margin-top:8px">'+ppT('How does the canker look today?','Rupa kanker hari ini?')+'</div><div class="fu-look">'+['W','D','K'].map(k=>'<button id="fu-c-'+t+'-'+k+'" class="'+FU_LOOK[k][2]+(f.look===k?' on':'')+'" onclick="fuCSet(\''+t+'\',\'look\',\''+k+'\')">'+ppT(FU_LOOK[k][0],FU_LOOK[k][1])+'</button>').join('')+'</div>'+
+      '<div class="fu-st"><span>'+ppT('Mix used','Campuran digunakan')+'</span><button id="fu-c-'+t+'-lm" onclick="fuCSet(\''+t+'\',\'L\',-0.5)">−</button><b id="fu-c-'+t+'-L">'+nf(f.L)+' L</b><button id="fu-c-'+t+'-lp" onclick="fuCSet(\''+t+'\',\'L\',0.5)">＋</button></div>'+
+      '<label class="fu-tick'+(f.photo?' on':'')+'" id="fu-c-'+t+'-ph"><i>'+(f.photo?'✓':'')+'</i>📷 '+(f.pbusy?ppT('Getting the photo…','Menyimpan gambar…'):f.photo?ppT('Photo taken · take again','Gambar diambil · ambil semula'):ppT('Take a photo','Ambil gambar'))+
+        '<input type="file" accept="image/*" capture="environment" class="fu-file" id="fu-c-'+t+'-cam" onchange="fuCPhoto(this,\''+t+'\')"></label>'+
+      '<button class="pp-act" id="fu-c-'+t+'-save" '+(fuCReady(f)?'':'disabled ')+'onclick="fuCSave(\''+t+'\')">'+ppT('SAVE ','SIMPAN ')+t+'</button>'+
+      '<button class="pp-ghost'+(FUC.arm==='sk'+t?' rd':'')+'" id="fu-c-'+t+'-skip" onclick="fuCSkip(\''+t+'\')">'+(FUC.arm==='sk'+t?ppT('TAP AGAIN: NOT DONE','TEKAN LAGI: TAK DAPAT BUAT'):ppT('Could not do this tree today','Tak dapat buat pokok ini hari ini'))+'</button></div>';});   // review 1
+  h+='<button class="pp-ghost" id="fu-c-back2" onclick="fuCBack()">'+ppT('Back to the set: TANDA SIAP when every tree is saved','Kembali ke set: TANDA SIAP bila semua pokok disimpan')+'</button>';
+  return h;}
+/** TANDA SIAP for a canker round only when every named tree of the lots is saved. '' = it may go. */
+function fuCkDoneBlock(v,lots){
+  if(!fuIsCk(v)||!v.rec)return '';
+  const ts=fuCkTreesOf(v).filter(t=>lots.indexOf(fuLot(t))>=0), left=ts.filter(t=>!fuCkRow(v.rec.uuid,t)&&!fuCkGone(t));
+  if(!left.length)return '';
+  return ppT('Every tree must be saved first: ','Setiap pokok mesti disimpan dahulu: ')+left.join(', ')+'. '+ppT('Go back and open CANKER · EACH TREE.','Kembali dan buka KANKER · SETIAP POKOK.');}
+function fuCkDoneLinesHTML(v,lots){
+  if(!fuIsCk(v)||!v.rec)return '';
+  return '<div class="fu-dl" id="fu-c-dl">'+lots.map(L=>{const ts=fuCkTreesOf(v).filter(t=>fuLot(t)===L), n=ts.filter(t=>fuCkRow(v.rec.uuid,t)||fuCkGone(t)).length;
+    const litres=ts.reduce((s,t)=>{const r=fuCkRow(v.rec.uuid,t); return s+(r?((r.v&&r.v.pbz==='X')?0:(+r.score||1)):0);},0);
+    return '<div class="'+(n>=ts.length?'pz-dok':'pz-dno')+'" id="fu-dl-'+L+'">Lot '+L+' · '+n+' / '+ts.length+' '+ppT('trees saved','pokok disimpan')+' · '+nf(litres)+' L · Aliette '+nf(litres*FU_ALI_G)+' g</div>';}).join('')+'</div>';}
+/** On the Owner's page of a canker set: one line a tree. */
+function fuCkSetHTML(v){
+  if(!ppIsOwner()||!fuIsCk(v)||!v.rec)return '';
+  return '<div class="pp-q">Canker · round '+fuCkRound(v)+' · each tree</div>'+fuCkTreesOf(v).map(t=>{const r=fuCkRow(v.rec.uuid,t), L=r?FU_LOOK[String((r.v&&r.v.pbz)||'')]:null;
+    return '<div class="pp-g fu-sl" id="fu-sl-'+t+'"><b>'+t+'</b> · '+(r?(esc(L?L[0].toLowerCase():'?')+((r.v&&r.v.pbz==='X')?'':(' · '+nf(+r.score||1)+' L'+(r.again?' · scraped':'')))+((r.ph||r.photo)?' · 📷':'')+' · '+esc(ppFmtS(String(r.day||tcEff(r)).slice(0,10)))):(fuCkGone(t)?'off the list since: not needed':'not saved yet'))+'</div>';}).join('');}
+
+/* =========================== SHADE =========================== */
+function fuShDec(t){const r=tcState().shd[t]; const d=r&&r.v?String(r.v.pbz||''):''; return FU_DEC[d]?{d:d,n:Math.max(0,Math.round(+r.score||0)),r:r}:null;}
+function fuIsShJob(v){const x=v&&v.rec?ppX(v.rec):null; return !!(x&&x.fu===FU_SH);}
+function fuShJobs(){return (pjOn()?pjJobs():[]).filter(v=>v.rec&&v.st!=='skip'&&fuIsShJob(v));}
+function fuShTreesOf(v){const x=v&&v.rec?ppX(v.rec):null; return (x&&Array.isArray(x.trees))?x.trees.filter(t=>v.lots.indexOf(fuLot(t))>=0):[];}
+/** The job a tree is in: a job still with the crew first, then the one issued last (review 1: never by the last save). */
+function fuShJobOf(t){let j=null; fuShJobs().forEach(v=>{if(fuShTreesOf(v).indexOf(t)<0)return; const a=v.st==='iss'?1:0, b=j?(j.st==='iss'?1:0):-1;
+  if(!j||a>b||(a===b&&fuIssAt(v.rec)>fuIssAt(j.rec)))j=v;}); return j;}
+function fuShTick(iss,t){const r=tcState().sht[iss+'|'+t]; return r?{p:String((r.v&&r.v.pbz)||''),n:Math.max(0,Math.round(+r.score||0)),r:r}:null;}
+/** The shaded trees: the census (light S, newest answer) and every tree he has decided on. */
+function fuShTrees(){return fuMemo('sht',()=>{const s={};
+  tcAllTrees().forEach(t=>{const a=tcCenOk(t); if(a&&a.v&&a.v.light==='S')s[t]=1;});
+  Object.keys(tcState().shd).forEach(t=>{if(fuOkTree(t))s[t]=1;});
+  return fuSortT(Object.keys(s));});}
+function fuShLight(t){
+  const S=tcState(), a=tcCenOk(t), l=S.shl[t];
+  if(l&&(!a||tcNewer(l,a.r)))return {l:String((l.v&&l.v.light)||''),r:l,after:true};
+  return {l:a&&a.v?String(a.v.light||''):'',r:a?a.r:null,after:false};}
+function fuShWaiting(){const out=[]; fuShJobs().forEach(v=>{fuShTreesOf(v).forEach(t=>{const k=fuShTick(v.rec.uuid,t); if(k&&k.p==='Y')out.push({t:t,v:v,k:k});});}); return out;}
+/** The trees confirmed done whose sunlight has not been looked at since (F5a). */
+function fuShRecheck(){const S=tcState(), out=[];
+  fuShJobs().forEach(v=>{fuShTreesOf(v).forEach(t=>{const k=fuShTick(v.rec.uuid,t); if(!k||k.p!=='OK')return;
+    const l=S.shl[t]; if(!l||!tcNewer(l,k.r))out.push(t);});});
+  return fuSortT(out.filter((t,i,a)=>a.indexOf(t)===i));}
+async function fuShSet(t,d){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fush'+t+d))return;
+  const j=fuShJobOf(t); if(j&&j.st==='iss'){toast(t+' is with the crew in '+pjName(j)+'.',1);return;}
+  const cur=fuShDec(t), val=(cur&&cur.d===d)?'':d, near=(FU_MAP.near[t]||[0])[0];
+  tcHold(FU_TAP_MS);
+  await fuWrite({k:'SHD',chk:FU_SH,tree:t,lot:fuLot(t),score:val==='CHOP'?Math.max(1,(cur&&cur.d==='CHOP'&&cur.n)||near||1):0,v:{pbz:val}});
+  tcRenderOwner();}
+async function fuShPalms(t,dlt){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fusp'+t+dlt))return;
+  const cur=fuShDec(t); if(!cur||cur.d!=='CHOP')return;
+  const n=Math.max(1,Math.min(20,cur.n+dlt)); if(n===cur.n)return;
+  tcHold(250);
+  await fuWrite({k:'SHD',chk:FU_SH,tree:t,lot:fuLot(t),score:n,v:{pbz:'CHOP'}});
+  tcRenderOwner();}
+/** The trees he chose to trim or fell that no shade job holds yet. */
+function fuShToIssue(){return fuShTrees().filter(t=>{const d=fuShDec(t); if(!d||(d.d!=='TRIM'&&d.d!=='CHOP'))return false;
+  const j=fuShJobOf(t); if(!j)return true; if(j.st==='iss')return false;
+  /* a job that ended without this tree finished: the tree can go into a new job; a tree finished or confirmed there cannot */
+  const k=fuShTick(j.rec.uuid,t); return !(k&&(k.p==='Y'||k.p==='OK'))||tcNewer(d.r,k.r);});}
+function fuShIssueGo(){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fushiss'))return;
+  const trees=fuShToIssue(); if(!trees.length)return;
+  openModule('prog'); if(typeof curModule!=='undefined'&&curModule!=='prog')return;
+  const today=todayISO(), n=trees.length, lots={}; trees.forEach(t=>{lots[fuLot(t)]=1;});
+  PJO.base={job:true,key:'',planId:'',pid:'',plan:null,rec:null,code:FU_SH,k:'XX',en:'Oil-palm shade off the durian · '+n+' tree'+(n===1?'':'s'),ms:'Buang teduhan sawit dari durian · '+n+' pokok',
+    cen:'trees finished',cms:'pokok siap',planMd:0,planCrew:0,planDays:0,planFrom:'',planTo:'',extra:true,num:0,mon:'',from:today,to:ppAdd(today,6),lots:Object.keys(lots).sort(),
+    note:'',pay:null,notice:null,bm:null,log:[],skip:null,closed:null,direct:false,ok2:{},reps:[],live:[],st:'new',fu:FU_SH,fuTrees:trees.slice()};
+  PJO.f={from:today,to:ppAdd(today,6),lots:lots,note:'',err:'',busy:false}; PJO.s='issue'; PJO.key=''; PJO.pid='';
+  if(typeof pjMoved==='function')pjMoved(); ppRender(); ppTop();}
+async function fuShOwner(t,iss,val){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fuso'+t+val))return;
+  const k=fuShTick(iss,t); if(!k||k.p!=='Y')return;
+  tcHold(FU_TAP_MS);
+  await fuWrite({k:'SHT',chk:FU_SH,iss:iss,tree:t,lot:fuLot(t),day:todayISO(),score:k.n,v:{pbz:val}});
+  toast(val==='OK'?(t+': confirmed. Its sunlight is asked again on the crew\'s list.'):(t+': sent back to the crew.')); tcRenderOwner();}
+/** The Sugut Farm Map, drawn for one lot: every tree by its number, coloured by its sunlight now. */
+function fuMapSVG(lot,idp){
+  const M=FU_MAP, b=M.box[lot], marks={}; if(!b)return '';
+  fuShTrees().forEach(t=>{marks[t]='s';}); fuCkOpen().forEach(c=>{marks[c.t]=(marks[c.t]?marks[c.t]+'c':'c');});
+  let s='<svg viewBox="'+b.join(' ')+'" class="fu-svg" id="'+idp+'" role="img" aria-label="Lot '+lot+' on the Sugut Farm Map">'+
+    '<path class="fu-pk" fill-rule="evenodd" d="'+M.pink.map(p=>'M'+p+'Z').join('')+'"/>'+M.blocks.map(p=>'<polygon class="fu-blk" points="'+p+'"/>').join('')+
+    '<path class="fu-rd" fill-rule="evenodd" d="'+M.roads.map(p=>'M'+p+'Z').join('')+'"/>'+
+    M.palms.filter(p=>p[0]>b[0]-10&&p[0]<b[0]+b[2]+10&&p[1]>b[1]-10&&p[1]<b[1]+b[3]+10).map(p=>'<circle class="fu-palm" cx="'+p[0]+'" cy="'+p[1]+'" r="4.2"/>').join('');
+  const tags=[];
+  tcTrees(lot).forEach(t=>{const p=M.pos[t]; if(!p)return; const L=fuShLight(t).l, n=+t.split('-')[1];
+    const cls=L==='S'?'fu-s':L==='P'?'fu-p':L==='O'?'fu-o':'fu-n', mk=marks[t]||'';
+    s+='<g class="fu-tr2" id="'+idp+'-'+t+'"'+(mk?(' onclick="fuSee(\''+t+'\')"'):'')+'>'+(mk.indexOf('c')>=0?'<circle class="fu-ck" cx="'+p[0]+'" cy="'+p[1]+'" r="11"/>':'')+(mk.indexOf('s')>=0?'<circle class="fu-sr" cx="'+p[0]+'" cy="'+p[1]+'" r="11"/>':'')+
+      '<circle class="'+cls+'" cx="'+p[0]+'" cy="'+p[1]+'" r="7"/><text x="'+p[0]+'" y="'+(p[1]+2.6)+'">'+n+'</text></g>';
+    if(mk)tags.push([t,p,mk]);});
+  tags.forEach(x=>{const t=x[0],p=x[1],left=p[0]-b[0]>b[2]*0.55; s+='<text class="fu-tag '+(x[2].indexOf('s')>=0?'fu-tag-s':'fu-tag-ck')+'" x="'+(left?p[0]-13:p[0]+13)+'" y="'+(p[1]-9)+'" text-anchor="'+(left?'end':'start')+'">'+t+'</text>';});
+  return s+'</svg>';}
+function fuSee(t){const e=$('fu-sh-t-'+t)||$('fu-ck-t-'+t); if(!e){toast(t);return;} e.scrollIntoView({block:'center'}); e.classList.add('fu-hl'); setTimeout(()=>e.classList.remove('fu-hl'),1600);}
+function fuShHTML(){
+  const trees=fuShTrees(), wait=fuShWaiting(), re=fuShRecheck(), lots=LOT_KEYS.filter(L=>trees.some(t=>fuLot(t)===L));
+  let h='<div class="tc-sec">Oil-palm shade · '+trees.length+' tree'+(trees.length===1?'':'s')+'</div>'+
+    '<div class="tc-g">The trees shaded on the census, on your Sugut Farm Map. Black dots are the oil palms within about 15 m of a shaded tree (from the lot-marking map, 8 Oct). Tap a marked tree to find its card. Count the palms on the ground before one comes down.</div>';
+  if(!trees.length)return h+'<div class="tc-note tc-ok" id="fu-sh-none">No tree is shaded on the census.</div>';
+  lots.forEach(L=>{h+='<div class="fu-mapbox" id="fu-map-'+L+'"><div class="fu-maph">Lot '+L+'</div>'+fuMapSVG(L,'fu-svg-'+L)+'</div>';});
+  h+='<div class="fu-leg"><span><i style="border-color:#e16900;background:#ff8c1a"></i>shaded</span><span><i style="border-color:#b07a2a;background:#ffd08a;border-width:1px"></i>part shade</span><span><i style="border-color:#2f5d3a;background:#9ccb3f;border-width:1px"></i>open</span><span><i style="border-color:#be0000"></i>canker</span><span><i style="border-color:#111;background:#111;width:9px;height:9px"></i>oil palm near</span></div>';
+  if(wait.length)h+='<div class="tc-need" id="fu-sh-need"><h4>NEEDS YOU · '+wait.length+' tree'+(wait.length===1?'':'s')+' finished by the crew</h4>Confirm each one, or send it back.</div>';
+  const n2=fuShToIssue().length;
+  if(n2)h+='<button class="tc-act" id="fu-sh-iss" onclick="fuShIssueGo()">ISSUE THE SHADE JOB · '+n2+' TREE'+(n2===1?'':'S')+' ›</button><div class="tc-g">Opens the job screen of The Programme: the days, the lots, a line for the crew.</div>';
+  const wm={}; wait.forEach(w=>{wm[w.t]=w;});
+  trees.forEach(t=>{
+    const d=fuShDec(t), j=wm[t]?wm[t].v:fuShJobOf(t), k=j?fuShTick(j.rec.uuid,t):null, nr=FU_MAP.near[t], lg=fuShLight(t);   // review 1: a tree finished in any job is the one shown
+    h+='<div class="fu-tr'+(k&&k.p==='OK'?' fu-ok':k&&k.p==='Y'?' fu-wait':j&&j.st==='iss'?' fu-due':'')+'" id="fu-sh-t-'+t+'"><div class="fu-h"><div><b>'+t+'</b> '+(nr?fuPill(nr[0]?'tc-a':'tc-b',nr[0]?(nr[0]+' PALM'+(nr[0]===1?'':'S')+' NEAR'):'NO PALM NEAR'):'')+
+      '<div class="tc-g" style="margin:2px 0 0">'+(nr?(nr[0]?('Within about 15 m: '+nr[0]+' oil palm'+(nr[0]===1?'':'s')+(nr[1].length?(' to the '+nr[1].join(', ')):'')+'; the nearest about '+nr[2]+' m.'):('No oil palm within 15 m: the nearest about '+nr[2]+' m. Look at what shades it.')):'Palms near it not counted: look on the ground.')+
+      ' Sunlight '+(lg.after?'after the work':'at the census')+': <b>'+esc(lg.l?FU_LIGHT[lg.l][0].toLowerCase():'—')+'</b>.</div></div></div>';
+    if(k&&k.p==='OK')h+='<div class="tc-g">✓ '+(d&&d.d==='CHOP'?(k.n+' palm'+(k.n===1?'':'s')+' felled'):(k.n+' fronds cut'))+' · confirmed'+(re.indexOf(t)>=0?' · <b>sunlight to be looked at again by the crew</b>':'')+'</div>';
+    else if(k&&k.p==='Y')h+='<div class="tc-g">The crew: '+(d&&d.d==='CHOP'?(k.n+' palm'+(k.n===1?'':'s')+' felled'):(k.n+' fronds cut'))+' · '+esc(ppFmtS(String(k.r.day||tcEff(k.r)).slice(0,10)))+'</div>'+
+      '<div class="fu-btns"><button class="tc-act" id="fu-sh-ok-'+t+'" onclick="fuShOwner(\''+t+'\',\''+ppArg(j.rec.uuid)+'\',\'OK\')">CONFIRM ✓</button><button class="tc-act tc-rd" id="fu-sh-back-'+t+'" onclick="fuShOwner(\''+t+'\',\''+ppArg(j.rec.uuid)+'\',\'BACK\')">SEND BACK</button></div>';
+    else if(j&&j.st==='iss')h+='<div class="tc-g">With the crew in '+esc(pjName(j))+': '+(d&&d.d==='CHOP'?('fell '+d.n+' palm'+(d.n===1?'':'s')):'trim the fronds')+(k&&k.p==='BACK'?' · <b>sent back</b>':'')+'.</div>';
+    else{h+='<div class="fu-dec">'+Object.keys(FU_DEC).map(x=>'<button id="fu-sh-'+t+'-'+x+'" class="'+(d&&d.d===x?'tc-on':'')+'" onclick="fuShSet(\''+t+'\',\''+x+'\')">'+FU_DEC[x][0]+'<small>'+FU_DEC[x][1]+'</small></button>').join('')+'</div>';
+      if(d&&d.d==='CHOP')h+='<div class="fu-st"><span>Palms to fell</span><button id="fu-sh-'+t+'-pm" onclick="fuShPalms(\''+t+'\',-1)">−</button><b id="fu-sh-'+t+'-pn">'+d.n+'</b><button id="fu-sh-'+t+'-pp" onclick="fuShPalms(\''+t+'\',1)">＋</button></div>';}
+    h+='</div>';});
+  return h;}
+/* ----- the crew: the shade job's tree list, on the job card ----- */
+async function fuShCrew(t,val){
+  const v=pjFind(PJC.key); if(!v||!fuIsShJob(v)||v.st!=='iss'||FUC.busy||tcHeld()||!tcTapOk('fusc'+t+val))return;
+  if(fuShTreesOf(v).indexOf(t)<0)return;
+  const k=fuShTick(v.rec.uuid,t); if(k&&k.p==='OK')return;
+  if(val===''&&(!k||k.p!=='Y'))return;
+  if(val===''&&FUC.arm!=='so'+t){fuArm('so'+t);return ppRender();}
+  FUC.arm='';
+  const d=fuShDec(t), n=Math.max(0,Math.round(FUC.sh[t]!=null?FUC.sh[t]:((k&&k.n)||(d&&d.d==='CHOP'?d.n:0))));
+  FUC.busy=true;
+  try{await fuWrite({k:'SHT',chk:FU_SH,iss:v.rec.uuid,tree:t,lot:fuLot(t),day:todayISO(),score:n,v:{pbz:val}});}finally{FUC.busy=false;}
+  tcHold(FU_TAP_MS);
+  toast(val==='Y'?(t+' · '+ppT('finished','siap')):(t+' · '+ppT('taken off','dibuang'))); ppRender();}
+/* a stepper counts every tap (no double-tap guard) */
+function fuShN(t,dlt){const v=pjFind(PJC.key); if(!v||!fuIsShJob(v))return; const k=fuShTick(v.rec.uuid,t), d=fuShDec(t);
+  const cur=FUC.sh[t]!=null?FUC.sh[t]:((k&&k.n)||(d&&d.d==='CHOP'?d.n:0)); FUC.sh[t]=Math.max(0,Math.min(99,cur+dlt)); ppRender();}
+function fuJobCardHTML(v){
+  if(!v||!v.rec)return '';
+  if(fuIsShJob(v)){const iss=v.rec.uuid, ts=fuShTreesOf(v);
+    const done=fuShTreesOf(v).filter(t=>{const k=fuShTick(iss,t);return k&&(k.p==='Y'||k.p==='OK');}).length;
+    let h='<div class="pp-q" id="fu-j-sh">'+ppT('EACH TREE','SETIAP POKOK')+' · '+done+' / '+ts.length+'</div>'+fuOldNote('fu-j-oldgs',1);
+    ts.forEach(t=>{const d=fuShDec(t), k=fuShTick(iss,t), chop=d&&d.d==='CHOP', n=FUC.sh[t]!=null?FUC.sh[t]:((k&&k.n)||(chop?d.n:0)), ok=k&&k.p==='OK', fin=k&&k.p==='Y', arm=FUC.arm==='so'+t;
+      h+='<div class="fu-tr'+(ok?' fu-ok':fin?' fu-wait':'')+'" id="fu-j-'+t+'"><div class="fu-h"><b>'+t+'</b>'+(ok?'<span class="pp-pill ok">✓ '+ppT('confirmed','disahkan')+'</span>':fin?'<span class="pp-pill amb">'+ppT('finished','siap')+'</span>':(k&&k.p==='BACK')?'<span class="pp-pill red">'+ppT('sent back','dipulangkan')+'</span>':'')+'</div>'+
+        '<div class="pp-g">'+(chop?ppT('Fell '+d.n+' oil palm'+(d.n===1?'':'s')+' that shade this tree','Tebang '+d.n+' pokok sawit yang meneduhkan pokok ini'):ppT('Cut the palm fronds that hang over this tree','Potong pelepah sawit yang menutup pokok ini'))+'</div>';
+      if(!ok&&v.st==='iss')h+='<div class="fu-st"><span>'+(chop?ppT('Palms felled','Sawit ditebang'):ppT('Fronds cut','Pelepah dipotong'))+'</span><button id="fu-j-'+t+'-m" onclick="fuShN(\''+t+'\',-1)">−</button><b id="fu-j-'+t+'-n">'+n+'</b><button id="fu-j-'+t+'-p" onclick="fuShN(\''+t+'\',1)">＋</button></div>'+
+        (fin?'<button class="pp-ghost'+(arm?' rd':'')+'" id="fu-j-'+t+'-off" onclick="fuShCrew(\''+t+'\',\'\')">'+(arm?ppT('TAP AGAIN: TAKE IT OFF','TEKAN LAGI: BUANG'):ppT('Not finished after all','Belum siap sebenarnya'))+'</button>'
+             :'<button class="pp-act" id="fu-j-'+t+'-ok" onclick="fuShCrew(\''+t+'\',\'Y\')">✓ '+ppT('FINISHED','SIAP')+'</button>');
+      h+='</div>';});
+    return h+'<div class="pp-g">'+ppT('The day, the people and the hours go on TANDA SIAP below, as for any job.','Hari, bilangan orang dan jam diisi pada TANDA SIAP di bawah, seperti kerja lain.')+'</div>';}
+  if(fuIsHoJob(v))return fuHoCardHTML(v);
+  return '';}
+/** The crew's sunlight look after the shade work (F5a), on the Kerja list. */
+function fuCrewLightHTML(){
+  if(myRole()!=='WORKER')return '';
+  const ts=fuShRecheck(); if(!ts.length)return '';
+  return '<div class="pp-mon" id="fu-k-light">☀ '+ppT('Sunlight after the shade work','Cahaya matahari selepas kerja teduhan')+'</div>'+ts.map(t=>
+    '<div class="pz-kleaf" id="fu-k-'+t+'"><b>'+t+' · '+ppT('How much sun does it get now?','Berapa banyak matahari sekarang?')+'</b><div class="pp-opts fu-o3">'+['O','P','S'].map(x=>'<button class="pp-opt" id="fu-k-'+t+'-'+x+'" onclick="fuLightSet(\''+t+'\',\''+x+'\')">'+ppT(FU_LIGHT[x][0],FU_LIGHT[x][1])+'</button>').join('')+'</div></div>').join('');}
+async function fuLightSet(t,x){
+  if(!tcCanAsk()||FUC.busy||tcHeld()||!FU_LIGHT[x]||!tcTapOk('ful'+t+x))return;
+  if(fuShRecheck().indexOf(t)<0)return;
+  FUC.busy=true;
+  try{await fuWrite({k:'SHL',chk:FU_SH,tree:t,lot:fuLot(t),day:todayISO(),v:{light:x}});}finally{FUC.busy=false;}
+  tcHold(FU_TAP_MS);   // review 1: the next tree's buttons move up under the thumb
+  toast(t+' · '+ppT(FU_LIGHT[x][0].toLowerCase(),FU_LIGHT[x][1].toLowerCase())); ppRender();}
+
+/* =========================== THE HOSE =========================== */
+function fuIsHoJob(v){if(!v)return false; if(v.code===FU_HO_CODE)return true; const x=v.rec?ppX(v.rec):null; return !!(x&&(x.code===FU_HO_CODE||x.fu==='HO'));}
+function fuHoJob(){const js=pjOn()?pjJobs():[]; return js.find(v=>v.planId==='J27|'+FU_HO_CODE)||js.filter(v=>v.rec&&fuIsHoJob(v)).pop()||null;}
+/** The trees of the lots the census says the hose does not reach (the ones he confirmed since stay on the list, as done). */
+function fuHoTrees(lots){return (lots||LOT_KEYS).reduce((a,L)=>a.concat(tcTrees(L).filter(t=>{const c=tcCenOk(t); return !!(c&&c.v&&c.v.hose==='N');})),[]);}
+function fuHoTick(iss,t){const r=tcState().hot[iss+'|'+t]; return r?{p:String((r.v&&r.v.pbz)||''),r:r}:null;}
+function fuHoSt(iss,t){
+  const a=tcCenOk(t);
+  if(pzHoseFixed(t,a))return 'ok';
+  const k=fuHoTick(iss,t); if(!k)return '';
+  const h=tcState().hose[t]; if(h&&!tcNewer(k.r,h))return '';   // review 1: a tick counts until his word on the hose; a later census does not take it away
+  return k.p==='Y'?'y':k.p==='BACK'?'back':'';}
+function fuHoWaiting(){const v=fuHoJob(); if(!v||!v.rec)return []; return fuHoTrees(v.lots).filter(t=>fuHoSt(v.rec.uuid,t)==='y');}
+async function fuHoTap(t){
+  const v=pjFind(PJC.key); if(!v||!fuIsHoJob(v)||v.st!=='iss'||FUC.busy||tcHeld()||!tcTapOk('fuho'+t))return;
+  if(fuHoTrees(v.lots).indexOf(t)<0)return;
+  const s=fuHoSt(v.rec.uuid,t); if(s==='ok')return;
+  if(s==='y'){ if(FUC.arm!=='ho'+t){fuArm('ho'+t);return ppRender();} FUC.arm=''; }
+  FUC.busy=true;
+  try{await fuWrite({k:'HOT',chk:'HO',iss:v.rec.uuid,tree:t,lot:fuLot(t),day:todayISO(),v:{pbz:s==='y'?'':'Y'}});}finally{FUC.busy=false;}
+  ppRender();}
+function fuHoCardHTML(v){
+  const iss=v.rec.uuid, ts=fuHoTrees(v.lots), st=t=>fuHoSt(iss,t), n=ts.filter(t=>st(t)==='y'||st(t)==='ok').length;
+  if(!ts.length)return '<div class="pp-note grn" id="fu-j-ho0">'+ppT('The census found no tree off the hose in these lots.','Banci tidak jumpa pokok tanpa hos dalam lot ini.')+'</div>';
+  return '<div class="pp-q" id="fu-j-ho">'+ppT('EACH TREE · WATER REACHES?','SETIAP POKOK · AIR SAMPAI?')+' · '+n+' / '+ts.length+'</div>'+fuOldNote('fu-j-oldgs2',1)+
+    '<div class="pp-g">'+ppT('Tap a tree when water from the hose reaches its trunk. To take a tick off, tap the tree twice.','Tekan pokok bila air dari hos sampai ke pangkal. Untuk buang tanda, tekan pokok itu dua kali.')+'</div>'+
+    '<div class="pz-grid" id="fu-ho-grid">'+ts.map(t=>{const s=st(t), arm=FUC.arm==='ho'+t, g=tcIsGraft(t);
+      return '<button class="pz-t'+(s==='ok'?' fu-hok':arm?' pz-arm':s==='y'?' pz-on':s==='back'?' pz-ns':'')+(g?' fu-gr':'')+'" id="fu-ho-'+t+'"'+((s==='ok'||v.st!=='iss')?' disabled':'')+' onclick="fuHoTap(\''+t+'\')">'+t+'<small>'+
+        (s==='ok'?ppT('on the hose','ada hos'):arm?ppT('tap again: take it off','tekan lagi: buang'):s==='y'?('✓ '+ppT('reaches','sampai')):s==='back'?ppT('sent back','dipulangkan'):g?ppT('graft','cantuman'):'&nbsp;')+'</small></button>';}).join('')+'</div>';}
+async function fuHoConfirm(){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fuhoc'))return;
+  const w=fuHoWaiting(); if(!w.length)return;
+  if(FUO.arm!=='hoc'){fuArm('hoc');tcHold(FU_TAP_MS);return tcRenderOwner();}
+  FUO.arm=''; tcHold(FU_TAP_MS);
+  for(const t of w)await fuWrite({k:'HOSE',chk:'CE1',tree:t,lot:fuLot(t),v:{hose:'Y'}});
+  toast(w.length+' tree'+(w.length===1?'':'s')+' on the hose. SURVEY and GATE 1 count them.'); tcRenderOwner();}
+async function fuHoBack(t){
+  if(myRole()!=='OWNER'||tcHeld()||!tcTapOk('fuhob'+t))return;
+  const v=fuHoJob(); if(!v||!v.rec||fuHoSt(v.rec.uuid,t)!=='y')return;
+  tcHold(FU_TAP_MS);
+  await fuWrite({k:'HOT',chk:'HO',iss:v.rec.uuid,tree:t,lot:fuLot(t),day:todayISO(),v:{pbz:'BACK'}});
+  toast(t+': sent back. It stays on the list.'); tcRenderOwner();}
+function fuSeeJob(k){openModule('prog'); if(typeof curModule!=='undefined'&&curModule!=='prog')return; if(typeof pjOpen==='function')pjOpen(k);}
+function fuHoHTML(){
+  const all=fuHoTrees(LOT_KEYS), v=fuHoJob(), w=fuHoWaiting();
+  let h='<div class="tc-sec">The hose · every tree on water</div>';
+  h+='<table class="tc-tbl" id="fu-ho-lots"><tr><th class="tc-l">Lot</th><th>On the hose</th><th>Not yet</th></tr>'+LOT_KEYS.map(L=>{const ts=tcTrees(L), off=ts.filter(t=>pzNoHose(t,tcCenOk(t))).length;
+    return '<tr><td class="tc-l"><b>Lot '+L+'</b></td><td>'+(ts.length-off)+' / '+ts.length+'</td><td>'+(off?('<b style="color:#c62828">'+off+'</b>'):'0')+'</td></tr>';}).join('')+'</table>';
+  if(!all.length)return h+'<div class="tc-note tc-ok" id="fu-ho-none">The census found no tree off the hose.</div>';
+  if(!v)h+='<div class="tc-note" id="fu-ho-nojob">The hose job HO1 is not on this season\'s plan.</div>';
+  else if(!v.rec||v.st==='plan')h+='<div class="tc-note" id="fu-ho-plan">HO1 · hose to every tree it does not reach · on your plan '+esc(pjRange(v.from,v.to))+'. Issue it and the crew gets the '+fuHoTrees(v.lots).length+' trees as a tick list.</div><button class="tc-act" id="fu-ho-open" onclick="fuSeeJob(\''+ppArg(v.key)+'\')">OPEN HO1 IN THE PROGRAMME ›</button>';
+  else h+='<div class="tc-note tc-b" id="fu-ho-st">'+esc(pjName(v))+' · HO1 · '+(v.st==='done'?'done':'with the crew '+esc(pjRange(v.from,v.to)))+'. '+fuHoTrees(v.lots).filter(t=>fuHoSt(v.rec.uuid,t)==='ok').length+' of '+fuHoTrees(v.lots).length+' trees on the hose.'+
+    ' <button class="tc-act tc-gh" id="fu-ho-open" onclick="fuSeeJob(\''+ppArg(v.key)+'\')">OPEN THE JOB ›</button></div>';
+  if(w.length)h+='<div class="tc-need" id="fu-ho-need"><h4>NEEDS YOU · '+w.length+' tree'+(w.length===1?'':'s')+' the crew says the water now reaches</h4>Tap a tree to send it back. Confirm the rest.'+
+    '<button class="tc-act'+(FUO.arm==='hoc'?' tc-arm':'')+'" id="fu-ho-cf" onclick="fuHoConfirm()">'+(FUO.arm==='hoc'?('TAP AGAIN TO CONFIRM '+w.length):('CONFIRM '+w.length+' ✓'))+'</button></div>';
+  const iss=v&&v.rec?v.rec.uuid:'';
+  h+='<div class="tc-sec">The trees off the hose at the census · '+all.length+'</div><div class="pz-grid" id="fu-ho-own">'+all.map(t=>{const s=iss?fuHoSt(iss,t):(pzHoseFixed(t,tcCenOk(t))?'ok':''), g=tcIsGraft(t);
+    return '<button class="pz-t'+(s==='ok'?' fu-hok':s==='y'?' pz-on':s==='back'?' pz-ns':'')+(g?' fu-gr':'')+'" id="fu-ho-o-'+t+'"'+(s==='y'?(' onclick="fuHoBack(\''+t+'\')"'):' disabled')+'>'+t+'<small>'+(s==='ok'?'on the hose':s==='y'?'crew: reaches':s==='back'?'sent back':g?'graft':'not yet')+'</small></button>';}).join('')+'</div>';
+  const gr=all.filter(t=>tcIsGraft(t)&&!(iss&&fuHoSt(iss,t)==='ok')&&!pzHoseFixed(t,tcCenOk(t)));
+  if(gr.length)h+='<div class="tc-g">'+gr.join(' and ')+(gr.length===1?' is a graft':' are grafts')+' (purple edge): until connected, 100 L by hand on every dry day.</div>';
+  h+='<div class="tc-g">A confirmed tree leaves the no-hose list on SURVEY and the hose line on GATE 1, as your own "hose reaches it" does there.</div>';
+  return h;}
+
+/* =========================== THE OWNER · Trees ▸ FOLLOW-UP =========================== */
+function fuNeed(){return {ck:fuCkWait().length,late:fuCkState().k==='late'?1:0,sh:fuShWaiting().length,ho:fuHoWaiting().length};}
+function fuNeedN(){const n=fuNeed(); return n.ck+n.sh+n.ho;}
+function fuSec(s){FUO.sec=s;FUO.arm='';tcRenderOwner();}
+function fuHTML(){
+  const n=fuNeed(), ck=fuCkOpen().length, sh=fuShTrees().length, ho=fuHoTrees(LOT_KEYS).filter(t=>pzNoHose(t,tcCenOk(t))).length;
+  let h=fuOldNote('fu-oldgs')+'<div class="tc-seg fu-seg3">'+[['ck','CANKER · '+ck+(n.ck?(' · '+n.ck+' ✓?'):'')],['sh','SHADE · '+sh+(n.sh?(' · '+n.sh+' ✓?'):'')],['ho','HOSE · '+ho+(n.ho?(' · '+n.ho+' ✓?'):'')]].map(x=>
+    '<button id="fu-tab-'+x[0]+'" class="'+(FUO.sec===x[0]?'tc-on':'')+'" onclick="fuSec(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>';
+  return h+(FUO.sec==='sh'?fuShHTML():FUO.sec==='ho'?fuHoHTML():fuCkHTML());}
+function fuAlert(){
+  if(myRole()!=='OWNER')return null;
+  const n=fuNeed(), bits=[];
+  if(n.ck)bits.push('🩹 '+n.ck+' canker tree'+(n.ck===1?'':'s')+' marked dry');
+  if(n.late)bits.push('🩹 the canker round is late');
+  if(n.ho)bits.push('🚿 '+n.ho+' tree'+(n.ho===1?'':'s')+' on the hose to confirm');
+  if(n.sh)bits.push('🌴 '+n.sh+' shade tree'+(n.sh===1?'':'s')+' to confirm');
+  return bits.length?{hot:true,txt:bits.join(' · ')+' — Trees ▸ FOLLOW-UP'}:null;}
 
 // ---- the Owner's month sheet, in the estate's layout ---------------------------------
 function rnMonths(){
