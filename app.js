@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.92.0';   // v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.93.0';   // v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -18725,7 +18725,7 @@ function dispTotals(retId,src){
          fruit average 1.30 kg — Grade B by the farm's own band table — was approved and
          invoiced at RM 40/kg instead of RM 30. On 45.5 kg that is RM 455 over-invoiced, on
          one basket, with the detection already made and discarded. It now travels. */
-      band_grade:c.sugg||'', band_ok:(!c.sugg||c.sugg===l.grade)});});
+      band_grade:c.sugg||'', band_ok:(!c.sugg||c.sugg===l.grade), ...kfLineTag(l)});});   // v3.93.0 - kf_st, kf_kept
   return {lines:lines, fruit_count:fruits,
     total_gross_kg:+gross.toFixed(2), total_tare_kg:+tare.toFixed(2),
     total_kg:+net.toFixed(2), total_value_rm:+val.toFixed(2),
@@ -18904,7 +18904,7 @@ function retailerCardHtml(id){
       '<tr><th>Invoice</th><th class="num">Net kg</th><th class="num">Value</th><th></th></tr>'+
       mine.map(e=>'<tr><td><div class="pn">'+
         (e.invoice_no?('<span class="invno">'+esc(e.invoice_no)+'</span>'):'—')+
-        (e.over_credit?' <span class="cstat r">OVERRIDE</span>':'')+
+        (e.over_credit?' <span class="cstat r">OVERRIDE</span>':'')+kfPillHtml(e)+   /* v3.93.0 */
         (dup[e.invoice_no]?' <span class="cstat r">DUP</span>':'')+'</div>'+
         '<div class="pa">'+esc(e.dt)+(e.synced?'':' · queued')+'</div></td>'+
         '<td class="num">'+nf(e.total_kg)+'</td>'+
@@ -19342,6 +19342,10 @@ function scaleBlockers(){
   if(noW.length)out.push(tr('e_needbweight')+' '+noW.join(', '));
   if(noC.length)out.push(tr('e_needcount')+' '+noC.join(', '));
   if(noP.length)out.push(tr('e_needbphoto')+' '+noP.join(', '));
+  {const noK=[]; L.forEach((l,i)=>{if(!kfPass(l))noK.push(i+1);});   // v3.93.0 - the count and the weight must agree
+   if(noK.length)out.push(tr2('Count and weight do not agree — basket','Kiraan dan berat tidak sepadan — bakul')+' '+noK.join(', '));
+   const noD=[]; if(W_DEST!=='DUMP')L.forEach((l,i)=>{if(kfDumped(l)&&kfJudge(l).st!=='ok')noD.push(i+1);});
+   if(noD.length)out.push(tr2('Marked FOR THE DUMP — send this load to DUMP, or count again: basket','Ditanda UNTUK DIBUANG — hantar ke BUANG, atau kira semula: bakul')+' '+noD.join(', '));}
   if(D.money&&!wRetailer())out.push(tr('e_pickmerchant'));
   if(D.receiver&&!W_RECV.trim())out.push(tr('e_needreceiver','Say who is receiving this fruit'));
   if(D.receiver&&!FOC_REASONS[W_REASON])out.push(tr('e_needreason','Choose a reason'));
@@ -19488,7 +19492,7 @@ function wGoTap(s){uiTap(function(){wGo(s);});}
    she sells herself. */
 function wPhotoRequired(){return !canDispatch();}
 function wDone(l){return !!(l&&lineCalc(l,NO_PRICE).net>0&&Math.floor(+l.fruits||0)>0&&
-  (l.photo||!wPhotoRequired()));}
+  (l.photo||!wPhotoRequired())&&kfPass(l));}   // v3.93.0 (K1a K4a) - and the count fits the weight
 /** v3.37.3 — WHAT THIS BASKET STILL NEEDS, IN THE WORKER'S OWN WORDS.
  *  wDone() is three conditions and the button was the only thing that ever mentioned them
  *  — by going grey. The Owner keyed a weight, saw nothing happen, and reported that the
@@ -19503,6 +19507,7 @@ function wBasketNeeds(l){
   if(!(lineCalc(l,NO_PRICE).net>0))out.push(tr('nr_need_w','the gross reading from the scale'));
   if(!(Math.floor(+l.fruits||0)>0))out.push(tr('nr_need_c','how many fruit are in it'));
   if(!l.photo&&wPhotoRequired())out.push(tr('nr_need_p','a photograph of the scale display'));
+  {const kn=kfNeed(l); if(kn)out.push(kn);}   // v3.93.0
   return out;}
 /** A weight no basket of durian has ever had. Warns, never blocks — the fruit is real even
  *  when the decimal point is not, and a worker refused by a machine goes back to paper. */
@@ -19942,7 +19947,7 @@ function wReasonTap(k){uiTap(function(){W_REASON=k; renderScaleCard();});}
 /** A scale line with the picture taken off it, ready for repriceLines(). */
 function nrBareLine(l){
   const c=lineCalc(l,NO_PRICE);
-  return {clone:l.clone,grade:l.grade,net_kg:c.net,gross_kg:c.gross,tare_kg:c.tare,fruits:c.fruits};}
+  return {clone:l.clone,grade:l.grade,net_kg:c.net,gross_kg:c.gross,tare_kg:c.tare,fruits:c.fruits,...kfLineTag(l)};}   // v3.93.0
 
 function renderScaleCard(){
   const box=$('scalebox'); if(!box)return;
@@ -19971,7 +19976,7 @@ function nrOddHTML(l){
   const odd=wOddWeight(l);
   return (odd?('<div class="nr-odd">⚠ '+esc(tr('nr_odd','That is one basket of'))+' <b>'+nkg(odd)+
     ' kg</b>. '+esc(tr('nr_odd2','Check the decimal point — you can still send it if it is right.'))+
-    '</div>'):'')+nrBandHTML(l);}
+    '</div>'):'')+kfPanelHTML(l);}   // v3.93.0 - the check, with its three ways on (was nrBandHTML)
 
 /* ===================== v3.67.0 · WHAT THE SCALE SAYS THIS FRUIT IS ====================
    Asked for by the Owner on 29 Aug, after INV-20260829-003 left the gate as Grade A at
@@ -20452,7 +20457,7 @@ async function submitScaleFoc(){
         clone:l.clone, grade:l.grade, fruit_n:c.fruits, kg:c.net,
         gross_kg:c.gross, tare_kg:c.tare, photo:l.photo||'',
         layers:s.layers||[], layers_short:!!s.layers_short,
-        batch:batch, note:W_NOTE.trim()});
+        batch:batch, note:W_NOTE.trim(), ...kfFocTag(l)});   // v3.93.0 - the keep (and a dump against the weight) travels on the free door too
       if(res&&res.ok)mine.push(res.ev);}
     // The Gate weighing her own ration is the person who would answer the request. She
     // answers it in the same breath — one decision row per basket, exactly as if she had
@@ -22007,7 +22012,7 @@ function gradeDoubt(e){
     // carry it — fall back to the name table before the bare code, so the card never says
     // "MK" to someone who reads in "Musang King"
     return {clone:x.clone,name:x.clone_name||CLONE_NAME[x.clone]||x.clone,
-            keyed:x.grade,band:band,avg:avg,
+            keyed:x.grade,band:band,avg:avg,kept:x.kf_kept||'',   // v3.93.0
             net:+x.net_kg||0,
             gap:+(((+x.net_kg||0)*(priceOf(x.clone,x.grade,e.retailer_id)
                                   -priceOf(x.clone,band,e.retailer_id))).toFixed(2))};
@@ -22018,7 +22023,7 @@ function gradeDoubtHtml(e){
     '<div class="gdh">⚠ CHECK THE SORT BEFORE YOU APPROVE</div>'+
     d.map(x=>'<div class="gdr"><b>'+esc(x.name)+'</b> — keyed <b>Grade '+esc(x.keyed)+'</b>, '+
       'but '+nf(x.net)+' kg over '+Math.round(x.net/x.avg)+' fruit averages <b>'+nf(x.avg)+' kg</b>, '+
-      'which falls in <b>Grade '+esc(x.band)+'</b>.'+
+      'which falls in <b>Grade '+esc(x.band)+'</b>.'+(x.kept?(' <b>'+esc(x.kept)+' pressed THE COUNT IS RIGHT.</b>'):'')+
       (x.gap>0?(' Approving as keyed invoices <b>'+rm(x.gap)+'</b> more than Grade '+esc(x.band)+'.'):'')+
       '</div>').join('')+
     '<div class="gdf">Either the sort is wrong or the fruit count is. Return it to the worker '+
@@ -24047,6 +24052,112 @@ function rcCardMoneyHtml(id){
   if(isCashSettled(id)||!canSetCredit())return '';
   if(RCP&&RCP.id===id)return rcPayHtml(id);
   return '<button class="bigbtn rv-paybtn" id="rv-pay-open" onclick="rcPayOpen(\''+esc(id)+'\')">💵 '+esc(tr2('RECEIVE PAYMENT','TERIMA BAYARAN'))+'</button>'+rcLastPayHtml(id);}
+
+/* ======================= v3.93.0 · KG PER FRUIT AT THE SCALE =======================
+   The Owner, 11 Oct 2026, on the sample DMS_Kg_Per_Fruit_sample.html: "ok" = K1a K2a K3a K4a K5a.
+   THE FAULT IT ENDS (book 03, "why the count leaks"): fruit go into the shed COUNTED at the tree and come
+   out TYPED at the scale, checked against nothing. INV-20260824-001: 38.0 kg keyed as 30 MK Grade A =
+   1.27 kg a fruit, where its neighbours ran 1.79-1.90 - about 9 fruit drained from the shed that were
+   never in the basket. Last season 30 of 124 Grade A lines were under 1.5 kg a fruit.
+     K1a  a basket whose average fruit does not fit its grade STOPS at the weigh step, three ways on:
+          COUNT AGAIN (the - + above), CHANGE TO GRADE x (the grade the weight says), or THE COUNT IS
+          RIGHT (two taps; the basket carries kf_kept = who pressed it)
+     K2a  the bands are the farm's own, GRADE_BAND as it is (MK A >= 1.5, B 1.2-1.5, C < 1.2)
+     K3a  heavier than the grade stops too (a B basket that weighs like A)
+     K4a  an average under 0.6 kg or over 4 kg a fruit is impossible: refused, count again, no keep
+          (Banana too - it has no band, only this)
+     K5a  a kept basket is marked on the invoice line, the Gate's verify card, and Command > Today
+   THE KEEP IS FOR THESE NUMBERS ONLY: it is stamped with the clone, grade, count, gross and basket it
+   was pressed on (kfSig), and any change to one of them asks again.
+   Stored: kf_st (ok/light/heavy) and kf_kept on each line of the load - they ride inside lines_json,
+   which every road already carries (DISPATCH_REQ, DISPATCH). No Apps Script change. */
+const KF_MIN=0.6, KF_MAX=4.0;
+let KF_ARM='', KF_ARM_T=0;
+/** What the weight says about this basket's count and grade. */
+function kfJudge(l){
+  if(!l)return {st:'none'};
+  const n=Math.floor(+l.fruits||0), net=+lineCalc(l,NO_PRICE).net||0;
+  if(!(n>0&&net>0))return {st:'none'};
+  const a=+(net/n).toFixed(2);
+  if(a<KF_MIN||a>KF_MAX)return {st:'imp',a:a};
+  if(isShapeGrade(l.grade))return {st:'ok',a:a};
+  const b=bandOf(l.clone,l.grade); if(!b)return {st:'ok',a:a};
+  if(a<b.min)return {st:'light',a:a,want:gradeForWeight(l.clone,a)};
+  if(b.max!=null&&a>=b.max)return {st:'heavy',a:a,want:gradeForWeight(l.clone,a)};
+  return {st:'ok',a:a};}
+function kfSig(l){return [l.clone,l.grade,Math.floor(+l.fruits||0),+l.gross||0,l.basket].join('|');}
+/** Kept against the weight, for exactly these numbers. */
+function kfKept(l){return !!(l&&l.kfk&&l.kfsig===kfSig(l));}
+/** Review 1: rotten or eaten fruit weighs like no grade. FOR THE DUMP lets that basket on - only to DUMP
+ *  (scaleBlockers refuses it anywhere else), so nobody has to key a false count to throw fruit away. */
+function kfDumped(l){return !!(l&&l.kfd&&l.kfd===kfSig(l));}
+/** May this basket go? (wDone and scaleBlockers both ask) */
+function kfPass(l){const j=kfJudge(l);
+  if(j.st==='none'||j.st==='ok')return true;
+  if(kfDumped(l))return true;
+  if(j.st==='imp')return false;
+  return kfKept(l);}
+/** The one line for "this basket still needs" and the lock panel. */
+function kfNeed(l){const j=kfJudge(l); if(kfDumped(l))return '';
+  if(j.st==='imp')return tr2('a fruit count the weight can hold ('+nkg(j.a)+' kg a fruit is not a durian)','kiraan buah yang sesuai dengan berat ('+nkg(j.a)+' kg sebiji bukan durian)');
+  if((j.st==='light'||j.st==='heavy')&&!kfKept(l))return tr2('the count or the grade fixed: '+nkg(j.a)+' kg a fruit is Grade '+j.want+', not '+l.grade,'kiraan atau gred dibetulkan: '+nkg(j.a)+' kg sebiji ialah Gred '+j.want+', bukan '+l.grade);
+  return '';}
+/** The panel under the basket on the weigh step (it replaces the quiet v3.67.0 band line). */
+function kfPanelHTML(l){
+  if(!l)return '';
+  const j=kfJudge(l); if(j.st==='none')return '';
+  const k=esc(l.k);
+  if(kfDumped(l)&&j.st!=='ok')return '<div class="kf-kept" id="kf-dump">🗑 <b>'+nkg(j.a)+' kg</b> '+esc(tr2('a fruit — marked FOR THE DUMP. This load can only go to DUMP.','sebiji — ditanda UNTUK DIBUANG. Muatan ini hanya boleh ke BUANG.'))+'</div>'+
+    '<button class="kf-btn" id="kf-undump" onclick="kfDumpTap(\''+k+'\',0)">'+esc(tr2('NOT FOR THE DUMP','BUKAN UNTUK DIBUANG'))+'</button>';
+  if(j.st==='ok'){
+    if(isShapeGrade(l.grade))return '';
+    return '<div class="nr-band ok" id="kf-ok">✓ '+esc(tr2('Average','Purata'))+' <b>'+nkg(j.a)+' kg</b> '+esc(tr2('a fruit — fits Grade ','sebiji — sesuai Gred '))+esc(l.grade)+' '+esc(bandShort(l.clone,l.grade))+'</div>';}
+  const dumpBtn='<button class="kf-btn" id="kf-dumpit" onclick="kfDumpTap(\''+k+'\',1)">🗑 '+esc(tr2('FOR THE DUMP — rotten or eaten','UNTUK DIBUANG — busuk atau dimakan'))+'</button>';
+  if(j.st==='imp')return '<div class="kf-stop" id="kf-stop"><b>'+nkg(j.a)+' kg</b> '+esc(tr2('a fruit — no durian weighs that. Count again with − ＋ above.','sebiji — tiada durian seberat itu. Kira semula dengan − ＋ di atas.'))+'</div>'+dumpBtn;
+  if(kfKept(l))return '<div class="kf-kept" id="kf-kept">⚠ <b>'+nkg(j.a)+' kg</b> '+esc(tr2('a fruit is Grade ','sebiji ialah Gred '))+esc(j.want)+'. '+esc(tr2('Count kept against the weight by ','Kiraan dikekalkan oleh '))+'<b>'+esc(l.kfk)+'</b>'+esc(tr2(' — the basket is marked.',' — bakul ini ditanda.'))+'</div>';
+  const exp=Math.round((+lineCalc(l,NO_PRICE).net||0)/((typeof AVG_KG!=='undefined'&&AVG_KG[l.clone])||1.7));
+  const arm=KF_ARM===l.k+'#'+kfSig(l);
+  return '<div class="kf-stop" id="kf-stop"><b>'+nkg(j.a)+' kg</b> '+esc(tr2('a fruit — that is Grade ','sebiji — itu Gred '))+'<b>'+esc(j.want)+'</b>'+esc(tr2(', not ',', bukan '))+esc(l.grade)+'.'+
+    '<small>'+esc(tr2('Either the count is wrong (at the usual weight this basket is about '+exp+' fruit), or the grade is.','Sama ada kiraan salah (pada berat biasa bakul ini lebih kurang '+exp+' biji), atau gred salah.'))+'</small></div>'+
+    '<button class="kf-btn" id="kf-recount" onclick="kfRecount(\''+k+'\')">'+esc(tr2('COUNT AGAIN — use − ＋ above','KIRA SEMULA — guna − ＋ di atas'))+'</button>'+
+    '<button class="kf-btn" id="kf-tograde" onclick="kfToGradeTap(\''+k+'\',\''+esc(j.want)+'\')">'+esc(tr2('CHANGE TO GRADE ','TUKAR KE GRED '))+esc(j.want)+'</button>'+
+    '<button class="kf-btn kf-keep'+(arm?' arm':'')+'" id="kf-keep" onclick="kfKeepTap(\''+k+'\')">'+esc(arm?tr2('TAP AGAIN: I COUNTED TWICE','TEKAN LAGI: SAYA SUDAH KIRA DUA KALI'):tr2('THE COUNT IS RIGHT','KIRAAN BETUL'))+'</button>'+dumpBtn;}
+function kfDumpTap(k,on){uiTap(function(){const l=wlFind(k); if(!l)return; KF_ARM=''; l.kfd=on?kfSig(l):''; l.kfdBy=on?((CFG&&CFG.worker)||'?'):''; nrArm(l); wCalc(); wGate();});}   // review 2: who marked it
+function kfRecount(k){const e=$('wn-'+k+'-fruits'); if(e){if(e.scrollIntoView)e.scrollIntoView({block:'center'}); try{e.focus();e.select();}catch(x){}}}
+function kfToGradeTap(k,g){uiTap(function(){const l=wlFind(k); if(!l||!hasGrade(l.clone,g))return; KF_ARM=''; wlSet(k,'grade',g); renderScaleCard();});}
+function kfKeepTap(k){uiTap(function(){kfKeep(k);});}
+/** Two taps; the second writes who kept it, against these numbers. */
+function kfKeep(k){
+  const l=wlFind(k); if(!l)return; const j=kfJudge(l);
+  if(j.st!=='light'&&j.st!=='heavy')return;
+  const key=k+'#'+kfSig(l);   // review 1: armed for these numbers only - a change of count disarms it
+  if(KF_ARM!==key){KF_ARM=key; if(KF_ARM_T)clearTimeout(KF_ARM_T); KF_ARM_T=setTimeout(function(){if(KF_ARM===key){KF_ARM=''; const m=wlFind(k); if(m&&W_CUR===k&&WSTEP==='weigh')nrArm(m);}},6000); nrArm(l); return;}
+  KF_ARM=''; l.kfk=(CFG&&CFG.worker)||'?'; l.kfsig=kfSig(l); l.kfat=nowSec();
+  nrArm(l); wCalc(); wGate();}
+/** What travels on the line of the load (dispTotals). */
+function kfLineTag(l){const j=kfJudge(l); return {kf_st:j.st==='none'?'':((j.st!=='ok'&&kfDumped(l))?'dump':j.st), kf_kept:(j.st!=='ok'&&!kfDumped(l)&&kfKept(l))?String(l.kfk):''};}
+/** A ration or a gift kept against the weight: the field on this phone, the note's copy from the Sheet. */
+function kfFocKept(e){return String((e&&e.kf_kept)||((typeof focMeta==='function'&&focMeta(e))||{}).k||'');}
+/** Review 2: who marked a basket FOR THE DUMP against the weight (the field, or the note's copy). */
+function kfFocDumped(e){return String((e&&e.kf_dump)||((typeof focMeta==='function'&&focMeta(e))||{}).d||'');}
+/** What the free door carries for one basket. */
+function kfFocTag(l){const j=kfJudge(l), d=(j.st!=='ok'&&j.st!=='none'&&kfDumped(l));
+  return {kf_kept:kfLineTag(l).kf_kept, kf_dump:d?String(l.kfdBy||'?'):'', kf_avg:(d||kfLineTag(l).kf_kept)?j.a:0};}
+/** The baskets of a load kept against the weight. */
+function kfKeptLines(e){return reqLines(e).filter(function(x){return x&&x.kf_kept;});}
+function kfPillHtml(e){const n=kfKeptLines(e).length; return n?(' <span class="cstat kf-pill" title="count kept against the weight">⚖️ KEPT'+(n>1?(' ×'+n):'')+'</span>'):'';}
+/** K5a: one line for Command > Today - the baskets kept today, on invoices and on loads waiting at the Gate. */
+function kfAlert(){
+  const t=String(now()).slice(0,10), who={}; let n=0;
+  const loads=EVENTS.filter(function(e){return e&&e.type==='DISPATCH'&&String(e.dt||'').slice(0,10)===t;})
+    .concat((typeof pendingDispatches==='function')?pendingDispatches().filter(function(e){return String(e.dt||'').slice(0,10)===t;}):[]);
+  loads.forEach(function(e){kfKeptLines(e).forEach(function(x){n++; who[x.kf_kept]=1;});});
+  let dn=0;
+  EVENTS.filter(function(e){return e&&e.type==='FOC_REQ'&&String(e.dt||'').slice(0,10)===t&&(typeof focStatusOf!=='function'||focStatusOf(e.uuid)!==FOC_STATUS.REFUSED);})   // review 2: a refused ration did not leave
+    .forEach(function(e){const w=kfFocKept(e); if(w){n++; who[w]=1;} const d=kfFocDumped(e); if(d){dn++; who[d]=1;}});   // review 1/2: the free door too
+  if(!n&&!dn)return null;
+  return {hot:false,txt:(n?('⚖️ '+n+' '+tr2(n===1?'basket':'baskets','bakul')+' '+tr2('kept against the weight','dikekalkan walaupun berat tidak sepadan')):'')+
+    (dn?((n?' · ':'')+'🗑 '+dn+' '+tr2(dn===1?'basket':'baskets','bakul')+' '+tr2('dumped against the weight','dibuang walaupun berat tidak sepadan')):'')+' '+tr2('today','hari ini')+' ('+Object.keys(who).join(', ')+')'};}
 
 // ======================= v3.2 DUAL-SIGNATURE YIELD AUDIT =============================
 // Two signatures on the same night's fruit: the worker who COUNTED it at the tree, and
@@ -29296,6 +29407,9 @@ function focPackNote(note,meta){
   if(meta.batch)o.b=String(meta.batch);
   if(meta.photo)o.p=1;
   if(meta.short)o.s=1;
+  if(meta.kept)o.k=String(meta.kept);   // v3.93.0 - who kept the count against the weight
+  if(meta.dump)o.d=String(meta.dump);   // v3.93.0 - who sent it to the dump against the weight
+  if((meta.kept||meta.dump)&&meta.avg)o.a=+meta.avg;
   if(meta.layers&&meta.layers.length)
     o.l=meta.layers.map(L=>[String(L.day||''),String(L.lot||'?'),Math.max(0,Math.floor(+L.n||0))]);
   if(!Object.keys(o).length)return n;
@@ -29349,9 +29463,9 @@ async function focRequest(o){
     value_rm:+(kg*rate).toFixed(2),rate_rm_kg:rate,
     layers:layers,
     gross_kg:+o.gross_kg||0, tare_kg:+o.tare_kg||0,
-    photo_b64:String(o.photo||''),
+    photo_b64:String(o.photo||''), kf_kept:String(o.kf_kept||''), kf_dump:String(o.kf_dump||''), kf_avg:+o.kf_avg||0,   // v3.93.0
     note:focPackNote(o.note,{batch:o.batch||'',photo:!!o.photo,
-      short:!!o.layers_short,layers:layers}),
+      short:!!o.layers_short,layers:layers,kept:o.kf_kept||'',dump:o.kf_dump||'',avg:+o.kf_avg||0}),
     worker:CFG.worker,workerId:(CFG&&CFG.uid)||'',device:CFG.device,synced:false};
   await persistEvent(ev);
   return {ok:true,ev:ev};}
@@ -30666,6 +30780,7 @@ function ownAlerts(){
   const top=out.slice(0,3);
   if(typeof tcOwnAlert==='function'){try{const t=tcOwnAlert(); if(t)top.push(t);}catch(x){}}
   if(typeof rcAlert==='function'){try{const t=rcAlert(); if(t)top.push(t);}catch(x){}}   // v3.92.0 (C8a) - owed to the farm
+  if(typeof kfAlert==='function'){try{const t=kfAlert(); if(t)top.push(t);}catch(x){}}   // v3.93.0 (K5a) - baskets kept against the weight
   return top;}
 
 /** The three lines that turn "what happened" into "what to do next". */
