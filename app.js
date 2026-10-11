@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.89.0';   // v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.90.0';   // v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -1592,7 +1592,8 @@ function roleAllows(id){
        his month sheet. NOT `full`: the Gate has no part in the rain record. */
     case 'hujancard': return r==='OWNER'||r==='WORKER';
     case 'tccard': return r==='OWNER';   // v3.79.0 — results, lists and the PBZ yes / no are the Owner's
-    case 'opsassign': case 'labourcard': case 'agroweather': return full;
+    case 'labourcard': return full&&r!=='MARKETING';   // v3.90.0 (L2a) - the Gate sees the total, not the people or the rates
+    case 'opsassign': case 'agroweather': return full;
     case 'agrorain': case 'agromonth': case 'agrorecord': case 'tyingcard':
     case 'wavecard': case 'mktpanel': return full;
     // v3.0 — the tally clicker is a field tool: worker + Owner/Marketing, never the Purchaser
@@ -7722,7 +7723,7 @@ async function ppFileDone(rec,o,logKind){
   const issued=(x.lots&&x.lots.length)?x.lots:ppLots();
   if(issued.every(L=>lots.indexOf(L)>=0))rec.status='CLOSED';
   if(x.notice)x.notice.seen=true;
-  ppLog(x,Object.assign({k:logKind||'done',d:o.date,lots:o.lots.slice(),tanks:+o.tanks||0,crew:Math.round(+o.crew||0),hours:+o.hours||0},fin?{fin:fin}:{},(+o.ckL>0)?{ckL:+o.ckL}:{}));
+  ppLog(x,Object.assign({k:logKind||'done',d:o.date,lots:o.lots.slice(),tanks:+o.tanks||0,crew:Math.round(+o.crew||0),hours:+o.hours||0},fin?{fin:fin}:{},(+o.ckL>0)?{ckL:+o.ckL}:{},Array.isArray(o.names)?{names:o.names.map(n=>pjClip(n,PJ_NAME_LEN)).filter(Boolean).slice(0,PJ_PEOPLE_MAX),oth:Math.max(0,Math.round(+o.oth||0))}:{}));   // v3.90.0 (P1a) - who worked
   await ppSave(rec,false);
   if(typeof LAST_CREW!=='undefined'&&+o.crew>0){LAST_CREW={crew:Math.round(+o.crew),hours:+o.hours||0};
     if(db)await put('kv',{k:'lastcrew',v:LAST_CREW});}
@@ -8874,7 +8875,10 @@ function pjCfgRec(){return (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).find(p=>p
 function pjCfg(){
   const r=pjCfgRec(), x=r?ppX(r):null, seen={};
   const names=((x&&Array.isArray(x.names))?x.names:[]).map(n=>pjClip(n,PJ_NAME_LEN)).filter(n=>{const k=n.toLowerCase();if(!n||seen[k])return false;seen[k]=1;return true;}).slice(0,PJ_NAMES_MAX);
-  return {names:names,day:(x&&+x.day>0)?+x.day:0,rec:r};}
+  /* v3.90.0 - each name's pay, the oil-palm rate; a supervisor is out of the tick list */
+  const ppl={}; if(x&&x.ppl&&typeof x.ppl==='object'&&!Array.isArray(x.ppl))Object.keys(x.ppl).slice(0,PJ_NAMES_MAX*2).forEach(k=>{const n=pjClip(k,PJ_NAME_LEN), p=lpPersonOk(x.ppl[k]); if(n&&p&&p.k)ppl[n]=p;});
+  const sups=Object.keys(ppl).filter(n=>ppl[n].k==='sup').sort();
+  return {names:names.filter(n=>!(ppl[n]&&ppl[n].k==='sup')),day:(x&&+x.day>0)?+x.day:0,rec:r,ppl:ppl,op:(x&&+x.op>0)?lpNum(x.op):0,sups:sups};}
 async function pjCfgSave(make){
   if(!ppIsOwner())return false;
   let rec=pjCfgRec(), isNew=false;
@@ -8903,6 +8907,7 @@ function pjRm(pay,r){
   return pay.b==='piece'?(+r.cnt||0)*pay.rm:(r.n*r.h/PJ_DAY_H)*pay.rm;}
 function pjPayTxt(pay){
   if(!pay)return 'not keyed';
+  if(pay.b==='ppl')return 'by the people';   // v3.90.0
   return pay.b==='piece'?('RM '+pjN2(pay.rm)+' a '+pay.unit):('RM '+pjN2(pay.rm)+' a day');}
 /** A set's own rate (by day only: its form has no count). */
 function pjSetPay(v){const x=(v&&v.rec)?ppX(v.rec):null, p=x?pjPayOk(x.pay):null;return (p&&p.b==='day')?p:null;}
@@ -8915,14 +8920,22 @@ function pjSetReps(v){
   (Array.isArray(x&&x.log)?x.log:[]).forEach((e,i)=>{
     if(!e||(e.k!=='done'&&e.k!=='rec')||!(+e.crew>0)||!(+e.hours>0))return;
     out.push({rid:'S'+v.key+'#'+i,set:true,d:String(e.d||'').slice(0,10),lots:Array.isArray(e.lots)?e.lots.slice():[],n:Math.round(+e.crew),h:+e.hours,cnt:0,end:true,
-      names:[],at:String(e.at||''),by:String(e.by||''),undone:null});});
+      names:Array.isArray(e.names)?e.names.map(n=>pjClip(n,PJ_NAME_LEN)).filter(Boolean):[],oth:Array.isArray(e.names)?Math.max(0,Math.round(+e.oth||0)):0,legacy:!Array.isArray(e.names),   // v3.90.0 (P1a)
+      at:String(e.at||''),by:String(e.by||''),undone:null});});
+  if(v&&v.rec&&typeof EVENTS!=='undefined'){const seen={}, orph={};   // v3.90.0 (review 1)
+    out.forEach(r=>r.lots.forEach(L=>{seen[r.d+'|'+L]=1;}));
+    EVENTS.forEach(e=>{if(!e||e.type!=='STOCK_OUT'||!(+e.hours>0)||!progRowMatches(e,v.rec.uuid))return; const d=String(e.dt||'').slice(0,10); if(seen[d+'|'+e.lot])return;
+      const k=e.replyId?String(e.replyId):(d+'|'+e.lot), o=orph[k]||(orph[k]={rid:'S'+v.key+'#x'+k,set:true,d:d,lots:[],n:Math.round(+e.crew||0),h:+e.hours||0,cnt:0,end:true,names:[],oth:0,legacy:true,orphan:true,at:'',by:String(e.worker||''),undone:null});
+      if(o.lots.indexOf(e.lot)<0)o.lots.push(e.lot);});
+    Object.keys(orph).forEach(k=>{const o=orph[k]; if(o.n>0&&o.h>0&&lpNew(o.d)){o.lots.sort();out.push(o);}});}
   if(!out.length&&v&&v.done&&+v.done.mh>0){
     const c=+v.done.crew||0, hh=+v.done.hours||0;
     out.push({rid:'S'+v.key+'#d',set:true,d:String(v.done.date||'').slice(0,10),lots:(v.done.lots||[]).slice(),n:c>0?c:1,h:c>0&&hh>0?(+v.done.mh/c):+v.done.mh,cnt:0,end:true,
-      names:[],at:'',by:String(v.done.by||''),undone:null});}
+      names:[],oth:0,legacy:true,at:'',by:String(v.done.by||''),undone:null});}
   return out;}
 /** Every line of the work record: jobs, other work, and the sets that carry people and hours. */
-function pjWorkRows(){
+/** v3.90.0 - the raw lines (the old way of pricing); pjWorkRows() prices the season's lines by lpBook(). */
+function pjWorkRows0(){
   const out=[], jobs=pjJobs(), byPid={}; jobs.forEach(v=>{byPid[v.pid]=v;});
   pjReps().forEach(r=>{
     const v=r.job?byPid[r.job]:null;
@@ -8930,10 +8943,16 @@ function pjWorkRows(){
     const oth=PJ_OTHER.find(o=>o[0]===r.oth);
     const pay=pjPay(v?v.pay:null);
     out.push({r:r,src:v?'job':'oth',v:v,name:v?pjName(v):(oth?oth[1]:(r.label||'Other work')),sub:v?pjKindW(v):'',pay:pay,rm:r.undone?null:pjRm(pay,r)});});
-  ppSets().forEach(v=>{ if(v.st==='skip'||v.st==='plan')return;
+  ppSets().forEach(v=>{ if(v.st==='plan')return;   // v3.90.0 (review 4) - a set skipped after some lots were done keeps their work
     const pay=pjPay(pjSetPay(v));
     pjSetReps(v).forEach(r=>{out.push({r:r,src:'set',v:v,name:ppName(v),sub:'',pay:pay,rm:pjRm(pay,r)});});});
   out.sort((a,b)=>String(b.r.d).localeCompare(String(a.r.d))||String(b.r.at).localeCompare(String(a.r.at))||String(b.r.rid).localeCompare(String(a.r.rid)));
+  return out;}
+
+/** v3.90.0 - every line of the work record, priced: from the season's first day by each person's pay (lpBook). */
+function pjWorkRows(){
+  const out=pjWorkRows0();
+  out.forEach(w=>{if(!lpNew(w.r.d))return; const own=(w.src==='job'&&w.v)?w.v.pay:null; w.pay=(own&&own.b==='piece')?own:{b:'ppl'}; w.rm=w.r.undone?null:lpRidRm(w.r.rid);});
   return out;}
 
 /* ---------- where the Programme screen lives ----------
@@ -9628,7 +9647,7 @@ function pjPayOpen(t,k,back){
   PJO.pay={t:t,key:ppUnArg(k),back:back||'rec',b:'',rm:'',unit:'',err:'',busy:false};
   const g=pjPayTarget(); if(!g){PJO.pay=null;return;}
   if(ppStale(g.rec)){PJO.pay=null;return;}
-  PJO.pay.b=g.own?g.own.b:'def'; PJO.pay.rm=g.own?String(g.own.rm):''; PJO.pay.unit=(g.own&&g.own.unit)?g.own.unit:g.unit;
+  PJO.pay.b=(g.own&&g.own.b==='piece')?'piece':'def'; PJO.pay.rm=g.own?String(g.own.rm):''; PJO.pay.unit=(g.own&&g.own.unit)?g.own.unit:g.unit;
   PJO.s='pay'; pjMoved(); ppRender(); ppTop();}
 function pjPaySync(){const p=PJO.pay;if(!p)return;const a=$('pj-p-rm'),u=$('pj-p-unit');if(a)p.rm=a.value;if(u)p.unit=u.value;}
 function pjPayB(b){const p=PJO.pay;if(!p)return;pjPaySync();p.b=b;p.err='';ppRender();}
@@ -9638,10 +9657,9 @@ function pjPayHTML(){
   const day=pjCfg().day;
   let h='<button class="pp-back" id="pj-p-up" onclick="pjPayBack()">‹ back</button><div class="pp-ttl">💰 Pay</div><div class="pp-g">'+esc(g.name)+' · your eyes only</div>'+
     '<label>How is this work paid?</label><div class="pp-opts" id="pj-p-basis">'+
-    '<button class="pp-opt'+(p.b==='def'?' sel':'')+'" id="pj-p-b-def" onclick="pjPayB(\'def\')">The day rate<small>'+(day>0?('RM '+pjN2(day)+' a day'):'not keyed yet')+'</small></button>'+
-    '<button class="pp-opt'+(p.b==='day'?' sel':'')+'" id="pj-p-b-day" onclick="pjPayB(\'day\')">Its own day rate<small>RM a man-day</small></button>'+
+    '<button class="pp-opt'+(p.b==='def'?' sel':'')+'" id="pj-p-b-def" onclick="pjPayB(\'def\')">By the people<small>their pay in WORKERS</small></button>'+   /* v3.90.0 */
     (g.job?('<button class="pp-opt'+(p.b==='piece'?' sel':'')+'" id="pj-p-b-piece" onclick="pjPayB(\'piece\')">By piece<small>RM for each one</small></button>'):'')+'</div>';
-  if(p.b==='def')h+='<div class="pp-note grn" id="pj-p-def">Uses the day rate you key in RECORD. Pay = man-days × the day rate. A man-day is '+PJ_DAY_H+' hours.</div>';
+  if(p.b==='def')h+='<div class="pp-note grn" id="pj-p-def">Paid by the people who did it: each worker\'s pay in RECORD ▸ WORKERS (RM a day, the allowance), and the oil-palm rate for people keyed as a number.'+((g.own&&g.own.b==='day')?(' Its old day rate of RM '+pjN2(g.own.rm)+' is no longer used.'):'')+'</div>';
   if(p.b==='day')h+='<label>RM for one man-day of '+PJ_DAY_H+' hours</label><input type="number" id="pj-p-rm" inputmode="decimal" min="0" step="0.5" value="'+esc(p.rm)+'">';
   if(p.b==='piece')h+='<div class="pp-two pj-two"><div><label>RM for each one</label><input type="number" id="pj-p-rm" inputmode="decimal" min="0" step="0.1" value="'+esc(p.rm)+'"></div>'+
     '<div><label>What is one piece?</label><input id="pj-p-unit" maxlength="'+PJ_UNIT_LEN+'" value="'+esc(p.unit)+'" placeholder="tree, metre, bag" autocomplete="off"></div></div>'+
@@ -9664,7 +9682,7 @@ async function pjPaySave(){
   p.busy=true;
   const x=ppX(g.rec);
   if(pay)x.pay=pay; else delete x.pay;
-  ppLog(x,{k:'pay',txt:pay?pjPayTxt(pay):'the day rate'});
+  ppLog(x,{k:'pay',txt:pay?pjPayTxt(pay):'by the people'});
   await pjSave(g.rec,false);
   toast('✓ Pay saved');
   pjPayBack(); ppSyncSoon();}
@@ -9676,7 +9694,7 @@ function pjHistHTML(v){
 function pjDetailHTML(){
   const v=pjOJob();
   if(!v)return '<button class="pp-back" onclick="pjBack()">‹ back</button><div class="pp-note">This job is no longer here.</div>';
-  const st=pjSt(v), plan=pjPlanTxt(v), mh=pjMh(v), cnt=pjCnt(v), pay=pjPay(v.pay), rmT=v.live.reduce((s,r)=>s+(pjRm(pay,r)||0),0);
+  const st=pjSt(v), plan=pjPlanTxt(v), mh=pjMh(v), cnt=pjCnt(v), pay=lpJobPay(v), rmT=v.live.reduce((s,r)=>s+lpJobRm(v,r),0);   // v3.90.0 (review 2)
   let h='<button class="pp-back" id="pj-back" onclick="pjBack()">‹ back</button><div class="pp-ttl">'+pjIc(v)+' '+esc(pjName(v))+pjCodeTag(v)+'</div>'+
     '<div class="pp-g">'+esc(v.en)+(v.extra?' · not on the plan':'')+' · <span class="pj-tag">job, no material</span></div><span class="pp-pill '+st.c+'" id="pj-o-st">'+st.t+'</span>';
   if(v.st==='plan'){
@@ -9739,7 +9757,7 @@ function pjRMon(){const ms=pjRMons(), cur=todayISO().slice(0,7);
   return ms.indexOf(cur)>=0?cur:(ms[ms.length-1]||cur);}
 function pjRecSegHTML(){
   const t=PJO.rtab||'day';
-  return '<div class="pp-vsw pj-rseg" id="pj-rseg">'+[['day','BY DAY'],['job','BY JOB'],['who','WORKERS'],['sets','SETS DONE']].map(o=>
+  return '<div class="pp-vsw pj-rseg" id="pj-rseg">'+[['day','BY DAY'],['job','BY JOB'],['pay','PAY'],['who','WORKERS'],['sets','SETS DONE']].map(o=>
     '<button id="pj-rt-'+o[0]+'" class="'+(t===o[0]?'on':'')+'" onclick="pjRTab(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';}
 async function pjDaySave(){
   if(!ppIsOwner()||pjHeld())return;
@@ -9752,14 +9770,14 @@ async function pjWAdd(){
   if(!ppIsOwner()||pjHeld())return;
   const e=$('pj-w-new'), n=pjClip(e?e.value:'',PJ_NAME_LEN), cur=pjCfg().names;
   if(!n){toast('Type a name first',1);return;}
-  if(cur.some(x=>x.toLowerCase()===n.toLowerCase())){toast('That name is already on the list',1);return;}
+  if(cur.concat(pjCfg().sups).some(x=>x.toLowerCase()===n.toLowerCase())){toast('That name is already on the list',1);return;}   // v3.90.0 - a supervisor too
   if(cur.length>=PJ_NAMES_MAX){toast('The list is full ('+PJ_NAMES_MAX+' names)',1);return;}
   const ok=await pjCfgSave(x=>{x.names=cur.concat([n]);});
   if(ok){pjMoved();pjAfter(false);}}
 async function pjWDel(i){
   if(!ppIsOwner()||pjHeld())return;
   const cur=pjCfg().names; if(!cur[i])return;
-  const ok=await pjCfgSave(x=>{x.names=cur.filter((_,j)=>j!==i);});
+  const ok=await pjCfgSave(x=>{x.names=cur.filter((_,j)=>j!==i); const pp=x.ppl&&x.ppl[cur[i]]; if(pp&&pp.k==='full'&&!pp.to)pp.to=todayISO();});   // v3.90.0 (review 3) - his allowance stops today
   if(ok){pjMoved();pjAfter(false);}}
 function pjRecordHTML(){
   const mon=pjRMon(), ms=pjRMons(), mi=ms.indexOf(mon), t=PJO.rtab||'day', cfg=pjCfg();
@@ -9770,7 +9788,9 @@ function pjRecordHTML(){
     '<small>every report with people and hours · 1 man-day = '+PJ_DAY_H+' hours</small></div><button id="pj-rm-next" '+(mi>=ms.length-1?'disabled':'')+' onclick="pjRMonGo(1)">›</button></div>'+
     '<div class="pp-kpis k4"><div class="pp-kpi"><div class="v" id="pj-k-mh">'+nf(mh)+'</div><div class="l">man-hours</div></div><div class="pp-kpi"><div class="v" id="pj-k-md">'+nf(pjMd(mh))+'</div><div class="l">man-days</div></div>'+
     '<div class="pp-kpi"><div class="v" id="pj-k-late">'+late+'</div><div class="l">keyed late</div></div><div class="pp-kpi"><div class="v" id="pj-k-off">'+off+'</div><div class="l">not on plan</div></div></div>';
-  h+='<div class="pj-pay" id="pj-pay"><div class="pp-q" style="margin-top:0">💰 Pay · your eyes only</div>'+
+  const nw=lpMonNew(mon);   // v3.90.0 - a month of season 2026/27 is priced by each person's pay
+  if(nw){const M=lpMonth(mon); h+='<div class="pj-pay" id="pj-pay"><div class="pp-note grn" id="pj-k-rm" style="margin:0">Labour, '+esc(ppMonEN(mon))+': <b>'+rm(M.total)+'</b>'+(M.unpMd>0||M.old.n?(' · '+nf(M.unpMd)+' man-days not priced'):'')+' · <u onclick="pjRTab(\'pay\')" id="pj-k-pay">PAY ›</u></div></div>';}
+  else h+='<div class="pj-pay" id="pj-pay"><div class="pp-q" style="margin-top:0">💰 Pay · your eyes only</div>'+
     '<div class="pj-row"><span>Day rate, RM for a man-day of '+PJ_DAY_H+' hours</span><span class="pj-dayr"><input type="number" id="pj-day" inputmode="decimal" min="0" step="0.5" value="'+(cfg.day>0?cfg.day:'')+'" placeholder="RM"><button class="pj-pb" id="pj-day-save" onclick="pjDaySave()">SAVE</button></span></div>'+
     '<div class="pp-g">'+(cfg.day>0?'Used for every set and job with no rate of its own.':'<b>Not keyed yet.</b> Your workbook says RM 60 a man-day. Until you key a rate here, the RM columns stay empty.')+' A job paid by piece gets its own rate: BY JOB ▸ its PAY button.</div>'+
     '<div class="pp-note grn" id="pj-k-rm" style="margin-bottom:0">Labour, '+esc(ppMonEN(mon))+': <b>'+(live.some(w=>w.rm!==null)?rm(rmT):'—')+'</b>'+(unpriced&&unpriced<live.length?(' · '+unpriced+' report'+(unpriced===1?'':'s')+' with no rate'):'')+'</div></div>';
@@ -9799,31 +9819,34 @@ function pjRecordHTML(){
       else add('J',w.v,{d:String(w.r.d),name:pjName(w.v),sub:pjKindW(w.v)+(skp?' · skipped later':far?' · a job of another month':''),plan:0,own:w.v.pay,can:!skp,st:w.v.st});});
     items.sort((a,b)=>String(a.d).localeCompare(String(b.d)));
     let pl=0, dn=0, rs=0, any=false;
-    const line=it=>{const mine=live.filter(w=>w.v===it.v), md=pjMd(mine.reduce((s,w)=>s+w.r.n*w.r.h,0)), pay=pjPay(it.own), r0=mine.reduce((s,w)=>s+(w.rm||0),0), cnt=mine.reduce((s,w)=>s+(+w.r.cnt||0),0);
+    const LM=nw?lpMonth(mon):null, inMon=v=>LM?+LM.lines.filter(l=>l.w.v===v&&l.rm>0).reduce((s,l)=>s+l.rm,0).toFixed(2):0;   // review 2.B - the month's own days of each report
+    const line=it=>{const mine=live.filter(w=>w.v===it.v), md=pjMd(mine.reduce((s,w)=>s+w.r.n*w.r.h,0)), pay=nw?((it.own&&it.own.b==='piece')?it.own:{b:'ppl'}):pjPay(it.own), r0=nw?inMon(it.v):mine.reduce((s,w)=>s+(w.rm||0),0), cnt=mine.reduce((s,w)=>s+(+w.r.cnt||0),0);
       pl+=it.plan||0; dn+=md; rs+=r0; if(pay)any=true;
       return '<tr id="pj-wj-'+ppCss(it.v.key)+'"><td><b>'+esc(it.name)+'</b><br><span class="pp-g">'+esc(it.sub)+'</span><br><span class="pp-pill '+(it.st==='done'?'ok':it.st==='skip'?'mut':'amb')+'">'+(it.st==='done'?'done':it.st==='skip'?'skipped':'open')+'</span></td>'+
         '<td class="r">'+(it.plan?it.plan:'—')+' / <b>'+nf(md)+'</b></td>'+
-        '<td class="r">'+(it.can?('<button class="pj-pb" id="pj-pay-'+ppCss(it.v.key)+'" onclick="pjPayOpen(\''+it.k+'\',\''+ppArg(it.v.key)+'\')">'+esc(pay?pjPayTxt(pay):'not keyed')+(pay&&pay.b==='piece'?('<small>'+nf(cnt)+' counted</small>'):(pay&&!pay.def?'<small>its own rate</small>':''))+'</button>'):esc(pay?pjPayTxt(pay):'not keyed'))+
+        '<td class="r">'+((it.can&&!(nw&&it.k==='S'))?('<button class="pj-pb" id="pj-pay-'+ppCss(it.v.key)+'" onclick="pjPayOpen(\''+it.k+'\',\''+ppArg(it.v.key)+'\')">'+esc(pay?pjPayTxt(pay):'not keyed')+(pay&&pay.b==='piece'?('<small>'+nf(cnt)+' counted</small>'):(pay&&!pay.def&&pay.b!=='ppl'?'<small>its own rate</small>':''))+'</button>'):esc(pay?pjPayTxt(pay):'not keyed'))+
         '<br><b class="pj-rm" id="pj-wj-rm-'+ppCss(it.v.key)+'">'+(pay?rm(r0):'—')+'</b></td></tr>';};
-    const oth=live.filter(w=>w.src==='oth'), opay=pjPay(null);
+    const oth=live.filter(w=>w.src==='oth'), opay=nw?{b:'ppl'}:pjPay(null);
     let body=items.map(line).join('');
-    if(oth.length){const md=pjMd(oth.reduce((s,w)=>s+w.r.n*w.r.h,0)), r0=oth.reduce((s,w)=>s+(w.rm||0),0); dn+=md; rs+=r0; if(opay)any=true;
+    if(oth.length){const md=pjMd(oth.reduce((s,w)=>s+w.r.n*w.r.h,0)), r0=nw?+LM.lines.filter(l=>l.w.src==='oth'&&l.rm>0).reduce((s,l)=>s+l.rm,0).toFixed(2):oth.reduce((s,w)=>s+(w.rm||0),0); dn+=md; rs+=r0; if(opay)any=true;
       body+='<tr id="pj-wj-oth"><td><b>Other work</b><br><span class="pp-g">not on the plan · '+oth.length+' report'+(oth.length===1?'':'s')+'</span></td><td class="r">— / <b>'+nf(md)+'</b></td><td class="r"><span class="pp-g">'+esc(opay?pjPayTxt(opay):'not keyed')+'</span><br><b class="pj-rm">'+(opay?rm(r0):'—')+'</b></td></tr>';}
     h+=body?('<div class="pp-scroll"><table class="pp-t pj-t" id="pj-t-job"><colgroup><col><col class="pj-j2"><col class="pj-j3"></colgroup><tr><th>Set or job</th><th class="r">Man-days<br>plan / done</th><th class="r">Pay · RM</th></tr>'+body+
+      (nw&&Math.abs(LM.total-(rs+LM.oldRate.rm+LM.allow))>=0.01?((()=>{const x=+(LM.total-rs-LM.oldRate.rm-LM.allow).toFixed(2); rs+=x; any=true; return '<tr id="lp-wj-far"><td><b>Days of reports filed under another month</b><br><span class="pp-g">a report of several days that crosses the month</span></td><td class="r">—</td><td class="r"><b class="pj-rm">'+rm(x)+'</b></td></tr>';})()):'')+   // review 2.B
+      (nw&&lpMonth(mon).oldRate.rm>0?((()=>{const o=lpMonth(mon).oldRate; rs+=o.rm; any=true; return '<tr id="lp-wj-oldr"><td><b>Before the season opened</b><br><span class="pp-g">'+nf(o.mh)+' man-hours at the old rate</span></td><td class="r">—</td><td class="r"><b class="pj-rm">'+rm(o.rm)+'</b></td></tr>';})()):'')+
+      (nw&&lpMonth(mon).allow>0?((()=>{const al=lpMonth(mon).allow; rs+=al; any=true; return '<tr id="lp-wj-allow"><td><b>'+LP_ALLOW+'</b><br><span class="pp-g">the full-time workers</span></td><td class="r">—</td><td class="r"><b class="pj-rm">'+rm(al)+'</b></td></tr>';})()):'')+   // v3.90.0 (P2a)
       '<tr><td><b>Total</b></td><td class="r"><span id="pj-wj-plan">'+pl+'</span> / <b id="pj-wj-done">'+nf(dn)+'</b></td><td class="r"><b class="pj-rm" id="pj-wj-rmt">'+(any?rm(rs):'—')+'</b></td></tr></table></div>')
       :'<div class="pp-note" id="pj-wj-none">No set or job is issued for this month yet.</div>';
-    h+='<div class="pp-g">Plan man-days are your workbook’s own figures. Tap a PAY button to give that work its own rate: a set by day, a job by day or by piece.</div>';
+    h+='<div class="pp-g">Plan man-days are your workbook’s own figures. '+(nw?'Everything is paid by the people who did it (WORKERS); tap PAY on a job to pay it by piece instead.':'Tap a PAY button to give that work its own rate: a set by day, a job by day or by piece.')+'</div>';
+  }else if(t==='pay'){
+    h+=lpPayHTML(mon);   // v3.90.0
   }else{
     const by={}; let others=0;
     live.forEach(w=>{const r=w.r;(r.names||[]).forEach(n=>{by[n]=(by[n]||0)+r.h;});others+=Math.max(0,r.n-(r.names||[]).length)*r.h;});
-    h+='<div class="pj-pay" id="pj-w-list"><div class="pp-q" style="margin-top:0">Your list · the crew ticks these names</div>'+
-      (cfg.names.length?cfg.names.map((n,i)=>'<div class="pj-row" id="pj-w-'+i+'"><span><b>'+esc(n)+'</b></span><button class="pj-pb" id="pj-w-del-'+i+'" onclick="pjWDel('+i+')">✕ take off</button></div>').join(''):'<div class="pp-g" id="pj-w-none">No name yet. Until there is one, the crew keys only a number of people.</div>')+
-      '<div class="pj-row"><input id="pj-w-new" maxlength="'+PJ_NAME_LEN+'" placeholder="a name" autocomplete="off"><button class="pj-pb pj-nw" id="pj-w-add" onclick="pjWAdd()">＋ ADD</button></div>'+
-      '<div class="pp-g">Anyone not on the list is keyed as a number: the oil-palm gang, a casual. A name taken off stays on the reports already made.</div></div>'+
+    h+=lpWorkersHTML(cfg)+   // v3.90.0 - the people and their pay
       '<div class="pp-q">Hours by worker · '+esc(ppMonEN(mon))+'</div><div class="pp-scroll"><table class="pp-t pj-t" id="pj-t-who"><colgroup><col><col class="pj-w2"><col class="pj-w3"></colgroup><tr><th>Worker</th><th class="r">Hours</th><th class="r">Man-days</th></tr>'+
       Object.keys(by).sort().map(n=>'<tr><td>'+esc(n)+'</td><td class="r">'+nf(by[n])+'</td><td class="r"><b>'+nf(pjMd(by[n]))+'</b></td></tr>').join('')+
       '<tr id="pj-w-oth"><td>Others, not named</td><td class="r">'+nf(others)+'</td><td class="r"><b>'+nf(pjMd(others))+'</b></td></tr></table></div>'+
-      '<div class="pp-g">"Others, not named" = people keyed as a number: every set, and anyone not on your list. Pay by worker is not built; this page gives the hours for it.</div>';}
+      '<div class="pp-g">"Others, not named" = people keyed as a number: the oil-palm workers, a casual, and sets keyed before v3.90.0. The pay of each person is on PAY.</div>';}
   return h;}
 /* ====================== end of v3.82.0 · one work list ====================== */
 
@@ -11286,7 +11309,7 @@ function ppRecOpen(){
   if(ppStale(v.rec))return;
   {const pr0=(v.st==='plan'&&v.plan&&typeof pqPcRec==='function')?pqPcRec(v.plan.id):null; if(pr0&&ppStale(pr0))return;}   // v3.83.0 - as for ISSUE
   const today=todayISO();
-  PPR={date:(ppOkDay(v.date)&&v.date<=today)?v.date:today,tanks:v.tanks,lots:ppLotsLeft(v),crew:'',hours:'',err:''};
+  PPR={date:(ppOkDay(v.date)&&v.date<=today)?v.date:today,tanks:v.tanks,lots:ppLotsLeft(v),crew:'',hours:'',err:'',list:pjCfg().names.slice(),names:{},oth:0};   // v3.90.0 (P1a)
   if(pzIsRound(v)&&!v.rec){const ok=PPR.lots.filter(pzPassed); if(ok.length)PPR.lots=ok;}   // v3.85.0 (review 2) - a PBZ round offers the lots that passed
   PPO.s='rec'; ppRender(); ppTop();}
 function ppRSync(){
@@ -11307,8 +11330,9 @@ function ppRecHTML(){
     '<label>Lots done</label><div class="pp-opts">'+v.lots.map(k=>'<button class="pp-opt'+(PPR.lots.indexOf(k)>=0?' sel':'')+'" id="pp-r-lot-'+k+'"'+(left.indexOf(k)<0?' disabled':'')+' onclick="ppRLot(\''+k+'\')">Lot '+k+
       '<small>'+(left.indexOf(k)<0?'already reported':(treesInLot(k).length+' trees'))+'</small></button>').join('')+'</div>'+
     (ppIsSpray(v)?ppFinHTML('pp-r-fin-',PPR.fin||'','ppRFin',false):'')+   /* v3.81.0 */
-    '<div class="pp-two"><div><label>Crew (if known)</label><input type="number" id="pp-r-crew" inputmode="numeric" min="0" value="'+esc(PPR.crew)+'"></div>'+
-    '<div><label>Hours each (if known)</label><input type="number" id="pp-r-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPR.hours)+'"></div></div>'+
+    ((PPR.list&&PPR.list.length)?(lpSetNamesHTML(PPR,'pp-r','ppR',false)+'<label>Hours each (if known)</label><input type="number" id="pp-r-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPR.hours)+'">'):   // v3.90.0 (P1a)
+    ('<div class="pp-two"><div><label>Crew (if known)</label><input type="number" id="pp-r-crew" inputmode="numeric" min="0" value="'+esc(PPR.crew)+'"></div>'+
+    '<div><label>Hours each (if known)</label><input type="number" id="pp-r-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPR.hours)+'"></div></div>'))+
     ppMixHTML(v,{tanks:v.tanks,lots:v.lots,lines:v.lines,trees:v.trees},false)+
     ((ppStockFrom()&&sf<ppStockFrom())?('<div class="pp-g">A day before the store’s opening count of '+ppFmtS(ppStockFrom())+' goes on the record and in the cost. It does not change today’s shelf, except for a product whose card was made after that count.</div>'):'')+
     (pzIsRound(v)&&v.rec?('<div class="pp-g">The crew\'s tick list, for the lots you record. A tree left without a tick stays on the record as not ticked.</div>'+pzDoneLinesHTML(v,PPR.lots)):'')+   /* v3.85.0 */
@@ -11345,13 +11369,14 @@ async function ppRecGo(){
   if(v.st==='done'||!left.length){PPR=null;PPO.s='detail';toast('This set is already done',1);ppRender();return;}
   if(dup.length){PPR.lots=PPR.lots.filter(L=>left.indexOf(L)>=0);
     return fail('Lot '+dup.join(' ')+' was reported by another phone while this form was open. Check the lots and press again.');}
+  if(lpPeopleOf(PPR)>0&&!(+PPR.hours>0))return fail('Key the hours each: the people you ticked are paid by the day.');   // v3.90.0 (review 8)
   PPR.busy=true;
   let rec=v.rec;
   if(!rec){
     rec=ppNewRec(v,{date:PPR.date,tanks:v.tanks,lots:pzIsRound(v)?PPR.lots.slice():v.lots,lines:v.lines,trees:v.trees},'ISSUED');   // v3.85.0 - a PBZ round holds only the lots recorded
     rec.x.direct=true; PROGRAMS.push(rec);}
-  const ok=await ppFileDone(rec,{date:PPR.date,tanks:v.basis==='T'?PPR.tanks:0,lots:PPR.lots.slice(),
-    crew:+PPR.crew||0,hours:+PPR.hours||0,via:'OWNER',fin:PPR.fin||''},'rec');
+  const ok=await ppFileDone(rec,Object.assign({date:PPR.date,tanks:v.basis==='T'?PPR.tanks:0,lots:PPR.lots.slice(),
+    crew:(lpPeopleOf(PPR)!==null)?lpPeopleOf(PPR):(+PPR.crew||0),hours:+PPR.hours||0,via:'OWNER',fin:PPR.fin||''},lpSetFile(PPR,+PPR.crew||0)),'rec');   // v3.90.0 (P1a)
   if(!ok){PPR.busy=false;return fail('That day has not happened yet.');}
   toast('✓ Recorded · '+rec.month+' · '+rec.set);
   PPO.key=rec.uuid; PPR=null; PPO.s='detail';
@@ -11432,8 +11457,9 @@ function ppCrewHTML(){
       '<label>'+ppT('Lots done','Lot yang siap')+'</label><div class="pp-opts">'+left.map(k=>'<button class="pp-opt'+(PPCD.lots.indexOf(k)>=0?' sel':'')+'" id="pp-c-lot-'+k+'" onclick="ppCLot(\''+k+'\')">Lot '+k+
         '<small>'+treesInLot(k).length+' '+ppT('trees','pokok')+'</small></button>').join('')+'</div>'+pzDoneLinesHTML(v,PPCD.lots)+fuCkDoneLinesHTML(v,PPCD.lots)+   /* v3.85.0 · v3.86.0 */
       (ppIsSpray(v)?ppFinHTML('pp-c-fin-',PPCD.fin||'','ppCFin',true):'')+   /* v3.81.0 */
-      '<div class="pp-two"><div><label>'+ppT('How many people','Berapa orang')+'</label><input type="number" id="pp-c-crew" inputmode="numeric" min="0" value="'+esc(PPCD.crew)+'"></div>'+
-      '<div><label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'"></div></div>'+
+      ((PPCD.list&&PPCD.list.length)?(lpSetNamesHTML(PPCD,'pp-c','ppC',true)+'<label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'">'):   // v3.90.0 (P1a)
+      ('<div class="pp-two"><div><label>'+ppT('How many people','Berapa orang')+'</label><input type="number" id="pp-c-crew" inputmode="numeric" min="0" value="'+esc(PPCD.crew)+'"></div>'+
+      '<div><label>'+ppT('Hours each','Jam seorang')+'</label><input type="number" id="pp-c-hours" inputmode="decimal" min="0" step="0.5" value="'+esc(PPCD.hours)+'"></div></div>'))+
       '<div class="pp-err" id="pp-c-err">'+esc(PPCD.err||'')+'</div><button class="pp-act" id="pp-c-save" onclick="ppCSave()">'+ppT('SAVE','SIMPAN')+'</button>';}
   /* PPC.s==='not' */
   return '<button class="pp-back" onclick="ppCCard()">‹ '+ppT('back','kembali')+'</button><div class="pp-ttl">'+ppT('Not done','Tak jadi')+' — '+esc(ppNameBM(v))+'</div>'+
@@ -11449,7 +11475,7 @@ function ppCrewMin(){
 function ppCDoneOpen(){
   const v=ppCrewSet(); if(!v)return;
   if(ppStale(v.rec))return;
-  PPCD={date:todayISO(),tanks:v.tanks,lots:ppLotsLeft(v),crew:(typeof LAST_CREW!=='undefined'&&+LAST_CREW.crew)||'',hours:'',err:''};
+  PPCD={date:todayISO(),tanks:v.tanks,lots:ppLotsLeft(v),crew:(typeof LAST_CREW!=='undefined'&&+LAST_CREW.crew)||'',hours:'',err:'',list:pjCfg().names.slice(),names:{},oth:0};   // v3.90.0 (P1a) - the names, as on a job
   PPC.s='done'; ppRender(); ppTop();}
 function ppCSync(){
   if(!PPCD)return;
@@ -11472,18 +11498,19 @@ async function ppCSave(){
   const open=ppLotsLeft(v), dup=PPCD.lots.filter(L=>open.indexOf(L)<0);
   if(dup.length){PPCD.lots=PPCD.lots.filter(L=>open.indexOf(L)>=0); if(!PPCD.lots.length)PPCD.lots=open.slice();
     return fail('Lot '+dup.join(' ')+' '+ppT('was already reported from another phone. Check the lots and press again.','sudah dilaporkan dari telefon lain. Semak lot dan tekan sekali lagi.'));}
-  const tanks=v.basis==='T'?(+PPCD.tanks||0):0, crew=Math.round(+PPCD.crew||0), hours=+PPCD.hours||0;
+  const tanks=v.basis==='T'?(+PPCD.tanks||0):0, crew=(lpPeopleOf(PPCD)!==null)?lpPeopleOf(PPCD):Math.round(+PPCD.crew||0), hours=+PPCD.hours||0;   // v3.90.0 - the names ticked and the others
   if(v.basis==='T'&&!(tanks>0))return fail(ppT('Enter how many tanks.','Masukkan bilangan tangki.'));
   if(!PPCD.lots.length)return fail(ppT('Pick the lots that were done.','Pilih lot yang siap.'));
   {const pzb=pzDoneBlock(v,PPCD.lots); if(pzb)return fail(pzb);}   // v3.85.0 (G7a) - every tree of a PBZ lot ticked or marked NOT SPRAYED
   {const fub=fuCkDoneBlock(v,PPCD.lots); if(fub)return fail(fub);}   // v3.86.0 - every named tree of a canker round saved
+  if(lpPeopleOf(PPCD)===0)return fail(ppT('Tick who worked, or key how many others.','Tanda siapa yang kerja, atau masukkan bilangan orang lain.'));   // v3.90.0
   if(!(crew>0)||!(hours>0))return fail(ppT('Enter how many people and how many hours.','Masukkan bilangan orang dan jam.'));
   /* v3.81.0 - a leaf spray: one tap says whether it finished before or after noon */
   const fin=ppIsSpray(v)?((PPCD.fin==='am'||PPCD.fin==='pm')?PPCD.fin:''):'';
   if(ppIsSpray(v)&&!fin)return fail(ppT('Tap when the spraying finished: morning or afternoon.','Tekan bila semburan siap: pagi atau petang.'));
   PPCD.busy=true;
   const before=EVENTS.length, lots=PPCD.lots.slice();
-  const ok=await ppFileDone(v.rec,{date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,via:'CREW',fin:fin,ckL:(fuIsCk(v)&&fuCkNeedMix(v,lots))?(+PPCD.ckL||0):0},'done');   // v3.88.0 (M1a) - the mix made; none for lots with no tree brushed (review 2.1)
+  const ok=await ppFileDone(v.rec,Object.assign({date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,via:'CREW',fin:fin,ckL:(fuIsCk(v)&&fuCkNeedMix(v,lots))?(+PPCD.ckL||0):0},lpSetFile(PPCD,crew)),'done');   // v3.88.0 (M1a) - the mix made; none for lots with no tree brushed (review 2.1)
   if(!ok){PPCD.busy=false;return fail(ppT('That day has not happened yet.','Tarikh itu belum tiba.'));}
   PPC={s:'saved',key:'',info:{name:ppNameBM(v),date:PPCD.date,tanks:tanks,lots:lots,crew:crew,hours:hours,fin:fin,
     rows:EVENTS.length-before,left:ppLotsLeft(v).filter(L=>lots.indexOf(L)<0)}};
@@ -12282,14 +12309,14 @@ function dupHtml(){
 function renderLabour(){
   const box=$('labourbox'); if(!box)return;
   const rows=labourRows(), months=labourByMonth();
-  if(!rows.length){box.innerHTML=labourRateHtml()+
+  if(!rows.length){box.innerHTML=lpRateHtml()+
     '<div class="small" style="margin-top:10px">No labour logged yet. Every completion reply now asks for the crew size and hours.</div>';return;}
-  box.innerHTML=labourRateHtml()+dupHtml()+
+  box.innerHTML=lpRateHtml()+dupHtml()+
     '<div class="sec" style="margin-top:12px">Man-hours by month</div>'+
     '<div class="tblwrap"><table class="tbl">'+
     '<tr><th>Month</th><th class="num">Reports</th><th class="num">Man-hours</th><th class="num">Cost</th></tr>'+
     months.map(m=>'<tr><td><b>'+esc(m.k)+'</b></td><td class="num">'+m.n+'</td><td class="num"><b>'+nf(m.mh)+
-      '</b></td><td class="num">'+(SHOW_VALUES?rm(m.mh*LABOUR_RATE):'—')+'</td></tr>').join('')+
+      '</b></td><td class="num">'+(SHOW_VALUES?(lpMonNew(m.k)?rm(lpMonth(m.k).total):rm(m.mh*LABOUR_RATE)):'—')+'</td></tr>').join('')+   // v3.90.0
     '</table></div><div class="sec" style="margin-top:10px">Latest entries</div>'+
     rows.slice(0,12).map(r=>'<div class="lrow"><span><b>'+esc(r.what)+'</b> · Lot '+esc(r.lot||'—')+
       '<br><span class="small">'+esc(r.dt)+' · '+esc(r.worker||'')+' · '+r.crew+' × '+nf(r.hours)+' h</span></span>'+
@@ -15756,6 +15783,265 @@ function fuHoSave(L){
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(fuHoMapSVG(L,'save'));
   }catch(e){fail();}}
 /* ====================== end of v3.89.0 ====================== */
+
+/* ====================== v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (the Owner, 11 Oct 2026: "am agree wit DMS labour pay sample 2" =
+   S1a P1a P2a L2a L3a W1a W2a) ======================
+   His words: the full-time worker is paid RM 300 a month and RM 30 for each day he turns up for a task; the spray helper
+   RM 30 a day he helps; oil-palm maintenance workers on manuring are charged at a day rate; Sadih and Ferezelly are
+   SUPERVISORS who arrange the work - the workers execute it.
+   - RECORD ▸ WORKERS: each name has a pay kind: FULL-TIME (RM a month + RM a day, first and last day), DAY ONLY (RM a
+     day) or SUPERVISOR (keys the reports; never in the tick list; not in the durian labour, S1a). One oil-palm RM a
+     man-day of 8 hours for people keyed as a number.
+   - A named person's day counts ONCE a calendar day, on any report he is ticked on; his RM for that day is shared over
+     that day's reports by their hours. A job with a piece rate is paid by piece. The allowance is a fixed line for the
+     month, shared by calendar days when a worker starts or leaves in it (P2a).
+   - A set's TANDA SIAP (crew) and RECORD AS DONE (Owner) tick the names, as a job's does (P1a).
+   - RECORD ▸ PAY: one line a person, for the month. MONEY (the month, Month by month, Cost by lot), Labour & the rate
+     and Command use the same pay from the day season 2026/27 opened; the months before keep the old RM-an-hour (L3a).
+     The Gate sees the month's labour total, not the people or the rates (L2a).
+   STORED: the worker-list record (x.ppl, x.op; x.names stays the tick list, supervisors out of it) and the names on a
+   set's log entry (names, oth). Old phones keep reading x.names and the crew number. No Apps Script change. */
+const LP_KINDS={full:['FULL-TIME','RM a month + RM a day'],day:['DAY ONLY','RM a day he works'],sup:['SUPERVISOR','arranges the work, keys the reports']};
+const LP_RM_MAX=100000;
+let LP_BOOK=null;
+/** The first day priced the new way: the day season 2026/27 opened. */
+function lpFrom(){const f=(typeof ppSeasonFrom==='function')?ppSeasonFrom():''; return ppOkDay(f)?f:'2026-10-01';}
+function lpNew(day){return String(day||'').slice(0,10)>=lpFrom();}
+function lpMonNew(mk){return String(mk||'')>=lpFrom().slice(0,7);}
+function lpNum(v){const n=+v; return (isFinite(n)&&n>0)?Math.min(LP_RM_MAX,Math.round(n*100)/100):0;}
+/** One person's pay from the worker-list record, checked. */
+function lpPersonOk(p){
+  if(!p||typeof p!=='object')return null;
+  const k=LP_KINDS[p.k]?p.k:'';
+  return {k:k,mo:k==='full'?lpNum(p.mo):0,dr:(k==='full'||k==='day')?lpNum(p.dr):0,from:ppOkDay(p.from)?String(p.from):'',to:ppOkDay(p.to)?String(p.to):''};}
+function lpPerson(n){const c=pjCfg(); return c.ppl[n]||null;}
+/** The days of a report: a report keyed over several days ends on its day. */
+function lpDays(r){const dd=Math.max(1,Math.round(+r.dd||1)), out=[]; for(let i=dd-1;i>=0;i--)out.push(ppAdd(String(r.d).slice(0,10),-i)); return out;}
+function lpDim(mk){const y=+mk.slice(0,4), m=+mk.slice(5,7); return new Date(Date.UTC(y,m,0)).getUTCDate();}
+function lpMonths(){
+  const out=[], a=lpFrom().slice(0,7), b=todayISO().slice(0,7);
+  let y=+a.slice(0,4), m=+a.slice(5,7);
+  for(let i=0;i<120;i++){const k=y+'-'+String(m).padStart(2,'0'); if(k>b)break; out.push(k); m++; if(m>12){m=1;y++;}}
+  return out;}
+/** The months the book has lines in: the season's, and any earlier one a report of several days reaches back into (review 2.C). */
+function lpLineMonths(){const m={}; lpMonths().forEach(k=>{m[k]=1;}); lpBook().lines.forEach(l=>{m[String(l.d).slice(0,7)]=1;}); return Object.keys(m).sort();}
+/** THE BOOK: every report from the season's first day priced the new way, line by line.
+ *  line = {rid, w, k:'day'|'op'|'piece'|'old', who, d, rm (null = not priced), md, why}
+ *  allow = {mk, who, rm, days, dim} */
+function lpBook(){
+  if(LP_BOOK)return LP_BOOK;
+  const cfg=pjCfg(), rows=pjWorkRows0().filter(w=>!w.r.undone&&lpNew(w.r.d)), lines=[], pd={};
+  rows.forEach(w=>{
+    const r=w.r, days=lpDays(r), hpd=(+r.h||0)/days.length, names=(r.names||[]).filter(Boolean);
+    const own=(w.src==='job'&&w.v)?w.v.pay:null;
+    if(own&&own.b==='piece'){
+      const t=+((+r.cnt||0)*own.rm).toFixed(2), sh=splitExact(t,days.map(()=>1));
+      days.forEach((d,i)=>lines.push({rid:r.rid,w:w,k:'piece',who:'',d:d,days:[d],rm:sh[i],md:pjMd((+r.n||0)*hpd),why:''}));return;}   // review 6: day by day
+    if(w.src==='set'&&r.legacy){
+      days.forEach(d=>lines.push({rid:r.rid,w:w,k:'old',who:'',d:d,days:[d],rm:null,md:pjMd((+r.n||0)*hpd),why:r.orphan?'a report the Sheet refused as stale':'keyed with a number only'}));return;}
+    names.forEach(n=>{days.forEach(d=>{const k=n+'\u0001'+d; (pd[k]||(pd[k]={n:n,d:d,e:[]})).e.push({w:w,h:hpd});});});
+    const oth=w.src==='set'?Math.max(0,Math.round(+r.oth||0)):Math.max(0,(+r.n||0)-names.length);
+    if(oth>0){const md=pjMd(oth*(+r.h||0)), t=cfg.op>0?+(md*cfg.op).toFixed(2):null, sh=t===null?null:splitExact(t,days.map(()=>1));
+      days.forEach((d,i)=>lines.push({rid:r.rid,w:w,k:'op',who:'',d:d,days:[d],rm:sh?sh[i]:null,md:md/days.length,n:oth,why:cfg.op>0?'':'no oil-palm rate keyed'}));}});   // review 6: day by day
+  Object.keys(pd).forEach(k=>{
+    const g=pd[k], p=cfg.ppl[g.n], tot=g.e.reduce((s,x)=>s+x.h,0);
+    if(p&&p.k==='sup')return;   // S1a - a supervisor ticked on an old report is not in the durian labour
+    const dr=(p&&(p.k==='full'||p.k==='day'))?p.dr:0;
+    const parts=dr>0?splitExact(dr,g.e.map(x=>tot>0?x.h:1)):null;
+    g.e.forEach((x,i)=>lines.push({rid:x.w.r.rid,w:x.w,k:'day',who:g.n,d:g.d,days:[g.d],rm:parts?parts[i]:null,md:pjMd(x.h),why:dr>0?'':'no pay keyed for '+g.n}));});
+  const allow=[];
+  Object.keys(cfg.ppl).forEach(n=>{const p=cfg.ppl[n]; if(p.k!=='full'||!(p.mo>0))return;
+    lpMonths().forEach(mk=>{const dim=lpDim(mk), s=mk+'-01', e=mk+'-'+String(dim).padStart(2,'0');
+      let a=s, b=e; [lpFrom(),p.from].forEach(x=>{if(x&&x>a)a=x;}); if(p.to&&p.to<b)b=p.to;
+      if(a>b)return; const days=ppDiff(b,a)+1;
+      allow.push({mk:mk,who:n,rm:+(p.mo*days/dim).toFixed(2),days:days,dim:dim,from:a,to:b});});});
+  const rid={}; lines.forEach(l=>{const o=rid[l.rid]||(rid[l.rid]={rm:0,any:false,unp:0}); if(l.rm===null)o.unp+=l.md; else{o.rm+=l.rm;o.any=true;}});
+  LP_BOOK={lines:lines,allow:allow,rid:rid,cfg:cfg}; Promise.resolve().then(()=>{LP_BOOK=null;});
+  return LP_BOOK;}
+/** A report's RM, the new way (null = nothing of it priced). */
+function lpRidRm(id){const o=lpBook().rid[id]; return (o&&o.any)?+o.rm.toFixed(2):null;}
+/** The month's pay: by person, oil palm, piece, not priced, and the allowance. */
+function lpMonth(mk){
+  const B=lpBook(), L=B.lines.filter(l=>String(l.d).slice(0,7)===mk), A=B.allow.filter(a=>a.mk===mk), per={};
+  const P=n=>per[n]||(per[n]={who:n,days:{},day:0,allow:0,unp:0});
+  L.filter(l=>l.k==='day').forEach(l=>{const p=P(l.who); p.days[l.d]=1; if(l.rm===null)p.unp+=l.md; else p.day+=l.rm;});
+  A.forEach(a=>{const p=P(a.who); p.allow+=a.rm; p.al=a;});
+  const people=Object.keys(per).sort().map(n=>{const p=per[n], q=B.cfg.ppl[n]||null; p.nd=Object.keys(p.days).length; p.kind=q?q.k:''; p.pay=q; p.rm=+(p.day+p.allow).toFixed(2); return p;});
+  const op=L.filter(l=>l.k==='op'), pc=L.filter(l=>l.k==='piece'), old=L.filter(l=>l.k==='old');
+  const sum=a=>+a.reduce((s,l)=>s+(l.rm||0),0).toFixed(2);
+  const opRm=sum(op), pcRm=sum(pc), allow=+A.reduce((s,a)=>s+a.rm,0).toFixed(2), dayRm=sum(L.filter(l=>l.k==='day'));
+  const unp=L.filter(l=>l.rm===null), oldR=lpOldPart(mk);   // review 5: the days of the month before the season opened, at the old rate
+  return {oldRate:oldR,mk:mk,people:people,op:{md:op.reduce((s,l)=>s+l.md,0),rm:opRm,unp:op.some(l=>l.rm===null)},piece:{rm:pcRm,n:pc.length},old:{md:old.reduce((s,l)=>s+l.md,0),n:old.length},
+    allow:allow,day:dayRm,total:+(dayRm+opRm+pcRm+allow+oldR.rm).toFixed(2),unpMd:unp.reduce((s,l)=>s+l.md,0),unp:unp,lines:L};}
+/** The labour rows of a month dated before the season opened: the old RM an hour (the month grid adds them itself). */
+function lpOldPart(mk){let mh=0; if(String(mk)!==lpFrom().slice(0,7))return {mh:0,rm:0};
+  (typeof labourRows==='function'?labourRows():[]).forEach(r=>{const d=String(r.dt||'').slice(0,10); if(d.slice(0,7)===mk&&!lpNew(d))mh+=(+r.mh||0);});
+  return {mh:mh,rm:+(mh*(+LABOUR_RATE||0)).toFixed(2)};}
+/** The month's labour by lot (allowance under '—'; for the Gate spread by trees, review 7), for the month grid. */
+function lpLots(mk){
+  const out={A:0,B:0,C:0,'—':0}, M=lpMonth(mk);
+  const trees=L=>(LOT_KEYS.indexOf(L)>=0?treesInLot(L).length:0)||1;
+  M.lines.forEach(l=>{if(!(l.rm>0))return; const lots=(l.w.r.lots||[]).filter(L=>LOT_KEYS.indexOf(L)>=0);
+    if(!lots.length){out['—']=+(out['—']+l.rm).toFixed(2);return;}
+    const sh=lots.length>1?splitExact(l.rm,lots.map(trees)):[l.rm]; lots.forEach((L,i)=>{out[L]=+(out[L]+sh[i]).toFixed(2);});});
+  if(myRole()==='MARKETING'&&M.allow>0){const ks=LOT_KEYS.slice(), sh=splitExact(M.allow,ks.map(trees)); ks.forEach((L,i)=>{out[L]=+(out[L]+sh[i]).toFixed(2);});}
+  else out['—']=+(out['—']+M.allow).toFixed(2);
+  return out;}
+/** Man-hours of the month the new way (the reports' people × hours). */
+function lpMh(mk){return pjWorkRows0().filter(w=>!w.r.undone&&lpNew(w.r.d)&&String(w.r.d).slice(0,7)===mk).reduce((s,w)=>s+(+w.r.n||0)*(+w.r.h||0),0);}
+/** RM of labour on each day (for Command ▸ compare): a day's own pay, a report of several days spread over them, the
+ *  allowance spread over the calendar days on the list. */
+function lpDayRm(){
+  const B=lpBook(), D={};
+  B.lines.forEach(l=>{if(!(l.rm>0))return; const ds=l.days&&l.days.length?l.days:[l.d], each=l.rm/ds.length; ds.forEach(d=>{D[d]=(D[d]||0)+each;});});
+  B.allow.forEach(a=>{const each=a.rm/a.days; for(let i=0;i<a.days;i++){const d=ppAdd(a.from,i); D[d]=(D[d]||0)+each;}});
+  return D;}
+/** The name a report's labour is filed under in Cost by lot: the name the old labour rows used. */
+function lpBucket(w){
+  if(w.src==='set'){const e=(typeof EVENTS!=='undefined'?EVENTS:[]).find(x=>x&&x.type==='STOCK_OUT'&&w.v&&w.v.rec&&x.progId===w.v.rec.uuid&&x.hours);
+    return e?(e.progSet||e.set||'programme'):ppName(w.v);}
+  const e=(w.r.rows||[])[0]; return (e&&((typeof pjLabel==='function'&&pjLabel(e))||e.kindLabel))||w.r.label||w.name;}
+const LP_ALLOW='Allowance (fixed, the month)';
+/** Cost by lot, a month of the new season: labour by job from the pay, plus the allowance row. */
+function lpWork(mo,touch){
+  const M=lpMonth(mo);
+  pjWorkRows0().filter(w=>!w.r.undone&&lpNew(w.r.d)&&String(w.r.d).slice(0,7)===mo).forEach(w=>{const j=touch(lpBucket(w)); j.mh+=(+w.r.n||0)*(+w.r.h||0); (w.r.lots||[]).forEach(L=>{j.lots[L]=1;}); j.lab=(j.lab||0);});
+  if(myRole()==='MARKETING')return M;   // L2a - the Gate sees the month's labour as one total (the month line), not job by job
+  M.lines.forEach(l=>{if(!(l.rm>0))return; const j=touch(lpBucket(l.w)); j.lab=(j.lab||0)+l.rm;});
+  if(M.allow>0){const j=touch(LP_ALLOW); j.lab=(j.lab||0)+M.allow;}
+  return M;}
+
+/* ---------- RECORD ▸ PAY: the month, one line a person (your eyes only) ---------- */
+function lpPayHTML(mon){
+  if(!lpMonNew(mon))return '<div class="pp-note" id="lp-old">'+esc(ppMonEN(mon))+' is before season 2026/27 opened ('+ppFmtS(lpFrom())+'). Its labour stays at the old rate in MONEY.</div>';
+  const M=lpMonth(mon), c=pjCfg();
+  let h='<div class="pp-q" style="margin-top:4px">💰 Pay · '+esc(ppMonEN(mon)+' '+mon.slice(0,4))+' · your eyes only</div><div class="pp-scroll"><table class="pp-t pj-t" id="lp-pay"><colgroup><col><col class="pj-j3"></colgroup>';
+  M.people.forEach((p,pi)=>{const q=p.pay, k=q?q.k:'';
+    const sub=k==='full'?('full-time · allowance '+(p.al?(p.al.days===p.al.dim?rm(p.allow):(rm(q.mo)+' × '+p.al.days+'/'+p.al.dim+' = '+rm(p.allow))):'—')+' · '+p.nd+' day'+(p.nd===1?'':'s')+(q.dr>0?(' × '+rm(q.dr)):''))
+      :k==='day'?('day only · '+p.nd+' day'+(p.nd===1?'':'s')+(q.dr>0?(' × '+rm(q.dr)):''))
+      :k==='sup'?'supervisor':('<b class="lp-bad">no pay keyed</b> · '+p.nd+' day'+(p.nd===1?'':'s'));
+    h+='<tr id="lp-pp-'+pi+'"><td><b>'+esc(p.who)+'</b><br><span class="pp-g">'+sub+(p.unp>0?(' · '+nf(p.unp)+' man-days not priced'):'')+'</span></td><td class="r"><b>'+((p.rm>0||!p.unp)?rm(p.rm):'—')+'</b></td></tr>';});
+  if(M.op.md>0)h+='<tr id="lp-p-op"><td><b>Oil-palm workers</b><br><span class="pp-g">keyed as a number · '+nf(M.op.md)+' man-days'+(c.op>0?(' × '+rm(c.op)):' · <b class="lp-bad">no oil-palm rate keyed</b>')+'</span></td><td class="r"><b>'+(c.op>0?rm(M.op.rm):'—')+'</b></td></tr>';
+  if(M.piece.n)h+='<tr id="lp-p-pc"><td><b>Paid by piece</b><br><span class="pp-g">'+M.piece.n+' report'+(M.piece.n===1?'':'s')+' on jobs with a piece rate</span></td><td class="r"><b>'+rm(M.piece.rm)+'</b></td></tr>';
+  if(M.old.n)h+='<tr id="lp-p-old"><td><b>Set reports with no names</b><br><span class="pp-g">'+nf(M.old.md)+' man-days keyed with a number only (a phone not yet on v3.90.0), or a copy the Sheet refused · not priced</span></td><td class="r">—</td></tr>';
+  if(M.oldRate.rm>0)h+='<tr id="lp-p-oldr"><td><b>Before the season opened</b><br><span class="pp-g">'+nf(M.oldRate.mh)+' man-hours before '+ppFmtS(lpFrom())+' × '+rm(LABOUR_RATE)+' (the old rate)</span></td><td class="r"><b>'+rm(M.oldRate.rm)+'</b></td></tr>';
+  if(!M.people.length&&!M.op.md&&!M.piece.n&&!M.old.n&&!M.oldRate.rm)h+='<tr><td colspan="2"><span class="pp-g">No work is reported for this month yet.</span></td></tr>';
+  h+='<tr id="lp-p-tot"><td><b>'+esc(ppMonEN(mon))+' labour</b></td><td class="r"><b class="pj-rm" id="lp-p-total">'+rm(M.total)+'</b></td></tr></table></div>';
+  if(M.unpMd>0||M.old.n)h+='<div class="pp-note amb" id="lp-unp"><b>'+nf(M.unpMd)+' man-days are not priced.</b> '+lpUnpWhy(M)+'</div>';
+  h+='<div class="pp-g">The days come from the reports each person is ticked on: one day counts once, however many jobs. The allowance is shared by the days on the list when a worker starts or leaves in the month. The same total is MONEY\'s labour for '+esc(ppMonEN(mon))+'.</div>';
+  return h;}
+function lpUnpWhy(M){
+  const w={}; M.unp.forEach(l=>{w[l.why||'?']=1;});
+  return Object.keys(w).map(x=>x==='no oil-palm rate keyed'?'Key the oil-palm rate in WORKERS.':/^no pay keyed for /.test(x)?('Key the pay of '+esc(x.replace('no pay keyed for ',''))+' in WORKERS.'):x==='keyed with a number only'?'Some set reports were keyed with a number only, no names (a phone not yet on v3.90.0).':x==='a report the Sheet refused as stale'?'A set report reached the store but not the set: two phones filed it at the same time. Its people are counted, not priced.':esc(x)).join(' ');}
+
+/* ---------- RECORD ▸ WORKERS: the people and their pay ---------- */
+let LPW=null;   // the one card open for change: {n, k, mo, dr, from, to, err, busy}
+function lpWOpen(n){n=ppUnArg(n); if(!ppIsOwner()||pjHeld())return; const p=pjCfg().ppl[n]||{k:'',mo:0,dr:0,from:'',to:''};
+  LPW={n:n,k:p.k||'',mo:p.mo?String(p.mo):'',dr:p.dr?String(p.dr):'',from:p.from||'',to:p.to||'',err:'',busy:false}; pjMoved(); ppRender();}
+function lpWSync(){if(!LPW)return; const g=id=>$(id); [['lp-w-mo','mo'],['lp-w-dr','dr'],['lp-w-from','from'],['lp-w-to','to']].forEach(x=>{const e=g(x[0]); if(e)LPW[x[1]]=e.value;});}
+function lpWKind(k){if(!LPW||!LP_KINDS[k])return; lpWSync(); LPW.k=k; LPW.err='';
+  if(k==='full'){if(!LPW.mo)LPW.mo='300'; if(!LPW.dr)LPW.dr='30'; if(!LPW.from)LPW.from=todayISO().slice(0,8)+'01';}
+  if(k==='day'&&!LPW.dr)LPW.dr='30';
+  ppRender();}
+function lpWCancel(){LPW=null; pjMoved(); ppRender();}
+async function lpWSave(){
+  if(!LPW||LPW.busy||!ppIsOwner()||pjHeld())return;
+  lpWSync();
+  const f=LPW, fail=m=>{f.err=m;ppRender();};
+  if(!LP_KINDS[f.k])return fail('Pick how '+f.n+' is paid.');
+  const mo=lpNum(f.mo), dr=lpNum(f.dr);
+  if(f.k==='full'&&!(mo>0))return fail('Key the RM a month.');
+  if((f.k==='full'||f.k==='day')&&!(dr>0))return fail('Key the RM a day.');
+  if(f.from&&!ppOkDay(f.from))return fail('Check the first day.');
+  if(f.to&&!ppOkDay(f.to))return fail('Check the last day.');
+  if(f.from&&f.to&&f.to<f.from)return fail('The last day is before the first day.');
+  f.busy=true;
+  const p={k:f.k,mo:f.k==='full'?mo:0,dr:f.k==='sup'?0:dr,from:f.k==='full'?(f.from||''):'',to:f.k==='full'?(f.to||''):''};
+  const ok=await pjCfgSave(x=>{
+    const ppl=(x.ppl&&typeof x.ppl==='object'&&!Array.isArray(x.ppl))?x.ppl:{}, was=ppl[f.n]?ppl[f.n].k:''; ppl[f.n]=p; x.ppl=ppl;
+    const cur=Array.isArray(x.names)?x.names:[], has=cur.some(m=>String(m).toLowerCase()===f.n.toLowerCase());
+    if(f.k==='sup')x.names=cur.filter(m=>String(m).toLowerCase()!==f.n.toLowerCase());   // S1a - a supervisor keys the reports; he is not in the tick list
+    else if(!has&&was==='sup')x.names=cur.concat([f.n]);});   // a supervisor made a worker joins the tick list; a person off the list stays off it (review 2.A)
+  if(!ok){f.busy=false;return fail('Not saved. Press again.');}
+  toast('✓ '+f.n+' · '+LP_KINDS[f.k][0].toLowerCase());
+  LPW=null; pjMoved(); pjAfter(false);}
+async function lpOpSave(){
+  if(!ppIsOwner()||pjHeld())return;
+  const e=$('lp-op'), v=e?+e.value:NaN;
+  if(!(v>=0)||!isFinite(v)){toast('Key the oil-palm rate in RM',1);return;}
+  const n=lpNum(v); if(n===pjCfg().op){toast('That is the rate already');return;}
+  const ok=await pjCfgSave(x=>{x.op=n;});
+  if(ok){toast(n>0?('✓ Oil palm RM '+pjN2(n)+' a man-day'):'✓ Oil-palm rate cleared');pjMoved();pjAfter(false);}}
+async function lpSupAdd(){
+  if(!ppIsOwner()||pjHeld())return;
+  const e=$('lp-sup-new'), n=pjClip(e?e.value:'',PJ_NAME_LEN), c=pjCfg();
+  if(!n){toast('Type a name first',1);return;}
+  if(c.names.concat(c.sups).concat(Object.keys(c.ppl)).some(x=>x.toLowerCase()===n.toLowerCase())){toast('That name is already on the list, or has pay on the record',1);return;}   // review 9
+  const ok=await pjCfgSave(x=>{const ppl=(x.ppl&&typeof x.ppl==='object'&&!Array.isArray(x.ppl))?x.ppl:{}; ppl[n]={k:'sup',mo:0,dr:0,from:'',to:''}; x.ppl=ppl;});
+  if(ok){toast('✓ '+n+' · supervisor');pjMoved();pjAfter(false);}}
+async function lpSupDel(n){
+  n=ppUnArg(n); if(!ppIsOwner()||pjHeld())return;
+  const ok=await pjCfgSave(x=>{if(x.ppl&&x.ppl[n])delete x.ppl[n];});
+  if(ok){pjMoved();pjAfter(false);}}
+function lpPayTxt(p){
+  if(!p||!p.k)return '<b class="lp-bad">pay not keyed</b>';
+  if(p.k==='full')return 'full-time · '+rm(p.mo)+' a month + '+rm(p.dr)+' a day'+(p.from?(' · from '+ppFmtS(p.from)):'')+(p.to?(' · last day '+ppFmtS(p.to)):'');
+  if(p.k==='day')return 'day only · '+rm(p.dr)+' a day';
+  return 'supervisor';}
+function lpWorkersHTML(cfg){
+  const f=LPW;
+  const card=(n,i,del)=>{const p=cfg.ppl[n]||null, open=f&&f.n===n;
+    if(!open)return '<div class="pj-row lp-wrow" id="pj-w-'+i+'"><span><b>'+esc(n)+'</b><br><span class="pp-g">'+lpPayTxt(p)+'</span></span><span class="lp-wbtn"><button class="pj-pb" id="lp-w-ed-'+i+'" onclick="lpWOpen(\''+ppArg(n)+'\')">PAY ✎</button>'+del+'</span></div>';
+    return '<div class="lp-wed" id="lp-w-form"><b>'+esc(n)+'</b><div class="pp-opts" id="lp-w-kind">'+Object.keys(LP_KINDS).map(k=>'<button class="pp-opt'+(f.k===k?' sel':'')+'" id="lp-w-k-'+k+'" onclick="lpWKind(\''+k+'\')">'+LP_KINDS[k][0]+'<small>'+LP_KINDS[k][1]+'</small></button>').join('')+'</div>'+
+      (f.k==='full'?'<div class="pp-two pj-two"><div><label>RM a month</label><input type="number" id="lp-w-mo" inputmode="decimal" min="0" step="10" value="'+esc(f.mo)+'"></div><div><label>RM a day he works</label><input type="number" id="lp-w-dr" inputmode="decimal" min="0" step="1" value="'+esc(f.dr)+'"></div></div>':'')+
+      (f.k==='day'?'<label>RM a day he works</label><input type="number" id="lp-w-dr" inputmode="decimal" min="0" step="1" value="'+esc(f.dr)+'">':'')+
+      (f.k==='full'?'<div class="pp-two pj-two"><div><label>First day (if new)</label><input type="date" id="lp-w-from" value="'+esc(f.from)+'"></div><div><label>Last day (if leaving)</label><input type="date" id="lp-w-to" value="'+esc(f.to)+'"></div></div>'+
+        '<div class="pp-g">The RM a month is shared by the days between the first and the last day when he starts or leaves in a month.</div>':'')+
+      ((f.k==='full'||f.k==='day')?'<div class="pp-g">A change of pay re-prices every month of the season, past ones too. If the pay changes from a day, key a last day here and add the new pay under a new name.</div>':'')+
+      (f.k==='sup'?'<div class="pp-note" id="lp-w-supnote">A supervisor keys the reports and ticks who did the work. He is not in the tick list, and his pay is not in the durian labour.</div>':'')+
+      '<div class="pp-err" id="lp-w-err">'+esc(f.err||'')+'</div><div class="pp-two pj-two"><button class="pp-act" id="lp-w-save" onclick="lpWSave()" style="margin-top:6px">SAVE</button><button class="pp-ghost" id="lp-w-no" onclick="lpWCancel()" style="margin-top:6px">CANCEL</button></div></div>';};
+  let h='<div class="pj-pay" id="pj-w-list"><div class="pp-q" style="margin-top:0">Workers · the crew ticks these names</div>'+
+    (cfg.names.length?cfg.names.map((n,i)=>card(n,i,'<button class="pj-pb" id="pj-w-del-'+i+'" onclick="pjWDel('+i+')">✕</button>')).join(''):'<div class="pp-g" id="pj-w-none">No name yet.</div>')+
+    '<div class="pj-row"><input id="pj-w-new" maxlength="'+PJ_NAME_LEN+'" placeholder="a name" autocomplete="off"><button class="pj-pb pj-nw" id="pj-w-add" onclick="pjWAdd()">＋ ADD</button></div>'+
+    '<div class="pp-g">Anyone not on the list is keyed as a number: the oil-palm gang, a casual. A name taken off stays on the reports already made, with its pay.</div></div>';
+  const gone=Object.keys(cfg.ppl).filter(n=>cfg.ppl[n].k!=='sup'&&!cfg.names.some(m=>m.toLowerCase()===n.toLowerCase())).sort();   // review 3
+  if(gone.length)h+='<div class="pj-pay" id="lp-w-gone"><div class="pp-q" style="margin-top:0">Off the list · their pay stays on the record</div>'+gone.map((n,i)=>f&&f.n===n?card(n,'g'+i,''):'<div class="pj-row lp-wrow" id="lp-gone-'+i+'"><span><b>'+esc(n)+'</b><br><span class="pp-g">'+lpPayTxt(cfg.ppl[n])+((cfg.ppl[n].k==='full'&&!cfg.ppl[n].to)?' · <b class="lp-bad">no last day: the allowance runs on</b>':'')+'</span></span><span class="lp-wbtn"><button class="pj-pb" id="lp-gone-ed-'+i+'" onclick="lpWOpen(\''+ppArg(n)+'\')">PAY ✎</button></span></div>').join('')+'</div>';
+  h+='<div class="pj-pay" id="lp-w-op"><div class="pp-q" style="margin-top:0">Oil-palm workers · keyed as a number</div><div class="pj-row"><span>RM for a man-day of '+PJ_DAY_H+' hours</span><span class="pj-dayr"><input type="number" id="lp-op" inputmode="decimal" min="0" step="0.5" value="'+(cfg.op>0?cfg.op:'')+'" placeholder="RM"><button class="pj-pb" id="lp-op-save" onclick="lpOpSave()">SAVE</button></span></div>'+
+    '<div class="pp-g">'+(cfg.op>0?'Used for every person keyed as a number.':'<b>Not keyed yet.</b> Their man-days are counted but not priced until you key it.')+'</div></div>';
+  h+='<div class="pj-pay" id="lp-w-sups"><div class="pp-q" style="margin-top:0">Supervisors · they key the reports</div>'+
+    (cfg.sups.length?cfg.sups.map((n,i)=>f&&f.n===n?card(n,'s'+i,''):'<div class="pj-row lp-wrow" id="lp-sup-'+i+'"><span><b>'+esc(n)+'</b><br><span class="pp-g">supervisor · not ticked, not in the durian labour</span></span><span class="lp-wbtn"><button class="pj-pb" id="lp-sup-ed-'+i+'" onclick="lpWOpen(\''+ppArg(n)+'\')">✎</button><button class="pj-pb" id="lp-sup-del-'+i+'" onclick="lpSupDel(\''+ppArg(n)+'\')">✕</button></span></div>').join(''):'<div class="pp-g" id="lp-sup-none">No supervisor yet.</div>')+
+    '<div class="pj-row"><input id="lp-sup-new" maxlength="'+PJ_NAME_LEN+'" placeholder="a supervisor" autocomplete="off"><button class="pj-pb pj-nw" id="lp-sup-add" onclick="lpSupAdd()">＋ ADD</button></div></div>';
+  return h;}
+
+/* ---------- the names on a set (P1a): the crew's TANDA SIAP and the Owner's RECORD AS DONE ---------- */
+/** The tick block. `o` = PPCD or PPR; pre = 'pp-c' | 'pp-r'; fn = the handler's prefix. */
+function lpSetNamesHTML(o,pre,fn,bm){
+  const list=o.list||[];
+  if(!list.length)return '';
+  const T=(e,m)=>bm?ppT(e,m):e, n=list.filter(x=>o.names&&o.names[x]).length+Math.max(0,Math.round(+o.oth||0));
+  return '<label>'+T('Who worked? Tick the names','Siapa yang kerja? Tanda nama')+'</label><div class="pp-opts" id="'+pre+'-names">'+list.map((x,i)=>'<button class="pp-opt'+(o.names[x]?' sel':'')+'" id="'+pre+'-n-'+i+'" onclick="'+fn+'Name('+i+')">'+esc(x)+'</button>').join('')+'</div>'+
+    '<div class="pj-row"><span>'+T('Others, not on the list (oil palm)','Orang lain, tiada dalam senarai (sawit)')+'</span>'+pjStepHTML(pre+'-x',Math.round(+o.oth||0),fn+'Oth(')+'</div>'+
+    '<div class="pp-g" id="'+pre+'-ppl">'+n+' '+T(n===1?'person':'people','orang')+'</div>';}
+function lpPeopleOf(o){return o&&o.list&&o.list.length?(o.list.filter(x=>o.names[x]).length+Math.max(0,Math.round(+o.oth||0))):null;}
+function ppCName(i){if(!PPCD||!PPCD.list)return; ppCSync(); const n=PPCD.list[i]; if(!n)return; if(PPCD.names[n])delete PPCD.names[n]; else PPCD.names[n]=1; PPCD.err=''; ppRender();}
+function ppCOth(d){if(!PPCD)return; ppCSync(); PPCD.oth=Math.max(0,Math.min(PJ_PEOPLE_MAX,Math.round((+PPCD.oth||0)+d))); PPCD.err=''; ppRender();}
+function ppRName(i){if(!PPR||!PPR.list)return; ppRSync(); const n=PPR.list[i]; if(!n)return; if(PPR.names[n])delete PPR.names[n]; else PPR.names[n]=1; PPR.err=''; ppRender();}
+function ppROth(d){if(!PPR)return; ppRSync(); PPR.oth=Math.max(0,Math.min(PJ_PEOPLE_MAX,Math.round((+PPR.oth||0)+d))); PPR.err=''; ppRender();}
+/** What a set's report files: the names and the others, when the list was shown. */
+function lpSetFile(o,crew){if(!o)return {}; if(!o.list||!o.list.length)return {names:[],oth:Math.max(0,Math.round(+crew||0))};   // review 10: no name on the list - the people are others, as on a job
+  const names=o.list.filter(x=>o.names[x]); return {names:names,oth:Math.max(0,Math.round(+o.oth||0))};}
+/** The job page: its pay and its labour so far, the season's reports by the people (review 2). */
+function lpJobPay(v){return (v&&v.pay&&v.pay.b==='piece')?v.pay:((v&&lpNew(v.from||todayISO()))?{b:'ppl'}:pjPay(v?v.pay:null));}
+function lpJobRm(v,r){return lpNew(r.d)?(lpRidRm(r.rid)||0):(pjRm(pjPay(v.pay),r)||0);}
+/* ---------- MONEY, Labour & the rate, Command ---------- */
+function lpMoneyLine(m,line){
+  const g=myRole()==='MARKETING';
+  return line(esc(tr('mn_labour','Labour')),rm(m.labour_total),'',g?'the month\'s total':(nf(m.lab_md||0)+' man-days · as The Programme ▸ RECORD ▸ PAY'+(m.lab_unp>0?(' · '+nf(m.lab_unp)+' man-days not priced'):'')));}
+function lpNetSub(m){return m.lab_unp>0?('labour partly not priced: '+nf(m.lab_unp)+' man-days'):'';}
+function lpRateHtml(){
+  return '<div class="sec">💵 Labour cost</div><div class="cnote" id="lp-rate">From <b>'+ppFmtS(lpFrom())+'</b> (season 2026/27) labour is priced by The Programme ▸ RECORD ▸ <b>PAY</b>: each worker\'s pay in <b>WORKERS</b> (RM a month, RM a day), the oil-palm rate for people keyed as a number, and a piece rate where a job has one. '+
+    'The months before keep the old rate of <b>'+rm(LABOUR_RATE)+'</b> a man-hour (season 2025/26, closed).</div>';}
+/* ====================== end of v3.90.0 ====================== */
 
 /* =========================== THE OWNER · Trees ▸ FOLLOW-UP =========================== */
 function fuNeed(){return {ck:fuCkWait().length,late:fuCkState().k==='late'?1:0,sh:fuShWaiting().length,ho:fuHoWaiting().length};}
@@ -22152,8 +22438,12 @@ function buildMonthMatrix(){
     const k=String(r.dt||'').slice(0,7); if(k.length!==7)return;
     const m=touch(k);
     const L=LOT_KEYS.indexOf(r.lot)>=0?r.lot:'—';
+    if(lpNew(r.dt))return;   // v3.90.0 - from the season's first day labour is the pay (below)
     m.labour[L]=+(m.labour[L]+(r.mh*LABOUR_RATE)).toFixed(2);
     m.manhours+=r.mh;});
+  lpLineMonths().forEach(k=>{const M=lpMonth(k), mh=lpMh(k); if(!(M.total>0)&&!(mh>0)&&!(M.unpMd>0))return;
+    const m=touch(k), P=lpLots(k); Object.keys(P).forEach(L=>{m.labour[L]=+(m.labour[L]+P[L]).toFixed(2);});
+    m.manhours+=mh; m.lab_new=1; m.lab_md=pjMd(m.manhours); m.lab_unp=M.unpMd;});
 
   const months=Object.values(M).sort((a,b)=>a.key.localeCompare(b.key));
   months.forEach(m=>{
@@ -22212,9 +22502,8 @@ function renderMatrix(){
      is the half of this screen he sells against. NOTE the two flags are NOT the same
      question: SHOW_VALUES stays true for him, or his own invoices would blank out too. */
   box.innerHTML=
-    ((LABOUR_RATE_OK||!SHOW_SPEND||!labourCosted())?'':'<div class="critbox">Labour is priced at the placeholder rate of '+rm(LABOUR_RATE)+
-      ' per man-hour. Set the real rate in the LABOUR tab — until then every labour and margin figure '+
-      'on this screen is indicative only.</div>')+
+    ((!SHOW_SPEND||!labourCosted()||!d.months.some(function(m){return !lpMonNew(m.key)&&m.labour_total>0;}))?'':'<div class="cnote">The months before '+ppFmtS(lpFrom())+' (season 2025/26) are priced at the old placeholder rate of '+rm(LABOUR_RATE)+
+      ' per man-hour. From '+ppFmtS(lpFrom())+' labour is the pay in The Programme ▸ RECORD ▸ PAY.</div>')+   // v3.90.0 (L3a)
     (SHOW_SPEND
       ?('<div class="cnote">Sorted newest first. Tap a month to open its lot-by-lot spend and the merchant '+
         'revenue split. <b>Drawdown %</b> is how much of everything that passed through the store was '+
@@ -27646,7 +27935,7 @@ function phoneFreshness(){
 function dayRoll(){
   const mac=movingAvgCost();
   const D={};
-  const touch=k=>{if(!D[k])D[k]={day:k,fruit:0,rotten:0,tied:0,kg:0,rm_in:0,rm_out:0,mh:0,
+  const touch=k=>{if(!D[k])D[k]={day:k,fruit:0,rotten:0,tied:0,kg:0,rm_in:0,rm_out:0,mh:0,lab:0,
     lot:{},grade:{}};return D[k];};
   EVENTS.forEach(e=>{
     const k=String(e.dt||'').slice(0,10); if(k.length!==10)return;
@@ -27666,7 +27955,8 @@ function dayRoll(){
     else if(e.type==='STOCK_OUT')    touch(k).rm_out+=outCostOf(e,mac);});
   labourRows().forEach(r=>{
     const k=String(r.dt||'').slice(0,10); if(k.length!==10)return;
-    touch(k).mh+=(+r.mh||0);});
+    touch(k).mh+=(+r.mh||0); if(!lpNew(k))touch(k).lab+=(+r.mh||0)*LABOUR_RATE;});   // v3.90.0
+  const LD=lpDayRm(); Object.keys(LD).forEach(k=>{touch(k).lab+=LD[k];});
   return D;}
 
 /** dd of a Date, as the ledger writes it. */
@@ -27758,7 +28048,7 @@ function renderCmdToday(){
       '<tr><td>'+esc(tr('cd_material'))+'<u>'+esc(tr('cd_matsub'))+'</u></td>'+
         '<td>'+(SHOW_VALUES?('− '+rm(m.material_total)):'—')+'</td></tr>'+
       '<tr><td>'+esc(tr('cd_labour'))+'<u>'+nf(m.manhours)+' '+esc(tr('cd_labsub'))+
-        (LABOUR_RATE_OK?'':' · '+esc(tr('cd_rateoff')))+'</u></td>'+
+        ((LABOUR_RATE_OK||lpMonNew(m.key))?'':' · '+esc(tr('cd_rateoff')))+'</u></td>'+
         '<td>'+(SHOW_VALUES?('− '+rm(m.labour_total)):'—')+'</td></tr>'+
       '<tr class="tot"><td>'+esc(tr('cd_left'))+'</td><td class="'+(m.margin_rm<0?'cbdn':'cbup')+'">'+
         (SHOW_VALUES?rm(m.margin_rm):'—')+'</td></tr>'+
@@ -27981,13 +28271,13 @@ function renderCmdCompare(){
           (hadPrev?('<u>'+esc(tr('cb_before'))+' '+(b?((sign<0?'− ':'')+rm(b)):'—')+'</u>'):'')+'</td>'+
         (hadPrev?('<td class="'+(d===null?'cbfl':(better?'cbup':'cbdn'))+'">'+
           (d===null?'—':(d>0?'+':'')+d+'%')+'</td>'):'')+'</tr>';};
-    const labNow=cmpSum(D,S.now,'mh')*LABOUR_RATE, labPrev=cmpSum(D,S.prev,'mh')*LABOUR_RATE;
+    const labNow=cmpSum(D,S.now,'lab'), labPrev=cmpSum(D,S.prev,'lab');   // v3.90.0 - the pay; the old rate only before the season
     const netNow=cmpSum(D,S.now,'rm_in')-cmpSum(D,S.now,'rm_out')-labNow;
     const netPrev=cmpSum(D,S.prev,'rm_in')-cmpSum(D,S.prev,'rm_out')-labPrev;
     const nd=cmpPct(netNow,netPrev);
     H.push('<div class="exsub">'+esc(tr('cb_money'))+'</div>');
     const ld=cmpPct(labNow,labPrev);
-    H.push((LABOUR_RATE_OK?'':'<div class="critbox" style="font-size:11.5px;line-height:1.5">'+
+    H.push(((LABOUR_RATE_OK||!S.now.concat(S.prev).some(k=>!lpNew(k)&&D[k]&&D[k].lab>0))?'':'<div class="critbox" style="font-size:11.5px;line-height:1.5">'+
         esc(tr('cd_labour'))+' '+rm(LABOUR_RATE)+'/h — '+esc(tr('cd_ratewarn'))+'</div>')+
       '<table class="cbtb"><tr><th>&nbsp;</th><th>'+esc(tr('cb_thisper'))+'</th>'+
         (hadPrev?('<th>'+esc(tr('cb_change'))+'</th>'):'')+'</tr>'+
@@ -29705,7 +29995,7 @@ const MONEY_DETAIL=[
 function hideMoneyDetail(){
   MONEY_DETAIL.forEach(function(d){
     const el=$(d.id); if(!el)return;
-    el.style.display=(SHOW_SPEND&&MONEY_OPEN[d.k])?'':'none';});}
+    el.style.display=(SHOW_SPEND&&MONEY_OPEN[d.k]&&roleAllows(d.id))?'':'none';});}   // v3.90.0
 
 /* v3.40.0 — ONE AT A TIME, NOT FOUR AT ONCE.
    These four were independent on/off toggles, so nothing stopped all four being open
@@ -29757,9 +30047,11 @@ function workDone(mo){
     if(!seenRun[rid]){seenRun[rid]=1;j.tanks+=(+e.tanks||0);}});
   labourRows().forEach(function(r){
     if(String(r.dt||'').slice(0,7)!==mo)return;
+    if(lpNew(r.dt))return;   // v3.90.0 - the season's work is priced by the pay, below
     const j=touch(r.what||'job');
-    j.mh+=(+r.mh||0);
+    j.mh+=(+r.mh||0); j.lo=(j.lo||0)+(+r.mh||0)*LABOUR_RATE;
     if(r.lot)j.lots[r.lot]=1;});
+  if(lpMonNew(mo))lpWork(mo,touch);
   /* THE RESIDUAL. Material can leave the store without a directive behind it — a repair,
      a one-off issue, anything keyed straight out. It counts in the month's Material line
      and belongs to no job, so without this row the table below silently disagrees with
@@ -29777,7 +30069,7 @@ function workDone(mo){
     const j=J[n];
     j.runs_n=Object.keys(j.runs).length;
     j.lot_list=Object.keys(j.lots).sort().join(' ');
-    j.labour=+(j.mh*LABOUR_RATE).toFixed(2);
+    j.labour=+((j.lo||0)+(j.lab||0)).toFixed(2);   // v3.90.0
     j.total=+(j.material+j.labour).toFixed(2);
     return j;}).filter(function(j){return j.total>0||j.mh>0||j.material>0;})
     .sort(function(a,b){
@@ -29825,7 +30117,8 @@ function renderMoney(){
         nf(m.kg_total)+' kg · '+m.invoices+' invoice'+(m.invoices===1?'':'s'))+
       (SHOW_SPEND?(
         line(esc(tr('mn_material','Material')),rm(m.material_total))+
-        (labourCosted()
+        (lpMonNew(m.key)?lpMoneyLine(m,line):   // v3.90.0
+        labourCosted()
           ? line(esc(tr('mn_labour','Labour')),rm(m.labour_total),'',nf(m.manhours)+' man-hours')
           /* Zero rate: say NOT COSTED YET rather than RM 0.00. The hours are real and are
              shown; only their price is missing, and that is a different statement. */
@@ -29835,7 +30128,7 @@ function renderMoney(){
         line(esc(tr('mn_draw','Drawdown')),rm(m.open_val+m.in_val-m.close_val)+' · '+nf(m.drawdown_pct)+'%',
           '','what left the store as a share of everything in it')+
         line('<b>'+esc(tr('mn_net','Net'))+'</b>','<b>'+rm(m.margin_rm)+'</b>','netline',
-          labourCosted()?'':esc(tr('mn_netnolab','revenue less material only — labour is not in this figure'))))
+          lpMonNew(m.key)?lpNetSub(m):(labourCosted()?'':esc(tr('mn_netnolab','revenue less material only — labour is not in this figure')))))
         :line(esc(tr('mn_perkg','Average RM / kg')),
             m.kg_total?rm(m.revenue_total/m.kg_total):'—'))+
     '</table>';
@@ -29874,15 +30167,14 @@ function renderMoney(){
       /* v3.34.2 — the placeholder alarm only makes sense while the rate is a FORGOTTEN
          default. Once it is deliberately zero it is noise, and a red box that is noise
          teaches people to ignore red boxes. */
-      (labourCosted()?'':'<div class="warnbox">Labour is <b>not costed yet</b> — the rate is set to zero, '+
+      ((lpMonNew(m.key)||labourCosted())?'':'<div class="warnbox">Labour is <b>not costed yet</b> — the rate is set to zero, '+
         'so every RM on this page is material only. The '+nf(w.tot.mh)+' man-hours are still recorded '+
         'and will price themselves the moment you set a rate, or key the month\u2019s real labour cost.</div>')+
       (Math.abs(matGap)<0.01?'':'<div class="critbox">This table adds to '+rm(w.tot.material)+
         ' of material but the month line above says '+rm(m.material_total)+'. One of the two is wrong. '+
         'Do not budget off either figure until the difference of '+rm(Math.abs(matGap))+' is found.</div>')+
-      ((LABOUR_RATE_OK||!labourCosted())?'':'<div class="critbox">The labour rate is still the placeholder '+rm(LABOUR_RATE)+
-        ' per man-hour, so every <b>Hours</b> figure priced on this page — and the labour column of the '+
-        'month grid — is indicative until you set the real one. Open <b>Labour &amp; the rate</b> below.</div>')+
+      ((lpMonNew(m.key)||!labourCosted())?'':'<div class="cnote">This month is before season 2026/27: its labour is priced at the old placeholder rate of '+rm(LABOUR_RATE)+
+        ' per man-hour (season 2025/26, closed). From '+ppFmtS(lpFrom())+' labour is the pay in The Programme ▸ RECORD ▸ PAY.</div>')+   // v3.90.0 (review 13)
       '<div class="small">Material and hours are joined by the name the job was filed under. A job with '+
         'hours and no material is hand work; a job with material and no hours was filed without a crew '+
         'size, which is worth chasing — it is the one thing that makes this table read low.</div>';}
@@ -29911,7 +30203,7 @@ function renderMoney(){
   let detail='';
   if(SHOW_SPEND){
     detail='<div class="sec" style="margin-top:16px">'+esc(tr('mn_detail','The full screens'))+'</div>'+
-      '<div class="dtogs">'+MONEY_DETAIL.map(function(x){
+      '<div class="dtogs">'+MONEY_DETAIL.filter(function(x){return roleAllows(x.id);}).map(function(x){
         return '<button class="dtog'+(MONEY_OPEN[x.k]?' on':'')+'" onclick="moneyTog(\''+x.k+'\')">'+
           x.ic+' '+esc(x.t)+'<span>'+(MONEY_OPEN[x.k]?'▾':'▸')+'</span></button>';}).join('')+'</div>'+
       '<div class="small">Nothing was removed when this page was built — these are the four original '+

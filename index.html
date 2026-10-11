@@ -2932,8 +2932,13 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 .pj-t td.r b{white-space:nowrap}
 .pj-rm{color:var(--green2);white-space:nowrap}
 .pj-t .pj-pb{margin:0 0 4px}
-.pp-vsw.pj-rseg{grid-template-columns:repeat(4,1fr)}
-.pp-vsw.pj-rseg button{font-size:11px}
+.pp-vsw.pj-rseg{grid-template-columns:repeat(5,1fr);gap:4px}
+.pp-vsw.pj-rseg button{font-size:10px;padding:8px 1px}
+.lp-bad{color:#c62828}
+.lp-wrow>span:first-child{flex:1 1 auto;min-width:0}
+.lp-wbtn{display:flex;gap:6px;flex:none}
+.lp-wed{border:2px solid #1f5f8b;border-radius:11px;padding:9px 10px;margin:8px 0;background:#f4f9fc}
+.lp-wed .pp-opts .pp-opt small{display:block}
 .pj-nw{white-space:nowrap;flex:none}
 .pp-two.pj-two>div{min-width:0}
 .pp .pp-two.pj-two input{min-width:0;width:100%;padding-left:8px;padding-right:6px;font-size:15px}
@@ -4717,7 +4722,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.89.0"></script>
-<script src="app.js?v=3.89.0"></script>
+<script src="database.js?v=3.90.0"></script>
+<script src="app.js?v=3.90.0"></script>
 </body>
 </html>
