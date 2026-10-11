@@ -743,6 +743,23 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .tc-seg.tc-s2{grid-template-columns:repeat(2,1fr)}
 .tc-seg.pz-seg4{grid-template-columns:repeat(4,1fr)}   /* v3.85.0 - Trees has a fourth tab, GATE 1 */
 .tc-seg.pz-seg4 button{font-size:11px;padding:8px 1px}
+/* v3.88.0 - the canker photo button and viewer, the mix made */
+.fu-hist button.fu-hb{border-radius:8px;padding:5px 8px;font:inherit;font-size:11px;font-weight:800;border-width:1.5px;border-style:solid;line-height:1.25;min-height:44px;cursor:pointer;text-align:left}
+.fu-hist button.fu-hb:not(.fu-lw):not(.fu-ld):not(.fu-lk){background:#fff;border-color:#1f5f8b;color:#3b3a35}
+.fu-hist button.fu-hb small{display:block;font-weight:400;font-size:10px}.fu-hist button.fu-hb b{color:#1f5f8b}
+.fu-slr{display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px dashed #dfe5dd;padding:4px 0}
+.fu-pb{border:1.5px solid #1f5f8b;color:#1f5f8b;background:#fff;border-radius:10px;font:inherit;font-weight:900;font-size:13px;padding:6px 10px;min-height:44px;cursor:pointer;white-space:nowrap;flex:none}
+.fu-mix{border:1.5px solid #cfe0cc;border-radius:12px;padding:8px 10px;background:#f7faf6;margin:8px 0}
+.fu-lb{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:950;padding:14px}
+.fu-lbst{color:#bfe3c0;font-size:12.5px;font-weight:700;padding:0 13px 6px;background:#000;min-height:4px}
+.fu-lbw{background:#111;border-radius:16px;overflow:hidden;width:100%;max-width:560px}
+.fu-lbbar{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:8px 8px 8px 13px;font-weight:800}
+.fu-lbx{background:transparent;border:0;color:#fff;font-size:20px;min-width:44px;min-height:44px;cursor:pointer}
+.fu-lbw img{display:block;width:100%;height:auto;max-height:60vh;object-fit:contain;background:#000}
+.fu-lbf{color:#cfd6cd;font-size:12px;padding:8px 13px;background:#000;word-break:break-all}
+.fu-lbb{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;background:#000}
+.fu-lbb button{border:0;border-radius:11px;min-height:48px;font:inherit;font-weight:900;cursor:pointer}
+.fu-lbs{background:#2e7d32;color:#fff}.fu-lbc{background:#333;color:#fff}
 /* v3.87.0 - the empty dose box of an added product; CHANGE THE PLAN of a planned job */
 .pq-e0.on{border:2px solid #b26a00!important;background:#fdf0e2!important}
 .pq-e0h{color:#b26a00;font-size:12.5px;font-weight:700;margin:4px 0 0}
@@ -4687,7 +4704,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.87.0"></script>
-<script src="app.js?v=3.87.0"></script>
+<script src="database.js?v=3.88.0"></script>
+<script src="app.js?v=3.88.0"></script>
 </body>
 </html>
