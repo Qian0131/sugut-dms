@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.93.0';   // v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.94.0';   // v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -2151,7 +2151,7 @@ function renderForTab(k,t){
   if(k==='admin'&&t==='corr'){CORR_ARM='';renderCorrections();}
   if(k==='admin'&&t==='reg')renderKeys();
   if(k==='scale'&&t==='scale')renderScaleCard();
-  if(k==='harvest'&&t==='backlog')renderBacklog();
+  if(k==='harvest'&&t==='backlog'){if(typeof SC!=='undefined')SC.s='';renderBacklog();}   // v3.94.0 - THE SHED opens on the shed, not on a count left on screen
   // v3.12
   if(k==='agro'&&t==='build')renderAgroMatrix();
   if(k==='inv'&&t==='alloc')renderAllocCard();
@@ -4608,6 +4608,7 @@ function mineLine(g){
       return {w:nf(+e.line_count||n)+' '+tr('my_baskets','baskets')+' · '+nkg(+e.total_kg||0)+' kg',
               s:esc(e.retailer_name||e.contact||'')};
     case 'FOC_REQ':
+      if(scIsCount(e))return {w:'🏚 '+tr2('Counted the shed','Kira buah bangsal'),s:''};   // v3.94.0
       return {w:tr('my_asked','Asked for')+' '+nf(+e.fruit_n||0)+' '+tr('my_fruit','fruit')+
                 (e.clone?(' · '+esc(CLONE_NAME[e.clone]||e.clone)):''),
               s:esc(e.reasonLabel||'')};
@@ -5272,6 +5273,7 @@ function describeEvent(e){
   if(e.type==='DROP')        return IC_DUR+' '+e.qty+'× '+(e.clone||'?')+' @ '+e.tree+(e.grade?(' · Grade '+e.grade):'');
   if(e.type==='ROTTEN')      return '🍂 '+e.qty+' rotten @ '+e.tree+(e.cause?(' · '+e.cause):'');
   // v3.30.2 - rations & gifts, readable at a glance in the clean-up list
+  if(scIsCount(e)&&(e.type==='FOC_REQ'||e.type==='FOC_APPROVE'))return (e.type==='FOC_REQ'?'🏚 shed count':'✓ shed count')+(e.worker?(' · '+e.worker):'');   // v3.94.0
   if(e.type==='FOC_REQ')     return '🎁 '+(e.reasonLabel||e.reason||'FOC')+' · '+nf(e.kg)+' kg'+
                                     (e.receiver?(' → '+e.receiver):'')+(e.grade?(' · '+e.grade):'');
   if(e.type==='FOC_APPROVE') return '✓ ration approved · '+nf(e.kg)+' kg';
@@ -9268,6 +9270,7 @@ function pjCrewListHTML(){
   h+=tcH;
   {let pzk='';try{pzk=pzCrewLeafHTML();}catch(e){pzk='';} h+=pzk;}   // v3.85.0 - every day for 7 days after PBZ
   {let fuk='';try{fuk=fuCrewLightHTML();}catch(e){fuk='';} h+=fuk;}   // v3.86.0 - the sunlight after the shade work
+  {let sck='';try{sck=scCrewRowHTML();}catch(e){sck='';} h+=sck;}   // v3.94.0 - KIRA BUAH BANGSAL
   const setRow=v=>{const st=ppSt(v), left=ppLotsLeft(v);
     return '<button class="pp-row" id="pp-crow-'+ppCss(v.key)+'" onclick="ppCOpen(\''+ppArg(v.key)+'\')"><div class="pp-top"><b class="pp-nm">'+esc(ppNameBM(v))+'</b>'+
       '<span class="pp-pill '+st.c+'">'+st.t+'</span></div><div class="pp-pur">'+esc(ppTgt(v))+'</div><div class="pp-dt">'+ppFmt(v.date)+' · '+ppSizeTxt(v,v.tanks,left)+
@@ -20590,7 +20593,7 @@ function shedLayersAll(){
     .slice().sort((a,b)=>String(a.dt||'').localeCompare(String(b.dt||'')))
     .forEach(d=>{const k=shedKey(d.clone,d.grade);
       const layer={day:String(d.dt||'').slice(0,10),lot:d.lot||'?',
-        n:Math.max(0,Math.floor(+d.qty||0))};
+        n:Math.max(0,Math.floor(+d.qty||0)),dt:String(d.dt||'')};   // v3.94.0 - the shed count draws only fruit dropped by its time
       (q[k]||(q[k]=[])).push(layer);
       if(d.uuid)byUuid[String(d.uuid)]=layer;});
   /* every signed correction against one of those drops, applied to ITS OWN layer. A
@@ -20606,6 +20609,7 @@ function shedLayersAll(){
   Object.keys(q).forEach(k=>{
     q[k]=q[k].filter(l=>l.n>0);
     if(!q[k].length)delete q[k];});
+  {const all=[]; Object.keys(q).forEach(k=>q[k].forEach(L=>all.push({k:k,L:L,n0:L.n}))); Object.defineProperty(q,'_all',{value:all,enumerable:false});}   // v3.94.0 - the shed count
   return q;}
 /** v3.36.0's name, kept so nothing that learned it breaks. Same queue, now dated. */
 function mktlShedLayers(){return shedLayersAll();}
@@ -20692,6 +20696,7 @@ function shedConsumers(){
     focDone[String(e.reqUuid)]=(e.type==='FOC_APPROVE')?'APPROVED':'REFUSED';});
 
   const out=[];
+  SC_DRAWN={}; const scWin=scOutWindows();   // v3.94.0 - the shed count: fresh on every walk, one pass for what is out at the Gate
   /* v3.39.0 — a consumer now carries WHERE IT CAME FROM. Nothing that already reads this
      list changes (dt · key · n · pref are untouched); the ledger uses the new fields so it
      can draw off the SAME queue in the SAME order instead of running a second, private
@@ -20713,13 +20718,14 @@ function shedConsumers(){
       reqLines(e).forEach(x=>eat(e.dt,x.clone,x.grade,x.fruits,x.layers,'REQ',e,x));
       return;}
     if(e.type==='FOC_REQ'){
+      if(scIsCount(e)){const m=(focMeta(e)||{}); if(m.sc&&focDone[String(e.uuid)]!=='REFUSED')out.push({dt:String(e.dt||''),key:'',n:0,pref:null,src:'COUNT',ev:e,line:null,set:m.sc,pend:scPendAt(scWin,String(e.dt||''))}); return;}   // v3.94.0 - the shed count: a set point
       if(focDone[String(e.uuid)]!=='APPROVED')return;
       // v3.38.0 — a ration weighed at the scale carries the harvest layers it drew. On the
       // phone that wrote it they are a field; on every other phone they arrive packed in
       // the note. focLayersOf() is the one door, so the stamp beats FIFO on BOTH.
       eat(e.dt,e.clone,e.grade,e.fruit_n,focLayersOf(e),'FOC',e,null);
       return;}});
-  out.sort((a,b)=>String(a.dt).localeCompare(String(b.dt)));
+  out.sort((a,b)=>String(a.dt).localeCompare(String(b.dt))||((a.src==='COUNT')-(b.src==='COUNT')));   // v3.94.0 - a count is the last act of its minute
   return out;}
 
 /** One queue, drained. `q` IS the shed — hand it straight to shedStamp() and the very
@@ -20737,6 +20743,7 @@ function shedConsumers(){
 function shedNow(){
   const q=shedLayersAll(), short={}; let shortTotal=0;
   shedConsumers().forEach(c=>{
+    if(c.set){shortTotal-=scApplySet(q,c,short);return;}   // v3.94.0 - the shed count settles the clone
     const r=shedDraw(q,c.key,c.n,c.pref);
     if(r&&r.short>0){short[c.key]=(short[c.key]||0)+r.short; shortTotal+=r.short;}});
   const total=shedTotal(q);
@@ -20909,7 +20916,7 @@ function fruitBacklog(upto){
  *  standing at the gate. Fruit always; kilos and ringgit only where they were measured. */
 function shedDoorRows(from,to){
   const D={MERCHANT:{n:0,kg:0,rm:0},CASH:{n:0,kg:0,rm:0},FREE:{n:0,kg:0,rm:0},
-           DUMP:{n:0,kg:0,rm:0},GATE:{n:0,kg:0,rm:0}};
+           DUMP:{n:0,kg:0,rm:0},GATE:{n:0,kg:0,rm:0},COUNT:{n:0,kg:0,rm:0}};   // v3.94.0 - counted out at the shed
   const win=e=>inWindow(e.dt,from,to);
   /* the same closed-request map shedConsumers() uses — a load the Gate has approved is
      represented by its DISPATCH, never twice */
@@ -20938,8 +20945,9 @@ function shedDoorRows(from,to){
       return;}
     if(e.type==='FOC_REQ'){
       if(!focDone[String(e.uuid)])return;          // only an ANSWERED ration has left
-      const d=(FOC_REASONS[e.reason]||{}).isLoss?D.DUMP:D.FREE;
+      const d=scIsCount(e)?D.COUNT:(FOC_REASONS[e.reason]||{}).isLoss?D.DUMP:D.FREE;   // v3.94.0
       d.n+=Math.max(0,Math.floor(+e.fruit_n||0)); d.kg+=+e.kg||0; d.rm+=+e.value_rm||0;}});
+  {const sl=scLosses(from,to); D.COUNT.n+=sl.n; D.COUNT.kg+=sl.kg; D.COUNT.rm+=sl.rm;}   // v3.94.0 - what the counts wrote off, from the walk
   Object.keys(D).forEach(k=>{D[k].kg=+D[k].kg.toFixed(2);D[k].rm=+D[k].rm.toFixed(2);});
   return D;}
 
@@ -20957,13 +20965,14 @@ function renderBacklog(){ renderShed(); }
 
 function renderShed(){
   const box=$('backlogbox'); if(!box)return;
+  if(SC.s&&scMay()){box.innerHTML=scHTML();return;}   // v3.94.0 - the shed count
   const full=SHOW_VALUES, today=todayStr();
   /* THE ONE NUMBER. Not recomputed here — this is the very queue the scale draws from. */
   const shed=shedNow();
   const inToday=shedInFruit(today,today);
   const dToday=shedDoorRows(today,today);
   const dAll=shedDoorRows('','');
-  const outToday=dToday.MERCHANT.n+dToday.CASH.n+dToday.FREE.n+dToday.DUMP.n;
+  const outToday=dToday.MERCHANT.n+dToday.CASH.n+dToday.FREE.n+dToday.DUMP.n+dToday.COUNT.n;   // v3.94.0
   /* v3.72.0 — THE ALARM READS THE SAME QUEUE AS THE HERO. This used to come from
      fruitBacklog().short, which subtracts dispatchedFruit() — INVOICES ONLY. A ration and
      a load standing at the gate never reached it, so on 17 Sep this box said MK C 217
@@ -20983,7 +20992,7 @@ function renderShed(){
     '<div class="s">'+(d.kg>0?(nkg(d.kg)+' kg'):'—')+
       (full&&d.rm>0?(' · '+rm(d.rm)):'')+'</div></div>';
 
-  box.innerHTML=
+  box.innerHTML=scDoorHTML()+   /* v3.94.0 */
     /* 1 — THE NUMBER, said once, in the unit the shed is counted in */
     /* v3.72.0 — the hero quotes NET, exactly as the scale header has since v3.69.0. `total`
        is the sum of the boxes still above zero; a box drawn below zero contributed nothing
@@ -21020,7 +21029,7 @@ function renderShed(){
             '<div class="h"><b>'+esc(c.clone)+' · '+esc(c.grade)+'</b>'+
               '<span class="cn">'+esc(c.clone_name)+'</span>'+
               '<span class="n">'+c.n+'<small> '+esc(tr('shd_fruit','fruit'))+'</small></span></div>'+
-            '<div class="lays">'+c.layers.map(L=>'<span>'+esc(shedLayerTag(L))+'</span>').join('')+'</div>'+
+            '<div class="lays">'+c.layers.map(L=>'<span'+(scOld(L.day)?' class="sc-oldl"':'')+'>'+esc(shedLayerTag(L))+(scOld(L.day)?(' · '+esc(tr2('OLD','LAMA'))):'')+'</span>').join('')+'</div>'+
             (open?('<div class="exp">'+shedTraceHTML(c)+'</div>'):'')+
           '</div>';}).join('')+'</div>'
       : '<div class="alertnone">'+esc(tr('shd_none','No fruit logged in the shed yet. It fills up from the daily collection.'))+'</div>')+
@@ -21031,6 +21040,7 @@ function renderShed(){
       door('🏷️',tr('nr_d_cash','CASH AT THE GATE'),dAll.CASH)+
       door('🎁',tr('nr_d_free','FREE — RATION / GIFT'),dAll.FREE)+
       door('🗑',tr('nr_d_dump','DUMPED'),dAll.DUMP,'loss')+
+      door('🏚',tr2('NOT FOUND AT THE COUNT','TIADA SEMASA DIKIRA'),dAll.COUNT,'loss')+   /* v3.94.0 */
     '</div>'+
     '<div class="scfoot" style="margin-top:9px">'+esc(tr('shd_kgweighed','Kilograms are shown only where fruit actually crossed the scale. The shed itself is counted in fruit, because a count is measured at both ends and a weight upstream is only ever an estimate.'))+'</div>'+
     '<div class="scfoot">'+esc(tr('bl_norot'))+'</div>';}
@@ -22726,7 +22736,7 @@ function dsRows(){
       who:nm,cust:dsName(nm),f:dispFruitN(e),kg:+e.total_kg||0,rmv:+e.total_value_rm||0,
       cg:(String(L.clone||'')+' '+String(L.grade||'')).trim(),rate:+L.price_rm||0,
       warn:(L.band_ok===false),photo:photoForDispatch(e)});});});
-  if(DS_FREE)focApproved(w.from,w.to).forEach(e=>{
+  if(DS_FREE)focApproved(w.from,w.to).filter(e=>!scIsCount(e)).forEach(e=>{   // v3.94.0 - a count is not a gift
     out.push({kind:'free',dt:String(e.dt||''),ev:e,ref:e.receiver||'gift',
       who:e.receiver||'—',cust:dsName(e.receiver),f:+e.fruit_n||0,kg:+e.kg||0,
       rmv:+e.value_rm||0,cg:(String(e.clone||'')+' '+String(e.grade||'')).trim(),
@@ -23142,6 +23152,7 @@ function mktlFifo(){
   const q=shedLayersAll(), out=[];
   const seen=new Set();
   shedConsumers().forEach(c=>{
+    if(c.set){scApplySet(q,c,null);return;}   // v3.94.0 - the money walks the same queue
     const d=shedDraw(q,c.key,c.n,c.pref);
     if(c.src!=='DISPATCH'||!c.ev)return;          // it still DRAWS — it is just not money
     const x=c.line||{}, e=c.ev;
@@ -23260,7 +23271,7 @@ function mktlPaidCard(w,invRm,cashRm){
   const owed=broke.reduce((s,c)=>s+Math.max(0,-c.current_credit_balance_rm),0);
   const rows=marketingDeliveryLedger().filter(x=>inWindow(x.timestamp,w.from,w.to));
   const dup=duplicateSerials();
-  const foc=(typeof focApproved==='function')?focApproved(w.from,w.to):[];
+  const foc=(typeof focApproved==='function')?focApproved(w.from,w.to).filter(e=>!scIsCount(e)):[];   // v3.94.0
   let h='<div class="sec" style="margin-top:14px">💵 Did I get paid</div>'+
     '<div class="kpis" style="margin-bottom:8px">'+
     '<div class="kpi"><div class="v">'+(SHOW_VALUES?rm(invRm):'—')+'</div><div class="l">invoiced (from credit)</div></div>'+
@@ -24158,6 +24169,248 @@ function kfAlert(){
   if(!n&&!dn)return null;
   return {hot:false,txt:(n?('⚖️ '+n+' '+tr2(n===1?'basket':'baskets','bakul')+' '+tr2('kept against the weight','dikekalkan walaupun berat tidak sepadan')):'')+
     (dn?((n?' · ':'')+'🗑 '+dn+' '+tr2(dn===1?'basket':'baskets','bakul')+' '+tr2('dumped against the weight','dibuang walaupun berat tidak sepadan')):'')+' '+tr2('today','hari ini')+' ('+Object.keys(who).join(', ')+')'};}
+
+/* ======================= v3.94.0 · THE SHED COUNT =======================
+   The Owner, 11 Oct 2026, on DMS_Shed_Count_sample_2.html: "ok" = S1a S2a S3a S4a S5a, on top of his 21 Aug
+   decisions (the crew counts every evening, no approval step - "a count is a fact"; count first, then see
+   the record; a shortfall is written off as a VALUED LOSS, oldest fruit first; more than the record is only
+   FLAGGED; no ringgit on the crew's screen).
+   THE FAULT IT ENDS (book 03): the shed has no record of its own - every fruit picked minus every fruit that
+   left through a door. A fruit that splits, is eaten or is handed out with no ration never comes off, so the
+   error only grows. 21 Aug: the app held 23, the crew's hands 11, and a Black Thorn picked on 15 Aug still
+   "standing". Nothing let anyone say "I counted, and there are eleven".
+     S1a  one number per clone (all grades together); a shortfall takes the clone's oldest fruit first,
+          across its grades
+     S2a  the crew's KERJA list shows KIRA STOR while fruit stands and nobody has counted today; Command
+          tells the Owner the next morning when last night went uncounted
+     S3a  fruit older than 3 days is marked OLD / LAMA on the shed and on the count
+     S4a  a shortfall is valued at fruit x the clone's usual weight (AVG_KG) x that day's rate, for the Owner
+     S5a  the field crew and the Gate may count (and the Owner)
+   HOW IT IS STORED - NO APPS SCRIPT CHANGE: a count rides the ration road (body.foc -> saveFoc_ -> FOC_LOG,
+   which takes any reason). It is ONE row, a RECEIPT (reason COUNT, 0 fruit), approved in the same breath; its
+   note carries, clone by clone, what the record said on the counting phone and what was counted, and the
+   day's rates. (review 1) THE RECEIPT IS A SET POINT, NOT A NUMBER OF FRUIT: in the shed's walk
+   (shedConsumers, in time order) it draws each counted clone DOWN TO the count from whatever the queue holds
+   at that moment, oldest fruit first across its grades, and settles the clone's earlier shortfall. So a load
+   from another phone that arrives late (dated before the count) shrinks the write-off by itself, and a
+   second count the same evening finds nothing left to write off. A ration still waiting at the Gate is not
+   in the shed and not lost: the count leaves it alone. What was written off - fruit, the estimated kg and
+   value - is read back from that walk (SC_DRAWN) by the shed's doors, the book and Command, on every phone. */
+const SC_OLD_DAYS=3, SC_EVE='15:00';
+let SC={s:'',cnt:{},busy:false,at:0,last:null,list:null};
+let SC_DRAWN={};   // receipt uuid -> {clone:{drew,lays,over}} - filled by every shedNow()
+/* the reason, added beside the four of database.js (it is not offered on any ration form: those list
+   RATION / GIFT / SAMPLE by name). isLoss: the season book puts it with the losses, never with the gifts. */
+if(typeof FOC_REASONS==='object'&&!FOC_REASONS.COUNT)
+  FOC_REASONS.COUNT={label:'Counted out at the shed',ic:'🏚',capKgMonth:0,isLoss:true,note:'fruit the evening count did not find - a loss, not a gift'};
+if(typeof FOC_REASON_ORDER!=='undefined'&&FOC_REASON_ORDER.indexOf('COUNT')<0)FOC_REASON_ORDER.push('COUNT');
+function scIsCount(e){return !!e&&String(e.reason||'').toUpperCase()==='COUNT';}
+/** S5a: who may count. */
+function scMay(){const r=myRole(); return r==='WORKER'||r==='MARKETING'||r==='OWNER';}
+function scDays(day){const a=Date.parse(String(day||'').slice(0,10)+'T00:00:00Z'), b=Date.parse(String(now()).slice(0,10)+'T00:00:00Z'); return (isNaN(a)||isNaN(b))?0:Math.round((b-a)/864e5);}
+/** S3a */
+function scOld(day){return scDays(day)>SC_OLD_DAYS;}
+/** The record, clone by clone: what the shed holds (every grade together, S1a) and its layers, oldest first. */
+function scClones(){
+  const s=shedNow(), by={}, ord=g=>{const i=['A','B','C','BN'].indexOf(g);return i<0?9:i;};
+  s.cards.forEach(c=>{const o=by[c.clone]||(by[c.clone]={clone:c.clone,rec:0,lays:[]}); o.rec+=c.n;
+    c.layers.forEach(L=>o.lays.push({grade:c.grade,day:String(L.day||''),lot:String(L.lot||'?'),n:+L.n||0}));});
+  Object.keys(s.short||{}).forEach(k=>{const cl=k.split('|')[0]; const o=by[cl]||(by[cl]={clone:cl,rec:0,lays:[]}); o.rec-=(+s.short[k]||0);});
+  const pf=scPendFoc(''); Object.keys(pf).forEach(cl=>{if(by[cl])by[cl].rec-=pf[cl];});   // review 1: a ration at the Gate is out of the shed
+  return Object.keys(by).map(k=>by[k]).filter(o=>o.rec!==0||o.lays.length)
+    .map(o=>{o.lays.sort((a,b)=>a.day.localeCompare(b.day)||ord(a.grade)-ord(b.grade)); o.old=o.lays.some(L=>scOld(L.day)); return o;})
+    .sort((a,b)=>{const ia=CLONE_SELL_ORDER.indexOf(a.clone), ib=CLONE_SELL_ORDER.indexOf(b.clone); return (ia<0?99:ia)-(ib<0?99:ib);});}
+function scRecTotal(){return scClones().reduce((s,o)=>s+Math.max(0,o.rec),0);}
+/** Fruit actually standing (positive layers): what decides whether there is anything to count (review 1). */
+function scStanding(){return scClones().reduce((s,o)=>s+o.lays.reduce((x,L)=>x+Math.max(0,L.n),0),0);}
+/* review 2: FRUIT OUT OF THE SHED THAT THE WALK HAS NOT YET TAKEN OFF, as windows in time [from, to).
+   - a ration, gift or dump weighed for the Gate: out from its request until it is refused (then it is back)
+     or for as long as it waits. Once approved the walk takes it off at its OWN time, so it needs no window.
+   - a load the Gate decided LATER: approved later, the walk takes it off at the invoice's time; returned or
+     cancelled, it came back at that time. Until then it was out of the shed.
+   A count at time T keeps back every window open at T - fruit that was not there to be counted, and is not lost.
+   Built in one pass (the shed is worked out many times on every screen). */
+function scOutWindows(){
+  const fd={}, dd={}, out=[];
+  EVENTS.forEach(function(e){if(!e)return;
+    if((e.type==='FOC_APPROVE'||e.type==='FOC_REFUSE')&&e.reqUuid)fd[String(e.reqUuid)]={t:e.type,dt:String(e.dt||'')};
+    else if(e.type==='DISPATCH'&&e.req_uuid)dd[String(e.req_uuid)]={dt:String(e.dt||''),ev:e};
+    else if((e.type==='DISPATCH_REJECT'||e.type==='DISPATCH_CANCEL')&&e.targetUuid)dd[String(e.targetUuid)]={dt:String(e.dt||'')};});
+  Object.keys((typeof REQ_DECIDED!=='undefined'&&REQ_DECIDED)||{}).forEach(function(u){const x=REQ_DECIDED[u];
+    if(!dd[u]&&x&&(x.state==='APPROVED'||x.state==='RETURNED'||x.state==='CANCELLED'))dd[u]={dt:String(x.dt||'')};});
+  EVENTS.forEach(function(e){if(!e||!inSeason(e))return;
+    if(e.type==='FOC_REQ'&&!scIsCount(e)){const d=fd[String(e.uuid)]; if(d&&d.t==='FOC_APPROVE')return;
+      const n=Math.max(0,Math.floor(+e.fruit_n||0)); if(!n)return; const by={}; by[e.clone]=n;
+      out.push({from:String(e.dt||''),to:d?(d.dt||String(e.dt||'')):'',by:by}); return;}
+    if(e.type==='DISPATCH_REQ'){const d=dd[String(e.uuid)]; if(!d)return;   // still waiting: the walk took it off at its own time
+      const by={}; reqLines(d.ev?{lines:d.ev.lines,lines_json:d.ev.lines_json}:e).forEach(function(x){const f=Math.max(0,Math.floor(+x.fruits||0)); if(f)by[x.clone]=(by[x.clone]||0)+f;});
+      out.push({from:String(e.dt||''),to:d.dt||String(e.dt||''),by:by});}});
+  return out;}
+function scPendAt(win,T){const by={};
+  (win||[]).forEach(function(w){if(w.from>T)return; if(w.to!==''&&w.to<=T)return;
+    Object.keys(w.by).forEach(function(c){by[c]=(by[c]||0)+w.by[c];});});
+  return by;}
+/** Rations, gifts and dumps weighed and waiting at the Gate (at `beforeDt`, or now): not in the shed, not lost. */
+function scPendFoc(beforeDt){return scPendAt(scOutWindows(),beforeDt||'9999');}
+/** The count receipts (one per count), oldest first. */
+function scReceipts(){const ref={};   // review 2: this season's, never a refused one
+  EVENTS.forEach(function(e){if(e&&(e.type==='FOC_APPROVE'||e.type==='FOC_REFUSE')&&e.reqUuid)ref[String(e.reqUuid)]=(e.type==='FOC_REFUSE');});
+  return EVENTS.filter(function(e){return e&&e.type==='FOC_REQ'&&scIsCount(e)&&inSeason(e)&&!ref[String(e.uuid)]&&((typeof focMeta==='function'&&focMeta(e))||{}).sc;})
+  .sort(function(a,b){return String(a.dt).localeCompare(String(b.dt));});}
+function scCountedSince(dt){return scReceipts().some(function(e){return String(e.dt||'')>=dt;});}
+function scYesterday(){const d=new Date(String(now()).slice(0,10)+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()-1); return d.toISOString().slice(0,10);}
+/** S2a: fruit standing from before today, and nobody has counted since yesterday evening. */
+function scMissedLastNight(){
+  const t=String(now()).slice(0,10);
+  const older=scClones().reduce((s,o)=>s+o.lays.filter(L=>L.day<t).reduce((x,L)=>x+L.n,0),0);
+  return older>0&&!scCountedSince(scYesterday()+' '+SC_EVE);}
+function scCountedToday(){return scCountedSince(String(now()).slice(0,10)+' '+SC_EVE);}   // review 1: this evening's count, the same rule as Command
+
+/* ---------- the count screen (Harvest > THE SHED) ---------- */
+function scOpen(){
+  if(!scMay())return;
+  try{openModule('harvest','backlog');}catch(e){}   // opening the tab closes any count left on screen, so open first
+  SC={s:'count',cnt:{},busy:false,at:performance.now(),last:null};
+  renderShed(); window.scrollTo(0,0);}
+function scClose(){SC={s:'',cnt:{},busy:false,at:0,last:null}; renderShed();}
+function scBump(c,d){const v=Math.max(0,(+SC.cnt[c]||0)+d); SC.cnt[c]=v; const n=$('sc-n-'+ppCss(c)); if(n)n.value=v;}
+function scSet(c,v){SC.cnt[c]=(String(v).trim()==='')?'':Math.max(0,Math.floor(+v||0));}
+function scGo(s){
+  if(s==='check'){
+    if(performance.now()-(SC.at||0)<400)return;
+    const list=scClones(), miss=list.filter(function(o){return SC.cnt[o.clone]===undefined||SC.cnt[o.clone]==='';});
+    if(miss.length){SC.err=tr2('Key a number for every clone (0 if there is none): ','Masukkan nombor untuk setiap klon (0 jika tiada): ')+miss.map(function(o){return o.clone;}).join(', '); renderShed(); return;}
+    SC.list=list;}   // review 1: the list the crew saw is the list that is written
+  SC.err=''; SC.s=s; renderShed(); window.scrollTo(0,0);}
+function scDoorHTML(){
+  if(!scMay())return '';
+  if(!(scStanding()>0))return '';   // review 1: fruit actually standing
+  const done=scCountedToday();
+  return '<button class="sc-door'+(done?' done':'')+'" id="sc-open" onclick="scOpen()">🏚 '+esc(tr2('COUNT THE SHED','KIRA BUAH BANGSAL'))+
+    '<small>'+esc(done?tr2('counted today — count again if fruit has come or gone','sudah dikira hari ini — kira lagi jika ada buah masuk atau keluar'):tr2('every evening when the last basket is in','setiap petang selepas bakul terakhir masuk'))+'</small></button>';}
+function scHTML(){
+  const list=scClones();
+  let h='<button class="pp-back" id="sc-back" onclick="scClose()">‹ '+esc(tr2('back to the shed','kembali ke bangsal'))+'</button>';
+  if(SC.s==='count'){
+    h+='<div class="sc-step"><b>'+esc(tr2('Step 1 of 2 · Count what is really there.','Langkah 1 / 2 · Kira apa yang ada.'))+'</b> '+esc(tr2('Do not look at the record first.','Jangan tengok rekod dulu.'))+'</div>';
+    h+=list.map(o=>{const k=ppCss(o.clone), v=(SC.cnt[o.clone]===undefined?'':SC.cnt[o.clone]);
+      return '<div class="sc-card"><div class="sc-name">'+esc(CLONE_NAME[o.clone]||o.clone)+(o.old?' <span class="sc-old">'+esc(tr2('OLD FRUIT HERE','ADA BUAH LAMA'))+'</span>':'')+'</div>'+
+        '<div class="sc-cnt"><button id="sc-m-'+k+'" onclick="scBump(\''+esc(o.clone)+'\',-1)">−</button>'+
+        '<input type="number" inputmode="numeric" min="0" step="1" id="sc-n-'+k+'" placeholder="?" value="'+v+'" onfocus="this.select()" oninput="scSet(\''+esc(o.clone)+'\',this.value)">'+
+        '<button id="sc-p-'+k+'" onclick="scBump(\''+esc(o.clone)+'\',1)">＋</button></div></div>';}).join('');
+    h+='<div class="sc-g">'+esc(tr2('A kind of fruit that is not on this list? Tell the Owner — it means a pick was keyed to the wrong tree.','Ada jenis buah yang tiada dalam senarai? Beritahu Pengurus — ada kutipan dimasukkan pada pokok yang salah.'))+'</div>'+
+      '<div class="pinerr" id="sc-err">'+esc(SC.err||'')+'</div><button class="pp-act" id="sc-next" onclick="scGo(\'check\')">'+esc(tr2('NEXT → SEE THE RECORD','SETERUSNYA → LIHAT REKOD'))+'</button>';
+    return h;}
+  if(SC.s==='check'){
+    const lst=SC.list||list; let tc=0,tr=0; const sh=[],ov=[];
+    h+='<div class="sc-step"><b>'+esc(tr2('Step 2 of 2 · What the record says.','Langkah 2 / 2 · Apa kata rekod.'))+'</b></div><table class="tbl" id="sc-tbl"><tr><th>'+esc(tr2('Clone','Klon'))+'</th><th class="num">'+esc(tr2('Counted','Dikira'))+'</th><th class="num">'+esc(tr2('Record','Rekod'))+'</th><th class="num">'+esc(tr2('Difference','Beza'))+'</th></tr>';
+    lst.forEach(o=>{const n=+SC.cnt[o.clone]||0, r=Math.max(0,o.rec), d=n-r; tc+=n; tr+=r; if(d<0)sh.push([o.clone,-d]); if(d>0)ov.push([o.clone,d]);
+      h+='<tr><td>'+esc(o.clone)+'</td><td class="num">'+n+'</td><td class="num">'+r+'</td><td class="num '+(d<0?'sc-short':d>0?'sc-over':'')+'">'+(d<0?('−'+(-d)):d>0?('+'+d):'0')+'</td></tr>';});
+    h+='<tr class="totline"><td><b>'+esc(tr2('Total','Jumlah'))+'</b></td><td class="num"><b>'+tc+'</b></td><td class="num"><b>'+tr+'</b></td><td></td></tr></table>';
+    if(sh.length)h+='<div class="sc-box sc-bad" id="sc-sh"><b>'+sh.map(x=>x[1]+' '+x[0]).join(' · ')+' '+esc(tr2('fewer than the record.','kurang daripada rekod.'))+'</b> '+
+      esc(tr2('When you send, that fruit is written off as LOST AT THE SHED (the oldest first). The trees keep every fruit they dropped.','Bila dihantar, buah itu ditulis sebagai HILANG di bangsal (yang paling lama dahulu). Pokok kekal semua buah yang gugur.'))+
+      (SHOW_VALUES?(' <b>≈ '+rm(scValueOf(sh))+'</b>'):'')+'</div>';
+    if(ov.length)h+='<div class="sc-box sc-blue" id="sc-ov"><b>'+ov.map(x=>x[1]+' '+x[0]).join(' · ')+' '+esc(tr2('more than the record.','lebih daripada rekod.'))+'</b> '+
+      esc(tr2('A pick was not keyed in the app. Key it at its tree with COLLECT (the day it fell). The Owner is told; nothing is added by itself.','Ada buah yang tidak dikutip dalam app. Masukkan di pokoknya dengan KUTIP (hari ia gugur). Pengurus akan dimaklumkan; tiada apa ditambah sendiri.'))+'</div>';
+    if(!sh.length&&!ov.length)h+='<div class="sc-box sc-ok" id="sc-same"><b>'+esc(tr2('The same as the record.','Sama dengan rekod.'))+'</b> '+esc(tr2('Thank you — this count is kept.','Terima kasih — kiraan ini disimpan.'))+'</div>';
+    {const pf=scPendFoc(''), pk=Object.keys(pf).filter(function(c){return pf[c]>0;});
+     if(pk.length)h+='<div class="sc-g" id="sc-pend">'+esc(tr2('Waiting at the Gate, not counted here: ','Menunggu di Gate, tidak dikira di sini: '))+pk.map(function(c){return pf[c]+' '+c;}).join(' · ')+'.</div>';}
+    h+='<button class="pp-act" id="sc-send" onclick="scSend()">✓ '+esc(tr2('SEND THE COUNT','HANTAR KIRAAN'))+'</button>'+
+      '<button class="pp-ghost" id="sc-again" onclick="scGo(\'count\')">‹ '+esc(tr2('COUNT AGAIN','KIRA SEMULA'))+'</button>';
+    return h;}
+  if(SC.s==='done'){
+    const L=SC.last||{};
+    return h+'<div class="sc-box sc-ok" id="sc-done">✓ '+esc(tr2('Count sent','Kiraan dihantar'))+' · '+esc(String(L.at||'').slice(11,16))+'. '+
+      esc(tr2('The shed record is now ','Rekod bangsal kini '))+'<b>'+(+L.n||0)+'</b> '+esc(tr2('fruit.','biji.'))+
+      ((L.over&&L.over.length)?(' '+esc(tr2('The Owner is told of the extra fruit.','Pengurus dimaklumkan tentang buah lebih.'))):'')+'</div>'+
+      '<div class="sc-g">'+esc(tr2('Do this every evening when the last basket is in. It takes under a minute.','Buat setiap petang selepas bakul terakhir masuk. Kurang dari seminit.'))+'</div>'+
+      '<button class="pp-ghost" id="sc-close" onclick="scClose()">'+esc(tr2('Back to the shed','Kembali ke bangsal'))+'</button>';}
+  return h;}
+/** THE SET POINT (review 1): draw each counted clone down to its count, oldest first across its grades, at
+ *  the moment of the count in the shed's walk. `short` is the walk's shortfall map: the count settles it. */
+function scApplySet(q,c,short){
+  const res={}, ord=g=>{const i=['A','B','C','BN'].indexOf(g);return i<0?9:i;}, T=String(c.dt||'9999'); let cleared=0;
+  Object.keys(c.set||{}).forEach(function(clone){
+    const counted=Math.max(0,Math.floor(+((c.set[clone]||[])[1])||0)), pend=Math.max(0,+((c.pend||{})[clone])||0);
+    const refs=[];
+    /* review 3: a load before the count that the shed could not cover took its fruit from picks dropped AFTER the
+       count (the walk holds them all). The count settles the record, so those later picks are given back whole. */
+    let back=0;
+    (q._all||[]).forEach(function(x){if(x.k.split('|')[0]!==clone||!(String(x.L.dt||x.L.day||'')>T)||x.L.n>=x.n0)return;
+      back+=x.n0-x.L.n; x.L.n=x.n0; const A=q[x.k]||(q[x.k]=[]);
+      if(A.indexOf(x.L)<0){A.push(x.L); A.sort(function(a,b){return String(a.dt||a.day||'').localeCompare(String(b.dt||b.day||''));});}});
+    // review 2: only fruit dropped by the time of the count - the walk holds the whole season's drops at once
+    Object.keys(q).forEach(function(k){if(k.split('|')[0]!==clone)return; (q[k]||[]).forEach(function(L){if(L.n>0&&String(L.dt||L.day||'')<=T)refs.push({k:k,g:k.split('|')[1],L:L});});});
+    refs.sort(function(a,b){return String(a.L.day).localeCompare(String(b.L.day))||ord(a.g)-ord(b.g);});
+    const standing=refs.reduce(function(s,r){return s+r.L.n;},0);
+    if(short)Object.keys(short).forEach(function(k){if(k.split('|')[0]===clone&&short[k]>0){cleared+=short[k]; short[k]=0;}});
+    let left=Math.max(0,standing-pend-counted); const lays=[]; let drew=0;
+    refs.forEach(function(r){if(left<=0)return; const t=Math.min(left,r.L.n); r.L.n-=t; left-=t; drew+=t; lays.push({grade:r.g,day:r.L.day,lot:r.L.lot,n:t});});
+    Object.keys(q).forEach(function(k){if(k.split('|')[0]===clone){q[k]=(q[k]||[]).filter(function(L){return L.n>0;}); if(!q[k].length)delete q[k];}});
+    res[clone]={drew:drew,lays:lays,over:Math.max(0,counted-Math.max(0,standing-pend)),back:back};});
+  if(c.ev&&c.ev.uuid)SC_DRAWN[String(c.ev.uuid)]=res;
+  return cleared;}
+/** What the counts wrote off in a window, read back from the walk: fruit, estimated kg and value (S4a). */
+function scLosses(from,to){
+  shedNow(); let n=0,kg=0,rmv=0; const rows=[];
+  scReceipts().filter(function(e){return typeof inWindow!=='function'||inWindow(e.dt,from,to);}).forEach(function(e){
+    const d=SC_DRAWN[String(e.uuid)]||{}, m=focMeta(e)||{};
+    Object.keys(d).forEach(function(cl){(d[cl].lays||[]).forEach(function(L){
+      const k=+(L.n*((typeof AVG_KG!=='undefined'&&AVG_KG[cl])||1.7)).toFixed(2), r=+(((m.r||{})[cl]||{})[L.grade])||focRate(cl,L.grade);
+      n+=L.n; kg+=k; rmv+=k*r;});});
+    rows.push({ev:e,d:d});});
+  return {n:n,kg:+kg.toFixed(2),rm:+rmv.toFixed(2),rows:rows};}
+/** S4a: what a shortfall is worth (the Owner only ever sees it). */
+function scPlan(clone,short){
+  const o=scClones().find(x=>x.clone===clone); if(!o||!(short>0))return [];
+  let left=short; const byG={};
+  o.lays.forEach(L=>{if(left<=0||!(L.n>0))return; const t=Math.min(left,L.n); left-=t; (byG[L.grade]||(byG[L.grade]=[])).push([L.day,L.lot,t]);});
+  return Object.keys(byG).map(g=>{const n=byG[g].reduce((s,x)=>s+x[2],0), kg=+(n*((typeof AVG_KG!=='undefined'&&AVG_KG[clone])||1.7)).toFixed(2), rate=focRate(clone,g);
+    return {clone:clone,grade:g,n:n,kg:kg,rate:rate,value:+(kg*rate).toFixed(2),l:byG[g]};});}
+function scValueOf(sh){return +sh.reduce((s,x)=>s+scPlan(x[0],x[1]).reduce((t,p)=>t+p.value,0),0).toFixed(2);}
+async function scPut(o,batch,meta,stamp){
+  const ev={uuid:uuid(),type:'FOC_REQ',dt:stamp,reqUuid:'',reason:'COUNT',reasonLabel:FOC_REASONS.COUNT.label,
+    receiver:tr2('Shed count','Kiraan bangsal'),clone:o.clone||'',grade:o.grade||'',fruit_n:+o.n||0,kg:+o.kg||0,
+    value_rm:+o.value||0,rate_rm_kg:+o.rate||0,layers:(o.l||[]).map(a=>({day:a[0],lot:a[1],n:a[2]})),gross_kg:0,tare_kg:0,photo_b64:'',
+    note:'SHED COUNT '+FOC_TAG+JSON.stringify(Object.assign({b:batch},meta)),
+    worker:CFG.worker,workerId:(CFG&&CFG.uid)||'',device:CFG.device,synced:false};
+  await persistEvent(ev);
+  /* a count is a fact: approved in the same breath, by the person who counted (no Gate step) */
+  await persistEvent({uuid:uuid(),type:'FOC_APPROVE',dt:stamp,reqUuid:ev.uuid,reason:'COUNT',reasonLabel:ev.reasonLabel,receiver:ev.receiver,
+    clone:ev.clone,grade:ev.grade,fruit_n:ev.fruit_n,kg:ev.kg,value_rm:ev.value_rm,rate_rm_kg:ev.rate_rm_kg,note:'shed count',
+    worker:CFG.worker,workerId:(CFG&&CFG.uid)||'',device:CFG.device,synced:false});
+  return ev;}
+async function scSend(){
+  if(SC.busy||SC.s!=='check'||!scMay()||!SC.list)return;
+  SC.busy=true;
+  try{
+    const batch=refOf(uuid()), stamp=now(), sc={}, r={}, over=[];
+    SC.list.forEach(function(o){const n=+SC.cnt[o.clone]||0; sc[o.clone]=[Math.max(0,o.rec),n]; if(n>Math.max(0,o.rec))over.push([o.clone,n-Math.max(0,o.rec)]);
+      r[o.clone]={}; o.lays.forEach(function(L){if(r[o.clone][L.grade]==null)r[o.clone][L.grade]=focRate(o.clone,L.grade);});});
+    const ev=await scPut({clone:'',grade:'',n:0,kg:0,value:0,rate:0,l:[]},batch,{sc:sc,r:r},stamp);   // the one row: a set point
+    const list=SC.list;
+    SC.last={at:stamp,n:list.reduce(function(s,o){const x=scClones().find(function(y){return y.clone===o.clone;}); return s+(x?Math.max(0,x.rec):0);},0),over:over,ev:ev.uuid};
+  }finally{SC.busy=false;}
+  SC.s='done'; SC.list=null; badge(); renderShed();
+  if(typeof CFG!=='undefined'&&CFG.url&&navigator.onLine){try{doSync(true);}catch(x){}}}
+/** S2a: the crew's KERJA list. */
+function scCrewRowHTML(){
+  if(myRole()!=='WORKER'||!scMay())return '';
+  if(!(scStanding()>0)||scCountedToday())return '';
+  return '<button class="pp-row" id="sc-crow" onclick="scOpen()"><div class="pp-top"><b class="pp-nm">🏚 '+esc(tr2('Count the shed','Kira buah bangsal'))+'</b><span class="pp-pill amb">'+esc(tr2('THIS EVENING','PETANG INI'))+'</span></div>'+
+    '<div class="pp-dt">'+esc(tr2('Count every fruit standing in the shed when the last basket is in.','Kira semua buah dalam bangsal selepas bakul terakhir masuk.'))+'</div></button>';}
+/** S2a / S4a: one line for Command > Today. */
+function scAlert(){
+  if(scMissedLastNight())return {hot:false,txt:'🏚 '+tr2('Shed not counted last night','Bangsal tidak dikira semalam')+' ('+scRecTotal()+' '+tr2('fruit on the record','biji dalam rekod')+')'};
+  const t=String(now()).slice(0,10), y=scYesterday();
+  const r=scReceipts().filter(e=>String(e.dt||'').slice(0,10)>=y).pop(); if(!r)return null;
+  shedNow(); const m=(focMeta(r)||{}), d=SC_DRAWN[String(r.uuid)]||{};
+  let short=0,val=0; Object.keys(d).forEach(function(cl){(d[cl].lays||[]).forEach(function(L){const k=L.n*((typeof AVG_KG!=='undefined'&&AVG_KG[cl])||1.7); short+=L.n; val+=k*(+(((m.r||{})[cl]||{})[L.grade])||focRate(cl,L.grade));});});
+  const over=Object.keys(m.sc||{}).filter(c=>(+m.sc[c][1])>(+m.sc[c][0])).map(c=>((+m.sc[c][1])-(+m.sc[c][0]))+' '+c);
+  if(!short&&!over.length)return null;
+  return {hot:over.length>0,txt:'🏚 '+tr2('Shed counted ','Bangsal dikira ')+String(r.dt||'').slice(5,16)+' '+tr2('by ','oleh ')+(r.worker||'')+': '+
+    (short?(short+' '+tr2('fewer than the record, written off','kurang daripada rekod, ditulis hilang')+(SHOW_VALUES&&val?(' (≈ '+rm(val)+')'):'')):tr2('as the record','sama dengan rekod'))+
+    (over.length?(' · '+over.join(', ')+' '+tr2('MORE than the record — a pick not keyed at a tree','LEBIH daripada rekod — kutipan tidak dimasukkan di pokok')):'')};}
 
 // ======================= v3.2 DUAL-SIGNATURE YIELD AUDIT =============================
 // Two signatures on the same night's fruit: the worker who COUNTED it at the tree, and
@@ -29352,7 +29605,7 @@ function focStatusOf(reqUuid){
   return !d?FOC_STATUS.PENDING:(d.type==='FOC_APPROVE'?FOC_STATUS.APPROVED:FOC_STATUS.REFUSED);}
 /** Requests still waiting on the Gate, newest first — this is her queue. */
 function focPending(){
-  return focRows().filter(e=>e.type==='FOC_REQ'&&focStatusOf(e.uuid)===FOC_STATUS.PENDING)
+  return focRows().filter(e=>e.type==='FOC_REQ'&&!scIsCount(e)&&focStatusOf(e.uuid)===FOC_STATUS.PENDING)   // v3.94.0 - a count never waits for the Gate
     .sort((a,b)=>String(b.dt||'').localeCompare(String(a.dt||'')));}
 /** Approved requests only. Nothing that was refused ever counts against a total. */
 function focApproved(from,to){
@@ -29510,6 +29763,7 @@ function fruitBalance(from,to){
   FOC_REASON_ORDER.forEach(r=>{
     const rows=foc.filter(e=>String(e.reason)===r);
     out.by_reason[r]={kg:sum(rows,'kg'),rm:sum(rows,'value_rm'),n:rows.length};});
+  {const sl=scLosses(from,to); out.by_reason.COUNT={kg:sl.kg,rm:sl.rm,n:sl.n};}   // v3.94.0 - its own line, and never in the weighed balance (its kg is an estimate)
   /* v3.39.0 — THE SHED ROW READS THE SHED. This line used to be the fourth different
      answer to "what is standing in the shed": a KILO residual, subtracted from figures
      that are estimated on the way in and weighed on the way out, so it disagreed with
@@ -29897,10 +30151,10 @@ function renderFocQueue(){
        his allowance, so he can see for himself when he is near it. No RM anywhere. ---- */
   if(!SHOW_VALUES){
     const decided=focRows()
-      .filter(e=>e.type==='FOC_REQ'&&mine(e)&&focStatusOf(e.uuid)!==FOC_STATUS.PENDING)
+      .filter(e=>e.type==='FOC_REQ'&&mine(e)&&!scIsCount(e)&&focStatusOf(e.uuid)!==FOC_STATUS.PENDING)
       .sort((a,b)=>String(b.dt||'').localeCompare(String(a.dt||'')));
     const myMonthKg=+focRows()
-      .filter(e=>e.type==='FOC_REQ'&&mine(e)&&focStatusOf(e.uuid)===FOC_STATUS.APPROVED
+      .filter(e=>e.type==='FOC_REQ'&&mine(e)&&!scIsCount(e)&&focStatusOf(e.uuid)===FOC_STATUS.APPROVED
         &&inWindow(e.dt,ym+'-01',ym+'-31'))
       .reduce((s,e)=>s+(+e.kg||0),0).toFixed(1);
     h+='<div class="sec" style="margin-top:14px">📗 '+esc(tr('foc_myrecord','My record'))+'</div>';
@@ -30544,7 +30798,7 @@ function whoLine(e){
     case 'DISPATCH_CANCEL': return 'cancelled a load';
     case 'SALE':            return 'a sale'+(e.merchant?(' · '+e.merchant):'')+rm(e.rm);
     case 'CREDIT_TOPUP':    return (String(e.pay_how||'')==='CANCEL'?'cancelled a merchant payment':'merchant payment received')+rm(Math.abs(+e.amount_rm||+e.rm||0));   // v3.92.0
-    case 'FOC_REQ':         return 'fruit out with no invoice'+(e.reason?(' — '+e.reason):'');
+    case 'FOC_REQ':         return scIsCount(e)?'counted the shed':('fruit out with no invoice'+(e.reason?(' — '+e.reason):''));   // v3.94.0
     case 'STOCK_IN':        return 'stock received'+(e.product?(' · '+e.product):'');
     case 'STOCK_OUT':       return 'stock taken out'+(e.product?(' · '+e.product):'');
     case 'STOCK_ADJUST':    return 'stock-take adjustment'+(e.product?(' · '+e.product):'');
@@ -30781,6 +31035,7 @@ function ownAlerts(){
   if(typeof tcOwnAlert==='function'){try{const t=tcOwnAlert(); if(t)top.push(t);}catch(x){}}
   if(typeof rcAlert==='function'){try{const t=rcAlert(); if(t)top.push(t);}catch(x){}}   // v3.92.0 (C8a) - owed to the farm
   if(typeof kfAlert==='function'){try{const t=kfAlert(); if(t)top.push(t);}catch(x){}}   // v3.93.0 (K5a) - baskets kept against the weight
+  if(typeof scAlert==='function'){try{const t=scAlert(); if(t)top.push(t);}catch(x){}}   // v3.94.0 (S2a) - the shed count
   return top;}
 
 /** The three lines that turn "what happened" into "what to do next". */

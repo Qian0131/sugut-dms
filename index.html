@@ -2763,6 +2763,20 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   padding:10px 12px;font-size:12px;color:#7c2d12;margin-top:10px;line-height:1.5;font-weight:700;}
 .nr-band.ok{background:#eaf6ee;border-left-color:#166534;color:#14532d;}
 #nr-needs{margin-top:10px;}
+.sc-door{display:block;width:100%;margin:0 0 10px;min-height:56px;border-radius:12px;border:2px solid #1b5e20;background:#1b5e20;color:#fff;font:inherit;font-weight:900;font-size:15px;cursor:pointer;text-align:left;padding:10px 14px}
+.sc-door small{display:block;font-weight:600;font-size:12px;opacity:.9}.sc-door.done{background:#fff;color:#1b5e20}
+.sc-step{background:#fff8e1;border:1px solid #f0c36d;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:13.5px;color:#5d4300}
+.sc-card{border:1px solid #dfe5dd;border-radius:12px;padding:10px;margin:8px 0;background:#fff}
+.sc-name{font-weight:900;font-size:16px;margin-bottom:6px}
+.sc-cnt{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
+.sc-cnt button{height:56px;border-radius:12px;border:1px solid #b9cdb6;background:#fff;font-size:26px;font-weight:900;color:#1b5e20;cursor:pointer}
+.sc-cnt input{height:56px;text-align:center;font-size:28px;font-weight:900;border:1px solid #c9d6c6;border-radius:12px;width:100%}
+.sc-old{display:inline-block;font-size:10.5px;font-weight:900;border-radius:20px;padding:1px 7px;background:#fff3e0;color:#8d4a00}
+.shd-c .lays span.sc-oldl{background:#fff3e0;color:#8d4a00;font-weight:800}
+.sc-box{border-radius:12px;padding:10px;margin:8px 0;border:1px solid;font-size:13.5px}
+.sc-bad{background:#ffebee;border-color:#f5b5b5;color:#8c1d18}.sc-ok{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20}.sc-blue{background:#e3f2fd;border-color:#90caf9;color:#1d5f93}
+.sc-short{color:#8c1d18;font-weight:900}.sc-over{color:#1d5f93;font-weight:900}
+.sc-g{color:#5f6d60;font-size:12.5px;margin:6px 2px}
 .kf-stop{background:#ffebee;border:2px solid #c62828;border-radius:12px;padding:10px 12px;margin-top:10px;color:#8c1d18;font-size:13.5px;font-weight:700;line-height:1.45}
 .kf-stop b{font-size:18px}.kf-stop small{display:block;font-weight:600;color:#7c2d12;margin-top:4px;font-size:12px}
 .kf-kept{background:#fff8e1;border:1px solid #f0c36d;border-radius:12px;padding:10px 12px;margin-top:10px;color:#5d4300;font-size:13px;font-weight:700}
@@ -4776,7 +4790,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.93.0"></script>
-<script src="app.js?v=3.93.0"></script>
+<script src="database.js?v=3.94.0"></script>
+<script src="app.js?v=3.94.0"></script>
 </body>
 </html>
