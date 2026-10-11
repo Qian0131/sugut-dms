@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.91.0';   // v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.92.0';   // v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -382,7 +382,7 @@ async function initStore(){
         let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
         RETAILERS.unshift({id:'RT-'+String(n).padStart(2,'0'),name:ALLIANCE_RETAILER,contact:'',
           opening_credit_rm:10000,status:'Active'});
-        RET_DIRTY=true;
+        RET_DIRTY=kv.some(x=>x.k==='retailers'&&Array.isArray(x.v)&&x.v.length);   // v3.92.0 - a fresh phone never pushes its seed over the Sheet
         await put('kv',{k:'retailers',v:RETAILERS});
         await put('kv',{k:'retdirty',v:RET_DIRTY});}
       await put('kv',{k:'rollseed',v:true});}
@@ -414,7 +414,7 @@ async function initStore(){
       ['Sandakan Fresh Fruit Trading','Kota Kinabalu Durian Hub'].forEach(n=>{
         const s=byName(n); if(s&&String(s.status).toLowerCase()!=='deleted'){s.status='Deleted';touched=true;}});
       RETAILERS.forEach(r=>{ if(!r.pricing)r.pricing=RETAILER_CONTRACT_SEED[r.id]?'CONTRACT':'SPOT'; });
-      if(touched){RET_DIRTY=true;
+      if(touched){RET_DIRTY=kv.some(x=>x.k==='retailers'&&Array.isArray(x.v)&&x.v.length);   // v3.92.0 - a fresh phone takes the Sheet's list (its seed said Roll RM 15,000)
         await put('kv',{k:'retailers',v:RETAILERS});
         await put('kv',{k:'retdirty',v:RET_DIRTY});}
       await put('kv',{k:'retmig',v:RETAILER_MIGRATION_TAG});}
@@ -5285,7 +5285,7 @@ function describeEvent(e){
   if(e.type==='DISPATCH_REQ')   return '⚖️ weighing · '+nf(e.total_kg)+' kg → '+(e.retailer_name||'—')+(e.worker?(' · by '+e.worker):'');
   if(e.type==='DISPATCH_REJECT')return '↩ load returned · '+(e.reason||'');
   if(e.type==='DISPATCH_CANCEL')return '✖ load cancelled by the worker';
-  if(e.type==='CREDIT_TOPUP')return '💳 '+rm(e.amount_rm)+' credit → '+(e.retailer_name||'');
+  if(e.type==='CREDIT_TOPUP')return (String(e.pay_how||'')==='CANCEL'?'↩ payment cancelled ':'💵 payment ')+rm(Math.abs(+e.amount_rm||0))+' · '+(e.retailer_name||'')+((e.pay_how&&e.pay_how!=='CANCEL')?(' · '+rcHowW(e.pay_how)):'');   // v3.92.0
   if(e.type==='LOG_VOID')    return '⛔ voided: '+(e.detail||e.targetType||'');
   if(e.type==='PRICE_EDIT')  return '💲 price change: '+(e.detail||'')+(e.reason?(' — '+e.reason):'');
   if(e.type==='PRODUCT_RETIRE')return '🗄 '+(e.detail||'');
@@ -18583,8 +18583,8 @@ function dispatchEvents(id){
   return EVENTS.filter(e=>e.type==='DISPATCH'&&(!id||String(e.retailer_id)===String(id)));}
 function topupEvents(id){
   return EVENTS.filter(e=>e.type==='CREDIT_TOPUP'&&(!id||String(e.retailer_id)===String(id)));}
-function retailerSpend(id){return dispatchEvents(id).reduce((s,e)=>s+(+e.total_value_rm||0),0);}
-function retailerTopup(id){return topupEvents(id).reduce((s,e)=>s+(+e.amount_rm||0),0);}
+function retailerSpend(id){return dispatchEvents(id).filter(rcIn).reduce((s,e)=>s+(+e.total_value_rm||0),0);}
+function retailerTopup(id){return rcTopups(id).reduce((s,e)=>s+(+e.amount_rm||0),0);}
 /** The live credit figure, named exactly as the schema calls it.
  *  v3.38.0 — a cash row has no tab. Every cash sale was paid across the table as it was
  *  written, so subtracting them from an opening balance of zero would print a growing
@@ -18592,7 +18592,7 @@ function retailerTopup(id){return topupEvents(id).reduce((s,e)=>s+(+e.amount_rm|
 function retailerCredit(id){
   if(isCashSettled(id))return 0;
   const r=retailerById(id); if(!r)return 0;
-  return +((+r.opening_credit_rm||0)+retailerTopup(id)-retailerSpend(id)).toFixed(2);}
+  return +(rcOpen(id)+retailerTopup(id)-retailerSpend(id)).toFixed(2);}   // v3.92.0 (C6a) - the opening keyed for THIS season
 /** What a cash day is actually worth: every cash invoice in the window, at face value. */
 function cashTakenRM(from,to){
   return +dispatchEvents()
@@ -18603,10 +18603,10 @@ function retailerLedger(id){
   return {retailer_id:r.id, name:r.name, contact:r.contact||'',
     status:String(r.status||'Active'),
     pricing:pricingModeOf(id),
-    opening_credit_rm:+r.opening_credit_rm||0,
+    opening_credit_rm:rcOpen(id),   // v3.92.0 - the opening that counts this season
     topped_up_rm:retailerTopup(id), invoiced_rm:retailerSpend(id),
     current_credit_balance_rm:retailerCredit(id),
-    deliveries:dispatchEvents(id).length};}
+    deliveries:dispatchEvents(id).filter(rcIn).length};}   // v3.92.0 - this season's, beside this season's money
 
 // ---- invoice serialisation -----------------------------------------------------------
 /** `INV-YYYYMMDD-XXX`, restarting at 001 each calendar day. */
@@ -18637,10 +18637,11 @@ function duplicateSerials(){
  * phone slots into the right place in the running balance instead of corrupting it.
  */
 function marketingDeliveryLedger(){
-  const rows=EVENTS.filter(e=>e.type==='DISPATCH'||e.type==='CREDIT_TOPUP')
+  const cxOk={}; rcTopups().forEach(e=>{if(String(e.pay_how||'')==='CANCEL')cxOk[e.uuid]=1;});   // v3.92.0 - a CANCEL that counts
+  const rows=EVENTS.filter(e=>(e.type==='DISPATCH'||(e.type==='CREDIT_TOPUP'&&(String(e.pay_how||'')!=='CANCEL'||cxOk[e.uuid])))&&rcIn(e))   // v3.92.0 (C6a) - the running balance of this season
     .slice().sort((a,b)=>String(a.dt)<String(b.dt)?-1:(String(a.dt)>String(b.dt)?1:0));
   const bal={};
-  RETAILERS.forEach(r=>{bal[r.id]=+r.opening_credit_rm||0;});
+  RETAILERS.forEach(r=>{bal[r.id]=rcOpen(r.id);});   // v3.92.0
   const out=[];
   rows.forEach(e=>{
     const id=e.retailer_id;
@@ -18669,7 +18670,8 @@ function marketingDeliveryLedger(){
 /** The true credit left after a given dispatch, recomputed — used on the receipt. */
 function creditAfterUuid(u){
   const row=marketingDeliveryLedger().find(x=>x.uuid===u);
-  return row?row.remaining_credit_balance_rm:0;}
+  if(row)return row.remaining_credit_balance_rm;
+  const e=EVENTS.find(x=>x.uuid===u); return e?(+e.credit_after_rm||0):0;}   // v3.92.0 - a load of a closed season keeps the figure it was printed with
 
 // ======================= THE SCALE FORM ==============================================
 // One line per basket load: clone, grade, basket type, how many baskets, the GROSS
@@ -18752,13 +18754,12 @@ function renderOverrideBox(short,r,before,after,val){
   if(OVR_OK){
     box.innerHTML='<div class="ovrok">🔓 ADMIN OVERRIDE ACTIVE — authorised by '+esc(OVR_BY)+
       '.<br><span style="font-weight:600">Confirming will take '+esc(r.name||'')+
-      ' to '+rm(after)+' and flag the account as overdrawn until it is settled.</span></div>';
+      ' to '+esc(rcBalW(after))+', over his credit line, and the invoice says so.</span></div>';
     return;}
   box.innerHTML='<div class="ovrbox">'+
     '<div style="font-weight:900;font-size:12.5px;color:#8c1d18">🔒 Checkout locked</div>'+
-    '<div class="small" style="margin-top:4px">This load is worth '+rm(val)+' and '+esc(r.name||'')+
-      ' only holds '+rm(before)+'. The Owner may release it by keying their 6-digit access key below; '+
-      'the account then goes into negative tracking and shows as overdrawn everywhere.</div>'+
+    '<div class="small" style="margin-top:4px">'+esc(rcOverTxt(r,before,val))+' The Owner may release it by keying their 6-digit access key below; '+
+      'the load is then marked as released over the line.</div>'+
     '<label style="margin-top:8px">Admin Password Override</label>'+
     '<input type="password" id="dp-ovr" inputmode="numeric" maxlength="6" autocomplete="off" '+
       'placeholder="••••••" oninput="if(this.value.length===6)tryOverride()">'+
@@ -18811,13 +18812,13 @@ function retailerListHtml(){
   const own=canSetCredit(), act=activeRetailers(), susp=suspendedRetailers();
   return '<div class="sec">🚚 Retailers — tap a card to weigh and invoice</div>'+
     (act.length? act.map(r=>{
-        const c=retailerLedger(r.id), low=c.current_credit_balance_rm<CREDIT_FLOOR_RM;
+        const c=retailerLedger(r.id), low=!isCashSettled(r.id)&&rcPos(r.id).over;   // v3.92.0 - red only over the line
         return '<div class="retcard'+(low?' over':'')+'" onclick="openRetailerCard(\''+esc(r.id)+'\')">'+
           '<div class="rc-top"><div><div class="rc-name">'+esc(r.name)+'</div>'+
             '<div class="rc-sub">'+esc(r.id)+' · '+esc(r.contact||'no contact')+'</div></div>'+
-            '<span class="cstat '+(low?'r':'a')+'">'+(low?'OVERDRAWN':'ACTIVE')+'</span></div>'+
-          '<div class="credtile'+(low?' over':'')+'"><div class="l">LIVE PREPAID CREDIT</div>'+
-            '<div class="v">'+(SHOW_VALUES?rm(c.current_credit_balance_rm):'— — —')+'</div></div>'+
+            (isCashSettled(r.id)?'<span class="cstat a">ACTIVE</span>':rcPillHtml(r.id))+'</div>'+
+          (isCashSettled(r.id)?('<div class="credtile"><div class="l">CASH TERMS</div>'+
+            '<div class="v">'+(SHOW_VALUES?rm(c.invoiced_rm):'— — —')+'</div></div>'):rcTileHtml(r.id,false))+
           '<div class="rc-foot">'+c.deliveries+' deliver'+(c.deliveries===1?'y':'ies')+
             ' · invoiced '+(SHOW_VALUES?rm(c.invoiced_rm):'—')+
             '<span class="rc-go">OPEN ›</span></div></div>';}).join('')
@@ -18827,7 +18828,7 @@ function retailerListHtml(){
       susp.map(r=>{const c=retailerLedger(r.id);
         return '<div class="retcard susp"><div class="rc-top"><div><div class="rc-name">'+esc(r.name)+'</div>'+
           '<div class="rc-sub">'+esc(r.id)+' · '+c.deliveries+' past deliver'+(c.deliveries===1?'y':'ies')+
-          ' · credit '+(SHOW_VALUES?rm(c.current_credit_balance_rm):'—')+'</div></div>'+
+          ' · '+(SHOW_VALUES?esc(rcBalW(c.current_credit_balance_rm)):'—')+'</div></div>'+
           '<span class="cstat s">SUSPENDED</span></div>'+
           (own?'<div class="rc-foot"><span class="linkish" onclick="openRetForm(\''+esc(r.id)+
             '\')">reactivate or edit</span></div>':'')+'</div>';}).join(''))
@@ -18862,7 +18863,7 @@ function contractBanner(id){
 
 function retailerCardHtml(id){
   const r=retailerById(id), c=retailerLedger(id), own=canSetCredit();
-  const low=c.current_credit_balance_rm<CREDIT_FLOOR_RM;
+  const low=!isCashSettled(id)&&rcPos(id).over;   // v3.92.0
   const mine=dispatchEvents(id).slice()
     .sort((a,b)=>String(a.dt)<String(b.dt)?1:(String(a.dt)>String(b.dt)?-1:0)).slice(0,8);
   const dup=duplicateSerials();
@@ -18873,16 +18874,12 @@ function retailerCardHtml(id){
       '<div class="rc-name big">'+esc(r.name)+'</div>'+
       '<div class="rc-sub">'+esc(r.id)+' · '+esc(r.contact||'no contact recorded')+
         (r.status==='Suspended'?' · <b>SUSPENDED</b>':'')+'</div>'+
-      '<div class="credtile big'+(low?' over':'')+'">'+
-        '<div class="l">LIVE PREPAID CREDIT BALANCE</div>'+
-        '<div class="v">'+(SHOW_VALUES?rm(c.current_credit_balance_rm):'— — —')+'</div>'+
-        '<div class="w">opening '+rm(c.opening_credit_rm)+' + top-ups '+rm(c.topped_up_rm)+
-          ' − invoiced '+rm(c.invoiced_rm)+'</div></div>'+
+      (isCashSettled(id)?('<div class="credtile big"><div class="l">CASH TERMS · INVOICED THIS SEASON</div>'+
+        '<div class="v">'+(SHOW_VALUES?rm(c.invoiced_rm):'— — —')+'</div></div>'):rcTileHtml(id,true))+
       (own?('<div class="rc-acts">'+
         '<span class="linkish" onclick="openRetForm(\''+esc(id)+'\')">✏️ edit details</span>'+
-        '<span class="linkish" onclick="topUpRetailer(\''+esc(id)+'\')">＋ post credit top-up</span>'+
         '</div>'):'')+
-    '</div>'+
+    '</div>'+rcCardMoneyHtml(id)+   /* v3.92.0 - RECEIVE PAYMENT, and its receipt */
 
     /* v3.39.0 — ⚖️ ADD BASKET IS RETIRED. It was a second scale: clone, grade, basket,
        gross, invoice — the same job the Morning Scale does properly, but with no shed
@@ -18914,7 +18911,7 @@ function retailerCardHtml(id){
         '<td class="num"><b>'+(SHOW_VALUES?rm(e.total_value_rm):'—')+'</b></td>'+
         '<td class="num"><span class="linkish" onclick="copyReceipt(\''+esc(e.uuid)+'\')">📋</span></td></tr>').join('')+
       '</table></div>')
-      :'<div class="alertnone">No invoice for this retailer yet.</div>')+
+      :'<div class="alertnone">No invoice for this retailer yet.</div>')+rcPaysHtml(id)+   /* v3.92.0 */
     '<p class="small">Only this retailer’s transactions appear on this card. Every row is immutable — a '+
     'wrong weight is corrected with a credit adjustment, never by editing the invoice.</p>';}
 
@@ -18986,10 +18983,11 @@ function receiptText(e){
       ? '💵 *PAID IN CASH AT THE GATE*'
       : '💵 *CASH TERMS - PAYABLE ON THIS INVOICE*');
   }else{
-    L.push('💳 Credit before: '+rm(e.credit_before_rm));
-    L.push((bal<0?'🔴':'💳')+' *Credit balance: '+rm(bal)+'*');
-    if(bal<CREDIT_FLOOR_RM)
-      L.push('⚠️ *ACCOUNT OVERDRAWN — settlement required.*'+
+    const b0=+e.credit_before_rm||0;   // v3.92.0 (C7a) - owes / paid ahead, said plainly
+    L.push('💳 Before this load: '+(b0<0?('owed '+rm(-b0)):b0>0?('paid ahead '+rm(b0)):'nothing owed'));
+    L.push(bal<0?('🔴 *Now owes: '+rm(-bal)+'*'):bal>0?('🟢 *Paid ahead: '+rm(bal)+'*'):'✅ *Nothing owed*');
+    if(e.over_credit)
+      L.push('⚠️ *Over the credit line.*'+
         (e.override_by?(' Released by '+e.override_by+'.'):''));}
   if(e.note)L.push('📝 Note: '+e.note);
   L.push('━━━━━━━━━━━━━');
@@ -19378,7 +19376,8 @@ function wGate(){
       const p=repriceLines(wDoneLines().map(nrBareLine),wIsFoc()?'':(r?r.id:''));
       if(p.total_value_rm>0)money='<div class="v">'+esc(wIsFoc()
         ? tr('nr_lossworth','THIS LOSS IS WORTH') : tr('nr_cashdue','CASH TO COLLECT'))+
-        ' <b>'+rm(p.total_value_rm)+'</b></div>';}
+        ' <b>'+rm(p.total_value_rm)+'</b></div>';
+      if(!wIsFoc()&&r&&W_DEST!=='CASH'&&creditApplies(r.id)&&p.total_value_rm>0)money=rcArmHtml(r,p.total_value_rm);}   // v3.92.0 (C1a)
     box.innerHTML='<div class="armbox"><b>'+esc(tr('nr_armhead','TAP AGAIN TO CONFIRM'))+'</b>'+
       '<div class="w">'+esc(who)+'</div>'+
       '<div class="k">'+t.fruit_count+' '+esc(tr('shd_fruit','fruit'))+' · '+nkg(t.total_kg)+' kg</div>'+
@@ -20332,9 +20331,9 @@ async function submitScaleDirect(){
   const cash=isWalkInRow(r.id);
   const before=creditApplies(r.id)?retailerCredit(r.id):0;
   const after=creditApplies(r.id)?+((before-t.total_value_rm).toFixed(2)):0;
-  const over=creditApplies(r.id)&&after<CREDIT_FLOOR_RM;
+  const over=creditApplies(r.id)&&after<rcFloor(r.id);   // v3.92.0 (C1a) - inside the credit line it goes on account
   if(over&&!OVR_OK){
-    if(err)err.textContent=tr('e_creditover','Credit exceeded — the Owner keys the 6-digit override before this load can go');
+    if(err)err.textContent=rcOverTxt(r,before,t.total_value_rm)+' '+tr('e_creditover','Credit exceeded — the Owner keys the 6-digit override before this load can go');   // v3.92.0 - says by how much
     wDisarm(); return;}
   // THE CONFIRM IS THE SECOND TAP, on the screen, with the money on it.
   if(!W_ARM){W_ARM=true; renderScaleCard();
@@ -22034,7 +22033,7 @@ function verifyCardHtml(e){
   const t=repriceLines(reqLines(e),e.retailer_id);
   const before=creditApplies(e.retailer_id)?retailerCredit(e.retailer_id):0;
   const after=creditApplies(e.retailer_id)?+((before-t.total_value_rm).toFixed(2)):0;
-  const short=creditApplies(e.retailer_id)&&after<CREDIT_FLOOR_RM;
+  const short=creditApplies(e.retailer_id)&&after<rcFloor(e.retailer_id);   // v3.92.0 (C1a)
   const unpriced=t.lines.filter(x=>!(x.price_rm>0));
   const r=retailerById(e.retailer_id);
   return '<div class="vcard'+(open?' open':'')+'">'+
@@ -22105,14 +22104,13 @@ function verifyCardHtml(e){
           ' — '+nf(x.net_kg)+' kg × '+rm(x.price_rm)+'</span><span>'+rm(x.value_rm)+'</span></div>').join('')+
         '<div class="ir tot"><span>INVOICE VALUE</span><span>'+rm(t.total_value_rm)+'</span></div>'+
       '</div>'+
-      '<div class="credok'+(short?' credlow':'')+'">Credit now <b>'+rm(before)+'</b> → after this '+
-        'dispatch <b>'+rm(after)+'</b></div>'+
+      '<div class="credok'+(short?' credlow':'')+'">Now <b>'+esc(rcBalW(before))+'</b> → after this '+
+        'dispatch <b>'+esc(rcBalW(after))+'</b>'+(rcLine(e.retailer_id)>0?(' · line '+rm(rcLine(e.retailer_id))):'')+'</div>'+
       (unpriced.length?('<div class="critbox">No rate on file for '+
         esc(unpriced.map(x=>x.clone+' Grade '+x.grade).join(', '))+' under '+esc((r||{}).name||'')+
         '’s price book. Set it in PRICES &amp; RETAILERS before approving.</div>'):'')+
-      (short?('<div class="critbox flash">CRITICAL: Insufficient Retailer Credit for Dispatch!<br>'+
-        '<span style="font-weight:700;font-size:11.5px">'+esc((r||{}).name||'')+' holds '+rm(before)+
-        ' but this load is worth '+rm(t.total_value_rm)+'.</span></div>'):'')+
+      (short?('<div class="critbox flash">OVER THE CREDIT LINE<br>'+
+        '<span style="font-weight:700;font-size:11.5px">'+esc(r?rcOverTxt(r,before,t.total_value_rm):'')+'</span></div>'):'')+
       (!seen?('<div class="mustsee">🔒 Open the photo first. Approve unlocks once you have looked at '+
         'the scale display on this phone.</div>'):'')+
       /* v3.25.0 (audit D-04) — the override is keyed HERE now, against the request itself,
@@ -22147,12 +22145,11 @@ function verifyCardHtml(e){
  *  OVR_OK/OVR_BY pair the retailer card uses — one authorisation concept, two doors. */
 function verifyOverrideHtml(r,before,val){
   if(OVR_OK)return '<div class="ovrok">🔓 ADMIN OVERRIDE ACTIVE — authorised by '+esc(OVR_BY)+
-    '.<br><span style="font-weight:600">Approving flags '+esc((r||{}).name||'')+
-    '’s account as overdrawn until it is settled.</span></div>';
+    '.<br><span style="font-weight:600">Approving releases '+esc((r||{}).name||'')+
+    '’s load over his credit line, and the invoice says so.</span></div>';
   return '<div class="ovrbox">'+
     '<div style="font-weight:900;font-size:12.5px;color:#8c1d18">🔒 Approval locked</div>'+
-    '<div class="small" style="margin-top:4px">This load is worth '+rm(val)+' and '+
-      esc((r||{}).name||'')+' only holds '+rm(before)+'. The Owner may release it by keying '+
+    '<div class="small" style="margin-top:4px">'+esc(r?rcOverTxt(r,before,val):'')+' The Owner may release it by keying '+
       'their 6-digit access key below.</div>'+
     '<label style="margin-top:8px">Admin Password Override</label>'+
     '<input type="password" id="vf-ovr" inputmode="numeric" maxlength="6" autocomplete="off" '+
@@ -22242,7 +22239,7 @@ async function approveReq(u){
      seen. After a top-up it passed the credit check and was approved a SECOND time: one
      basket, two invoices, the merchant's credit drawn down twice. The override now happens
      HERE, on the request, so the request closes and the row carries the override signature. */
-  const over=creditApplies(e.retailer_id)&&after<CREDIT_FLOOR_RM;
+  const over=creditApplies(e.retailer_id)&&after<rcFloor(e.retailer_id);   // v3.92.0 (C1a)
   if(over&&!OVR_OK){
     toast('Credit exceeded — the Owner keys the 6-digit override on this card',1);
     renderVerify(); return;}
@@ -22739,8 +22736,8 @@ function dsAccount(){
     if(String(rt.status||'Active')!=='Active')return;       // suspended and deleted owe nothing
     if(DS_CUST!=='ALL'&&dsName(rt.name)!==DS_CUST)return;
     const L=retailerLedger(rt.id); if(!L)return;
-    if(DS_CUST==='ALL'&&!(+L.invoiced_rm>0))return;         // never traded is not a debt
-    paid+=(+L.opening_credit_rm||0)+(+L.topped_up_rm||0);
+    if(DS_CUST==='ALL'&&!(+L.invoiced_rm>0)&&!(+L.current_credit_balance_rm<0))return;   // never traded is not a debt (an opening owed is)
+    paid+=Math.max(0,+L.opening_credit_rm||0)+(+L.topped_up_rm||0);   // v3.92.0 - an opening owed is not money paid in
     inv+=(+L.invoiced_rm||0); bal+=(+L.current_credit_balance_rm||0); n++;});
   return {paid:+paid.toFixed(2),inv:+inv.toFixed(2),bal:+bal.toFixed(2),n:n};}
 
@@ -23109,7 +23106,7 @@ function mktlWin(){
   const t=now();
   if(MKTL.tf==='day')   return {from:t.slice(0,10),to:t.slice(0,10),label:t.slice(0,10)+' · one day'};
   if(MKTL.tf==='month') return {from:t.slice(0,7)+'-01',to:t.slice(0,7)+'-31',label:'this month'};
-  return {from:'',to:'',label:'the whole season'};}
+  return {from:(typeof seasonFrom==='function'&&seasonFrom())||'',to:'',label:'the whole season'};}   // v3.92.0 - this season, like the rows beneath
 /* ⛔ v3.59.0 — A SECOND mktlShedLayers() USED TO LIVE HERE, AND IT IS DELETED, NOT PARKED.
    It was the v3.36.0 original: its own queue built from the drop log, with no day on a
    layer and no correction applied. v3.39.0 pointed the money at shedLayersAll() and left
@@ -23254,7 +23251,7 @@ function mktlTreeCard(w){
   return h;}
 function mktlPaidCard(w,invRm,cashRm){
   const cards=listedRetailers().map(r=>retailerLedger(r.id)).filter(Boolean);
-  const broke=cards.filter(c=>c.current_credit_balance_rm<CREDIT_FLOOR_RM);
+  const broke=cards.filter(c=>c.current_credit_balance_rm<CREDIT_FLOOR_RM&&!isCashSettled(c.retailer_id));   // v3.92.0
   const owed=broke.reduce((s,c)=>s+Math.max(0,-c.current_credit_balance_rm),0);
   const rows=marketingDeliveryLedger().filter(x=>inWindow(x.timestamp,w.from,w.to));
   const dup=duplicateSerials();
@@ -23263,22 +23260,22 @@ function mktlPaidCard(w,invRm,cashRm){
     '<div class="kpis" style="margin-bottom:8px">'+
     '<div class="kpi"><div class="v">'+(SHOW_VALUES?rm(invRm):'—')+'</div><div class="l">invoiced (from credit)</div></div>'+
     '<div class="kpi"><div class="v" '+(owed>0?'style="color:var(--warn)"':'')+'>'+(SHOW_VALUES?rm(owed):'—')+
-      '</div><div class="l">overdrawn — owed to the farm</div></div>'+
+      '</div><div class="l">owed to the farm</div></div>'+
     (cashRm>0?('<div class="kpi"><div class="v">'+(SHOW_VALUES?rm(cashRm):'—')+'</div><div class="l">cash sales</div></div>'):'')+
     '</div>'+
     (broke.length?('<div class="critbox">'+broke.map(c=>esc(c.name)+' — '+(SHOW_VALUES?rm(c.current_credit_balance_rm):'overdrawn')).join('<br>')+
-      '<br>Top up before the next load goes out, or it needs the Owner\u2019s override.</div>'):'')+
+      '<br>Inside his credit line the Gate releases on account; past it, a payment first or the Owner\u2019s key.</div>'):'')+
     '<div class="tblwrap"><table class="tbl">'+
-    '<tr><th>Merchant</th><th class="num">In</th><th class="num">Invoiced</th><th class="num">Credit left</th></tr>'+
+    '<tr><th>Merchant</th><th class="num">In</th><th class="num">Invoiced</th><th class="num">Balance</th></tr>'+
     cards.map(c=>'<tr><td><div class="pn">'+esc(c.name)+
       (c.status==='Suspended'?' <span class="cstat s">SUSPENDED</span>':'')+'</div>'+
       '<div class="pa">'+c.deliveries+' deliver'+(c.deliveries===1?'y':'ies')+'</div></td>'+
-      '<td class="num">'+(SHOW_VALUES?rm(c.opening_credit_rm+c.topped_up_rm):'—')+'</td>'+
+      '<td class="num">'+(SHOW_VALUES?rm(Math.max(0,c.opening_credit_rm)+c.topped_up_rm):'—')+'</td>'+
       '<td class="num">'+(SHOW_VALUES?rm(c.invoiced_rm):'—')+'</td>'+
       '<td class="num '+(c.current_credit_balance_rm<CREDIT_FLOOR_RM?'lowq':'')+'"><b>'+
       (SHOW_VALUES?rm(c.current_credit_balance_rm):'—')+'</b></td></tr>').join('')+'</table></div>';
   h+='<div class="trendrow" style="margin-top:9px">'+
-    [['all','ALL'],['inv','INVOICES'],['top','TOP-UPS'],['free','FREE']].map(([k,t])=>
+    [['all','ALL'],['inv','INVOICES'],['top','PAYMENTS'],['free','FREE']].map(([k,t])=>
       '<div class="trendbtn" style="padding:8px 0;font-size:11px'+(MKTL.filt===k?';background:var(--green2);color:#fff;border-color:var(--green2)':'')+
       '" onclick="mktlFilt(\''+k+'\')">'+t+'</div>').join('')+'</div>';
   /* v3.36.0 — CASH SALES JOIN THE LIST. The headline gross includes SALE rows, so a day
@@ -23293,7 +23290,7 @@ function mktlPaidCard(w,invRm,cashRm){
     .sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp)));
   if(MKTL.filt!=='free'){
     h+=list.length?('<div class="tblwrap"><table class="tbl">'+
-      '<tr><th>Invoice / merchant</th><th class="num">Net kg</th><th class="num">Value</th><th class="num">Credit left</th></tr>'+
+      '<tr><th>Invoice / merchant</th><th class="num">Net kg</th><th class="num">Value</th><th class="num">Balance</th></tr>'+
       list.slice(0,60).map(x=>'<tr><td><div class="pn">'+
         (x.invoice_no?('<span class="invno">'+esc(x.invoice_no)+'</span> '):'')+esc(x.retailer_name)+
         (x.kind==='TOPUP'?' <span class="cstat a">TOP-UP</span>':'')+
@@ -23666,11 +23663,11 @@ function pickRetPay(p){
   const sub=$('rf-sub');
   if(sub&&!editingRet)sub.textContent=retFormPay==='CASH'
     ? 'Name them, set the figure that warns you, done — no credit line.'
-    : 'Name them, give them an opening credit, done.';
+    : 'Name them, set the credit line, done.';
   const n=$('rf-paynote');
   if(n)n.innerHTML=retFormPay==='CASH'
     ? 'He pays for the load itself - you invoice him and take the money. No credit line, so nothing can block his load and nobody ever has to key a payment that did not arrive.'
-    : 'A running tab drawn down by every delivery. The load stops when it passes the floor until the Owner signs an override.';}
+    : 'A running account: each load adds to what he owes, each payment takes it off. Inside his credit line the Gate releases a load on account; past it, the Owner\'s key.';}
 
 function openRetForm(id){
   if(!canSetCredit()){toast('Only the Owner or the Gate can add or edit a retailer',1);return;}
@@ -23678,10 +23675,11 @@ function openRetForm(id){
   editingRet=r?r.id:null;
   $('rf-title').textContent=r?('Edit '+r.name):'Add retailer';
   $('rf-sub').textContent=r?'Change anything here. The live balance stays derived from the deliveries.'
-                           :'Name them, give them an opening credit, done.';
+                           :'Name them, set the credit line, done.';
   $('rf-name').value=r?r.name:'';
   $('rf-con').value =r?(r.contact||''):'';
-  $('rf-open').value=r?(+r.opening_credit_rm||0).toFixed(2):'15000.00';
+  {const o=r?(+r.opening_credit_rm||0):0; $('rf-open').value=(o>0?o:0).toFixed(2); if($('rf-owed'))$('rf-owed').value=(o<0?-o:0).toFixed(2);   // v3.92.0 (C6a)
+   if($('rf-line'))$('rf-line').value=(r?(+r.credit_line_rm||0):0).toFixed(2); rcFormMoney(r);}
   pickRetStatus(r?String(r.status||'Active'):'Active');
   pickRetPricing(r?pricingModeOf(r.id):'SPOT');
   if($('rf-warn'))$('rf-warn').value=r?(+r.cash_warn_rm||0).toFixed(2):'5000.00';
@@ -23695,14 +23693,14 @@ function openRetForm(id){
       'merchant is never blocked at the Gate and has no top-up button.</span>';}
   else if(r){const c=retailerLedger(r.id);
     d.classList.remove('hidden');
-    d.innerHTML='Topped up '+rm(c.topped_up_rm)+' · invoiced '+rm(c.invoiced_rm)+'<br>'+
-      'Credit left right now <b>'+rm(c.current_credit_balance_rm)+'</b><br>'+
-      '<span style="font-size:10.5px">This figure is worked out from the delivery ledger every time it is '+
-      'shown — never typed, never stored, so it cannot drift. To move it, post a credit top-up.</span>';}
+    d.innerHTML='This season: payments '+rm(c.topped_up_rm)+' · invoiced '+rm(c.invoiced_rm)+'<br>'+
+      'Right now <b>'+esc(rcBalW(c.current_credit_balance_rm))+'</b><br>'+
+      '<span style="font-size:10.5px">Worked out from the invoices and payments every time it is '+
+      'shown — never typed, never stored, so it cannot drift. To move it, key a payment received.</span>';}
   else d.classList.add('hidden');
   $('rf-extra').innerHTML=(r&&!isCashSettled(r.id))
     ? '<button class="bigbtn ghost" style="padding:12px;font-size:13.5px" onclick="topUpRetailer(\''+
-        esc(r.id)+'\',1)">＋ POST A CREDIT TOP-UP</button>'
+        esc(r.id)+'\',1)">💵 RECEIVE A PAYMENT</button>'
     : '';
   $('retmodal').classList.remove('hidden');
   setTimeout(()=>{const n=$('rf-name');if(n)n.focus();},80);}
@@ -23716,15 +23714,21 @@ async function saveRetForm(){
   if(name.length<2)return err('Enter the retailer’s name.');
   if(RETAILERS.some(r=>r.name.trim().toLowerCase()===name.toLowerCase()&&r.id!==editingRet))
     return err('There is already a retailer named '+name+'.');
+  if(editingRet&&!rcMoneyMine()&&retailerById(editingRet))retFormPay=payTypeOf(editingRet);   // v3.92.0 - nor may the Gate turn a credit merchant to CASH (cash is never stopped)
   const payC=(retFormPay==='CASH');
   const warn=$('rf-warn')?$('rf-warn').value:'';
-  if(!payC&&(open===''||isNaN(+open)||+open<0))return err('Opening credit must be a figure of zero or more.');
+  const owed=$('rf-owed')?$('rf-owed').value:'0', line=$('rf-line')?$('rf-line').value:'0';   // v3.92.0 (C1a C6a)
+  const mine=rcMoneyMine();   // v3.92.0 - only the Owner sets the money
+  if(mine&&!payC&&(open===''||isNaN(+open)||+open<0))return err('Paid ahead must be a figure of zero or more.');
+  if(mine&&!payC&&(isNaN(+owed)||+owed<0))return err('Owed at the start must be a figure of zero or more.');
+  if(mine&&!payC&&+owed>0&&+open>0)return err('Key either what he owed or what he had paid ahead, not both.');
+  if(mine&&!payC&&(isNaN(+line)||+line<0))return err('The credit line must be a figure of zero or more.');
   if(payC&&warn!==''&&(isNaN(+warn)||+warn<0))return err('The warning figure must be zero or more.');
   let newId=editingRet;
   if(editingRet){
     const r=retailerById(editingRet);
     r.name=name; r.contact=con;
-    r.opening_credit_rm=payC?0:+(+open).toFixed(2);
+    if(!payC&&mine){r.opening_credit_rm=+((+open||0)-(+owed||0)).toFixed(2); r.credit_line_rm=+(+line||0).toFixed(2); r.open_from=seasonFrom();}   // v3.92.0 (C1a C6a) - only the Owner moves the money; a switch to CASH leaves his figures as they were
     r.status=retFormStatus;
     r.pricing=retFormPricing;
     r.pay_type=retFormPay;
@@ -23733,8 +23737,8 @@ async function saveRetForm(){
     let n=1; while(RETAILERS.some(r=>r.id==='RT-'+String(n).padStart(2,'0')))n++;
     newId='RT-'+String(n).padStart(2,'0');
     RETAILERS.push({id:newId,name:name,contact:con,
-      opening_credit_rm:payC?0:+(+open).toFixed(2),status:retFormStatus,pricing:retFormPricing,
-      pay_type:retFormPay,cash_warn_rm:payC?+(+warn||0).toFixed(2):0});}
+      opening_credit_rm:(payC||!mine)?0:+((+open||0)-(+owed||0)).toFixed(2),status:retFormStatus,pricing:retFormPricing,
+      pay_type:retFormPay,cash_warn_rm:payC?+(+warn||0).toFixed(2):0,credit_line_rm:(payC||!mine)?0:+(+line||0).toFixed(2),open_from:seasonFrom()});}   // v3.92.0 - a new merchant starts the season at 0
   // A merchant switched to CONTRACT with an empty book would price every basket at RM 0
   // and the scale form would refuse every line. Seed their book from the spot matrix so
   // it opens at today's rates and the Owner edits from there.
@@ -23751,6 +23755,7 @@ async function saveRetForm(){
 /** A top-up is an EVENT, not an edit — the credit line has the same audit trail as a
  *  delivery, so a wrong opening figure and its fix both stay on the record. */
 async function topUpRetailer(id,fromForm){
+  if(canSetCredit()&&retailerById(id)&&!isCashSettled(id)){if(fromForm)closeRetForm(); return rcPayOpen(id);}   // v3.92.0 - a payment received, never a made-up top-up
   if(!canSetCredit()){toast('Only the Owner or the Gate can add credit',1);return;}
   // v3.68.0 - a cash merchant has no tab. A top-up here would be the same fiction that
   // put RM 3,000 of money nobody received on two credit accounts this season.
@@ -23772,6 +23777,276 @@ async function topUpRetailer(id,fromForm){
     worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
   badge(); renderPrices(); renderDispatch(); renderMktLedger();
   toast('✓ '+rm(+v)+' credit posted to '+r.name);}
+
+/* ======================= v3.92.0 · OWED TO THE FARM (the receivable door) =======================
+   The Owner, 11 Oct 2026, on the sample DMS_Receivable_sample.html: "ok" = C1a C2a C3a C4a C5a C6a C7a C8a.
+   THE FAULT IT ENDS (book 04, "there is no receivable in this system"): a credit merchant's load stopped
+   at a balance of RM 0, and the only lever the Gate had to move it was a CREDIT_TOPUP nobody paid -
+   RM 29,402 of them in season 2025/26. So every cash figure was too high and every debt invisible.
+     C1a  each credit merchant has a CREDIT LINE the Owner sets (RETAILERS column CreditLineRM): the Gate
+          releases a load ON ACCOUNT while the balance stays at or above minus the line, with no key
+     C2a  past the line, the Owner's 6-digit key releases it, as before (over_credit, override_by)
+     C3a  the Gate and the Owner key a PAYMENT RECEIVED; the Owner sees each one and can cancel a wrong
+          one (a counter-row: CREDIT_TOPUP with the minus amount, pay_how CANCEL, pay_of = its uuid)
+     C4a  a payment carries how it came (pay_how CASH / BANK / CHQ) and a reference (pay_ref)
+     C5a  payments pay the oldest invoice first; the days since the oldest unpaid one; red after 14 days
+     C6a  the opening position of 2026/27 is keyed once on the merchant (owed, or paid ahead); last
+          season's figures are not touched. Every balance is THIS SEASON's (inSeason): a phone still
+          holding last season's invoices and a fresh phone now give the same figure.
+     C7a  the WhatsApp receipt of a load and of a payment says the new balance ("Now owes RM ...")
+     C8a  MONEY opens with OWED TO THE FARM (both the Owner and the Gate), and Command ▸ Today has one line
+   A balance is still DERIVED, never stored: opening + this season's payments - this season's invoices.
+   Cash merchants and walk-ins are not changed: they pay at the table. */
+const RC_RED=14, RC_BACK=7, RC_RECENT=21;
+const RC_HOW={CASH:['Cash','Tunai'],BANK:['Bank transfer','Pindahan bank'],CHQ:['Cheque','Cek']};
+let RCP=null, RC_ARM='', RC_ARM_T=0, RC_STMT='', RC_LASTPAY='';
+/** The credit line: what a credit merchant may owe before the Owner's key is needed. 0 = every load past
+ *  what he has paid needs the key, as before this release. */
+function rcLine(id){if(isCashSettled(id))return 0; const r=retailerById(id); return Math.max(0,+((r&&r.credit_line_rm)||0)||0);}
+/** The line on the way to the Sheet and back. A phone that has never held a figure for a merchant (it has not
+ *  pulled one since updating) sends '' - "no opinion" - and the Sheet keeps the line keyed on another phone;
+ *  likewise a blank from a Sheet that predates the column keeps this phone's own figure, or none. */
+function rcSendLine(r){const v=r&&r.credit_line_rm; return (v===undefined||v===null||v==='')?'':(+v||0);}
+function rcKeepLine(id){const v=(retailerById(id)||{}).credit_line_rm; return (v===undefined||v===null||v==='')?undefined:(+v||0);}
+function rcKeepFrom(id){const v=(retailerById(id)||{}).open_from; return v?String(v).slice(0,10):undefined;}
+/** The merchant form's money boxes: who may change them, and what the Owner is told. */
+function rcFormMoney(r){
+  const own=rcMoneyMine(), cash=r&&isCashSettled(r.id);
+  ['rf-line','rf-owed','rf-open'].forEach(i=>{const e=$(i); if(e)e.disabled=!own;});
+  ['rf-credit','rf-cash'].forEach(i=>{const e=$(i); if(e){const lock=!own&&!!r; e.style.pointerEvents=lock?'none':''; e.style.opacity=lock?'.55':'';}});   // credit or cash: the Owner's call
+  const n=$('rf-moneynote'); if(!n)return;
+  if(!own){n.textContent=tr2('Set by the Owner: credit or cash, the credit line and where he stood at the start of the season.','Ditetapkan oleh Pemilik: kredit atau tunai, had kredit dan baki awal musim.'); return;}
+  if(r&&!cash&&!rcOpenOk(r)){const o=+r.opening_credit_rm||0;
+    n.innerHTML='<b>'+esc(tr2('Start of this season not keyed yet.','Baki awal musim ini belum dimasukkan.'))+'</b> '+
+      (o?esc(tr2('On file from before: ','Dalam rekod lama: ')+(o<0?tr2('owed ','hutang ')+rm(-o):tr2('paid ahead ','bayar dahulu ')+rm(o))+tr2(' — not counted.',' — tidak dikira.')):'')+' '+
+      esc(tr2('Key this season\'s figure below: what he owed, or had paid ahead, on the first day (0 if nothing). Saving keys it.','Masukkan angka musim ini: hutang atau bayaran dahulunya pada hari pertama (0 jika tiada). Simpan untuk merekodkannya.'));
+    if($('rf-open'))$('rf-open').value='0.00'; if($('rf-owed'))$('rf-owed').value='0.00'; return;}
+  n.textContent='';}
+/** Only the Owner sets a merchant's credit line and where he stood at the start of the season (the approved sample:
+ *  "a credit line YOU set for each merchant"). The Gate may still add a merchant and edit his name and contact. */
+function rcMoneyMine(){return typeof myRole==='function'&&myRole()==='OWNER';}
+/** The lowest balance a load may leave without the Owner's key (C1a). */
+function rcFloor(id){return Math.min(CREDIT_FLOOR_RM,-rcLine(id));}
+function rcIn(e){return typeof inSeason!=='function'||inSeason(e);}
+/** C6a - THE OPENING IS A FIGURE OF ONE SEASON. It counts only when the Owner keyed it for the season that is
+ *  open (RETAILERS OpenFrom = that season's first day). A figure from before this release (the seed said Roll
+ *  RM 15,000 paid ahead) is shown to him but counts as 0, so it cannot release RM 15,000 of fruit with no key.
+ *  With no season open, every opening counts, as before. */
+function rcOpenOk(r){if(!r)return false; const f=(typeof seasonFrom==='function')?seasonFrom():''; return !f||String(r.open_from||'').slice(0,10)===f;}
+function rcOpen(id){if(isCashSettled(id))return 0; const r=retailerById(id); return (r&&rcOpenOk(r))?(+r.opening_credit_rm||0):0;}
+/** This season's payments that count. A CANCEL counts once, and only when the payment it takes back is on this
+ *  phone and of this season: two cancels of one payment (two phones, before they synced) take it back once. */
+function rcTopups(id){
+  const all=topupEvents(id).filter(rcIn).slice().sort((a,b)=>String(a.dt).localeCompare(String(b.dt)));   // same minute: the order they were keyed
+  const orig={}, seen={};
+  all.forEach(e=>{if(String(e.pay_how||'')!=='CANCEL')orig[e.uuid]=e;});
+  return all.filter(e=>{
+    if(String(e.pay_how||'')!=='CANCEL')return true;
+    const o=orig[String(e.pay_of||'')]; if(!o||seen[e.pay_of]||String(o.retailer_id)!==String(e.retailer_id))return false;
+    seen[e.pay_of]=1; return true;});}
+function rcDay(dt){return String(dt||'').slice(0,10);}
+function rcToday(){return String(now()).slice(0,10);}
+function rcDays(d){const a=Date.parse(rcDay(d)+'T00:00:00Z'), b=Date.parse(rcToday()+'T00:00:00Z'); return (isNaN(a)||isNaN(b))?0:Math.max(0,Math.round((b-a)/864e5));}
+function rcHowW(h){const x=RC_HOW[String(h||'').toUpperCase()]; return x?tr2(x[0],x[1]):'';}
+function tr2(en,ms){return (typeof LANG!=='undefined'&&LANG==='ms'&&ms)?ms:en;}
+/** This season's payments of a merchant, oldest first, each knowing whether it was cancelled. A legacy
+ *  top-up (before v3.92.0) is a payment with no "how". The cancel rows themselves are not listed. */
+function rcPays(id){
+  const all=rcTopups(id);
+  const gone={}; all.forEach(e=>{if(String(e.pay_how||'')==='CANCEL'&&e.pay_of)gone[String(e.pay_of)]=e;});
+  return all.filter(e=>String(e.pay_how||'')!=='CANCEL').map(e=>({e:e,amt:+e.amount_rm||0,how:String(e.pay_how||''),ref:String(e.pay_ref||''),cx:gone[e.uuid]||null}));}
+/** C5a: what is still owed, invoice by invoice, after the money in has paid the oldest first. */
+function rcOwed(id){
+  const r=retailerById(id); if(!r||isCashSettled(id))return [];
+  const open=rcOpen(id);
+  let pool=(open>0?open:0)+rcTopups(id).reduce((s,e)=>s+(+e.amount_rm||0),0);
+  const debts=[]; if(open<0)debts.push({no:tr2('Opening (start of the season)','Baki awal musim'),dt:(typeof seasonFrom==='function'&&seasonFrom())||rcToday(),v:-open,open:1});
+  dispatchEvents(id).filter(rcIn).slice().sort((a,b)=>String(a.dt).localeCompare(String(b.dt))).forEach(e=>debts.push({no:e.invoice_no||'—',dt:e.dt,v:+e.total_value_rm||0,u:e.uuid}));
+  const out=[];
+  debts.forEach(d=>{const take=Math.max(0,Math.min(pool,d.v)); pool-=take; if(d.v-take>0.004)out.push(Object.assign({},d,{left:+(d.v-take).toFixed(2)}));});
+  return out;}
+function rcOldest(id){const o=rcOwed(id); return o.length?rcDays(o[0].dt):0;}
+function rcPos(id){const b=retailerCredit(id), l=rcLine(id); return {bal:b,line:l,owes:b<0?-b:0,ahead:b>0?b:0,over:b<rcFloor(id),old:b<0?rcOldest(id):0};}
+function rcBalW(b){return b<0?(tr2('owes ','berhutang ')+rm(-b)):b>0?(tr2('paid ahead ','bayar dahulu ')+rm(b)):tr2('nothing owed','tiada hutang');}
+/** The tile on a merchant's card and on the list (replaces LIVE PREPAID CREDIT). */
+function rcTileHtml(id,big){
+  if(!SHOW_VALUES)return '<div class="credtile'+(big?' big':'')+'"><div class="l">'+esc(tr2('BALANCE','BAKI'))+'</div><div class="v">— — —</div></div>';
+  const p=rcPos(id), cls=p.bal<0?' rv-owetile'+(p.over?' over':''):'';
+  return '<div class="credtile'+(big?' big':'')+cls+'" id="rv-tile-'+ppCss(id)+'"><div class="l">'+
+    esc(p.bal<0?tr2('OWES THE FARM','BERHUTANG DENGAN LADANG'):p.bal>0?tr2('PAID AHEAD','BAYAR DAHULU'):tr2('NOTHING OWED','TIADA HUTANG'))+'</div>'+
+    '<div class="v">'+rm(Math.abs(p.bal))+'</div>'+
+    '<div class="w">'+(p.bal<0&&p.old?esc(tr2('oldest unpaid ','tertunggak paling lama '))+p.old+esc(tr2(' days',' hari'))+' · ':'')+
+      esc(p.line>0?tr2('may owe up to ','boleh berhutang hingga ')+rm(p.line):tr2('no credit line: past what he has paid needs the Owner\'s key','tiada had kredit: lebih dari bayaran perlu kunci Pemilik'))+
+      (p.over?' · <b>'+esc(tr2('OVER THE LINE','MELEBIHI HAD'))+'</b>':'')+'</div></div>';}
+function rcPillHtml(id){const p=rcPos(id);
+  return p.over?'<span class="cstat r">'+esc(tr2('OVER THE LINE','MELEBIHI HAD'))+'</span>':p.bal<0?'<span class="cstat rv-amb">'+esc(tr2('OWES','BERHUTANG'))+'</span>':'<span class="cstat a">ACTIVE</span>';}
+/** The armed confirm at the scale: a credit merchant's load goes on account, said plainly (it used to say CASH TO COLLECT). */
+function rcArmHtml(r,val){
+  if(!r||!creditApplies(r.id)||!(val>0))return '';
+  const b=retailerCredit(r.id), a=+(b-val).toFixed(2);
+  return '<div class="v rv-arm" id="rv-arm">'+(a>=0?esc(tr2('PAID AHEAD COVERS IT · ','BAYARAN DAHULU CUKUP · '))+rm(val)
+    :esc(tr2('ON ACCOUNT · ','ATAS AKAUN · '))+'<b>'+rm(val)+'</b><br><small>'+esc(r.name)+' '+esc(tr2('will owe','akan berhutang'))+' '+rm(-a)+(rcLine(r.id)>0?(' · '+esc(tr2('line','had'))+' '+rm(rcLine(r.id))):'')+'</small>')+'</div>';}
+/** The line printed when a load is over the line, before the Owner's key. */
+function rcOverTxt(r,before,val){
+  const a=+(before-val).toFixed(2), l=rcLine(r.id), by=+(rcFloor(r.id)-a).toFixed(2);
+  return l>0?(r.name+' would owe '+rm(-a)+', over his line of '+rm(l)+' by '+rm(by)+'.')
+            :(r.name+' has no credit line: this load would leave him owing '+rm(-a)+'.');}
+
+/* ---------- the payment ---------- */
+function rcPayOpen(id){
+  if(!canSetCredit()||!retailerById(id)||isCashSettled(id))return;
+  RCP={id:id,amt:'',how:'BANK',ref:'',day:rcToday(),err:'',busy:false,at:performance.now()};
+  if(typeof MKT_SEL!=='undefined'&&MKT_SEL!==id){MKT_SEL=id; if(typeof clearOverride==='function')clearOverride();}
+  try{if(typeof curModule!=='undefined'&&curModule!=='mkt'&&typeof openModule==='function')openModule('mkt','disp');}catch(e){}
+  renderDispatch(); setTimeout(()=>{const e=$('rv-pay');if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'});},60);}
+function rcPayClose(){RCP=null; renderDispatch();}
+function rcPaySync(){if(!RCP)return; const a=$('rv-amt'), r=$('rv-ref'), d=$('rv-day'); if(a)RCP.amt=a.value; if(r)RCP.ref=r.value; if(d&&d.value)RCP.day=d.value;}
+function rcPayHow(h){if(!RCP||!RC_HOW[h])return; rcPaySync(); RCP.how=h; RCP.err=''; renderDispatch();}
+function rcMinDay(){const t=rcToday(); const d=new Date(t+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()-RC_BACK); const m=d.toISOString().slice(0,10), f=(typeof seasonFrom==='function'&&seasonFrom())||''; return f&&f>m?f:m;}
+function rcPayHtml(id){
+  if(!RCP||RCP.id!==id)return '';
+  const r=retailerById(id), p=rcPos(id);
+  return '<div class="rv-paybox" id="rv-pay"><div class="sec">💵 '+esc(tr2('Receive payment','Terima bayaran'))+' · '+esc(r.name)+'</div>'+
+    '<div class="small">'+esc(tr2('Now: ','Sekarang: '))+'<b>'+esc(rcBalW(p.bal))+'</b></div>'+
+    '<label>'+esc(tr2('Amount received (RM)','Jumlah diterima (RM)'))+'</label><input id="rv-amt" inputmode="decimal" autocomplete="off" value="'+esc(RCP.amt)+'" placeholder="e.g. 4000">'+
+    '<label>'+esc(tr2('How it came','Cara bayaran'))+'</label><div class="lotbtns" id="rv-hows">'+Object.keys(RC_HOW).map(k=>'<div id="rv-how-'+k+'" class="'+(RCP.how===k?'on':'')+'" onclick="rcPayHow(\''+k+'\')">'+esc(rcHowW(k))+'</div>').join('')+'</div>'+
+    (RCP.how!=='CASH'?('<label>'+esc(RCP.how==='CHQ'?tr2('Cheque number','Nombor cek'):tr2('Bank reference','Rujukan bank'))+'</label><input id="rv-ref" autocomplete="off" maxlength="40" value="'+esc(RCP.ref)+'" placeholder="'+(RCP.how==='CHQ'?'e.g. 004512':'e.g. IBG 26/10')+'">'):'')+
+    '<label>'+esc(tr2('The day it came (up to 7 days back)','Tarikh diterima (paling awal 7 hari lepas)'))+'</label><input type="date" id="rv-day" value="'+esc(RCP.day)+'" min="'+rcMinDay()+'" max="'+rcToday()+'">'+
+    '<div class="pinerr" id="rv-err">'+esc(RCP.err||'')+'</div>'+
+    '<button class="bigbtn" id="rv-pay-go" onclick="rcPaySave()">✓ '+esc(tr2('SAVE THE PAYMENT','SIMPAN BAYARAN'))+'</button>'+
+    '<button class="bigbtn ghost" id="rv-pay-x" style="padding:11px;font-size:13px" onclick="rcPayClose()">'+esc(tr2('CANCEL','BATAL'))+'</button></div>';}
+/** A reference made only of digits and signs is read by the Sheet as a number or a date ("004512" comes back as 4512,
+ *  "26/10" as a date): it is written with a word in front, and read back exactly as stored. */
+function rcRefSafe(s){s=String(s||'').trim().slice(0,40); return (s&&!/[A-Za-z]/.test(s))?('No. '+s):s;}
+async function rcPaySave(){
+  if(!RCP||RCP.busy||!canSetCredit())return;
+  if(performance.now()-(RCP.at||0)<500)return;   // the second half of the tap that opened the form
+  rcPaySync();
+  const id=RCP.id, r=retailerById(id); if(!r||isCashSettled(id))return rcPayClose();
+  const v=+String(RCP.amt).replace(/[, ]/g,'');
+  const fail=m=>{RCP.err=m; renderDispatch();};
+  if(!(v>0)||!isFinite(v))return fail(tr2('Key the amount received.','Masukkan jumlah diterima.'));
+  if(v>1000000)return fail(tr2('That amount is too large. Check it.','Jumlah itu terlalu besar. Semak.'));
+  if(RCP.how!=='CASH'&&!String(RCP.ref).trim())return fail(RCP.how==='CHQ'?tr2('Key the cheque number.','Masukkan nombor cek.'):tr2('Key the bank reference.','Masukkan rujukan bank.'));
+  const day=String(RCP.day||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day>rcToday()||day<rcMinDay())return fail(tr2('Pick today or a day up to 7 days back.','Pilih hari ini atau sehingga 7 hari lepas.'));
+  const stamp=day===rcToday()?now():(day+' 12:00');
+  const how=RCP.how, ref=how==='CASH'?'':rcRefSafe(RCP.ref);
+  RCP.busy=true;
+  const u=uuid();
+  try{
+    await persistEvent({uuid:u,type:'CREDIT_TOPUP',dt:stamp,retailer_id:r.id,retailer_name:r.name,
+      amount_rm:+v.toFixed(2),pay_how:how,pay_ref:ref,note:'PAYMENT · '+rcHowW(how)+(ref?(' · '+ref):''),
+      worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  }finally{if(RCP)RCP.busy=false;}
+  RC_LASTPAY=u; RCP=null;
+  badge(); renderDispatch(); try{renderMktLedger();}catch(e){} try{renderMoney();}catch(e){}
+  toast('✓ '+rm(v)+' '+tr2('received from ','diterima daripada ')+r.name);
+  if(typeof CFG!=='undefined'&&CFG.url&&navigator.onLine){try{doSync(true);}catch(e){}}}
+/** C7a: the payment's WhatsApp receipt. */
+function rcPayText(e){
+  if(!e)return '';
+  const b=retailerCredit(e.retailer_id);
+  return ['🍈 *SUGUT DURIAN FARM* 🍈','━━━━━━━━━━━━━','💵 *PAYMENT RECEIVED*','🗓️ '+(e.dt||''),
+    '👤 *'+(e.retailer_name||'')+'*','💰 *'+rm(e.amount_rm)+'*'+(e.pay_how?(' · '+rcHowW(e.pay_how)):'')+(e.pay_ref?(' · '+e.pay_ref):''),'━━━━━━━━━━━━━',
+    b<0?('🔴 *Now owes: '+rm(-b)+'*'):b>0?('🟢 *Paid ahead: '+rm(b)+'*'):'✅ *Nothing owed*','━━━━━━━━━━━━━','✅ Keyed by '+(e.worker||'')+' · Sugut DMS'].join('\n');}
+async function rcCopyPay(u){
+  const e=EVENTS.find(x=>x.uuid===u&&x.type==='CREDIT_TOPUP'); if(!e)return;
+  const ok=await copyToClipboard(rcPayText(e));
+  toast(ok?'📋 Receipt copied — paste it into WhatsApp':'Clipboard blocked — the receipt text is on screen, copy it by hand',ok?0:1);
+  if(!ok){const b=$('rv-last'); if(b)b.insertAdjacentHTML('beforeend','<textarea class="rcpt" readonly onclick="this.select()">'+esc(rcPayText(e))+'</textarea>');}}
+function rcLastPayHtml(id){
+  const e=RC_LASTPAY?EVENTS.find(x=>x.uuid===RC_LASTPAY&&String(x.retailer_id)===String(id)):null; if(!e)return '';
+  return '<div class="lastinv" id="rv-last">'+esc(tr2('Payment saved','Bayaran disimpan'))+' <b>'+rm(e.amount_rm)+'</b> · '+esc(rcBalW(retailerCredit(id)))+'</div>'+
+    '<button class="bigbtn wabtn" id="rv-copy" onclick="rcCopyPay(\''+esc(e.uuid)+'\')">📋 '+esc(tr2('Copy WhatsApp receipt','Salin resit WhatsApp'))+'</button>';}
+/** C3a: the Owner cancels a wrong payment. Two taps; the row stays, a counter-row takes it back. */
+async function rcCancel(u){
+  if(myRole()!=='OWNER')return;
+  const e=EVENTS.find(x=>x.uuid===u&&x.type==='CREDIT_TOPUP'); if(!e||String(e.pay_how||'')==='CANCEL')return;
+  if(rcPays(e.retailer_id).some(p=>p.e.uuid===u&&p.cx))return;
+  if(RC_ARM!==u){RC_ARM=u; if(RC_ARM_T)clearTimeout(RC_ARM_T); RC_ARM_T=setTimeout(()=>{if(RC_ARM===u){RC_ARM='';rcRepaint();}},6000); return rcRepaint();}
+  RC_ARM='';
+  await persistEvent({uuid:uuid(),type:'CREDIT_TOPUP',dt:now(),retailer_id:e.retailer_id,retailer_name:e.retailer_name||'',
+    amount_rm:-(+e.amount_rm||0),pay_how:'CANCEL',pay_of:e.uuid,pay_ref:'',note:'CANCELS the payment of '+rm(e.amount_rm)+' keyed '+String(e.dt||'').slice(0,16)+' by '+(e.worker||''),
+    worker:CFG.worker,workerId:CFG.uid||'',device:CFG.device,synced:false});
+  toast('Payment cancelled — the record stays, with your cancellation');
+  badge(); rcRepaint();
+  if(typeof CFG!=='undefined'&&CFG.url&&navigator.onLine){try{doSync(true);}catch(x){}}}
+function rcRepaint(){try{renderDispatch();}catch(e){} try{renderMoney();}catch(e){} try{renderMktLedger();}catch(e){}}
+function rcPayRowHtml(p,own){
+  const e=p.e, arm=RC_ARM===e.uuid;
+  return '<tr class="'+(p.cx?'rv-cx':'')+'"><td><div class="pn">'+esc(String(e.dt||'').slice(0,10))+' · '+(p.how?esc(rcHowW(p.how)):esc(tr2('top-up (before v3.92)','tambah kredit (lama)')))+'</div>'+
+    '<div class="pa">'+esc(p.ref||e.note||'')+(e.worker?(' · '+esc(e.worker)):'')+(e.synced?'':' · queued')+(p.cx?(' · <b>'+esc(tr2('cancelled','dibatalkan'))+'</b>'):'')+'</div></td>'+
+    '<td class="num"><b>'+rm(p.amt)+'</b>'+((own&&!p.cx&&p.amt>0)?('<br><button class="rv-cxb'+(arm?' arm':'')+'" id="rv-cx-'+ppCss(e.uuid)+'" onclick="rcCancel(\''+esc(e.uuid)+'\')">'+(arm?'TAP AGAIN: CANCEL':'cancel (wrong)')+'</button>'):'')+'</td></tr>';}
+/** The merchant card's payments of this season. */
+function rcPaysHtml(id){
+  const ps=rcPays(id); if(!ps.length)return '';
+  return '<div class="sec" style="margin-top:15px">💵 '+esc(tr2('Payments this season','Bayaran musim ini'))+'</div><div class="tblwrap"><table class="tbl" id="rv-pays">'+
+    ps.slice().reverse().map(p=>rcPayRowHtml(p,myRole()==='OWNER')).join('')+'</table></div>';}
+
+/* ---------- the statement and MONEY ▸ OWED TO THE FARM ---------- */
+function rcCreditIds(){return listedRetailers().filter(r=>!isCashSettled(r.id)).map(r=>r.id);}
+function rcStmtHtml(id){
+  const r=retailerById(id); if(!r)return '';
+  const o=rcOwed(id), tot=o.reduce((s,x)=>s+x.left,0), p=rcPos(id);
+  return '<div class="rv-stmt" id="rv-stmt"><div class="sec">'+esc(tr2('Statement','Penyata'))+' · '+esc(r.name)+'</div>'+
+    '<div class="small">'+esc(rcBalW(p.bal))+(p.line>0?(' · '+esc(tr2('line ','had '))+rm(p.line)):'')+'</div>'+
+    (o.length?('<div class="tblwrap"><table class="tbl"><tr><th>'+esc(tr2('Invoice','Invois'))+'</th><th class="num">'+esc(tr2('Value','Nilai'))+'</th><th class="num">'+esc(tr2('Still owed','Masih hutang'))+'</th></tr>'+
+      o.map(x=>{const d=rcDays(x.dt); return '<tr><td><div class="pn">'+esc(x.no)+'</div><div class="pa">'+esc(rcDay(x.dt))+' · '+d+' '+esc(tr2('days','hari'))+'</div></td><td class="num">'+rm(x.v)+'</td><td class="num '+(d>RC_RED?'lowq':'')+'"><b>'+rm(x.left)+'</b></td></tr>';}).join('')+
+      '<tr class="totline"><td><b>'+esc(tr2('TOTAL NOW PAYABLE','JUMLAH PERLU DIBAYAR'))+'</b></td><td></td><td class="num"><b>'+rm(tot)+'</b></td></tr></table></div>')
+      :'<div class="alertnone">'+esc(tr2('Nothing is owed.','Tiada hutang.'))+'</div>')+
+    '<div class="small">'+esc(tr2('Each payment pays the oldest invoice first.','Setiap bayaran melunaskan invois paling lama dahulu.'))+'</div>'+
+    (o.length?'<button class="bigbtn wabtn" id="rv-stmt-copy" onclick="rcCopyStmt(\''+esc(id)+'\')">📋 '+esc(tr2('Copy the statement for WhatsApp','Salin penyata untuk WhatsApp'))+'</button>':'')+'</div>';}
+function rcStmtText(id){
+  const r=retailerById(id), o=rcOwed(id), tot=o.reduce((s,x)=>s+x.left,0);
+  return ['🍈 *SUGUT DURIAN FARM* 🍈','📄 *STATEMENT* · '+(r?r.name:''),'🗓️ '+rcToday(),'━━━━━━━━━━━━━']
+    .concat(o.map(x=>'• '+x.no+' · '+rcDay(x.dt)+' · '+rm(x.left)+(x.left<x.v-0.004?(' (of '+rm(x.v)+')'):'')))
+    .concat(['━━━━━━━━━━━━━','💰 *TOTAL NOW PAYABLE: '+rm(tot)+'*','Oldest first. Thank you.']).join('\n');}
+async function rcCopyStmt(id){const ok=await copyToClipboard(rcStmtText(id)); toast(ok?'📋 Statement copied — paste it into WhatsApp':'Clipboard blocked',ok?0:1);
+  if(!ok){const b=$('rv-stmt'); if(b)b.insertAdjacentHTML('beforeend','<textarea class="rcpt" readonly onclick="this.select()">'+esc(rcStmtText(id))+'</textarea>');}}
+function rcStmtOpen(id){RC_STMT=(RC_STMT===id?'':id); try{renderMoney();}catch(e){} const e=$('rv-stmt'); if(e&&e.scrollIntoView)e.scrollIntoView({block:'nearest'});}
+/** C8a: the block at the top of MONEY. */
+function rcOwedHtml(){
+  if(!SHOW_VALUES)return '';
+  const ids=rcCreditIds(); if(!ids.length)return '';
+  const P={}; ids.forEach(id=>{P[id]=rcPos(id);});
+  const owe=ids.filter(id=>P[id].bal<0), tot=owe.reduce((s,id)=>s+P[id].owes,0);
+  const bk=[0,0,0]; ids.forEach(id=>rcOwed(id).forEach(x=>{const d=rcDays(x.dt); bk[d<=7?0:d<=RC_RED?1:2]+=x.left;}));
+  const own=myRole()==='OWNER';
+  let h='<div class="rv-owed" id="rv-owed"><div class="sec">💵 '+esc(tr2('Owed to the farm','Hutang kepada ladang'))+' · '+esc(tr2('this season','musim ini'))+'</div>'+
+    '<div class="rv-big'+(tot>0?' owe':'')+'"><b id="rv-owed-tot">'+rm(tot)+'</b><span>'+(owe.length?(esc(tr2('owed by ','dihutang oleh '))+owe.length+' '+esc(tr2(owe.length===1?'merchant':'merchants','peniaga'))):esc(tr2('nobody owes the farm','tiada siapa berhutang')))+'</span></div>';
+  if(tot>0)h+='<div class="rv-age"><div><b>'+nf(bk[0])+'</b>0–7 '+esc(tr2('days','hari'))+'</div><div><b>'+nf(bk[1])+'</b>8–14 '+esc(tr2('days','hari'))+'</div><div class="'+(bk[2]>0?'old':'')+'"><b>'+nf(bk[2])+'</b>'+esc(tr2('over 14 days','lebih 14 hari'))+'</div></div>';
+  h+=ids.slice().sort((a,b)=>P[a].bal-P[b].bal).map(id=>{const p=P[id], r=retailerById(id);
+    return '<button class="rv-mrow" id="rv-m-'+ppCss(id)+'" onclick="rcStmtOpen(\''+esc(id)+'\')"><span><b>'+esc(r.name)+'</b><small>'+
+      esc(p.bal<0?(p.old?tr2('oldest unpaid ','tertunggak ')+p.old+tr2(' days',' hari'):tr2('owes','berhutang')):p.bal>0?tr2('paid ahead','bayar dahulu'):tr2('nothing owed','tiada hutang'))+
+      (p.line>0?(' · '+esc(tr2('line ','had '))+rm(p.line)):'')+(String(r.status||'Active')==='Suspended'?' · suspended':'')+'</small></span>'+
+      '<span class="rv-mv'+(p.bal<0?' r':' g')+'">'+(p.bal<0?rm(p.owes):p.bal>0?('+'+rm(p.ahead)):'—')+(p.bal<0&&p.old>RC_RED?'<i>'+p.old+' d</i>':'')+'</span></button>'+(RC_STMT===id?rcStmtHtml(id):'');}).join('');
+  /* C3a: the payments of the last three weeks, who keyed them, and the Owner's cancel */
+  const t=rcToday(), recent=[];
+  ids.forEach(id=>rcPays(id).forEach(p=>{if(rcDays(p.e.dt)<=RC_RECENT&&p.how)recent.push(p);}));
+  recent.sort((a,b)=>String(b.e.dt).localeCompare(String(a.e.dt)));
+  if(recent.length)h+='<div class="sec" style="margin-top:10px">'+esc(tr2('Payments received · last 3 weeks','Bayaran diterima · 3 minggu lepas'))+'</div><div class="tblwrap"><table class="tbl" id="rv-recent">'+
+    recent.map(p=>rcPayRowHtml(Object.assign({},p,{ref:(p.e.retailer_name||'')+(p.ref?(' · '+p.ref):'')}),own)).join('')+'</table></div>';
+  /* C6a: where each merchant stood at the start of the season, and which are not keyed yet */
+  if(own){
+    const okd=ids.filter(id=>rcOpenOk(retailerById(id))&&rcOpen(id)), not=ids.filter(id=>!rcOpenOk(retailerById(id)));
+    if(not.length)h+='<div class="rv-notkeyed" id="rv-notkeyed"><b>'+esc(tr2('Start of the season not keyed yet: ','Baki awal musim belum dimasukkan: '))+'</b>'+
+      not.map(id=>{const r=retailerById(id), o=+r.opening_credit_rm||0; return esc(r.name)+(o?(' <small>('+esc(tr2('on file from before: ','dalam rekod lama: '))+(o<0?tr2('owed ','hutang ')+rm(-o):tr2('paid ahead ','bayar dahulu ')+rm(o))+esc(tr2(' — not counted',' — tidak dikira'))+')</small>'):'');}).join(' · ')+
+      '<br>'+esc(tr2('Key what each owed (or had paid ahead) at the start: tap the merchant in Marketing ▸ ✏️ edit details.','Masukkan baki awal setiap peniaga: Pemasaran ▸ ✏️ edit.'))+'</div>';
+    if(okd.length)h+='<div class="small" id="rv-opens">'+esc(tr2('Start of the season: ','Baki awal musim: '))+okd.map(id=>{const o=rcOpen(id); return esc(retailerById(id).name)+' '+(o<0?tr2('owed ','hutang ')+rm(-o):tr2('paid ahead ','bayar dahulu ')+rm(o));}).join(' · ')+'.</div>';}
+  return h+'</div>';}
+/** C8a: one line for Command ▸ Today. */
+function rcAlert(){
+  if(!SHOW_VALUES)return null;
+  const ids=rcCreditIds(); let tot=0, old=0, who='';
+  ids.forEach(id=>{const p=rcPos(id); if(p.bal<0){tot+=p.owes; if(p.old>old){old=p.old;who=retailerById(id).name;}}});
+  if(!(tot>0))return null;
+  return {hot:old>RC_RED,txt:'💵 '+tr2('Owed to the farm ','Hutang kepada ladang ')+rm(tot)+(old?(' · '+tr2('oldest ','paling lama ')+old+tr2(' days',' hari')+' ('+who+')'):'')};}
+/** Under the merchant's profile: RECEIVE PAYMENT (or its form), and the receipt of the payment just keyed. */
+function rcCardMoneyHtml(id){
+  if(isCashSettled(id)||!canSetCredit())return '';
+  if(RCP&&RCP.id===id)return rcPayHtml(id);
+  return '<button class="bigbtn rv-paybtn" id="rv-pay-open" onclick="rcPayOpen(\''+esc(id)+'\')">💵 '+esc(tr2('RECEIVE PAYMENT','TERIMA BAYARAN'))+'</button>'+rcLastPayHtml(id);}
 
 // ======================= v3.2 DUAL-SIGNATURE YIELD AUDIT =============================
 // Two signatures on the same night's fruit: the worker who COUNTED it at the tree, and
@@ -23969,13 +24244,13 @@ async function pushRetailers(){
     const payload=RETAILERS.map(r=>({...r,
       pricing:pricingModeOf(r.id),
       // v3.68.0 - the pay type travels or the merchant reverts to CREDIT on the next pull
-      pay_type:payTypeOf(r.id), cash_warn_rm:+r.cash_warn_rm||0,
+      pay_type:payTypeOf(r.id), cash_warn_rm:+r.cash_warn_rm||0, credit_line_rm:rcMoneyMine()?rcSendLine(r):'', open_from:rcMoneyMine()?(r.open_from||''):'',   // v3.92.0 - '' = no opinion: only the Owner's phone moves the line and the season of the opening
       current_credit_balance_rm:retailerCredit(r.id),
       contract:isContractRetailer(r.id)?JSON.stringify(RET_CONTRACT[r.id]||{}):''}));
     const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({retailers:payload}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
-    if(j&&j.ok&&j.retailers){RET_DIRTY=false;await persistRetailers();return true;}
+    if(j&&j.ok&&j.retailers){RET_DIRTY=false;await persistRetailers();MASTER_SIG='';return true;}   // v3.92.0 - the next pull brings the merged list back
     if(!retWarned){retWarned=true;
       toast('Retailer master kept on this phone — update the Apps Script to add the RETAILERS tab',1);}
     return false;
@@ -24001,7 +24276,13 @@ async function mergeRetailers(list){
     pay_type:(String(x.pay_type||payTypeOf(String(x.id||x.name).trim())||'CREDIT').toUpperCase()==='CASH'?'CASH':'CREDIT'),
     cash_warn_rm:((x.cash_warn_rm===''||x.cash_warn_rm==null)
       ?(+((retailerById(String(x.id||x.name).trim())||{}).cash_warn_rm)||0)
-      :(+x.cash_warn_rm||0))}));
+      :(+x.cash_warn_rm||0)),
+    /* v3.92.0 - the credit line: added to THIS whitelist too, or the next pull wipes it; blank = no opinion, keep the phone's */
+    credit_line_rm:((x.credit_line_rm===''||x.credit_line_rm==null)
+      ?rcKeepLine(String(x.id||x.name).trim())
+      :(+x.credit_line_rm||0)),
+    /* v3.92.0 - the season the opening was keyed for; blank = no opinion, keep the phone's */
+    open_from:(x.open_from?String(x.open_from).slice(0,10):rcKeepFrom(String(x.id||x.name).trim()))}));
   if(!rows.length)return;
   RETAILERS=rows;
   // ...and the same rule for the contract book itself: an empty payload never wipes a
@@ -24692,7 +24973,7 @@ const CLN_TYPES=[
      Same class of gap as the v3.30.2 rations chip. THE RULE THIS ENCODES: every event type
      any screen SUMS must be selectable here. */
   {k:'DISPATCH_REQ',t:'Weighings (scale queue)'},
-  {k:'CREDIT_TOPUP',t:'Credit top-ups'},
+  {k:'CREDIT_TOPUP',t:'Payments received'},
   /* v3.30.2 - rations & gifts. Without this chip the rows were still deletable (an unfiltered
      list shows every type) but arrived with a BLANK label, which is worse than not offering
      them: a row you cannot read is a row you delete by accident. */
@@ -28164,7 +28445,7 @@ function creditAdvice(){
     const need=known?Math.round(kg*rate):null;
     const bal=retailerCredit(r.id);
     // 25% headroom, rounded up to the nearest RM1,000, never below the opening pool.
-    const target=known?Math.max(+r.opening_credit_rm||0,Math.ceil((need*1.25)/1000)*1000):null;
+    const target=known?Math.max(rcOpen(r.id),Math.ceil((need*1.25)/1000)*1000):null;
     // v3.16 — a pool that is ALREADY negative has not "run out mid-wave", it ran out
     // some time ago and the merchant is taking fruit on arrears. Screenshot review caught
     // the single message covering both; they need different words and different urgency.
@@ -30148,7 +30429,7 @@ function whoLine(e){
     case 'DISPATCH_REJECT': return 'RETURNED a load'+(e.note?(' — '+e.note):'');
     case 'DISPATCH_CANCEL': return 'cancelled a load';
     case 'SALE':            return 'a sale'+(e.merchant?(' · '+e.merchant):'')+rm(e.rm);
-    case 'CREDIT_TOPUP':    return 'merchant payment received'+rm(e.rm);
+    case 'CREDIT_TOPUP':    return (String(e.pay_how||'')==='CANCEL'?'cancelled a merchant payment':'merchant payment received')+rm(Math.abs(+e.amount_rm||+e.rm||0));   // v3.92.0
     case 'FOC_REQ':         return 'fruit out with no invoice'+(e.reason?(' — '+e.reason):'');
     case 'STOCK_IN':        return 'stock received'+(e.product?(' · '+e.product):'');
     case 'STOCK_OUT':       return 'stock taken out'+(e.product?(' · '+e.product):'');
@@ -30384,6 +30665,7 @@ function ownAlerts(){
      a check finished), added UNDER the band's own three so it never pushes one of them out. */
   const top=out.slice(0,3);
   if(typeof tcOwnAlert==='function'){try{const t=tcOwnAlert(); if(t)top.push(t);}catch(x){}}
+  if(typeof rcAlert==='function'){try{const t=rcAlert(); if(t)top.push(t);}catch(x){}}   // v3.92.0 (C8a) - owed to the farm
   return top;}
 
 /** The three lines that turn "what happened" into "what to do next". */
@@ -30561,7 +30843,7 @@ function renderMoney(){
   if(!roleAllows('moneycard')||!SHOW_VALUES){box.innerHTML='';hideMoneyDetail();return;}
   const d=buildMonthMatrix(), ms=d.months;      // newest first
   if(!ms.length){
-    box.innerHTML='<div class="alertnone">No month has any activity yet. This page builds itself from '+
+    box.innerHTML=rcOwedHtml()+'<div class="alertnone">No month has any activity yet. This page builds itself from '+
       'the harvest, dispatch, stock and labour records — it holds nothing of its own.</div>';
     hideMoneyDetail();return;}
   if(!MON_KEY||!ms.some(function(m){return m.key===MON_KEY;}))MON_KEY=ms[0].key;
@@ -30677,7 +30959,7 @@ function renderMoney(){
       '<div class="small">Nothing was removed when this page was built — these are the four original '+
         'screens, folded shut. Open one and it appears below this card.</div>';}
 
-  box.innerHTML=
+  box.innerHTML=rcOwedHtml()+   /* v3.92.0 (C8a) */
     '<div class="winbar">'+
       '<button class="winb'+(oldest?' off':'')+'" onclick="monStep(1)"'+(oldest?' disabled':'')+'>‹</button>'+
       '<div class="winlbl"><b>'+esc(monthNameOf(m.key))+'</b>'+
