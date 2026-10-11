@@ -752,6 +752,19 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .fu-mix{border:1.5px solid #cfe0cc;border-radius:12px;padding:8px 10px;background:#f7faf6;margin:8px 0}
 .fu-lb{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:950;padding:14px}
 .fu-lbst{color:#bfe3c0;font-size:12.5px;font-weight:700;padding:0 13px 6px;background:#000;min-height:4px}
+.fu-hmsvg .fu-hmt text{pointer-events:none}.fu-hmsvg .fu-hmtap{cursor:pointer}
+.fu-hmleg i.fu-hmdash{border:0;border-top:3px dashed #e65100;border-radius:0;height:0;width:16px}
+.fu-hmbtns{display:flex;gap:6px;flex-wrap:wrap;margin:6px 2px 2px}.fu-hmbtns .tc-act{flex:1 1 auto;margin:0;min-height:44px}
+.fu-hmbtns .fu-hmon{background:#e8f3e8}
+.fu-hmrun{display:block;width:100%;text-align:left;border:1px solid #dfe5dd;border-left:5px solid #e65100;border-radius:10px;padding:8px 10px;margin-top:6px;background:#fff;font:inherit;color:inherit;cursor:pointer;min-height:44px}
+.fu-hmrun b{display:block;font-size:14px}.fu-hmrun small{display:block;font-size:12px;color:#5f6d60;margin-top:2px;overflow-wrap:anywhere}
+.fu-hmrun.fu-hmsel{background:#fff3e0;border-color:#e65100}
+.fu-hmtot{background:#fff3e0;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13.5px}
+.fu-hmcard{margin-top:6px}
+.fu-hmunk{display:block;font-size:11px;color:#757575;font-weight:600}
+.fu-hmsvg .fu-hmlbl{font:900 11px -apple-system,Segoe UI,Roboto,sans-serif;fill:#bf360c;stroke:#fff;stroke-width:3.2px;paint-order:stroke;stroke-linejoin:round}
+.fu-hmpick{background:#fff;border:2px solid #1b5e20;border-radius:10px;padding:8px;margin:6px 2px;font-size:14px}.fu-hmpick .pp-act{display:block;width:100%;margin-top:6px}
+.fu-hmpick .pp-act.fu-hmoff{background:#fff;color:#1b5e20 !important;border:2px solid #1b5e20}.fu-hmpick .pp-act.rd{background:#c62828;border-color:#c62828;color:#fff}
 .fu-lbw{background:#111;border-radius:16px;overflow:hidden;width:100%;max-width:560px}
 .fu-lbbar{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:8px 8px 8px 13px;font-weight:800}
 .fu-lbx{background:transparent;border:0;color:#fff;font-size:20px;min-width:44px;min-height:44px;cursor:pointer}
@@ -4704,7 +4717,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.88.0"></script>
-<script src="app.js?v=3.88.0"></script>
+<script src="database.js?v=3.89.0"></script>
+<script src="app.js?v=3.89.0"></script>
 </body>
 </html>
