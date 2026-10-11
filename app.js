@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.86.0';   // v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.87.0';   // v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -7564,7 +7564,7 @@ function ppChanges(v,o){
     const ot=(o.tgt!=null&&pjPlain(o.tgt,60))||String(v.tgt||''), os=(o.stage!=null&&String(o.stage))||String(v.stage||'');
     if(ot&&ot!==String(v.plan.tgt||''))out.push('For: '+String(v.plan.tgt||'')+' → '+ot);
     if(os&&os!==String(v.plan.stage||''))out.push('Stage: '+String(v.plan.stage||'')+' → '+os);}
-  o.lines.forEach(n=>{if(!v.planLines.find(p=>p.key===n.key))out.push('Added: '+n.n+' '+ppQty(n.q,n.u)+(n.sub?(' (in place of '+n.sub+')'):''));});   // v3.80.0
+  o.lines.forEach(n=>{if(!v.planLines.find(p=>p.key===n.key))out.push('Added: '+n.n+' '+(pqE0(n)?'(no dose yet)':ppQty(n.q,n.u))+(n.sub?(' (in place of '+n.sub+')'):''));});   // v3.80.0
   return out;}
 function ppWhys(v){const u=[];(v.log||[]).forEach(x=>{if(x.why&&u.indexOf(x.why)<0)u.push(x.why);});
   if(v.fix&&v.fix.why&&u.indexOf(v.fix.why)<0)u.push(v.fix.why);
@@ -7918,7 +7918,7 @@ let PPC={s:'list',key:''}, PPCD=null, PPCN=null;   // the crew's screen and its 
 function ppTabs(){return ppIsOwner()?['month','buy','rec']:['coming','done'];}
 function ppInForm(){return ['edit','move','skip','rec'].indexOf(PPO.s)>=0||['done','not'].indexOf(PPC.s)>=0||
   (typeof PJC!=='undefined'&&(['form','not'].indexOf(PJC.s)>=0||!!PJC.undo))||                       // v3.82.0 — a job report, a not-done, an undo reason
-  (typeof PJO!=='undefined'&&['issue','add','rec','move','skip','pay'].indexOf(PJO.s)>=0)||
+  (typeof PJO!=='undefined'&&['issue','add','rec','move','skip','pay','plan'].indexOf(PJO.s)>=0)||
   /^pj-(day|w-new)$/.test((document.activeElement&&document.activeElement.id)||'')||                 // the day rate or a name being typed
   (typeof tcCrewOn==='function'&&tcCrewOn());}   // v3.79.0 — a tree being keyed is a form too
 function ppTop(){const s=$('scr-dash'); if(s)s.scrollTop=0;}
@@ -8210,7 +8210,7 @@ function ppMonthHTML(){
   if(typeof tcMonthHTML==='function'){try{h+=tcMonthHTML(pg.mon);}catch(x){}}
   /* v3.83.0 (P8a) - the two buttons that sat here, under every round of the month, are gone: ＋ NEW at the top does both */
   const add='';
-  if(!list.length&&!jl.length)return h+'<div class="pp-note">Nothing on the programme this month.</div>'+add;
+  if(!list.length&&!jl.length)return h+'<div class="pp-note">Nothing on the programme this month.</div>'+pjMovedOutHTML(pg.mon)+add;   // v3.87.0
   /* the current one: the first issued set still open, else the next planned round */
   const curSet=list.filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
   const nextp=curSet?null:list.filter(v=>v.st==='plan'&&(v.nodate||ppDiff(v.date,today)>=0))[0];
@@ -8224,7 +8224,7 @@ function ppMonthHTML(){
     const c=v===curSet?'now':v===nextp?'nextp':'';
     h+=PPO.mix?ppSheetHTML(v,c):ppRowHTML(v,c);});
   if(!line)h+='<div class="pp-tday"><span>TODAY · '+ppFmtS(today)+'</span></div>';
-  h+='</div>'+add;
+  h+='</div>'+pjMovedOutHTML(pg.mon)+add;   // v3.87.0 (J2a) - a job he moved to another month says where it went
   if(ppIsOwner())h+='<button class="pp-ghost" id="pp-o-print" onclick="ppPrintMonth()">🖨 PRINT THIS MONTH</button>';
   return h;}
 
@@ -8448,11 +8448,240 @@ let PJ_CACHE=null, PJ_REPS=null, PJ_AT=0, PJ_UAT=0;
 let PJC={s:'',key:'',f:null,info:null,undo:null,not:null};     // the crew: '' (the list) · card · form · saved · not · told
 let PJO={s:'',key:'',pid:'',f:null,rtab:'day',rmon:'',pay:null,base:null};   // the Owner: '' · detail · issue · rec · move · skip · pay · add; the RECORD view and month; a job being added
 
+/* ====================== v3.87.0 - THE EMPTY DOSE BOX, AND CHANGE THE PLAN OF A PLANNED JOB ======================
+   The Owner, 7 Oct 2026: "yes start with emtpy. yes change the plan for the plan job". Sample of 10 Oct approved
+   "build what has suggested" = E1a E2a J1a J2a J3a.
+   E1a  A product he ADDS (＋ ADD A PRODUCT, wherever the mix editor is: the issue screen, CHANGE THE MIX, CHANGE THE
+        PLAN, ＋ NEW) comes in with an EMPTY dose box. The app never guesses a dose. Nothing goes out - no set, no plan,
+        no ★ programme - while an added product has no dose: "Type the dose of …, or take it out with ✕."
+        A product the plan already carries keeps its figure; emptying one of those is taken out as before.
+   E2a  Only an ADDED product. SWAP stays as v3.80.0 made it (the carried figure in amber, the tick "I checked the label").
+   J1a  CHANGE THE PLAN · DO NOT ISSUE YET on a planned JOB: the first and last day, the people, the days of work and
+        what is counted. The job's name stays the workbook's.
+   J2a  A first day in another month moves the job to that month's page; the old month says where it went.
+   J3a  The man-days planned are people × days of work.
+   WHAT IS STORED: one PROGRAMS record per planned job, flagged x.cfg + x.jpc (NOT x.pc: the rounds' reader must never
+   take a job's change for a round's), with the fixed id 'cfg-jplan-<season>-<code>', status CFG, the same
+   compare-and-swap as the rounds' plan rows (v3.83.0). Nothing new on the Sheet: no tab, no column, no script change.
+     x = { cfg:1, jpc:1, id:'J27|MU1', code, off, from, to, crew, days, cen, cms, why, log:[...] }
+   A job that has a record (issued, recorded, skipped) keeps the plan it was made on, for good: pjNewRec writes it as
+   x.pl when that plan was his. A phone on v3.86.0 or older reads the workbook: update both of the Owner's devices. */
+const PJP_DAYS_MAX=120;     // days of work one planned job can hold
+const PJP_BADROW='The saved plan of this job cannot be read on this device: its row on the Sheet was changed by hand. Nothing is changed. You can still issue the job.';
+let PJP_LIST=null;
+
+/* ---------- E1a: the empty box of an added product ---------- */
+function pqE0(l){return !!(l&&l.add0&&!(+l.q>0));}
+function pqE0HTML(l){return pqE0(l)?'<div class="pq-e0h">Type the dose from the label.</div>':'';}
+/** '' when every added product has its dose; else what to say. */
+function pqE0Block(o){const l=((o&&o.lines)||[]).find(pqE0); return l?('Type the dose of '+l.n+', or take it out with ✕.'):'';}
+/** review 1: what an added line must keep when SWAP or ON THE SHELF takes its place, and gets back when it returns. */
+function pqE0Keep(l){return (l&&l.add0)?{add0:true,big:!!l.big}:{};}
+/** review 1: the placeholder names the unit the box is typed in (kg or L a tank for a card counted in g or ml). */
+function pqE0Ph(l,v){const k=ppUnitKind(l.u), u=k[0]==='t'?'tablets':l.big?(k[0]==='w'?'kg':'L'):l.u; return 'in '+u;}
+/** review 1: an added product with no dose yet has no shelf answer: it needs nothing until the dose is typed. */
+function pqE0Chip(){return '<span class="pp-pill mut">NO DOSE YET</span>';}
+/** review 3: a planned job whose plan row the Sheet refused (the other device changed it first) is not issued, recorded
+ *  or skipped on that row: what it was made on would be a plan no other device has. The pull replaces the row. */
+function pjPcStale(v){if(!v||v.st!=='plan'||!v.plan)return false; const r=pjPcRec(v.plan.id); return !!(r&&ppStale(r));}
+
+/* ---------- J: the jobs of the workbook, with his changes laid over them ---------- */
+function pjPcId(planId){return 'cfg-jplan-'+PQ_TAG+'-'+String(planId||'').replace(/^J\d+\|/,'').replace(/[^A-Za-z0-9]+/g,'-');}
+function pjIsPc(p){const x=ppX(p);return !!(x&&x.cfg&&x.jpc&&typeof x.id==='string'&&x.id);}
+/** By the id only it can have (the rounds' lesson: looked up by what a damaged cell says, it would be made twice). */
+function pjPcRec(planId){const id=pjPcId(planId);return (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).find(p=>p&&p.uuid===id)||null;}
+/** Man-days of a plan: the workbook's own figure while its people and days stand, else people × days (J3a). */
+function pjMdOf(wb,o){return (+o.crew===+wb.crew&&+o.days===+wb.days)?(+wb.md||0):(+o.crew||0)*(+o.days||0);}
+/** How a job's plan `o` = {from,to,crew,days,cen} differs from the workbook's row, line by line. */
+function pjPlanCh(wb,o){
+  const out=[];
+  if(String(o.from)!==String(wb.from)||String(o.to)!==String(wb.to))out.push('Days: '+pjRange(wb.from,wb.to)+' → '+pjRange(o.from,o.to));
+  if(String(o.from).slice(0,7)!==String(wb.mon||String(wb.from).slice(0,7)))out.push('Month: '+ppMonEN(String(wb.mon||String(wb.from).slice(0,7)))+' → '+ppMonEN(String(o.from).slice(0,7)));
+  if(+o.crew!==+wb.crew)out.push('People: '+wb.crew+' → '+o.crew);
+  if(+o.days!==+wb.days)out.push('Days of work: '+wb.days+' → '+o.days);
+  const m=pjMdOf(wb,o); if(m!==(+wb.md||0))out.push('Man-days planned: '+(+wb.md||0)+' → '+m);
+  if(String(o.cen||'')!==String(wb.cen||''))out.push('What is counted: '+(wb.cen||'nothing')+' → '+(o.cen||'nothing'));
+  return out;}
+/** A workbook row with a change laid over it. Every figure is checked as it is read: a cell mended by hand that says
+ *  something impossible falls back to the workbook's figure, never to a broken page. null = nothing differs. */
+function pjOver(wb,x,pcr,meta){
+  if(!wb||!x||typeof x!=='object')return null;
+  let from=pqDayOk(x.from)?String(x.from):String(wb.from), to=pqDayOk(x.to)?String(x.to):String(wb.to);
+  if(to<from){from=String(wb.from);to=String(wb.to);}
+  const ci=Math.round(+x.crew||0), di=Math.round(+x.days||0);
+  const crew=(ci>=1&&ci<=PJ_PEOPLE_MAX)?ci:(+wb.crew||0), days=(di>=1&&di<=PJP_DAYS_MAX)?di:(+wb.days||0);
+  const cen=(typeof x.cen==='string')?pjClip(x.cen,PJ_UNIT_LEN):String(wb.cen||'');
+  const cms=(cen===String(wb.cen||''))?String(wb.cms||''):((typeof x.cms==='string')?pjClip(x.cms,PJ_UNIT_LEN):cen);
+  const o={from:from,to:to,crew:crew,days:days,cen:cen};
+  if(!pjPlanCh(wb,o).length)return null;
+  return Object.assign({},wb,{wb:wb,pcr:pcr||null,from:from,to:to,mon:from.slice(0,7),crew:crew,days:days,md:pjMdOf(wb,o),cen:cen,cms:cms,pc:meta||{}});}
+/** PLAN_JOBS_2627 as it stands TODAY: a job he changed carries his days, people, days of work and count. A job whose
+ *  change was put back carries `pcr` only, for its history. The tree checks (chk) pass through untouched. */
+function pjPlanList(){
+  if(!pjOn())return [];
+  if(PJP_LIST)return PJP_LIST;
+  const by={};
+  (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).forEach(r=>{ if(!r||!pjIsPc(r))return; const x=ppX(r); if(r.uuid===pjPcId(x.id))by[x.id]=r;});
+  const out=PLAN_JOBS_2627.map(p=>{
+    if(p.chk)return p;
+    const r=by[p.id], x=r?ppX(r):null;
+    if(!x)return p;
+    return (x.off?null:pjOver(p,x,r,{at:String(r.at||''),by:String(r.by||''),why:String(x.why||'')}))||Object.assign({},p,{wb:p,pcr:r});});
+  PJP_LIST=out; Promise.resolve().then(()=>{PJP_LIST=null;});
+  return out;}
+/** ⛔ A JOB THAT HAS A RECORD KEEPS THE PLAN IT WAS MADE ON (x.pl), FOR GOOD. A change that lands after the issue -
+ *  the other device had the form open - stays on its own row and changes nothing about the job. */
+function pjPlanAt(p,rec){
+  const wb=p.wb||p, x=ppX(rec), s=(x&&x.pl&&typeof x.pl==='object')?x.pl:null;
+  return (s?pjOver(wb,s,null,{at:String(s.at||''),by:String(s.by||''),why:String(s.why||'')}):null)||wb;}
+/** What a new record of a planned job carries of the plan it is made on: nothing when that is the workbook. */
+function pjPlOut(p){
+  if(!p||!p.pc)return null;
+  return {from:String(p.from),to:String(p.to),crew:+p.crew||0,days:+p.days||0,cen:String(p.cen||''),cms:String(p.cms||''),
+    at:String(p.pc.at||'').slice(0,10),by:pjClip(p.pc.by,24),why:String(p.pc.why||'')};}
+
+/* ---------- the month page: where a moved job went ---------- */
+function pjMovedOutHTML(mon){
+  if(!ppIsOwner()||!pjOn())return '';
+  const mv=pjJobs().filter(v=>v.st==='plan'&&v.plan&&v.plan.pc&&String(v.plan.wb&&v.plan.wb.mon)===mon&&v.mon!==mon);
+  return mv.map(v=>'<button class="pp-row st-plan pj-job pj-mvout" id="pj-mv-'+ppCss(v.key)+'" onclick="pjOpen(\''+ppArg(v.key)+'\')">'+
+    '<div class="pp-top"><div><b class="pp-nm">↪ '+esc(v.code||pjName(v))+' moved to '+esc(ppMonEN(v.mon))+'</b></div><span class="pp-pill mut">YOUR PLAN</span></div>'+
+    '<div class="pp-pur">'+esc(v.en)+'</div><div class="pp-dt">now '+pjRange(v.from,v.to)+' · moved by you</div></button>').join('');}
+
+/* ---------- the job's page: what he changed, and the way back ---------- */
+function pjPcBoxHTML(v){
+  if(!v||v.st!=='plan'||!v.plan||!v.plan.pc)return '';
+  const wb=v.plan.wb||v.plan, pc=v.plan.pc, ch=pjPlanCh(wb,v.plan), d=String(pc.at||'').slice(0,10);
+  return '<div class="pq-pcbox" id="pj-pc-box"><b>You changed this plan'+(ppOkDay(d)?(' on '+ppFmtS(d)):'')+'</b>'+
+    (pc.by?(' <span class="pp-g">· '+esc(pc.by)+'</span>'):'')+(pc.why?(' <span class="pp-g">— '+esc(ppWhy(pc.why))+'</span>'):'')+
+    (ch.length?('<ul>'+ch.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul>'):'')+
+    '<div class="pp-g" style="margin:4px 0 0">The crew has seen nothing. The left side of each line is what the workbook says.</div>'+
+    '<button class="pp-ghost pq-sm'+(pqUndoAsked(v)?' rd':'')+'" id="pj-pc-undo" onclick="pjPcUndo()">'+(pqUndoAsked(v)?'TAP AGAIN TO PUT IT BACK':'PUT THE WORKBOOK’S PLAN BACK')+'</button></div>';}
+function pjPcHistHTML(v){
+  const x=(v&&v.plan&&v.plan.pcr)?ppX(v.plan.pcr):null;
+  const t=(x&&Array.isArray(x.log))?x.log.filter(e=>e&&typeof e==='object'&&(e.k==='plan'||e.k==='planback'))
+    .map(e=>ppLogText(Object.assign({},e,{ch:Array.isArray(e.ch)?e.ch.map(String):[]}))):[];
+  return t.length?('<div class="pp-q">What happened to the plan</div><div class="pp-g" id="pj-pc-hist">'+t.map(esc).join('<br>')+'</div>'):'';}
+async function pjPcUndo(){
+  if(!ppIsOwner()||PQ_BUSY||pqHeld()||pjHeld())return;
+  const v=pjOJob(); if(!v||v.st!=='plan'||!v.plan||!v.plan.pc)return;
+  if(v.plan.pcr&&ppStale(v.plan.pcr))return;
+  /* the first tap asks, and the question goes away by itself after 8 s (the rounds' two lessons) */
+  if(!pqUndoAsked(v)){const k=v.key; PQ.undo={k:k,at:performance.now()}; pqMoved(); ppRender();
+    setTimeout(()=>{try{ if(PQ.undo&&PQ.undo.k===k&&(performance.now()-PQ.undo.at)>=8000){PQ.undo=null; if(PJO.s==='detail'&&ppHere()&&!ppInForm())ppRender();} }catch(e){}},8200);
+    return;}
+  PQ.undo=null; PQ_BUSY=true; let ok=false;
+  try{ ok=await pjPcSave(v.plan.wb||v.plan,{},true,[],''); }
+  finally{ PQ_BUSY=false; }
+  if(ok)toast('The workbook’s plan is back.');
+  pqMoved(); ppAfter();}
+
+/* ---------- CHANGE THE PLAN · DO NOT ISSUE YET (PJO.s = 'plan') ---------- */
+function pjPlanOpen(){
+  if(!ppIsOwner()||pjHeld()||pjUHeld())return;
+  const v=pjOJob(); if(!v||v.st!=='plan'||!v.plan)return;
+  const pr=pjPcRec(v.plan.id);
+  if(pr&&ppStale(pr))return;
+  if(pqPcBad(pr)){toast(PJP_BADROW,1);return;}
+  /* the form remembers the row it opened on: a change from the other device that lands under it is not wiped */
+  PJO.f={from:v.from,to:v.to,crew:+v.planCrew||1,days:+v.planDays||1,cen:String(v.cen||''),why:String((v.plan.pc&&v.plan.pc.why)||''),
+    err:'',busy:false,rev0:pr?(+pr.rev||0):0,at0:pr?String(pr.at||''):''};
+  PJO.s='plan'; pjMoved(); ppRender(); ppTop();}
+function pjPSync(){const f=PJO.f; if(!f)return;
+  const a=$('pj-p-from'), b=$('pj-p-to'), c=$('pj-p-cen');
+  if(a&&a.value)f.from=a.value; if(b&&b.value)f.to=b.value; if(c)f.cen=c.value;}
+function pjPStep(k,d){const f=PJO.f; if(!f||f.busy)return; pjPSync();
+  f[k]=Math.max(1,Math.min(k==='crew'?PJ_PEOPLE_MAX:PJP_DAYS_MAX,(+f[k]||1)+d)); f.err=''; ppRender();}
+function pjPWhy(k){const f=PJO.f; if(!f||f.busy||pjHeld())return; pjPSync(); f.why=(f.why===k)?'':k; f.err=''; ppRender();}
+function pjPLive(){pjPSync(); const e=$('pj-p-live'); if(e)e.innerHTML=pjPLiveHTML();}
+function pjPLiveHTML(){
+  const f=PJO.f, v=pjOJob(); if(!f||!v||!v.plan)return '';
+  const wb=v.plan.wb||v.plan, ok=ppOkDay(f.from)&&ppOkDay(f.to)&&f.to>=f.from, n=ok?(ppDiff(f.to,f.from)+1):0;
+  const o={from:f.from,to:f.to,crew:f.crew,days:f.days,cen:pjPlain(f.cen,PJ_UNIT_LEN)}, m=pjMdOf(wb,o), ch=ok?pjPlanCh(wb,o):[];
+  return (ok?(pjRange(f.from,f.to)+' · '+n+' calendar day'+(n===1?'':'s')+' · '):'')+'<b>'+f.crew+' × '+f.days+' = '+m+' man-day'+(m===1?'':'s')+'</b>'+
+    (ok&&String(f.from).slice(0,7)!==String(wb.mon)?('<br><b>It moves to '+esc(ppMonEN(String(f.from).slice(0,7)))+'.</b>'):'')+
+    (ch.length?('<div class="pp-chg" id="pj-p-ch"><b>Different from the workbook</b><ul>'+ch.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul></div>')
+      :('<div class="pp-g" id="pj-p-same" style="margin-top:6px">The same as the workbook.'+(v.plan.pc?' Saving puts the workbook’s plan back.':'')+'</div>'));}
+function pjPStepHTML(k,val){
+  return '<div class="pj-pst"><button id="pj-p-'+k+'-m" onclick="pjPStep(\''+k+'\',-1)" aria-label="less">−</button><b id="pj-p-'+k+'">'+val+'</b>'+
+    '<button id="pj-p-'+k+'-p" onclick="pjPStep(\''+k+'\',1)" aria-label="more">+</button></div>';}
+function pjPlanHTML(){
+  const v=pjOJob(), f=PJO.f;
+  if(!v||!f||!v.plan||v.st!=='plan')return '<button class="pp-back" onclick="pjToDetail()">‹ back</button><div class="pp-note" id="pj-p-gone">This job is no longer on the plan. It was issued, recorded or skipped, here or on another device.</div>';
+  const wb=v.plan.wb||v.plan;
+  return '<button class="pp-back" id="pj-p-back" onclick="pjToDetail()">‹ back</button><div class="pp-ttl">Change the plan · '+pjIc(v)+' '+esc(v.code||pjName(v))+'</div>'+
+    '<div class="pp-g">'+esc(v.en)+'<br>The workbook: '+pjRange(wb.from,wb.to)+' · '+(+wb.crew||0)+' '+(+wb.crew===1?'person':'people')+' × '+(+wb.days||0)+' day'+(+wb.days===1?'':'s')+' = '+(+wb.md||0)+' man-day'+(+wb.md===1?'':'s')+(wb.cen?(' · counted: '+esc(wb.cen)):'')+'</div>'+
+    '<div class="pp-note" id="pj-p-note" style="margin-top:8px"><b>Nothing is sent to the crew.</b> The job stays on the plan, on the days you give it, until you issue it.</div>'+
+    '<div class="pp-two pj-two"><div><label>First day</label><input type="date" id="pj-p-from" value="'+esc(f.from)+'" oninput="pjPLive()" onchange="pjPLive()"></div>'+
+    '<div><label>Last day</label><input type="date" id="pj-p-to" value="'+esc(f.to)+'" oninput="pjPLive()" onchange="pjPLive()"></div></div>'+
+    '<div class="pp-two pj-two"><div><label>People</label>'+pjPStepHTML('crew',f.crew)+'</div><div><label>Days of work</label>'+pjPStepHTML('days',f.days)+'</div></div>'+
+    '<div class="pp-g" id="pj-p-live" style="margin-top:6px">'+pjPLiveHTML()+'</div>'+
+    '<label>What is counted (optional)</label><input id="pj-p-cen" maxlength="'+PJ_UNIT_LEN+'" value="'+esc(f.cen)+'" placeholder="e.g. trees mulched" autocomplete="off" oninput="pjPLive()">'+
+    '<div class="pp-q">Why? <span class="pp-g">(if you want it on the record)</span></div><div class="pp-opts">'+PP_WHY.map(w=>
+      '<button class="pp-opt'+(f.why===w[0]?' sel':'')+'" id="pj-p-why-'+w[0]+'" onclick="pjPWhy(\''+w[0]+'\')">'+esc(w[1])+'</button>').join('')+'</div>'+
+    '<div class="pp-err" id="pj-p-err">'+esc(f.err||'')+'</div><button class="pp-act" id="pj-p-go" onclick="pjPlanGo()">SAVE THE PLAN</button>';}
+async function pjPlanGo(){
+  const f=PJO.f; if(!f||f.busy||!ppIsOwner()||pjHeld())return;
+  pjPSync();
+  const v=pjOJob(), fail=m=>{f.err=m;ppRender();};
+  if(!v||v.st!=='plan'||!v.plan){PJO.f=null;PJO.s='detail';toast('This job was issued meanwhile. Its plan can no longer be changed.',1);ppRender();ppTop();return;}
+  const pr=pjPcRec(v.plan.id);
+  if(pr&&ppStale(pr)){PJO.f=null;PJO.s='detail';ppRender();return;}
+  if((pr?(+pr.rev||0):0)!==f.rev0||(pr?String(pr.at||''):'')!==f.at0)return fail('This plan was changed on another device while this form was open. Go back and open it again.');
+  const wb=v.plan.wb||v.plan, today=todayISO();
+  if(!ppOkDay(f.from)||!ppOkDay(f.to))return fail('Pick the first day and the last day.');
+  if(f.to<f.from)return fail('The last day is before the first day.');
+  const o={from:f.from,to:f.to,crew:Math.round(f.crew),days:Math.round(f.days),cen:pjPlain(f.cen,PJ_UNIT_LEN)};
+  const ch=pjPlanCh(wb,o), off=!ch.length;
+  /* review 5: what is checked is what CHANGED. The workbook's own plan typed back always saves (it puts it back), and a
+     job whose first day has gone can still have its last day, its people or its count changed. */
+  if(!off){
+    if(f.from!==v.from&&f.from<today)return fail('The first day has passed. Pick today or a later day.');
+    if(f.to!==v.to&&f.to<today)return fail('The last day has passed. Pick today or a later day.');
+    if(!pqDayOk(f.from)||!pqDayOk(f.to)){const sm=ppSeasonMonths();
+      return fail('The days must be inside season '+(seasonName()||PP_SEASON)+(sm.length?(' ('+ppMonEN(sm[0])+' '+sm[0].slice(0,4)+' to '+ppMonEN(sm[sm.length-1])+' '+sm[sm.length-1].slice(0,4)+')'):'')+'.');}
+    const n=ppDiff(f.to,f.from)+1;
+    if(f.days>n)return fail(f.days+' days of work do not fit between '+ppFmtS(f.from)+' and '+ppFmtS(f.to)+' ('+n+' day'+(n===1?'':'s')+').');}
+  if(off&&!v.plan.pc){PJO.f=null;PJO.s='detail';toast('Nothing is different from the workbook.');pjMoved();ppRender();ppTop();return;}
+  f.busy=true; let ok=false;
+  try{ ok=await pjPcSave(wb,o,off,ch,f.why); }
+  finally{ if(PJO.f)PJO.f.busy=false; }
+  if(!ok){PJO.f=null;PJO.s='detail';ppRender();return;}
+  toast(off?'The workbook’s plan is back.':'✓ The plan is changed. Nothing went to the crew.');
+  PJO.f=null; PJO.s='detail'; pjMoved(); ppAfter();}
+/** Write the change of one planned job (or put the workbook's plan back: off). One record per job. */
+async function pjPcSave(wb,o,off,ch,why){
+  if(!ppIsOwner()||!wb)return false;
+  let rec=pjPcRec(wb.id), isNew=false;
+  if(rec&&ppStale(rec))return false;
+  if(pqPcBad(rec)){toast(PJP_BADROW,1);return false;}
+  if(!rec){isNew=true;
+    rec={uuid:pjPcId(wb.id),phaseId:'CFG|jplan|'+String(wb.code||''),month:'',set:'PLAN '+String(wb.code||''),kind:'CFG',mode:'CFG',
+      header:'',basis:'PER_ROUND',plan:'',scope:'ALL',trees:0,litresPerTree:0,tanks:0,
+      lines:[],projCost:0,by:ppMe(),byId:(CFG&&CFG.uid)||'',at:nowSec(),status:'CFG',rev:0,base:0,synced:false,
+      x:{cfg:1,jpc:1,id:wb.id,code:String(wb.code||''),log:[]}};}
+  const x=ppX(rec);
+  if(!Array.isArray(x.log))x.log=[];
+  x.cfg=1; x.jpc=1; x.id=wb.id; x.code=String(wb.code||'');
+  x.off=off?1:0; x.from=off?'':String(o.from); x.to=off?'':String(o.to); x.crew=off?0:(+o.crew||0); x.days=off?0:(+o.days||0);
+  if(off){delete x.cen;delete x.cms;}
+  else{x.cen=String(o.cen||''); x.cms=(x.cen===String(wb.cen||''))?String(wb.cms||''):x.cen;}   // typed by him: the crew reads it as typed
+  x.why=off?'':String(why||'');
+  const day=x.from||String(wb.from||'');
+  rec.month=ppOkDay(day)?ppMonEN(day.slice(0,7)):''; rec.set='PLAN '+x.code; rec.plan=x.from||'';
+  rec.header=off?'The workbook’s plan, put back':('Job plan changed: '+String(wb.en||''));
+  rec.by=ppMe(); rec.byId=(CFG&&CFG.uid)||'';
+  ppLog(x,off?{k:'planback'}:{k:'plan',ch:(ch||[]).slice(0,12).map(c=>String(c).slice(0,160)),why:String(why||'')});
+  x.log=x.log.slice(-PQ_PCLOG_MAX);
+  await pjSave(rec,isNew);
+  return true;}
+/* ====================== end of v3.87.0 ====================== */
+
 /* ---------- small things ---------- */
 function pjOn(){return ppOn()&&typeof PLAN_JOBS_2627!=='undefined'&&Array.isArray(PLAN_JOBS_2627);}
 function pjIsJob(p){const x=ppX(p);return !!(x&&x.job);}
 function pjIsCfg(p){const x=ppX(p);return !!(x&&x.cfg);}
-function pjTouch(){PJ_CACHE=null;PJ_REPS=null;}
+function pjTouch(){PJ_CACHE=null;PJ_REPS=null;PJP_LIST=null;}   // v3.87.0 - and the job plan as he changed it
 function pjN2(n){n=+n||0;return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function pjMd(mh){return (+mh||0)/PJ_DAY_H;}
 function pjLotOk(L){return LOT_KEYS.indexOf(L)>=0;}
@@ -8545,7 +8774,8 @@ function pjJobs(){
     if((+r.rev||0)>(+c.rev||0)||((+r.rev||0)===(+c.rev||0)&&String(r.at||'')>String(c.at||'')))recOf[r.phaseId]=r;});
   const byJob={}; pjReps().forEach(r=>{if(r.job)(byJob[r.job]=byJob[r.job]||[]).push(r);});
   const out=[], seen={};
-  PLAN_JOBS_2627.forEach(p=>{ if(p.chk)return; const r=recOf[p.id]||null; if(r)seen[r.uuid]=1; out.push(pjView(p,r,byJob[p.id]||[]));});
+  /* v3.87.0 - the workbook's jobs with his changes laid over them; a job that has a record, the plan it was made on */
+  pjPlanList().forEach(p=>{ if(p.chk)return; const r=recOf[p.id]||null; if(r)seen[r.uuid]=1; out.push(pjView(r?pjPlanAt(p,r):p,r,byJob[p.id]||[]));});
   recs.forEach(r=>{ if(seen[r.uuid])return;
     if(PLAN_JOBS_2627.some(p=>p.id===r.phaseId))return;            // an older copy of a planned job: the newest is already in
     if(recOf[r.phaseId]!==r)return;
@@ -9078,6 +9308,7 @@ function pjNewRec(v,o,status){
   const num=(status==='SKIPPED')?0:pjNextNum(mon);
   const x={job:1,mon:mon,num:num,code:v.code||'',k:v.k||'XX',en:pjClip(v.en,PJ_TITLE_LEN),ms:pjClip(v.ms,PJ_TITLE_LEN),cen:pjClip(v.cen,PJ_UNIT_LEN),cms:pjClip(v.cms,PJ_UNIT_LEN),
     from:o.from,to:o.to,lots:o.lots.slice(),note:pjClip(o.note,PJ_NOTE_LEN),extra:!!v.extra,log:[]};
+  {const pl=pjPlOut(v.plan); if(pl)x.pl=pl;}   // v3.87.0 - made on the plan as he changed it: kept with the job for good
   if(v.fu&&Array.isArray(v.fuTrees)&&status!=='SKIPPED'){x.fu=String(v.fu);x.trees=v.fuTrees.filter(t=>o.lots.indexOf(String(t).split('-')[0])>=0);x.issAt=new Date().toISOString();}   // v3.86.0 - a shade job: its trees
   return {uuid:uuid(),phaseId:v.planId||('J27|X'+uuid().replace(/-/g,'').slice(0,8)),month:ppMonEN(mon),set:num?('Job '+num):'',kind:'JOB',mode:'JOB',
     header:x.en,basis:'PER_ROUND',plan:o.from,scope:ppScope(o.lots),trees:ppTrees(o.lots),litresPerTree:0,tanks:0,lines:[],projCost:0,
@@ -9106,7 +9337,7 @@ function pjWhenTxt(v){
     return (v.direct?'recorded by you · ':'')+pjRange(v.from,v.to)+((v.planFrom&&v.planFrom!==v.from&&!v.direct)?(' · planned '+ppFmtS(v.planFrom)):'')+
       (dn.length?(' · Lot '+dn.join(' ')+' finished'):(v.live.length?' · started':''));}
   if(v.st==='skip')return v.planFrom?('planned '+pjRange(v.planFrom,v.planTo)):'';
-  return 'planned '+pjRange(v.from,v.to);}
+  return 'planned '+pjRange(v.from,v.to)+((v.plan&&v.plan.pc)?' · your plan':'');}   // v3.87.0
 function pjMovedHTML(v){
   const tw=pjTwice(v);
   return ((v.notice&&!v.notice.seen&&v.st==='iss')?('<div class="pp-dt" style="color:#b26a00;font-weight:700">Crew moved it: '+
@@ -9134,6 +9365,7 @@ function pjSheetHTML(v,cls){
 /* ----- issue a job ----- */
 function pjIssueOpen(){
   const v=pjOJob(); if(!v||!ppIsOwner()||v.st!=='plan')return;
+  if(pjPcStale(v))return;   // v3.87.0 (review 3)
   const today=todayISO(), span=Math.max(0,ppDiff(v.to,v.from));
   const from=(ppOkDay(v.from)&&v.to>=today)?v.from:today;
   const lots={}; ppLots().forEach(L=>{lots[L]=1;});
@@ -9150,7 +9382,7 @@ function pjIssueHTML(){
     (v.nj?('<div class="pp-g" id="pj-nj-sub">Work with no material that the workbook does not list. It will be '+esc(ppMonEN(mon))+' · Job '+pjNextNum(mon)+'.</div>'+
         '<label>What is the job (the crew reads this line)</label><input id="pj-a-en" maxlength="'+PJ_TITLE_LEN+'" value="'+esc(f.en||'')+'" placeholder="e.g. Baiki pagar Lot C" autocomplete="off">'+
         '<label>What is counted, if anything (optional)</label><input id="pj-a-cen" maxlength="'+PJ_UNIT_LEN+'" value="'+esc(f.cen||'')+'" placeholder="e.g. metres fenced" autocomplete="off">')
-      :('<div class="pp-g">'+pjIc(v)+' '+esc(v.en)+(v.code?(' · '+esc(v.code)):'')+(plan?('<br>On the plan: '+pjRange(v.planFrom,v.planTo)+' · '+esc(plan)):' · not on the plan')+'</div>'))+
+      :('<div class="pp-g">'+pjIc(v)+' '+esc(v.en)+(v.code?(' · '+esc(v.code)):'')+(plan?('<br>On the plan: '+pjRange(v.planFrom,v.planTo)+' · '+esc(plan)+((v.plan&&v.plan.pc)?' · your plan':'')):' · not on the plan')+'</div>'))+
     '<div class="pp-two pj-two"><div><label>First day</label><input type="date" id="pj-i-from" value="'+esc(f.from)+'" onchange="pjISync()"></div>'+
     '<div><label>Last day</label><input type="date" id="pj-i-to" value="'+esc(f.to)+'" onchange="pjISync()"></div></div>'+
     '<label>Lots</label><div class="pp-opts">'+ppLots().map(L=>'<button class="pp-opt'+(f.lots[L]?' sel':'')+'" id="pj-i-lot-'+L+'" onclick="pjILot(\''+L+'\')">Lot '+L+'<small>'+treesInLot(L).length+' trees</small></button>').join('')+'</div>'+
@@ -9162,6 +9394,7 @@ async function pjIssueGo(){
   pjISync();
   const v=PJO.base||pjOJob(), fail=m=>{f.err=m;ppRender();};
   if(!v||(!PJO.base&&v.st!=='plan')){PJO.f=null;PJO.s='detail';toast('This job is already issued',1);ppRender();return;}
+  if(!PJO.base&&pjPcStale(v)){PJO.f=null;PJO.s='detail';ppRender();return;}   // v3.87.0 (review 3)
   const today=todayISO(), sf=ppSeasonFrom(), lots=LOT_KEYS.filter(L=>f.lots[L]);
   if(!ppOkDay(f.from)||!ppOkDay(f.to))return fail('Pick the first day and the last day.');
   if(f.to<f.from)return fail('The last day is before the first day.');
@@ -9207,6 +9440,7 @@ function pjRecOpen(){
   if(pjUHeld()||pjHeld())return;   // v3.83.0 - ISSUE tapped twice on the one-screen job landed here (found in review)
   const v=pjOJob(); if(!v||!ppIsOwner()||(v.st!=='iss'&&v.st!=='plan'))return;
   if(v.rec&&ppStale(v.rec))return;
+  if(pjPcStale(v))return;   // v3.87.0 (review 3)
   const today=todayISO(), left=v.rec?pjLotsLeft(v):v.lots, lots={};
   if(left.length===1)lots[left[0]]=1;
   const list=pjCfg().names.slice();
@@ -9245,6 +9479,7 @@ async function pjRecGo(){
   pjRSync();
   let v=pjOJob(); const fail=m=>{f.err=m;ppRender();};
   if(!v||(v.st!=='iss'&&v.st!=='plan')){PJO.f=null;PJO.s='detail';toast('This job is no longer open',1);ppRender();return;}
+  if(pjPcStale(v)){PJO.f=null;PJO.s='detail';ppRender();return;}   // v3.87.0 (review 3)
   if(v.rec&&ppStale(v.rec)){PJO.f=null;PJO.s='detail';ppRender();return;}
   const sf=ppSeasonFrom(), today=todayISO();
   if(!ppOkDay(f.day)||f.day>today||(sf&&f.day<sf))return fail('Pick a day between '+ppFmtS(sf)+' and today.');
@@ -9306,7 +9541,7 @@ async function pjMoveGo(){
   await pjSave(rec,false);
   toast('✓ Moved to '+ppFmt(f.date));
   PJO.f=null; PJO.s='detail'; pjMoved(); ppAfter();}
-function pjSkipOpen(){if(pjUHeld()||pjHeld())return; const v=pjOJob(); if(!v||!ppIsOwner()||(v.st!=='iss'&&v.st!=='plan'))return; if(v.rec&&ppStale(v.rec))return; PJO.f={why:'',err:'',busy:false}; PJO.s='skip'; pjMoved(); ppRender(); ppTop();}
+function pjSkipOpen(){if(pjUHeld()||pjHeld())return; const v=pjOJob(); if(!v||!ppIsOwner()||(v.st!=='iss'&&v.st!=='plan'))return; if(v.rec&&ppStale(v.rec))return; if(pjPcStale(v))return; PJO.f={why:'',err:'',busy:false}; PJO.s='skip'; pjMoved(); ppRender(); ppTop();}
 function pjSWhy(k){if(PJO.f){PJO.f.why=k;PJO.f.err='';ppRender();}}
 function pjSkipHTML(){
   const v=pjOJob(), f=PJO.f; if(!v||!f)return '<button class="pp-back" onclick="pjBack()">‹ back</button>';
@@ -9316,7 +9551,7 @@ function pjSkipHTML(){
     '<div class="pp-err" id="pj-s-err">'+esc(f.err||'')+'</div><button class="pp-act red" id="pj-s-go" onclick="pjSkipGo()">SKIP THIS JOB</button>';}
 async function pjSkipGo(){
   const v=pjOJob(), f=PJO.f; if(!v||!f||f.busy||!ppIsOwner()||pjHeld())return;
-  if(v.rec&&ppStale(v.rec)){PJO.f=null;PJO.s='detail';ppRender();return;}
+  if((v.rec&&ppStale(v.rec))||pjPcStale(v)){PJO.f=null;PJO.s='detail';ppRender();return;}   // v3.87.0 (review 3)
   if(!f.why){f.err='Pick the reason.';ppRender();return;}
   f.busy=true;
   let rec=v.rec, isNew=false;
@@ -9444,11 +9679,12 @@ function pjDetailHTML(){
   let h='<button class="pp-back" id="pj-back" onclick="pjBack()">‹ back</button><div class="pp-ttl">'+pjIc(v)+' '+esc(pjName(v))+pjCodeTag(v)+'</div>'+
     '<div class="pp-g">'+esc(v.en)+(v.extra?' · not on the plan':'')+' · <span class="pj-tag">job, no material</span></div><span class="pp-pill '+st.c+'" id="pj-o-st">'+st.t+'</span>';
   if(v.st==='plan'){
-    h+='<div class="pp-q">Planned for '+pjRange(v.from,v.to)+'</div><div class="pp-g">'+(plan?(esc(plan)+' · from the workbook'):'')+(v.cen?(' · counted: '+esc(v.cen)):'')+'</div>'+
+    h+='<div class="pp-q">Planned for '+pjRange(v.from,v.to)+'</div><div class="pp-g" id="pj-o-planl">'+(plan?(esc(plan)+((v.plan&&v.plan.pc)?' · your plan':' · from the workbook')):'')+(v.cen?(' · counted: '+esc(v.cen)):'')+'</div>'+pjPcBoxHTML(v)+
       '<button class="pp-act" id="pj-o-issue" onclick="pjIssueOpen()">ISSUE THIS JOB</button>'+
+      (v.plan?'<button class="pp-ghost blu" id="pj-o-chg" onclick="pjPlanOpen()">CHANGE THE PLAN · DO NOT ISSUE YET</button>':'')+   /* v3.87.0 (J1a) */
       '<button class="pp-ghost blu" id="pj-o-rec" onclick="pjRecOpen()">ALREADY DONE — RECORD IT</button>'+
       '<button class="pp-ghost" id="pj-o-skip" onclick="pjSkipOpen()">SKIP — NOT NEEDED THIS SEASON</button>';
-    return h;}
+    return h+pjPcHistHTML(v);}
   if(v.st==='skip'){
     h+='<div class="pp-note" style="margin-top:10px">Skipped'+(v.skip&&v.skip.why?(' — '+esc(ppWhy(v.skip.why))):'')+'.'+(v.live.length?' The work reported before stays in the work record.':'')+'</div>'+
       '<button class="pp-ghost" id="pj-o-unskip" onclick="pjUnskip()">PUT IT BACK</button>';
@@ -9484,6 +9720,7 @@ function pjDetailHTML(){
       '<div class="pp-g" style="margin-top:8px">A job closes by itself when every lot is reported finished. CLOSE THE JOB is for work that never finishes a lot: collection, pollination, tying.</div>';}
   return h+pjHistHTML(v);}
 function pjOwnHTML(){
+  if(PJO.s==='plan')return pjPlanHTML();   // v3.87.0
   if(PJO.s==='issue')return pjIssueHTML();
   if(PJO.s==='add')return pjAddHTML();
   if(PJO.s==='rec')return pjRecHTML();
@@ -9792,6 +10029,7 @@ async function pqPlanGo(v){
   {const c=pqPcRec(wbv.plan.id); if((c?(+c.rev||0):0)!==PPE.rev0||(c?String(c.at||''):'')!==PPE.at0)
     return fail('This plan was changed on another device while this form was open. Go back and open it again.');}
   const osb=ppOsBlock(PPE); if(osb)return fail(osb);
+  {const e0=pqE0Block(PPE); if(e0)return fail(e0);}   // v3.87.0 (E1a)
   PPE.lines=PPE.lines.filter(l=>l.q>0); PPE.sw=-1; PPE.swAll=false;
   if(!PPE.lines.length)return fail('A round needs at least one product.');
   if(PPE.lines.length>PQ_LINES_MAX)return fail('A round holds at most '+PQ_LINES_MAX+' products.');
@@ -9819,7 +10057,7 @@ async function pqPcUndo(){
   /* FOUND IN REVIEW: one tap undid a day, a stage, a purpose and a mix, with no way back on the screen. The first tap asks. */
   if(!pqUndoAsked(v)){PQ.undo={k:v.key,at:performance.now()};pqMoved();ppRender();
     /* and the question goes away by itself: left standing, the button went on reading TAP AGAIN after its time (found in the re-review) */
-    setTimeout(()=>{try{ if(PQ.undo&&!pqUndoAsked(ppFind(PQ.undo.k))){PQ.undo=null; if(PPO.s==='detail'&&ppHere()&&!ppInForm())ppRender();} }catch(e){}},8200);
+    setTimeout(()=>{try{ if(PQ.undo&&(performance.now()-PQ.undo.at)>=8000){PQ.undo=null; if(PPO.s==='detail'&&ppHere()&&!ppInForm())ppRender();} }catch(e){}},8200);   // v3.87.0 (review 6)
     return;}
   PQ.undo=null;
   PQ_BUSY=true; let ok=false;
@@ -9894,6 +10132,7 @@ async function pqFavGo(){
   const v=ppEBase(); if(!v)return;
   const fail=m=>{PPE.err=m;ppRender();};
   const b=ppOsBlock(PPE); if(b)return fail(b);
+  {const e0=pqE0Block(PPE); if(e0)return fail(e0);}   // v3.87.0 (E1a)
   const name=pqClean(PPE.favN,PQ_NAME_LEN), lines=pqLinesOut(PPE.lines);
   if(!name)return fail('Give the programme a name.');
   if(!lines.length)return fail('A programme needs at least one product with a dose.');
@@ -10150,11 +10389,11 @@ function pqSwPut(i,pid){
   if(PPE.lines.find(x=>x.card&&x.pid===p.id))return;              // already in the mix: a second tap
   /* o0 = the product this line stood for before any swap. A stand-in made by an older road (a top-up beside a
      product that is being finished) names it in `sub` only, and has no way back to it from here. */
-  const o0=l.sub0||(l.chk?null:{key:l.key,n:l.n,q:l.q,u:l.u,pid:l.pid,ai:l.ai||'',card:!!l.card,nk:l.nk,odd:l.odd});
+  const o0=l.sub0||(l.chk?null:Object.assign({key:l.key,n:l.n,q:l.q,u:l.u,pid:l.pid,ai:l.ai||'',card:!!l.card,nk:l.nk,odd:l.odd},pqE0Keep(l)));   // v3.87.0 (review 1)
   let n;
   if(o0&&o0.card&&o0.key==='p:'+p.id){
     /* back to the product the mix had before the swap: its own line again, with its own dose, nothing to tick */
-    n=ppELine({pid:o0.pid,n:o0.n,q:o0.q,u:o0.u,ai:o0.ai,card:true,key:o0.key,nk:o0.nk});
+    n=Object.assign(ppELine({pid:o0.pid,n:o0.n,q:o0.q,u:o0.u,ai:o0.ai,card:true,key:o0.key,nk:o0.nk}),pqE0Keep(o0));   // v3.87.0 (review 1) - an added product comes back as added
   }else{
     const fits=ppUnitFits(l.u,p.unit), q=fits?ppConv(l.q,l.u,p.unit):0;
     n=Object.assign(ppELine({pid:p.id,n:p.name,q:q,u:p.unit,ai:p.active_ingredient||'',card:true,key:'p:'+p.id}),{sub:l.sub||(o0?o0.n:l.n),chk:true},o0?{sub0:o0}:{});
@@ -10651,7 +10890,7 @@ function ppOsApply(key,pid,how){
   const l=PPE.lines[i], fits=ppUnitFits(l.u,p.unit);
   const mk=q=>Object.assign(ppELine({pid:p.id,n:p.name,q:q,u:p.unit,ai:p.active_ingredient||'',card:true,key:'p:'+p.id}),{sub:l.n,chk:true,blank:!(q>0)},
     /* v3.83.0 - when it takes the product's place altogether it remembers what it replaced, so SWAP can put that back */
-    (how==='finish')?{}:{sub0:{key:l.key,n:l.n,q:l.q,u:l.u,pid:l.pid,ai:l.ai||'',card:!!l.card,nk:l.nk,odd:l.odd}});
+    (how==='finish')?{}:{sub0:Object.assign({key:l.key,n:l.n,q:l.q,u:l.u,pid:l.pid,ai:l.ai||'',card:!!l.card,nk:l.nk,odd:l.odd},pqE0Keep(l))});   // v3.87.0 (review 1)
   /* a carried figure the box can show as it is: one place of a gm or ml once it reads in kg or L */
   const box=x=>{ if(x.big)x.q=Math.round(x.q*10)/10; x.blank=!(x.q>0); return x; };
   if(how==='finish'){
@@ -10770,6 +11009,7 @@ function ppELive(){
   const put=(id,h)=>{const e=$(id); if(e)e.innerHTML=h;};
   put('pp-e-ttl',ppETitle(v));
   PPE.lines.forEach((l,i)=>{put('pp-e-u-'+i,ppELineU(v,l));put('pp-e-chip-'+i,ppELineChip(v,l));
+    if(l.add0){put('pq-e0-'+i,pqE0HTML(l)); const ib=$('pp-e-q-'+i); if(ib)ib.classList.toggle('on',!(l.q>0));}   // v3.87.0 - the amber goes with the first figure typed
     put('pp-e-os-'+i,ppOsLineHTML(v,l,i));});   // v3.80.0 - buttons and a note, never the box he is typing in
   put('pp-e-live',ppELiveHTML(v));
   if(PPE.mode!=='plan'&&ppIsSpray(v))put('pp-e-rn',ppRainCardHTML(v,true,PPE.date));}   // v3.81.0 - the day typed to today brings up RAIN TODAY at once
@@ -10790,11 +11030,12 @@ function ppEAddOk(pid){
   const p=(+pid>0)?prodById(+pid):null;
   if(p&&!PPE.lines.find(l=>l.card&&l.pid===p.id)){
     const k=ppUnitKind(p.unit);
-    /* a first figure to correct, never a blank: 1 kg or 1 L a tank, 500 g a tree, 5 tablets -
-       and 1 of anything counted whole (bags, metres), never a thousand of them */
-    const base=k[0]==='t'?5:k[0]==='?'?1:(v.basis==='P'?500:1000);
-    PPE.lines.push(ppELine({pid:p.id,n:p.name,q:(k[0]==='t'||k[0]==='?')?base:+(base/k[1]).toFixed(4),u:p.unit,
-      ai:p.active_ingredient||'',card:true,key:'p:'+p.id}));
+    /* v3.87.0 (E1a) - THE BOX STARTS EMPTY. Until v3.86.0 it held a first figure to correct (1 kg or 1 L a tank, 500 g a
+       tree, 5 tablets); a figure he forgot to correct went to the crew and out of the store as if it were his. Now the
+       dose is his to type, and nothing goes out while it is missing (pqE0Block). `big` follows the card's unit, as a
+       first figure did: a card counted in grams or millilitres is typed in kg or L a tank, and in g or ml a tree. */
+    PPE.lines.push(Object.assign(ppELine({pid:p.id,n:p.name,q:0,u:p.unit,ai:p.active_ingredient||'',card:true,key:'p:'+p.id,add0:true}),
+      {big:(k[0]==='w'||k[0]==='v')&&k[1]===1&&v.basis!=='P'}));
     if(PPE.pk)PPE.pk.q='';}
   PPE.osAt=performance.now();
   ppRender();}
@@ -10815,10 +11056,10 @@ function ppETitle(v){
   if(o.mode==='plan')return 'Change the plan · '+esc('Planned '+ppTypeW(v.k))+ppCodeTag(v);   // v3.83.0
   const will=v.re?v.re.name:(v.num?ppName(v):(ppMonEN(mon)+' · '+PP_GRPW[v.grp][0]+' '+ppNextNum(mon,v.grp)));   // v3.81.0 - a re-spray says its name
   return (o.mode==='issue'?'Issue as ':'Change ')+esc(will)+ppCodeTag(v);}
-function ppELineChip(v,l){return ppChip(v,l,ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),v.key);}
+function ppELineChip(v,l){return pqE0(l)?pqE0Chip():ppChip(v,l,ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),v.key);}   // v3.87.0 (review 2)
 function ppELineU(v,l){
   const kd=ppUnitKind(l.u), ulab=kd[0]==='t'?'tablets':l.big?(kd[0]==='w'?'kg':'L'):l.u;
-  return esc(ulab)+' '+ppBasisTxt(v.basis)+'<br>needs <b>'+ppQty(ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),l.u)+'</b>'+
+  return esc(ulab)+' '+ppBasisTxt(v.basis)+'<br>needs <b>'+(pqE0(l)?'—':ppQty(ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees),l.u))+'</b>'+
     (l.card?(' · shelf '+ppQty(Math.max(0,ppAvail(l.pid,v.key)),l.u)):'')+
     /* v3.80.0 - the planned product cut down to what its shelf holds */
     ((l.fin&&l.card&&(a=>a>1e-9&&ppReq(v.basis,l,PPE.tanks,PPE.lots,PPE.trees)>=a*0.98)(Math.max(0,ppAvail(l.pid,v.key))))?' · <b>finishes it</b>':'');}
@@ -10866,9 +11107,10 @@ function ppEditHTML(){
     h+='<div class="pp-ln'+(isNew?' added':'')+'" id="pp-e-ln-'+i+'"><div class="a pq-a"><b>'+esc(l.n)+(l.sub?(' <span class="pp-pill new pq-inpl">IN PLACE OF '+esc(String(l.sub).toUpperCase())+'</span>'):isNew?' <span class="pp-pill new">ADDED</span>':'')+'</b><span id="pp-e-chip-'+i+'">'+ppELineChip(v,l)+'</span></div>'+
       /* v3.83.0 (P1) - the ingredient under every name: it is on the store card and was never shown here */
       '<div class="pq-ai" id="pq-ai-'+i+'">'+esc(pqAiTxt(l))+'</div>'+
-      '<div class="b"><input type="number" id="pp-e-q-'+i+'"'+(l.chk?' class="pp-os-in" placeholder="dose"':'')+' inputmode="decimal" step="any" min="0" value="'+((l.chk&&!(l.q>0))?'':(l.big?+(l.q/1000).toFixed(4):l.q))+'" oninput="ppELive()">'+
+      '<div class="b"><input type="number" id="pp-e-q-'+i+'"'+(l.chk?' class="pp-os-in" placeholder="dose"':(l.add0?(' class="pq-e0'+(l.q>0?'':' on')+'" placeholder="'+escRaw(pqE0Ph(l,v))+'"'):''))+' inputmode="decimal" step="any" min="0" value="'+(((l.chk||l.add0)&&!(l.q>0))?'':(l.big?+(l.q/1000).toFixed(4):l.q))+'" oninput="ppELive()">'+
       '<div class="u" id="pp-e-u-'+i+'">'+ppELineU(v,l)+'</div>'+
       '<button class="x" id="pp-e-x-'+i+'" onclick="ppEDrop('+i+')" title="take out">✕</button></div>'+
+      '<div id="pq-e0-'+i+'">'+pqE0HTML(l)+'</div>'+   /* v3.87.0 (E1a) */
       /* v3.83.0 (P2) - SWAP on every product, any time; not on one cut down to finish its shelf, which already has its stand-in */
       (l.fin?'':('<button class="pq-swb'+(o.sw===i?' on':'')+'" id="pq-sw-'+i+'" onclick="pqSwOpen('+i+')">⇄ SWAP '+(o.sw===i?'▴':'›')+'</button>'))+
       (o.sw===i?pqSwHTML(v,l,i):'')+
@@ -10905,6 +11147,7 @@ async function ppEGo(){
   /* v3.80.0 - a stand-in with no dose is NOT dropped in silence like an emptied line, and
      the set does not go out before the Owner has said he checked the label */
   const osb=ppOsBlock(PPE); if(osb)return fail(osb);
+  {const e0=pqE0Block(PPE); if(e0)return fail(e0);}   // v3.87.0 (E1a)
   PPE.lines=PPE.lines.filter(l=>l.q>0); PPE.sw=-1; PPE.swAll=false;
   if(!PPE.lines.length)return fail('A set needs at least one product.');
   if(!ppOkDay(PPE.date))return fail('Pick the day.');
