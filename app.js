@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.94.0';   // v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
+const APP_VERSION = 'v3.95.0';   // v3.95.0 - SET UP THIS PHONE (16 Oct 2026, sample "ok" = S1a-S4a). A new phone gets its Sync URL BEFORE anyone logs in: the login pad shows SET UP THIS PHONE while the phone has no Sync URL (a set-up phone keeps the pad, with a small link to set it up again); phone name + Sync URL with a PASTE button; the address is checked (the app link and a cut-off address are refused in plain words) and the Sheet is asked for the staff list, so the staff member's own key works the first time, without the Worker 1 sample key. The logged-in setup (EDIT) gets the same check (an empty box stays allowed for a practice phone). A reply that is not data says 'Wrong Sync URL' with FIX THE SYNC URL on the Sync screen, not the browser's words. An iPhone not opened from the Home Screen is shown once how to add it. App files only; database.js unchanged; no Apps Script. Before: v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
 // v3.75.0 - THE RAIN RECORD, ON EVERY PHONE. The rain screen had existed since v2.7 and season 2025/26 closed with ZERO rows in it: only the Owner could open it, it took a date and a number, and a reading went UP to the Sheet and never came back DOWN. The Owner, 2 Oct 2026, with his estate's rainfall sheet in hand: 'this the sample how my estate record rainfall'. So: a HUJAN tile for the crew in their language (NO RAIN / IT RAINED, the mm, which part of the day, start and stop if known); a dry day is a record, so a blank day means nobody keyed it; the month sheet in the estate's own columns (date, rain-day number, four bands, TODAY, TODATE) with a print; a month-by-year chart; and the log now travels both ways, one row per DATE, newest wins. A day nobody keyed takes the figure of JPS Basai, the nearest official station (15 km), read by the Apps Script on a timer and marked JPS - a back-up for the totals only: rainOn()/wetFlag() and every spray rule still read the FARM gauge alone. Both confirm() pop-ups are gone; a second tap on the button replaces them. NEEDS Apps Script v3.75.0 (RAIN gains kind+bands, doGet serves rain and jps, jpsSetup installs the timer). Proof: test_v3750.js and test_v3750_backend.js.
@@ -297,6 +297,8 @@ async function initStore(){
     const c=kv.find(x=>x.k==='cfg'); CFG=c?c.v:null;
     const k=kv.find(x=>x.k==='keys'); if(k&&Array.isArray(k.v)&&k.v.length) KEYS=k.v;
     const l=kv.find(x=>x.k==='locked'); LOCKED=!!(l&&l.v);
+    const pst=kv.find(x=>x.k==='pstip'); PS_TIP=(pst&&pst.v)?String(pst.v):'';   // v3.95.0 - the Home Screen tip, once
+    const pss=kv.find(x=>x.k==='pssheet'); PS_SHEET_OK=(pss&&pss.v)?String(pss.v):'';   // v3.95.0 - the Sheet that last answered
     const rd=kv.find(x=>x.k==='regdirty'); REG_DIRTY=!!(rd&&rd.v);
     const hd=kv.find(x=>x.k==='histdone'); HIST_DONE=(hd&&hd.v)?String(hd.v):'';
     const tf=kv.find(x=>x.k==='treefix'); if(tf&&tf.v&&typeof tf.v==='object') TREE_FIX=tf.v;
@@ -792,6 +794,7 @@ async function setLang(l){
   if(tcKeep&&typeof tcPaint==='function'){TCW=tcKeep;tcPaint();}
   else if(pqKeepS&&typeof ppHere==='function'&&ppHere()&&myRole()==='OWNER'){PPO=pqKeepS.o;PPE=pqKeepS.e;PPM=pqKeepS.m;PPR=pqKeepS.r;PQ=pqKeepS.q;ppRender();}
   else if(pjKeep&&typeof ppHere==='function'&&ppHere()){PJC=pjKeep.c;PJO=pjKeep.o;PPO.v=pjKeep.v;PPO.pg=pjKeep.pg;PPO.mix=pjKeep.mix;ppRender();}
+  if(typeof psRepaint==='function')psRepaint();   // v3.95.0
 }
 function renderLangChip(){
   const el=$('langchip'); if(!el)return;
@@ -1785,7 +1788,8 @@ function renderHub(){
              esc(moduleLabel(m))+(bb?('<u>'+esc(bb.t)+'</u>'):'')+'</button>';}).join('')+
          '</div>')
       : '';}
-  renderTaskNotice();}
+  renderTaskNotice();
+  if(typeof psTipPaint==='function')psTipPaint();}   // v3.95.0 - the Home Screen tip, once
 /* ===== v3.18.5 · ACTIVE TASK NOTICE BAR =====
    What the crew are meant to be spraying TODAY, on the screen they open the phone to.
    Until now that lived two taps inside Daily Ops, so a worker had to remember to go and
@@ -2323,7 +2327,7 @@ function buildKeypad(){
 function renderPin(){const r=$('pinrow');r.innerHTML='';for(let i=0;i<6;i++){const b=document.createElement('div');b.className='pinbox'+(i<pin.length?' filled':'');b.textContent=i<pin.length?'•':'';r.appendChild(b);}$('pinerr').textContent='';}
 async function tryLogin(){
   const w=findKey(pin);
-  if(!w){$('pinerr').textContent=tr('login_wrong');pin='';setTimeout(renderPin,600);return;}
+  if(!w){$('pinerr').textContent=tr(!(CFG&&CFG.url)?'ps_wrongnew':psCfgBad()?'ps_padbadkey':'login_wrong');pin='';setTimeout(renderPin,600);return;}   // v3.95.0
   if(String(w.status).toLowerCase()!=='active'){$('pinerr').textContent=tr('login_off');pin='';setTimeout(renderPin,900);return;}
   CFG=Object.assign({},CFG||{},{worker:w.name,role:w.role,key:w.key,uid:w.id});
   await persistCfg();pin='';
@@ -2351,6 +2355,7 @@ function showLogin(){if(typeof fuLbClose==='function')fuLbClose();
   // Sheet) needs no button press at all. Fire and forget: it must never delay the pad.
   const b=$('loginrefresh'); if(b)b.textContent='⟳ '+tr('login_refresh');
   const s=$('loginsync'); if(s){s.textContent='';s.style.color='';}
+  PS.open=false; PS.busy=false; if(typeof psPadPaint==='function')psPadPaint();   // v3.95.0 - SET UP THIS PHONE
   refreshKeysOnly(0);}
 
 /* ================= v3.17.1 · the login screen learns new staff =====================
@@ -2401,13 +2406,421 @@ async function refreshKeysOnly(manual){
     const n=KEYS.filter(x=>String(x.status).toLowerCase()==='active').length;
     say(tr('login_got').replace('{n}',n),0);
     return true;
-  }catch(e){ if(manual)say(tr('login_syncfail'),1); return false; }
+  }catch(e){ if(e&&e.psBad&&typeof psPadPaint==='function'&&!PS.open)psPadPaint(); if(manual)say((e&&e.psBad)?tr(e.psGoogle?'ps_r_sheeterr':'ps_padbad'):tr('login_syncfail'),1); return false; }
   finally{ if(btn){btn.disabled=false;btn.textContent='⟳ '+tr('login_refresh');} }}
 async function logout(){if(!confirm('Log out of this device? (Queued events stay saved)'))return;
   CFG=Object.assign({},CFG,{worker:null,role:null,key:null,uid:null});await persistCfg();showLogin();}
 async function forceLogout(msg){
   CFG=Object.assign({},CFG,{worker:null,role:null,key:null,uid:null});await persistCfg();
   showLogin();$('pinerr').textContent=msg||'Your access key was changed. Ask the Owner for the new one.';}
+
+/* ======================================================================================
+   v3.95.0 · SET UP THIS PHONE (the Owner, 16 Oct 2026: "ok build 3.95" on the sample
+   DMS_Phone_Setup_sample.html = S1a S2a S3a S4a)
+   ======================================================================================
+   WHAT WAS WRONG. A phone that has never opened the DMS (or an iPhone that cleared the
+   site's data) holds only the five sample logins in database.js. The login pad matches
+   the six digits against the staff list the phone holds; the real list arrives only from
+   the Sheet, and the Sheet's address (the Sync URL) could only be typed on the setup
+   screen AFTER a login. So the first login had to be a sample key (Worker 1), and the
+   staff's own keys from Admin ▸ Staff answered "Wrong key" until somebody had logged in,
+   set the URL, synced and logged out.
+   And the Sync URL box took anything. On 16 Oct the Gate's iPhone and a crew iPhone held
+   the APP link in it: every send got the app's own page back, and the phone said
+   "Sync failed: The string did not match the expected pattern." (452 unsent).
+
+   WHAT THIS DOES.
+   S1a  The login pad shows 📱 SET UP THIS PHONE while the phone has no Sync URL; a phone
+        with one keeps today's pad plus a small link "Set up this phone again".
+   S2a  The box (phone name + Sync URL, a PASTE button) checks the address's shape — the
+        app link and a cut-off address are refused in plain words — then asks the Sheet
+        for the staff list (the same read the pad has made since v3.17.1). Only an
+        answer that IS a DMS staff list is saved. Then the person's own key works.
+        The logged-in setup screen (EDIT) gets the same check; an empty box stays
+        allowed there (a practice phone keeps its Sync URL blank, book 00).
+   S3a  A reply that is not data no longer reaches the screen as English computer words.
+        From an address that is not Google's: "Wrong Sync URL" + FIX THE SYNC URL on the
+        Sync screen. From Google with an error page: "the Sheet answered with an error".
+   S4a  On an iPhone / iPad not opened from the Home Screen, the first home screen after
+        a setup shows once how to add the app to the Home Screen.
+   Nothing new is stored on the Sheet; on the phone only CFG.url / CFG.device (as before)
+   and kv 'pstip' (the tip's state). No Apps Script change.
+   ====================================================================================== */
+const PS_VER='3.95.0';
+let PS={open:false,busy:false,done:false,msg:null,dev:'',url:'',n:0};
+let PS_BADURL=null;          // {at,host} when the last reply from the Sync URL was not data from Google
+var PS_TIP='';
+var PS_SHEET_OK='';
+var PS_PROBING=0;            // review 2: while an address is being CHECKED its replies are not credited to CFG.url          // the Sync URL that has last answered with data (kv 'pssheet'); read at boot               // '' | 'pending' | 'done' — read at boot from kv 'pstip' (var: initStore runs first)
+Object.assign(EN,{
+  ps_btn:'📱 SET UP THIS PHONE',
+  ps_btn2:'SEDIAKAN TELEFON INI',
+  ps_newq:'New phone? Press this first:',
+  ps_again:'Set up this phone again',
+  ps_title:'Set up this phone',
+  ps_head:'Two things, then log in with your own key',
+  ps_dev:'1 · PHONE NAME',
+  ps_devph:'e.g. Gate-iPhone',
+  ps_url:'2 · SYNC URL (from the WhatsApp message)',
+  ps_paste:'📋 PASTE',
+  ps_pastehow:'Press and hold inside the box, then tap Paste.',
+  ps_check:'CHECK & SAVE',
+  ps_checking:'Checking…',
+  ps_go:'CONTINUE → LOG IN',
+  ps_back:'‹ Back',
+  ps_needdev:'Type a phone name first (step 1).',
+  ps_empty:'The Sync URL box is empty. Copy it from WhatsApp and press PASTE.',
+  ps_app:'This is the APP link, not the Sync URL. The Sync URL starts with https://script.google.com/macros/s/ and ends with /exec. Copy the second WhatsApp message.',
+  ps_bad:'This address is not complete. It must start with https://script.google.com/macros/s/ and end with /exec. Copy it again from WhatsApp.',
+  ps_offline:'No internet. Connect to Wi-Fi or the hotspot, then press CHECK & SAVE again.',
+  ps_asking:'Asking the farm\'s Google Sheet…',
+  ps_r_notsheet:'This address is not the farm\'s Google Sheet. Copy the Sync URL again from WhatsApp.',
+  ps_r_sheeterr:'The Google Sheet answered with an error. Try again in a minute; if it repeats, tell the Owner.',
+  ps_r_net:'The Sheet did not answer. Check the address (copy it again) and the internet, then press again.',
+  ps_r_notdms:'This address answers, but it is not the DMS Sheet. Copy the Sync URL again from WhatsApp.',
+  ps_ok:'Connected to the farm\'s Google Sheet. {n} staff keys received. Now log in with your own key.',
+  ps_ok_dirty:'Connected to the farm\'s Google Sheet. The staff list on this phone has changes not yet pushed, so it was kept.',
+  ps_padok:'✓ Phone set up · {n} keys work on this phone',
+  ps_wrongnew:'Wrong key — this phone does not know the staff yet. Press SET UP THIS PHONE first.',
+  ps_bigbad:'Wrong Sync URL',
+  ps_bigbad_t:'the address on this phone is not the farm\'s Google Sheet. Nothing is lost: {n} records stay on this phone.',
+  ps_fix:'FIX THE SYNC URL',
+  ps_syncbad:'✗ Wrong Sync URL — the address on this phone is not the farm\'s Google Sheet. Press FIX THE SYNC URL on the Sync screen.',
+  ps_syncerr:'✗ The Google Sheet answered with an error. Try again in a minute; if it repeats, tell the Owner.',
+  ps_tip:'iPhone: keep the app on the Home Screen so the phone does not forget it. In Chrome press ⬆️ (share) ▸ Add to Home Screen. Open the DMS from that icon from now on.',
+  ps_tipok:'GOT IT',
+  ps_suok:'This address answers as the farm\'s Google Sheet.',
+  ps_nochange:'This phone is already joined to the farm\'s Google Sheet. To change the Sheet, log in and press EDIT on the Sync screen.',
+  ps_padbadq:'This phone has a wrong Sync URL. Press this:',
+  ps_padbad:'Wrong Sync URL on this phone — press SET UP THIS PHONE below.',
+  ps_padbadkey:'This phone cannot reach the farm\'s Sheet (wrong Sync URL), so it does not know your key yet. Press SET UP THIS PHONE below.',
+  login_nourl:'This phone has no Sync URL yet. Press SET UP THIS PHONE.'});
+Object.assign(MS,{
+  ps_btn:'📱 SEDIAKAN TELEFON INI',
+  ps_btn2:'SET UP THIS PHONE',
+  ps_newq:'Telefon baru? Tekan ini dulu:',
+  ps_again:'Sediakan semula telefon ini',
+  ps_title:'Sediakan telefon ini',
+  ps_head:'Dua perkara, kemudian log masuk dengan kunci sendiri',
+  ps_dev:'1 · NAMA TELEFON',
+  ps_devph:'cth. Gate-iPhone',
+  ps_url:'2 · SYNC URL (dari mesej WhatsApp)',
+  ps_paste:'📋 TAMPAL',
+  ps_pastehow:'Tekan lama di dalam kotak, kemudian tekan Paste.',
+  ps_check:'SEMAK & SIMPAN',
+  ps_checking:'Menyemak…',
+  ps_go:'TERUSKAN → LOG MASUK',
+  ps_back:'‹ Kembali',
+  ps_needdev:'Taip nama telefon dulu (langkah 1).',
+  ps_empty:'Kotak Sync URL kosong. Salin dari WhatsApp dan tekan TAMPAL.',
+  ps_app:'Ini alamat APP, bukan Sync URL. Sync URL bermula https://script.google.com/macros/s/ dan berakhir dengan /exec. Salin mesej WhatsApp yang kedua.',
+  ps_bad:'Alamat ini tidak lengkap. Mesti bermula https://script.google.com/macros/s/ dan berakhir dengan /exec. Salin semula dari WhatsApp.',
+  ps_offline:'Tiada internet. Sambung Wi-Fi atau hotspot, kemudian tekan SEMAK & SIMPAN sekali lagi.',
+  ps_asking:'Bertanya Google Sheet ladang…',
+  ps_r_notsheet:'Alamat ini bukan Google Sheet ladang. Salin semula Sync URL dari WhatsApp.',
+  ps_r_sheeterr:'Google Sheet menjawab dengan ralat. Cuba lagi seminit lagi; jika berulang, beritahu Pemilik.',
+  ps_r_net:'Sheet tidak menjawab. Semak alamat (salin semula) dan internet, kemudian tekan lagi.',
+  ps_r_notdms:'Alamat ini menjawab, tetapi bukan Sheet DMS. Salin semula Sync URL dari WhatsApp.',
+  ps_ok:'Disambung ke Google Sheet ladang. {n} kunci pekerja diterima. Sekarang log masuk dengan kunci anda sendiri.',
+  ps_ok_dirty:'Disambung ke Google Sheet ladang. Senarai pekerja di telefon ini ada perubahan belum dihantar, jadi ia dikekalkan.',
+  ps_padok:'✓ Telefon disediakan · {n} kunci boleh guna di telefon ini',
+  ps_wrongnew:'Kunci salah — telefon ini belum kenal pekerja. Tekan SEDIAKAN TELEFON INI dulu.',
+  ps_bigbad:'Sync URL salah',
+  ps_bigbad_t:'alamat di telefon ini bukan Google Sheet ladang. Tiada yang hilang: {n} rekod kekal di telefon ini.',
+  ps_fix:'BETULKAN SYNC URL',
+  ps_syncbad:'✗ Sync URL salah — alamat di telefon ini bukan Google Sheet ladang. Tekan BETULKAN SYNC URL di skrin Sync.',
+  ps_syncerr:'✗ Google Sheet menjawab dengan ralat. Cuba lagi seminit lagi; jika berulang, beritahu Pemilik.',
+  ps_tip:'iPhone: simpan app di skrin utama supaya telefon tidak lupa. Dalam Chrome tekan ⬆️ (kongsi) ▸ Add to Home Screen. Lepas ini buka DMS dari ikon itu.',
+  ps_tipok:'FAHAM',
+  ps_suok:'Alamat ini dijawab oleh Google Sheet ladang.',
+  ps_nochange:'Telefon ini sudah disambung ke Google Sheet ladang. Untuk tukar Sheet, log masuk dan tekan EDIT di skrin Sync.',
+  ps_padbadq:'Sync URL telefon ini salah. Tekan ini:',
+  ps_padbad:'Sync URL salah di telefon ini — tekan SEDIAKAN TELEFON INI di bawah.',
+  ps_padbadkey:'Telefon ini tidak dapat sampai ke Sheet ladang (Sync URL salah), jadi belum kenal kunci anda. Tekan SEDIAKAN TELEFON INI di bawah.',
+  login_nourl:'Telefon ini belum ada Sync URL. Tekan SEDIAKAN TELEFON INI.'});
+
+/* ---------- S3a · every reply from the Sync URL is read here ----------
+   Every call in this app that reads a reply does `await r.json()`, and every one of them
+   goes to CFG.url (or, during a setup, to the address being checked). A reply that is not
+   JSON used to throw the browser's own SyntaxError, whose words differ per phone (iPhone:
+   "The string did not match the expected pattern"; Chrome on Android: "Unexpected token
+   '<'"). Here it throws the same plain words on every phone, marked psBad, and the Sync
+   screen learns that the address is wrong. Only the FAILURE changes: a reply that is data
+   is returned exactly as before. */
+(function(){
+  if(typeof Response==='undefined'||!Response.prototype||Response.prototype.__ps395)return;
+  Response.prototype.__ps395=true;
+  Response.prototype.json=async function(){
+    const t=await this.text();
+    let host='';
+    try{host=new URL(this.url||'').hostname||'';}catch(e){host='';}
+    try{const j=JSON.parse(t);
+      if(!PS_PROBING&&psIsCfgUrl(this.url)){PS_BADURL=null;
+        if(j&&j.ok&&CFG&&CFG.url&&PS_SHEET_OK!==psClean(CFG.url)){PS_SHEET_OK=psClean(CFG.url); try{if(db){const pr=put('kv',{k:'pssheet',v:PS_SHEET_OK}); if(pr&&pr.catch)pr.catch(function(){});}}catch(x){}}}
+      return j;}
+    catch(e){
+      const g=psGoogleHost(host);
+      const err=new Error(tr(g?'ps_syncerr':'ps_syncbad'));
+      err.name='SyncReplyError'; err.psBad=true; err.psGoogle=g; err.psHost=host; err.psStatus=this.status;
+      if(!g&&!PS_PROBING&&psIsCfgUrl(this.url))PS_BADURL={at:now(),host:host};
+      throw err;}};
+})();
+function psGoogleHost(h){return /^script\.(google|googleusercontent)\.com$/i.test(String(h||''));}   /* review: docs.google.com (the Sheet's own link) is a WRONG Sync URL, not a Sheet error */
+/* the reply came from this phone's own Sync URL (a redirect from Google keeps it Google;
+   an address that is not Google answers from itself) */
+function psIsCfgUrl(u){
+  if(!CFG||!CFG.url)return false;
+  try{const a=new URL(String(u||'')), b=new URL(CFG.url);
+    if(a.hostname===b.hostname)return true;
+    return psGoogleHost(a.hostname)&&psGoogleHost(b.hostname);}catch(e){return false;}}
+
+/* ---------- S2a · the address: its shape, then the Sheet itself ---------- */
+const PS_URL_RE=/https:\/\/script\.google\.com\/(?:a\/macros\/[A-Za-z0-9.-]+|macros)(?:\/u\/\d+)?\/s\/[A-Za-z0-9_-]{20,}\/exec/;
+/** review: a whole WhatsApp line pasted ('Sync URL: https://…/exec') keeps only the address */
+function psClean(u){const t=String(u||''); const m=t.replace(/\s+/g,'').match(PS_URL_RE); if(m)return m[0];
+  return t.replace(/\s+/g,'').replace(/^["'<(]+|[>"')]+$/g,'');}
+/** 'ok' | 'empty' | 'app' | 'bad'. Google gives a web app one of two shapes: the plain one,
+ *  and the one with the Workspace domain in it (script.google.com/a/macros/<domain>/s/…). */
+function psShape(u){
+  u=psClean(u);
+  if(!u)return 'empty';
+  if(new RegExp('^'+PS_URL_RE.source+'$').test(u))return 'ok';
+  if(/github\.io|github\.com|sugut-dms/i.test(u))return 'app';
+  return 'bad';}
+/** the staff list in the shape the pad keeps it (v3.17.1's mapping, now shared) */
+function wkKeysFrom(workers){
+  return (Array.isArray(workers)?workers:[]).filter(w=>w&&w.AccessKey).map(w=>({
+    id:String(w.WorkerID||w.Name||'').trim()||newUid(),
+    name:w.Name||w.WorkerID,
+    role:String(w.Role||'').toUpperCase().includes('OWNER')?'OWNER':
+      String(w.Role||'').toUpperCase().includes('MARKET')?'MARKETING':
+      String(w.Role||'').toUpperCase().includes('PURCH')?'PURCHASER':'WORKER',
+    key:String(w.AccessKey).trim(),
+    status:String(w.Status||'Active').trim()}));}
+/** Ask the address for the staff list. {ok:true,ks} or {ok:false,why}. Never throws. */
+async function psAsk(u){
+  PS_PROBING++;
+  try{
+    const r=await fetchT(u+'?role=WORKER&uid=&sig='+encodeURIComponent((typeof MASTER_SIG!=='undefined'&&MASTER_SIG)||''),{},SYNC_TIMEOUT_MS);
+    let j, to=null;
+    /* review 3: fetchT's limit ends when the headers arrive; a reply that stalls half-way would leave the box on
+       "Checking…" for good. The body gets its own limit; a stall is 'did not answer'. */
+    const jp=r.json(); jp.catch(function(){});
+    const tmo=new Promise(function(_,rej){to=setTimeout(function(){const x=new Error('timeout');x.psTimeout=true;rej(x);},SYNC_TIMEOUT_MS);});
+    try{j=await Promise.race([jp,tmo]);}
+    catch(e){if(e&&e.psTimeout)return {ok:false,why:'net'}; return {ok:false,why:(e&&e.psBad&&e.psGoogle)?'sheeterr':'notsheet'};}
+    finally{clearTimeout(to);}
+    if(!(j&&j.ok&&Array.isArray(j.workers)))return {ok:false,why:'notdms'};
+    const ks=wkKeysFrom(j.workers);
+    if(!ks.length)return {ok:false,why:'notdms'};
+    return {ok:true,ks:ks};
+  }catch(e){return {ok:false,why:'net'};}
+  finally{PS_PROBING=Math.max(0,PS_PROBING-1);}}
+/** the phone's own Sync URL is known to be wrong: its shape, or the last reply from it */
+function psCfgBad(){return !!(CFG&&CFG.url&&(PS_BADURL||(psShape(CFG.url)!=='ok'&&PS_SHEET_OK!==psClean(CFG.url))));}   /* review 2: an unusual address that has answered with data is not called wrong */
+/** review: from the pad (no key) the Sheet may be CHANGED only when the phone has none, its own is known to be wrong,
+ *  or it has never had a real answer from it. A phone that works is moved to another Sheet only by a logged-in EDIT. */
+function psPadMayChange(u){
+  if(!CFG||!CFG.url)return true;
+  if(psClean(CFG.url)===psClean(u))return true;
+  if(psCfgBad())return true;
+  return PS_SHEET_OK!==psClean(CFG.url);}
+function psActiveN(ks){return (ks||[]).filter(x=>String(x.status).toLowerCase()==='active').length;}
+function psIOS(){
+  const ua=(navigator&&navigator.userAgent)||'';
+  return /iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1);}
+function psStandalone(){
+  try{ if(navigator.standalone===true)return true;
+    return !!(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
+async function psTipArm(){
+  if(PS_TIP==='done'||!psIOS()||psStandalone())return;
+  PS_TIP='pending'; try{if(db)await put('kv',{k:'pstip',v:'pending'});}catch(e){}}
+
+/* ---------- the styles (one block, every class ps-) ---------- */
+function psCss(){
+  if(document.getElementById('ps395css'))return;
+  const s=document.createElement('style'); s.id='ps395css';
+  s.textContent=
+    '.ps-slot{width:100%;max-width:300px;margin-top:6px}'+
+    '.ps-q{font-size:12px;color:var(--muted);text-align:center;margin-top:4px}'+
+    '.ps-new{display:block;width:100%;border:none;border-radius:14px;padding:13px 10px;font-size:15px;font-weight:900;cursor:pointer;background:#1a73e8;color:#fff;margin-top:8px;line-height:1.25}'+
+    '.ps-new small{display:block;font-size:10.5px;font-weight:800;opacity:.85;margin-top:2px}'+
+    '.ps-lnk{color:var(--green);text-decoration:underline;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:12px;text-align:center;background:none;border:none;display:block;width:100%;min-height:40px}'+
+    '.ps-form{padding:4px 2px 90px}'+
+    '.ps-card{background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 5px rgba(0,0,0,.06)}'+
+    '.ps-h{font-weight:900;color:var(--green);font-size:15px;margin-bottom:4px}'+
+    '.ps-step{font-size:12px;font-weight:900;color:var(--muted);margin:12px 0 4px;letter-spacing:.04em}'+
+    '.ps-in{width:100%;box-sizing:border-box;border:2px solid #c8dcc9;border-radius:10px;padding:10px;font-size:16px;font-family:inherit;background:#fff;color:inherit}'+
+    '.ps-ta{font-size:13px;word-break:break-all;min-height:64px;resize:none}'+
+    '.ps-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}'+
+    '.ps-chip{border:1.5px solid #c8dcc9;background:#fff;border-radius:16px;padding:8px 11px;font-size:12.5px;font-weight:800;cursor:pointer;color:inherit;min-height:40px}'+
+    '.ps-chip.on{border-color:var(--green2);background:var(--lite);color:var(--green)}'+
+    '.ps-paste{border:none;background:var(--green);color:#fff;border-radius:10px;padding:10px 14px;font-weight:900;font-size:13px;cursor:pointer;margin-top:6px;min-height:40px}'+
+    '.ps-msg{border-radius:11px;padding:10px 11px;font-size:13px;font-weight:700;margin-top:10px;line-height:1.4}'+
+    '.ps-msg.bad{background:#fdecea;color:#8c1d18;border:1.5px solid #f1c3bf}'+
+    '.ps-msg.good{background:#e8f5e9;color:#1b5e20;border:1.5px solid #a5d6a7}'+
+    '.ps-msg.wait{background:#fff8e1;color:#8a5a00;border:1.5px solid #ffe082}'+
+    '.ps-btn{display:block;width:100%;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;background:var(--green2);color:#fff;margin-top:12px;min-height:48px}'+
+    '.ps-btn:disabled{background:#a8bfa9}'+
+    '.ps-bad{background:#fdecea;color:#8c1d18;border:1.5px solid #f1c3bf;border-radius:12px;padding:10px 11px;font-size:13px;font-weight:700;margin-bottom:10px;line-height:1.4}'+
+    '.ps-tip{background:#e3f2fd;border:1.5px solid #90caf9;color:#0d47a1;border-radius:12px;padding:10px 11px;font-size:12.5px;font-weight:700;margin:0 0 10px}'+
+    '.ps-tip button{margin-top:8px;border:none;background:#1565c0;color:#fff;border-radius:9px;padding:9px 16px;font-weight:900;font-size:12.5px;cursor:pointer;min-height:40px}';
+  document.head.appendChild(s);}
+
+/* ---------- the login pad: the button, the link, the box ---------- */
+function psLoginOn(){const s=$('scr-login');return !!(s&&!s.classList.contains('hidden'));}
+function psPadPaint(){
+  psCss();
+  const scr=$('scr-login'); if(!scr)return;
+  const wrap=scr.querySelector('.login-wrap'); if(!wrap)return;
+  let slot=$('ps-slot');
+  if(!slot){slot=document.createElement('div');slot.id='ps-slot';slot.className='ps-slot';
+    const err=$('pinerr'); if(err&&err.parentNode===wrap)wrap.insertBefore(slot,err.nextSibling); else wrap.appendChild(slot);}
+  let again=$('ps-again');
+  if(!again){again=document.createElement('div');again.id='ps-again';again.className='ps-slot';wrap.appendChild(again);}
+  const hasUrl=!!(CFG&&CFG.url), bad=psCfgBad();
+  const rb=$('loginrefresh'); if(rb)rb.style.display=(hasUrl&&!bad)?'':'none';
+  if(!hasUrl||bad){
+    slot.innerHTML='<div class="ps-q">'+esc(tr(bad?'ps_padbadq':'ps_newq'))+'</div>'+
+      '<button class="ps-new" id="ps-open" onclick="psOpen()">'+esc(tr('ps_btn'))+'<small>'+esc(tr('ps_btn2'))+'</small></button>';
+    again.innerHTML='';}
+  else{
+    slot.innerHTML='';
+    again.innerHTML='<button class="ps-lnk" id="ps-open2" onclick="psOpen()">'+esc(tr('ps_again'))+'</button>';}
+  let form=$('ps-form');
+  if(!form){form=document.createElement('div');form.id='ps-form';form.className='ps-form';scr.appendChild(form);}
+  wrap.style.display=PS.open?'none':'';
+  form.style.display=PS.open?'':'none';
+  if(PS.open)psFormPaint();}
+function psOpen(){
+  PS.open=true; PS.busy=false; PS.done=false; PS.msg=null;
+  PS.dev=(CFG&&CFG.device)||''; PS.url=(CFG&&CFG.url)||'';
+  psPadPaint(); try{$('ttl').textContent=tr('ps_title');}catch(e){}
+  window.scrollTo(0,0);}
+function psClose(){
+  psSyncIn(); PS.open=false; PS.busy=false;
+  psPadPaint(); try{$('ttl').textContent='Login';}catch(e){}}
+function psSyncIn(){const d=$('ps-dev'),u=$('ps-url'); if(d)PS.dev=d.value; if(u)PS.url=u.value;}
+function psFormPaint(){
+  const form=$('ps-form'); if(!form)return;
+  const chips=['Gate-iPhone','Field-a07','Store','Owner-iPhone'];
+  const m=PS.msg;
+  form.innerHTML='<div class="ps-card">'+
+    '<div class="ps-h">📱 '+esc(tr('ps_head'))+'</div>'+
+    '<div class="ps-step">'+esc(tr('ps_dev'))+'</div>'+
+    '<input class="ps-in" id="ps-dev" autocomplete="off" autocapitalize="off" value="'+esc(PS.dev)+'" placeholder="'+esc(tr('ps_devph'))+'"'+(PS.done?' disabled':'')+'>'+
+    (PS.done?'':'<div class="ps-chips">'+chips.map(n=>'<button class="ps-chip'+(PS.dev===n?' on':'')+'" onclick="psChip(\''+n+'\')">'+esc(n)+'</button>').join('')+'</div>')+
+    '<div class="ps-step">'+esc(tr('ps_url'))+'</div>'+
+    '<textarea class="ps-in ps-ta" id="ps-url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec"'+(PS.done?' disabled':'')+'>'+esc(PS.url)+'</textarea>'+
+    (PS.done?'':'<button class="ps-paste" id="ps-paste" onclick="psPaste()">'+esc(tr('ps_paste'))+'</button>')+
+    (m?'<div class="ps-msg '+m.k+'" id="ps-msg">'+(m.k==='bad'?'✗ ':m.k==='good'?'✓ ':'⏳ ')+esc(m.t)+'</div>':'')+
+    (PS.done
+      ?'<button class="ps-btn" id="ps-go" onclick="psGo()">'+esc(tr('ps_go'))+'</button>'
+      :'<button class="ps-btn" id="ps-check" onclick="psCheck()"'+(PS.busy?' disabled':'')+'>'+esc(PS.busy?tr('ps_checking'):tr('ps_check'))+'</button>')+
+    (PS.busy?'':'<button class="ps-lnk" id="ps-back" onclick="psClose()">'+esc(tr('ps_back'))+'</button>')+
+  '</div>';}
+function psSay(k,t){PS.msg={k:k,t:t}; psFormPaint();}
+function psChip(n){psSyncIn(); PS.dev=n; psFormPaint();}
+async function psPaste(){
+  psSyncIn();
+  try{
+    if(!(navigator.clipboard&&navigator.clipboard.readText))throw new Error('no clipboard');
+    const t=await navigator.clipboard.readText();
+    if(!t)throw new Error('empty');
+    PS.url=psClean(t); PS.msg=null; psFormPaint();
+  }catch(e){psSay('wait',tr('ps_pastehow')); const u=$('ps-url'); if(u)u.focus();}}
+async function psCheck(){
+  if(PS.busy||PS.done)return;
+  psSyncIn();
+  const dev=String(PS.dev||'').trim(), u=psClean(PS.url);
+  PS.url=u;
+  if(!dev){psSay('bad',tr('ps_needdev'));return;}
+  const sh=psShape(u);
+  if(sh!=='ok'){psSay('bad',tr('ps_'+sh));return;}
+  if(!psPadMayChange(u)){psSay('bad',tr('ps_nochange'));return;}
+  if(!navigator.onLine){psSay('bad',tr('ps_offline'));return;}
+  PS.busy=true; psSay('wait',tr('ps_asking'));
+  const res=await psAsk(u);
+  PS.busy=false;
+  if(!PS.open)return;                       // the box was left while the Sheet was being asked
+  if(!res.ok){psSay('bad',tr('ps_r_'+res.why));return;}
+  if(LOCKED||(CFG&&CFG.key)){PS.open=false;return;}   /* review: the phone was locked or logged in while the Sheet was asked */
+  CFG=Object.assign({},CFG||{},{url:u,device:dev});
+  await persistCfg();
+  PS_BADURL=null; PS_SHEET_OK=u; try{if(db)await put('kv',{k:'pssheet',v:u});}catch(e){}
+  let txt;
+  if(REG_DIRTY){txt=tr('ps_ok_dirty');}
+  else{
+    KEYS=res.ks.filter(x=>String(x.status).toLowerCase()!=='deleted');
+    if(db)await put('kv',{k:'keys',v:KEYS});
+    PS.n=psActiveN(KEYS);
+    txt=tr('ps_ok').replace('{n}',PS.n);}
+  await psTipArm();
+  PS.done=true; psSay('good',txt);}
+function psGo(){
+  const n=PS.n, dirty=REG_DIRTY;
+  PS.open=false; PS.done=false; PS.msg=null;
+  psPadPaint(); try{$('ttl').textContent='Login';}catch(e){}
+  const s=$('loginsync');
+  if(s&&!dirty){s.textContent=tr('ps_padok').replace('{n}',n);s.style.color='#1b5e20';}}
+
+/* ---------- the logged-in setup screen (EDIT, and the first login on an old phone) ---------- */
+function psSuPaint(){
+  psCss();
+  const u=$('su-url'); if(!u)return;
+  if(!$('ps-supaste')){
+    const b=document.createElement('button');b.id='ps-supaste';b.className='ps-paste';b.type='button';
+    b.onclick=async function(){
+      try{const t=await navigator.clipboard.readText(); if(!t)throw new Error('empty'); u.value=psClean(t); psSuSay('',null);}
+      catch(e){psSuSay('wait',tr('ps_pastehow')); u.focus();}};
+    u.parentNode.insertBefore(b,u.nextSibling);}
+  $('ps-supaste').textContent=tr('ps_paste');
+  if(!$('ps-sumsg')){const d=document.createElement('div');d.id='ps-sumsg';const pb=$('ps-supaste');pb.parentNode.insertBefore(d,pb.nextSibling);}
+  psSuSay('',null);}
+function psSuSay(k,t){const d=$('ps-sumsg'); if(!d)return;
+  d.className=k?('ps-msg '+k):''; d.textContent=k?((k==='bad'?'✗ ':k==='good'?'✓ ':'⏳ ')+t):'';}
+/** true = the address may be saved. An empty box stays allowed (a practice phone); an
+ *  address the phone already holds is not asked again (an offline phone can still change
+ *  its name); a new or changed address must have the right shape and answer as the DMS. */
+async function psSuCheck(u){
+  if(!u)return true;
+  if(CFG&&CFG.url&&psClean(CFG.url)===u&&!psCfgBad())return true;   /* review: an address that works (even in an unusual shape) still lets the phone rename itself; review 2: a known-wrong one is checked */
+  const sh=psShape(u);
+  if(sh!=='ok'){psSuSay('bad',tr('ps_'+sh));return false;}
+  if(!navigator.onLine){psSuSay('bad',tr('ps_offline'));return false;}
+  psSuSay('wait',tr('ps_asking'));
+  const res=await psAsk(u);
+  if(!res.ok){psSuSay('bad',tr('ps_r_'+res.why));return false;}
+  psSuSay('good',tr('ps_suok'));
+  PS.suAsked=u;                      /* review 2: credited by saveSetup only once the address is really kept */
+  return true;}
+async function psSuKept(u){ if(!u||PS.suAsked!==u)return; PS.suAsked=''; PS_BADURL=null; PS_SHEET_OK=u; try{if(db)await put('kv',{k:'pssheet',v:u});}catch(e){} }
+
+/* ---------- S3a · the Sync screen ---------- */
+function psBadHtml(){
+  if(!psCfgBad())return '';
+  let n=0; try{n=pending()+corrUnsynced()+q4()+setUnsynced();}catch(e){}
+  return '<div class="ps-bad" id="ps-badbox">✗ <b>'+esc(tr('ps_bigbad'))+'</b> — '+esc(tr('ps_bigbad_t').replace('{n}',nf(n)))+
+    '<button class="ps-btn" id="ps-fix" onclick="editSetup()">'+esc(tr('ps_fix'))+'</button></div>';}
+
+/* ---------- S4a · the Home Screen tip, once ---------- */
+function psTipPaint(){
+  const tiles=$('hubtiles'); if(!tiles)return;
+  psCss();
+  let box=$('ps-tipbox');
+  const show=(PS_TIP==='pending')&&CFG&&CFG.key&&psIOS()&&!psStandalone();
+  if(!show){if(box)box.remove();return;}
+  if(!box){box=document.createElement('div');box.id='ps-tipbox';box.className='ps-tip';tiles.parentNode.insertBefore(box,tiles);}
+  box.innerHTML='📌 '+esc(tr('ps_tip'))+'<br><button id="ps-tipok" onclick="psTipDone()">'+esc(tr('ps_tipok'))+'</button>';}
+async function psTipDone(){PS_TIP='done'; try{if(db)await put('kv',{k:'pstip',v:'done'});}catch(e){} psTipPaint();}
+
+/* after a language tap: whatever of this is on the screen comes back in the new language */
+function psRepaint(){
+  try{ if(psLoginOn()){psSyncIn(); psPadPaint(); if(PS.open)$('ttl').textContent=tr('ps_title');}
+    if($('ps-supaste'))$('ps-supaste').textContent=tr('ps_paste');
+    {const ss=$('scr-sync'); if(ss&&!ss.classList.contains('hidden')&&typeof renderSync==='function')renderSync();}   /* the Sync screen comes back in the new language too */
+    psTipPaint();}catch(e){}}
+
 
 // ================= kill switch =================
 function showLock(sim){if(typeof fuLbClose==='function')fuLbClose();$('wipeoverlay').classList.add('hidden');
@@ -2629,7 +3042,7 @@ async function mergeEvents(rows){
   return n;}
 
 async function refreshMasters(){
-  if(!CFG||!CFG.url||!navigator.onLine)return null;
+  if(LOCKED||!CFG||!CFG.url||!navigator.onLine)return null;   // v3.95.0
   let got={tasks:0,programs:0};
   try{
     // v3.10 — tell the Sheet who is asking and what we already have. A worker gets no
@@ -3145,10 +3558,20 @@ function showSetup(){SCREENS.forEach(x=>$('scr-'+x).classList.add('hidden'));
   $('backbtn').classList.add('hidden');
   $('scr-login').classList.add('hidden');$('scr-setup').classList.remove('hidden');$('ttl').textContent='Setup';
   $('su-who').textContent=(CFG&&CFG.worker?CFG.worker+' ('+CFG.role+')':'—');
-  if(CFG){$('su-device').value=CFG.device||'';$('su-url').value=CFG.url||'';}}
+  if(CFG){$('su-device').value=CFG.device||'';$('su-url').value=CFG.url||'';}
+  if(typeof psSuPaint==='function')psSuPaint();}   // v3.95.0 - PASTE + the check's message
 function editSetup(){showSetup();}
-async function saveSetup(){CFG=Object.assign({},CFG,{device:$('su-device').value.trim()||'phone-01',url:$('su-url').value.trim()});
-  await persistCfg();toast('Saved. Selamat bekerja, '+CFG.worker+'!');
+async function saveSetup(){
+  /* v3.95.0 - the address is checked before it is kept (S2a); an empty box stays allowed */
+  if(PS.busy)return;
+  const psU=psClean($('su-url').value), psNew=psU!==psClean((CFG&&CFG.url)||'');
+  PS.busy=true; PS.suAsked=''; let psOk=false; try{psOk=await psSuCheck(psU);}finally{PS.busy=false;}
+  if(!psOk)return;
+  if(LOCKED||!CFG||!CFG.key||$('scr-setup').classList.contains('hidden'))return;   /* review: revoked, logged out or moved on while the Sheet was asked */
+  CFG=Object.assign({},CFG,{device:$('su-device').value.trim()||'phone-01',url:psU});
+  if(psU&&psNew)await psTipArm();
+  await persistCfg();
+  await psSuKept(psU);   // v3.95.0 - the address that answered is the one now kepttoast('Saved. Selamat bekerja, '+CFG.worker+'!');
   $('nav-home').style.display='';$('nav-sync').style.display='';applyRole();goHome();
   // pull the real registry straight away, so this phone never pushes the sample
   // seed users over the top of the live WORKERS tab
@@ -5412,7 +5835,7 @@ function stuckHtml(){
 
 function renderSync(){
   $('cfginfo').innerHTML=(CFG?('Worker: <b>'+(CFG.worker||'—')+'</b> <span class="small">('+(CFG.role||'')+')</span> · Device: <b>'+(CFG.device||'—')+'</b><br>Sync URL: '+(CFG.url?'<b>set ✓</b>':'<span style="color:#b3261e">not set — edit settings</span>')):'')+'<br>App version: <b>'+APP_VERSION+'</b> · <span class="linkish" onclick="logout()">log out</span>';
-  const sh=$('synchealth'); if(sh)sh.innerHTML=stuckHtml()+syncHealthHtml();
+  const sh=$('synchealth'); if(sh)sh.innerHTML=psBadHtml()+stuckHtml()+syncHealthHtml();   // v3.95.0 - a wrong Sync URL, named
   const ap=$('appendnote');
   if(ap)ap.innerHTML='<b>🔒 This log is append-only.</b> '+(canVoidEntry()
     ? 'As Owner you may void an entry that has not yet reached the Google Sheet — voiding writes a '+
@@ -5618,7 +6041,7 @@ async function doSync(auto){
     }
     // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
     else throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
-  }catch(err){toast('Sync failed: '+err.message,1);renderSync();}
+  }catch(err){toast((err&&err.psBad)?err.message:(psCfgBad()?tr('ps_syncbad'):('Sync failed: '+err.message)),1);renderSync();}   // v3.95.0
   syncing=false;}
 
 // ================= dashboard =================
