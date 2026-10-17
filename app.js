@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.96.0';   // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
+const APP_VERSION = 'v3.97.0';   // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
 // v3.95.0 - SET UP THIS PHONE (16 Oct 2026, sample "ok" = S1a-S4a). A new phone gets its Sync URL BEFORE anyone logs in: the login pad shows SET UP THIS PHONE while the phone has no Sync URL (a set-up phone keeps the pad, with a small link to set it up again); phone name + Sync URL with a PASTE button; the address is checked (the app link and a cut-off address are refused in plain words) and the Sheet is asked for the staff list, so the staff member's own key works the first time, without the Worker 1 sample key. The logged-in setup (EDIT) gets the same check (an empty box stays allowed for a practice phone). A reply that is not data says 'Wrong Sync URL' with FIX THE SYNC URL on the Sync screen, not the browser's words. An iPhone not opened from the Home Screen is shown once how to add it. App files only; database.js unchanged; no Apps Script. Before: v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
@@ -8954,7 +8954,8 @@ function pjPlanList(){
   if(PJP_LIST)return PJP_LIST;
   const by={};
   (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).forEach(r=>{ if(!r||!pjIsPc(r))return; const x=ppX(r); if(r.uuid===pjPcId(x.id))by[x.id]=r;});
-  const out=PLAN_JOBS_2627.map(p=>{
+  const out=PLAN_JOBS_2627.map(p0=>{
+    const p=ppPbzRow(p0,['from','to']);   // v3.97.0 - the jobs after PBZ keep their days after it
     if(p.chk)return p;
     const r=by[p.id], x=r?ppX(r):null;
     if(!x)return p;
@@ -10333,7 +10334,7 @@ let PQ={mon:'',kind:'',use:false,src:'plan',lm:'',pre:'',del:''};   // ＋ NEW a
 let PQ_PLAN=null, PQ_AT=0, PQ_BUSY=false;
 function pqHeld(){return (performance.now()-PQ_AT)<PQ_HOLD;}
 function pqMoved(){PQ_AT=performance.now();}
-function pqTouch(){PQ_PLAN=null;}
+function pqTouch(){PQ_PLAN=null;PP_PBZS=null;}
 function pqReset(){PQ={mon:'',kind:'',use:false,src:'plan',lm:'',pre:'',del:''};}
 function pqClean(s,n){return pjPlain(s,n);}
 /** A day kept in a cell is used only when it IS a day, inside this season. FOUND IN REVIEW: "2026-13-45" in one plan row
@@ -10389,14 +10390,39 @@ const PQ_BADMINE='Your saved programmes cannot be read on this device: their row
 /** The workbook's rounds as they stand TODAY: a round he changed carries his day, stage, purpose and
  *  mix; `wb` is the workbook's own row, `pcr` the record of the change, `pc` when and by whom. A round
  *  whose change was put back carries `pcr` only, for its history. */
+/* v3.97.0 - TWO LEAF LAYERS. PBZ and every round, job and water stage after it carry pbz:1 in database.js and are
+   drawn on PP_PBZ_PLAN (14 Jan 2027). They keep their days AFTER PBZ: once the first lot's PBZ is reported done - or,
+   before that, once he moves the PBZ round to another day - they all move by the same number of days. Rounds before
+   PBZ, and every set already issued, never move. Read straight from PROGRAMS: pzDone() reads ppSets(), which reads
+   pqPlan() - reading it here would go round in a circle. */
+let PP_PBZS=null;
+function ppPbzShift(){
+  if(typeof PP_PBZ_PLAN==='undefined'||!ppOkDay(PP_PBZ_PLAN))return 0;
+  if(PP_PBZS!==null)return PP_PBZS;
+  let done='', moved='';
+  (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).forEach(r=>{ if(!r)return; const x=ppX(r); if(!x)return;
+    if(x.cfg&&x.pc&&x.id==='P27|PBZ'&&r.uuid===pqPcId(x.id)&&!x.off&&pqDayOk(x.d))moved=String(x.d);
+    if(String(r.phaseId||'')!=='P27|PBZ'||String(r.status)==='VOID'||!ppIsIss(r))return;
+    (Array.isArray(x.log)?x.log:[]).forEach(e=>{ if(!e||(e.k!=='done'&&e.k!=='rec'))return; const dd=String(e.d||'').slice(0,10);
+      if(pqDayOk(dd)&&(!done||dd<done))done=dd;});});
+  const a=done||moved, n=a?Math.round((ppD(a)-ppD(PP_PBZ_PLAN))/864e5):0;
+  PP_PBZS=n; Promise.resolve().then(()=>{PP_PBZS=null;});
+  return n;}
+/** A workbook row (round, job or water stage) as it stands after the PBZ shift: rows without pbz:1 come back as they are. */
+function ppPbzRow(p,fs){
+  if(!p||!p.pbz)return p; const n=ppPbzShift(); if(!n)return p;
+  const o=Object.assign({},p);
+  (fs||['plan']).forEach(f=>{ if(ppOkDay(o[f])){const t=ppD(o[f]); t.setUTCDate(t.getUTCDate()+n); o[f]=t.toISOString().slice(0,10);}});
+  if(fs&&o.mon)o.mon=String(o.from).slice(0,7);
+  return o;}
 function pqPlan(){
   if(!ppOn())return [];
   if(PQ_PLAN)return PQ_PLAN;
   const by={};
   (typeof PROGRAMS!=='undefined'?PROGRAMS:[]).forEach(r=>{ if(!r||!pqIsPc(r))return; const x=ppX(r);
     if(r.uuid===pqPcId(x.id))by[x.id]=r;});
-  const out=PLAN_2627.map(p=>{
-    const r=by[p.id], x=r?ppX(r):null;
+  const out=PLAN_2627.map(p0=>{
+    const p=ppPbzRow(p0), r=by[p.id], x=r?ppX(r):null;
     if(!x)return p;
     return (x.off?null:pqOver(p,x,r,{at:String(r.at||''),by:String(r.by||''),why:String(x.why||'')}))||Object.assign({},p,{pcr:r});});
   PQ_PLAN=out; Promise.resolve().then(()=>{PQ_PLAN=null;});
@@ -10416,7 +10442,7 @@ function pqOver(wb,o,pcr,meta){
  *  issue - the other device had the plan's editor open and did not know - is kept on its own row and changes
  *  nothing about the set: what "differs from the plan" on a set never moves once the set exists. */
 function pqPlanAt(p,rec){
-  const wb=p.wb||PLAN_2627.find(q=>q.id===p.id)||p, x=ppX(rec), s=(x&&x.pcs&&typeof x.pcs==='object')?x.pcs:null;
+  const wb=p.wb||ppPbzRow(PLAN_2627.find(q=>q.id===p.id))||p, x=ppX(rec), s=(x&&x.pcs&&typeof x.pcs==='object')?x.pcs:null;
   const o=s?pqOver(wb,s,p.pcr||null,{at:String(s.at||''),by:String(s.by||''),why:String(s.why||'')}):null;
   return o||(p.pcr?Object.assign({},wb,{pcr:p.pcr}):wb);}
 /** What a new record of a planned round carries of the plan it is made on: nothing when that is the workbook. */
@@ -10427,7 +10453,7 @@ function pqPcs(v){
     at:String(v.pc.at||'').slice(0,10),by:pjClip(v.pc.by,24),why:String(v.pc.why||'')};}
 /** The same round as the workbook has it, as a plan view: what a change is measured against. */
 function pqWbView(v){
-  const p=(v&&v.plan)?(v.plan.wb||PLAN_2627.find(q=>q.id===v.plan.id)||v.plan):null;
+  const p=(v&&v.plan)?(v.plan.wb||ppPbzRow(PLAN_2627.find(q=>q.id===v.plan.id))||v.plan):null;
   return p?ppView(p,null,[]):v;}
 /** How a planned round, as edited (`o` = {date,lines,tgt,stage}), differs from the workbook. */
 function pqPlanCh(wbv,o){
@@ -13317,11 +13343,18 @@ function wtWindow(){
   const t=todayStr(), first=rnShift(RAIN_FROM,1), out=[];
   for(let i=WATER_STRIP_DAYS-1;i>=0;i--){const d=rnShift(t,-i); if(d>=first)out.push(d);}
   return out;}
+/** v3.97.0 - the water stages as they stand: the ones after PBZ move with it; 'when' is drawn from the days. */
+function wtPlanRows(){
+  const rows=(typeof WATER_PLAN!=='undefined'?WATER_PLAN:[]).map(r=>Object.assign({},ppPbzRow(r,['from','to'])));
+  rows.forEach((o,i)=>{const nx=rows[i+1];   // the stage before PBZ runs to the day before it, wherever PBZ lands
+    if(nx&&nx.pbz&&!o.pbz&&ppOkDay(nx.from)){const t=ppD(nx.from); t.setUTCDate(t.getUTCDate()-1); o.to=t.toISOString().slice(0,10);}
+    o.when=ppFmtS(o.from)+' – '+ppFmtS(o.to);});
+  return rows;}
 function wtPlanLine(d){
-  const p=(typeof WATER_PLAN!=='undefined'?WATER_PLAN:[]).find(x=>d>=x.from&&d<=x.to);
+  const p=wtPlanRows().find(x=>d>=x.from&&d<=x.to);
   return p?('<b>'+esc(p.stage)+'</b> · '+esc(p.txt)):'';}
 function wtPlanTable(){
-  return '<table class="wt-tbl"><tr><th>Stage</th><th>Water per tree</th></tr>'+(typeof WATER_PLAN!=='undefined'?WATER_PLAN:[]).map(p=>
+  return '<table class="wt-tbl"><tr><th>Stage</th><th>Water per tree</th></tr>'+wtPlanRows().map(p=>
     '<tr><td><b>'+esc(p.stage)+'</b><br><span class="small">'+esc(p.when)+'</span></td><td>'+esc(p.txt)+'</td></tr>').join('')+'</table>';}
 /** Dry mornings in the last WATER_MISS_DAYS that nobody reported. A morning when 8 mm or more
  *  fell later that same day is not one of them: not watering was right. */
@@ -14950,7 +14983,7 @@ function tcTileBadge(){
    10 days dry spell. either of them not reach we will go to gate 2 around jan or april."
    Then, on sample 2: "Ok with suggestion" (G1a G2b G3b G4a G5a G6a G7a G8a G9a).
    ⛔ NO DATE IN HERE DECIDES ANYTHING. The page reads his three conditions from the Friday
-   walks and the farm gauge, proposes, and HE presses PASS, NOT YET or GATE 2. 10 Dec, the
+   walks and the farm gauge, proposes, and HE presses PASS, NOT YET or GATE 2. 28 Feb (v3.97.0; was 10 Dec), the
    plan's last day, is shown as a reminder only.
    HIS FOUR ANSWERS OF 8 OCT, BUILT IN:
      - two layers are COUNTED FROM THE FRIDAY WALKS: the newest leaf soft (1-3) and then hard
@@ -14979,10 +15012,10 @@ function tcTileBadge(){
 const PZ_CODE='PBZ', PZ_PLAN_ID='P27|PBZ';
 const PZ_DRY_MM=1, PZ_DRY_START=7, PZ_DRY_BEST=10;   // a dry day is under 1 mm; 7 can start, 10 best
 const PZ_LPT=8;                // litres a tree, inside the canopy (the plan)
-const PZ_HOLD_DAYS=7;          // no watering from the PBZ day to 7 days after it (10 Nov -> 17 Nov), water again on day 8
+const PZ_HOLD_DAYS=7;          // no watering from the PBZ day to 7 days after it (14 Jan -> 21 Jan in the plan), water again on day 8
 const PZ_WATER_L=100;          // then 100 L a tree on dry days (the plan's deficit)
 const PZ_LEAF_DAYS=7;          // the crew's daily leaf look after PBZ
-const PZ_PLAN_LAST='2026-12-10';   // the plan's latest PBZ: a reminder, never a rule
+const PZ_PLAN_LAST='2027-02-28';   // v3.97.0 (two leaf layers): the window's last day; was 10 Dec 2026. A reminder, never a rule
 const PZ_SHOW_WALKS=8, PZ_ARM_MS=6000, PZ_TAP_MS=500;
 const PZ_KINDS={GATE:1,TICK:1,LEAF:1,HOSE:1};
 const PZ_DECW={PASS:['PASS','pz-pass'],WAIT:['NOT YET','pz-wait'],G2:['GATE 2','pz-g2']};
@@ -15178,11 +15211,11 @@ function pzLotCardHTML(lot,W0,dry){
     '<div class="tc-ids pz-hs">'+nh.map(t=>'<button id="pz-hs-'+t+'" class="'+(PZO.arm==='h'+t?'pz-arm':'')+'" onclick="pzHoseTap(\''+t+'\')">'+(PZO.arm==='h'+t?('TAP AGAIN: '+t+' is connected'):(t+' · CONNECTED ›'))+'</button>').join('')+'</div>';
   h+='<div class="tc-opts pz-dec"><button class="tc-opt'+(dc==='PASS'?' tc-sel':'')+'" id="pz-pass-'+lot+'" onclick="pzDecide(\''+lot+'\',\'PASS\')">PASS<small>PBZ on this lot</small></button>'+
     '<button class="tc-opt'+(dc==='WAIT'?' tc-sel':'')+'" id="pz-wait-'+lot+'" onclick="pzDecide(\''+lot+'\',\'WAIT\')">NOT YET<small>next Friday</small></button>'+
-    '<button class="tc-opt tc-bad'+(dc==='G2'?' tc-sel':'')+'" id="pz-g2-'+lot+'" onclick="pzDecide(\''+lot+'\',\'G2\')">GATE 2<small>Jan or April</small></button></div>';
+    '<button class="tc-opt tc-bad'+(dc==='G2'?' tc-sel':'')+'" id="pz-g2-'+lot+'" onclick="pzDecide(\''+lot+'\',\'G2\')">GATE 2<small>April</small></button></div>';
   if(g){const fig=String(g.r.row||'').replace(/^(walk \d{4}-\d{2}-\d{2}|no walk) · /,'');
     h+='<div class="tc-g pz-said" id="pz-said-'+lot+'">Your decision of '+esc(ppFmt(String(g.r.day||'').slice(0,10)))+(g.r.walk?(', on the walk of '+esc(ppFmtS(g.r.walk))):'')+(fig?(': '+esc(fig)):'')+(g.r.by?(' · '+esc(g.r.by)):'')+'.</div>';}
-  if(dc==='WAIT')h+='<div class="tc-g" id="pz-held-'+lot+'">Stays at Gate 1; the Friday walk goes on. Your plan for a lot not ready: MKP 2.5 kg a tank + Ca-B, no nitrogen.'+(tcToday()>PZ_PLAN_LAST?' <b>Past your plan\'s last day, 10 Dec</b> (a reminder; GATE 2 is yours to press).':' Your plan\'s last day is 10 Dec, a reminder only.')+'</div>';
-  if(dc==='G2')h+='<div class="tc-g" id="pz-gone-'+lot+'">At Gate 2 (Jan or April). No new PBZ for it at Gate 1. The Friday walk goes on, so Gate 2 starts with its figures.</div>';
+  if(dc==='WAIT')h+='<div class="tc-g" id="pz-held-'+lot+'">Stays at Gate 1; the Friday walk goes on. Your plan for a lot not ready: MKP 2.5 kg a tank + Ca-B, no nitrogen.'+(tcToday()>PZ_PLAN_LAST?' <b>Past your plan\'s last day, '+ppFmtS(PZ_PLAN_LAST)+'</b> (a reminder; GATE 2 is yours to press).':' Your plan\'s last day is 10 Dec, a reminder only.')+'</div>';
+  if(dc==='G2')h+='<div class="tc-g" id="pz-gone-'+lot+'">At Gate 2 (April). No new PBZ for it at Gate 1. The Friday walk goes on, so Gate 2 starts with its figures.</div>';
   if(dc==='PASS'&&prop==='notyet')h+='<div class="tc-note tc-r" id="pz-over-'+lot+'">You passed a lot the figures would not pass today. Your decision stands; it is kept with the figures as they were.</div>';
   {const has=pzSets().filter(v=>v.lots.indexOf(lot)>=0);
     if(dc==='PASS'||has.length)h+=pzLotPbzHTML(lot);
@@ -15270,7 +15303,7 @@ function pzIssueGo(){
 function pzSeeLot(l){TCO.s='gatelot';TCO.lot=l;TCO.arm='';tcRenderOwner();tcOTop();}
 function pzGateHTML(){
   let h=pzOldNote('pz-oldgs');
-  h+='<div class="tc-g pz-intro"><b>No fixed date.</b> 10–17 Nov is your forecast. PBZ when, for a lot: <b>two new layers of leaf</b> · <b>the second layer hard and mature</b> · <b>a dry spell</b> (7 days can start, 10 best). The page proposes; you press PASS, NOT YET or GATE 2.</div>';
+  h+='<div class="tc-g pz-intro"><b>No fixed date.</b> Two leaf layers first: about 14 Jan is your forecast, the window is open to '+ppFmtS(PZ_PLAN_LAST)+'. PBZ when, for a lot: <b>two new layers of leaf</b> · <b>the second layer hard and mature</b> · <b>a dry spell</b> (7 days can start, 10 best). The page proposes; you press PASS, NOT YET or GATE 2.</div>';
   const seen=pzLeafSeen();
   if(seen.length)h+='<div class="tc-need tc-r" id="pz-leafseen"><h4>🍃 Wilted or curled leaf seen after PBZ</h4>'+esc(seen.map(x=>'Lot '+x.lot+' on '+ppFmtS(x.day)).join(' · '))+'. Look at the trees.</div>';
   h+=pzHoldHTML();
@@ -16509,7 +16542,7 @@ function lpRateHtml(){
        confirmed lots) and x.bdL (those lots). A lot not confirmed when the set was issued is done whole.
    A phone still on v3.90.0 knows no check CE2: it shows no census and reads none of these rows. */
 const BD_CHK='CE2', BD_RE='CE2B', BD_DAYS=35, BD_RE_DAYS=14, BD_LINE=80, BD_LOW=50;
-const BD_PLAN_DAY='2026-12-15';   // the workbook's day for CE2, used until a lot has had its PBZ
+const BD_PLAN_DAY='2027-02-18';   // v3.97.0 (two leaf layers; was 15 Dec 2026): 35 days after the planned PBZ, used until a lot has had its PBZ - moves with the PBZ (ppPbzRow)
 const BD_STAGES=['Flowering','Bloom & set','Fruit development 1','Fruit development 2','Harvest'];
 const BD_CFG_ID='cfg-bud-'+String((typeof PP_SEASON!=='undefined')?PP_SEASON:'').replace(/[^0-9]+/g,'-');
 /* the four answers: [code, BM short, EN short, BM long, EN long] */
@@ -16642,7 +16675,7 @@ function bdReDue(L){const c=bdConf(L); return c?tcAddDays(String(tcEff(c)).slice
 function bdMons(chk){
   const out={}, add=d=>{if(tcOkDay(d))out[String(d).slice(0,7)]=1;};
   if(chk===BD_RE){LOT_KEYS.forEach(L=>{if(bdReLeft(L).length)add(bdReDue(L));});}
-  else{let any=false; LOT_KEYS.forEach(L=>{const d=bdDue(L); if(d){any=true;add(d);}}); if(!any)add(BD_PLAN_DAY);}
+  else{let any=false; LOT_KEYS.forEach(L=>{const d=bdDue(L); if(d){any=true;add(d);}}); if(!any)add(ppPbzRow({pbz:1,plan:BD_PLAN_DAY}).plan);}
   try{tcActive(chk).forEach(i=>add(String(i.day||'')));}catch(e){}
   return Object.keys(out).sort();}
 
