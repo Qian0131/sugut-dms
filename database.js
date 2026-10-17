@@ -61,6 +61,7 @@ var CLONES;   // assigned from CLONE_SELL_ORDER below - see the note there (var,
 const CLONE_NAME={MK:'Musang King (D197)',BT:'Black Thorn (D200)',B24:'D24 Sultan',
   '101':'D101',UM:'Red Prawn / Udang Merah (D175)',TB:'TB (unverified)',
   GP:'Golden Phoenix (D198)',XO:'XO (D168)',D99:'D99',TNB:'Tenom Beauty (D236)',
+  TKA:'Tekka',TK:'Tupai King',   // v3.98.0 - names only, for the young trees and the graft scions (17 Oct 2026). NOT in CLONE_SELL_ORDER: no grade, no price, nothing to weigh until they fruit
   '':'Not recorded'};
 
 const LOTS=['A','B','C'];
@@ -3130,6 +3131,40 @@ Object.assign(MS,{st_waterorder:'Arahan siram air',
    checks that can be issued, the questions with the wording of the staff guide, and the numbers
    of the practice and of the travel between the phones and the Sheet. */
 const GRAFT_TREES=['B-031','B-032','B-033','B-034','B-039','B-041','B-053','B-056','B-064'];   // v3.96.0 - the Owner's note '20/9/26 Plot B (grafting)', grafted 19 Sep 2026, confirmed 17 Oct 2026: six 101 trees to BT, B-053 GP to TK, B-056 and B-064 GP to BT. The list of 4 Oct (A-013, A-023, A-034, A-036, A-061, B-001, B-053, B-056, B-064) was wrong for six trees.
+/* v3.98.0 - THE TREE REGISTER BY STAGE (the Tree Stages sample, approved 17 Oct 2026; S2 replaced by programme review P5).
+   Every tree has one stage: NEW PLANTING, GRAFTED, YOUNG or FRUITING. TREE_MASTER stays the 171 trees that were there
+   before (the harvest, the scale, the ledger, PBZ and every count read it unchanged). The 16 trees planted 14-15 Oct
+   2026 are kept HERE, apart, and only the stages screen, the map and the young-tree check read them: they never fruit,
+   are never weighed, never get PBZ and are never in a forecast.
+   ⛔ THE NUMBER: the Owner calls them B-067-26 ... C-044-26 (the lot's next number, then the planting year). The rows the
+   phones write carry the id WITHOUT the year (B-067), because the Sheet takes a tree written A-001 and nothing longer;
+   `tag` is what every screen shows. ADMIN ▸ TREES refuses B-067 and the others, so the number is never used twice.
+   xy: on the farm map (FU_MAP), from the red dots of his scan (fitted to the map, error under 2 units). */
+const YOUNG_TREES=[
+  {"id":"B-067","tag":"B-067-26","lot":"B","no":67,"clone":"BT","planted":"2026-10-14","near":"B-033","form":1,"xy":[143.8,1104.9]},
+  {"id":"B-068","tag":"B-068-26","lot":"B","no":68,"clone":"BT","planted":"2026-10-14","near":"B-034","form":2,"xy":[6.2,1156.9]},
+  {"id":"B-069","tag":"B-069-26","lot":"B","no":69,"clone":"BT","planted":"2026-10-14","near":"B-036","form":3,"xy":[50.4,1067.4]},
+  {"id":"B-070","tag":"B-070-26","lot":"B","no":70,"clone":"BT","planted":"2026-10-14","near":"B-037","form":4,"xy":[133.7,1028.9]},
+  {"id":"B-071","tag":"B-071-26","lot":"B","no":71,"clone":"BT","planted":"2026-10-14","near":"B-038","form":5,"xy":[72.0,1025.9]},
+  {"id":"B-072","tag":"B-072-26","lot":"B","no":72,"clone":"TKA","planted":"2026-10-14","near":"B-039","form":6,"xy":[86.7,997.5]},
+  {"id":"B-073","tag":"B-073-26","lot":"B","no":73,"clone":"TKA","planted":"2026-10-14","near":"B-040","form":7,"xy":[103.6,960.9]},
+  {"id":"B-074","tag":"B-074-26","lot":"B","no":74,"clone":"BT","planted":"2026-10-14","near":"B-062","form":8,"xy":[141.3,686.4]},
+  {"id":"B-075","tag":"B-075-26","lot":"B","no":75,"clone":"BT","planted":"2026-10-14","near":"B-018","form":9,"xy":[146.1,571.8]},
+  {"id":"B-076","tag":"B-076-26","lot":"B","no":76,"clone":"BT","planted":"2026-10-14","near":"B-018","form":10,"xy":[134.7,616.6]},
+  {"id":"B-077","tag":"B-077-26","lot":"B","no":77,"clone":"BT","planted":"2026-10-14","near":"B-018","form":11,"xy":[173.6,609.2]},
+  {"id":"B-078","tag":"B-078-26","lot":"B","no":78,"clone":"BT","planted":"2026-10-14","near":"B-018","form":12,"xy":[197.7,638.4]},
+  {"id":"C-041","tag":"C-041-26","lot":"C","no":41,"clone":"BT","planted":"2026-10-15","near":"C-016","form":13,"xy":[195.3,231.4]},
+  {"id":"C-042","tag":"C-042-26","lot":"C","no":42,"clone":"BT","planted":"2026-10-15","near":"C-019","form":14,"xy":[181.4,255.8]},
+  {"id":"C-043","tag":"C-043-26","lot":"C","no":43,"clone":"TK","planted":"2026-10-15","near":"C-019","form":15,"xy":[165.7,284.7]},
+  {"id":"C-044","tag":"C-044-26","lot":"C","no":44,"clone":"TK","planted":"2026-10-15","near":"C-020","form":16,"xy":[168.7,334.9]}];
+/* The scion each graft carries (the Owner's note '20/9/26 Plot B (grafting)'). The register keeps the old clone until
+   he moves the tree to YOUNG; then the screens show this one. A clone code is never renamed. */
+const GRAFT_TO={'B-031':'BT','B-032':'BT','B-033':'BT','B-034':'BT','B-039':'BT','B-041':'BT','B-053':'TK','B-056':'BT','B-064':'BT'};
+/* The variety each graft WAS, as his note says it. B-053, B-056 and B-064 read B24 in the register: they are among the
+   nine B24 trees that became Golden Phoenix on 2 Sep 2026 (book 01) - the code was never changed, so the screens say GP. */
+const GRAFT_FROM={'B-031':'101','B-032':'101','B-033':'101','B-034':'101','B-039':'101','B-041':'101','B-053':'GP','B-056':'GP','B-064':'GP'};
+const GRAFT_DAY='2026-09-19';   // approach graft (a potted plant tied to the trunk), all nine on the same day
+const TS_CHK='YT1', TS_CUT='YTC', TS_STG='STG';   // the young-tree check · the crew's cut reports · his word on a tree
 /* v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS, the leaf cycle the Owner gave on 5 Oct 2026:
    0 no new shoot, 1 new shoot just out, 2 long tail (leaves getting longer), 3 leaf spacing
    (light green, gaps between the nodes), 4 mature and hard. Hardened is now answer 4.
@@ -3152,7 +3187,12 @@ const TC_CHECKS=[
   {id:'CE1',kind:'census',ic:'📋',en:'Health census',ms:'Banci kesihatan',
    plan:['Due 1–2 Oct on the plan','Sepatutnya 1–2 Okt dalam pelan'],due:'2026-10-02',mons:['2026-10']},
   {id:TC_FL,kind:'flush',ic:'🌿',en:'Friday flush check',ms:'Semakan pucuk hari Jumaat',
-   plan:['Every Friday from 16 Oct','Setiap Jumaat dari 16 Okt'],from:'2026-10-16',mons:['2026-10','2026-11','2026-12','2027-01','2027-02']}];   // v3.97.0: the walks go on to the Gate window's end (28 Feb), not only to Nov
+   plan:['Every Friday from 16 Oct','Setiap Jumaat dari 16 Okt'],from:'2026-10-16',mons:['2026-10','2026-11','2026-12','2027-01','2027-02']},
+  /* v3.98.0 - the young trees and the grafts: alive, weak or dead for a new planting; for a graft the 4-week look, and from
+     8 weeks the check that decides it. Each issue is its own look (the walk is its day). Lots with no such tree drop out. */
+  {id:'YT1',kind:'yt',ic:'🌱',en:'Young trees and grafts',ms:'Pokok muda dan cantuman',
+   plan:['New plantings at 2 weeks, 1 month and 3 months; grafts at 4 weeks, then at 8 weeks (14 Nov)','Pokok baru pada 2 minggu, 1 bulan dan 3 bulan; cantuman pada 4 minggu, kemudian 8 minggu (14 Nov)'],
+   mons:['2026-10','2026-11','2026-12','2027-01']}];   // v3.97.0: the walks go on to the Gate window's end (28 Feb), not only to Nov
 const TC_FLUSH_LINE=80;       // % of trees with hardened leaf: the plan's line for Gate 1
 const TC_PASS=4;              // practice: right answers out of the five pictures that open the checks
 const TC_REF_DEFAULT=['A-001','A-002','A-003','A-004','A-005'];
