@@ -3123,7 +3123,7 @@ Object.assign(MS,{st_waterorder:'Arahan siram air',
 /* v3.79.0 - the tree survey: the nine top-worked trees the Owner confirmed on 4 Oct 2026, the two
    checks that can be issued, the questions with the wording of the staff guide, and the numbers
    of the practice and of the travel between the phones and the Sheet. */
-const GRAFT_TREES=['A-013','A-023','A-034','A-036','A-061','B-001','B-053','B-056','B-064'];
+const GRAFT_TREES=['B-031','B-032','B-033','B-034','B-039','B-041','B-053','B-056','B-064'];   // v3.96.0 - the Owner's note '20/9/26 Plot B (grafting)', grafted 19 Sep 2026, confirmed 17 Oct 2026: six 101 trees to BT, B-053 GP to TK, B-056 and B-064 GP to BT. The list of 4 Oct (A-013, A-023, A-034, A-036, A-061, B-001, B-053, B-056, B-064) was wrong for six trees.
 /* v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS, the leaf cycle the Owner gave on 5 Oct 2026:
    0 no new shoot, 1 new shoot just out, 2 long tail (leaves getting longer), 3 leaf spacing
    (light green, gaps between the nodes), 4 mature and hard. Hardened is now answer 4.
