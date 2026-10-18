@@ -805,6 +805,15 @@ label{font-size:10.5px;color:var(--muted);display:block;margin:9px 0 4px;text-tr
 .ts-dec{background:#fff;border:1px solid #dfe5dd;border-left:5px solid #c62828;border-radius:12px;padding:9px 10px;margin-bottom:7px}.ts-dec>b{display:block;font-size:14.5px}.ts-dec>small{display:block;color:var(--muted);font-size:12px}
 .ts-dchips{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}.ts-dchips button{border:1.5px solid #b9cdb6;background:#fff;border-radius:9px;padding:4px 8px;min-height:44px;font-weight:900;font-size:13px;color:#1b5e20;line-height:1.1}
 .ts-dchips button small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
+/* v3.99.0 - THE YOUNG PROGRAMME. Every class starts yg- */
+.yg-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:6px 0}
+.yg-chips button{border:1.5px solid #cfd6cc;background:#fff;border-radius:9px;min-height:46px;padding:4px 2px;font-size:12px;font-weight:900;color:#1f2a1f;line-height:1.15}
+.yg-chips button small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
+.yg-chips button.yg-off{background:#eeece6;color:#8a867b;text-decoration:line-through}
+.yg-chips button.yg-tk{background:#2e7d32;border-color:#2e7d32;color:#fff}.yg-chips button.yg-tk small{color:#e6f2e6}
+.yg-chips button.yg-bug{background:#c62828;border-color:#c62828;color:#fff}
+.yg-skip{font-size:12.5px;background:#f3f0f8;border-radius:9px;padding:7px 9px;margin:2px 0 10px;color:#3d2a55}
+.yg-pe{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px}.yg-pe .pp-ghost{width:auto;margin:0;padding:8px 12px;min-height:40px}
 .bd-big{display:flex;gap:6px;margin:6px 0}.bd-big div{flex:1;border-radius:12px;padding:8px 4px;text-align:center;border:1px solid #dfe5dd}
 .bd-big b{display:block;font-size:24px;line-height:1.1}.bd-big span{font-size:11px;font-weight:800}
 .bd-big .bd-f{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20}.bd-big .bd-n{background:#fff3e0;border-color:#ffcc80;color:#8d4a00}.bd-big .bd-q{background:#f3f3f3;color:#555}
@@ -4829,7 +4838,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.98.0"></script>
-<script src="app.js?v=3.98.0"></script>
+<script src="database.js?v=3.99.0"></script>
+<script src="app.js?v=3.99.0"></script>
 </body>
 </html>
