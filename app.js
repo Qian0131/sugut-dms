@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.101.0';   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
+const APP_VERSION = 'v3.102.0';   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
 // v3.95.0 - SET UP THIS PHONE (16 Oct 2026, sample "ok" = S1a-S4a). A new phone gets its Sync URL BEFORE anyone logs in: the login pad shows SET UP THIS PHONE while the phone has no Sync URL (a set-up phone keeps the pad, with a small link to set it up again); phone name + Sync URL with a PASTE button; the address is checked (the app link and a cut-off address are refused in plain words) and the Sheet is asked for the staff list, so the staff member's own key works the first time, without the Worker 1 sample key. The logged-in setup (EDIT) gets the same check (an empty box stays allowed for a practice phone). A reply that is not data says 'Wrong Sync URL' with FIX THE SYNC URL on the Sync screen, not the browser's words. An iPhone not opened from the Home Screen is shown once how to add it. App files only; database.js unchanged; no Apps Script. Before: v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
@@ -2550,10 +2550,11 @@ Object.assign(MS,{
   Response.prototype.json=async function(){
     const t=await this.text();
     let host='';
-    try{host=new URL(this.url||'').hostname||'';}catch(e){host='';}
+    const RU=String(this.url||this.__psUrl||''), RQ=String(this.__psReq||this.url||'');   // v3.102.0 review L1 - who answered / what was asked
+    try{host=new URL(RU).hostname||'';}catch(e){host='';}
     let j, parsed=false; try{j=JSON.parse(t);parsed=true;}catch(e0){}
     if(parsed){
-      const mine=!PS_PROBING&&psIsCfgUrl(this.url);
+      const mine=!PS_PROBING&&psIsCfgUrl(RU);
       if(mine){PS_BADURL=null;
         if(j&&j.ok&&CFG&&CFG.url&&PS_SHEET_OK!==psClean(CFG.url)){PS_SHEET_OK=psClean(CFG.url); try{if(db){const pr=put('kv',{k:'pssheet',v:PS_SHEET_OK}); if(pr&&pr.catch)pr.catch(function(){});}}catch(x){}}}
       /* v3.101.0 - GOOGLE IS BUSY. The office (v3.101.0) answers {ok:false, busy:true} when it could
@@ -2564,21 +2565,21 @@ Object.assign(MS,{
         const busy=j.busy===true;
         const err=new Error(tr(busy?'gb_why':'ps_syncerr'));
         err.name='SyncReplyError'; err.psBad=true; err.psGoogle=true; err.psBusy=busy; err.psHost=host; err.psStatus=this.status;
-        if(mine&&!/[?&](photo|treephoto)=/.test(String(this.url||''))&&typeof gbMark==='function')gbMark(busy?'busy':'fault',busy?(j.why==='lock'?'lock':String(j.error||'')):String(j.error||''));   /* review 3: a photo opened is not an upload */
+        if(mine&&!/[?&](photo|treephoto)=/.test(RQ)&&typeof gbMark==='function')gbMark(busy?'busy':'fault',busy?(j.why==='lock'?'lock':String(j.error||'')):String(j.error||''));   /* review 3: a photo opened is not an upload */
         throw err;}
       /* review (stale box): a good main pull OUTSIDE a sync (the 5-minute pull, coming back to the app) means
          Google answers again: the box goes. Nothing is sent by it (B1a: one try by itself, no more); what
          waits shows on the SYNC button and goes with the next sync. Inside a sync the end of that sync
          decides, because a pull (no lock) answers fine while uploads still wait for their turn. */
       if(mine&&j&&j.ok&&typeof GB!=='undefined'&&GB.state&&!GB_RUN&&!(typeof syncing!=='undefined'&&syncing)&&
-         /[?&]role=/.test(String(this.url||''))&&!/[?&]tconly=/.test(String(this.url||'')))gbClear();
+         /[?&]role=/.test(RQ)&&!/[?&]tconly=/.test(RQ)&&!GB.timer)gbClear();   // v3.102.0 review 2: an armed one try is kept
       return j;}
     const g=psGoogleHost(host);
     const err=new Error(tr(g?'ps_syncerr':'ps_syncbad'));
     err.name='SyncReplyError'; err.psBad=true; err.psGoogle=g; err.psHost=host; err.psStatus=this.status;
-    if(!g&&!PS_PROBING&&psIsCfgUrl(this.url))PS_BADURL={at:now(),host:host};
+    if(!g&&!PS_PROBING&&psIsCfgUrl(RU))PS_BADURL={at:now(),host:host};
     /* v3.101.0 - Google's own error page is a fault too: the red box, records safe */
-    if(g&&!PS_PROBING&&psIsCfgUrl(this.url)&&!/[?&](photo|treephoto)=/.test(String(this.url||''))&&typeof gbMark==='function')gbMark('fault','HTTP '+this.status+' · '+tr('gb_errpage','Google sent its own error page'));
+    if(g&&!PS_PROBING&&psIsCfgUrl(RU)&&!/[?&](photo|treephoto)=/.test(RQ)&&typeof gbMark==='function')gbMark('fault','HTTP '+this.status+' · '+tr('gb_errpage','Google sent its own error page'));
     throw err;};
 })();
 function psGoogleHost(h){return /^script\.(google|googleusercontent)\.com$/i.test(String(h||''));}   /* review: docs.google.com (the Sheet's own link) is a WRONG Sync URL, not a Sheet error */
@@ -2865,7 +2866,7 @@ function gbQ(){try{return pending()+corrUnsynced()+q4()+setUnsynced();}catch(e){
 function gbMark(kind,why){
   GB.state=kind; GB.at=Date.now(); GB.why=String(why||''); GB.seen=true;
   if(kind==='fault'&&GB.timer){clearTimeout(GB.timer);GB.timer=0;GB.retryAt=0;}   /* review: a fault is never tried by itself */
-  if(kind==='busy'&&gbQ()>0)gbArm();
+  if((kind==='busy'||kind==='slow')&&gbQ()>0){if(GB_RUN)GB.want=true; else gbArm();}   // v3.102.0 W3 slow is tried once too · review M1 armed when the sync ends
   gbPaint();}
 /** the episode is over: a sync with no busy / fault answer, or nothing waiting */
 function gbClear(){
@@ -2892,6 +2893,7 @@ function gbHM(ms){const d=new Date(ms),p=n=>String(n).padStart(2,'0');return p(d
 function gbOwn(){try{return myRole()==='OWNER';}catch(e){return false;}}
 function gbWhyTxt(){
   if(!GB.why)return '';
+  {const m=/^no answer in (\d+) s$/.exec(GB.why); if(m)return tr('gw_noanswer').replace('{s}',m[1]);}   // v3.102.0
   return GB.why==='lock'?tr('gb_whylock').replace('{s}',GB_LOCK_S):GB.why;}
 /** the box on the Sync screen; '' when there is nothing to say */
 function gbHtml(){
@@ -2900,9 +2902,9 @@ function gbHtml(){
   gbCss();
   const safe=esc(tr(n===1?'gb_safe1':'gb_safe').replace('{n}',nf(n)));
   const own=(gbOwn()&&GB.why)?'<div class="gb-own">'+esc(tr('gb_ownonly'))+' · '+esc(gbWhyTxt())+'</div>':'';
-  if(GB.state==='busy'){
-    const next=GB.retryAt?tr('gb_auto').replace('{t}',gbHM(GB.retryAt)):tr('gb_manual');
-    return '<div class="gb-box gb-busy" id="gb-box"><div class="gb-h">⏳ '+esc(tr('gb_h'))+'</div>'+
+  if(GB.state==='busy'||GB.state==='slow'){
+    const next=GB.retryAt?tr('gb_auto').replace('{t}',gbHM(GB.retryAt)):((GB_RUN&&GB.want&&!GB.used)?tr('gb_autosoon'):tr('gb_manual'));
+    return '<div class="gb-box gb-busy" id="gb-box"><div class="gb-h">⏳ '+esc(tr(GB.state==='slow'?'gb_slow_h':'gb_h'))+'</div>'+
       '<div class="gb-t"><b>'+safe+'</b> '+esc(next)+'</div>'+
       '<button class="gb-btn" id="gb-try" onclick="gbTry()">'+esc(tr('gb_try'))+'</button>'+own+'</div>';}
   return '<div class="gb-box gb-fault" id="gb-box"><div class="gb-h">✗ '+esc(tr('gb_fh'))+'</div>'+
@@ -2969,6 +2971,69 @@ Object.assign(MS,{
   gb_errpage:'Google hantar halaman ralatnya sendiri',
   sy_timeout:'tiada jawapan dalam masa — talian atau Google lambat'});
 /* ============================ end of v3.101.0 GOOGLE IS BUSY ============================ */
+
+/* ======================================================================================
+   v3.102.0 - WAIT THE RIGHT TIME FOR GOOGLE  (fix 4 of the speed review of 20 Oct 2026;
+   sample DMS_Wait_For_Google_sample.html, the Owner's "ok" of 21 Oct = W1a W2a W3a W4a)
+   --------------------------------------------------------------------------------------
+   W1  a pull may take 60 s and an upload 45 s (25 s for both before), and an upload 10 s more
+       for every 100 KB it carries (at most 3 min). fetchT picks the limit by method when it is
+       given none; the clock question, the setup check and the log-in pad keep their own short
+       limit. The limit runs until the answer begins; the answer may then take as long as data
+       keeps coming (20 s with no data ends it, 3 min at most). The eight uploads that had no limit at all
+       (records, corrections, stock adjustments, programmes, tasks, task logs, merchants,
+       staff list) go through fetchT now.
+   W2  after NO ANSWER IN TIME an upload does not knock again 1 s later: the office may still
+       be working on the first one. A line that dropped (fails at once) is still tried twice.
+   W3  no answer in time from this phone's own Sync URL is the yellow box of v3.101.0, titled
+       "Google is slow right now", with the same one try by itself a minute later.
+   W4  after 10 s of a sync, the SYNC button counts "Waiting for Google... n s".
+   Review of 21 Oct: the one try is armed when the sync ends (not during it); once one request
+   of a sync had no answer in time the rest of that sync does not knock (they stay queued); the
+   reply reader keeps what was asked, because Google answers from another address (redirect).
+   Nothing new is stored. No office change.
+   ====================================================================================== */
+const GW_PULL_MS=60000, GW_PUSH_MS=45000, GW_SHOW_MS=10000;
+/* review M2 - a big upload gets 10 s more for every 100 KB it carries (at most 3 minutes); an answer
+   that is arriving may take as long as data keeps coming (a gap of 20 s ends it; at most 3 minutes) */
+const GW_PER_100KB_MS=10000, GW_CAP_MS=180000, GW_STALL_MS=20000;
+/* review M1 - once one request of a sync has had no answer in time, the rest of that sync does not
+   knock (they stay queued): a slow day costs one limit, not one limit per kind of record */
+let GW_SLOW_RUN=false;
+/** a reply from this phone's own Sync URL did not come in time (not a photo, not the clock question) */
+function gwSlow(url,ms){
+  try{
+    if(PS_PROBING||!CFG||!CFG.key||!psIsCfgUrl(url)||/[?&](photo|treephoto|time)=/.test(String(url||'')))return;   /* review L3: not while logged out */
+    if(GB_RUN)GW_SLOW_RUN=true;
+    if(typeof gbMark==='function')gbMark('slow','no answer in '+Math.round(ms/1000)+' s');
+  }catch(e){}}
+/* W4 - the SYNC button counts while the phone waits */
+let GW_T0=0, GW_TICK=0, GW_SHOWN=false;
+function gwStart(){GW_T0=Date.now(); GW_SHOWN=false; if(GW_TICK)clearInterval(GW_TICK); GW_TICK=setInterval(gwTick,1000);}
+function gwTick(){
+  if(!GB_RUN){gwStop();return;}
+  const s=Math.floor((Date.now()-GW_T0)/1000); if(s*1000<GW_SHOW_MS)return;
+  const b=$('syncbtn'); if(!b)return;
+  b.textContent=tr('gw_wait').replace('{s}',s); GW_SHOWN=true;}
+function gwStop(){
+  if(GW_TICK){clearInterval(GW_TICK);GW_TICK=0;}
+  if(GW_SHOWN){GW_SHOWN=false; try{const s=$('scr-sync'); if(s&&!s.classList.contains('hidden')&&typeof renderSync==='function')renderSync(); else{const b=$('syncbtn'); if(b){const n=pending()+corrUnsynced()+q4()+setUnsynced(); b.textContent=n?('⇧ SYNC '+n+' ITEM'+(n>1?'S':'')+' NOW'):'⇩ CHECK FOR NEW WORK';}}}catch(e){}}}
+Object.assign(EN,{
+  gb_autosoon:'The phone will try again by itself about a minute after this. You can keep working.',
+  gb_slow_h:'Google is slow right now',
+  gb_slowtoast:'⏳ Google is slow — your records are safe on this phone.',
+  gb_pullslow:'⏳ Google is slow — nothing new was fetched yet. Try again in a minute.',
+  gw_wait:'Waiting for Google… {s} s',
+  gw_noanswer:'no answer in {s} s'});
+Object.assign(MS,{
+  gb_autosoon:'Telefon akan cuba lagi sendiri kira-kira seminit selepas ini. Anda boleh terus bekerja.',
+  gb_slow_h:'Google lambat sekarang',
+  gb_slowtoast:'⏳ Google lambat — rekod anda selamat dalam telefon ini.',
+  gb_pullslow:'⏳ Google lambat — belum ada data baru diambil. Cuba lagi seminit lagi.',
+  gw_wait:'Menunggu Google… {s} s',
+  gw_noanswer:'tiada jawapan dalam {s} s'});
+/* ============================ end of v3.102.0 WAIT FOR GOOGLE ============================ */
+
 
 
 // ================= kill switch =================
@@ -3221,7 +3286,7 @@ async function refreshMasters(){
             ((typeof tcAsk==='function')?tcAsk():'');
   /* which URL this question goes to, and when: the reply is only acted on for that URL */
   var tcAsked=(typeof tcUrlKey==='function')?tcUrlKey():undefined, tcAskedAt=Date.now();
-    const r=await fetchT(CFG.url+q,{},SYNC_TIMEOUT_MS);const j=await r.json();
+    const r=await fetchT(CFG.url+q,{});const j=await r.json();   // v3.102.0 - 60 s
     /* v3.41.2 — STAMP IT THE MOMENT THE SERVER ANSWERS, not at the end of the function.
        ⛔ THE STAMP WAS AT THE BOTTOM AND THAT WAS WRONG. Between here and there sit three
        early returns — an unreadable WORKERS tab, an empty key list, and a dirty local
@@ -3692,14 +3757,14 @@ async function pushRegistry(manual){
   if(!navigator.onLine){if(manual)toast('No internet — it will push at the office hotspot',1);return false;}
   const btn=$('pushregbtn');if(btn)btn.textContent='Uploading registry…';
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({registry:KEYS.map(k=>({
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({registry:KEYS.map(k=>({
         id:k.id,name:k.name,role:k.role,key:String(k.key),status:isActive(k)?'Active':'Revoked'}))}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(!j||!j.ok)throw new Error((j&&j.error)||'server error');
     REG_DIRTY=false;if(db)await put('kv',{k:'regdirty',v:false});
     renderKeys();toast('✓ Registry pushed to Google Sheet');return true;
-  }catch(e){toast('Registry push failed: '+e.message,1);return false;}
+  }catch(e){if(e&&e.name==='AbortError')gbToast(tr('gb_slowtoast')); else toast('Registry push failed: '+e.message,1);return false;}
   finally{renderKeys();}}
 
 // ================= setup =================
@@ -6070,7 +6135,7 @@ async function pushCorrections(){
   const batch=CORRECTIONS.filter(c=>!c.synced);
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({corrections:batch}),
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({corrections:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.corrections){
@@ -6090,7 +6155,7 @@ async function pushAdjustments(){
   const batch=EVENTS.filter(e=>e.type==='STOCK_ADJUST'&&!e.synced);
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({adjustments:batch}),
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({adjustments:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.adjustments){
@@ -6104,9 +6169,12 @@ let syncing=false;
 /* v3.101.0 - the outermost sync decides whether the busy / fault episode is over: a sync that met
    no busy or fault answer clears it, and so does an empty queue. */
 async function doSync(auto){
-  const own=!syncing&&!GB_RUN; if(own){GB_RUN=true;GB.seen=false;}
+  const own=!syncing&&!GB_RUN; if(own){GB_RUN=true;GB.seen=false;GB.want=false;GW_SLOW_RUN=false; if(typeof gwStart==='function')gwStart();}   // v3.102.0 W4 · review M1
+  if(!own&&!auto){toast(tr('gb_running'));return;}   // v3.102.0 review 2: a second tap while it waits does not start a second sync
   try{return await doSyncCore(auto);}
-  finally{if(own){GB_RUN=false; if(!GB.seen||!gbQ())gbClear(); else gbPaint();}}}
+  finally{if(own){GB_RUN=false;GW_SLOW_RUN=false; if(typeof gwStop==='function')gwStop();
+    if(!GB.seen||!gbQ())gbClear(); else{ if(GB.want&&(GB.state==='busy'||GB.state==='slow'))gbArm(); gbPaint(); }
+    GB.want=false;}}}
 async function doSyncCore(auto){
   if(syncing)return;
   if(!CFG||!CFG.url){if(!auto)toast('Set the Sync URL in Settings first',1);return;}
@@ -6153,12 +6221,13 @@ async function doSyncCore(auto){
       // the message away and the worker was shown the literal word "false" every time they
       // pressed Sync with an empty queue. Pre-existing since v2.5.1; caught by test 6.4.
       else if(!got&&GB.seen&&GB.state==='busy')gbToast(tr('gb_pull'));   // v3.101.0
+      else if(!got&&GB.seen&&GB.state==='slow')gbToast(tr('gb_pullslow'));   // v3.102.0
       else toast(nn?('✓ '+nn+' new job'+(nn>1?'s':'')+' received from the Owner')
               :(got?'✓ Up to date — nothing new from the Owner':'Could not reach the Google Sheet'),!got);}
     return;}
   syncing=true;const b=$('syncbtn');b.textContent='Uploading '+batch.length+'…';
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}}); // text/plain avoids CORS preflight for Apps Script
     const j=await r.json();
     if(j&&j.ok){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}rebuildLedgers();badge();renderSync();
@@ -6198,7 +6267,7 @@ async function doSyncCore(auto){
     }
     // v2.5.1: the backend now reports ok:false with a reason — show the reason, not "server error"
     else throw new Error((j&&(j.error||(j.errors&&j.errors.length&&j.errors[0])))||'server error');
-  }catch(err){if(err&&err.psBusy)gbToast(tr('gb_toast')); else toast((err&&err.psBad)?err.message:(psCfgBad()?tr('ps_syncbad'):('Sync failed: '+err.message)),1);renderSync();}   // v3.95.0 · v3.101.0 busy
+  }catch(err){if(err&&err.psBusy)gbToast(tr('gb_toast')); else if(err&&err.name==='AbortError')gbToast(tr('gb_slowtoast')); else toast((err&&err.psBad)?err.message:(psCfgBad()?tr('ps_syncbad'):('Sync failed: '+err.message)),1);renderSync();}   // v3.95.0 · v3.101.0 busy
   syncing=false;}
 
 // ================= dashboard =================
@@ -7704,7 +7773,7 @@ async function pushPrograms(){
        before anything goes on the air. */
     const body=JSON.stringify({programs:batch});
     for(const s of sent){ if((typeof ppRevRec==='function')&&ppRevRec(s.p)){s.p.tried={rev:s.rev,at:s.at}; if(db)await put('programs',s.p);} }
-    const r=await fetch(CFG.url,{method:'POST',body:body,
+    const r=await fetchT(CFG.url,{method:'POST',body:body,
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.programs){
@@ -12968,7 +13037,7 @@ async function pushTasks(){
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
   const stamp=batch.map(t=>t.uuid+'|'+t.status);
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({tasks:batch}),
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({tasks:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.tasks){
@@ -12984,7 +13053,7 @@ async function pushTaskLogs(){
   const batch=EVENTS.filter(e=>e.type==='TASK_DONE'&&!e.synced);
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({tasklogs:batch}),
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({tasklogs:batch}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.tasklogs){for(const e of batch){e.synced=true;e.syncedAt=now();if(db)await put('events',e);}badge();return true;}
@@ -14117,7 +14186,7 @@ function tcWire(r){
   o.est=tcEst(r);                 // when it was keyed, on the Sheet's clock
   return o;}
 async function tcPost(body,ms){
-  const res=await fetchT(CFG.url,{method:'POST',body:JSON.stringify(body),headers:{'Content-Type':'text/plain;charset=utf-8'}},ms||SYNC_TIMEOUT_MS);
+  const res=await fetchT(CFG.url,{method:'POST',body:JSON.stringify(body),headers:{'Content-Type':'text/plain;charset=utf-8'}},ms);
   return await res.json();}
 /** Still the object the log holds? A pull can replace a row with the Sheet's copy while its upload is in the air. */
 function tcIsCur(x){return TREE_LOG.indexOf(x)>=0;}
@@ -14337,7 +14406,7 @@ async function takeTreePack(j,asked,askedAt){
   /* a long tab comes down page by page in this same sync, each page a small request of its own */
   for(let pg=0;TC_MORE&&pg<TC_PAGES&&tcCanAsk()&&CFG&&CFG.url;pg++){
     let p=null;
-    try{const r=await fetchT(CFG.url+'?role='+encodeURIComponent(myRole())+'&uid='+encodeURIComponent((CFG&&CFG.uid)||'')+'&tconly=1&tc='+encodeURIComponent(TC_CUR||'0'),{},SYNC_TIMEOUT_MS); p=await r.json();}catch(e){p=null;}
+    try{const r=await fetchT(CFG.url+'?role='+encodeURIComponent(myRole())+'&uid='+encodeURIComponent((CFG&&CFG.uid)||'')+'&tconly=1&tc='+encodeURIComponent(TC_CUR||'0'),{}); p=await r.json();}catch(e){p=null;}
     if(!(p&&p.ok&&p.tcserved)||(p.tcsid&&String(p.tcsid)!==TC_FOR))break;
     res=tcTakePage(p); n+=res.toPut.length; back+=res.back; await tcStorePage(res);}
   if(!tcUnsynced())clearSyncFail('trees');
@@ -14936,7 +15005,7 @@ async function tcPhotoShow(tree,uuid){
   if(!CFG||!CFG.url||!navigator.onLine){toast('The photo is in the Sheet: it needs an internet connection',1);return;}
   toast('Fetching the photo…');
   try{
-    const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{},SYNC_TIMEOUT_MS), j=await res.json();
+    const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{}), j=await res.json();
     if(j&&j.ok&&j.treephoto&&j.photo){TC_PHOTO[r.uuid]=String(j.photo);showPhoto(TC_PHOTO[r.uuid],ttl);}
     else toast('That photo has not reached the Sheet yet',1);
   }catch(e){toast('Could not fetch the photo',1);}}
@@ -15825,7 +15894,7 @@ async function fuPhoto(uuid){
   if(TC_PHOTO[r.uuid])return fuShowPhoto(TC_PHOTO[r.uuid],r);
   if(!CFG||!CFG.url||!navigator.onLine){toast('The photo is in the Sheet: it needs an internet connection',1);return;}
   toast('Fetching the photo…');
-  try{const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{},SYNC_TIMEOUT_MS), j=await res.json();
+  try{const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{}), j=await res.json();
     if(j&&j.ok&&j.treephoto&&j.photo){TC_PHOTO[r.uuid]=String(j.photo);fuShowPhoto(TC_PHOTO[r.uuid],r);}
     else toast('That photo has not reached the Sheet yet',1);}catch(e){toast('The photo could not be fetched',1);}}
 /* ====================== v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX ======================
@@ -15941,7 +16010,7 @@ async function fuPhotoSrc(r){
   if(r.photo)return String(r.photo);
   if(TC_PHOTO[r.uuid])return TC_PHOTO[r.uuid];
   if(!CFG||!CFG.url||!navigator.onLine)return '';
-  try{const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{},SYNC_TIMEOUT_MS), j=await res.json();
+  try{const res=await fetchT(CFG.url+'?treephoto='+encodeURIComponent(r.uuid),{}), j=await res.json();
     if(j&&j.ok&&j.treephoto&&j.photo){TC_PHOTO[r.uuid]=String(j.photo); return TC_PHOTO[r.uuid];}}catch(e){}
   return '';}
 let FU_ALL_BUSY=false;
@@ -17884,7 +17953,7 @@ async function pushRain(){
   if(!batch.length||!CFG||!CFG.url||!navigator.onLine)return false;
   try{
     const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({rain:batch}),
-      headers:{'Content-Type':'text/plain;charset=utf-8'}},SYNC_TIMEOUT_MS);
+      headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     /* v3.75.0 — `refused` is how a v3.75.0 backend signs its answer. An older one would take
        the row and DROP kind and bands (it has no column for them) while still replying ok, so
@@ -18831,13 +18900,48 @@ const SYNC_TIMEOUT_MS=25000, SYNC_TRIES=2, SYNC_BACKOFF_MS=1200;
 let SYNC_FAILS={};
 function syncFailCount(){return Object.keys(SYNC_FAILS).length;}
 function clearSyncFail(k){delete SYNC_FAILS[k];}
-function noteSyncFail(k,label,n,why){const w=String(why||'');SYNC_FAILS[k]={label:label,n:n,why:w,at:now(),gb:(w===tr('gb_why')?'busy':(w===tr('ps_syncerr')?'fault':''))};}   // v3.101.0 gb
+function noteSyncFail(k,label,n,why){const w=String(why||'');SYNC_FAILS[k]={label:label,n:n,why:w,at:now(),gb:(w===tr('gb_why')?'busy':(w===tr('ps_syncerr')?'fault':(w===tr('sy_timeout')?'slow':'')))};}   // v3.101.0 gb · v3.102.0 slow
 
 /** fetch with a hard deadline. Without this a half-open hotspot hangs the whole sync. */
 async function fetchT(url,opts,ms){
+  /* v3.102.0 W1 - no limit given: 45 s for an upload (plus 10 s per 100 KB it carries, at most 3 min),
+     60 s for a pull. A caller that names its limit keeps it (the clock question, the setup check and the
+     log-in pad: a person is looking at "Checking…"). The limit runs until the answer begins; the answer
+     itself may then take as long as data keeps coming (20 s without any data ends it; 3 min at most). */
+  const post=!!(opts&&String(opts.method||'').toUpperCase()==='POST'), named=!!ms;
+  const extra=post&&opts&&typeof opts.body==='string'?Math.floor(opts.body.length/102400)*GW_PER_100KB_MS:0;
+  if(!ms)ms=post?GW_PUSH_MS:GW_PULL_MS;
+  if(extra)ms=Math.max(ms,Math.min(GW_CAP_MS,ms+extra));   /* tree photos name 45 s and get the size time too */
+  /* review M1 - this sync already had no answer in time: do not knock again until the next one */
+  if(!named&&!PS_PROBING&&GW_SLOW_RUN&&GB_RUN&&psIsCfgUrl(url)&&!/[?&](photo|treephoto|time)=/.test(String(url||''))){
+    let ex; try{ex=new DOMException('skipped: Google is slow in this sync','AbortError');}catch(e){ex=new Error('skipped');ex.name='AbortError';}
+    throw ex;}
   const ac=(typeof AbortController!=='undefined')?new AbortController():null;
-  const t=setTimeout(()=>{try{ac&&ac.abort();}catch(e){}},ms||SYNC_TIMEOUT_MS);
-  try{ return await fetch(url,Object.assign({},opts||{},ac?{signal:ac.signal}:{})); }
+  let late=false, rd=null;
+  /* give up: stop the request, and stop reading (review 2: some browsers ignore the abort while reading) */
+  const quit=()=>{late=true;try{ac&&ac.abort();}catch(e){} try{if(rd){const c=rd.cancel();if(c&&c.catch)c.catch(function(){});}}catch(e){}};
+  let t=setTimeout(quit,ms);
+  try{
+    const r=await fetch(url,Object.assign({},opts||{},ac?{signal:ac.signal}:{}));
+    /* the answer has begun. A caller that named its limit keeps it for the whole answer (review 2: the
+       setup check and the log-in pad). Otherwise read while data keeps coming: 20 s with no data ends
+       it, 3 min at most. */
+    const t0=Date.now(); let body='';
+    const stall=()=>{if(named)return; clearTimeout(t); t=setTimeout(quit,Math.max(0,Math.min(GW_STALL_MS,GW_CAP_MS-(Date.now()-t0))));};
+    if(r.body&&r.body.getReader&&typeof TextDecoder!=='undefined'){
+      stall(); rd=r.body.getReader(); const dec=new TextDecoder();
+      for(;;){const x=await rd.read(); if(x.done)break; body+=dec.decode(x.value,{stream:true}); stall();}
+      body+=dec.decode();}
+    else{ if(!named){clearTimeout(t); t=setTimeout(quit,GW_CAP_MS);} body=await r.text(); }   /* review 2: no reader - 3 min for the whole answer */
+    if(late){let ex; try{ex=new DOMException('no answer in time','AbortError');}catch(e){ex=new Error('no answer in time');ex.name='AbortError';} throw ex;}
+    const st=(r.status>=200&&r.status<=599&&[204,205,304].indexOf(r.status)<0)?r.status:200;
+    const out=new Response(body,{status:st,statusText:r.statusText,headers:r.headers});
+    /* the reply reader needs who answered (Google's host) and what was asked (?photo=, ?role=…): Google
+       answers from script.googleusercontent.com after a redirect, so the question is kept as well (review L1) */
+    try{Object.defineProperty(out,'url',{value:r.url});}catch(e){}
+    out.__psUrl=r.url||String(url); out.__psReq=String(url);
+    return out;}
+  catch(e){ if(late&&typeof gwSlow==='function')gwSlow(url,ms); throw e; }   // v3.102.0 W3
   finally{ clearTimeout(t); }}
 
 async function pushOwnKey(batch,key,flag,warnSetter,warnMsg,label,shape){
@@ -18863,7 +18967,7 @@ async function pushOwnKey(batch,key,flag,warnSetter,warnMsg,label,shape){
       return false;
     }catch(err){
       lastWhy=(err&&err.name==='AbortError')?tr('sy_timeout'):(err&&err.message)||'network';
-      if(err&&(err.psBusy||err.psBad))break;   // v3.101.0 - the office answered: busy or broken; asking again 1 s later only adds to the queue
+      if(err&&(err.psBusy||err.psBad||err.name==='AbortError'))break;   // v3.101.0 busy or broken · v3.102.0 W2 no answer in time: the office may still be working on it
       if(attempt<SYNC_TRIES)await new Promise(r=>setTimeout(r,SYNC_BACKOFF_MS));
     }}
   noteSyncFail(key,label||key,batch.length,lastWhy);
@@ -22788,7 +22892,7 @@ async function pushSettings(){
       noteSyncFail('settings',tr('sy_l_settings'),n,tr('sy_oldbackend'));
       return false;
     }catch(err){
-      const gbStop=!!(err&&(err.psBusy||err.psBad));   // v3.101.0 - the office answered: busy or broken; not again 1 s later
+      const gbStop=!!(err&&(err.psBusy||err.psBad||err.name==='AbortError'));   // v3.101.0 busy or broken · v3.102.0 W2 no answer in time
       if(attempt<SYNC_TRIES&&!gbStop)await new Promise(r=>setTimeout(r,SYNC_BACKOFF_MS));
       else{noteSyncFail('settings',tr('sy_l_settings'),n,
         (err&&err.name==='AbortError')?tr('sy_timeout'):((err&&err.message)||'network')); if(gbStop)break;}}}
@@ -23042,7 +23146,7 @@ async function fetchPhotosFor(u){
   if(PHOTO_CACHE[key])return PHOTO_CACHE[key];
   if(!CFG||!CFG.url||!navigator.onLine)return [];
   try{
-    const r=await fetchT(CFG.url+'?photo='+encodeURIComponent(key),{},SYNC_TIMEOUT_MS);
+    const r=await fetchT(CFG.url+'?photo='+encodeURIComponent(key),{});
     const j=await r.json();
     const list=(j&&j.ok&&Array.isArray(j.photos))?j.photos:[];
     PHOTO_CACHE[key]=list;
@@ -25778,7 +25882,7 @@ async function pushRetailers(){
       pay_type:payTypeOf(r.id), cash_warn_rm:+r.cash_warn_rm||0, credit_line_rm:rcMoneyMine()?rcSendLine(r):'', open_from:rcMoneyMine()?(r.open_from||''):'',   // v3.92.0 - '' = no opinion: only the Owner's phone moves the line and the season of the opening
       current_credit_balance_rm:retailerCredit(r.id),
       contract:isContractRetailer(r.id)?JSON.stringify(RET_CONTRACT[r.id]||{}):''}));
-    const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({retailers:payload}),
+    const r=await fetchT(CFG.url,{method:'POST',body:JSON.stringify({retailers:payload}),
       headers:{'Content-Type':'text/plain;charset=utf-8'}});
     const j=await r.json();
     if(j&&j.ok&&j.retailers){RET_DIRTY=false;await persistRetailers();MASTER_SIG='';return true;}   // v3.92.0 - the next pull brings the merged list back
