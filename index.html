@@ -3220,6 +3220,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
   <!-- v3.18.5 — the Active Task Notice Bar. Renders ONLY when a directive is due today.
        Brand name and dose per tank, nothing else: no chemistry, no prices (v3.13 rule). -->
   <div id="tasknotice"></div>
+  <div id="hubneed"></div>
   <div class="tiles" id="hubtiles"></div>
   <!-- v3.34.1 — ALL TOOLS on the home screen. Anything a role owns that is not a big tile
        lands here, so nothing is ever more than two taps from the screen the phone opens on.
@@ -4240,6 +4241,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
 
   <!-- ===== THE OWNER'S LANDING (v3.31.0) — one door, three windows.
        Everything inside is painted by renderOwnerHome(); the chips re-render in place. -->
+  <div class="card" id="needcard" style="display:none"><div id="needbox"></div></div>
   <div class="card" id="ownerhome" style="display:none">
     <div id="ownerbox"></div>
     <div class="otsheet" id="owntoolsheet"></div>
@@ -4838,7 +4840,7 @@ select.scsel{width:100%;font-size:14px;font-weight:800;padding:13px 8px;
      it downloads the new index.html and then re-uses the OLD script from cache: the app
      boots, works, and reports the previous version. That shipped once (v3.33.0, 10 Aug)
      and cost a round of uploads. t_version.js now fails the build on it. -->
-<script src="database.js?v=3.105.0"></script>
-<script src="app.js?v=3.105.0"></script>
+<script src="database.js?v=3.106.0"></script>
+<script src="app.js?v=3.106.0"></script>
 </body>
 </html>

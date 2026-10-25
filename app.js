@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.105.0';   // v3.105.0 - Oct · one rule for each figure: a correction counts on the day the fruit fell (R1a), season = the season-open date, one material price from the opening count (R2a), dumped fruit apart from given free (R3a), one owed balance, kg sold (weighed) vs kg est.   // v3.104.0 - Oct · fix 5 of the speed review: one sync at a time, one more after it, one pull at a time (F1a F2a F3a)   // v3.103.0 - Oct · rain keyed late: a morning the crew was never told to water is not "watering not reported" (L1a L2a)   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
+const APP_VERSION = 'v3.106.0';   // v3.106.0 - Oct · the five rooms: TODAY · FARM · HARVEST & SALES · THE STORE · MONEY & REPORTS, Admin small; one NEEDS YOU list; EXEC SUMMARY, COMPARE, the MONEY fold-outs and FARM TODAY taken away (H1a H2a H3a R4a)   // v3.105.0 - Oct · one rule for each figure: a correction counts on the day the fruit fell (R1a), season = the season-open date, one material price from the opening count (R2a), dumped fruit apart from given free (R3a), one owed balance, kg sold (weighed) vs kg est.   // v3.104.0 - Oct · fix 5 of the speed review: one sync at a time, one more after it, one pull at a time (F1a F2a F3a)   // v3.103.0 - Oct · rain keyed late: a morning the crew was never told to water is not "watering not reported" (L1a L2a)   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
 // v3.95.0 - SET UP THIS PHONE (16 Oct 2026, sample "ok" = S1a-S4a). A new phone gets its Sync URL BEFORE anyone logs in: the login pad shows SET UP THIS PHONE while the phone has no Sync URL (a set-up phone keeps the pad, with a small link to set it up again); phone name + Sync URL with a PASTE button; the address is checked (the app link and a cut-off address are refused in plain words) and the Sheet is asked for the staff list, so the staff member's own key works the first time, without the Worker 1 sample key. The logged-in setup (EDIT) gets the same check (an empty box stays allowed for a practice phone). A reply that is not data says 'Wrong Sync URL' with FIX THE SYNC URL on the Sync screen, not the browser's words. An iPhone not opened from the Home Screen is shown once how to add it. App files only; database.js unchanged; no Apps Script. Before: v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
@@ -835,6 +835,7 @@ async function setLang(l){
     try{ppESync();ppRSync();const md=$('pp-m-date');if(md&&md.value&&PPM)PPM.date=md.value;}catch(e){}
     pqKeepS={o:Object.assign({},PPO),e:PPE,m:PPM,r:PPR,q:Object.assign({},PQ)};}
   if(curModule&&inMenu)openMenu(curModule);
+  else if(myRole()==='OWNER'&&ROOM_DOOR&&curModule&&curTab){const rd=ROOM_DOOR; if(rd[0]==='__stmt')mnStatement(); else openModule(rd[0],rd[1]);}   // v3.106.0 review 3: the same door, the same room
   else if(curModule&&curTab)openModule(curModule,curTab);
   if(tcKeep&&typeof tcPaint==='function'){TCW=tcKeep;tcPaint();}
   else if(pqKeepS&&typeof ppHere==='function'&&ppHere()&&myRole()==='OWNER'){PPO=pqKeepS.o;PPE=pqKeepS.e;PPM=pqKeepS.m;PPR=pqKeepS.r;PQ=pqKeepS.q;ppRender();}
@@ -889,8 +890,10 @@ const MODULES={
              homework" line that has kept YIELD AUDIT and ADJUSTMENTS off MARKETING since
              v3.2, and it applies here with more force, not less. */
           {k:'who',   t:"WHO'S ON",         scr:'dash',panels:['whocard'],   roles:['OWNER'],ic:'👥',tn:'s_who',   d:'Who is on which phone, what they have recorded today, and who has gone quiet'},
-          {k:'exec',  t:'EXECUTIVE SUMMARY',scr:'dash',panels:['cmdexec'],   roles:['OWNER'],ic:'📈',tn:'s_exec',  d:'Variance alerts, rain, retailer revenue, drawdown and the drop forecast'},
-          {k:'cmp',   t:'COMPARE',         scr:'dash',panels:['cmdcompare'],roles:['OWNER'],ic:'📊',tn:'s_compare',d:'7 days, this month or the whole season — against the period before it'},
+          /* v3.106.0 R4a - EXECUTIVE SUMMARY and COMPARE are no longer routed. Their two unique
+             cards (a tree dropping unsecured fruit, a merchant's credit top-up) are lines in NEEDS
+             YOU; COMPARE is one "vs before" line on TODAY and on MONEY. The panels and their
+             renderers stay in the build: a deep link to cmd/exec or cmd/cmp lands on TODAY. */
           /* v3.39.0 — 'today' (OLD TODAY CARD) RETIRED. It was kept as the way back if the
              new TODAY turned out to be missing something during the trial. The trial has
              run; TODAY is what he opens. Keeping it made two doors onto the same question,
@@ -935,7 +938,10 @@ const MODULES={
              FARM screen, and everything on it is one tap away on her own GATE tile, which
              is the first tile she has. Six cards down to five. The card is untouched in
              index.html and still in the hideAllPanels list. */
-          {k:'today',t:'FARM TODAY',scr:'dash',panels:['yieldstrip','kpis','phibox','lotcard','dashnote'],roles:['MARKETING'],ic:'📈',d:'Today across all three lots'}]},
+          /* v3.106.0 R4a - FARM TODAY counted all time and carried a PHI line fixed in August. The
+             Gate now reads the Owner's TODAY (today · 7 days · season, lots side by side), read only:
+             no NEEDS YOU, no doors, no money on it. Same key, so her thumb and any link still land. */
+          {k:'today',t:'TODAY',scr:'dash',panels:['ownerhome'],roles:['MARKETING'],ic:'📈',d:'Today, 7 days or the season: dropped, good, rejected, lots side by side'}]},
   // v3.0 — the tying tracker is its own tile. Hidden from the Sandakan Purchaser.
   tying:{ic:'🎗️',name:'Fruit Tying',sub:'tally clicker, balances',tn:'m_tying',
     tabs:[{k:'tally',t:'TALLY CLICKER',scr:'dash',panels:['tallycard'],ic:'🎗️',tn:'s_tally',d:'Tap-count fruit onto the string, tree by tree'},
@@ -1336,7 +1342,7 @@ const MODULES={
              one-place. Same OWNER-only gate at the tab AND again in roleAllows(); no panel is
              lost and no writer changed. */
           {k:'master',t:'FIX A RECORD',scr:'dash',panels:['masterdb'], roles:['OWNER'],ic:'🩹',tn:'s_fixrec',d:'Correct a number, key work that was never logged, or clear out trial rows'},
-          {k:'trees', t:'TREES',       scr:'dash',panels:['treescard'],roles:['OWNER'],ic:'🌳',tn:'s_trees',d:'The census - add a new planting spot, live in every dropdown at once'},
+          {k:'trees', t:'TREE REGISTER',scr:'dash',panels:['treescard'],roles:['OWNER'],ic:'🌳',d:'The census - add a new planting spot, live in every dropdown at once'},
           {k:'qr',    t:'APP QR TAG',  scr:'dash',panels:['qrcard'],   roles:['OWNER'],ic:'📱',tn:'s_qrtag',d:'The code a new worker scans to install the app'},
           {k:'reg',   t:'STAFF',       scr:'dash',panels:['keyspanel'],roles:['OWNER'],ic:'🔑',tn:'s_staff',d:'Access keys and who may do what'},
           /* v3.74.0 — THE SEASON DOOR. OWNER only at the tab AND in roleAllows(). */
@@ -1385,8 +1391,105 @@ const MODULES={
 // The whole Inventory, Agronomist, Daily Ops and Fruit Tying tiles go. The Owner accepted
 // that he alone now covers the Sandakan desk when the Purchaser is offline.
 // ======================================================================================
+/* ======================================================================================
+   v3.106.0 · THE FIVE ROOMS — H1a (the Owner, 25 Oct 2026)
+   ======================================================================================
+   The Owner's home was 8 tiles and 3 more in ALL TOOLS, 29 doors behind them, and what was
+   waiting for him sat in four places. Now: ONE NEEDS YOU list, five rooms, Admin small.
+   A ROOM IS A LIST OF DOORS ONTO TODAY'S SCREENS. Each row names the module and section it
+   opens (`go`), and `pick` puts the screen on the right segment (the store's BUY / RECEIVE /
+   ISSUE / SHELF, the programme's RECORD and PAY). Nothing behind a door is rebuilt, so the
+   old modules keep their entitlement in HUB_ORDER, every deep link and every test still lands,
+   and ← from a screen goes back to the room it was opened from (ROOM_AT).
+   Owner only. The Gate, the Purchaser and the crew keep their tiles. */
+const ROOM_KEYS=['r_today','r_farm','r_sales','r_store','r_money','r_admin'];
+const ROOM_MODULES={
+  r_today:{ic:'📋',name:'TODAY',sub:'needs you · harvest · weather · who is on',tabs:[
+    {k:'need',   t:'NEEDS YOU', scr:'dash',panels:['needcard'],roles:['OWNER'],ic:'⚠️',d:'Everything waiting for you, in one list, worst first'},
+    {k:'harvest',t:'HARVEST',   go:['cmd','home'],roles:['OWNER'],ic:IC_DUR,d:'Today, 7 days or the season: dropped, good, rejected, lots side by side'},
+    {k:'weather',t:'WEATHER',   go:['agro','wx'],roles:['OWNER'],ic:'🌦️',d:'The watering call, rain, the month sheet, your water order'},
+    {k:'who',    t:"WHO'S ON",  go:['cmd','who'],roles:['OWNER'],ic:'👥',d:'Who keyed what today, and who has gone quiet'}]},
+  r_farm:{ic:'🌳',name:'FARM',sub:'programme · trees · work done',tabs:[
+    {k:'prog', t:'PROGRAMME', go:['prog','hub'],roles:['OWNER'],ic:'📅',d:'By month: sets, jobs, tree checks, young trees, change the plan'},
+    {k:'trees',t:'TREES',     go:['tsv','hub'],roles:['OWNER'],ic:'🌳',d:'Survey, flush, issue a check, Gate 1, follow-up, buds, stages'},
+    {k:'work', t:'WORK DONE', go:['prog','hub'],pick:'rec:day',roles:['OWNER'],ic:'🧾',d:'By day, by job, workers, sets done'}]},
+  r_sales:{ic:IC_DUR,name:'HARVEST & SALES',sub:'fruit · tying · scale · gate',tabs:[
+    {k:'collect',t:'COLLECT',       go:['harvest','log'],    grp:'FRUIT',roles:['OWNER'],ic:IC_DUR,d:'Count good fruit by grade, and loss with its cause'},
+    {k:'shed',   t:'THE SHED',      go:['harvest','backlog'],grp:'FRUIT',roles:['OWNER'],ic:'📦',d:'What is standing in the shed, and where the rest went'},
+    {k:'wave',   t:'THE WAVE',      go:['harvest','wave'],   grp:'FRUIT',roles:['OWNER'],ic:'🌊',d:'How much of the crop is still on the string'},
+    {k:'tally',  t:'TALLY CLICKER', go:['tying','tally'],    grp:'TYING',roles:['OWNER'],ic:'🎗️',d:'Tap-count fruit onto the string, tree by tree'},
+    {k:'bal',    t:'BALANCES',      go:['tying','bal'],      grp:'TYING',roles:['OWNER'],ic:'⚖️',d:'What each tree still owes against what was tied'},
+    {k:'scale',  t:'MORNING SCALE', go:['scale','scale'],    grp:'SCALE',roles:['OWNER'],ic:'⚖️',d:'Weigh the baskets, kg per fruit, photograph the scale'},
+    {k:'queue',  t:'QUEUE',         go:['mkt','verify'],     grp:'GATE', roles:['OWNER'],ic:'📷',d:'Loads and free fruit waiting for a decision'},
+    {k:'merch',  t:'MERCHANTS',     go:['mkt','disp'],       grp:'GATE', roles:['OWNER'],ic:'🚚',d:'Send out, cash sales, each merchant'},
+    {k:'price',  t:'PRICES',        go:['mkt','price'],      grp:'GATE', roles:['OWNER'],ic:'🏷️',d:'The price book and basket tare'}]},
+  r_store:{ic:'🛒',name:'THE STORE',sub:'buy · receive · issue · shelf',tabs:[
+    {k:'buy',  t:'BUY',     go:['inv','hub'],pick:'store:buy',  roles:['OWNER'],ic:'🛒',d:'What the plan needs and what is short — send it to the Purchaser'},
+    {k:'recv', t:'RECEIVE', go:['inv','hub'],pick:'store:recv', roles:['OWNER'],ic:'📥',d:'Stock in, a new store card'},
+    {k:'issue',t:'ISSUE',   go:['inv','hub'],pick:'store:issue',roles:['OWNER'],ic:'📤',d:'Stock out, against a lot'},
+    {k:'shelf',t:'SHELF',   go:['inv','hub'],pick:'store:hand', roles:['OWNER'],ic:'📦',d:'What is on the shelf, the count sheet, stock-take, the statement'}]},
+  r_money:{ic:'💰',name:'MONEY & REPORTS',sub:'money · owed · pay · costs · reports',tabs:[
+    {k:'money', t:'MONEY',          go:['reports','money'],  roles:['OWNER'],ic:'💵',d:'The month: sold, material, labour, net, the store'},
+    {k:'owed',  t:'OWED',           go:['mkt','ledger'],     roles:['OWNER'],ic:'💳',d:'Who owes the farm, payments, credit lines (MERCHANT CREDIT)'},
+    {k:'pay',   t:'PAY',            go:['prog','hub'],pick:'rec:pay',roles:['OWNER'],ic:'👷',d:'Each person\'s pay this month, oil-palm days'},
+    {k:'costs', t:'PROGRAMME COST', go:['reports','pcost'],  roles:['OWNER'],ic:'🧪',d:'Material by set and by lot'},
+    {k:'daily', t:'DAILY RECORD',   go:['reports','record'], grp:'REPORTS',roles:['OWNER'],ic:'🗓️',d:'Seven days side by side, sales and gifts'},
+    {k:'harvrep',t:'HARVEST REPORT',go:['reports','harvest'],grp:'REPORTS',roles:['OWNER'],ic:'📑',d:'The season: where the loss comes from, by lot, print'}]},
+  r_admin:{ic:'⚙️',name:'ADMIN',sub:'fix · tree register · staff · season',tabs:[
+    {k:'corr',  t:'ADJUSTMENTS',   go:['admin','corr'],  grp:'FIX',roles:['OWNER'],ic:'✏️',d:'Corrections waiting for you'},
+    {k:'fix',   t:'FIX A RECORD',  go:['admin','master'],grp:'FIX',roles:['OWNER'],ic:'🛠️',d:'Correct a record the normal way, both stay on the ledger'},
+    {k:'yield', t:'YIELD AUDIT',   go:['admin','yield'], grp:'FIX',roles:['OWNER'],ic:'⚖️',d:'kg per fruit: what was keyed against what was weighed'},
+    {k:'trees', t:'TREE REGISTER', go:['admin','trees'], roles:['OWNER'],ic:'🌳',d:'The trees and their details'},
+    {k:'staff', t:'STAFF',         go:['admin','reg'],   roles:['OWNER'],ic:'🔑',d:'Staff and their keys'},
+    {k:'qr',    t:'APP QR TAG',    go:['admin','qr'],    roles:['OWNER'],ic:'🔳',d:'The QR label that opens the app'},
+    {k:'season',t:'SEASON',        go:['admin','season'],roles:['OWNER'],ic:'📆',d:'Open and close a season'}]}};
+Object.assign(MODULES,ROOM_MODULES);
+/* review 6: a door that opens a section under its own name uses that section's words, in both languages;
+   the rest carry their own keys, Bahasa below (English is the text in the table). */
+ROOM_KEYS.forEach(r=>{const R=ROOM_MODULES[r]; R.tn='rm_'+r;
+  R.tabs.forEach(t=>{ if(t.tn)return;
+    const src=t.go&&MODULES[t.go[0]]?(MODULES[t.go[0]].tabs||[]).find(x=>x.k===t.go[1]):null;
+    t.tn='rd_'+r+'_'+t.k;   // re-review 1: every door keeps the English it was approved with; only its Bahasa is borrowed
+    if(src&&src.tn&&String(src.t).toUpperCase()===String(t.t).toUpperCase()&&!t.pick&&typeof MS!=='undefined'){
+      if(MS[src.tn])MS[t.tn]=MS[src.tn]; if(MS[src.tn+'_d'])MS[t.tn+'_d']=MS[src.tn+'_d'];}});});
+if(typeof MS_TILE_SUB!=='undefined')ROOM_KEYS.forEach(r=>{MS_TILE_SUB[r]='rms_'+r;});
+if(typeof MS!=='undefined')Object.assign(MS,{
+  rm_r_today:'HARI INI',rm_r_farm:'LADANG',rm_r_sales:'HASIL & JUALAN',rm_r_store:'STOR',rm_r_money:'WANG & LAPORAN',rm_r_admin:'ADMIN',
+  rms_r_today:'perlu anda · hasil · cuaca · siapa bertugas',rms_r_farm:'program · pokok · kerja siap',rms_r_sales:'buah · ikat · timbang · pintu',
+  rms_r_store:'beli · terima · keluar · rak',rms_r_money:'wang · hutang · gaji · kos · laporan',rms_r_admin:'betulkan · daftar pokok · staf · musim',
+  rd_r_today_need:'PERLU ANDA',rd_r_today_need_d:'Semua yang menunggu anda, dalam satu senarai',
+  rd_r_today_harvest:'HASIL',rd_r_today_harvest_d:'Hari ini, 7 hari atau musim: gugur, elok, rosak, lot bersebelahan',
+  rd_r_today_weather:'CUACA',rd_r_today_weather_d:'Arahan siram, hujan, helaian bulan, arahan air anda',
+  rd_r_farm_prog:'PROGRAM',rd_r_farm_prog_d:'Ikut bulan: set, kerja, semakan pokok, pokok muda',
+  rd_r_farm_trees:'POKOK',rd_r_farm_trees_d:'Banci, pucuk, keluarkan semakan, Gate 1, susulan, putik, peringkat',
+  rd_r_farm_work:'KERJA SIAP',rd_r_farm_work_d:'Ikut hari, ikut kerja, pekerja, set siap',
+  rd_r_store_buy:'BELI',rd_r_store_buy_d:'Apa yang rancangan perlukan dan apa yang tidak cukup',
+  rd_r_store_recv:'TERIMA',rd_r_store_recv_d:'Stok masuk, kad stor baharu',
+  rd_r_store_issue:'KELUARKAN',rd_r_store_issue_d:'Stok keluar, ikut lot',
+  rd_r_store_shelf:'RAK',rd_r_store_shelf_d:'Apa yang ada di rak, helaian kiraan, kira stok, penyata',
+  rd_r_money_owed:'HUTANG',rd_r_money_owed_d:'Siapa berhutang dengan ladang, bayaran, had kredit',
+  rd_r_money_pay:'GAJI',rd_r_money_pay_d:'Gaji setiap orang bulan ini, hari pekerja sawit',
+  rd_r_admin_trees:'DAFTAR POKOK',rd_r_admin_trees_d:'Pokok dan butirannya'});
+function isRoom(k){return ROOM_KEYS.indexOf(k)>=0;}
+let ROOM_AT=null, ROOM_GO=false, ROOM_DOOR=null;   // ROOM_DOOR: [room, door] of the screen on show, for the language switch
+/** The room a screen belongs to: the exact door first, then any door onto the same module. */
+function roomOf(mod,tab){
+  let hit=null;
+  ROOM_KEYS.forEach(r=>{(ROOM_MODULES[r].tabs||[]).forEach(t=>{
+    if(!t.go||t.go[0]!==mod)return;
+    if(tab&&t.go[1]===tab&&!t.pick&&!(hit&&hit.exact))hit={r:r,exact:true};
+    else if(!hit)hit={r:r,exact:false};});});
+  return hit?hit.r:null;}
+/** Put a screen opened from a room on the segment its door names. */
+function roomPick(p){
+  if(!p)return;
+  const s=String(p).split(':');
+  try{
+    if(s[0]==='store'&&typeof m8HubPick==='function')m8HubPick(s[1]);
+    if(s[0]==='rec'&&typeof ppTab==='function'){ppTab('rec'); if(typeof pjRTab==='function')pjRTab(s[1]);}
+  }catch(e){}}
 const HUB_ORDER={
-  OWNER:    ['cmd','harvest','tying','scale','inv','prog','tsv','agro','mkt','reports','admin'],   // v3.79.0 — + 'tsv', the tree survey · v3.82.0 — 'ops' gone: its two doors (the issued sets, ASSIGN WORK) are The Programme now
+  OWNER:    ['r_today','r_farm','r_sales','r_store','r_money','r_admin','cmd','harvest','tying','scale','inv','prog','tsv','agro','mkt','reports','admin'],   // v3.106.0 - the five rooms first; the old modules stay his (deep links, every door in a room)   // v3.79.0 — + 'tsv', the tree survey · v3.82.0 — 'ops' gone: its two doors (the issued sets, ASSIGN WORK) are The Programme now
   /* v3.30.0 — 'admin' REMOVED. It had become a DEAD TILE: v3.27.1 closed STAFF to the
      Marketer and that was the last section her Admin tile held, so tapping it ran
      openModule() -> tabs.length===0 -> goHome() and bounced her back with no message.
@@ -1463,7 +1566,7 @@ const MKT_DENY=new Set([
    asking for the old key (a saved deep link, an older guide, a stale test) lands on
    Reports rather than bouncing the person to Home with no explanation. */
 const MODULE_ALIAS={costadmin:'reports'};
-const HUB_PANELS=['kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
+const HUB_PANELS=['needcard','kpis','phibox','lotcard','mktcard','dashnote','invcc','ledgercard','stocktake',
   // v3.48.0 — BUY's own sub-toggle. In this array for the same reason every other panel is:
   // a card that hideAllPanels() cannot see stays on screen over the next module.
   'm8buyseg',
@@ -1586,7 +1689,7 @@ function hubTiles(){return HUB_ORDER[myRole()]||HUB_ORDER.WORKER;}
    the top row. Six tiles fill the 2-column grid exactly — five left an odd tile alone on the
    last row, so this costs one row and wastes no space. */
 const HOME_TILES={
-  OWNER:['cmd','harvest','inv','prog','tsv','mkt','reports','admin']   // TODAY · HARVEST · STORE · PROGRAMME · TREES (v3.79.0) · GATE · MONEY · ADMIN
+  OWNER:['r_today','r_farm','r_sales','r_store','r_money']   // v3.106.0 H1a - five rooms; Admin is the small link under them
 };
 function homeTiles(){return HOME_TILES[myRole()]||hubTiles();}
 /** What the ALL TOOLS drawer holds: everything he may open that is not already on home. */
@@ -1669,7 +1772,7 @@ function roleAllows(id){
     case 'foccard':      return full||myRole()==='WORKER';
     // v3.31.0 — the Owner's landing. Owner alone: it carries spend-free harvest figures but
     // it is his command screen, and widening it would hand the Marketer a second home page.
-    case 'ownerhome':    return myRole()==='OWNER';
+    case 'ownerhome':    return myRole()==='OWNER'||myRole()==='MARKETING';   // v3.106.0 - the Gate's TODAY, read only
     // v3.6 — the summary ledger carries revenue per merchant and spend per lot.
     // Owner and Marketer only, exactly as briefed.
     case 'dailyaudit': case 'matrixledger': return full;
@@ -1810,9 +1913,13 @@ function renderHub(){
   $('hub-name').textContent=(CFG&&CFG.worker)||'—';
   $('hub-role').textContent=tr('role_'+myRole(),ROLE_LABEL[myRole()]||myRole());
   $('hub-dev').innerHTML=((CFG&&CFG.device)||'—')+'<br>'+APP_VERSION;
-  $('hubtiles').innerHTML=homeTiles().map(k=>{
+  {const hn=$('hubneed'); if(hn)hn.innerHTML=(myRole()==='OWNER')?needHomeHTML():'';}   // v3.106.0 H2a
+  const HT=homeTiles();
+  $('hubtiles').innerHTML=HT.map((k,ix)=>{
     const m=MODULES[k];if(!m)return '';
-    const b=tileBadge(k);
+    const b=isRoom(k)?null:tileBadge(k);   // v3.106.0 H2a - NEEDS YOU replaces the badges
+    if(isRoom(k)&&ix===HT.length-1&&HT.length%2)return '<div class="tile" style="grid-column:1/-1" onclick="openModule(\''+k+'\')"><span class="ti">'+m.ic+'</span>'+
+      '<div class="tn">'+esc(moduleLabel(m))+'</div><div class="ts">'+esc(tileSub(k,m))+'</div></div>';   // the fifth room spans the row
     return '<div class="tile" onclick="openModule(\''+k+'\')"><span class="ti">'+m.ic+'</span>'+
       '<div class="tn">'+esc(moduleLabel(m))+'</div><div class="ts">'+esc(tileSub(k,m))+'</div>'+
       (b?'<div class="tbadge'+(b.amber?' amber':'')+'">'+esc(b.t)+'</div>':'')+'</div>';}).join('');
@@ -1823,7 +1930,9 @@ function renderHub(){
      Empty for every role that has no HOME_TILES entry, because their home already shows
      everything they own, so this cannot change what WORKER, PURCHASER or MARKETING see. */
   const more=$('hubmore');
-  if(more){
+  if(more&&myRole()==='OWNER'){   // v3.106.0 H1a - every tool is in a room; Admin is the small link
+    more.innerHTML='<div class="hubadm" id="hub-admin" onclick="openModule(\'r_admin\')">⚙️ <u>'+esc(tr2('Admin · fix · tree register · staff · season','Admin · betulkan · daftar pokok · staf · musim'))+'</u></div>';}
+  else if(more){
     const rest=drawerTiles();
     more.innerHTML=rest.length
       ? ('<div class="hmlbl">'+esc(tr('ow_alltools','ALL TOOLS'))+'</div><div class="otgrid">'+
@@ -1917,7 +2026,7 @@ function hideAllPanels(){
     el.style.display='none';});}
 function goHome(){
   if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}   // v2.5.1: the hub is never reachable without a key
-  curModule=null;curTab=null;inMenu=false;
+  curModule=null;curTab=null;inMenu=false;ROOM_AT=null;ROOM_DOOR=null;if(typeof NEED_MEMO!=='undefined')NEED_MEMO=null;   // re-review 2: home is always worked out fresh
   hideAllPanels();
   $('subbar').classList.add('hidden');$('subbar').innerHTML='';
   showScreen('home');
@@ -1956,6 +2065,7 @@ function hubBack(){
        to the tiles by the only back control the phone has. */
     if(((typeof ppHere==='function'?ppHere():curModule==='prog')||curModule==='tsv')&&!inMenu&&typeof tcBack==='function'&&tcBack())return;
     if((typeof ppHere==='function')&&ppHere()&&!inMenu&&typeof pjBackStep==='function'&&pjBackStep())return;   // v3.82.0 — on a job screen ← is one step back, not out to the tiles
+    if(myRole()==='OWNER'&&ROOM_AT&&MODULES[ROOM_AT]){ if(inMenu&&curModule===ROOM_AT){goHome();return;} openMenu(ROOM_AT);return; }   // v3.106.0 - back to the room it came from
     if(curModule&&!inMenu&&tabsFor(curModule).length>1&&!(typeof pjDirect==='function'&&pjDirect(curModule))){openMenu(curModule);return;}   // v3.82.0 — KERJA has no menu: ← goes home
     goHome();}}
 /* ======================================================================================
@@ -2001,6 +2111,12 @@ function openModule(k,tabKey){
   let tab=tabs.find(t=>t.k===tabKey);
   if(!tab&&tabKey&&m.tabs.some(t=>t.k===tabKey)){goHome();return;}   // exists, not yours
   if(!tab)tab=tabs[0];                                              // retired/unknown key
+  /* v3.106.0 - a room's door: open today's screen, put it on its segment, keep the room for ← */
+  if(isRoom(k)&&tab.go){
+    ROOM_GO=true; try{openModule(tab.go[0],tab.go[1]);}finally{ROOM_GO=false;}
+    if(curModule!==tab.go[0])return;   // review 8: the screen refused (it bounced home) - no room, no title
+    ROOM_AT=k; ROOM_DOOR=[k,tab.k]; roomPick(tab.pick); $('ttl').textContent=tabLabel(tab); return;}
+  if(myRole()==='OWNER'){ ROOM_DOOR=isRoom(k)?[k,tab.k]:(ROOM_GO?ROOM_DOOR:null); if(isRoom(k))ROOM_AT=k; else if(!ROOM_GO)ROOM_AT=roomOf(k,tab.k)||ROOM_AT; }
   curModule=k;curTab=tab.k;inMenu=false;
   hideAllPanels();
   /* v3.48.0 — ⛔ CLEAR .m3-hide ON THE WAY IN. Found by the reach harness: the crew's
@@ -2029,6 +2145,8 @@ function openModule(k,tabKey){
 
 /** The section list for one tile. One row per section, nothing off the right edge. */
 function openMenu(k){
+  if(myRole()==='OWNER'&&!isRoom(k)){const r=roomOf(k,''); if(r)return openMenu(r);}   // v3.106.0 - the old tile's list is its room now
+  if(isRoom(k))ROOM_AT=k;
   const m=MODULES[k]; if(!m)return goHome();
   const tabs=tabsFor(k); if(!tabs.length)return goHome();
   if(tabs.length===1)return openModule(k,tabs[0].k);
@@ -2036,9 +2154,14 @@ function openMenu(k){
   hideAllPanels();
   const sb=$('subbar'); sb.classList.add('hidden'); sb.innerHTML='';
   $('menuhead').innerHTML=tr('menuhead');
+  let grp='';
+  if(isRoom(k))needStyle();
   $('menulist').innerHTML=tabs.map(x=>{
-    const b=sectionBadge(k,x.k);
-    return '<div class="mrow2" onclick="openModule(\''+esc(k)+'\',\''+esc(x.k)+'\')">'+
+    const b=isRoom(k)?roomBadge(k,x):sectionBadge(k,x.k);
+    const GM={FRUIT:'BUAH',TYING:'IKAT',SCALE:'TIMBANG',GATE:'PINTU',REPORTS:'LAPORAN',FIX:'BETULKAN'};
+    const gh=(isRoom(k)&&x.grp&&x.grp!==grp)?('<div class="mgrp">'+esc(tr2(x.grp,GM[x.grp]||x.grp))+'</div>'):'';
+    if(isRoom(k))grp=x.grp||'';
+    return gh+'<div class="mrow2" onclick="openModule(\''+esc(k)+'\',\''+esc(x.k)+'\')">'+
       '<div class="mi">'+(x.ic||'▫')+'</div>'+
       '<div class="mt"><div class="mn">'+esc(tabLabel(x))+'</div>'+
         '<div class="md">'+esc(sectionDesc(x))+'</div></div>'+
@@ -2082,7 +2205,7 @@ function renderForTab(k,t){
   if(k==='harvest'&&t==='log'){buildLotSelect();renderMyCorrections();renderMyLogs();renderRotCauses();
     renderGradeRows();refreshTreeBoard();}
   if(k==='harvest'&&t==='wave')renderWave();
-  if(k==='harvest'&&t==='today')renderDash();
+  if(k==='harvest'&&t==='today')renderOwnerHome();   // v3.106.0 - the Gate's TODAY
   if(k==='tying'&&t==='tally')renderTally();
   if(k==='tying'&&t==='bal')renderTying();
   if(k==='ops'&&t==='tasks'){if(typeof cxClose==='function')cxClose();ppOpen();}   // v3.82.0 — the crew's list of sets, jobs and tree checks; always the list, never a half-filled form
@@ -2137,6 +2260,7 @@ function renderForTab(k,t){
   if(k==='mkt'&&t==='verify'){AP_ARM='';renderVerify();renderFocQueue();}    // v3.36.0 — the QUEUE is both queues
   // v3.31.0 — without this the landing is a blank card, exactly like the rations screen was
   if(k==='cmd'&&t==='home')renderOwnerHome();
+  if(k==='r_today'&&t==='need')renderNeedCard();   // v3.106.0 H2a
   /* v3.43.0 — and it opens on TODAY, on THE PHONES, with no row expanded. WHO_DAY/WHO_TAB/
      WHO_OPEN are module state and survive the trip off the tile; without this reset the
      Owner comes back to whatever day he was reading last week. Same precedent as
@@ -25545,6 +25669,10 @@ function rcOwedHtml(){
       '<br>'+esc(tr2('Key what each owed (or had paid ahead) at the start: tap the merchant in Marketing ▸ ✏️ edit details.','Masukkan baki awal setiap peniaga: Pemasaran ▸ ✏️ edit.'))+'</div>';
     if(okd.length)h+='<div class="small" id="rv-opens">'+esc(tr2('Start of the season: ','Baki awal musim: '))+okd.map(id=>{const o=rcOpen(id); return esc(retailerById(id).name)+' '+(o<0?tr2('owed ','hutang ')+rm(-o):tr2('paid ahead ','bayar dahulu ')+rm(o));}).join(' · ')+'.</div>';}
   return h+'</div>';}
+/** v3.106.0 - a change against last month, as a signed percentage ("—" when last month had none). */
+function mnPct(a,b){a=+a||0;b=+b||0; if(!b)return '—'; const p=Math.round((a-b)/b*100); return (p>0?'+':'')+p+'%';}
+/** v3.106.0 - MONEY's door to the store statement: THE STORE ▸ SHELF, the statement open. */
+function mnStatement(){openModule('r_store','shelf'); try{if(typeof stmtOpen==='function')stmtOpen();}catch(e){} ROOM_AT='r_money'; ROOM_DOOR=['__stmt'];}   // review 7: ← back to MONEY & REPORTS; re-review 3: the language switch reopens the statement
 /** C8a: one line for Command ▸ Today. */
 function rcAlert(){
   if(!SHOW_VALUES)return null;
@@ -32460,9 +32588,9 @@ function renderOwnerHome(){
      '</div>';
 
   /* ---- needs you. Pinned: a correction waiting does not care which window is chosen. ---- */
-  const alerts=ownAlerts();
-  if(alerts.length)h+='<div class="band">'+alerts.map(a=>
-    '<div class="alert'+(a.hot?' hot':'')+'">'+esc(a.txt)+'</div>').join('')+'</div>';
+  /* v3.106.0 H2a - the alert band is one line onto the one NEEDS YOU list. The Gate reads this
+     screen too, read only: no list, no doors. */
+  if(myRole()==='OWNER'){const nl=needList(); if(nl.length)h+='<div class="band"><div class="alert'+(nl.some(x=>x.lvl==='crit')?' hot':'')+'" id="own-need" style="cursor:pointer" onclick="openModule(\'r_today\',\'need\')">⚠ '+nl.length+' '+esc(tr2(nl.length===1?'thing needs you':'things need you','perkara perlu anda'))+' ›</div></div>';}
 
   /* ---- the window chips ---- */
   h+='<div class="ownchips">'+
@@ -32480,6 +32608,7 @@ function renderOwnerHome(){
        '<div><b class="r">'+nf(a.bad)+'</b><span>'+esc(tr('ow_bad','bad'))+'</span></div>'+
        '<div><b>'+nf(Math.round(a.kg))+'</b><span>'+esc(tr('ow_kgest','kg est.'))+'</span></div>'+   // v3.105.0 - the estimate at collection, not the scale
        '</div></div>';}
+  h+=ownVsLine(r,m.all);   // v3.106.0 R4a - COMPARE, as one line
 
   /* ---- 7 DAYS gets the date picker: it opens on the last 7 but any week is reachable ---- */
   if(OWN_WIN==='w'){
@@ -32507,15 +32636,121 @@ function renderOwnerHome(){
     h+='<div class="band"><h4>'+esc(tr('ow_planned','Plan the next programme'))+'</h4>'+
        ownPlanBox()+'</div>';}
 
-  /* ---- the doors ---- */
-  h+='<div class="owntiles">'+
-     '<button id="own-prog" onclick="openModule(\'prog\')"><i>📅</i>'+esc(tr('ow_prog','PROGRAMME'))+'</button>'+
-     '<button onclick="openModule(\'reports\',\'matrix\')"><i>💵</i>'+esc(tr('ow_money','MONEY'))+'</button>'+
-     '<button onclick="openModule(\'admin\',\'corr\')"><i>🔐</i>'+esc(tr('ow_admin','ADMIN'))+'</button>'+
-     '</div>'+
-     '<button class="owndrawer" onclick="ownTools()">🧰 '+esc(tr('ow_alltools','ALL TOOLS'))+'</button>';
-
+  /* v3.106.0 H1a - the doors and ALL TOOLS left this screen: every tool is in a room. */
   box.innerHTML=h;}
+
+/** v3.106.0 R4a - what COMPARE answered, as one line under the figures: good fruit against the
+ *  window before (yesterday; the 7 days before; the same days of last season). */
+function ownVsLine(r,all){
+  let pf='',pt='',lab='';
+  if(OWN_WIN==='d'){pf=pt=dayShift(r.from,-1);lab=tr2('vs yesterday','berbanding semalam');}
+  else if(OWN_WIN==='w'){pt=dayShift(r.from,-1);pf=dayShift(pt,-6);lab=tr2('vs the 7 days before','berbanding 7 hari sebelumnya');}
+  else {/* review 2: this season opened in recovery, last season at harvest - day 1 against day 1 compares
+           a spray month with a picking month. The same calendar dates a year earlier compare like with like. */
+    const yb=s=>(+s.slice(0,4)-1)+s.slice(4);
+    pf=yb(r.from); pt=yb(r.to);
+    lab=tr2('vs the same dates last year','berbanding tarikh yang sama tahun lepas');}
+  const p=harvestMatrix(pf,pt).all, dg=all.good-p.good, db=all.bad-p.bad;
+  if(OWN_WIN==='s'&&!(p.good+p.bad))return '';   // nothing picked on those dates last year: no line
+  return '<div class="ownvs" id="own-vs">'+esc(lab)+': '+(dg>=0?'+':'')+nf(dg)+' '+esc(tr2('good','baik'))+' · '+(db>=0?'+':'')+nf(db)+' '+esc(tr2('rejected','rosak'))+
+    ' <small>('+nf(p.good)+' '+esc(tr2('good','baik'))+', '+nf(p.bad)+' '+esc(tr2('rejected','rosak'))+')</small></div>';}
+
+/* ======================================================================================
+   v3.106.0 · NEEDS YOU — H2a H3a (the Owner, 25 Oct 2026)
+   ======================================================================================
+   What was waiting for him sat in four places: the Command badge (it opened nothing), the
+   alert band on Command ▸ TODAY, the tile badges and the screens' own boxes. This is ONE list,
+   worst first, built only from what those already say, and every line opens the room and the
+   screen where it is answered. H3a: loads and free fruit waiting at the Gate are on it.
+   It holds nothing of its own. The screens keep their own boxes (the programme's NEEDS YOU,
+   the weather page's): this list points at them. */
+let NEED_MEMO=null, NEED_SHOWN=[];
+function needList(){
+  if(myRole()!=='OWNER')return [];
+  const key=EVENTS.length+'|'+((typeof CORRECTIONS!=='undefined')?CORRECTIONS.filter(c=>String(c.status||'').toUpperCase()==='PENDING').length:0)+'|'+todayISO()+'|'+LANG;   // re-review 2
+  if(NEED_MEMO&&NEED_MEMO.key===key&&Date.now()-NEED_MEMO.at<15000)return NEED_MEMO.list;   // review 4: once per paint, not four times
+  const list=needListBuild(); NEED_MEMO={key:key,at:Date.now(),list:list}; return list;}
+function needListBuild(){
+  const out=[], add=(lvl,ic,txt,room,tab)=>{if(txt)out.push({lvl:lvl,ic:ic,txt:String(txt),room:room,tab:tab});};
+  const T=(f)=>{try{return f();}catch(e){return null;}};
+  // money leaving or fruit at risk today
+  const va=T(()=>varianceAlerts())||[];
+  if(va.length)add('crit','⚠️',va.slice(0,3).map(v=>v.tree+': '+v.unsecured+' '+tr2('unsecured drop'+(v.unsecured===1?'':'s')+' today','gugur tanpa ikatan hari ini')).join(' · ')+(va.length>3?(' · +'+(va.length-3)):''),'r_sales','bal');
+  const pd=T(()=>pendingDispatches())||[];
+  if(pd.length)add('crit','📷',pd.length+' '+tr2(pd.length===1?'load waiting at the Gate':'loads waiting at the Gate','muatan menunggu di Pintu'),'r_sales','queue');
+  const fp=T(()=>focPending())||[];
+  if(fp.length)add('warn','🎁',fp.length+' '+tr2(fp.length===1?'free-fruit request waiting':'free-fruit requests waiting','permintaan buah percuma menunggu'),'r_sales','queue');
+  {const wl=T(()=>wtLostLine()); if(wl)add('crit','💧',String(wl).replace(/^💧\s*/,''),'r_today','weather');}
+  {const yf=(T(()=>yieldFlags())||[]).length; if(yf)add('crit','⚖️',yf+' '+tr2(yf===1?'yield alert: kg per fruit does not add up':'yield alerts: kg per fruit does not add up','amaran hasil'),'r_admin','yield');}
+  // the work
+  {const b=T(()=>ppTileBadge()); if(b&&/NEED YOU/.test(String(b.t)))add('warn','📅',String(b.t).replace('NEED YOU','').trim()+tr2(' sets or jobs need you — due, late, or moved by the crew',' set/kerja perlu anda'),'r_farm','prog');}
+  {const t=T(()=>tcOwnAlert()); if(t&&t.txt)add(t.hot?'warn':'info','🌳',String(t.txt).replace(/^[🌳🍃]\s*/u,''),'r_farm','trees');}
+  {const ds=T(()=>wtDrySpell())||0; if(ds)add('warn','☀️',ds+' '+tr2('dry days in a row — check the spring and the tank','hari kering berturut-turut'),'r_today','weather');}
+  {const rm_=(T(()=>rnMissing(7))||[]); if(rm_.length){const lab=x=>(typeof rnDayLabel==='function')?rnDayLabel(x):x;
+    add('warn','🌧️',(rm_.length===1?tr2('Rain not keyed for ','Hujan tidak dimasukkan untuk ')+lab(rm_[0]):(tr2('Rain not keyed on ','Hujan tidak dimasukkan pada ')+rm_.length+tr2(' mornings, the last ',' pagi, terakhir ')+lab(rm_[rm_.length-1]))),'r_today','weather');}}
+  {const pc=(typeof CORRECTIONS!=='undefined'?CORRECTIONS:[]).filter(c=>String(c.status||'').toUpperCase()==='PENDING').length;
+   if(pc)add('warn','✏️',pc+' '+tr2(pc===1?'correction to approve':'corrections to approve','pembetulan menunggu'),'r_admin','corr');}
+  // the store
+  {const buy=(T(()=>procureCount())||0)+((T(()=>ppOn())&&T(()=>ppBuyCount()))||0);
+   if(buy)add('info','🛒',buy+' '+tr2(buy===1?'product to buy for the plan':'products to buy for the plan','barang perlu dibeli'),'r_store','buy');
+   const ps=(T(()=>programShortages())||[]).length, ls=(T(()=>lowStock())||[]).length;
+   if(!buy&&ps)add('info','🧪',ps+' '+tr2('short for a set already issued','tidak cukup untuk set'),'r_store','buy');
+   if(ls>ps)add('info','📉',(ls-ps)+' '+tr2((ls-ps)===1?'product under its minimum':'products under their minimum','barang bawah paras minimum'),'r_store','shelf');}
+  // money
+  {const cr=(T(()=>creditAdvice())||[]).filter(c=>c.raise||c.overdrawn);
+   if(cr.length)add('warn','💳',tr2('Credit to top up: ','Kredit perlu ditambah: ')+cr.map(c=>String(c.name||'')).filter(Boolean).join(' · '),'r_money','owed');}
+  {const o=T(()=>rcAlert()); if(o&&o.txt&&o.hot)add('warn','💵',String(o.txt).replace(/^💵\s*/,''),'r_money','owed');}   // review 5: only money unpaid over 14 days; the rest is on MONEY
+  // the shed and the scale
+  {const s=T(()=>scAlert()); if(s&&s.txt)add(s.hot?'warn':'info','🏚',String(s.txt).replace(/^🏚\s*/,''),'r_sales','shed');}
+  {const k=T(()=>kfAlert()); if(k&&k.txt)add('info','⚖️',String(k.txt).replace(/^⚖️\s*/,''),'r_admin','yield');}   // review 5: answered in YIELD AUDIT
+  // the phones
+  {const st=(T(()=>phoneFreshness())||[]).filter(p=>p.state==='r'&&p.mins!=null&&p.mins<14*1440);   // a phone that was working this fortnight and has gone quiet; an old or imported one is not news
+   if(st.length)add('info','📵',tr2('Quiet for 2 days or more: ','Senyap 2 hari atau lebih: ')+st.map(p=>p.who||p.device).join(' · '),'r_admin','staff');}
+  {const un=EVENTS.filter(e=>e&&!e.synced).length; if(un>40)add('info','📵',un+' '+tr2('records still on this phone — press SYNC','rekod masih dalam telefon ini — tekan SYNC'),'sync','');}
+  const rank={crit:0,warn:1,info:2};
+  return out.map((x,i)=>Object.assign(x,{i:i})).sort((p,q)=>(rank[p.lvl]-rank[q.lvl])||(p.i-q.i));}
+function needGo(i){
+  const x=NEED_SHOWN[+i]||needList()[+i]; if(!x)return;   // review 4: the line that was drawn
+  if(x.room==='sync'){go('sync');return;}
+  openModule(x.room,x.tab);}
+function needRowHTML(x,i){
+  return '<div class="nyl '+x.lvl+'" id="ny-'+i+'" onclick="needGo('+i+')"><span class="nyd"></span><span class="nyt">'+esc(x.ic)+' '+esc(x.txt)+'</span><span class="nyg">›</span></div>';}
+const NEED_HOME_MAX=6;
+function needHomeHTML(){
+  needStyle();
+  const L=needList(); NEED_SHOWN=L;
+  if(!L.length)return '<div class="nybox ok" id="hub-need"><b>✓ '+esc(tr2('Nothing needs you right now','Tiada yang perlu anda sekarang'))+'</b></div>';
+  const show=L.slice(0,NEED_HOME_MAX);
+  return '<div class="nybox" id="hub-need"><h4>⚠ '+esc(tr2('NEEDS YOU','PERLU ANDA'))+' · '+L.length+'</h4>'+show.map((x,i)=>needRowHTML(x,i)).join('')+
+    (L.length>show.length?('<div class="nyl more" onclick="openModule(\'r_today\',\'need\')"><span class="nyt">＋ '+(L.length-show.length)+' '+esc(tr2('more','lagi'))+'</span><span class="nyg">›</span></div>'):'')+'</div>';}
+function renderNeedCard(){
+  const box=$('needbox'); if(!box)return;
+  needStyle();
+  const L=needList(); NEED_SHOWN=L;
+  box.innerHTML='<div class="nybox'+(L.length?'':' ok')+'" id="need-all">'+(L.length
+    ?('<h4>⚠ '+esc(tr2('NEEDS YOU','PERLU ANDA'))+' · '+L.length+'</h4>'+L.map((x,i)=>needRowHTML(x,i)).join(''))
+    :('<b>✓ '+esc(tr2('Nothing needs you right now','Tiada yang perlu anda sekarang'))+'</b>'))+'</div>'+
+    '<div class="small" style="margin-top:8px">'+esc(tr2('Each line opens the screen where it is answered. Red first: money leaving or fruit at risk today.','Setiap baris membuka skrin di mana ia dijawab.'))+'</div>';}
+/** A room row carries the count of what waits behind it. */
+function roomBadge(k,x){
+  if(k==='r_today'&&x.k==='need'){const n=needList().length; return n?{t:String(n)}:null;}
+  if(x.go)return sectionBadge(x.go[0],x.go[1]);
+  return null;}
+function needStyle(){
+  if(document.getElementById('ny-style'))return;
+  const st=document.createElement('style'); st.id='ny-style';
+  st.textContent='.nybox{background:#fff;border:2px solid #c98a00;border-radius:12px;padding:8px 10px;margin:0 0 12px}'
+   +'.nybox.ok{border-color:#2f6b3d;color:#2f6b3d;padding:10px 12px}'
+   +'.nybox h4{margin:2px 0 6px;font-size:13px;letter-spacing:.04em;color:#8a5a00}'
+   +'.nyl{display:flex;align-items:center;gap:8px;padding:9px 2px;border-top:1px solid #eee;cursor:pointer;font-size:14px;line-height:1.35}'
+   +'.nyl .nyd{flex:0 0 9px;height:9px;border-radius:50%;background:#1f5f8b}'
+   +'.nyl.crit .nyd{background:#b3261e}.nyl.warn .nyd{background:#c98a00}'
+   +'.nyl .nyt{flex:1}.nyl .nyg{font-weight:900;color:#888}'
+   +'.nyl.more{color:#555;font-weight:700}'
+   +'.mgrp{font-size:11px;font-weight:800;letter-spacing:.08em;color:#888;margin:12px 4px 4px}'
+   +'.hubadm{text-align:center;margin:6px 0 4px;font-size:13.5px;color:#555;cursor:pointer;padding:10px}'
+   +'.ownvs{font-size:13px;margin:6px 2px 10px;color:#444}.ownvs small{color:#888}';
+  document.head.appendChild(st);}
 
 /** What needs him, whatever window is showing. Read-only: every one of these already exists
  *  somewhere in the app — this is a pointer, not a second source of truth. */
@@ -32821,18 +33056,33 @@ function renderMoney(){
         line('<b>'+esc(tr('mn_onhand','On hand at month end'))+'</b>','<b>'+rm(onhand)+'</b>','netline')+
       '</table>'+
       '<div class="small">Every raw transaction behind these five lines is still in the Google Sheet, '+
-        'and still on this phone under <b>Raw stock rows</b>. Valuation is the moving average at the '+
+        (myRole()==='OWNER'?'and in THE STORE ▸ SHELF ▸ statement. ':'and still on this phone under <b>Raw stock rows</b>. ')+'Valuation is the moving average at the '+
         'moment of issue, counted from your opening count; the store is valued as SHELF values it.</div>';}
 
-  // --- the four folded screens ------------------------------------------------------------
+  /* v3.106.0 R4a - THE FOUR FOLD-OUTS ARE GONE. Month by month repeated this page; cost by lot
+     repeated PROGRAMME COST; labour & the rate repeated PAY; raw stock rows repeated the store
+     statement. Each is now one door to the one screen that answers it. MONEY_OPEN stays empty,
+     so hideMoneyDetail() keeps those four cards shut. */
   let detail='';
-  if(SHOW_SPEND){
+  if(SHOW_SPEND&&myRole()!=='OWNER'){   // review 1: the Gate's MONEY is unchanged - the same four screens as v3.105.0
     detail='<div class="sec" style="margin-top:16px">'+esc(tr('mn_detail','The full screens'))+'</div>'+
       '<div class="dtogs">'+MONEY_DETAIL.filter(function(x){return roleAllows(x.id);}).map(function(x){
         return '<button class="dtog'+(MONEY_OPEN[x.k]?' on':'')+'" onclick="moneyTog(\''+x.k+'\')">'+
           x.ic+' '+esc(x.t)+'<span>'+(MONEY_OPEN[x.k]?'▾':'▸')+'</span></button>';}).join('')+'</div>'+
       '<div class="small">Nothing was removed when this page was built — these are the four original '+
         'screens, folded shut. Open one and it appears below this card.</div>';}
+  if(SHOW_SPEND&&myRole()==='OWNER'){
+    const pk=(function(){const y=+m.key.slice(0,4),mo=+m.key.slice(5,7);return mo===1?((y-1)+'-12'):(y+'-'+String(mo-1).padStart(2,'0'));})();
+    const pv=(m.key<todayISO().slice(0,7))?ms.filter(function(x){return x.key===pk;})[0]:null;   // review 9: a part month is not set against a whole one
+    if(pv)detail+='<div class="ownvs" id="mn-vs">'+esc(tr2('vs ','berbanding '))+esc(monthNameOf(pv.key))+': '+
+      esc(tr2('revenue','hasil'))+' '+mnPct(m.revenue_total,pv.revenue_total)+' · '+esc(tr2('material','bahan'))+' '+mnPct(m.material_total,pv.material_total)+'</div>';
+    detail+='<div class="sec" style="margin-top:16px">'+esc(tr2('The detail, one screen each','Butiran, satu skrin setiap satu'))+'</div>'+
+      '<div class="dtogs" id="mn-links">'+
+        '<button class="dtog" onclick="openModule(\'r_money\',\'costs\')">🧪 '+esc(tr2('PROGRAMME COST','KOS PROGRAM'))+'<span>›</span></button>'+
+        '<button class="dtog" onclick="openModule(\'r_money\',\'pay\')">👷 '+esc(tr2('PAY','GAJI'))+'<span>›</span></button>'+
+        '<button class="dtog" onclick="mnStatement()">📄 '+esc(tr2('STORE STATEMENT','PENYATA STOR'))+'<span>›</span></button>'+
+        '<button class="dtog" onclick="openModule(\'r_money\',\'owed\')">💳 '+esc(tr2('MERCHANT CREDIT','KREDIT PENIAGA'))+'<span>›</span></button>'+
+      '</div>';}
 
   box.innerHTML=rcOwedHtml()+   /* v3.92.0 (C8a) */
     '<div class="winbar">'+
