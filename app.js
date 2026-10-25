@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.104.0';   // v3.104.0 - Oct · fix 5 of the speed review: one sync at a time, one more after it, one pull at a time (F1a F2a F3a)   // v3.103.0 - Oct · rain keyed late: a morning the crew was never told to water is not "watering not reported" (L1a L2a)   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
+const APP_VERSION = 'v3.105.0';   // v3.105.0 - Oct · one rule for each figure: a correction counts on the day the fruit fell (R1a), season = the season-open date, one material price from the opening count (R2a), dumped fruit apart from given free (R3a), one owed balance, kg sold (weighed) vs kg est.   // v3.104.0 - Oct · fix 5 of the speed review: one sync at a time, one more after it, one pull at a time (F1a F2a F3a)   // v3.103.0 - Oct · rain keyed late: a morning the crew was never told to water is not "watering not reported" (L1a L2a)   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
 // v3.95.0 - SET UP THIS PHONE (16 Oct 2026, sample "ok" = S1a-S4a). A new phone gets its Sync URL BEFORE anyone logs in: the login pad shows SET UP THIS PHONE while the phone has no Sync URL (a set-up phone keeps the pad, with a small link to set it up again); phone name + Sync URL with a PASTE button; the address is checked (the app link and a cut-off address are refused in plain words) and the Sheet is asked for the staff list, so the staff member's own key works the first time, without the Worker 1 sample key. The logged-in setup (EDIT) gets the same check (an empty box stays allowed for a practice phone). A reply that is not data says 'Wrong Sync URL' with FIX THE SYNC URL on the Sync screen, not the browser's words. An iPhone not opened from the Home Screen is shown once how to add it. App files only; database.js unchanged; no Apps Script. Before: v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
@@ -4267,7 +4267,7 @@ function onHand(p){
     else if(e.type==='STOCK_IN')q+=(+e.qty||0);
     else if(e.type==='STOCK_ADJUST')q+=isOpening(e)?0:(+e.delta||0);}
   return +q.toFixed(4);}
-function valueOf(p){return onHand(p)*(p.cpu||0);}
+function valueOf(p){return onHand(p)*(seasonFrom()?storeAvg(p.id):(p.cpu||0));}   // v3.105.0 R2a - at the average on the shelf
 function isLow(p){return onHand(p)<(p.min_stock_threshold||0);}
 /* v3.28.0 — a retired product is not "low", it is finished with. Without this the app
    keeps telling Sandakan to reorder something that was retired on purpose. */
@@ -4365,6 +4365,35 @@ function dropKg(e){
   const now=dropQty(e);
   return now===was?raw:+((raw/was)*now).toFixed(1);}
 
+/* ======================================================================================
+   v3.105.0 · ONE RULE FOR EACH FIGURE — R1a (the Owner, 25 Oct 2026: "agree with the
+   suggestion of correction")
+   ======================================================================================
+   A correction counts ON THE DAY THE FRUIT FELL, and a day is never below zero. That was
+   already the rule of TODAY (harvestMatrix, through dropQty/rottenQty). DAILY RECORD,
+   COMPARE, MONEY's month figures and the tree balances still added each correction on the
+   day it was KEYED: one set of test records gave TODAY 5 good fruit in the week and the
+   others 3, and a day could print "good −6". Every count now goes through the same door:
+   dropQty / rottenQty / tieQty on the row, dated by the row. A correction row is never
+   counted on its own. tieQty is the same door for tying rounds (TIE_ADJUST, matched by
+   evUuid). Nothing stored changes - only how the rows are added up. */
+let _tieAdjKey=-1, _tieAdj={};
+function tieAdjIndex(){
+  if(_tieAdjKey===EVENTS.length)return _tieAdj;
+  const m={};
+  for(const a of EVENTS){
+    if(a&&a.type==='TIE_ADJUST'&&a.evUuid)
+      m[String(a.evUuid)]=(m[String(a.evUuid)]||0)+Math.round(+a.delta||0);}
+  _tieAdj=m; _tieAdjKey=EVENTS.length; return m;}
+/** THE tied count of a TIE row, after every signed correction against it, never below zero. */
+function tieQty(e){
+  if(!e)return 0;
+  const raw=Math.max(0,Math.floor(+e.n||0));
+  const d=tieAdjIndex()[String(e.uuid)];
+  return d?Math.max(0,raw+d):raw;}
+/** The cause a rotten fruit is filed under: the row's own (a correction carries none). */
+function rotCauseOf(e){return (e&&ROT_CAUSE[e.cause])?e.cause:'OTHER';}
+
 /** THE fruit count of a DISPATCH row, read off the LINES — which always travel.
  *  ⛔ v3.61.0 — `e.fruit_count` IS NOT A COLUMN ON THE SHEET'S DISPATCH TAB. The writers
  *  (mktSend, gate approve, the direct sale) all stamp it, and the Apps Script drops it on
@@ -4395,7 +4424,7 @@ function rebuildLedgers(){
     } else if(e.type==='STOCK_OUT'){
       stock_out_ledger.push({uuid:e.uuid,timestamp:e.dt,productId:e.pid,productName:e.pname,
         activeIngredient:e.ai||aiOf(e.pid),quantity:+e.qty||0,unit:e.unit||(p?p.unit:''),
-        unitPrice:(p?p.unit_price:0),value:(e.cost!=null?+e.cost:(+e.qty||0)*cpu),
+        unitPrice:(p?p.unit_price:0),value:stockOutRm(e,(e.cost!=null?+e.cost:(+e.qty||0)*cpu)),   // v3.105.0 R2a
         reference:e.set||'',targetLot:e.lot||'',operator:e.worker||'',device:e.device||'',synced:!!e.synced});
     } else if(e.type==='STOCK_ADJUST'){
       stock_adjust_ledger.push({uuid:e.uuid,timestamp:e.dt,productId:e.pid,productName:e.pname,
@@ -4421,7 +4450,7 @@ function buildLedgerSummary(){
     const k=String(e.dt||'').slice(0,7); if(k.length!==7)continue;
     const m=touch(k);m.rows++;
     const p=prodById(e.pid);const cpu=p?(p.cpu||0):0;
-    const q=+e.qty||0, v=(e.cost!=null?+e.cost:q*cpu);
+    const q=+e.qty||0, v=(e.type==='STOCK_OUT')?stockOutRm(e,(e.cost!=null?+e.cost:q*cpu)):(e.cost!=null?+e.cost:q*cpu);   // v3.105.0 R2a
     if(e.type==='STOCK_IN'){m.inQty+=q;m.inVal+=v;}
     else if(e.type==='STOCK_OUT'){m.outQty+=q;m.outVal+=v;
       const L=LOT_KEYS.indexOf(e.lot)>=0?e.lot:'—';m.lots[L].q+=q;m.lots[L].v+=v;}
@@ -4437,6 +4466,16 @@ function buildLedgerSummary(){
     runQty=m.closeQty;runVal=m.closeVal;
     m.year=k.slice(0,4);m.label=MONTH_NAME[+k.slice(5,7)-1]+' '+m.year;
     months.push(m);}
+  /* v3.105.0 R2a - from the season-open month the store is valued as SHELF values it (the opening
+     count, at the average); the month's own count differences and the switch itself show as the
+     stock-take line, so the five lines still add up and the last month ends on the SHELF figure. */
+  {const sf=seasonFrom(), sfm=sf?sf.slice(0,7):''; let prev=null;
+   if(sfm)months.forEach(m=>{
+     if(m.key<sfm){prev=m.closeVal;return;}
+     m.openVal=(prev!=null)?prev:m.openVal;
+     m.closeVal=storeValueEnd(m.key);
+     m.varVal=+(m.closeVal-m.openVal-m.inVal+m.outVal).toFixed(2);
+     prev=m.closeVal;});}
   const years=[];
   for(const m of months){
     let y=years.find(x=>x.year===m.year);
@@ -4669,7 +4708,7 @@ async function submitOutBasket(){
       const parts=(outLot===LOT_ALL)?splitAcrossLots(l.qty):[{lot:outLot,qty:l.qty}];
       for(const part of parts){
         await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,ai:l.ai,
-          qty:part.qty,unit:l.unit,lot:part.lot,set:set,cost:+(part.qty*(p.cpu||0)).toFixed(2),
+          qty:part.qty,unit:l.unit,lot:part.lot,set:set,cost:issueRm(l.pid,part.qty,stamp),   // v3.105.0 R2a
           /* replyId groups the lines of one issue exactly as submitRun() groups one filing, so
              PROGRAMME COST reads a hand-keyed set the same way it reads a crew filing — and it
              is what ties the three split rows of one product back together. */
@@ -4924,7 +4963,7 @@ async function submitStockOut(){
   savingStock=true;
   try{
     await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:now(),pid:p.id,pname:p.name,ai:p.active_ingredient,
-      qty:q,unit:p.unit,lot:outLot,set:$('sset').value,cost:+(q*(p.cpu||0)).toFixed(2),
+      qty:q,unit:p.unit,lot:outLot,set:$('sset').value,cost:issueRm(p.id,q,now()),   // v3.105.0 R2a
       worker:CFG.worker,device:CFG.device,synced:false});
   } finally { savingStock=false; }
   toast('✓ Stock out: '+nf(q)+' '+p.unit+' '+p.name+' → Lot '+outLot);
@@ -5087,8 +5126,9 @@ function stmtRows(mk,side){
     if(!e||e.type!==type)return;
     if(String(e.dt||'').slice(0,7)!==mk)return;
     const k=+e.pid||0; if(!by[k])by[k]={pid:k,name:e.pname||'',ai:e.ai||'',unit:e.unit||'',qty:0,rm:0,n:0,lines:[]};
-    const r=by[k]; r.qty+=+e.qty||0; r.rm+=+e.cost||0; r.n++;
-    r.lines.push({dt:String(e.dt||'').slice(0,10),qty:+e.qty||0,rm:+e.cost||0,
+    const rmv=stockOutRm(e,+e.cost||0);   // v3.105.0 R2a (a delivery keeps its invoice figure)
+    const r=by[k]; r.qty+=+e.qty||0; r.rm+=rmv; r.n++;
+    r.lines.push({dt:String(e.dt||'').slice(0,10),qty:+e.qty||0,rm:rmv,
                   who:e.worker||'—',dev:e.device||'',ref:e.ref||e.set||e.progSet||'',lot:e.lot||''});});
   return Object.keys(by).map(k=>by[k]).sort((a,b)=>b.rm-a.rm||b.qty-a.qty);}
 function stmtOpen(){
@@ -6331,7 +6371,7 @@ function renderDash(){
   const wk=drops.filter(e=>(new Date()-new Date(e.dt.replace(' ','T')))<7*86400000);
   const tot=dToday.reduce((s,e)=>s+dropQty(e),0), kg=dToday.reduce((s,e)=>s+dropKg(e),0);
   const mk=today.slice(0,7);                       // v2.5.1: this month, not a hard-coded August
-  const cost=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dt.slice(0,7)===mk).reduce((s,e)=>s+(e.cost||0),0);
+  const cost=EVENTS.filter(e=>e.type==='STOCK_OUT'&&e.dt.slice(0,7)===mk).reduce((s,e)=>s+stockOutRm(e,(e.cost||0)),0);   // v3.105.0 R2a
   const ML=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const cl=$('k-costlbl'); if(cl)cl.textContent='Material cost · '+ML[+mk.slice(5,7)-1];
   $('k-drops').textContent=tot;$('k-kg').textContent=kg.toFixed(0);
@@ -6344,7 +6384,7 @@ function renderDash(){
   else box.style.display='none';
   // lot bars
   $('lotbars').innerHTML=['A','B','C'].map(l=>{
-    const n=drops.filter(e=>e.lot===l).reduce((s,e)=>s+dropQty(e),0);
+    const n=drops.filter(e=>e.lot===l&&inSeason(e)).reduce((s,e)=>s+dropQty(e),0);   // v3.105.0 - this season, not all time
     const c=CENSUS_TOTAL[l]||1;
     return '<div class="bar"><div class="br"><span>Lot '+l+'</span><b>'+n.toLocaleString()+' / '+c.toLocaleString()+'</b></div><div class="track"><div class="fill" style="width:'+Math.min(100,n/c*100)+'%"></div></div></div>';}).join('');
   const by={};dToday.forEach(e=>{const k=e.clone||'?';by[k]=by[k]||{n:0,kg:0};by[k].n+=dropQty(e);by[k].kg+=dropKg(e);});
@@ -7707,7 +7747,7 @@ function renderOpsHistory(){
   rows.forEach(e=>{const k=(e.progId||e.phaseId)+'|'+e.lot+'|'+e.dt;
     if(!seen[k]){seen[k]={k:k,dt:e.dt,lot:e.lot,prog:e.progSet||'',worker:e.worker,tanks:e.tanks,
       water:e.water,waterKeyed:e.waterKeyed,n:0,cost:0};groups.push(seen[k]);}
-    seen[k].n++;seen[k].cost+=(+e.cost||0);});
+    seen[k].n++;seen[k].cost+=stockOutRm(e,(+e.cost||0));});   // v3.105.0 R2a
   box.innerHTML=groups.length?groups.slice(0,12).map(g=>
     '<div class="lrow"><span><b>'+esc(g.prog||'programme')+'</b> · Lot '+esc(g.lot)+
     '<br><span class="small">'+esc(g.dt)+' · '+esc(g.worker)+' · '+nf(g.tanks)+' tank(s) · '+
@@ -7794,7 +7834,7 @@ async function submitReply(){
       await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
         ai:l.ai||(p?p.active_ingredient:''),qty:q,unit:l.unit,lot:rpLotVal,
         set:monthLabel(rpProg.month)+' - '+rpProg.set,
-        cost:+(q*(p?(p.cpu||0):0)).toFixed(2),
+        cost:issueRm(l.pid,q,stamp),   // v3.105.0 R2a
         progId:rpProg.uuid,progSet:monthLabel(rpProg.month)+' · '+rpProg.set,replyId:rid,
         tanks:m,water:water,crew:crew,hours:hours,
         worker:CFG.worker,device:CFG.device,synced:false});}
@@ -8162,7 +8202,7 @@ function ppDoneOf(rows,xd,tanksIssued){
     const r=reps[rk]||(reps[rk]={tanks:0,crew:0,hours:0});
     r.tanks=Math.max(r.tanks,+e.tanks||0);
     if(+e.crew>0){r.crew=+e.crew;r.hours=+e.hours||0;}
-    cost+=+e.cost||0; qty[+e.pid]=(qty[+e.pid]||0)+(+e.qty||0);
+    cost+=stockOutRm(e,+e.cost||0); qty[+e.pid]=(qty[+e.pid]||0)+(+e.qty||0);   // v3.105.0 R2a
     if(!by&&e.worker)by=e.worker;});
   let tanks=0, mh=0, crew=0, hours=0;
   Object.keys(reps).forEach(kk=>{const r=reps[kk];tanks+=r.tanks;mh+=r.crew*r.hours;
@@ -8407,7 +8447,7 @@ async function ppDraw(rec,o){
       await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:p.id,pname:p.name,
         ai:p.active_ingredient||'',qty:parts[i],unit:p.unit,lot:sel[i],
         set:String(rec.month||'')+' - '+String(rec.set||''),
-        cost:+(parts[i]*(+p.cpu||0)).toFixed(2),
+        cost:issueRm(p.id,parts[i],stamp),   // v3.105.0 R2a
         progId:rec.uuid,progSet:name,replyId:rid,phaseId:String(rec.phaseId||''),
         tanks:(basis==='T'&&i===0)?(+o.tanks||0):'',
         water:+(wsh[i]||0),
@@ -18381,7 +18421,7 @@ async function submitMarkDone(){
         await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:l.pid,pname:l.pname,
           ai:l.ai||(p?p.active_ingredient:''),qty:part.qty,unit:l.unit,lot:part.lot,
           set:monthLabel(mdProg.month)+' - '+mdProg.set,
-          cost:+(part.qty*(p?(p.cpu||0):0)).toFixed(2),
+          cost:issueRm(l.pid,part.qty,stamp),   // v3.105.0 R2a
           progId:mdProg.uuid,progSet:monthLabel(mdProg.month)+' · '+mdProg.set,replyId:rid,
           phaseId:String(mdProg.phaseId||''),
           /* tanks and water are stamped ONCE PER LOT and never repeated across the products of
@@ -18467,7 +18507,7 @@ function phaseSpend(id){
   let rm=0,n=0; const lots={};
   for(const e of EVENTS){
     if(e.type!=='STOCK_OUT'||e.phaseId!==id)continue;
-    rm+=(+e.cost||0); n++; if(e.lot)lots[e.lot]=1;}
+    rm+=stockOutRm(e,(+e.cost||0)); n++; if(e.lot)lots[e.lot]=1;}   // v3.105.0 R2a
   return {rm:+rm.toFixed(2),n:n,lots:Object.keys(lots).sort()};}
 
 /** The record of a set finished before the app existed: when it started, when it
@@ -18676,7 +18716,7 @@ function monthRecord(m){
   sets.forEach(p=>{const s=setStatus(p);
     if(s.st==='DONE')done++; if(s.st==='LATE')late++;
     if(s.rec){tanks+=+s.rec.tanks||0;
-      EVENTS.filter(e=>progRowMatches(e,s.rec.uuid)).forEach(e=>cost+=+e.cost||0);}});
+      EVENTS.filter(e=>progRowMatches(e,s.rec.uuid)).forEach(e=>cost+=stockOutRm(e,+e.cost||0));}});   // v3.105.0 R2a
   return {m:m,n:sets.length,done:done,late:late,cost:+cost.toFixed(2),tanks:+tanks.toFixed(2),
     growth:growthOf(m)};}
 function renderRecord(){
@@ -18759,12 +18799,10 @@ function tiedMigOf(tree){
   return (typeof TIE_MIGRATION==='undefined')?0:
     TIE_MIGRATION.reduce((s,r)=>s+(r.t===tree?(+r.n||0):0),0);}
 function tiedOf(tree){return tiedMigOf(tree)+tiedLoggedOf(tree);}
-function droppedOf(tree){   // v3.74.0 — in-season rows only
-  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&inSeason(e)).reduce((s,e)=>s+(+e.qty||0),0)
-       + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&inSeason(e)).reduce((s,e)=>s+(+e.delta||0),0);}
+function droppedOf(tree){   // v3.74.0 — in-season rows only · v3.105.0 R1a corrected, on the fruit's day
+  return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&inSeason(e)).reduce((s,e)=>s+dropQty(e),0);}
 function rottenOf(tree){
-  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&inSeason(e)).reduce((s,e)=>s+(+e.qty||0),0)
-       + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&inSeason(e)).reduce((s,e)=>s+(+e.delta||0),0);}
+  return EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&inSeason(e)).reduce((s,e)=>s+rottenQty(e),0);}
 function renderTying(){
   const box=$('tyingbox'); if(!box)return;
   const rows=tyingMatrix();
@@ -19159,11 +19197,16 @@ function censusCount(tree){if(!censusValid())return 0;const t=treeById(tree);ret
 // fruit under the old model, so a missing flag reads as SECURED — the historical
 // balances stay exactly as they were.
 function isSecuredDrop(e){return e.secured!==false;}
+/* v3.105.0 R1a - with a season open (statOf is silent then) each row counts its corrected
+   figure: the same answer as TODAY, and a correction to last season's fruit stays there. */
+function treeSum(type,tree,ok,q){let s=0;for(const e of EVENTS){if(e&&e.type===type&&e.tree===tree&&ok(e)&&countsLocally(e))s+=q(e);}return s;}
 function securedDropsOf(tree){
+  if(seasonFrom())return treeSum('DROP',tree,isSecuredDrop,dropQty);
   return statOf(tree,'secured')
        + EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&isSecuredDrop(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
        + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured!==false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 function untiedDropsOf(tree){
+  if(seasonFrom())return treeSum('DROP',tree,e=>!isSecuredDrop(e),dropQty);
   return statOf(tree,'untied')
        + EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&!isSecuredDrop(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
        + EVENTS.filter(e=>e.type==='DROP_ADJUST'&&e.tree===tree&&e.secured===false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
@@ -19171,15 +19214,18 @@ function totalDroppedOf(tree){return securedDropsOf(tree)+untiedDropsOf(tree);}
 // Rotten fruit is classified the same way — a rotten fruit that was tied frees its string.
 function isTiedRotten(e){return e.tied!==false;}
 function rottenTiedOf(tree){
+  if(seasonFrom())return treeSum('ROTTEN',tree,isTiedRotten,rottenQty);
   return statOf(tree,'rotTied')
        + EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&isTiedRotten(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
        + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied!==false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 function rottenUntiedOf(tree){
+  if(seasonFrom())return treeSum('ROTTEN',tree,e=>!isTiedRotten(e),rottenQty);
   return statOf(tree,'rotUntied')
        + EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&!isTiedRotten(e)&&countsLocally(e)).reduce((s,e)=>s+(+e.qty||0),0)
        + EVENTS.filter(e=>e.type==='ROTTEN_ADJUST'&&e.tree===tree&&e.tied===false&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
 // Counter A writes TIE events; the Owner-assigned Fruit tying task still writes TASK_DONE.
 function tieRoundsOf(tree){
+  if(seasonFrom())return treeSum('TIE',tree,()=>true,tieQty);
   return statOf(tree,'tied')
        + EVENTS.filter(e=>e.type==='TIE'&&e.tree===tree&&countsLocally(e)).reduce((s,e)=>s+(+e.n||0),0)
        + EVENTS.filter(e=>e.type==='TIE_ADJUST'&&e.tree===tree&&countsLocally(e)).reduce((s,e)=>s+(+e.delta||0),0);}
@@ -19240,7 +19286,7 @@ async function commitTieRound(t,n){
   const rp=prodById(ROPE_PID);
   if(rp&&need>0) await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,pid:ROPE_PID,pname:rp.name,
     ai:'',qty:need,unit:rp.unit,lot:t.lot,set:'Fruit tying',
-    cost:+(need*(rp.cpu||0)).toFixed(2),roundId:rid,tree:t.id,
+    cost:issueRm(ROPE_PID,need,stamp),roundId:rid,tree:t.id,
     worker:CFG.worker,device:CFG.device,synced:false});
   return need;}
 
@@ -23807,6 +23853,105 @@ function myNewDecisions(list){
    a late-syncing phone corrects the history instead of corrupting it.
    ====================================================================================== */
 
+/* ======================================================================================
+   v3.105.0 · R2a — ONE MATERIAL PRICE
+   ======================================================================================
+   Before: MONEY priced an issue at a moving average that never restarted at the opening
+   count; the "Drawn out" line beside it, PROGRAMME COST and the Store statement read the
+   card price the writer stamped (5 writers of 6); SHELF valued the store at the card price.
+   One issue gave RM 126 on one line and RM 105 four lines below.
+   Now ONE WALK, storeWalk(): every stock row in date order, restarting at the opening count
+   (the v3.74.0 rule macPositions already had), an issue priced at the average on the shelf at
+   that moment. Every screen reads it: MONEY, COMPARE, the jobs table, PROGRAMME COST, the
+   statement, SHELF, MONEY's stock lines. The writers stamp the same figure for the Sheet.
+   Season 2025/26 is closed: a row dated before the season-open date keeps the figure each
+   screen gave it (the walk before the opening count is the old walk, row for row).
+   Cached on the log's length and last row, the product list and its prices. */
+let _swKey='', _swArr=null, _sw=null;
+function storeWalkKey(){
+  let c=''; for(const p of INVENTORY_RECON)c+=p.id+':'+(+p.cpu||0)+':'+(+p.stock||0)+',';   // review 6: each price, not a sum that can cancel
+  const L=EVENTS.length, last=L?String((EVENTS[L-1]||{}).uuid||''):'';
+  return L+'|'+last+'|'+c+'|'+seasonFrom();}
+function storeWalk(){
+  const key=storeWalkKey();
+  if(_sw&&_swKey===key&&_swArr===EVENTS)return _sw;
+  const sf=seasonFrom(), pos={}, lpos={};   // lpos: the old walk (no restart), for rows of the closed season (review 4)
+  INVENTORY_RECON.forEach(p=>{pos[p.id]={q:+p.stock||0,v:(+p.stock||0)*(+p.cpu||0)};lpos[p.id]={q:pos[p.id].q,v:pos[p.id].v};});
+  const rows=EVENTS.filter(e=>e&&(e.type==='STOCK_IN'||e.type==='STOCK_OUT'||e.type==='STOCK_ADJUST'))
+    .slice().sort((a,b)=>{const c=String(a.dt).localeCompare(String(b.dt)); if(c)return c;
+      return (isOpening(a)?1:0)-(isOpening(b)?1:0);});   // a row at the count's own minute is before the count, as onHand() reads it
+  const cpuOf=pid=>+((prodById(pid)||{}).cpu||0);
+  const avgOf=pid=>{const P=pos[pid]; return (P&&P.q>0)?(P.v/P.q):cpuOf(pid);};
+  const cost={}, avgAt={}, snap={}, keys=[], hist={}; let mk='';
+  const take=k=>{const s={}; Object.keys(pos).forEach(id=>{s[id]=avgOf(id);}); snap[k]=s; keys.push(k);};
+  rows.forEach(e=>{
+    const pid=e.pid; if(!pid)return;
+    const k=String(e.dt||'').slice(0,7); if(mk&&k!==mk)take(mk); mk=k;
+    if(!pos[pid]){const p=prodById(pid);pos[pid]={q:0,v:0};if(p){pos[pid].q=+p.stock||0;pos[pid].v=(+p.stock||0)*(+p.cpu||0);}lpos[pid]={q:pos[pid].q,v:pos[pid].v};}
+    const P=pos[pid], avg=avgOf(pid), cur=!!sf&&String(e.dt||'').slice(0,10)>=sf;
+    /* the old walk, exactly as movingAvgCost() did it up to v3.104.0 */
+    {const O=lpos[pid], la=O.q>0?(O.v/O.q):cpuOf(pid);
+     if(!cur){avgAt[e.uuid]=la; if(e.type==='STOCK_OUT')cost[e.uuid]=+((+e.qty||0)*la).toFixed(4);}
+     if(e.type==='STOCK_IN'){const q=+e.qty||0;O.q+=q;O.v+=(e.cost!=null?+e.cost:q*la);}
+     else if(e.type==='STOCK_OUT'){const q=+e.qty||0,v=+(q*la).toFixed(4);O.q=+(O.q-q).toFixed(4);O.v=+(O.v-v).toFixed(4);if(O.q<=0){O.q=Math.max(0,O.q);O.v=Math.max(0,O.v);}}
+     else {const dq=+e.delta||0;O.q+=dq;O.v+=(e.cost!=null?+e.cost:dq*la);}}
+    if(cur)avgAt[e.uuid]=avg;
+    const after=()=>{(hist[pid]||(hist[pid]=[])).push([String(e.dt||''),avgOf(pid)]);};
+    if(e.type==='STOCK_ADJUST'&&isOpening(e)){P.q=Math.max(0,+e.counted||0);P.v=+(P.q*avg).toFixed(4);after();return;}
+    if(e.type==='STOCK_IN'){const q=+e.qty||0; P.q+=q; P.v+=(e.cost!=null?+e.cost:q*avg);}
+    else if(e.type==='STOCK_OUT'){
+      const q=+e.qty||0, v=cur?+(q*avg).toFixed(2):+(q*avg).toFixed(4);   // this season: to the sen, so every screen adds the same sen
+      if(cur)cost[e.uuid]=v;
+      P.q=+(P.q-q).toFixed(4); P.v=+(P.v-v).toFixed(4);
+      if(P.q<=0){P.q=Math.max(0,P.q);P.v=Math.max(0,P.v);}}   // an over-issue cannot leave negative value behind
+    else {const dq=+e.delta||0; P.q+=dq; P.v+=(e.cost!=null?+e.cost:dq*avg);}
+    after();});
+  if(mk)take(mk);
+  _sw={cost:cost,avgAt:avgAt,pos:pos,snap:snap,keys:keys,hist:hist,valEnd:{}}; _swKey=key; _swArr=EVENTS;
+  return _sw;}
+/** The average a product carries on the shelf now (the card's cost when the shelf is empty). */
+function storeAvg(pid){
+  const P=storeWalk().pos[pid]; if(P&&P.q>0)return P.v/P.q;
+  const p=prodById(pid); return +((p&&p.cpu)||0);}
+/** What one stock-out cost. This season: the walk. Before it: the figure the screen always gave. */
+function stockOutRm(e,legacy){
+  if(e&&e.type==='STOCK_OUT'&&seasonFrom()&&inSeason(e)){const c=storeWalk().cost[e.uuid]; if(c!=null)return +c;}
+  return legacy;}
+/** The figure a writer stamps on a new stock-out: the same price every screen will read. */
+/** The average on the shelf at a moment: after every stock row of that product dated at or before it. */
+function storeAvgAt(pid,dt){
+  const h=storeWalk().hist[pid]||[], d=String(dt||''); let a=null;
+  for(const x of h){if(x[0]<=d)a=x[1];else break;}
+  if(a!=null)return a;
+  const p=prodById(pid); return +((p&&p.cpu)||0);}
+/** The figure a writer stamps on a new stock-out, for its own date: this season the price every
+ *  screen will read; a row dated into the closed season keeps the card price, as it always did (review 3). */
+function issueRm(pid,q,dt){
+  const p=prodById(pid), sf=seasonFrom(), d=String(dt||now());
+  const a=(sf&&d.slice(0,10)>=sf)?storeAvgAt(pid,d):+((p&&p.cpu)||0);
+  return +((+q||0)*a).toFixed(2);}
+/** The store's value at the end of a month: what was on the shelf (as SHELF counts it) at the average then. */
+function storeValueEnd(mk){
+  const w=storeWalk(); if(w.valEnd[mk]!=null)return w.valEnd[mk];
+  const open={};
+  for(const e of EVENTS){ if(!e||!isOpening(e)||String(e.dt||'').slice(0,7)>mk)continue;
+    const o=open[e.pid]; if(!o||String(e.dt||'')>String(o.dt||''))open[e.pid]=e;}
+  const q={};
+  INVENTORY_RECON.forEach(p=>{const o=open[p.id]; q[p.id]=o?(+o.counted||0):(+p.stock||0);});
+  for(const e of EVENTS){
+    if(!e||String(e.dt||'').slice(0,7)>mk)continue;
+    if(e.type!=='STOCK_OUT'&&e.type!=='STOCK_IN'&&e.type!=='STOCK_ADJUST')continue;
+    const pid=+e.pid; if(!(pid in q))continue;
+    const o=open[pid]; if(o&&(e===o||String(e.dt||'')<=String(o.dt||'')))continue;
+    if(e.type==='STOCK_OUT')q[pid]-=(+e.qty||0);
+    else if(e.type==='STOCK_IN')q[pid]+=(+e.qty||0);
+    else q[pid]+=isOpening(e)?0:(+e.delta||0);}
+  let best=''; for(const k of w.keys){if(k<=mk)best=k;else break;}
+  let v=0;
+  INVENTORY_RECON.forEach(p=>{const qq=+(+q[p.id]).toFixed(4);
+    const a=(best&&w.snap[best][p.id]!=null)?w.snap[best][p.id]:+(p.cpu||0); v+=qq*a;});
+  v=+v.toFixed(2); w.valEnd[mk]=v; return v;}
+
 /** Moving average costing, done properly.
  *  Until v3.6 a stock-out was valued at the product's BASELINE unit price, which meant a
  *  drum bought cheaply in June and a drum bought dearly in August cost the same to issue.
@@ -23815,6 +23960,7 @@ function myNewDecisions(list){
  *  that moment - which is what "moving average" means and what an auditor expects.
  *  Returns the cost of each STOCK_OUT keyed by event uuid. */
 function movingAvgCost(){
+  {const w=storeWalk(); return {cost:w.cost, avgAt:w.avgAt};}   // v3.105.0 R2a - the one walk (the code below is the old walk, kept for reading)
   const pos={};                                   // pid -> {q, v}
   INVENTORY_RECON.forEach(p=>{pos[p.id]={q:+p.stock||0,v:(+p.stock||0)*(+p.cpu||0)};});
   const rows=EVENTS.filter(e=>e.type==='STOCK_IN'||e.type==='STOCK_OUT'||e.type==='STOCK_ADJUST')
@@ -23858,14 +24004,11 @@ function dayField(){
     loads:[],buyers:{}};return d[k];};
   EVENTS.forEach(e=>{
     const k=String(e.dt||'').slice(0,10); if(k.length!==10)return;
-    if(e.type==='TIE')          touch(k).tied+=(+e.n||0);
-    else if(e.type==='TIE_ADJUST')  touch(k).tied+=(+e.delta||0);
-    else if(e.type==='DROP'){const r=touch(k);r.good+=(+e.qty||0);r.kg+=(+e.estkg||0);}
-    else if(e.type==='DROP_ADJUST') touch(k).good+=(+e.delta||0);
-    else if(e.type==='ROTTEN'){const r=touch(k);r.rotten+=(+e.qty||0);
-      const c=ROT_CAUSE[e.cause]?e.cause:'OTHER'; r.causes[c]=(r.causes[c]||0)+(+e.qty||0);}
-    else if(e.type==='ROTTEN_ADJUST'){const r=touch(k);r.rotten+=(+e.delta||0);
-      const c=ROT_CAUSE[e.cause]?e.cause:'OTHER'; r.causes[c]=(r.causes[c]||0)+(+e.delta||0);}
+    /* v3.105.0 R1a - the corrected count, on the day of the row (correction rows are inside it) */
+    if(e.type==='TIE')          touch(k).tied+=tieQty(e);
+    else if(e.type==='DROP'){const r=touch(k);r.good+=dropQty(e);r.kg+=dropKg(e);}
+    else if(e.type==='ROTTEN'){const r=touch(k), q=rottenQty(e);r.rotten+=q;
+      const c=rotCauseOf(e); r.causes[c]=(r.causes[c]||0)+q;}
     else if(e.type==='DISPATCH'){const r=touch(k);
       r.dispatch_kg+=(+e.total_kg||0); r.dispatch_rm+=(+e.total_value_rm||0);
       r.buyers[e.retailer_name||e.retailer_id||'—']=(r.buyers[e.retailer_name||e.retailer_id||'—']||0)+(+e.total_kg||0);
@@ -24006,7 +24149,7 @@ function renderDailyAudit(){
           '<div><span class="dl">tied</span><b>'+nf(r.tied)+'</b></div>'+
           '<div><span class="dl">good drops</span><b>'+nf(r.good)+'</b></div>'+
           '<div><span class="dl">rotten</span><b>'+nf(r.rotten)+'</b></div>'+
-          '<div><span class="dl">net kg out</span><b>'+nf(r.dispatch_kg)+'</b></div>'+
+          '<div><span class="dl">'+esc(tr('rc_kgout','kg sold (weighed)'))+'</span><b>'+nf(r.dispatch_kg)+'</b></div>'+
         '</div>'+
         (r.rotten>0?('<div class="causerow">'+ROT_ORDER.filter(c=>r.causes[c])
           .map(c=>'<span class="causechip'+(ROT_KIND[c]==='PHYSIOLOGICAL'?' phys':'')+'">'+
@@ -24083,7 +24226,7 @@ function dsRows(){
       cg:(String(L.clone||'')+' '+String(L.grade||'')).trim(),rate:+L.price_rm||0,
       warn:(L.band_ok===false),photo:photoForDispatch(e)});});});
   if(DS_FREE)focApproved(w.from,w.to).filter(e=>!scIsCount(e)).forEach(e=>{   // v3.94.0 - a count is not a gift
-    out.push({kind:'free',dt:String(e.dt||''),ev:e,ref:e.receiver||'gift',
+    out.push({kind:(FOC_REASONS[e.reason]||{}).isLoss?'dump':'free',dt:String(e.dt||''),ev:e,ref:e.receiver||'gift',   // v3.105.0 R3a
       who:e.receiver||'—',cust:dsName(e.receiver),f:+e.fruit_n||0,kg:+e.kg||0,
       rmv:+e.value_rm||0,cg:(String(e.clone||'')+' '+String(e.grade||'')).trim(),
       rate:+e.rate_rm_kg||0,warn:false,photo:null});});
@@ -24091,16 +24234,19 @@ function dsRows(){
 
 /** The account position behind the picker — the ledger's own numbers, never a second answer. */
 function dsAccount(){
-  let paid=0,inv=0,bal=0,n=0;
-  (RETAILERS||[]).forEach(rt=>{
-    if(isCashSettled(rt.id))return;                        // a cash sale has no tab
-    if(String(rt.status||'Active')!=='Active')return;       // suspended and deleted owe nothing
+  /* v3.105.0 - ONE OWED BALANCE. The same merchants as MONEY and MERCHANT CREDIT (rcCreditIds: not
+     cash, not deleted - a SUSPENDED merchant still owes what he owes), and "still owing" is what the
+     merchants who owe, owe - never netted against another merchant's money paid ahead. */
+  let paid=0,inv=0,owes=0,ahead=0,n=0,open=0;
+  rcCreditIds().forEach(id=>{
+    const rt=retailerById(id); if(!rt)return;
     if(DS_CUST!=='ALL'&&dsName(rt.name)!==DS_CUST)return;
-    const L=retailerLedger(rt.id); if(!L)return;
+    const L=retailerLedger(id); if(!L)return;
     if(DS_CUST==='ALL'&&!(+L.invoiced_rm>0)&&!(+L.current_credit_balance_rm<0))return;   // never traded is not a debt (an opening owed is)
     paid+=Math.max(0,+L.opening_credit_rm||0)+(+L.topped_up_rm||0);   // v3.92.0 - an opening owed is not money paid in
-    inv+=(+L.invoiced_rm||0); bal+=(+L.current_credit_balance_rm||0); n++;});
-  return {paid:+paid.toFixed(2),inv:+inv.toFixed(2),bal:+bal.toFixed(2),n:n};}
+    open+=Math.max(0,-(+L.opening_credit_rm||0));
+    const P=rcPos(id); inv+=(+L.invoiced_rm||0); owes+=P.owes; ahead+=P.ahead; n++;});
+  return {paid:+paid.toFixed(2),inv:+inv.toFixed(2),open:+open.toFixed(2),owes:+owes.toFixed(2),ahead:+ahead.toFixed(2),bal:+(ahead-owes).toFixed(2),n:n};}
 
 function dsPick(v){DS_CUST=v;renderDailySales();}
 /** One date out of the seven, or all of them. The week keeps its own arrows; this narrows
@@ -24160,13 +24306,13 @@ function renderDailySales(){
   const list=Object.keys(names).sort();
   if(DS_CUST!=='ALL'&&list.indexOf(DS_CUST)<0)DS_CUST='ALL';   // the day moved; the man did not come with it
   const rows=(DS_CUST==='ALL')?all:all.filter(r=>r.cust===DS_CUST);
-  const sold=rows.filter(r=>r.kind==='sold'), free=rows.filter(r=>r.kind==='free');
+  const sold=rows.filter(r=>r.kind==='sold'), free=rows.filter(r=>r.kind==='free'), dump=rows.filter(r=>r.kind==='dump');   // v3.105.0 R3a
   const sKg=sold.reduce((s,r)=>s+r.kg,0), sRm=sold.reduce((s,r)=>s+r.rmv,0),
         sF=sold.reduce((s,r)=>s+r.f,0);
   const fKg=free.reduce((s,r)=>s+r.kg,0), fRm=free.reduce((s,r)=>s+r.rmv,0),
         fF=free.reduce((s,r)=>s+r.f,0);
   const withPhoto=sold.filter(r=>!!r.photo).length;
-  const A=dsAccount(), owing=A.bal<0?Math.abs(A.bal):0;
+  const A=dsAccount(), owing=A.owes;   // v3.105.0 - one owed balance
 
   let h='<div class="ds-h"><span>'+esc(tr('ds_head','Sales and gifts'))+'</span>'
     +'<small>'+esc(DS_DAY==='ALL'?(w.from+' – '+w.to):(wdShort(DS_DAY)+' '+DS_DAY))+'</small></div>'
@@ -24192,6 +24338,9 @@ function renderDailySales(){
       +'<div class="v gift">'+rm(fRm)+'</div><div class="s">'
       +(free.length?(nf(fKg)+' kg · '+nf(fF)+' '+esc(tr('ds_fruit','fruit'))):esc(tr('ds_nofree','nothing given')))
       +'</div></div>'):'')
+    +((DS_FREE&&dump.length)?('<div class="ds-c" id="ds-dump"><div class="k">'+esc(tr2('Dumped','Dibuang'))+'</div>'   // v3.105.0 R3a - its own line, never inside given free
+      +'<div class="v">'+rm(dump.reduce((s,r)=>s+r.rmv,0))+'</div><div class="s">'
+      +nf(dump.reduce((s,r)=>s+r.kg,0))+' kg · '+nf(dump.reduce((s,r)=>s+r.f,0))+' '+esc(tr('ds_fruit','fruit'))+'</div></div>'):'')
     +'<div class="ds-c"><div class="k">'+esc(tr('ds_photo','With photo'))+'</div>'
       +'<div class="v">'+withPhoto+' / '+sold.length+'</div>'
       +'<div class="s">'+(sold.length?Math.round(withPhoto/sold.length*100):0)+'%</div></div>'
@@ -24200,20 +24349,22 @@ function renderDailySales(){
     +esc(DS_CUST==='ALL'?tr('ds_onacct','merchants on credit'):DS_CUST)+'</div>'
     +'<div class="ds-sum" style="border:none;background:transparent;margin:0">'
     +'<div class="ds-c"><div class="k">'+esc(tr('ds_paid','Paid in'))+'</div><div class="v paid">'+rm(A.paid)+'</div></div>'
+    +(A.open>0?('<div class="ds-c" id="ds-open"><div class="k">'+esc(tr2('Owed at season start','Hutang awal musim'))+'</div><div class="v owed">'+rm(A.open)+'</div></div>'):'')   // review 8
     +'<div class="ds-c"><div class="k">'+esc(tr('ds_invd','Invoiced'))+'</div><div class="v">'+rm(A.inv)+'</div></div>'
     +'<div class="ds-c"><div class="k">'+esc(owing?tr('ds_owe','Still owing'):tr('ds_left','Credit left'))+'</div>'
-      +'<div class="v '+(owing?'owed':'paid')+'">'+rm(owing||A.bal)+'</div></div>'
+      +'<div class="v '+(owing?'owed':'paid')+'" id="ds-owing">'+rm(owing||A.ahead)+'</div></div>'
     +'</div></div>';
 
   h+=rows.length?rows.map(r=>{
     const th=(r.kind==='sold'&&r.photo)
       ? '<div class="ds-th" onclick="showPhoto(\''+esc(r.photo.uuid)+'\',\''
         +esc(tr('ds_scale','Scale photo'))+'\',1)">📷</div>'
-      : (r.kind==='free'?'<div class="ds-th no" title="'+esc(tr('ds_giftnp','a gift carries no photo yet'))+'">🎁</div>'
+      : (r.kind==='dump'?'<div class="ds-th no">🗑</div>':r.kind==='free'?'<div class="ds-th no" title="'+esc(tr('ds_giftnp','a gift carries no photo yet'))+'">🎁</div>'
                         :'<div class="ds-th no" title="'+esc(tr('ds_nop','no photo behind this load'))+'">▫</div>');
     return '<div class="ds-row'+(r.kind==='free'?' gift':'')+'">'+th
       +'<div><div class="ds-m1">'+esc(r.ref)
         +(r.kind==='free'?'<span class="ds-chip f">'+esc(tr('ds_freetag','FREE'))+'</span>':'')
+        +(r.kind==='dump'?'<span class="ds-chip w">'+esc(tr2('DUMPED','DIBUANG'))+'</span>':'')
         +(r.warn?'<span class="ds-chip w">'+esc(tr('ds_gradetag','GRADE?'))+'</span>':'')+'</div>'
       +'<div class="ds-m2">'+esc(r.who)+' · '+esc(String(r.dt).slice(5,16))+' · '+nf(r.f)+' '
         +esc(tr('ds_fruit','fruit'))+' · '+nf(r.kg)+' kg · '+esc(r.cg)
@@ -24239,12 +24390,9 @@ function buildMonthMatrix(){
   // yield + revenue, off the dispatch lines
   EVENTS.forEach(e=>{
     const k=String(e.dt||'').slice(0,7); if(k.length!==7)return;
-    if(e.type==='TIE')             touch(k).tied+=(+e.n||0);
-    else if(e.type==='TIE_ADJUST') touch(k).tied+=(+e.delta||0);
-    else if(e.type==='DROP')       touch(k).good+=(+e.qty||0);
-    else if(e.type==='DROP_ADJUST')touch(k).good+=(+e.delta||0);
-    else if(e.type==='ROTTEN')     touch(k).rotten+=(+e.qty||0);
-    else if(e.type==='ROTTEN_ADJUST')touch(k).rotten+=(+e.delta||0);
+    if(e.type==='TIE')             touch(k).tied+=tieQty(e);      // v3.105.0 R1a
+    else if(e.type==='DROP')       touch(k).good+=dropQty(e);
+    else if(e.type==='ROTTEN')     touch(k).rotten+=rottenQty(e);
     else if(e.type==='DISPATCH'){
       const m=touch(k);
       m.invoices++; m.kg_total+=(+e.total_kg||0); m.fruit+=dispFruitN(e);   // v3.61.0
@@ -24671,7 +24819,7 @@ function mktlPaidCard(w,invRm,cashRm){
   }else{
     h+=foc.length?('<div class="tblwrap"><table class="tbl">'+
       '<tr><th>Free &amp; dumped</th><th class="num">kg</th><th class="num">Value</th></tr>'+
-      foc.slice(0,40).map(e=>'<tr><td><div class="pn">'+esc(focReasonName(e.reason))+' — '+esc(e.receiver||e.worker||'')+'</div>'+
+      foc.slice(0,40).map(e=>'<tr><td><div class="pn">'+((FOC_REASONS[e.reason]||{}).isLoss?'🗑 ':'🎁 ')+esc(focReasonName(e.reason))+' — '+esc(e.receiver||e.worker||'')+'</div>'+   // v3.105.0 R3a
         '<div class="pa">'+esc(e.dt||'')+'</div></td>'+
         '<td class="num">'+nf(e.kg)+'</td><td class="num">'+(SHOW_VALUES?rm(e.value_rm):'—')+'</td></tr>').join('')+'</table></div>')
       :'<div class="alertnone">No fruit left free in '+esc(w.label)+'.</div>';
@@ -26429,7 +26577,7 @@ async function mdbBackTie(){
   const rp=prodById(ROPE_PID);
   if(rp&&need>0) await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:dt,pid:ROPE_PID,pname:rp.name,
     ai:'',qty:need,unit:rp.unit,lot:t.lot,set:'Fruit tying (backdated)',
-    cost:+(need*(rp.cpu||0)).toFixed(2),roundId:rid,tree:t.id,
+    cost:issueRm(ROPE_PID,need,dt),roundId:rid,tree:t.id,
     backdated:true,enteredAt:now(),
     worker:CFG.worker,device:CFG.device,synced:false});
   MDB_BK.tieLot=t.lot; MDB_BK.tieTree=t.id;      // stay on this tree for the next round
@@ -26584,14 +26732,12 @@ async function mdbBackRotten(){
 function tiedAsOf(tree,dt){
   return (typeof tiedMigOf==='function'?tiedMigOf(tree):0)
     + EVENTS.filter(e=>e.type==='TIE'&&e.tree===tree&&String(e.dt)<=dt)
-        .reduce((s,e)=>s+(+e.n||0),0)
-    + EVENTS.filter(e=>e.type==='TIE_ADJUST'&&e.tree===tree&&String(e.dt)<=dt)
-        .reduce((s,e)=>s+(+e.delta||0),0);}
+        .reduce((s,e)=>s+tieQty(e),0);}   // v3.105.0 R1a
 function droppedAsOf(tree,dt){
   return EVENTS.filter(e=>e.type==='DROP'&&e.tree===tree&&isSecuredDrop(e)&&String(e.dt)<=dt)
         .reduce((s,e)=>s+dropQty(e),0)
     + EVENTS.filter(e=>e.type==='ROTTEN'&&e.tree===tree&&isTiedRotten(e)&&String(e.dt)<=dt)
-        .reduce((s,e)=>s+(+e.qty||0),0);}
+        .reduce((s,e)=>s+rottenQty(e),0);}   // v3.105.0 R1a
 
 // ---- 3. DYNAMIC ORCHARD EXPANSION ----------------------------------------------------
 // New trees are appended to the SAME census array every dropdown reads, so a tree added
@@ -28129,6 +28275,7 @@ function applyNewProducts(){
    Same walk as movingAvgCost(), but it returns the CLOSING position rather than the cost
    of each issue, because what the Purchaser locks is today's average, not yesterday's. */
 function macPositions(){
+  {const p=storeWalk().pos, o={}; Object.keys(p).forEach(k=>{o[k]={q:p[k].q,v:p[k].v};}); return o;}   // v3.105.0 R2a - the one walk
   const pos={};
   INVENTORY_RECON.forEach(p=>{pos[p.id]={q:+p.stock||0,v:(+p.stock||0)*(+p.cpu||0)};});
   EVENTS.filter(e=>e.type==='STOCK_IN'||e.type==='STOCK_OUT'||e.type==='STOCK_ADJUST')
@@ -29706,7 +29853,7 @@ async function submitRun(){
       progId:e.progId||'',cost:0,q:{}});
     if(!r.progId&&e.progId)r.progId=e.progId;
     if(edt&&edt<r.dt)r.dt=edt;
-    r.cost+=+e.cost||0;
+    r.cost+=stockOutRm(e,+e.cost||0);   // v3.105.0 R2a
     r.q[e.pid]=+(((+r.q[e.pid])||0)+(+e.qty||0)).toFixed(2);});
   const dupes=[];
   Object.keys(priorRuns).forEach(k=>{
@@ -29737,7 +29884,7 @@ async function submitRun(){
         await persistEvent({uuid:uuid(),type:'STOCK_OUT',dt:stamp,
           pid:a.pid,pname:a.pname,ai:l.ai,qty:q,unit:a.unit,lot:x.lot,
           set:d.code+' - '+d.name,
-          cost:+(q*(+a.mac||0)).toFixed(2), mac:+a.mac||0,
+          cost:issueRm(a.pid,q,stamp), mac:+a.mac||0,   // v3.105.0 R2a - the price on the shelf when it is drawn; mac is the price the Purchaser locked
           progId:d.uuid, progSet:d.code+' · '+d.name, replyId:rid,
           natkey:natKeyRun(d.uuid,l.slot,x.lot,q,x.trees),
           dirRun:true, dirCode:d.code, dirMethod:d.methodLabel, dirStage:d.stageLabel,
@@ -30400,17 +30547,12 @@ function dayRoll(){
     lot:{},grade:{}};return D[k];};
   EVENTS.forEach(e=>{
     const k=String(e.dt||'').slice(0,10); if(k.length!==10)return;
-    if(e.type==='DROP'){const r=touch(k);const q=+e.qty||0;
+    if(e.type==='DROP'){const r=touch(k);const q=dropQty(e);   // v3.105.0 R1a
       r.fruit+=q;
       if(LOT_KEYS.indexOf(e.lot)>=0)r.lot[e.lot]=(r.lot[e.lot]||0)+q;
       if(e.grade)r.grade[e.grade]=(r.grade[e.grade]||0)+q;}
-    else if(e.type==='DROP_ADJUST'){const r=touch(k);const d=+e.delta||0;
-      r.fruit+=d;
-      if(LOT_KEYS.indexOf(e.lot)>=0)r.lot[e.lot]=(r.lot[e.lot]||0)+d;}
-    else if(e.type==='ROTTEN')       touch(k).rotten+=(+e.qty||0);
-    else if(e.type==='ROTTEN_ADJUST')touch(k).rotten+=(+e.delta||0);
-    else if(e.type==='TIE')          touch(k).tied+=(+e.n||0);
-    else if(e.type==='TIE_ADJUST')   touch(k).tied+=(+e.delta||0);
+    else if(e.type==='ROTTEN')       touch(k).rotten+=rottenQty(e);
+    else if(e.type==='TIE')          touch(k).tied+=tieQty(e);
     else if(e.type==='DISPATCH'){const r=touch(k);
       r.kg+=(+e.total_kg||0); r.rm_in+=(+e.total_value_rm||0);}
     else if(e.type==='STOCK_OUT')    touch(k).rm_out+=outCostOf(e,mac);});
@@ -30625,7 +30767,17 @@ function cmpSlice(){
     return {now:now,prev:prev,grain:'day',vs:tr('cb_vsm'),
       span:'1–'+da+' '+monthShort(mo-1)+' · '+
         tr('cb_ofdays').replace('{d}',da).replace('{n}',new Date(y,mo,0).getDate())};}
-  // season = this calendar year to date, against the same span of last year
+  /* v3.105.0 - SEASON is the season-open date to today, against the same number of days from the
+     start of the last closed season. It was 1 January, so it counted last season's sales in this one. */
+  {const sf=seasonFrom();
+   if(sf&&sf<=tk){const now=[],prev=[];
+     for(let d=sf;d<=tk;d=dayShiftKey(d,1))now.push(d);
+     const cl=seasonClosed().filter(c=>c&&c.from).slice().sort((p,q)=>String(p.from).localeCompare(String(q.from))).pop();
+     if(cl){let d=String(cl.from).slice(0,10); const end=cl.to?String(cl.to).slice(0,10):'';
+       for(let i=0;i<now.length;i++){if(end&&d>end)break; if(d>=sf)break; prev.push(d);d=dayShiftKey(d,1);}}   // review 2: never past its own end, never into this season
+     return {now:now,prev:prev,grain:'month',vs:tr('cb_vss'),
+       span:now[0]+' → '+now[now.length-1]+' · '+now.length+' '+tr('cd_days')};}}
+  // no season set: this calendar year to date, against the same span of last year
   const now=[],prev=[];
   const jan=new Date(y,0,1), todayD=new Date(y,mo-1,da);
   for(let d=new Date(jan); d<=todayD; d.setDate(d.getDate()+1))now.push(dkey(d));
@@ -31627,6 +31779,10 @@ function todayISO(){return now().slice(0,10);}
 /** The first day this season put a fruit on the ground. Read from the log, never guessed;
  *  if nothing has dropped yet the season is "today" and every season figure reads zero. */
 function seasonStart(){
+  /* v3.105.0 - "season" is the season-open date on EVERY screen. TODAY ▸ SEASON and the harvest
+     report used the first fruit (in the recovery round: today only) while MERCHANT CREDIT used the
+     open date and COMPARE 1 January. The first-fruit rule stays only for a phone with no season set. */
+  {const f=seasonFrom(); if(f)return f;}
   let m='';
   for(const e of EVENTS){
     if(!inSeason(e))continue;                 // v3.74.0 — the first fruit of THIS season
@@ -31937,7 +32093,8 @@ function pcRuns(){
     const set=String(e.set||'').trim(); if(!set)continue;      // programme sets only
     const day=String(e.dt||'').slice(0,10); if(day.length!==10)continue;
     // v3.45.0 — spraying and fertilizer only. What is turned away is counted, not hidden.
-    if(!pcIsInput(e)){PC_SKIPPED++;PC_SKIPRM+=+e.cost||0;continue;}
+    const ecost=stockOutRm(e,+e.cost||0);   // v3.105.0 R2a
+    if(!pcIsInput(e)){PC_SKIPPED++;PC_SKIPRM+=ecost;continue;}
     const key=String(e.replyId||e.progId||'')+'|'+day+'|'+set;
     const sp=pcSplitSet(set);
     const r=by[key]||(by[key]={key:key,day:day,mo:day.slice(0,7),set:set,
@@ -31955,8 +32112,8 @@ function pcRuns(){
     const pk=String(e.pname||e.pid||'?');
     if(!r.prods[pk]){r.prods[pk]={name:pk,unit:e.unit||'',qty:0,rm:0};r.order.push(pk);}
     r.prods[pk].qty+=+e.qty||0;
-    r.prods[pk].rm +=+e.cost||0;
-    r.rm+=+e.cost||0;
+    r.prods[pk].rm +=ecost;
+    r.rm+=ecost;
     by[key]=r;}
   return Object.keys(by).map(k=>by[k]).sort((a,b)=>a.day<b.day?1:-1);}
 function pcLotSum(r,f){return Object.keys(r.lots).reduce((s,L)=>s+(+r.lots[L][f]||0),0);}
@@ -32321,7 +32478,7 @@ function renderOwnerHome(){
        '<div><b>'+nf(a.dropped)+'</b><span>'+esc(tr('ow_dropped','dropped'))+'</span></div>'+
        '<div><b class="g">'+nf(a.good)+'</b><span>'+esc(tr('ow_good','good'))+'</span></div>'+
        '<div><b class="r">'+nf(a.bad)+'</b><span>'+esc(tr('ow_bad','bad'))+'</span></div>'+
-       '<div><b>'+nf(Math.round(a.kg))+'</b><span>kg</span></div>'+
+       '<div><b>'+nf(Math.round(a.kg))+'</b><span>'+esc(tr('ow_kgest','kg est.'))+'</span></div>'+   // v3.105.0 - the estimate at collection, not the scale
        '</div></div>';}
 
   /* ---- 7 DAYS gets the date picker: it opens on the last 7 but any week is reachable ---- */
@@ -32665,7 +32822,7 @@ function renderMoney(){
       '</table>'+
       '<div class="small">Every raw transaction behind these five lines is still in the Google Sheet, '+
         'and still on this phone under <b>Raw stock rows</b>. Valuation is the moving average at the '+
-        'moment of issue.</div>';}
+        'moment of issue, counted from your opening count; the store is valued as SHELF values it.</div>';}
 
   // --- the four folded screens ------------------------------------------------------------
   let detail='';
