@@ -10,7 +10,7 @@
    ===================================================================== */
 
 // ================= config & constants =================
-const APP_VERSION = 'v3.106.0';   // v3.106.0 - Oct · the five rooms: TODAY · FARM · HARVEST & SALES · THE STORE · MONEY & REPORTS, Admin small; one NEEDS YOU list; EXEC SUMMARY, COMPARE, the MONEY fold-outs and FARM TODAY taken away (H1a H2a H3a R4a)   // v3.105.0 - Oct · one rule for each figure: a correction counts on the day the fruit fell (R1a), season = the season-open date, one material price from the opening count (R2a), dumped fruit apart from given free (R3a), one owed balance, kg sold (weighed) vs kg est.   // v3.104.0 - Oct · fix 5 of the speed review: one sync at a time, one more after it, one pull at a time (F1a F2a F3a)   // v3.103.0 - Oct · rain keyed late: a morning the crew was never told to water is not "watering not reported" (L1a L2a)   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
+const APP_VERSION = 'v3.107.0';   // v3.107.0 - Oct · the programme and the main dashboard: TAKE FROM THE STORE on the crew card, the grafts warning when issuing (P1a), AMBIL BAHAN asks before a second draw (P2a), THIS WEEK above MONTH (P5a), 'short' opens the buy line (P6a); four numbers under NEEDS YOU by phase (D1a), quiet crew by person (D2a), the shed line at harvest only (D3a), the store line for the plan's 30 days (D4a)   // v3.106.0 - Oct · the five rooms: TODAY · FARM · HARVEST & SALES · THE STORE · MONEY & REPORTS, Admin small; one NEEDS YOU list; EXEC SUMMARY, COMPARE, the MONEY fold-outs and FARM TODAY taken away (H1a H2a H3a R4a)   // v3.105.0 - Oct · one rule for each figure: a correction counts on the day the fruit fell (R1a), season = the season-open date, one material price from the opening count (R2a), dumped fruit apart from given free (R3a), one owed balance, kg sold (weighed) vs kg est.   // v3.104.0 - Oct · fix 5 of the speed review: one sync at a time, one more after it, one pull at a time (F1a F2a F3a)   // v3.103.0 - Oct · rain keyed late: a morning the crew was never told to water is not "watering not reported" (L1a L2a)   // v3.102.0 - Oct · fix 4 of the speed review: wait the right time for Google (W1a W2a W3a W4a)   // v3.101.0 - Oct · fix 1 of the speed review: 'Google is busy' as data, a yellow box, one try by itself (B1a B2a B3a)   // v3.100.0 - Oct · Fert 3 added to the plan (S3K, 23 Oct): Yara Mila 12-11-18 750 g + Polysulphate 500 g per tree, potassium to harden layer 1; the grafts skip it. Owner, 19 Oct: 'Help me to add in . I will issue later'. database.js PLAN_2627 only.   // v3.99.0 - THE YOUNG PROGRAMME (the Young Programme sample of 18 Oct 2026; the Owner: 'YP5 . follow the rules of irrigation untill the polybag is off . other ok'). 41 young rounds (YOUNG_PLAN, database.js) read through pqPlan(): The Programme ▸ 🌱 YOUNG (never on MONTH), group 'young' (Okt · Muda 1), named trees x.ygT, lots share the store by those trees, a leaf spray dosed per 20 L knapsack (tanks = knapsacks, ppKs: only the words change). The crew ticks every tree (TICK rows, iss = the set) and answers the insect question (ROW chk YTP -> NEEDS YOU, ✓ SEEN = FIX PSEEN). H2 and PB1 carry ng:1; with PBZ and after, the crew card says LANGKAU the grafts. The polybags follow the watering call until the bag is off. No new kind, no Apps Script step. // v3.98.0 - TREE STAGES (the Tree Stages sample, approved 17 Oct 2026 'All three, as suggested'). One register by stage: NEW PLANTING (the 16 of 14-15 Oct, YOUNG_TREES in database.js, apart from TREE_MASTER: tagged B-067-26..C-044-26, written B-067..C-044), GRAFTED (the nine of 19 Sep), YOUNG, FRUITING. Trees ▸ STAGES: counts, NEEDS YOU, the map, one card a tree with his steps (TOOK / FAILED / NOT SURE from 8 weeks, half cut, cut-through 2 weeks later, cut-back rounds 1-3 when he sees it, MOVE TO YOUNG; DEAD / REPLANTED keeps the number). The check 🌱 Young trees and grafts (YT1) is issued and walked like the census. A cut he issues is on the crew's list. Rows: FIX chk STG, ROW chk YT1 and YTC - no new kind, no Apps Script step. tcIsGraft: a graft he gives up (KEEP) is fruiting again. // v3.97.0 - TWO LEAF LAYERS (17 Oct 2026, the Owner: 'to be safe we have to at least have 2 layers', programme review P1a-P7a 'All three, as suggested'). database.js: five rounds for leaf layer 2 (L2P 16 Nov, S2N 18 Nov - the last nitrogen, L2G 30 Nov, PDW 8 Dec, H2 21 Dec), PB1 to 4 Jan, PBZ planned 14 Jan 2027 (PP_PBZ_PLAN) and every round, job and water stage after it 65 days later with pbz:1; DR6 S17 PD4 W3 and the jobs CO and PR2 fell into Sep 2027 and left this season. app.js: ppPbzShift/ppPbzRow move the pbz:1 rows with the real PBZ day (read from PROGRAMS, not ppSets - no loop); the Gate window is open to 28 Feb (PZ_PLAN_LAST) and its texts say so. Sets already issued never move. Nothing synced changes shape; no Apps Script step. // v3.96.0 - THE GRAFT LIST CORRECTED (17 Oct 2026, the Owner: '9 trees in the note', 'ok proceed'). GRAFT_TREES is now B-031, B-032, B-033, B-034, B-039, B-041, B-053, B-056, B-064 (grafted 19 Sep). A-013, A-023, A-034, A-036, A-061 and B-001 were never grafted: they are ordinary trees again for PBZ, the flush gate, the bud census and the maps. database.js only; nothing synced changes; no Apps Script step.
 // v3.95.0 - SET UP THIS PHONE (16 Oct 2026, sample "ok" = S1a-S4a). A new phone gets its Sync URL BEFORE anyone logs in: the login pad shows SET UP THIS PHONE while the phone has no Sync URL (a set-up phone keeps the pad, with a small link to set it up again); phone name + Sync URL with a PASTE button; the address is checked (the app link and a cut-off address are refused in plain words) and the Sheet is asked for the staff list, so the staff member's own key works the first time, without the Worker 1 sample key. The logged-in setup (EDIT) gets the same check (an empty box stays allowed for a practice phone). A reply that is not data says 'Wrong Sync URL' with FIX THE SYNC URL on the Sync screen, not the browser's words. An iPhone not opened from the Home Screen is shown once how to add it. App files only; database.js unchanged; no Apps Script. Before: v3.94.0 - THE SHED COUNT (11 Oct 2026, sample 2 "ok" = S1a-S5a, on the Owner's 21 Aug decisions). Harvest > THE SHED gets COUNT THE SHED (the field crew, the Gate, the Owner): count first, one number per clone, then the record; a shortfall is written off as a loss at the shed (oldest fruit first, valued for the Owner at the clone's usual weight x the day's rate); more than the record is only flagged. KIRA STOR on the crew's KERJA list while fruit stands; Command says when last night went uncounted, and what a count found. Fruit older than 3 days is marked OLD. Stored on the ration road the Sheet already takes (reason COUNT): app files only, no Apps Script. Before: v3.93.0 - KG PER FRUIT AT THE SCALE (11 Oct 2026, sample "ok" = K1a-K5a). Each basket's average fruit is checked against its grade on the weigh step: a basket that does not fit STOPS, with COUNT AGAIN, CHANGE TO GRADE x, or THE COUNT IS RIGHT (two taps, the basket is marked with the name); heavier than the grade stops too; under 0.6 kg or over 4 kg a fruit is refused (count again). The bands are the farm's own (MK A >= 1.5, B 1.2-1.5, C < 1.2). A kept basket shows on the invoice, on the Gate's verify card and on Command. The check rides inside the load's lines: app files only, no Apps Script. Before: v3.92.0 - OWED TO THE FARM, the receivable door (11 Oct 2026, sample "ok" = C1a-C8a). Each credit merchant has a credit line the Owner sets (RETAILERS CreditLineRM): inside it the Gate releases a load ON ACCOUNT with no key; past it, the Owner's 6-digit key as before. RECEIVE PAYMENT keys the money in (CREDIT_TOPUP with pay_how CASH/BANK/CHQ and pay_ref), with its WhatsApp receipt and the new balance; the Owner cancels a wrong one with a counter-row (pay_how CANCEL, pay_of). Payments pay the oldest invoice first: the statement (TOTAL NOW PAYABLE), the days of the oldest unpaid invoice, red after 14 days. MONEY opens with OWED TO THE FARM; Command has one line. Balances are this season's (opening keyed on the merchant: owed or paid ahead). Needs Apps Script v3.92.0. Before: v3.91.0 - THE BUD CENSUS, CE2 (11 Oct 2026). A tree check like CE1: the crew taps MANY · A FEW · LEAF FLUSH · NOTHING on each tree (grafts left out); each lot is due 35 days after its own PBZ. Trees ▸ BUDS: per lot what was found, the % fruiting against 80 % (amber) and 50 % (red, a warning only), CONFIRM each lot, a map to switch any tree between FRUITING and NO FRUIT, and a second look (CE2B) 14 days later on the leaf-flush and nothing trees. From the first flowering set every round is for a group: flower, bloom, fruit and harvest rounds for the fruiting trees, trunk Aliette, weeding and after-harvest rounds for all; tanks and per-tree amounts follow the confirmed lots (TO BUY, the issue screen, the store draw), and the crew's card lists the trees to SKIP with a map. Stored on rows the Sheet already takes (ISS ROW FIX STOP on TREE_CHECKS) and one PROGRAMS record; NO Apps Script change. Before: v3.90.0 - LABOUR PAY, EACH PERSON HIS WAY (11 Oct 2026). RECORD ▸ WORKERS gives each name its pay: full-time (RM a month + RM a day, first and last day), day only (RM a day) or supervisor (keys the reports, not ticked, not in the durian labour); one oil-palm RM a man-day for people keyed as a number. A named person's day counts once a calendar day; the allowance is a fixed line for the month. A set's TANDA SIAP ticks the names. RECORD ▸ PAY lists the month, one line a person; MONEY, Labour & the rate and Command use the same pay from season 2026/27 (the months before keep the old RM an hour); the Gate sees the total. App files only. Before: v3.89.0 - THE HOSE MAP (11 Oct 2026). Trees ▸ FOLLOW-UP ▸ HOSE draws each lot with a tree off the hose on the Sugut Farm Map, like the shade map: blue on the hose, red no hose, yellow the crew says the water reaches, purple ring a graft; dashed lines suggest new hose, run by run with metres (the shortest joins from the trees on the hose, straight tree to tree); tap a tree for the nearest one with hose, tap a run to see it alone; ⬇ SAVE MAP PICTURE (phone: share sheet; laptop: a file). The crew's HO1 card has the same map in Bahasa: tap a red tree to tick it. Nothing new is stored; app files only. Before: v3.88.0 - THE CANKER PHOTO AND THE ALIETTE MIX (11 Oct 2026). A 📷 PHOTO button on each saved tree of a canker round and on each round of a tree card; the photo opens with ⬇ SAVE PHOTO (a phone: the share sheet; a laptop: a file), and SAVE ALL the photos of a round (a phone: the share sheet; a laptop: one .zip). The Aliette is counted by the mix MADE: no litres on each tree; the crew keys the litres of mix on TANDA SIAP and the store takes 25 g a litre; 1 L brushes about 5 trees, so a new round plans 5 g a tree. App files only. Before: v3.87.0 - THE EMPTY DOSE BOX AND A JOB'S PLAN (10 Oct 2026). A product the Owner ADDS to a mix comes in with an empty dose box: the app never guesses a dose, and nothing goes out while an added product has none ("Type the dose of …, or take it out with ✕."); SWAP is as before. A planned job gets CHANGE THE PLAN · DO NOT ISSUE YET: the days, the people, the days of work (man-days = people × days) and what is counted; a new first day in another month moves it to that month; PUT THE WORKBOOK'S PLAN BACK in two taps. App files only, no script change. Before: v3.86.0 - TREE FOLLOW-UP (8 Oct 2026): canker until cured, oil-palm shade, the hose. Trees ▸ FOLLOW-UP (a fifth tab) lists the canker trees (census, and any he adds), the rounds of Aliette 25 g in 1 L (a set of the Programme for the named trees: the crew saves each tree - scraped, brushed, how it looks, the litres, a photo - and the store takes 25 g a litre), due on day 7 and late after day 10; a tree the crew calls DRY waits for his CURED. The shaded trees on the Sugut Farm Map with the oil palms near them, his decision per tree (trim, fell, leave, not palm) and a shade job with the tree list; the sunlight is asked again after the work. HO1 gets the census trees off the hose as a tick list; his CONFIRM is the hose word of v3.85.0. Six more row kinds on the tree road (CKR CKD SHD SHT SHL HOT): the Apps Script must be v3.86.0. Before: v3.85.0 - GATE 1 AND THE PBZ TICK LIST (8 Oct 2026). No fixed date: Trees ▸ GATE 1 reads the Owner's three conditions for each lot - two new layers of leaf, counted from the Friday walks; the second layer hard and mature; a dry spell on the farm gauge (under 1 mm a day; 7 days can start, 10 best) - proposes, and HE presses PASS, NOT YET or GATE 2. PBZ is issued only for lots he passed; the crew ticks each tree on the PBZ set and reports a lot done only when every tree is ticked or marked NOT SPRAYED; the wash-off card names the trees and can spray only those again; once a lot is done the 7-day water HOLD is offered and the crew is asked about the leaf every day for 7 days. Four new row kinds on the tree road: the Apps Script goes to v3.85.0. // v3.84.0 - THE TREE CHECK, FIVE FIXES found while the SOP was written (6 Oct 2026): 'cannot check this tree' takes TWO taps and says the keyed answers will be dropped; the lot page NAMES the trees that could not be checked, to tap and put right; the flush % of a lot only PARTLY WALKED is grey and striped, never green; the four SIGNS (canker, borer, dieback, standing water) are compared on a reference tree, on the staff phone and on the Owner's page; EVERY way out of a half-keyed tree warns once (Home, Sync, the tabs at the top). App files only; database.js unchanged; nothing that is synced changes. // v3.83.0 - THE PROGRAMME, CHOSEN HIS WAY: ＋ ADD A PRODUCT is a picker (by name or ingredient, by type); SWAP on every product (same ingredient, similar, the rest of its type); a set starts from the plan, this season, last season or ★ MINE (a mix saved under his own name); USE ANOTHER MIX on a planned round; what a set is for, its stage and a line for the crew on the issue screen; CHANGE THE PLAN of a planned round without issuing it; one ＋ NEW button at the top of the month (leaf spray, drench, fertiliser, job), and a new job on one screen. App files only; database.js unchanged. // v3.82.0 - ONE WORK LIST: the jobs with no material from the workbook on the month page, issued like sets (October · Job 3); the crew has ONE tile, KERJA, with every set, job and tree check on one list and one TANDA SIAP form (day, lot, lot finished?, count, names + a number, hours); undo the same day with a reason; RECORD is the work record (by day, by job with plan against done, workers), with a day rate and a rate of its own per job, by day or by piece. Taken out: the crew's Program tile, the general-task box, ASSIGN WORK and the Owner's Daily Ops tile. App files only. // v3.81.0 - RAIN ON THE SPRAY CARD: the farm gauge on every leaf spray, a warning when rain is keyed for today, "finished morning / afternoon" on TANDA SIAP, and POSSIBLE WASH-OFF to the Owner (spray again as Set 2b, or no need). App files only. // v3.80.0 - USE THE OLD STOCK FIRST: under a product that is short, the issue screen shows the store cards with the same or a similar ingredient; the To Buy list says what the shelf holds. App files only. // v3.79.1 - THE FRIDAY FLUSH HAS FIVE ANSWERS (the Owner's leaf cycle, 5 Oct 2026: new shoot, long tail, leaf spacing, mature). App files only. // v3.79.0 - THE TREE SURVEY, WITH THE GUIDE FOR THE GROUND STAFF. The Owner, 4 Oct 2026: 'the census sheet no yet done' ... 'census will be done by the ground staff, but guided need to show them'. One screen per tree: the health census (leaf colour, canopy, sunlight, does the hose reach, and canker / borer / dieback / standing water tapped only when seen) and the Friday flush check (one tap a tree). A check reaches the crew only when the Owner ISSUES it: lots and day; the flush returns every 7 days until he stops it. The crew find it in their Program tile and on the home screen; before the first check each staff member does the practice (10 cards, then 5 pictures, 4 right). Every question has a '?' with a drawing; NOT SURE and a photo send the question to the Owner. The Owner has a new tile, Trees: SURVEY (by lot, sick, no hose, NOT SURE answers, PBZ yes / no proposed with the nine grafts locked to NO), FLUSH (% hardened by lot against the 80 % line) and ISSUE & WALK (issue, stop, practice record, his reference trees, his own walk). The rows are an append-only log on their OWN road: payload key `treechecks`, tab TREE_CHECKS, a row cursor on the way down, so the Apps Script must be v3.79.0. They are kept in the kv store (one entry per row), so the IndexedDB version does not move.
 // v3.78.0 - THE WATERING CALL. The Owner, 3 Oct 2026: 'weather key in by ground staff. i need the dry alert (no rain) for staff to on irrigation and wet alert for no irrigation.' He approved the sample with every number as suggested. Each morning, once yesterday's gauge is keyed, the crew's home screen says SIRAM HARI INI or TAK PERLU SIRAM: WET when yesterday was 8 mm or more or the last 3 days 25 mm or more, DRY on every other morning with the dry mornings counted (red from day 3, the Owner told at day 5), no call until the gauge is keyed. The Owner's water order - litres per tree, HOLD until a date, OFF - is a NEW shared setting `waterorder`, so the Apps Script must be v3.78.0. SUDAH SIRAM is one TASK_DONE row per lot with kind WATER on the road the work reports already use; it carries no people or hours and the labour roll-up passes over it. The manual Sunny / Rainy switch on the Weather page is replaced by the call: WEATHER stays SUNNY for the old engine. A setting the Sheet side does not know yet stays queued instead of being marked sent. Farm gauge only, never JPS.
 // v3.77.0 - ONE DOOR, AND THE PROGRAMME BY MONTH. The Owner, the evening v3.76.0 went live: 'i just found that is repeated button of similar function for programme', then 'reorganize the programme . show me which suppose i use and extra i would like to deleted . i cant see what is the programme by month'. He was right on both. (1) TWO DOORS ISSUED A SET: v3.76.0 isolated the old PROGRAMS engine and left the older Program Builder (AGRO_DRAFTS, v3.13) fully live - he issued the plan's own drench and fertiliser through it that night and both sat 'waiting for the Sandakan Purchaser to allocate a brand'. (2) THE MONTH WAS THE FOURTH TAB and a row said '6 products'. *** THE PROGRAMME now opens on MONTH for the Owner: three tabs (MONTH, TO BUY, RECORD), an amber NEEDS YOU box above them, twelve month buttons with done counts, every set with its mix on the page (NAMES ONLY folds it), ALL MONTHS, PRINT THIS MONTH (#ppprint, body.printing-pp). TODAY and COMING are folded in. The Purchaser keeps COMING and DONE; his buy list is THE STORE ▸ BUY only. *** CLOSED, ROUTES ONLY, NOTHING ERASED: Agronomist ▸ PROGRAM BUILDER with its crew cards and home bar; THE STORE ▸ AI ➔ BRAND, the old buy queue, RECEIVE AGAINST THE BUY LIST (it only ever listed that queue) and PROGRAMME CHECK; the August set list and FILL FROM THE PLAN on STOCK OUT; REPORTS ▸ PLAN vs DONE (the tab is WHAT WAS APPLIED now). myDirectives / overdueDirectives / unallocatedSlots / procureNeeds / directiveCardsHTML answer 'nothing' at the source, so every badge and list that read them is quiet without being rewritten; the Command tile's LATE counts overdue issued sets (ppOverdue). The Agronomist tile is WEATHER. Closing a programme also closes any Builder directive left open (ppCloseDrafts). *** A FAULT OF v3.76.0, FOUND BEFORE IT BIT: ppFileDone writes crew and hours on every lot's rows under one replyId, and the Sheet has no man-hours column for STOCK_OUT, so labourRows() read a three-lot set of 2 people x 5 h as 30 man-hours in the month ledger while the Programme's own DONE read 10. labourRows() now splits crew x hours across the lots of one reply by their tree counts whenever the rows carry no manHours of their own; rows filed before this release read right too. No Apps Script change. Original v3.76.0 note follows. // v3.76.0 - THE PROGRAMME: THE PLAN STAYS A PLAN, A SET IS ISSUED. The Owner, 2 Oct 2026, with last season's workbook and the 2026/27 one side by side: 'i have no idea what is the code on the set ... the past season still no yet close and the new programme are planing in the sheet but the material will be change due to weather.' Built from the tappable sample he approved (v3). The 57 rounds of the 2026/27 workbook are the PLAN: grey, no number, never overdue, his eyes only. A round becomes work when he ISSUES it, with the day, tanks, lots and mix as he wants them that day and a reason when they differ; that is when it takes its name, the next number in that month (October · Set 1, October · Fert 1). An issued set travels to every phone as one PROGRAMS record changed in place, with a rev so the newest change wins. The crew, in Bahasa: TANDA SIAP (day, tanks, lots, people, hours - the store is drawn for the tanks used) and TAK JADI HARI INI (a reason and the new day; the Owner is told). The Owner: MOVE, CHANGE THE MIX, SKIP, ADD A SET, RECORD AS DONE for any day this season. Short products are highlighted TO BUY: issued sets go to the Purchaser at once, planned rounds when the Owner presses SEND. MONTH shows done, current and planned on one page, and last season read only. Last season's three open sets are closed as Programme 26 shows them, with no stock row and no cost change. The old screen, CONFIRM COMPLETION and the plan editor read last season's records only and are no longer reachable from the Programme. NEEDS Apps Script v3.76.0 (PROGRAMS gains rev+x and newest-wins; STOCK_OUT gains SetId/PhaseId/ReplyId both ways; settings gains buyask). Proof: test_v3760.js, test_v3760_e2e.js, test_gs376.js.
@@ -2026,7 +2026,7 @@ function hideAllPanels(){
     el.style.display='none';});}
 function goHome(){
   if(!CFG||!CFG.key||!CFG.worker){showLogin();return;}   // v2.5.1: the hub is never reachable without a key
-  curModule=null;curTab=null;inMenu=false;ROOM_AT=null;ROOM_DOOR=null;if(typeof NEED_MEMO!=='undefined')NEED_MEMO=null;   // re-review 2: home is always worked out fresh
+  curModule=null;curTab=null;inMenu=false;ROOM_AT=null;ROOM_DOOR=null;if(typeof NEED_MEMO!=='undefined')NEED_MEMO=null;if(typeof GL_MEMO!=='undefined')GL_MEMO=null;   // re-review 2: home is always worked out fresh
   hideAllPanels();
   $('subbar').classList.add('hidden');$('subbar').innerHTML='';
   showScreen('home');
@@ -4766,6 +4766,7 @@ async function outFillFromPlan(){
 function outBasketCost(){return OUT_BASKET.reduce((t,l)=>t+(+l.cost||0),0);}
 function renderOutBasket(){
   const box=$('outbasket'); if(!box)return;
+  if(OUT_DBL_SIG&&outDblSig(outDoubles())!==OUT_DBL_SIG)outDblHide();   // v3.107.0 P2a - asked about another list
   const note=$('out-bdnote');
   if(note)note.textContent=backdateNote(outHeaderDate());
   /* ⛔ THE CREW MUST NOT PAY A SECOND TAP FOR THE PURCHASER'S BASKET. This same card is the
@@ -4799,6 +4800,40 @@ function renderOutBasket(){
       esc(tr('ob_clear','CLEAR THIS ISSUE'))+'</button>'+
   '</div>';}
 let savingOutBasket=false;
+
+/* ======================================================================================
+   v3.107.0 · P2a - MATERIAL DRAWN TWICE
+   ======================================================================================
+   TANDA SIAP takes a set's material off the shelf by itself. The same bag keyed again here
+   took it off twice and the set cost double. Before a product that an issued set still has to
+   take is saved here, the form says so and asks: EXTRA material (two taps to go on), or cancel and
+   use TANDA SIAP. Nothing new is stored; an extra line is saved as it always was. */
+let OUT_DBL_OK='', OUT_DBL_SIG='';
+function outDoubles(){
+  if(typeof ppOn!=='function'||!ppOn()||!OUT_BASKET.length)return [];
+  let sets=[]; try{sets=ppSets().filter(s=>s.st==='iss'&&ppLotsLeft(s).length);}catch(e){return [];}
+  const out=[];
+  OUT_BASKET.forEach(l=>{
+    const s=sets.find(s=>(outLot===LOT_ALL||!outLot||ppLotsLeft(s).indexOf(outLot)>=0)&&s.lines.some(x=>x.card&&+x.pid===+l.pid&&ppReqLeft(s,x)>0));
+    if(s)out.push({l:l,s:s});});
+  return out;}
+function outDblSig(dbl){return dbl.map(d=>d.l.pid+':'+d.l.qty+':'+d.s.key).join('|')+'|'+outLot;}
+function outDblBox(){let b=$('out-dbl'); if(!b){const e=$('out-err'); if(!e)return null; b=document.createElement('div'); b.id='out-dbl'; e.parentNode.insertBefore(b,e.nextSibling);} return b;}
+function outDblHide(){const b=$('out-dbl'); if(b)b.innerHTML=''; OUT_DBL_SIG='';}
+function outDblShow(dbl){
+  const b=outDblBox(); if(!b)return;
+  OUT_DBL_SIG=outDblSig(dbl);
+  b.innerHTML='<div class="outdbl">'+dbl.map(d=>'<div><b>'+esc(d.l.pname)+'</b> '+esc(tr2('is already in ','sudah dalam '))+'<b>'+esc(LANG==='ms'?ppNameBM(d.s):ppName(d.s))+'</b>.</div>').join('')+
+    '<div style="margin-top:4px">'+esc(tr2('When MARK DONE is pressed on that set, the store is taken off by itself. Key it here only if it is EXTRA material, not for that set.',
+      'Bila TANDA SIAP pada set itu, stor ditolak sendiri. Masukkan di sini hanya jika ini bahan LEBIH, bukan untuk set itu.'))+'</div>'+
+    '<button class="bigbtn ghost" id="out-dbl-go" style="margin-top:8px" onclick="outDblGo()">'+esc(tr2('THIS IS EXTRA — GO ON','INI BAHAN LEBIH — TERUSKAN'))+'</button>'+
+    '<div style="height:6px"></div><button class="bigbtn" id="out-dbl-no" onclick="outDblCancel()">'+esc(tr2('CANCEL — USE MARK DONE','BATAL — GUNA TANDA SIAP'))+'</button></div>';}
+function outDblGo(){if(!OUT_DBL_SIG)return; OUT_DBL_OK=OUT_DBL_SIG; submitOutBasket();}
+async function outDblCancel(){
+  const dbl=outDoubles(), ids={}; dbl.forEach(d=>{ids[+d.l.pid]=1;});
+  OUT_BASKET=OUT_BASKET.filter(l=>!ids[+l.pid]); await persistOutBasket();
+  OUT_DBL_OK=''; outDblHide(); renderOutBasket();
+  toast(tr2('Not saved. Use MARK DONE on the set card.','Tidak disimpan. Guna TANDA SIAP pada kad set.'));}
 async function submitOutBasket(){
   const err=$('out-err'); err.textContent='';
   if(savingOutBasket)return;
@@ -4810,6 +4845,7 @@ async function submitOutBasket(){
   const stamp=stampFor(iso);
   if(stamp===null){err.textContent=tr('bd_future','That day has not happened yet. Pick today or a day already past.');return;}
   const set=$('sset')?$('sset').value:'';
+  {const dbl=outDoubles(); if(dbl.length&&OUT_DBL_OK!==outDblSig(dbl)){outDblShow(dbl);return;}}   // v3.107.0 P2a - asked once, then two taps to go on
   /* the two warnings submitStockOut() has carried since v2.5, applied to the WHOLE basket
      once rather than product by product — six dialogs in a row is how a person learns to tap
      OK without reading. */
@@ -4840,7 +4876,7 @@ async function submitOutBasket(){
           splitAll:(outLot===LOT_ALL)||undefined, lotsInReport:parts.length,
           worker:CFG.worker,device:CFG.device,synced:false});}}
   } finally { savingOutBasket=false; }
-  OUT_BASKET=[]; await persistOutBasket();
+  OUT_BASKET=[]; await persistOutBasket(); OUT_DBL_OK=''; outDblHide();   // v3.107.0 P2a
   outLot='';LOT_KEYS.concat([LOT_ALL]).forEach(L=>{const el=$('ol-'+L);if(el)el.classList.remove('on');});
   $('out-qty').value='';
   outSplitNote(); renderOutBasket(); onOutCalc();
@@ -5058,7 +5094,7 @@ function splitAcrossLots(total){
   const w=lotWeights(), parts=splitExact(+total||0,w);
   return LOT_KEYS.map((l,i)=>({lot:l,qty:parts[i]})).filter(x=>x.qty>0);}
 function pickOutLot(l){
-  outLot=l;
+  outLot=l; if(OUT_DBL_SIG)outDblHide();   // v3.107.0 P2a - another lot, another question
   LOT_KEYS.concat([LOT_ALL]).forEach(k=>{const el=$('ol-'+k); if(el)el.classList.toggle('on',k===l);});
   outSplitNote();}
 /** The sentence that stops the split being a hidden assumption. */
@@ -8710,7 +8746,7 @@ function ppBuyHTML(){
     '<div class="pp-g">Issued sets, and the plan for the next '+PP_BUY_DAYS+' days.</div><!--os-->';
   const part=r=>(!r.covered&&r.has>1e-6)?(' · the Purchaser has '+ppQty(r.has,r.u)+' of this'):'';
   const osn=ppOsNeed('');   // v3.80.0 - what the plan asks of every card, once
-  b.rows.forEach(r=>{h+='<div class="pp-it"><div><b>'+esc(r.name)+'</b> — buy '+ppQty(r.short,r.u)+
+  b.rows.forEach(r=>{h+='<div class="pp-it" id="pp-ob-'+ppCss(r.key)+'"><div><b>'+esc(r.name)+'</b> — buy '+ppQty(r.short,r.u)+
     '<small>first needed for '+esc(ppForTxt(r))+' · shelf '+ppQty(r.shelf,r.u)+part(r)+'</small>'+ppOsBuyHTML(r,osn)+'</div>'+tag(r)+'</div>';});
   b.nocard.forEach(r=>{h+='<div class="pp-it"><div><b>'+esc(r.name)+'</b> — '+ppQty(r.need,r.u)+
     '<small>'+(r.odd?('the card '+esc(r.odd)+' counts in another unit'):'no store card')+', so the app cannot count it · needed for '+esc(ppForTxt(r))+'</small>'+ppOsBuyHTML(r,osn)+'</div>'+tag(r)+'</div>';});
@@ -8925,7 +8961,7 @@ function ppRowHTML(v,cls,idp){
   return '<button class="pp-row st-'+v.st+(cls?(' '+cls):'')+'" id="'+(idp||'pp-row-')+ppCss(v.key)+'" onclick="ppOpenSet(\''+ppArg(v.key)+'\')">'+
     '<div class="pp-top"><div><b class="pp-nm">'+esc(ppName(v))+'</b>'+ppCodeTag(v)+bdTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
     '<div class="pp-pur">'+esc(v.tgt)+'</div><div class="pp-dt">'+ppWhenTxt(v)+' · '+v.lines.length+' product'+(v.lines.length===1?'':'s')+
-    (v.ver>1?' · changed':'')+(sh?(' · <span class="pp-short">'+sh+' short</span>'):'')+'</div>'+ppMovedHTML(v)+'</button>';}
+    (v.ver>1?' · changed':'')+(sh?(' · <span class="pp-short'+((ppIsOwner()||myRole()==='PURCHASER')?' go':'')+'"'+((ppIsOwner()||myRole()==='PURCHASER')?(' onclick="event.stopPropagation();ppShortGo(\''+ppArg(v.key)+'\')"'):'')+'>'+sh+' '+ppT('short','tak cukup')+((ppIsOwner()||myRole()==='PURCHASER')?' ›':'')+'</span>'):'')+'</div>'+ppMovedHTML(v)+'</button>';}
 /** The day a set sits on in its month: the day it was done, else the day it is set for. */
 function ppDayOf(v){return (v.st==='done'&&v.done)?v.done.date:v.date;}
 /** "2 tanks" for a mix, "162 trees" for a per-tree round, nothing for a per-round job. */
@@ -8945,7 +8981,7 @@ function ppSheetHTML(v,cls){
   const mix=v.lines.length?('<div class="pp-mxh">'+esc(ppBasisTxtV(v))+(size?(' · '+esc(size)):'')+'</div><table class="pp-mx">'+v.lines.map(l=>{
     let flag='';
     if(live){ if(!l.card)flag=' <span class="pp-short">· '+(l.odd?'card in another unit':'no store card')+'</span>';
-      else if(ppAvail(l.pid,v.key)<ppReqLeft(v,l)-1e-9)flag=' <span class="pp-short">· short</span>'; }
+      else if(ppAvail(l.pid,v.key)<ppReqLeft(v,l)-1e-9)flag=ppIsOwner()?(' <span class="pp-short go" onclick="event.stopPropagation();ppShortGo(\''+ppArg(v.key)+'\')">· short ›</span>'):' <span class="pp-short">· short</span>'; }   // v3.107.0 P6a
     return '<tr><td>'+esc(l.n)+flag+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>';}).join('')+'</table>'):'';
   return '<button class="pp-row st-'+v.st+(cls?(' '+cls):'')+'" id="pp-row-'+ppCss(v.key)+'" onclick="ppOpenSet(\''+ppArg(v.key)+'\')"><div class="pp-sh"><div class="pp-day">'+day+'</div><div>'+
     '<div class="pp-top"><div><b class="pp-nm">'+esc(ppName(v))+'</b>'+ppCodeTag(v)+bdTag(v)+'</div><span class="pp-pill '+st.c+'">'+st.t+'</span></div>'+
@@ -8999,6 +9035,62 @@ function ppStripHTML(){
     h+='<button class="pp-mchip'+(j===i&&!PPO.year?' on':'')+(x.mon===cur?' cur':'')+'" id="pp-mc-'+x.mon+'" onclick="ppPgTo('+j+')">'+
       PP_MONS[+x.mon.slice(5,7)-1].toUpperCase()+'<small>'+(c.n?(c.done+' of '+c.n+' done'):'nothing')+'</small></button>';});
   return h+'</div>';}
+
+/* ======================================================================================
+   v3.107.0 · P5a - THIS WEEK (the Owner, 25 Oct 2026)
+   ======================================================================================
+   The programme opened on the month. On a Sunday evening he needs the next seven days: what
+   is issued, what is still only planned, and whether it rained. Today and the six days after,
+   each with its sets, its jobs and its young rounds; an issued set whose day has come or gone
+   sits on today, amber. Tap a day: its rows, which open as on MONTH. Reads only. */
+function ppWeekLab(v,j){
+  if(j)return v.num?(ppT('Job','Kerja')+' '+v.num):(v.code||ppT('job','kerja'));
+  const g=v.grp==='weed'?ppT('Weed','Rumput'):(PP_GRPW[v.grp]?PP_GRPW[v.grp][LANG==='ms'?1:0]:'');
+  if(v.num)return g+' '+v.num+(v.sfx||'');
+  return v.yg?('🌱 '+(v.code||'')):((v.code?(g+' '+v.code):ppTypeW(v.k)));}
+function ppWeekItems(d,t){
+  const sets=ppSets().filter(v=>v.st!=='skip');
+  const jobs=(typeof pjOn==='function'&&pjOn())?pjJobs().filter(v=>v.st!=='skip'):[];
+  const sd=v=>((v.st==='iss'||(v.st==='plan'&&v.date>=ppAdd(t,-14)))&&ppOkDay(v.date)&&v.date<t)?t:ppDayOf(v);   // an issued set past its day is today's work; review 8: so is a round of the last 14 days never issued
+  const jd=v=>(v.st==='iss'&&ppOkDay(v.from)&&v.from<t&&!v.direct)?t:pjDayOf(v);
+  const rk=x=>{const v=x.v; return v.st==='iss'?0:v.st==='done'?1:(v.date===d?2:3);};   // on today: the work in hand first, the rounds never issued last
+  return sets.filter(v=>sd(v)===d).map(v=>({v:v,j:0})).concat(jobs.filter(v=>jd(v)===d).map(v=>({v:v,j:1}))).map((x,i)=>Object.assign(x,{i:i})).sort((p,q)=>(rk(p)-rk(q))||(p.i-q.i));}
+function ppWeekChip(it,t){
+  const v=it.v, dd=it.j?v.from:v.date, c=v.st==='done'?'ok':v.st==='iss'?((ppOkDay(dd)&&dd<=t)?'due':'iss'):((ppOkDay(dd)&&dd<t)?'late':'plan');
+  return '<span class="ppwk-c '+c+'">'+esc(ppWeekLab(v,it.j))+'</span>';}
+function ppWeekHTML(){
+  if(!ppIsOwner())return '';
+  const t=todayISO(), days=[]; for(let i=0;i<7;i++)days.push(ppAdd(t,i));
+  let h='<div class="ppwk" id="pp-week"><div class="ppwk-h">'+esc(ppT('THIS WEEK','MINGGU INI'))+' · '+ppFmtS(days[0])+' – '+ppFmtS(days[6])+'</div><div class="ppwk-g">';
+  days.forEach(d=>{
+    const it=ppWeekItems(d,t), dt=ppD(d), r=(d<=t&&typeof rainOn==='function')?rainOn(d):null;
+    const rn=d>t?'·':(r?((typeof rainKind==='function'&&rainKind(r)!=='rain')?'0':(nf(+r.mm||0))):'—');
+    h+='<div role="button" class="ppwk-d'+(d===t?' ppwk-t':'')+(PPO.wk===d?' ppwk-on':'')+'" id="pp-wk-'+d+'" onclick="ppWeekDay(\''+d+'\')"><span class="ppwk-dn">'+
+      RN_DOW[rnLang()][dt.getUTCDay()]+' '+dt.getUTCDate()+'</span><span class="ppwk-rn">'+(d>t?'·':('🌧 '+rn))+'</span>'+(it.length>4?(it.slice(0,3).map(x=>ppWeekChip(x,t)).join('')+'<span class="ppwk-c more">+'+(it.length-3)+'</span>'):it.map(x=>ppWeekChip(x,t)).join(''))+'</div>';});
+  h+='</div><div class="ppwk-n">'+esc(ppT('🌧 = rain keyed at the farm, mm (— not keyed yet). Grey = only planned (red dashed: its day has passed, not issued) · blue = issued · amber = due · green = done. Tap a day for its list.',
+    '🌧 = hujan dimasukkan di ladang, mm (— belum). Kelabu = rancangan (merah: harinya sudah lepas) · biru = dikeluarkan · kuning = hari ini · hijau = siap. Tekan hari untuk senarai.'))+'</div>';
+  if(PPO.wk&&days.indexOf(PPO.wk)>=0){
+    const it=ppWeekItems(PPO.wk,t);
+    h+='<div class="ppwk-l" id="pp-wk-list">'+(it.length?it.map(x=>x.j?pjRowHTML(x.v,'','pj-wk-'):ppRowHTML(x.v,'','pp-wk-r-')).join(''):
+      '<div class="pp-note">'+esc(ppT('Nothing on the programme on ','Tiada apa dalam program pada ')+ppFmt(PPO.wk))+'.</div>')+'</div>';}
+  return h+'</div>';}
+function ppWeekDay(d){PPO.wk=(PPO.wk===d)?'':d; ppRender();}
+/* ======================================================================================
+   v3.107.0 · P6a - "N short" opens the buy line
+   ====================================================================================== */
+function ppShortGo(k){
+  const v=ppSets().find(s=>s.key===ppUnArg(k)); if(!v)return;
+  const l=v.lines.find(l=>l.card&&ppAvail(l.pid,v.key)<ppReqLeft(v,l)-1e-9);
+  if(myRole()==='PURCHASER'){
+    openModule('inv','hub');
+    const id='pp-st-'+ppCss(l?l.key:'');
+    setTimeout(()=>{const e=l?$(id):null;
+      if(e){e.scrollIntoView({block:'center'}); e.classList.add('ppflash'); setTimeout(()=>{try{e.classList.remove('ppflash');}catch(x){}},2600);}
+      else toast(ppT('Not on your list yet: the Owner has not sent it to buy.','Belum dalam senarai anda: Pengurus belum hantar untuk dibeli.'));},250);
+    return;}
+  if(ppIsOwner()){ppTab('buy');
+    setTimeout(()=>{const e=l?$('pp-ob-'+ppCss(l.key)):null;
+      if(e){e.scrollIntoView({block:'center'}); e.classList.add('ppflash'); setTimeout(()=>{try{e.classList.remove('ppflash');}catch(x){}},2600);}},200);}}
 function ppViewSwHTML(){
   return '<div class="pp-vsw"><button id="pp-v-mix" class="'+(PPO.mix&&!PPO.year?'on':'')+'" onclick="ppMixOn(1)">WITH THE MIX</button>'+
     '<button id="pp-v-names" class="'+(!PPO.mix&&!PPO.year?'on':'')+'" onclick="ppMixOn(0)">NAMES ONLY</button>'+
@@ -9122,7 +9214,7 @@ function ppOwnHTML(){
   if(PPO.s==='from')return own?pqFromHTML():'';
   h=ppNeedHTML()+ppSegHTML();
   if(PPO.v==='month'){
-    h+=ppStripHTML()+ppViewSwHTML()+(PPO.year?ppYearHTML():ppMonthHTML());
+    h+=ppWeekHTML()+ppStripHTML()+ppViewSwHTML()+(PPO.year?ppYearHTML():ppMonthHTML());   // v3.107.0 P5a
   }else if(PPO.v==='young'){
     h+=ygPageHTML();   // v3.99.0
   }else if(PPO.v==='buy'){
@@ -12006,7 +12098,7 @@ function ppELiveHTML(v){
   const o=PPE;
   if(o.mode==='plan')return pqPlanLiveHTML(v);   // v3.83.0
   const ch=ppChanges(v,o), need=ch.length||(v.extra&&!v.rec);
-  let h=ppBuyBox(v,o,true);
+  let h=ppBuyBox(v,o,true)+ppGraftWarnHTML(v,o);   // v3.107.0 P1a
   if(need){
     h+=(ch.length?('<div class="pp-chg"><b>Different from the plan</b><ul>'+ch.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul></div>')
                  :'<div class="pp-chg"><b>A set that is not on the plan</b>Say why it is needed.</div>')+
@@ -12368,7 +12460,7 @@ function ppCrewHTML(){
     h+=((fuIsCk(v)&&v.rec)?('<div class="pp-q">'+ppT('The mix: in each litre of water','Bancuhan: dalam setiap liter air')+'</div><table class="pp-mix">'+v.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td class="r">'+ppQty(+fuCkGpl(v.rec,l.q).toFixed(2),l.u)+'</td></tr>').join('')+'</table>'):   // v3.88.0 (review 9)
       ('<div class="pp-q">'+(ppKs(v)?ppT('The mix for one 20 L knapsack','Bancuhan satu pam galas 20 L'):v.basis==='T'?ppT('The mix for each 1,000 L tank','Bancuhan setiap tangki 1,000 L'):v.basis==='P'?ppT('For each tree','Setiap pokok'):ppT('For the round','Setiap pusingan'))+'</div>'+
       '<table class="pp-mix">'+v.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td class="r">'+ppQty(l.q,l.u)+'</td></tr>').join('')+'</table>'))+
-      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+pzCardHTML(v)+fuCkCardHTML(v)+bdCardHTML(v)+ygNgHTML(v)+ygCardHTML(v)+   /* v3.85.0 · v3.86.0 · v3.99.0 */
+      '<div class="pp-g">'+ppSizeTxt(v,v.tanks,v.lots)+'</div>'+ppTakeBoxHTML(v)+pzCardHTML(v)+fuCkCardHTML(v)+bdCardHTML(v)+ygNgHTML(v)+ygCardHTML(v)+   /* v3.85.0 · v3.86.0 · v3.99.0 */
       '<button class="pp-act" id="pp-c-done" onclick="ppCDoneOpen()">✓ '+ppT('MARK DONE','TANDA SIAP')+'</button>'+
       '<button class="pp-ghost rd" id="pp-c-not" onclick="ppCNotOpen()">✗ '+ppT('NOT DONE TODAY','TAK JADI HARI INI')+'</button>';
     return h;}
@@ -12395,6 +12487,72 @@ function ppCrewMin(){
   let m=ppAdd(todayISO(),-PP_CREW_BACK);
   [ppSeasonFrom(),ppStockFrom()].forEach(d=>{if(d&&d>m)m=d;});
   return m;}
+
+/* ======================================================================================
+   v3.107.0 · P1a - TAKE FROM THE STORE (the Owner, 25 Oct 2026, "ok with thise recomedation")
+   ======================================================================================
+   The card said 750 g a tree and 162 trees; the crew worked the rest out at the store. The box
+   prints what TANDA SIAP will take off the shelf for what is still to do - ppReqLeft(), the same
+   figure the store is drawn by - and the packs, from the store card's own pack size. A line with
+   no store card is drawn by nothing, so it says so: ask the Owner. A canker round is mixed by
+   the litre on its named trees, so it has no box. It stores nothing. */
+const PP_CONT_MS={bag:'beg',bags:'beg',sack:'guni',sacks:'guni',bottle:'botol',bottles:'botol',pack:'paket',packs:'paket',packet:'paket',packets:'paket',
+  box:'kotak',boxes:'kotak',can:'tin',cans:'tin',tin:'tin',tins:'tin',drum:'drum',drums:'drum',jerrycan:'jerikan',jerrycans:'jerikan',
+  roll:'gulung',rolls:'gulung',pail:'baldi',pails:'baldi',bucket:'baldi',buckets:'baldi',tube:'tiub',tubes:'tiub',sachet:'sachet',sachets:'sachet',
+  container:'bekas',containers:'bekas',carton:'karton',cartons:'karton'};
+function ppContW(p,n){
+  const w=String((p&&p.container)||'').trim();
+  if(LANG==='ms')return PP_CONT_MS[w.toLowerCase()]||w||'bekas';
+  return packWord(p,n);}
+/** "1 bag 50 kg + 41.5 kg" · "from a 25 kg bag" · "= 1 bottle". q is in the card's own unit. */
+function ppPackTxt(p,q){
+  const c=packSize(p); if(!c||!(q>0))return '';
+  const f=Math.floor(q/c+1e-9), r=+(q-f*c).toFixed(3);
+  if(!f)return ppT('from a ','dari ')+(LANG==='ms'?(ppContW(p,1)+' '+ppQty(c,p.unit)):(ppQty(c,p.unit)+' '+ppContW(p,1)));
+  if(r<1e-6||r<c*0.0005)return '= '+f+' '+ppContW(p,f);
+  return (LANG==='ms'?(f+' '+ppContW(p,f)+' '+ppQty(c,p.unit)):(f+' × '+ppQty(c,p.unit)+' '+ppContW(p,1)))+' + '+ppQty(r,p.unit);}
+function ppTakeBoxHTML(v){
+  if(!v||v.st!=='iss'||!Array.isArray(v.lines)||!v.lines.length)return '';
+  if(typeof fuIsCk==='function'&&fuIsCk(v))return '';
+  const left=ppLotsLeft(v); if(!left.length)return '';
+  const part=left.length<v.lots.length;
+  let head='', per='', warn='';
+  let each=false;
+  if(v.basis==='T'){const t=+v.tanks||0; if(!(t>0))return '';
+    /* the lots still to do of a spray are drawn by the tanks keyed for them: per tank, not a share of the issue */
+    if(part){each=true; head=ppT(ppKs(v)?'for each knapsack':'for each tank',ppKs(v)?'setiap pam galas':'setiap tangki');}
+    else{head=nf(t)+' '+ppTankW(v,t); per=nf(t)+' × ';}}
+  else if(v.basis==='P'){
+    const n=part?0:ppTreesShown(v,left);
+    if(!part){if(!(n>0))return ''; head=nf(n)+' '+ppT(n===1?'tree':'trees','pokok'); per=nf(n)+' × ';}
+    /* review 1: the grafts are judged on the WHOLE set as issued - the issue spreads its trees over the lots by their
+       size, so a share of the lots left proves nothing about the grafts */
+    if(!v.yg&&!bdGrouped(v)&&typeof ygNgTrees==='function'){
+      const N=+v.trees||0, g=ygNgTrees(v).length, fed=ppTrees(v.lots)-g;
+      if(g&&N>fed)warn='<div class="pptk-w" id="pp-tk-warn">⚠ '+ppT('This set was issued for '+N+' trees, which counts the '+g+' grafted trees you skip. Ask the Owner before you take it out.',
+        'Set ini dikeluarkan untuk '+N+' pokok, termasuk '+g+' pokok cantuman yang dilangkau. Tanya Pengurus sebelum ambil.')+'</div>';
+      else if(g&&N===fed&&!part)head+=' ('+ppT('the '+g+' grafts not counted','tanpa '+g+' cantuman')+')';}}
+  else head=ppT('for the round','untuk pusingan');
+  let rows='';
+  v.lines.forEach((l,i)=>{
+    const q=each?(+l.q||0):ppReqLeft(v,l); if(!(q>0))return;
+    let r='';
+    if(!l.card)r='<span class="pptk-no">'+(l.odd?ppT('card in another unit — ask the Owner','kad dalam unit lain — tanya Pengurus'):ppT('no store card — ask the Owner','tiada kad stor — tanya Pengurus'))+'</span>';
+    else{const p=prodById(l.pid); if(p){const pk=ppPackTxt(p,ppConv(q,l.u,p.unit)); if(pk)r='<span class="pptk-pk">'+esc(pk)+'</span>';}}
+    rows+='<div class="pptk-r" id="pp-tk-'+i+'"><span>'+esc(l.n)+(per?('<small>'+per+ppQty(l.q,l.u)+'</small>'):'')+'</span><b>'+ppQty(+q.toFixed(3),l.u)+r+'</b></div>';});
+  if(!rows)return '';
+  return '<div class="pptk" id="pp-take"><div class="pptk-h">📦 '+ppT('TAKE FROM THE STORE','AMBIL DARI STOR')+(head?(' · '+head):'')+(part?(' · Lot '+esc(left.join(' '))):'')+'</div>'+warn+rows+
+    (v.basis==='T'?('<div class="pptk-n">'+ppT('The store is drawn for the tanks you key at MARK DONE.','Stor ditolak ikut tangki yang anda masukkan semasa TANDA SIAP.')+'</div>'):'')+'</div>';}
+/** v3.107.0 P1a - his issue form: a per-tree set whose card tells the crew to skip the grafts, issued for a tree count
+ *  that still includes them. Found on his own Fert 3 (23 Oct): 162 changed to 171, 9 grafts skipped, the store drawn for 171. */
+function ppGraftWarnHTML(v,o){
+  if(!v||!o||v.basis!=='P'||v.yg||bdGrouped(v)||(typeof fuIsCk==='function'&&fuIsCk(v))||typeof ygNgTrees!=='function')return '';
+  const g=ygNgTrees(Object.assign({},v,{lots:o.lots})).length; if(!g)return '';
+  const fed=ppTrees(o.lots)-g, t=Math.round(+o.trees||0); if(!(t>fed))return '';
+  return '<div class="pp-chg" id="pp-e-gw"><b>⚠ The crew skip the '+g+' grafted trees</b>The card tells them to. '+t+' trees takes the store for '+(t-fed)+' tree'+(t-fed===1?'':'s')+
+    ' that '+(t-fed===1?'is':'are')+' not fed. The trees fed in Lot '+esc(o.lots.join(' '))+': '+fed+'.'+
+    '<button class="pp-ghost" id="pp-e-gw-use" style="margin-top:8px" onclick="ppEUseTrees('+fed+')">USE '+fed+' TREES</button></div>';}
+function ppEUseTrees(n){const e=$('pp-e-trees'); if(!e||e.disabled||!PPE)return; e.value=n; PPE.trees=+n||0; ppELive();}
 function ppCDoneOpen(){
   const v=ppCrewSet(); if(!v)return;
   if(ppStale(v.rec))return;
@@ -32695,20 +32853,98 @@ function needListBuild(){
    if(buy)add('info','🛒',buy+' '+tr2(buy===1?'product to buy for the plan':'products to buy for the plan','barang perlu dibeli'),'r_store','buy');
    const ps=(T(()=>programShortages())||[]).length, ls=(T(()=>lowStock())||[]).length;
    if(!buy&&ps)add('info','🧪',ps+' '+tr2('short for a set already issued','tidak cukup untuk set'),'r_store','buy');
-   if(ls>ps)add('info','📉',(ls-ps)+' '+tr2((ls-ps)===1?'product under its minimum':'products under their minimum','barang bawah paras minimum'),'r_store','shelf');}
+   /* v3.107.0 D4a - "under their minimum" left NEEDS YOU: the minimums were set for last season and asked nothing
+      of him. THE STORE ▸ SHELF still shows them. */ void ls;}
   // money
   {const cr=(T(()=>creditAdvice())||[]).filter(c=>c.raise||c.overdrawn);
    if(cr.length)add('warn','💳',tr2('Credit to top up: ','Kredit perlu ditambah: ')+cr.map(c=>String(c.name||'')).filter(Boolean).join(' · '),'r_money','owed');}
   {const o=T(()=>rcAlert()); if(o&&o.txt&&o.hot)add('warn','💵',String(o.txt).replace(/^💵\s*/,''),'r_money','owed');}   // review 5: only money unpaid over 14 days; the rest is on MONEY
   // the shed and the scale
-  {const s=T(()=>scAlert()); if(s&&s.txt)add(s.hot?'warn':'info','🏚',String(s.txt).replace(/^🏚\s*/,''),'r_sales','shed');}
+  {const s=T(()=>scAlert()); if(s&&s.txt&&!(T(()=>scMissedLastNight())&&!dashHarvest()))add(s.hot?'warn':'info','🏚',String(s.txt).replace(/^🏚\s*/,''),'r_sales','shed');}   // v3.107.0 D3a
   {const k=T(()=>kfAlert()); if(k&&k.txt)add('info','⚖️',String(k.txt).replace(/^⚖️\s*/,''),'r_admin','yield');}   // review 5: answered in YIELD AUDIT
   // the phones
-  {const st=(T(()=>phoneFreshness())||[]).filter(p=>p.state==='r'&&p.mins!=null&&p.mins<14*1440);   // a phone that was working this fortnight and has gone quiet; an old or imported one is not news
-   if(st.length)add('info','📵',tr2('Quiet for 2 days or more: ','Senyap 2 hari atau lebih: ')+st.map(p=>p.who||p.device).join(' · '),'r_admin','staff');}
+  {const st=T(()=>needQuietCrew())||[];   // v3.107.0 D2a - a crew member who keys every day and has gone quiet; not phones, not the Owner
+   if(st.length)add('info','📵',tr2('Quiet for 2 days or more: ','Senyap 2 hari atau lebih: ')+st.map(p=>p.name+' ('+tr2('last ','terakhir ')+rnShort(p.last)+')').join(' · '),'r_today','who');}
   {const un=EVENTS.filter(e=>e&&!e.synced).length; if(un>40)add('info','📵',un+' '+tr2('records still on this phone — press SYNC','rekod masih dalam telefon ini — tekan SYNC'),'sync','');}
   const rank={crit:0,warn:1,info:2};
   return out.map((x,i)=>Object.assign(x,{i:i})).sort((p,q)=>(rank[p.lvl]-rank[q.lvl])||(p.i-q.i));}
+
+/* ======================================================================================
+   v3.107.0 · THE MAIN DASHBOARD - D1a D2a D3a D4a (the Owner, 25 Oct 2026, "ok. build this first")
+   ====================================================================================== */
+/** The harvest phase: the season says so, or fruit has been collected in the last 7 days. */
+function dashHarvest(){
+  const c=seasonCur(); if(c&&String(c.phase||'').toUpperCase()==='HARVEST')return true;
+  const f=dayShift(todayISO(),-6), from=seasonFrom();
+  return EVENTS.some(e=>{if(!e||e.type!=='DROP')return false; const d=String(e.dt||'').slice(0,10); return d>=f&&(!from||d>=from);});}
+/** D2a - people on the crew who key every day (7 or more days in the fortnight up to their last record) and have
+ *  keyed nothing for 2 days. The Owner, the Gate and the Purchaser are never on it; a spare phone is not news. */
+function needQuietCrew(){
+  const crew=(typeof KEYS!=='undefined'?KEYS:[]).filter(k=>k&&k.role==='WORKER'&&isActive(k)); if(!crew.length)return [];
+  const days={};
+  const day=s=>{s=String(s||''); if(/T.*Z$/.test(s)){const t=Date.parse(s); return isFinite(t)?ymd(new Date(t)):'';} return s.slice(0,10);};   // re-review: a stamp the Sheet hands back in UTC
+  const mark=(uid,name,d)=>{if(!d||d.length!==10)return; const k=uid?('u:'+uid):('n:'+name); (days[k]=days[k]||{})[d]=1;};
+  EVENTS.forEach(e=>{if(e)mark(String(e.workerId||''),String(e.worker||''),String(e.dt||'').slice(0,10));});
+  /* review 7: rain by the day it was KEYED (a week keyed in one sitting is one day of work); the tree checks and the
+     sets' own logs count too - in October the crew walks the trees more than it takes from the store */
+  (typeof RAINFALL!=='undefined'?RAINFALL:[]).forEach(r=>{if(r)mark(String(r.byId||''),String(r.by||''),day(r.at||r.date));});
+  (typeof TREE_LOG!=='undefined'?TREE_LOG:[]).forEach(r=>{if(r)mark(String(r.byId||''),String(r.by||''),day(r.at));});
+  try{ppRecs().forEach(rec=>{const x=ppX(rec); (x&&Array.isArray(x.log)?x.log:[]).forEach(e=>{if(e&&e.by)mark('',String(e.by),day(e.at));});});}catch(e){}
+  const out=[];
+  crew.forEach(k=>{
+    const ds={}; [days['u:'+String(k.id||'')],days['n:'+String(k.name||'')]].forEach(o=>{if(o)Object.keys(o).forEach(d=>{ds[d]=1;});});
+    const all=Object.keys(ds).sort(); if(!all.length)return;
+    const last=all[all.length-1], q=scDays(last);
+    if(q<2||q>14)return;
+    const n=all.filter(d=>d>dayShift(last,-14)).length;
+    if(n>=7)out.push({name:String(k.name||''),last:last});});
+  return out;}
+function rcOwedTotal(){let tot=0; ((typeof rcCreditIds==='function')?rcCreditIds():[]).forEach(id=>{const p=rcPos(id); if(p&&p.bal<0)tot+=(+p.owes||0);}); return tot;}
+/** D1a - four numbers under NEEDS YOU. Each is the figure its own screen shows; a tap opens that screen. */
+let GL_MEMO=null;
+function dashGlance(){
+  const key=EVENTS.length+'|'+((typeof RAINFALL!=='undefined')?RAINFALL.length:0)+'|'+todayISO()+'|'+LANG+'|'+SHOW_VALUES+'|'+SHOW_SPEND;
+  if(GL_MEMO&&GL_MEMO.key===key&&Date.now()-GL_MEMO.at<15000)return GL_MEMO.list;
+  const T=f=>{try{return f();}catch(e){return null;}};
+  const t=todayISO(), mon=t.slice(0,7), out=[], mn=T(()=>ppMonName(mon))||mon;
+  const owed=()=>{ if(!SHOW_VALUES)return; const o=T(()=>rcOwedTotal()); if(o!=null)out.push({v:'RM '+nf(Math.round(o)),l:tr2('owed to the farm','hutang kepada ladang'),go:['r_money','owed'],id:'owed'});};
+  if(T(()=>dashHarvest())){
+    const m=T(()=>harvestMatrix(t,t)); out.push({v:nf(m?m.all.dropped:0),l:tr2('dropped today','gugur hari ini'),go:['r_today','harvest'],id:'drop'});
+    /* review 3: invoices AND cash sales of today, as OWED ▸ the day shows them; one pass, not the season roll */
+    if(SHOW_VALUES){let s=0; EVENTS.forEach(e=>{if(!e||String(e.dt||'').slice(0,10)!==t)return; if(e.type==='DISPATCH')s+=(+e.total_value_rm||0); else if(e.type==='SALE')s+=(+e.amount||0);});
+      out.push({v:'RM '+nf(Math.round(s)),l:tr2('sold today','dijual hari ini'),go:['r_money','owed'],id:'sold'});}
+    const s=T(()=>shedCount()); out.push({v:nf(s||0),l:tr2('fruit in the shed','buah di bangsal'),go:['r_sales','shed'],id:'shed'});
+    owed();}
+  else{
+    const c=T(()=>ppOn()?ppMonCount(mon):null);
+    if(c&&c.n){const i=T(()=>ppMonList(mon).filter(v=>v.st==='iss').sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0]);
+      out.push({v:c.done+' '+tr2('of','/')+' '+c.n,l:mn+' '+tr2('sets done','set siap')+(c.iss?(' · '+c.iss+' '+tr2('issued','dikeluarkan')+(i&&i.num?(' ('+PP_GRPW[i.grp][LANG==='ms'?1:0]+' '+i.num+(i.sfx||'')+', '+rnShort(i.date)+')'):'')):''),go:['r_farm','prog'],id:'sets'});}
+    /* review 2: the same 7 days as WEATHER ("last 7 days" = today and the 6 before, rainSum); review 10: only days the
+       gauge was kept for are counted as keyed or not */
+    {const ts=todayStr(), from=rnShift(ts,-6), mm=T(()=>rainSum(from))||0; let m=0,k=0;
+     for(let i=6;i>=0;i--){const d=rnShift(ts,-i); if(typeof RAIN_FROM!=='undefined'&&d<RAIN_FROM)continue; m++; if(rainOn(d))k++;}
+     out.push({v:nf(mm)+' mm',l:tr2('rain, last 7 days · ','hujan, 7 hari lepas · ')+k+' '+tr2('of','/')+' '+m+' '+tr2('keyed','dimasukkan'),go:['r_today','weather'],id:'rain'});}
+    /* review 6: the Material line of MONEY (buildMonthMatrix) for this month only - the same costs (outCostOf on the
+       one cached store walk), added lot by lot the same way - without building every month of the season */
+    if(SHOW_SPEND){const mat=T(()=>{const mac=movingAvgCost(), b={A:0,B:0,C:0,'—':0};
+        EVENTS.forEach(e=>{if(!e||e.type!=='STOCK_OUT'||String(e.dt||'').slice(0,7)!==mon)return; const L=LOT_KEYS.indexOf(e.lot)>=0?e.lot:'—'; b[L]=+(b[L]+outCostOf(e,mac)).toFixed(2);});
+        return +LOT_KEYS.concat(['—']).reduce((s,L)=>s+b[L],0).toFixed(2);})||0;
+      out.push({v:'RM '+nf(Math.round(mat)),l:tr2('material, ','bahan, ')+mn,go:['r_money','money'],id:'mat'});}
+    owed();}
+  GL_MEMO={key:key,at:Date.now(),list:out}; return out;}
+/* review 4: each number opens its screen on the same window: today, this month, this month's page */
+function dashGo(i){const g=(GL_MEMO&&GL_MEMO.list||[])[+i]; if(!g)return;
+  const mon=todayISO().slice(0,7);
+  if(g.id==='drop'&&typeof OWN_WIN!=='undefined'){OWN_WIN='d'; if(typeof OWN_BACK!=='undefined')OWN_BACK=0;}
+  if(g.id==='mat'&&typeof MON_KEY!=='undefined')MON_KEY=mon;
+  if(g.id==='sold'&&typeof MKTL!=='undefined')MKTL.tf='day';
+  if(g.id==='owed'&&typeof MKTL!=='undefined'&&MKTL.tf==='day')MKTL.tf='month';
+  if(g.id==='sets'&&typeof PPO!=='undefined'){PPO.pg=null; PPO.year=false; PPO.s='list'; PPO.v='month';}
+  openModule(g.go[0],g.go[1]);}
+function dashGlanceHTML(){
+  if(myRole()!=='OWNER')return '';
+  const L=dashGlance(); if(!L.length)return '';
+  return '<div class="dgl" id="hub-glance">'+L.map((g,i)=>'<button class="dgt" id="dg-'+g.id+'" onclick="dashGo('+i+')"><b>'+esc(g.v)+'</b><span>'+esc(g.l)+'</span></button>').join('')+'</div>';}
 function needGo(i){
   const x=NEED_SHOWN[+i]||needList()[+i]; if(!x)return;   // review 4: the line that was drawn
   if(x.room==='sync'){go('sync');return;}
@@ -32719,10 +32955,10 @@ const NEED_HOME_MAX=6;
 function needHomeHTML(){
   needStyle();
   const L=needList(); NEED_SHOWN=L;
-  if(!L.length)return '<div class="nybox ok" id="hub-need"><b>✓ '+esc(tr2('Nothing needs you right now','Tiada yang perlu anda sekarang'))+'</b></div>';
+  if(!L.length)return '<div class="nybox ok" id="hub-need"><b>✓ '+esc(tr2('Nothing needs you right now','Tiada yang perlu anda sekarang'))+'</b></div>'+dashGlanceHTML();   // v3.107.0 D1a
   const show=L.slice(0,NEED_HOME_MAX);
   return '<div class="nybox" id="hub-need"><h4>⚠ '+esc(tr2('NEEDS YOU','PERLU ANDA'))+' · '+L.length+'</h4>'+show.map((x,i)=>needRowHTML(x,i)).join('')+
-    (L.length>show.length?('<div class="nyl more" onclick="openModule(\'r_today\',\'need\')"><span class="nyt">＋ '+(L.length-show.length)+' '+esc(tr2('more','lagi'))+'</span><span class="nyg">›</span></div>'):'')+'</div>';}
+    (L.length>show.length?('<div class="nyl more" onclick="openModule(\'r_today\',\'need\')"><span class="nyt">＋ '+(L.length-show.length)+' '+esc(tr2('more','lagi'))+'</span><span class="nyg">›</span></div>'):'')+'</div>'+dashGlanceHTML();}
 function renderNeedCard(){
   const box=$('needbox'); if(!box)return;
   needStyle();
@@ -32749,7 +32985,10 @@ function needStyle(){
    +'.nyl.more{color:#555;font-weight:700}'
    +'.mgrp{font-size:11px;font-weight:800;letter-spacing:.08em;color:#888;margin:12px 4px 4px}'
    +'.hubadm{text-align:center;margin:6px 0 4px;font-size:13.5px;color:#555;cursor:pointer;padding:10px}'
-   +'.ownvs{font-size:13px;margin:6px 2px 10px;color:#444}.ownvs small{color:#888}';
+   +'.ownvs{font-size:13px;margin:6px 2px 10px;color:#444}.ownvs small{color:#888}'
+   +'.dgl{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:-4px 0 12px}'
+   +'.dgt{background:#fff;border:1px solid #e1e6df;border-radius:10px;padding:8px 10px;text-align:left;cursor:pointer;font:inherit;color:inherit;min-width:0}'
+   +'.dgt b{display:block;font-size:18px;color:#1f3d25;line-height:1.2}.dgt span{display:block;font-size:11.5px;color:#666;line-height:1.3;margin-top:2px}';   // v3.107.0 D1a
   document.head.appendChild(st);}
 
 /** What needs him, whatever window is showing. Read-only: every one of these already exists
